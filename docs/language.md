@@ -39,6 +39,7 @@ Additional constraints:
 - The function words and sentence-initial words use the exact capitalization shown.
 - Concepts are single lowercase tokens. Multiword noun phrases, plurals, adjectives, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
+- The token "It" is reserved for the pronoun in assertions and cannot be used as a proper name in these subject forms.
 - The pronoun is exactly "It" as an assertion subject and "it" in a yes/no question. Other pronouns and grammatical forms are not supported.
 - Both "a" and "an" are accepted as articles. Article agreement is not checked in this initial grammar.
 - A period terminates an assertion or universal rule; a question mark terminates a yes/no question.

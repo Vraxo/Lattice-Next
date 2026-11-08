@@ -11,7 +11,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
-        @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounAssertionPattern = new(
@@ -19,7 +19,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex QuestionPattern = new(
-        @"^Is\s+(?<individual>[A-Z][a-zA-Z0-9-]*)\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
+        @"^Is\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounQuestionPattern = new(
@@ -48,17 +48,6 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
         }
 
-        var assertionMatch = AssertionPattern.Match(source);
-
-        if (assertionMatch.Success)
-        {
-            var meaning = CreatePredicate(
-                assertionMatch.Groups["concept"].Value,
-                CreateSubjectTerm(assertionMatch.Groups["individual"].Value));
-
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
-        }
-
         var pronounAssertionMatch = PronounAssertionPattern.Match(source);
 
         if (pronounAssertionMatch.Success)
@@ -70,15 +59,15 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
         }
 
-        var questionMatch = QuestionPattern.Match(source);
+        var assertionMatch = AssertionPattern.Match(source);
 
-        if (questionMatch.Success)
+        if (assertionMatch.Success)
         {
             var meaning = CreatePredicate(
-                questionMatch.Groups["concept"].Value,
-                CreateSubjectTerm(questionMatch.Groups["individual"].Value));
+                assertionMatch.Groups["concept"].Value,
+                CreateSubjectTerm(assertionMatch.Groups["individual"].Value));
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
         }
 
         var pronounQuestionMatch = PronounQuestionPattern.Match(source);
@@ -88,6 +77,17 @@ public sealed class LceParser
             var meaning = CreatePredicate(
                 pronounQuestionMatch.Groups["concept"].Value,
                 CreateUnresolvedReference());
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+        }
+
+        var questionMatch = QuestionPattern.Match(source);
+
+        if (questionMatch.Success)
+        {
+            var meaning = CreatePredicate(
+                questionMatch.Groups["concept"].Value,
+                CreateSubjectTerm(questionMatch.Groups["individual"].Value));
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
         }
