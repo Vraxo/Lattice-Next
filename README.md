@@ -16,7 +16,7 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.4**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.5**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
 A single input can contain multiple complete sentences, including relational facts and questions:
 

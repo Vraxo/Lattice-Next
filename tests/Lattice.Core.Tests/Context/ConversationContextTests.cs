@@ -81,6 +81,16 @@ public sealed class ConversationContextTests
         Assert.Equal(2, context.KnownIndividualCount);
     }
 
+
+    [Fact]
+    public void Observes_a_descriptive_noun_phrase_as_one_stable_individual()
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("The red ball is a toy."));
+
+        Assert.Equal(1, context.KnownIndividualCount);
+    }
+
     [Fact]
     public void Does_not_rewrite_explicit_references_and_observes_the_named_individual()
     {

@@ -321,6 +321,20 @@ public sealed class LceParserTests
             Assert.IsType<PredicateApplication>(question.Utterance!.Meaning));
     }
 
+
+    [Fact]
+    public void Parses_descriptive_noun_phrases_in_a_multi_sentence_turn()
+    {
+        var result = parser.ParseText(
+            "The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(3, result.Utterances.Length);
+        Assert.Equal("toy(red-ball)", SemanticFormatter.Format(result.Utterances[0]));
+        Assert.Equal("likes(fido, red-ball)", SemanticFormatter.Format(result.Utterances[1]));
+        Assert.Equal("ask(likes(fido, red-ball))", SemanticFormatter.Format(result.Utterances[2]));
+    }
+
     [Theory]
     [InlineData("Fido likes red ball.")]
     [InlineData("Fido likes the.")]

@@ -2,7 +2,7 @@
 
 ## Decision
 
-The initial parser uses **Lattice Controlled English (LCE) 0.4**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
+The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
 LCE 0.5 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
@@ -25,7 +25,7 @@ An input text contains one or more supported sentences. Each sentence is termina
                          | relation-question ;
 
     universal-rule       = "Every", concept, "is", article, concept, "." ;
-    unary-assertion      = proper-name, "is", article, concept, "." ;
+    unary-assertion      = noun-phrase, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
     relation-assertion   = noun-phrase, third-person-verb, object-term, "." ;
     unary-question       = "Is", noun-phrase, article, concept, "?" ;
@@ -40,7 +40,7 @@ An input text contains one or more supported sentences. Each sentence is termina
     article              = "a" | "an" ;
     concept              = lowercase-word ;
     proper-name          = capitalized-word ;
-    object-term          = proper-name | lowercase-word ;
+    object-term          = proper-name | definite-description | lowercase-word ;
     base-verb            = lowercase-word ;
     third-person-verb    = lowercase-word-ending-in-s ;
 
@@ -50,7 +50,7 @@ An input text contains one or more supported sentences. Each sentence is termina
 Additional constraints:
 
 - The function words and sentence-initial words use the exact capitalization shown.
-- Concepts and verbs are single lowercase tokens. Multiword noun phrases, plurals, adjectives, and domain vocabulary rules are not supported yet.
+- Concepts and verbs are single lowercase tokens. Plurals, adjective semantics, nested noun phrases, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - A definite descriptive noun phrase has the form "the" followed by one or more lowercase descriptive tokens. The final token is the head noun; preceding tokens are modifiers. Examples include "the red ball" and "the old blue car".
 - A definite descriptive noun phrase becomes one canonical individual identifier by joining its tokens with hyphens: "the red ball" becomes red-ball, and "the old blue car" becomes old-blue-car. Repeating the same phrase therefore addresses the same identifier.
@@ -78,6 +78,9 @@ Examples:
 | `It is a mammal.` | One fact with an unresolved reference |
 | `Is Fido an animal?` | One unary yes/no question |
 | `Fido likes milk.` | Binary fact: `likes(fido, milk)` |
+| `Fido likes the red ball.` | Binary fact: `likes(fido, red-ball)` |
+| `The red ball is a toy.` | Unary fact: `toy(red-ball)` |
+| `Does Fido like the red ball?` | Query: `ask(likes(fido, red-ball))` |
 | `Does Fido like milk?` | Query: `ask(likes(fido, milk))` |
 | `Fido has milk. Does Fido have milk?` | A relation fact followed by its matching query |
 | `Every dog is an animal. Fido is a dog. Is Fido an animal?` | A rule, a fact, then a question |
@@ -118,6 +121,8 @@ The relational example `Fido likes milk.` is represented as:
       "likes",
       [IndividualTerm("fido"), IndividualTerm("milk")]
     )
+
+A definite description is represented as one individual identifier. For example, `the red ball` becomes `IndividualTerm("red-ball")`. This keeps repeated explicit descriptions consistent for exact fact lookup, while leaving adjective interpretation and identity resolution for a later semantic layer.
 
 ## Input normalization
 
