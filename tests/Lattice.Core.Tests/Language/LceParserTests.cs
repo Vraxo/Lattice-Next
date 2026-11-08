@@ -281,6 +281,56 @@ public sealed class LceParserTests
         Assert.NotNull(result.Error);
     }
 
+
+    [Theory]
+    [InlineData("Fido likes the red ball.", "likes(fido, red-ball)")]
+    [InlineData("The red ball is a toy.", "toy(red-ball)")]
+    [InlineData("The old blue car is a vehicle.", "vehicle(old-blue-car)")]
+    public void Parses_definite_descriptive_noun_phrases_as_individual_terms(
+        string sentence,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+        Assert.Equal(sentence, utterance.SourceText);
+    }
+
+    [Fact]
+    public void Parses_a_descriptive_noun_phrase_in_a_relational_question()
+    {
+        var result = parser.Parse("Does Fido like the red ball?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal("ask(likes(fido, red-ball))", SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Uses_the_same_canonical_identifier_for_repeated_descriptive_noun_phrases()
+    {
+        var assertion = parser.Parse("Fido likes the red ball.");
+        var question = parser.Parse("Does Fido like the red ball?");
+
+        Assert.True(assertion.IsSuccess, assertion.Error);
+        Assert.True(question.IsSuccess, question.Error);
+        Assert.Equal(
+            Assert.IsType<PredicateApplication>(assertion.Utterance!.Meaning),
+            Assert.IsType<PredicateApplication>(question.Utterance!.Meaning));
+    }
+
+    [Theory]
+    [InlineData("Fido likes red ball.")]
+    [InlineData("Fido likes the.")]
+    [InlineData("Fido likes a red ball.")]
+    [InlineData("Is the red ball a toy.")]
+    public void Does_not_guess_or_rewrite_unsupported_noun_phrase_forms(string sentence)
+    {
+        Assert.False(parser.Parse(sentence).IsSuccess);
+    }
+
     [Fact]
     public void Parse_text_rejects_empty_input()
     {
