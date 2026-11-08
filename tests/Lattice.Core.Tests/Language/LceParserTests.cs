@@ -316,9 +316,13 @@ public sealed class LceParserTests
 
         Assert.True(assertion.IsSuccess, assertion.Error);
         Assert.True(question.IsSuccess, question.Error);
+        var assertionPredicate = Assert.IsType<PredicateApplication>(assertion.Utterance!.Meaning);
+        var questionPredicate = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
+
+        Assert.Equal(assertionPredicate.Predicate, questionPredicate.Predicate);
         Assert.Equal(
-            Assert.IsType<PredicateApplication>(assertion.Utterance!.Meaning),
-            Assert.IsType<PredicateApplication>(question.Utterance!.Meaning));
+            assertionPredicate.Arguments.Select(SemanticFormatter.Format),
+            questionPredicate.Arguments.Select(SemanticFormatter.Format));
     }
 
 
