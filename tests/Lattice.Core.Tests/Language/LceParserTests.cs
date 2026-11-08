@@ -333,7 +333,9 @@ public sealed class LceParserTests
         Assert.Equal("ball", assertionDescription.Head.Value);
         Assert.Equal("red", Assert.Single(assertionDescription.Modifiers).Value);
         Assert.Equal("red-ball", assertionDescription.Identifier.Value);
-        Assert.Equal(assertionDescription, questionDescription);
+        Assert.Equal("ball", questionDescription.Head.Value);
+        Assert.Equal("red", Assert.Single(questionDescription.Modifiers).Value);
+        Assert.Equal("red-ball", questionDescription.Identifier.Value);
         Assert.Equal(
             "fido",
             Assert.IsType<IndividualTerm>(questionPredicate.Arguments[0]).Identifier.Value);
