@@ -170,8 +170,8 @@ public sealed class KnowledgeBase
         };
 
         if (premises.IsDefaultOrEmpty ||
-            (formula is Conjunction conjunction &&
-             premises.Length != conjunction.Conjuncts.Length))
+            (formula is Conjunction compound &&
+             premises.Length != compound.Conjuncts.Length))
         {
             return false;
         }
