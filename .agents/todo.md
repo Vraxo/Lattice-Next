@@ -55,7 +55,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 6. Language and knowledge expansion
 
-- [ ] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
+- [x] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
 - [ ] Evaluate an optional natural-language-to-semantics translator with strict validation.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.

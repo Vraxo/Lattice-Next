@@ -50,6 +50,7 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Combine complete sentences in one input; they are processed in order.[/]");
         AnsiConsole.MarkupLine("[dim]The word 'it' resolves only when exactly one individual is known in this session.[/]");
         AnsiConsole.MarkupLine("[dim]When the reference is missing or ambiguous, Lattice asks you to name the individual.[/]");
+        AnsiConsole.MarkupLine("[dim]Input cleanup handles formatting artifacts only; spelling and grammar are not corrected.[/]");
         AnsiConsole.MarkupLine("[dim]Unknown means no proof was found; it does not mean false.[/]");
         AnsiConsole.MarkupLine("[dim]LCE 0.4 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
