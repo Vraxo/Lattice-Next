@@ -26,7 +26,7 @@ Fido is a dog.
 Is Fido an animal?
 ```
 
-The CLI displays each utterance's language-independent semantic representation. It does not perform inference or maintain conversational knowledge yet.
+The CLI provides a persistent, colored console interaction using Spectre.Console. Each submitted sentence is parsed into its language-independent semantic representation. The interface accepts multiple turns, but it does not yet perform inference or retain conversational knowledge between them. Use `:help`, `:status`, and `:quit` inside the console.
 
 See [the LCE 0.1 grammar and design decision](docs/language.md).
 
