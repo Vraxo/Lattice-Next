@@ -3,7 +3,7 @@ using Lattice.Core.Semantics;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-var parser = new ControlledEnglishParser();
+var parser = new LceParser();
 
 Console.WriteLine("Lattice");
 Console.WriteLine("Symbolic intelligence — controlled-language foundation");
