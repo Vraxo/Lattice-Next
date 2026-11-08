@@ -42,7 +42,9 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
-        AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]descriptive noun phrase[/]");
+        AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]descriptive relation[/]");
+        AnsiConsole.MarkupLine("  [green]The red ball is shiny.[/] [dim]property assertion[/]");
+        AnsiConsole.MarkupLine("  [green]Is the red ball red?[/]    [dim]property question[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like the red ball?[/] [dim]descriptive relation query[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like milk?[/]     [dim]relation question[/]");
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");

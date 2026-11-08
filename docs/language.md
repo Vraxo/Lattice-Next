@@ -4,7 +4,7 @@
 
 The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
-LCE 0.6 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.6 retains unary assertions, universal rules, relational assertions, and multi-sentence turns. It adds structured definite descriptions, which preserve a head noun and ordered modifiers as separate semantic predicates, plus explicit property assertions and questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 

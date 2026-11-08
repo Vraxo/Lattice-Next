@@ -286,7 +286,7 @@ public sealed class LceParserTests
     [InlineData("Fido likes the red ball.", "likes(fido, red-ball)")]
     [InlineData("The red ball is a toy.", "toy(red-ball)")]
     [InlineData("The old blue car is a vehicle.", "vehicle(old-blue-car)")]
-    public void Parses_definite_descriptive_noun_phrases_as_individual_terms(
+    public void Parses_definite_descriptive_noun_phrases_with_stable_identifiers(
         string sentence,
         string expectedMeaning)
     {

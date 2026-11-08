@@ -24,6 +24,7 @@ A single input can contain multiple complete sentences, including relational fac
     Fido is a dog. It is a mammal. Is it a mammal?
     Fido likes milk. Does Fido like milk?
     The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?
+    Every ball is a toy. The red ball is shiny. Is the red ball red? Is the red ball a toy?
 
 The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
