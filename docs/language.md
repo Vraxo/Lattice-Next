@@ -1,10 +1,10 @@
-# Language strategy and LCE 0.3
+# Language strategy and LCE 0.4
 
 ## Decision
 
-The initial parser uses **Lattice Controlled English (LCE) 0.3**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
+The initial parser uses **Lattice Controlled English (LCE) 0.4**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
-LCE 0.3 retains the individual sentence forms introduced in 0.1 and 0.2 and adds support for multiple complete sentences in one input. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.4 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 
@@ -14,24 +14,30 @@ The official Attempto Parsing Engine (APE) converts ACE text into a Discourse Re
 
 Using APE could be a valid later option if Lattice needs broad ACE coverage. For the first language slice, however, an external parser/runtime would add deployment and integration complexity before Lattice has established its own semantic contract. We therefore start with a small native parser and keep the language layer replaceable.
 
-## LCE 0.3 grammar
+## LCE 0.4 grammar
 
 An input text contains one or more supported sentences. Each sentence is terminated by its required punctuation and is processed in source order.
 
     text                 = sentence, { whitespace, sentence } ;
 
-    sentence             = universal-rule | assertion | pronoun-assertion
-                         | yes-no-question | pronoun-question ;
+    sentence             = universal-rule | unary-assertion | pronoun-assertion
+                         | relation-assertion | unary-question | pronoun-question
+                         | relation-question ;
 
     universal-rule       = "Every", concept, "is", article, concept, "." ;
-    assertion            = proper-name, "is", article, concept, "." ;
+    unary-assertion      = proper-name, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
-    yes-no-question      = "Is", proper-name, article, concept, "?" ;
+    relation-assertion   = proper-name, third-person-verb, object-term, "." ;
+    unary-question       = "Is", proper-name, article, concept, "?" ;
     pronoun-question     = "Is", "it", article, concept, "?" ;
+    relation-question    = "Does", proper-name, base-verb, object-term, "?" ;
 
     article              = "a" | "an" ;
     concept              = lowercase-word ;
     proper-name          = capitalized-word ;
+    object-term          = proper-name | lowercase-word ;
+    base-verb            = lowercase-word ;
+    third-person-verb    = lowercase-word-ending-in-s ;
 
     lowercase-word       = letter-lower, { letter-lower | digit | "-" } ;
     capitalized-word     = letter-upper, { letter | digit | "-" } ;
@@ -39,11 +45,16 @@ An input text contains one or more supported sentences. Each sentence is termina
 Additional constraints:
 
 - The function words and sentence-initial words use the exact capitalization shown.
-- Concepts are single lowercase tokens. Multiword noun phrases, plurals, adjectives, and domain vocabulary rules are not supported yet.
+- Concepts and verbs are single lowercase tokens. Multiword noun phrases, plurals, adjectives, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
-- The token "It" is reserved for the pronoun in assertions and cannot be used as a proper name in these subject forms.
-- The pronoun is exactly "It" as an assertion subject and "it" in a yes/no question. Other pronouns and grammatical forms are not supported.
-- Both "a" and "an" are accepted as articles. Article agreement is not checked in this initial grammar.
+- An object term is a single lowercase token or a capitalized name. It is represented as an individual identifier, not as a class or a quantified noun phrase.
+- Relational assertions use a third-person singular verb form ending in \`s\`, such as \`likes\`, \`watches\`, or \`carries\`. The copula \`is\` is reserved for unary assertions and is not a relation predicate.
+- Relational questions use \`Does\`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + \`y\` becomes \`ies\`; endings \`s\`, \`x\`, \`z\`, \`ch\`, \`sh\`, and \`o\` take \`es\`; other verbs take \`s\`.
+- The supported irregular base forms \`have\`, \`do\`, and \`go\` map to \`has\`, \`does\`, and \`goes\`. Other irregular forms are not normalized by this grammar.
+- The relation predicate is represented using its third-person singular form. Thus, \`Fido likes milk.\` and \`Does Fido like milk?\` both produce \`likes(fido, milk)\`.
+- The verb \`be\` is not supported in the \`Does ...\` relation-question form.
+- The token \`It\` is reserved for the pronoun in unary assertions and cannot be used as a proper name in those subject forms. The pronoun is exactly \`It\` as an assertion subject and \`it\` in a unary yes/no question. Relational forms do not yet support pronoun arguments.
+- Both \`a\` and \`an\` are accepted as articles. Article agreement is not checked in this initial grammar.
 - A period terminates an assertion or universal rule; a question mark terminates a yes/no question.
 - Sentences may be separated by spaces, tabs, or other whitespace. Each sentence must have its own terminator.
 - A text is parsed completely before any of its sentences are processed. If any sentence is unsupported or incomplete, the entire text is rejected and the session state is left unchanged.
@@ -54,33 +65,36 @@ Examples:
 
 | Input | Result |
 |---|---|
-| `Every dog is an animal.` | One universal rule |
-| `Fido is a dog.` | One individual fact |
-| `It is a mammal.` | One fact with an unresolved reference |
-| `Is Fido an animal?` | One yes/no question |
-| `Every dog is an animal. Fido is a dog. Is Fido an animal?` | A rule, a fact, then a question |
-| `Fido is a dog. It is a mammal. Is it a mammal?` | A fact, a context-resolved fact, then a question |
+| \`Every dog is an animal.\` | One universal rule |
+| \`Fido is a dog.\` | One unary fact |
+| \`It is a mammal.\` | One fact with an unresolved reference |
+| \`Is Fido an animal?\` | One unary yes/no question |
+| \`Fido likes milk.\` | Binary fact: \`likes(fido, milk)\` |
+| \`Does Fido like milk?\` | Query: \`ask(likes(fido, milk))\` |
+| \`Fido has milk. Does Fido have milk?\` | A relation fact followed by its matching query |
+| \`Every dog is an animal. Fido is a dog. Is Fido an animal?\` | A rule, a fact, then a question |
+| \`Fido is a dog. It is a mammal. Is it a mammal?\` | A fact, a context-resolved fact, then a question |
 
 Inputs outside this grammar are rejected with an explicit sentence number where possible. The parser does not guess, silently repair wording, or translate arbitrary English. The parser deliberately does not resolve "it"; reference resolution requires conversation context and happens after the complete text has been parsed.
 
 ## Parsing API and semantic representation
 
-- `Parse` parses exactly one sentence and retains its single-utterance result contract.
-- `ParseText` parses one or more sentences and returns an ordered collection of semantic utterances.
-- `TextParseResult` is all-or-nothing: on failure it contains no partial utterance collection.
-- Each `SemanticUtterance.SourceText` contains that sentence's original trimmed text, not the whole input turn.
+- \`Parse\` parses exactly one sentence and retains its single-utterance result contract.
+- \`ParseText\` parses one or more sentences and returns an ordered collection of semantic utterances.
+- \`TextParseResult\` is all-or-nothing: on failure it contains no partial utterance collection.
+- Each \`SemanticUtterance.SourceText\` contains that sentence's original trimmed text, not the whole input turn.
 
 The parser does not return grammar-specific syntax nodes. It produces a small language-independent semantic expression model:
 
 - **SemanticIdentifier:** a normalized symbolic identifier.
 - **IndividualTerm** and **VariableTerm:** the two established term kinds.
 - **UnresolvedReferenceTerm:** a reference that needs conversational context before it can be grounded to an individual.
-- **PredicateApplication:** a predicate applied to an immutable ordered list of terms. This supports unary predicates now and provides a representation for n-ary relations.
+- **PredicateApplication:** a predicate applied to an immutable ordered list of terms. Unary predicates and n-ary relations use the same representation.
 - **Implication:** a formula whose conclusion follows when its premise holds.
 - **UniversalQuantification:** binds a variable over a formula.
 - **SemanticUtterance:** preserves whether the input was an assertion or a question, the meaning, and the original source text. A resolved utterance also retains the grounded referent separately from the original wording.
 
-For example, Every dog is an animal is represented as:
+For example, \`Every dog is an animal.\` is represented as:
 
     UniversalQuantification(
       VariableTerm("x"),
@@ -90,7 +104,12 @@ For example, Every dog is an animal is represented as:
       )
     )
 
-The current grammar only creates unary predicate applications. The semantic model can represent an n-ary relation such as likes(fido, milk), but LCE 0.3 does not yet parse relational sentences.
+The relational example \`Fido likes milk.\` is represented as:
+
+    PredicateApplication(
+      "likes",
+      [IndividualTerm("fido"), IndividualTerm("milk")]
+    )
 
 ## Design constraints
 

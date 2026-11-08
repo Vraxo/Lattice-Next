@@ -18,12 +18,20 @@ public sealed class LceParser
         @"^It\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex RelationAssertionPattern = new(
+        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex QuestionPattern = new(
         @"^Is\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounQuestionPattern = new(
         @"^Is\s+it\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex RelationQuestionPattern = new(
+        @"^Does\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)
@@ -70,6 +78,18 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
         }
 
+        var relationAssertionMatch = RelationAssertionPattern.Match(source);
+
+        if (relationAssertionMatch.Success)
+        {
+            var meaning = CreateRelationPredicate(
+                relationAssertionMatch.Groups["predicate"].Value,
+                relationAssertionMatch.Groups["individual"].Value,
+                relationAssertionMatch.Groups["object"].Value);
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
+        }
+
         var pronounQuestionMatch = PronounQuestionPattern.Match(source);
 
         if (pronounQuestionMatch.Success)
@@ -92,8 +112,20 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
         }
 
+        var relationQuestionMatch = RelationQuestionPattern.Match(source);
+
+        if (relationQuestionMatch.Success)
+        {
+            var meaning = CreateRelationPredicate(
+                InflectThirdPersonSingular(relationQuestionMatch.Groups["predicate"].Value),
+                relationQuestionMatch.Groups["individual"].Value,
+                relationQuestionMatch.Groups["object"].Value);
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+        }
+
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.3. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.4. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
@@ -158,6 +190,49 @@ public sealed class LceParser
         new(
             CreateIdentifier(predicate),
             ImmutableArray.Create(argument));
+
+    private static PredicateApplication CreateRelationPredicate(
+        string predicate,
+        string individual,
+        string objectValue) =>
+        new(
+            CreateIdentifier(predicate),
+            ImmutableArray.Create<SemanticTerm>(
+                CreateSubjectTerm(individual),
+                CreateSubjectTerm(objectValue)));
+
+    private static string InflectThirdPersonSingular(string verb)
+    {
+        if (verb is "have" or "do" or "go")
+        {
+            return verb switch
+            {
+                "have" => "has",
+                "do" => "does",
+                "go" => "goes",
+                _ => verb
+            };
+        }
+
+        if (verb.Length > 1 &&
+            verb[^1] == 'y' &&
+            verb[^2] is not ('a' or 'e' or 'i' or 'o' or 'u'))
+        {
+            return $"{verb[..^1]}ies";
+        }
+
+        if (verb.EndsWith("s", StringComparison.Ordinal) ||
+            verb.EndsWith("x", StringComparison.Ordinal) ||
+            verb.EndsWith("z", StringComparison.Ordinal) ||
+            verb.EndsWith("ch", StringComparison.Ordinal) ||
+            verb.EndsWith("sh", StringComparison.Ordinal) ||
+            verb.EndsWith("o", StringComparison.Ordinal))
+        {
+            return $"{verb}es";
+        }
+
+        return $"{verb}s";
+    }
 
     private static SemanticTerm CreateSubjectTerm(string value) =>
         new IndividualTerm(CreateIdentifier(value));

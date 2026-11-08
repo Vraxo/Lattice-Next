@@ -16,7 +16,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Add tests for parsing and constructing terms, predicates/relations, statements, and questions.
 - [x] Keep language syntax separate from semantic data structures.
 - [x] Parse multiple complete sentences in one input atomically, preserving source order.
-- [ ] Extend the language deliberately: noun phrase resolution and relational sentence parsing.
+- [x] Parse binary relational assertions and direct yes/no relational questions.
+- [ ] Extend noun phrases, quantified relation arguments, and relational pronoun forms deliberately.
 
 ## 2. First symbolic reasoning slice
 
@@ -25,6 +26,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Distinguish a supported conclusion from unknown information.
 - [x] Explain a conclusion using the premises and rules that support it.
 - [x] Demonstrate the slice through the CLI with deterministic tests.
+- [x] Store ground relational facts and perform exact direct lookup with provenance.
+- [ ] Add relation joins, traversal, and relational rule inference only after concrete use cases and tests exist.
 
 ## 3. Conversation and context
 
@@ -33,6 +36,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Ask for clarification when the referent is missing or ambiguous.
 - [x] Preserve the original utterance and record the grounded referent separately.
 - [x] Process multiple sentences in one turn in source order using the context and reasoning layers.
+- [x] Observe every concrete individual argument in a relational assertion or question.
 - [ ] Support richer antecedent selection, recency/salience, and additional pronouns.
 - [ ] Keep user assertions, derived conclusions, and observations distinguishable.
 
@@ -51,6 +55,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 6. Language and knowledge expansion
 
+- [ ] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
 - [ ] Evaluate an optional natural-language-to-semantics translator with strict validation.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.

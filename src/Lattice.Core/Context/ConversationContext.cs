@@ -13,14 +13,15 @@ public sealed class ConversationContext
         ArgumentNullException.ThrowIfNull(utterance);
 
         if (utterance.Meaning is not PredicateApplication predicate ||
-            predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not IndividualTerm individual)
+            predicate.Arguments.IsDefault)
         {
             return;
         }
 
-        individuals.Add(individual.Identifier);
+        foreach (var individual in predicate.Arguments.OfType<IndividualTerm>())
+        {
+            individuals.Add(individual.Identifier);
+        }
     }
 
     public ReferenceResolutionResult Resolve(SemanticUtterance utterance)

@@ -48,6 +48,55 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_a_relational_assertion_and_its_question_form()
+    {
+        var assertion = parser.Parse("Fido likes milk.");
+
+        Assert.True(assertion.IsSuccess, assertion.Error);
+        var fact = Assert.IsType<SemanticUtterance>(assertion.Utterance);
+        Assert.Equal(UtteranceKind.Assertion, fact.Kind);
+        Assert.Equal("likes(fido, milk)", SemanticFormatter.Format(fact));
+
+        var question = parser.Parse("Does Fido like milk?");
+
+        Assert.True(question.IsSuccess, question.Error);
+        var query = Assert.IsType<SemanticUtterance>(question.Utterance);
+        Assert.Equal(UtteranceKind.Question, query.Kind);
+        Assert.Equal("ask(likes(fido, milk))", SemanticFormatter.Format(query));
+    }
+
+    [Theory]
+    [InlineData("watch", "watches", "Rex")]
+    [InlineData("carry", "carries", "Rex")]
+    [InlineData("have", "has", "milk")]
+    [InlineData("do", "does", "tricks")]
+    [InlineData("go", "goes", "school")]
+    public void Normalizes_regular_and_supported_irregular_relation_verbs(
+        string baseVerb,
+        string predicate,
+        string objectValue)
+    {
+        var result = parser.Parse($"Does Fido {baseVerb} {objectValue}?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(
+            $"ask({predicate}(fido, {objectValue.ToLowerInvariant()}))",
+            SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Parses_relational_sentences_inside_a_multi_sentence_text()
+    {
+        var result = parser.ParseText("Fido likes milk. Does Fido like milk?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(2, result.Utterances.Length);
+        Assert.Equal(UtteranceKind.Assertion, result.Utterances[0].Kind);
+        Assert.Equal(UtteranceKind.Question, result.Utterances[1].Kind);
+    }
+
+    [Fact]
     public void Parses_a_pronoun_assertion_as_an_unresolved_reference()
     {
         var result = parser.Parse("It is a mammal.");
@@ -186,6 +235,8 @@ public sealed class LceParserTests
     [InlineData("every dog is an animal.")]
     [InlineData("it is a mammal.")]
     [InlineData("Is It a mammal?")]
+    [InlineData("Fido is Rex.")]
+    [InlineData("Does Fido be happy?")]
     public void Rejects_empty_unsupported_or_multi_sentence_input(string input)
     {
         var result = parser.Parse(input);
