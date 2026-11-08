@@ -6,15 +6,16 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Create a separate clean-slate repository; preserve the legacy repository unchanged.
 - [x] Record the product direction and architectural constraints.
-- [ ] Establish the .NET 10 Core + CLI scaffold and CI build.
-- [ ] Verify the initial scaffold with a Release build.
+- [x] Establish the .NET 10 Core + CLI scaffold and CI build.
+- [x] Verify the initial scaffold with a Release build.
 
 ## 1. Semantic foundation
 
-- [ ] Compare ACE/APE, DRS, and a small Lattice-defined controlled-language subset against concrete examples.
-- [ ] Choose the smallest canonical semantic representation needed for the first reasoning slice.
-- [ ] Add tests for parsing/constructing basic entities, relations, statements, and questions.
-- [ ] Keep language syntax separate from semantic data structures.
+- [x] Compare ACE/APE, DRS, and a small Lattice-defined controlled-language subset against concrete examples.
+- [x] Choose the smallest canonical semantic representation needed for the first reasoning slice.
+- [x] Add tests for parsing and constructing terms, predicates/relations, statements, and questions.
+- [x] Keep language syntax separate from semantic data structures.
+- [ ] Extend the language deliberately: multi-sentence texts, noun phrase resolution, and relational sentence parsing.
 
 ## 2. First symbolic reasoning slice
 

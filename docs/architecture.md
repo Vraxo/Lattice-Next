@@ -10,15 +10,15 @@ The architecture must preserve a strict distinction between **intelligence**, **
 
 ### Language
 
-Turns user-facing language into structured meaning and renders conclusions back into language. ACE or an explicitly named ACE-inspired controlled language is an initial candidate, not an assumption that all English is already understood.
+Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.1 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
 
 Language is an interface to meaning. It must not own reasoning or tool execution.
 
 ### Semantics
 
-Provides the canonical, language-independent representation of meaning. The same semantic representation should be usable whether input came from ACE, a future natural-language interpreter, a knowledge pack, a user clarification, or a tool observation.
+Provides the canonical, language-independent representation of meaning. The same semantic representation should be usable whether input came from LCE, a future natural-language interpreter, a knowledge pack, a user clarification, or a tool observation.
 
-The exact representation is intentionally not frozen by this scaffold. It must be selected through a small, testable design step rather than an extensive speculative ontology.
+The initial model represents terms, predicate applications, implications, universal quantification, and assertion/question intent. It is intentionally small and will expand only when a concrete reasoning slice requires more expressive power.
 
 ### Intelligence
 
@@ -62,9 +62,9 @@ Core must not depend on the CLI. Tool implementations are called through Core co
 
 ## Language strategy
 
-ACE is a candidate controlled-language front end because it provides constrained, explicit constructions that can be mapped to formal meaning. Before implementation, compare using the actual ACE grammar/parser with defining a smaller Lattice-controlled subset. Never label a derivative as full ACE.
+LCE 0.1 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
 
-The user should not be permanently required to write controlled language. A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
+A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
 
 ## Evidence and uncertainty
 
