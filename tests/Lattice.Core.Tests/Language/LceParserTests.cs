@@ -320,9 +320,11 @@ public sealed class LceParserTests
         var questionPredicate = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
 
         Assert.Equal(assertionPredicate.Predicate, questionPredicate.Predicate);
-        Assert.Equal(
-            assertionPredicate.Arguments.Select(SemanticFormatter.Format),
-            questionPredicate.Arguments.Select(SemanticFormatter.Format));
+        Assert.Equal(assertionPredicate.Arguments.Length, questionPredicate.Arguments.Length);
+        for (var index = 0; index < assertionPredicate.Arguments.Length; index++)
+        {
+            Assert.Equal(assertionPredicate.Arguments[index], questionPredicate.Arguments[index]);
+        }
     }
 
 
