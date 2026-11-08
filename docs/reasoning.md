@@ -7,7 +7,7 @@ The first reasoning implementation provides deterministic, positive reasoning ov
 The current engine accepts two kinds of asserted input:
 
 - **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
-- **Universal rule:** one universally quantified implication with one unary premise and one unary conclusion, such as `forall(x, implies(dog(x), animal(x)))`.
+- **Universal rule:** one universally quantified implication with one or more unary premises and one unary conclusion. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`.
 
 A fact is ground only when its predicate identifier is non-empty and every argument is a concrete individual or a valid descriptive individual term. Descriptive terms are normalized to `IndividualTerm` values before storage. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
@@ -18,15 +18,16 @@ For any ground predicate, the engine first checks for an exact stored fact. Matc
 After exact lookup, the existing forward-chaining path applies to unary predicates:
 
 1. Start with the unary facts stored in the current KnowledgeBase.
-2. Find facts whose predicate matches a rule's premise.
-3. Apply that rule to the same individual and add its conclusion.
-4. Repeat until a full pass derives nothing new.
+2. For each rule, find candidate individuals that satisfy its first premise.
+3. Check that every remaining premise is also established for that same individual.
+4. Apply the rule only when all premises are supported, then add its conclusion.
+5. Repeat until a full pass derives nothing new.
 
 Known unary facts are deduplicated by predicate and individual. This lets rules be chained even when they were added in an order that requires more than one pass, while preventing cyclic rules from causing an endless loop. Ground relational facts are deduplicated by predicate and their ordered argument list.
 
 Relational facts are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, while the semantic and knowledge representations can retain more than two grounded arguments.
 
-The engine preserves the source sentence behind every asserted fact and rule. A ProofNode records the conclusion, the sentence that supplied or derived it, and (for an inference) the proof of its premise. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
+The engine preserves the source sentence behind every asserted fact and rule. A ProofNode records the conclusion, the sentence that supplied or derived it, and every supporting premise proof. A rule is never applied by matching its conditions against different individuals. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
 
 ## Descriptive facts
 
@@ -38,7 +39,15 @@ For example:
     The red ball is shiny.
     Is the red ball a toy?
 
-The head noun fact `ball(red-ball)` supports the rule, which derives `toy(red-ball)`. The modifier is independently queryable with `Is the red ball red?`. Both facts retain the original sentence as their provenance.
+The head noun fact `ball(red-ball)` and modifier fact `red(red-ball)` jointly support the rule, which derives `toy(red-ball)`. The modifier is independently queryable with `Is the red ball red?`. Each supporting fact retains the original sentence as its provenance.
+
+A conjunctive rule can be stated directly:
+
+    Every red ball is a toy.
+    The red ball is shiny.
+    Is the red ball a toy?
+
+The rule is represented as `and(red(x), ball(x)) => toy(x)`. It fires only when both predicates are established for the same individual. A blue ball does not satisfy the rule, and a red cube does not satisfy it either.
 
 ## Answer semantics
 
@@ -52,7 +61,7 @@ Unknown is not false. This implementation uses positive facts only; it has no ne
 This is a first reasoning slice, not a general theorem prover. It does not currently support:
 
 - relational rule inference, joins, or relation traversal;
-- rules with multiple premises, multiple conclusions, or nested formulas;
+- rules with multiple conclusions, disjunction, or nested formulas beyond a flat conjunction of unary predicates;
 - negation, disjunction, existential quantification, or equality;
 - persistent storage or loading declarative knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
