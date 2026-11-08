@@ -62,7 +62,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational rule inference, joins, or relation traversal;
 - rules with multiple conclusions, disjunction, or nested formulas beyond a flat conjunction of unary predicates;
-- negation, disjunction, existential quantification, or equality;
+- negation, existential quantification, or equality;
 - persistent storage or loading declarative knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 
