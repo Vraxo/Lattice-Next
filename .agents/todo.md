@@ -15,7 +15,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Choose the smallest canonical semantic representation needed for the first reasoning slice.
 - [x] Add tests for parsing and constructing terms, predicates/relations, statements, and questions.
 - [x] Keep language syntax separate from semantic data structures.
-- [ ] Extend the language deliberately: multi-sentence texts, noun phrase resolution, and relational sentence parsing.
+- [x] Parse multiple complete sentences in one input atomically, preserving source order.
+- [ ] Extend the language deliberately: noun phrase resolution and relational sentence parsing.
 
 ## 2. First symbolic reasoning slice
 
@@ -31,6 +32,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Resolve the supported singular "it" reference when exactly one individual is known.
 - [x] Ask for clarification when the referent is missing or ambiguous.
 - [x] Preserve the original utterance and record the grounded referent separately.
+- [x] Process multiple sentences in one turn in source order using the context and reasoning layers.
 - [ ] Support richer antecedent selection, recency/salience, and additional pronouns.
 - [ ] Keep user assertions, derived conclusions, and observations distinguishable.
 

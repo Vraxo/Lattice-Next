@@ -93,7 +93,65 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.2. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.3. Use :help to see the supported forms.");
+    }
+
+    public TextParseResult ParseText(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return TextParseResult.Failure("Input is empty.");
+        }
+
+        var source = input.Trim();
+        var utterances = ImmutableArray.CreateBuilder<SemanticUtterance>();
+        var sentenceStart = 0;
+
+        for (var index = 0; index < source.Length; index++)
+        {
+            if (source[index] is not ('.' or '?'))
+            {
+                continue;
+            }
+
+            var sentence = source[sentenceStart..(index + 1)].Trim();
+            var result = Parse(sentence);
+
+            if (!result.IsSuccess || result.Utterance is null)
+            {
+                return TextParseResult.Failure(
+                    $"Sentence {utterances.Count + 1}: {result.Error ?? "The sentence could not be parsed."}");
+            }
+
+            utterances.Add(result.Utterance);
+            sentenceStart = index + 1;
+
+            if (sentenceStart < source.Length &&
+                !char.IsWhiteSpace(source[sentenceStart]))
+            {
+                return TextParseResult.Failure(
+                    $"Sentence {utterances.Count} must be separated from the next sentence by whitespace.");
+            }
+
+            while (sentenceStart < source.Length &&
+                   char.IsWhiteSpace(source[sentenceStart]))
+            {
+                sentenceStart++;
+            }
+        }
+
+        if (sentenceStart < source.Length)
+        {
+            return TextParseResult.Failure(
+                $"Sentence {utterances.Count + 1} is incomplete. Every sentence must end with a period or question mark.");
+        }
+
+        if (utterances.Count == 0)
+        {
+            return TextParseResult.Failure("Input does not contain a complete sentence.");
+        }
+
+        return TextParseResult.Success(utterances.ToImmutable());
     }
 
     private static PredicateApplication CreatePredicate(string predicate, SemanticTerm argument) =>
