@@ -32,7 +32,7 @@ See [the LCE 0.1 grammar and design decision](docs/language.md).
 
 ## Run
 
-Requires the .NET 10 SDK.
+Requires the .NET 10 SDK. Build outputs are centralized under the repository's `artifacts/` directory instead of being scattered into project-level `bin/` and `obj/` directories.
 
 ```powershell
 dotnet run --project src/Lattice.Cli
