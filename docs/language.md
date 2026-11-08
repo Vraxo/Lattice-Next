@@ -1,10 +1,10 @@
-# Language strategy and LCE 0.6
+# Language strategy and LCE 0.7
 
 ## Decision
 
 The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
-LCE 0.6 retains unary assertions, universal rules, relational assertions, and multi-sentence turns. It adds structured definite descriptions, which preserve a head noun and ordered modifiers as separate semantic predicates, plus explicit property assertions and questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.7 retains unary assertions, universal rules, relational assertions, and multi-sentence turns. It adds structured definite descriptions, which preserve a head noun and ordered modifiers as separate semantic predicates, plus explicit property assertions and questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 
@@ -24,7 +24,8 @@ An input text contains one or more supported sentences. Each sentence is termina
                          | property-assertion | relation-assertion | unary-question
                          | pronoun-question | property-question | relation-question ;
 
-    universal-rule       = "Every", concept, "is", article, concept, "." ;
+    universal-rule       = "Every", class-description, "is", article, concept, "." ;
+    class-description    = { adjective, whitespace }, concept ;
     unary-assertion      = noun-phrase, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
     property-assertion   = definite-description, "is", adjective, "." ;
@@ -55,6 +56,7 @@ Additional constraints:
 - Concepts, adjectives, and verbs are single lowercase tokens. Plurals, adjective ordering rules, nested noun phrases, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - A definite descriptive noun phrase has the form "the" followed by one or more lowercase descriptive tokens. The final token is the head noun; preceding tokens are modifiers. Examples include "the red ball" and "the old blue car".
+- A universal class description uses the same trailing-head convention without the article "the". In "Every red ball is a toy.", the head noun is "ball" and the modifier is "red". Multiple modifiers are supported, as in "Every old blue car is a vehicle."
 - A definite descriptive noun phrase becomes a structured semantic term containing its head noun and ordered modifiers. For example, "the old blue car" has head noun car and modifiers old, blue.
 - The term also exposes a stable canonical individual identifier by joining modifiers and head noun with hyphens: "the red ball" becomes red-ball. Repeating the same phrase therefore addresses the same identifier.
 - When a grounded assertion contains a descriptive term, the knowledge base stores the sentence's main predicate and adds one unary fact for the head noun and one for each modifier. Thus "The red ball is a toy." contributes toy(red-ball), ball(red-ball), and red(red-ball).
@@ -77,7 +79,9 @@ Examples:
 
 | Input | Result |
 |---|---|
-| `Every dog is an animal.` | One universal rule |
+| `Every dog is an animal.` | One universal rule with one unary premise |
+| `Every red ball is a toy.` | `forall(x, implies(and(red(x), ball(x)), toy(x)))`; both unary premises are required |
+| `Every old blue car is a vehicle.` | `forall(x, implies(and(old(x), blue(x), car(x)), vehicle(x)))` |
 | `Fido is a dog.` | One unary fact |
 | `It is a mammal.` | One fact with an unresolved reference |
 | `Is Fido an animal?` | One unary yes/no question |
@@ -107,6 +111,7 @@ The parser does not return grammar-specific syntax nodes. It produces a small la
 - **IndividualTerm** and **VariableTerm:** the two established term kinds.
 - **UnresolvedReferenceTerm:** a reference that needs conversational context before it can be grounded to an individual.
 - **PredicateApplication:** a predicate applied to an immutable ordered list of terms. Unary predicates and n-ary relations use the same representation.
+- **Conjunction:** a formula whose conjuncts must all hold.
 - **Implication:** a formula whose conclusion follows when its premise holds.
 - **UniversalQuantification:** binds a variable over a formula.
 - **SemanticUtterance:** preserves whether the input was an assertion or a question, the meaning, and the original source text. A resolved utterance also retains the grounded referent separately from the original wording.
