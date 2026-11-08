@@ -12,6 +12,23 @@ public sealed class ReasoningEngine
         ArgumentNullException.ThrowIfNull(knowledgeBase);
         ArgumentNullException.ThrowIfNull(query);
 
+        if (!IsGroundPredicate(query))
+        {
+            return new ReasoningResult(null);
+        }
+
+        var directFact = knowledgeBase.Facts.FirstOrDefault(fact =>
+            IsSameGroundPredicate(fact.Predicate, query));
+
+        if (directFact is not null)
+        {
+            return new ReasoningResult(new ProofNode(
+                directFact.Predicate,
+                directFact.SourceText,
+                null,
+                directFact.ResolvedReferent));
+        }
+
         if (!TryGetFactKey(query, out var queryKey))
         {
             return new ReasoningResult(null);
@@ -80,6 +97,27 @@ public sealed class ReasoningEngine
 
         return new ReasoningResult(proof);
     }
+
+    private static bool IsGroundPredicate(PredicateApplication predicate)
+    {
+        if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
+            predicate.Arguments.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        return predicate.Arguments.All(argument =>
+            argument is IndividualTerm individual &&
+            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
+    }
+
+    private static bool IsSameGroundPredicate(
+        PredicateApplication left,
+        PredicateApplication right) =>
+        left.Predicate == right.Predicate &&
+        !left.Arguments.IsDefault &&
+        !right.Arguments.IsDefault &&
+        left.Arguments.SequenceEqual(right.Arguments);
 
     private static bool TryGetFactKey(
         PredicateApplication predicate,

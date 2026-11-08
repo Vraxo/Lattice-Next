@@ -73,6 +73,15 @@ public sealed class ConversationContextTests
     }
 
     [Fact]
+    public void Observes_each_named_argument_in_a_relational_utterance()
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("Fido likes milk."));
+
+        Assert.Equal(2, context.KnownIndividualCount);
+    }
+
+    [Fact]
     public void Does_not_rewrite_explicit_references_and_observes_the_named_individual()
     {
         var context = new ConversationContext();

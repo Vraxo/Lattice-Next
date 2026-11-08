@@ -88,6 +88,49 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
+    public void Answers_an_exact_relational_query_without_deriving_other_relations()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido likes milk.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like milk?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal("Fido likes milk.", result.Proof!.SourceText);
+        Assert.Equal("likes", result.Proof.Predicate.Predicate.Value);
+        Assert.Equal(2, result.Proof.Predicate.Arguments.Length);
+        Assert.Null(result.Proof.Premise);
+
+        var differentObject = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like water?"));
+
+        Assert.False(differentObject.IsSupported);
+        Assert.Null(differentObject.Proof);
+
+        var differentSubject = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Rex like milk?"));
+
+        Assert.False(differentSubject.IsSupported);
+        Assert.Null(differentSubject.Proof);
+    }
+
+    [Fact]
+    public void Deduplicates_identical_ground_relational_facts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.Equal(KnowledgeEntryKind.Fact, Add(knowledgeBase, "Fido likes milk."));
+        Assert.Equal(KnowledgeEntryKind.Fact, Add(knowledgeBase, "Fido likes milk."));
+
+        var fact = Assert.Single(knowledgeBase.Facts);
+        Assert.Equal("Fido likes milk.", fact.SourceText);
+    }
+
+    [Fact]
     public void Returns_unknown_for_an_empty_knowledge_base()
     {
         var result = engine.Ask(
@@ -98,7 +141,7 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
-    public void Does_not_accept_questions_or_binary_facts_as_knowledge()
+    public void Does_not_accept_questions_or_relations_with_unresolved_arguments_as_facts()
     {
         var knowledgeBase = new KnowledgeBase();
 
@@ -114,11 +157,11 @@ public sealed class ReasoningEngineTests
             new SemanticIdentifier("likes"),
             ImmutableArray.Create<SemanticTerm>(
                 new IndividualTerm(new SemanticIdentifier("fido")),
-                new IndividualTerm(new SemanticIdentifier("milk"))));
+                new UnresolvedReferenceTerm(new SemanticIdentifier("it"))));
         var relationUtterance = new SemanticUtterance(
             UtteranceKind.Assertion,
             relation,
-            "Fido likes milk.");
+            "Fido likes it.");
 
         var relationAccepted = knowledgeBase.TryAdd(
             relationUtterance,

@@ -16,18 +16,23 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.3**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.4**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
-A single input can now contain multiple complete sentences, for example:
+A single input can contain multiple complete sentences, including relational facts and questions:
 
     Every dog is an animal. Fido is a dog. Is Fido an animal?
     Fido is a dog. It is a mammal. Is it a mammal?
+    Fido likes milk. Does Fido like milk?
 
 The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
-The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. It does not guess based on recency.
+Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
 
-The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs forward chaining over unary facts and single-premise universal rules, answers supported questions with Yes, and returns Unknown when it cannot derive an answer. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
+The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
+
+The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. Relation statements and questions introduce each of their concrete individual arguments into session context, so a turn that names both Fido and milk makes "it" ambiguous until the user clarifies.
+
+The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs unary forward chaining, answers exact relational lookups, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
 
 This is intentionally not a general theorem prover or a general co-reference resolver. Unknown does not mean false, and session knowledge and context are discarded when the CLI exits. See [the LCE grammar](docs/language.md), [conversational context](docs/context.md), and [the first reasoning slice](docs/reasoning.md).
 
@@ -53,6 +58,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser, a language-independent semantic representation, a conservative session-context layer, and a first in-memory symbolic reasoning engine. Persistent conversation context, knowledge-pack loading, and tool execution are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser, a language-independent semantic representation, a conservative session-context layer, and an in-memory symbolic reasoning engine with unary inference and exact relational lookup. Persistent conversation context, knowledge-pack loading, relational inference, and tool execution are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.

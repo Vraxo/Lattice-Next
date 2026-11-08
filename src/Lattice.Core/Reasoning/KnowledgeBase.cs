@@ -35,7 +35,7 @@ public sealed class KnowledgeBase
         }
 
         if (utterance.Meaning is PredicateApplication predicate &&
-            TryGetIndividual(predicate, out _))
+            IsGroundPredicate(predicate))
         {
             if (!facts.Any(fact => IsSameFact(fact.Predicate, predicate)))
             {
@@ -69,27 +69,21 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only unary individual facts and single-premise universal rules are supported by the current reasoning engine.";
+            "Only ground facts with individual arguments and single-premise unary universal rules are supported by the current reasoning engine.";
         return false;
     }
 
-    private static bool TryGetIndividual(
-        PredicateApplication predicate,
-        out SemanticIdentifier individual)
+    private static bool IsGroundPredicate(PredicateApplication predicate)
     {
-        individual = default;
-
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
-            predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not IndividualTerm term ||
-            string.IsNullOrWhiteSpace(term.Identifier.Value))
+            predicate.Arguments.IsDefaultOrEmpty)
         {
             return false;
         }
 
-        individual = term.Identifier;
-        return true;
+        return predicate.Arguments.All(argument =>
+            argument is IndividualTerm individual &&
+            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
     }
 
     private static bool IsBoundUnaryPredicate(
@@ -106,7 +100,7 @@ public sealed class KnowledgeBase
         PredicateApplication left,
         PredicateApplication right) =>
         left.Predicate == right.Predicate &&
-        TryGetIndividual(left, out var leftIndividual) &&
-        TryGetIndividual(right, out var rightIndividual) &&
-        leftIndividual == rightIndividual;
+        !left.Arguments.IsDefault &&
+        !right.Arguments.IsDefault &&
+        left.Arguments.SequenceEqual(right.Arguments);
 }
