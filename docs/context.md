@@ -33,6 +33,8 @@ This means an input such as "Fido is a dog. It is a mammal. Is it a mammal?" wor
 
 A relational sentence such as "Fido likes milk." explicitly mentions both Fido and milk. Both are tracked as individual identifiers, so a later singular "it" in that session is ambiguous unless the session has only one distinct individual.
 
+Definite descriptive noun phrases such as "the red ball" are canonicalized to a stable identifier (red-ball). The same phrase in a later sentence therefore addresses the same identifier for storage and exact lookup. This is not yet adjective reasoning or general co-reference: "the red ball" and "the crimson ball" remain different identifiers, and pronoun resolution still uses the conservative exactly-one-known-individual policy.
+
 A clarification request for a sentence does not abort the rest of an already parsed turn. The unresolved sentence is not stored or queried; later sentences are still processed using the context that was successfully established by earlier accepted utterances.
 
 ## Separation of responsibilities

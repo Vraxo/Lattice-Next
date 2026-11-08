@@ -11,7 +11,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
-        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounAssertionPattern = new(
@@ -19,11 +19,11 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationAssertionPattern = new(
-        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex QuestionPattern = new(
-        @"^Is\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
+        @"^Is\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounQuestionPattern = new(
@@ -31,7 +31,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationQuestionPattern = new(
-        @"^Does\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
+        @"^Does\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)
@@ -131,7 +131,7 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.4. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.5. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
@@ -242,7 +242,20 @@ public sealed class LceParser
     }
 
     private static SemanticTerm CreateSubjectTerm(string value) =>
-        new IndividualTerm(CreateIdentifier(value));
+        new IndividualTerm(CreateNounPhraseIdentifier(value));
+
+    private static SemanticIdentifier CreateNounPhraseIdentifier(string value)
+    {
+        var normalized = value.StartsWith("the ", StringComparison.OrdinalIgnoreCase)
+            ? value[4..]
+            : value;
+
+        var identifier = string.Join(
+            "-",
+            normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        return CreateIdentifier(identifier);
+    }
 
     private static UnresolvedReferenceTerm CreateUnresolvedReference() =>
         new(new SemanticIdentifier("it"));

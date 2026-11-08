@@ -118,6 +118,23 @@ public sealed class ReasoningEngineTests
         Assert.Null(differentSubject.Proof);
     }
 
+
+    [Fact]
+    public void Stores_and_retrieves_a_relation_using_a_repeated_descriptive_noun_phrase()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido likes the red ball.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like the red ball?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal("Fido likes the red ball.", result.Proof!.SourceText);
+        Assert.Equal("likes(fido, red-ball)", SemanticFormatter.Format(
+            new SemanticUtterance(UtteranceKind.Assertion, result.Proof.Predicate, result.Proof.SourceText)));
+    }
+
     [Fact]
     public void Deduplicates_identical_ground_relational_facts()
     {

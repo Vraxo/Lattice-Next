@@ -281,6 +281,85 @@ public sealed class LceParserTests
         Assert.NotNull(result.Error);
     }
 
+
+    [Theory]
+    [InlineData("Fido likes the red ball.", "likes(fido, red-ball)")]
+    [InlineData("The red ball is a toy.", "toy(red-ball)")]
+    [InlineData("The old blue car is a vehicle.", "vehicle(old-blue-car)")]
+    public void Parses_definite_descriptive_noun_phrases_as_individual_terms(
+        string sentence,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+        Assert.Equal(sentence, utterance.SourceText);
+    }
+
+    [Fact]
+    public void Parses_a_descriptive_noun_phrase_in_a_relational_question()
+    {
+        var result = parser.Parse("Does Fido like the red ball?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal("ask(likes(fido, red-ball))", SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Uses_the_same_canonical_identifier_for_repeated_descriptive_noun_phrases()
+    {
+        var assertion = parser.Parse("Fido likes the red ball.");
+        var question = parser.Parse("Does Fido like the red ball?");
+
+        Assert.True(assertion.IsSuccess, assertion.Error);
+        Assert.True(question.IsSuccess, question.Error);
+        var assertionPredicate = Assert.IsType<PredicateApplication>(assertion.Utterance!.Meaning);
+        var questionPredicate = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
+
+        Assert.Equal(assertionPredicate.Predicate, questionPredicate.Predicate);
+        Assert.Equal(2, assertionPredicate.Arguments.Length);
+        Assert.Equal(2, questionPredicate.Arguments.Length);
+        Assert.Equal(
+            "fido",
+            Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[0]).Identifier.Value);
+        Assert.Equal(
+            "red-ball",
+            Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[1]).Identifier.Value);
+        Assert.Equal(
+            "fido",
+            Assert.IsType<IndividualTerm>(questionPredicate.Arguments[0]).Identifier.Value);
+        Assert.Equal(
+            "red-ball",
+            Assert.IsType<IndividualTerm>(questionPredicate.Arguments[1]).Identifier.Value);
+    }
+
+
+    [Fact]
+    public void Parses_descriptive_noun_phrases_in_a_multi_sentence_turn()
+    {
+        var result = parser.ParseText(
+            "The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(3, result.Utterances.Length);
+        Assert.Equal("toy(red-ball)", SemanticFormatter.Format(result.Utterances[0]));
+        Assert.Equal("likes(fido, red-ball)", SemanticFormatter.Format(result.Utterances[1]));
+        Assert.Equal("ask(likes(fido, red-ball))", SemanticFormatter.Format(result.Utterances[2]));
+    }
+
+    [Theory]
+    [InlineData("Fido likes red ball.")]
+    [InlineData("Fido likes the.")]
+    [InlineData("Fido likes a red ball.")]
+    [InlineData("Is the red ball a toy.")]
+    public void Does_not_guess_or_rewrite_unsupported_noun_phrase_forms(string sentence)
+    {
+        Assert.False(parser.Parse(sentence).IsSuccess);
+    }
+
     [Fact]
     public void Parse_text_rejects_empty_input()
     {

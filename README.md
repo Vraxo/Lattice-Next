@@ -16,17 +16,20 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.4**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.5**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
 A single input can contain multiple complete sentences, including relational facts and questions:
 
     Every dog is an animal. Fido is a dog. Is Fido an animal?
     Fido is a dog. It is a mammal. Is it a mammal?
     Fido likes milk. Does Fido like milk?
+    The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?
 
 The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
 Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
+
+Definite descriptive noun phrases such as 'the red ball' are accepted in subject and object positions. Their words form a canonical identifier (red-ball), so repeated use of the same description can retrieve the same fact. This is an identity convention for the current controlled language, not adjective reasoning or real-world entity resolution. Indefinite phrases such as 'a red ball' remain unsupported.
 
 The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
 
