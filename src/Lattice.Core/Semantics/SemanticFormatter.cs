@@ -21,6 +21,7 @@ public static class SemanticFormatter
         {
             PredicateApplication predicate => FormatPredicate(predicate),
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
+            Conjunction conjunction => $"and({string.Join(", ", conjunction.Conjuncts.Select(Format))})",
             UniversalQuantification universal => $"forall({Format(universal.Variable)}, {Format(universal.Body)})",
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
         };
