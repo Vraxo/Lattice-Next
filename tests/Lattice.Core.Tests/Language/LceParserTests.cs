@@ -33,6 +33,38 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_a_universal_class_rule_with_conjunctive_description_conditions()
+    {
+        var result = parser.Parse("Every red ball is a toy.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        var universal = Assert.IsType<UniversalQuantification>(utterance.Meaning);
+        var implication = Assert.IsType<Implication>(universal.Body);
+        var conjunction = Assert.IsType<Conjunction>(implication.Premise);
+
+        Assert.Equal(
+            new[] { "red", "ball" },
+            conjunction.Conjuncts
+                .Select(formula => Assert.IsType<PredicateApplication>(formula))
+                .Select(predicate => predicate.Predicate.Value));
+        Assert.Equal(
+            "forall(x, implies(and(red(x), ball(x)), toy(x)))",
+            SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Parses_a_universal_rule_with_multiple_modifiers_and_a_head_noun()
+    {
+        var result = parser.Parse("Every old blue car is a vehicle.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(old(x), blue(x), car(x)), vehicle(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
     public void Parses_individual_assertion()
     {
         var result = parser.Parse("Fido is a dog.");
