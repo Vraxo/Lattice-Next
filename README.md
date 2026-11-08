@@ -14,7 +14,7 @@ Lattice keeps three concerns independent:
 
 The console is the initial user interface. Tools are not the intelligence, knowledge packs are not executable plugins, and no neural model is required by the core. An optional language translator may be explored later, but it must not become a reasoning dependency.
 
-## Current language slice
+## Current language and reasoning slice
 
 The first language implementation is **Lattice Controlled English (LCE) 0.1**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
@@ -26,9 +26,11 @@ Fido is a dog.
 Is Fido an animal?
 ```
 
-The CLI provides a persistent, colored console interaction using Spectre.Console. Each submitted sentence is parsed into its language-independent semantic representation. The interface accepts multiple turns, but it does not yet perform inference or retain conversational knowledge between them. Use `:help`, `:status`, and `:quit` inside the console.
+The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs forward chaining over unary facts and single-premise universal rules, answers supported questions with `Yes`, and returns `Unknown` when it cannot derive an answer. Supported answers include a trace back to the original sentences.
 
-See [the LCE 0.1 grammar and design decision](docs/language.md).
+This is intentionally not a general theorem prover. Unknown does not mean false, and session knowledge is discarded when the CLI exits. See [the LCE grammar](docs/language.md) and [the first reasoning slice](docs/reasoning.md).
+
+Use `:help`, `:status`, and `:quit` inside the console.
 
 ## Run
 
@@ -52,6 +54,6 @@ The test runner is Microsoft Testing Platform, selected in [global.json](global.
 
 ## Status
 
-The repository has a runnable console shell and a first controlled-language parser/semantic representation. Reasoning, conversational memory, knowledge-pack loading, and tool execution are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser, a language-independent semantic representation, and a first in-memory symbolic reasoning engine. Persistent conversation context, knowledge-pack loading, and tool execution are not implemented yet.
 
-See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.
+See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.

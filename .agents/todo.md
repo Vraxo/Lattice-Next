@@ -19,15 +19,15 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 2. First symbolic reasoning slice
 
-- [ ] Represent simple facts and universally quantified rules.
-- [ ] Derive a conclusion from a short chain of rules.
-- [ ] Distinguish a supported conclusion from unknown information.
-- [ ] Explain a conclusion using the premises and rules that support it.
-- [ ] Demonstrate the slice through the CLI with deterministic tests.
+- [x] Represent simple facts and universally quantified rules.
+- [x] Derive a conclusion from a short chain of rules.
+- [x] Distinguish a supported conclusion from unknown information.
+- [x] Explain a conclusion using the premises and rules that support it.
+- [x] Demonstrate the slice through the CLI with deterministic tests.
 
 ## 3. Conversation and context
 
-- [ ] Preserve accepted statements across turns.
+- [x] Preserve accepted statements across turns in the current CLI session.
 - [ ] Support references to established entities and prior conversational context.
 - [ ] Ask for clarification when ambiguity changes the interpretation.
 - [ ] Keep user assertions, derived conclusions, and observations distinguishable.
