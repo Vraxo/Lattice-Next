@@ -12,7 +12,7 @@ var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
-AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.6[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.7[/]");
 AnsiConsole.MarkupLine("[dim]Enter one or more sentences, :help for examples, :status for implementation status, or :quit to exit.[/]");
 AnsiConsole.WriteLine();
 
@@ -38,7 +38,8 @@ while (true)
     if (string.Equals(input, ":help", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
-        AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]rule[/]");
+        AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
+        AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
@@ -50,7 +51,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");
         AnsiConsole.MarkupLine("  [green]Is it a mammal?[/]          [dim]question with reference[/]");
         AnsiConsole.MarkupLine("[dim]Relation questions use the verb's base form; the parser maps it to third-person singular.[/]");
-        AnsiConsole.MarkupLine("[dim]Relational questions check exact stored facts; rules currently infer unary predicates only.[/]");
+        AnsiConsole.MarkupLine("[dim]Relations remain exact lookups; universal rules infer unary predicates from one or more unary conditions.[/]");
         AnsiConsole.MarkupLine("[dim]Combine complete sentences in one input; they are processed in order.[/]");
         AnsiConsole.MarkupLine("[dim]The word 'it' resolves only when exactly one individual is known in this session.[/]");
         AnsiConsole.MarkupLine("[dim]When the reference is missing or ambiguous, Lattice asks you to name the individual.[/]");
@@ -58,8 +59,10 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Unknown means no proof was found; it does not mean false.[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions become canonical identifiers (for example, 'the red ball' becomes red-ball).[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions contribute head-noun and modifier facts to the knowledge base.[/]");
+        AnsiConsole.MarkupLine("[dim]A rule such as 'Every red ball is a toy' requires both red(x) and ball(x).[/]");
+        AnsiConsole.MarkupLine("[dim]All conditions must be supported for the same individual before a rule can fire.[/]");
         AnsiConsole.MarkupLine("[dim]Descriptions do not resolve synonyms or support indefinite noun phrases.[/]");
-        AnsiConsole.MarkupLine("[dim]LCE 0.6 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.MarkupLine("[dim]LCE 0.7 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
         continue;
     }
@@ -67,9 +70,9 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.6 parser");
-        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, implication, universal quantification");
-        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary-rule chaining + direct relational lookup");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.7 parser");
+        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, implication, universal quantification");
+        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Conjunctive unary-rule chaining + direct relational lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
@@ -166,15 +169,37 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
 
 static IEnumerable<string> GetProofStatements(ProofNode proof)
 {
-    if (proof.Premise is not null)
+    var emitted = new HashSet<string>(StringComparer.Ordinal);
+    return Collect(proof, emitted);
+
+    static IEnumerable<string> Collect(ProofNode current, HashSet<string> emitted)
     {
-        foreach (var statement in GetProofStatements(proof.Premise))
+        if (current.Premise is not null)
         {
-            yield return statement;
+            foreach (var statement in Collect(current.Premise, emitted))
+            {
+                yield return statement;
+            }
+        }
+
+        if (!current.AdditionalPremises.IsDefaultOrEmpty)
+        {
+            foreach (var additionalPremise in current.AdditionalPremises)
+            {
+                foreach (var statement in Collect(additionalPremise, emitted))
+                {
+                    yield return statement;
+                }
+            }
+        }
+
+        var source = current.ResolvedReferent is { } referent
+            ? $"{current.SourceText} [it resolved to {referent.Value}]"
+            : current.SourceText;
+
+        if (emitted.Add(source))
+        {
+            yield return source;
         }
     }
-
-    yield return proof.ResolvedReferent is { } referent
-        ? $"{proof.SourceText} [it resolved to {referent.Value}]"
-        : proof.SourceText;
 }
