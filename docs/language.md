@@ -48,13 +48,13 @@ Additional constraints:
 - Concepts and verbs are single lowercase tokens. Multiword noun phrases, plurals, adjectives, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - An object term is a single lowercase token or a capitalized name. It is represented as an individual identifier, not as a class or a quantified noun phrase.
-- Relational assertions use a third-person singular verb form ending in \`s\`, such as \`likes\`, \`watches\`, or \`carries\`. The copula \`is\` is reserved for unary assertions and is not a relation predicate.
-- Relational questions use \`Does\`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + \`y\` becomes \`ies\`; endings \`s\`, \`x\`, \`z\`, \`ch\`, \`sh\`, and \`o\` take \`es\`; other verbs take \`s\`.
-- The supported irregular base forms \`have\`, \`do\`, and \`go\` map to \`has\`, \`does\`, and \`goes\`. Other irregular forms are not normalized by this grammar.
-- The relation predicate is represented using its third-person singular form. Thus, \`Fido likes milk.\` and \`Does Fido like milk?\` both produce \`likes(fido, milk)\`.
-- The verb \`be\` is not supported in the \`Does ...\` relation-question form.
-- The token \`It\` is reserved for the pronoun in unary assertions and cannot be used as a proper name in those subject forms. The pronoun is exactly \`It\` as an assertion subject and \`it\` in a unary yes/no question. Relational forms do not yet support pronoun arguments.
-- Both \`a\` and \`an\` are accepted as articles. Article agreement is not checked in this initial grammar.
+- Relational assertions use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
+- Relational questions use `Does`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + `y` becomes `ies`; endings `s`, `x`, `z`, `ch`, `sh`, and `o` take `es`; other verbs take `s`.
+- The supported irregular base forms `have`, `do`, and `go` map to `has`, `does`, and `goes`. Other irregular forms are not normalized by this grammar.
+- The relation predicate is represented using its third-person singular form. Thus, `Fido likes milk.` and `Does Fido like milk?` both produce `likes(fido, milk)`.
+- The verb `be` is not supported in the `Does ...` relation-question form.
+- The token `It` is reserved for the pronoun in unary assertions and cannot be used as a proper name in those subject forms. The pronoun is exactly `It` as an assertion subject and `it` in a unary yes/no question. Relational forms do not yet support pronoun arguments.
+- Both `a` and `an` are accepted as articles. Article agreement is not checked in this initial grammar.
 - A period terminates an assertion or universal rule; a question mark terminates a yes/no question.
 - Sentences may be separated by spaces, tabs, or other whitespace. Each sentence must have its own terminator.
 - A text is parsed completely before any of its sentences are processed. If any sentence is unsupported or incomplete, the entire text is rejected and the session state is left unchanged.
@@ -65,24 +65,24 @@ Examples:
 
 | Input | Result |
 |---|---|
-| \`Every dog is an animal.\` | One universal rule |
-| \`Fido is a dog.\` | One unary fact |
-| \`It is a mammal.\` | One fact with an unresolved reference |
-| \`Is Fido an animal?\` | One unary yes/no question |
-| \`Fido likes milk.\` | Binary fact: \`likes(fido, milk)\` |
-| \`Does Fido like milk?\` | Query: \`ask(likes(fido, milk))\` |
-| \`Fido has milk. Does Fido have milk?\` | A relation fact followed by its matching query |
-| \`Every dog is an animal. Fido is a dog. Is Fido an animal?\` | A rule, a fact, then a question |
-| \`Fido is a dog. It is a mammal. Is it a mammal?\` | A fact, a context-resolved fact, then a question |
+| `Every dog is an animal.` | One universal rule |
+| `Fido is a dog.` | One unary fact |
+| `It is a mammal.` | One fact with an unresolved reference |
+| `Is Fido an animal?` | One unary yes/no question |
+| `Fido likes milk.` | Binary fact: `likes(fido, milk)` |
+| `Does Fido like milk?` | Query: `ask(likes(fido, milk))` |
+| `Fido has milk. Does Fido have milk?` | A relation fact followed by its matching query |
+| `Every dog is an animal. Fido is a dog. Is Fido an animal?` | A rule, a fact, then a question |
+| `Fido is a dog. It is a mammal. Is it a mammal?` | A fact, a context-resolved fact, then a question |
 
 Inputs outside this grammar are rejected with an explicit sentence number where possible. The parser does not guess, silently repair wording, or translate arbitrary English. The parser deliberately does not resolve "it"; reference resolution requires conversation context and happens after the complete text has been parsed.
 
 ## Parsing API and semantic representation
 
-- \`Parse\` parses exactly one sentence and retains its single-utterance result contract.
-- \`ParseText\` parses one or more sentences and returns an ordered collection of semantic utterances.
-- \`TextParseResult\` is all-or-nothing: on failure it contains no partial utterance collection.
-- Each \`SemanticUtterance.SourceText\` contains that sentence's original trimmed text, not the whole input turn.
+- `Parse` parses exactly one sentence and retains its single-utterance result contract.
+- `ParseText` parses one or more sentences and returns an ordered collection of semantic utterances.
+- `TextParseResult` is all-or-nothing: on failure it contains no partial utterance collection.
+- Each `SemanticUtterance.SourceText` contains that sentence's original trimmed text, not the whole input turn.
 
 The parser does not return grammar-specific syntax nodes. It produces a small language-independent semantic expression model:
 
@@ -94,7 +94,7 @@ The parser does not return grammar-specific syntax nodes. It produces a small la
 - **UniversalQuantification:** binds a variable over a formula.
 - **SemanticUtterance:** preserves whether the input was an assertion or a question, the meaning, and the original source text. A resolved utterance also retains the grounded referent separately from the original wording.
 
-For example, \`Every dog is an animal.\` is represented as:
+For example, `Every dog is an animal.` is represented as:
 
     UniversalQuantification(
       VariableTerm("x"),
@@ -104,7 +104,7 @@ For example, \`Every dog is an animal.\` is represented as:
       )
     )
 
-The relational example \`Fido likes milk.\` is represented as:
+The relational example `Fido likes milk.` is represented as:
 
     PredicateApplication(
       "likes",

@@ -26,7 +26,7 @@ A single input can contain multiple complete sentences, including relational fac
 
 The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
-Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so \`Fido likes milk.\` and \`Does Fido like milk?\` share the meaning \`likes(fido, milk)\`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms \`have\`, \`do\`, and \`go\`.
+Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
 
 The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
 

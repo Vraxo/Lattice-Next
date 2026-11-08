@@ -6,14 +6,14 @@ The first reasoning implementation provides deterministic, positive reasoning ov
 
 The current engine accepts two kinds of asserted input:
 
-- **Ground fact:** a predicate applied to one or more individual arguments, such as \`dog(fido)\` or \`likes(fido, milk)\`.
-- **Universal rule:** one universally quantified implication with one unary premise and one unary conclusion, such as \`forall(x, implies(dog(x), animal(x)))\`.
+- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`.
+- **Universal rule:** one universally quantified implication with one unary premise and one unary conclusion, such as `forall(x, implies(dog(x), animal(x)))`.
 
-A fact is ground only when its predicate identifier is non-empty and every argument is a concrete, non-empty \`IndividualTerm\`. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
+A fact is ground only when its predicate identifier is non-empty and every argument is a concrete, non-empty `IndividualTerm`. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
 ## Direct lookup and inference
 
-For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and every individual identifier. A relational query such as \`Does Fido like milk?\` therefore matches \`likes(fido, milk)\`, but not \`likes(fido, water)\` or \`likes(rex, milk)\`.
+For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and every individual identifier. A relational query such as `Does Fido like milk?` therefore matches `likes(fido, milk)`, but not `likes(fido, water)` or `likes(rex, milk)`.
 
 After exact lookup, the existing forward-chaining path applies to unary predicates:
 
