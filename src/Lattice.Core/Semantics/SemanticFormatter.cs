@@ -36,6 +36,7 @@ public static class SemanticFormatter
         {
             IndividualTerm individual => individual.Identifier.Value,
             VariableTerm variable => variable.Identifier.Value,
+            UnresolvedReferenceTerm reference => reference.Reference.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(term), term, "Unsupported semantic term.")
         };
 }
