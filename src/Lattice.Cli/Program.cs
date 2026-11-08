@@ -58,14 +58,14 @@ while (true)
 
     if (result.Utterance is not { } utterance)
     {
-        AnsiConsole.Markup("[bold red]Lattice[/] ");
+        AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
         AnsiConsole.WriteLine(result.Error ?? "Input could not be parsed.");
         AnsiConsole.WriteLine();
         continue;
     }
 
     var kind = utterance.Kind == UtteranceKind.Question ? "question" : "assertion";
-    AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]Parsed {kind}.[/]");
+    AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Parsed {kind}.[/]");
     AnsiConsole.Markup("[dim]meaning › [/]");
     AnsiConsole.WriteLine(SemanticFormatter.Format(utterance));
     AnsiConsole.WriteLine();
