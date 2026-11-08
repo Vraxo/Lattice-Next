@@ -320,11 +320,20 @@ public sealed class LceParserTests
         var questionPredicate = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
 
         Assert.Equal(assertionPredicate.Predicate, questionPredicate.Predicate);
-        Assert.Equal(assertionPredicate.Arguments.Length, questionPredicate.Arguments.Length);
-        for (var index = 0; index < assertionPredicate.Arguments.Length; index++)
-        {
-            Assert.Equal(assertionPredicate.Arguments[index], questionPredicate.Arguments[index]);
-        }
+        Assert.Equal(2, assertionPredicate.Arguments.Length);
+        Assert.Equal(2, questionPredicate.Arguments.Length);
+        Assert.Equal(
+            "fido",
+            Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[0]).Identifier.Value);
+        Assert.Equal(
+            "red-ball",
+            Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[1]).Identifier.Value);
+        Assert.Equal(
+            "fido",
+            Assert.IsType<IndividualTerm>(questionPredicate.Arguments[0]).Identifier.Value);
+        Assert.Equal(
+            "red-ball",
+            Assert.IsType<IndividualTerm>(questionPredicate.Arguments[1]).Identifier.Value);
     }
 
 
