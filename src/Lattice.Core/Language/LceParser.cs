@@ -246,7 +246,7 @@ public sealed class LceParser
 
     private static SemanticIdentifier CreateNounPhraseIdentifier(string value)
     {
-        var normalized = value.StartsWith("the ", StringComparison.Ordinal)
+        var normalized = value.StartsWith("the ", StringComparison.OrdinalIgnoreCase)
             ? value[4..]
             : value;
 
