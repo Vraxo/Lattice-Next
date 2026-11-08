@@ -10,7 +10,7 @@ The architecture must preserve a strict distinction between **intelligence**, **
 
 ### Language
 
-Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.1 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
+Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.2 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
 
 Language is an interface to meaning. It must not own reasoning or tool execution.
 
@@ -18,7 +18,7 @@ Language is an interface to meaning. It must not own reasoning or tool execution
 
 Provides the canonical, language-independent representation of meaning. The same semantic representation should be usable whether input came from LCE, a future natural-language interpreter, a knowledge pack, a user clarification, or a tool observation.
 
-The initial model represents terms, predicate applications, implications, universal quantification, and assertion/question intent. It is intentionally small and will expand only when a concrete reasoning slice requires more expressive power.
+The initial model represents terms, unresolved references, predicate applications, implications, universal quantification, and assertion/question intent. It is intentionally small and will expand only when a concrete reasoning slice requires more expressive power.
 
 ### Intelligence
 
@@ -28,7 +28,9 @@ It must remain useful when no tools are registered. It must not depend on a part
 
 ### Context
 
-Maintains the active conversation and task state. Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Preserve provenance so Lattice can explain why it believes something and retract or revise conclusions when their support changes.
+Maintains the active conversation and task state. The first implementation tracks explicitly mentioned individuals and conservatively resolves the singular "it" reference when exactly one individual is known. Missing or ambiguous references produce a clarification request instead of a guess. The exact policy and boundaries are recorded in [context.md](context.md).
+
+Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Preserve provenance so Lattice can explain why it believes something and retract or revise conclusions when their support changes.
 
 Session context is not automatically durable knowledge.
 
@@ -40,7 +42,7 @@ The pack format should follow the semantic model rather than forcing the model t
 
 ### Tools
 
-Tools are optional capabilities. They live together under the Core `Tools/` area and implement a common, explicit contract describing purpose, inputs, output, and effects/permissions.
+Tools are optional capabilities. They live together under the Core Tools/ area and implement a common, explicit contract describing purpose, inputs, output, and effects/permissions.
 
 Generic infrastructure handles discovery, validation, authorization, invocation, limits, and recording. Reasoning must work from capability descriptions and results; it must not contain tool-specific branches.
 
@@ -56,13 +58,13 @@ The CLI is the initial user interface and composition root. It gathers input, pr
 
 The initial dependency direction is intentionally simple:
 
-`Lattice.Cli -> Lattice.Core`
+Lattice.Cli -> Lattice.Core
 
 Core must not depend on the CLI. Tool implementations are called through Core contracts, not concrete references from the reasoning engine. Knowledge packs are data loaded by Core, not separate compiled projects.
 
 ## Language strategy
 
-LCE 0.1 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
+LCE 0.2 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
 
 A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
 

@@ -25,7 +25,11 @@ public sealed class ReasoningEngine
             if (TryGetFactKey(fact.Predicate, out var key) &&
                 knownKeys.Add(key))
             {
-                knownFacts.Add(new ProofNode(fact.Predicate, fact.SourceText, null));
+                knownFacts.Add(new ProofNode(
+                    fact.Predicate,
+                    fact.SourceText,
+                    null,
+                    fact.ResolvedReferent));
             }
         }
 

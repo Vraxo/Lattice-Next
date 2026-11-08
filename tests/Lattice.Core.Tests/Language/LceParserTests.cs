@@ -48,6 +48,37 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_a_pronoun_assertion_as_an_unresolved_reference()
+    {
+        var result = parser.Parse("It is a mammal.");
+
+        Assert.True(result.IsSuccess);
+
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.Assertion, utterance.Kind);
+        Assert.Equal("mammal(it)", SemanticFormatter.Format(utterance));
+
+        var predicate = Assert.IsType<PredicateApplication>(utterance.Meaning);
+        var reference = Assert.IsType<UnresolvedReferenceTerm>(Assert.Single(predicate.Arguments));
+        Assert.Equal("it", reference.Reference.Value);
+        Assert.Null(utterance.ResolvedReferent);
+    }
+
+    [Fact]
+    public void Parses_a_pronoun_question_without_resolving_it_during_parsing()
+    {
+        var result = parser.Parse("Is it a mammal?");
+
+        Assert.True(result.IsSuccess);
+
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        Assert.Equal("ask(mammal(it))", SemanticFormatter.Format(utterance));
+        Assert.IsType<UnresolvedReferenceTerm>(
+            Assert.Single(Assert.IsType<PredicateApplication>(utterance.Meaning).Arguments));
+    }
+
+    [Fact]
     public void Parses_yes_no_question_without_turning_it_into_an_assertion()
     {
         var result = parser.Parse("Is Fido an animal.");
@@ -81,6 +112,8 @@ public sealed class LceParserTests
     [InlineData("Fido is probably an animal.")]
     [InlineData("Every dog is an animal. Fido is a dog.")]
     [InlineData("every dog is an animal.")]
+    [InlineData("it is a mammal.")]
+    [InlineData("Is It a mammal?")]
     public void Rejects_empty_unsupported_or_multi_sentence_input(string input)
     {
         var result = parser.Parse(input);

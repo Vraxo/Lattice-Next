@@ -4,4 +4,5 @@ namespace Lattice.Core.Reasoning;
 
 public sealed record KnowledgeFact(
     PredicateApplication Predicate,
-    string SourceText);
+    string SourceText,
+    SemanticIdentifier? ResolvedReferent = null);

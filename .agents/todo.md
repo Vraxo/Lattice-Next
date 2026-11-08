@@ -28,8 +28,10 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 ## 3. Conversation and context
 
 - [x] Preserve accepted statements across turns in the current CLI session.
-- [ ] Support references to established entities and prior conversational context.
-- [ ] Ask for clarification when ambiguity changes the interpretation.
+- [x] Resolve the supported singular "it" reference when exactly one individual is known.
+- [x] Ask for clarification when the referent is missing or ambiguous.
+- [x] Preserve the original utterance and record the grounded referent separately.
+- [ ] Support richer antecedent selection, recency/salience, and additional pronouns.
 - [ ] Keep user assertions, derived conclusions, and observations distinguishable.
 
 ## 4. Knowledge packs

@@ -39,7 +39,10 @@ public sealed class KnowledgeBase
         {
             if (!facts.Any(fact => IsSameFact(fact.Predicate, predicate)))
             {
-                facts.Add(new KnowledgeFact(predicate, utterance.SourceText));
+                facts.Add(new KnowledgeFact(
+                    predicate,
+                    utterance.SourceText,
+                    utterance.ResolvedReferent));
             }
 
             kind = KnowledgeEntryKind.Fact;
