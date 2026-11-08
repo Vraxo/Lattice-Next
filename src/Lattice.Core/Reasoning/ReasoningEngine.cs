@@ -107,8 +107,17 @@ public sealed class ReasoningEngine
         }
 
         return predicate.Arguments.All(argument =>
-            argument is IndividualTerm individual &&
-            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
+            argument switch
+            {
+                IndividualTerm individual =>
+                    !string.IsNullOrWhiteSpace(individual.Identifier.Value),
+                DefiniteDescriptionTerm description =>
+                    !string.IsNullOrWhiteSpace(description.Head.Value) &&
+                    !description.Modifiers.IsDefault &&
+                    description.Modifiers.All(modifier =>
+                        !string.IsNullOrWhiteSpace(modifier.Value)),
+                _ => false
+            });
     }
 
     private static bool IsSameGroundPredicate(
@@ -117,7 +126,9 @@ public sealed class ReasoningEngine
         left.Predicate == right.Predicate &&
         !left.Arguments.IsDefault &&
         !right.Arguments.IsDefault &&
-        left.Arguments.SequenceEqual(right.Arguments);
+        left.Arguments.Length == right.Arguments.Length &&
+        left.Arguments.Zip(right.Arguments).All(pair =>
+            SemanticTermComparer.AreEquivalent(pair.First, pair.Second));
 
     private static bool TryGetFactKey(
         PredicateApplication predicate,

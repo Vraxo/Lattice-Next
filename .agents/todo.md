@@ -17,7 +17,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Keep language syntax separate from semantic data structures.
 - [x] Parse multiple complete sentences in one input atomically, preserving source order.
 - [x] Parse binary relational assertions and direct yes/no relational questions.
-- [ ] Extend noun phrases, quantified relation arguments, and relational pronoun forms deliberately.
+- [x] Parse definite descriptive noun phrases as structured relational arguments with exact lookup.
+- [ ] Add quantified relation arguments, noun-phrase subjects, and relational pronoun forms deliberately.
 
 ## 2. First symbolic reasoning slice
 

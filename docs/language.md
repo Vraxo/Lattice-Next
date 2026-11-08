@@ -2,7 +2,7 @@
 
 ## Decision
 
-The initial parser uses **Lattice Controlled English (LCE) 0.4**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
+The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
 LCE 0.4 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
@@ -71,6 +71,8 @@ Examples:
 | `Is Fido an animal?` | One unary yes/no question |
 | `Fido likes milk.` | Binary fact: `likes(fido, milk)` |
 | `Does Fido like milk?` | Query: `ask(likes(fido, milk))` |
+| `Fido likes the red ball.` | Relation with a definite description: `likes(fido, the(ball, red))` |
+| `Does Fido like the red ball?` | Exact query using the same structured description |
 | `Fido has milk. Does Fido have milk?` | A relation fact followed by its matching query |
 | `Every dog is an animal. Fido is a dog. Is Fido an animal?` | A rule, a fact, then a question |
 | `Fido is a dog. It is a mammal. Is it a mammal?` | A fact, a context-resolved fact, then a question |
@@ -88,6 +90,7 @@ The parser does not return grammar-specific syntax nodes. It produces a small la
 
 - **SemanticIdentifier:** a normalized symbolic identifier.
 - **IndividualTerm** and **VariableTerm:** the two established term kinds.
+- **DefiniteDescriptionTerm:** a definite noun phrase with one head noun and zero or more adjective modifiers. The description remains one semantic term; its words are not separate individuals.
 - **UnresolvedReferenceTerm:** a reference that needs conversational context before it can be grounded to an individual.
 - **PredicateApplication:** a predicate applied to an immutable ordered list of terms. Unary predicates and n-ary relations use the same representation.
 - **Implication:** a formula whose conclusion follows when its premise holds.
@@ -110,6 +113,10 @@ The relational example `Fido likes milk.` is represented as:
       "likes",
       [IndividualTerm("fido"), IndividualTerm("milk")]
     )
+
+A definite description such as `the shiny red ball` is represented as one `DefiniteDescriptionTerm` with head `ball` and the modifiers `red` and `shiny`. Modifier order is canonicalized, so `the shiny red ball` and `the red shiny ball` have the same structured meaning. In the current grammar, the determiner `the` is supported; indefinite `a`/`an` phrases are rejected because their existential semantics have not been designed yet.
+
+These descriptions are currently opaque relational arguments for exact storage and lookup. Lattice does not yet identify a definite description with a previously named individual, prove that only one object fits it, or infer that the object has its modifiers as separately asserted facts. It also does not yet accept noun phrases as sentence subjects.
 
 ## Input normalization
 

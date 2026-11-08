@@ -12,7 +12,7 @@ var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
-AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.4[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.5[/]");
 AnsiConsole.MarkupLine("[dim]Enter one or more sentences, :help for examples, :status for implementation status, or :quit to exit.[/]");
 AnsiConsole.WriteLine();
 
@@ -42,11 +42,14 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
+        AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]relation with description[/]");
+        AnsiConsole.MarkupLine("  [green]Does Fido like the red ball?[/] [dim]exact description query[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like milk?[/]     [dim]relation question[/]");
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");
         AnsiConsole.MarkupLine("  [green]Is it a mammal?[/]          [dim]question with reference[/]");
         AnsiConsole.MarkupLine("[dim]Relation questions use the verb's base form; the parser maps it to third-person singular.[/]");
         AnsiConsole.MarkupLine("[dim]Relational questions check exact stored facts; rules currently infer unary predicates only.[/]");
+        AnsiConsole.MarkupLine("[dim]Definite descriptions are structured arguments, not resolved identities; only exact matching is supported.[/]");
         AnsiConsole.MarkupLine("[dim]Combine complete sentences in one input; they are processed in order.[/]");
         AnsiConsole.MarkupLine("[dim]The word 'it' resolves only when exactly one individual is known in this session.[/]");
         AnsiConsole.MarkupLine("[dim]When the reference is missing or ambiguous, Lattice asks you to name the individual.[/]");
@@ -60,7 +63,7 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.4 parser");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.5 parser");
         AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, implication, universal quantification");
         AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary-rule chaining + direct relational lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");

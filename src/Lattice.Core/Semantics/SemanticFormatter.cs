@@ -35,8 +35,18 @@ public static class SemanticFormatter
         term switch
         {
             IndividualTerm individual => individual.Identifier.Value,
+            DefiniteDescriptionTerm description => Format(description),
             VariableTerm variable => variable.Identifier.Value,
             UnresolvedReferenceTerm reference => reference.Reference.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(term), term, "Unsupported semantic term.")
         };
+
+    private static string Format(DefiniteDescriptionTerm description)
+    {
+        var modifiers = description.Modifiers.IsDefaultOrEmpty
+            ? string.Empty
+            : $", {string.Join(", ", description.Modifiers.Select(modifier => modifier.Value))}";
+
+        return $"the({description.Head.Value}{modifiers})";
+    }
 }

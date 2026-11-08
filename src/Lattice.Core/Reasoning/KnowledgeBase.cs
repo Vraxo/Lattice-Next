@@ -69,7 +69,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts with individual arguments and single-premise unary universal rules are supported by the current reasoning engine.";
+            "Only ground facts with individual or definite-description arguments and single-premise unary universal rules are supported by the current reasoning engine.";
         return false;
     }
 
@@ -81,10 +81,21 @@ public sealed class KnowledgeBase
             return false;
         }
 
-        return predicate.Arguments.All(argument =>
-            argument is IndividualTerm individual &&
-            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
+        return predicate.Arguments.All(IsGroundTerm);
     }
+
+    private static bool IsGroundTerm(SemanticTerm term) =>
+        term switch
+        {
+            IndividualTerm individual =>
+                !string.IsNullOrWhiteSpace(individual.Identifier.Value),
+            DefiniteDescriptionTerm description =>
+                !string.IsNullOrWhiteSpace(description.Head.Value) &&
+                !description.Modifiers.IsDefault &&
+                description.Modifiers.All(modifier =>
+                    !string.IsNullOrWhiteSpace(modifier.Value)),
+            _ => false
+        };
 
     private static bool IsBoundUnaryPredicate(
         PredicateApplication predicate,
@@ -102,5 +113,7 @@ public sealed class KnowledgeBase
         left.Predicate == right.Predicate &&
         !left.Arguments.IsDefault &&
         !right.Arguments.IsDefault &&
-        left.Arguments.SequenceEqual(right.Arguments);
+        left.Arguments.Length == right.Arguments.Length &&
+        left.Arguments.Zip(right.Arguments).All(pair =>
+            SemanticTermComparer.AreEquivalent(pair.First, pair.Second));
 }

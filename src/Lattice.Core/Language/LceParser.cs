@@ -18,8 +18,12 @@ public sealed class LceParser
         @"^It\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly string ObjectPattern =
+        @"(?<object>the\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)";
+
     private static readonly Regex RelationAssertionPattern = new(
-        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+" +
+        ObjectPattern + @"\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex QuestionPattern = new(
@@ -31,7 +35,8 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationQuestionPattern = new(
-        @"^Does\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
+        @"^Does\s+(?<individual>(?!It\s)[A-Z][a-zA-Z0-9-]*)\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+" +
+        ObjectPattern + @"\?$",
         RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)
@@ -131,7 +136,7 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.4. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.5. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
@@ -206,7 +211,25 @@ public sealed class LceParser
             CreateIdentifier(predicate),
             ImmutableArray.Create<SemanticTerm>(
                 CreateSubjectTerm(individual),
-                CreateSubjectTerm(objectValue)));
+                CreateObjectTerm(objectValue)));
+
+    private static SemanticTerm CreateObjectTerm(string value)
+    {
+        if (!value.StartsWith("the ", StringComparison.Ordinal))
+        {
+            return CreateSubjectTerm(value);
+        }
+
+        var words = value[4..]
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var head = CreateIdentifier(words[^1]);
+        var modifiers = words[..^1]
+            .Select(CreateIdentifier)
+            .OrderBy(modifier => modifier.Value, StringComparer.Ordinal)
+            .ToImmutableArray();
+
+        return new DefiniteDescriptionTerm(head, modifiers);
+    }
 
     private static string InflectThirdPersonSingular(string verb)
     {

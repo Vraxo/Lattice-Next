@@ -6,14 +6,14 @@ The first reasoning implementation provides deterministic, positive reasoning ov
 
 The current engine accepts two kinds of asserted input:
 
-- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`.
+- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)`, `likes(fido, milk)`, or `likes(fido, the(ball, red))`.
 - **Universal rule:** one universally quantified implication with one unary premise and one unary conclusion, such as `forall(x, implies(dog(x), animal(x)))`.
 
-A fact is ground only when its predicate identifier is non-empty and every argument is a concrete, non-empty `IndividualTerm`. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
+A fact is ground only when its predicate identifier is non-empty and every argument is either a concrete, non-empty `IndividualTerm` or a valid `DefiniteDescriptionTerm`. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
 ## Direct lookup and inference
 
-For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and every individual identifier. A relational query such as `Does Fido like milk?` therefore matches `likes(fido, milk)`, but not `likes(fido, water)` or `likes(rex, milk)`.
+For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and the structural value of each argument. Definite-description modifiers are compared canonically, independent of adjective order. A relational query such as `Does Fido like milk?` therefore matches `likes(fido, milk)`, but not `likes(fido, water)` or `likes(rex, milk)`.
 
 After exact lookup, the existing forward-chaining path applies to unary predicates:
 
@@ -22,9 +22,9 @@ After exact lookup, the existing forward-chaining path applies to unary predicat
 3. Apply that rule to the same individual and add its conclusion.
 4. Repeat until a full pass derives nothing new.
 
-Known unary facts are deduplicated by predicate and individual. This lets rules be chained even when they were added in an order that requires more than one pass, while preventing cyclic rules from causing an endless loop. Ground relational facts are deduplicated by predicate and their ordered argument list.
+Known unary facts are deduplicated by predicate and individual. This lets rules be chained even when they were added in an order that requires more than one pass, while preventing cyclic rules from causing an endless loop. Ground relational facts are deduplicated by predicate and their ordered argument list. Definite descriptions are treated as one argument, with a head noun and a canonical set-like list of modifiers.
 
-Relational facts are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, while the semantic and knowledge representations can retain more than two grounded arguments.
+Relational facts, including descriptive noun-phrase arguments, are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, including relations whose object is a definite description. The semantic and knowledge representations can retain more than two grounded arguments.
 
 The engine preserves the source sentence behind every asserted fact and rule. A ProofNode records the conclusion, the sentence that supplied or derived it, and (for an inference) the proof of its premise. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
 
@@ -40,6 +40,7 @@ Unknown is not false. This implementation uses positive facts only; it has no ne
 This is a first reasoning slice, not a general theorem prover. It does not currently support:
 
 - relational rule inference, joins, or relation traversal;
+- resolving a definite description to a named individual, checking uniqueness, or deriving adjective properties from the description;
 - rules with multiple premises, multiple conclusions, or nested formulas;
 - negation, disjunction, existential quantification, or equality;
 - persistent storage or loading declarative knowledge packs;
