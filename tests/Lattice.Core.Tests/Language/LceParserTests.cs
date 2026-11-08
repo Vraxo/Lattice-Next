@@ -97,6 +97,41 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_a_sentence_after_normalizing_formatting_artifacts()
+    {
+        var input = "\uFEFFFido\u00A0is\u200Ba\u00A0dog.";
+        var result = parser.Parse(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal("dog(fido)", SemanticFormatter.Format(utterance));
+        Assert.Equal(input.Trim(), utterance.SourceText);
+    }
+
+    [Fact]
+    public void Parses_multi_sentence_input_with_an_invisible_separator_and_preserves_source()
+    {
+        const string firstSentence = "Fido is a dog.";
+        const string secondSentence = "Does Fido like milk?";
+        var input = $"{firstSentence}\u200B{secondSentence}";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(2, result.Utterances.Length);
+        Assert.Equal(firstSentence, result.Utterances[0].SourceText);
+        Assert.Equal(secondSentence, result.Utterances[1].SourceText);
+    }
+
+    [Fact]
+    public void Does_not_silently_repair_missing_grammar_or_punctuation()
+    {
+        Assert.False(parser.Parse("Fido are a dog.").IsSuccess);
+        Assert.False(parser.Parse("Fido is dog.").IsSuccess);
+        Assert.False(parser.Parse("Fido is a dog").IsSuccess);
+    }
+
+    [Fact]
     public void Parses_a_pronoun_assertion_as_an_unresolved_reference()
     {
         var result = parser.Parse("It is a mammal.");

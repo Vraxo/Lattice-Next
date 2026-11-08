@@ -41,7 +41,13 @@ public sealed class LceParser
             return ParseResult.Failure("Input is empty.");
         }
 
-        var source = input.Trim();
+        var originalSource = input.Trim();
+        var source = InputNormalizer.Normalize(originalSource).Trim();
+
+        if (source.Length == 0)
+        {
+            return ParseResult.Failure("Input is empty.");
+        }
 
         var universalMatch = UniversalRulePattern.Match(source);
 
@@ -53,7 +59,7 @@ public sealed class LceParser
             var implication = new Implication(subtype, supertype);
             var meaning = new UniversalQuantification(variable, implication);
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
         var pronounAssertionMatch = PronounAssertionPattern.Match(source);
@@ -64,7 +70,7 @@ public sealed class LceParser
                 pronounAssertionMatch.Groups["concept"].Value,
                 CreateUnresolvedReference());
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
         var assertionMatch = AssertionPattern.Match(source);
@@ -75,7 +81,7 @@ public sealed class LceParser
                 assertionMatch.Groups["concept"].Value,
                 CreateSubjectTerm(assertionMatch.Groups["individual"].Value));
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
         var relationAssertionMatch = RelationAssertionPattern.Match(source);
@@ -87,7 +93,7 @@ public sealed class LceParser
                 relationAssertionMatch.Groups["individual"].Value,
                 relationAssertionMatch.Groups["object"].Value);
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
         var pronounQuestionMatch = PronounQuestionPattern.Match(source);
@@ -98,7 +104,7 @@ public sealed class LceParser
                 pronounQuestionMatch.Groups["concept"].Value,
                 CreateUnresolvedReference());
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
 
         var questionMatch = QuestionPattern.Match(source);
@@ -109,7 +115,7 @@ public sealed class LceParser
                 questionMatch.Groups["concept"].Value,
                 CreateSubjectTerm(questionMatch.Groups["individual"].Value));
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
 
         var relationQuestionMatch = RelationQuestionPattern.Match(source);
@@ -121,7 +127,7 @@ public sealed class LceParser
                 relationQuestionMatch.Groups["individual"].Value,
                 relationQuestionMatch.Groups["object"].Value);
 
-            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, source));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
 
         return ParseResult.Failure(
@@ -130,7 +136,8 @@ public sealed class LceParser
 
     public TextParseResult ParseText(string? input)
     {
-        if (string.IsNullOrWhiteSpace(input))
+        if (string.IsNullOrWhiteSpace(input) ||
+            string.IsNullOrWhiteSpace(InputNormalizer.Normalize(input)))
         {
             return TextParseResult.Failure("Input is empty.");
         }
@@ -159,14 +166,14 @@ public sealed class LceParser
             sentenceStart = index + 1;
 
             if (sentenceStart < source.Length &&
-                !char.IsWhiteSpace(source[sentenceStart]))
+                !InputNormalizer.IsTextSeparator(source[sentenceStart]))
             {
                 return TextParseResult.Failure(
                     $"Sentence {utterances.Count} must be separated from the next sentence by whitespace.");
             }
 
             while (sentenceStart < source.Length &&
-                   char.IsWhiteSpace(source[sentenceStart]))
+                   InputNormalizer.IsTextSeparator(source[sentenceStart]))
             {
                 sentenceStart++;
             }

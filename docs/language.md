@@ -111,6 +111,24 @@ The relational example `Fido likes milk.` is represented as:
       [IndividualTerm("fido"), IndividualTerm("milk")]
     )
 
+## Input normalization
+
+Normalization is a small formatting cleanup step before parsing. It does not expand LCE's grammar or attempt to repair a sentence.
+
+The current normalization rules are deliberately narrow:
+
+- Normalize Unicode text to canonical composition (NFC).
+- Convert Unicode whitespace characters to ordinary spaces for consistent token separation.
+- Treat a zero-width space as a space, preserving a possible word boundary rather than joining words.
+- Remove a leading byte-order mark; an embedded byte-order mark becomes a space.
+- Remove soft hyphens, which are formatting hints rather than visible word characters.
+
+The original trimmed sentence is retained in SemanticUtterance.SourceText. The normalized form is used only for recognition and semantic identifier extraction. Thus, explanations and provenance continue to show the user's supplied wording.
+
+Normalization does not change ordinary letters, spelling, word order, articles, capitalization, or sentence punctuation. It does not auto-correct typos, add missing words, or infer missing punctuation. Unsupported sentences remain unsupported after cleanup.
+
+This boundary is intentionally separate from the controlled grammar. More aggressive cleanup or natural-language correction would need its own explicit design and validation rather than being hidden inside the parser.
+
 ## Design constraints
 
 - Keep the semantic model independent of English word order and grammar.

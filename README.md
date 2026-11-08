@@ -30,6 +30,8 @@ Unary assertions and universal rules retain their original behavior. Binary rela
 
 The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
 
+Before parsing, Lattice performs conservative formatting normalization: Unicode text is canonically composed, unusual whitespace and zero-width spaces become ordinary separators, a leading byte-order mark is removed, and soft hyphens are discarded. The original sentence is retained for provenance. Words, spelling, articles, capitalization, and punctuation are not corrected or invented.
+
 The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. Relation statements and questions introduce each of their concrete individual arguments into session context, so a turn that names both Fido and milk makes "it" ambiguous until the user clarifies.
 
 The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs unary forward chaining, answers exact relational lookups, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
@@ -58,6 +60,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser, a language-independent semantic representation, a conservative session-context layer, and an in-memory symbolic reasoning engine with unary inference and exact relational lookup. Persistent conversation context, knowledge-pack loading, relational inference, and tool execution are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, and an in-memory symbolic reasoning engine with unary inference and exact relational lookup. Persistent conversation context, knowledge-pack loading, relational inference, and tool execution are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.
