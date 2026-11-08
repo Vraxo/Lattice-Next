@@ -4,7 +4,7 @@
 
 The conversation-context slice connects independently parsed utterances without making the parser responsible for deciding what a pronoun means.
 
-LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. The Core context layer still attempts pronoun resolution separately from parsing.
+LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. LCE 0.6 adds structured definite descriptions whose head nouns and modifiers enter the knowledge base as facts. The Core context layer still attempts pronoun resolution separately from parsing.
 
 ## Current resolution policy
 
@@ -33,7 +33,7 @@ This means an input such as "Fido is a dog. It is a mammal. Is it a mammal?" wor
 
 A relational sentence such as "Fido likes milk." explicitly mentions both Fido and milk. Both are tracked as individual identifiers, so a later singular "it" in that session is ambiguous unless the session has only one distinct individual.
 
-Definite descriptive noun phrases such as "the red ball" are canonicalized to a stable identifier (red-ball). The same phrase in a later sentence therefore addresses the same identifier for storage and exact lookup. This is not yet adjective reasoning or general co-reference: "the red ball" and "the crimson ball" remain different identifiers, and pronoun resolution still uses the conservative exactly-one-known-individual policy.
+Definite descriptive noun phrases such as "the red ball" are represented with a head noun and modifiers, and retain a stable identifier (red-ball). The same phrase in a later sentence therefore addresses the same individual for storage and exact lookup. The description contributes one known individual to conversational context, not one individual per adjective. "The red ball" and "the crimson ball" remain different identifiers, and pronoun resolution still uses the conservative exactly-one-known-individual policy.
 
 A clarification request for a sentence does not abort the rest of an already parsed turn. The unresolved sentence is not stored or queried; later sentences are still processed using the context that was successfully established by earlier accepted utterances.
 

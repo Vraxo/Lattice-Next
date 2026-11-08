@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Core.Language;
 using Lattice.Core.Semantics;
 
@@ -35,12 +36,17 @@ public sealed class KnowledgeBase
         }
 
         if (utterance.Meaning is PredicateApplication predicate &&
-            IsGroundPredicate(predicate))
+            TryGroundPredicate(predicate, out var groundedPredicate, out var descriptionFacts))
         {
-            if (!facts.Any(fact => IsSameFact(fact.Predicate, predicate)))
+            AddFact(new KnowledgeFact(
+                groundedPredicate,
+                utterance.SourceText,
+                utterance.ResolvedReferent));
+
+            foreach (var descriptionFact in descriptionFacts)
             {
-                facts.Add(new KnowledgeFact(
-                    predicate,
+                AddFact(new KnowledgeFact(
+                    descriptionFact,
                     utterance.SourceText,
                     utterance.ResolvedReferent));
             }
@@ -69,22 +75,85 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts with individual arguments and single-premise unary universal rules are supported by the current reasoning engine.";
+            "Only ground facts with individual or descriptive arguments and single-premise unary universal rules are supported by the current reasoning engine.";
         return false;
     }
 
-    private static bool IsGroundPredicate(PredicateApplication predicate)
+    private void AddFact(KnowledgeFact fact)
     {
+        if (!facts.Any(existing => IsSameFact(existing.Predicate, fact.Predicate)))
+        {
+            facts.Add(fact);
+        }
+    }
+
+    private static bool TryGroundPredicate(
+        PredicateApplication predicate,
+        out PredicateApplication groundedPredicate,
+        out List<PredicateApplication> descriptionFacts)
+    {
+        groundedPredicate = predicate;
+        descriptionFacts = [];
+
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefaultOrEmpty)
         {
             return false;
         }
 
-        return predicate.Arguments.All(argument =>
-            argument is IndividualTerm individual &&
-            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
+        var arguments = ImmutableArray.CreateBuilder<SemanticTerm>(predicate.Arguments.Length);
+
+        foreach (var argument in predicate.Arguments)
+        {
+            switch (argument)
+            {
+                case IndividualTerm individual when
+                    !string.IsNullOrWhiteSpace(individual.Identifier.Value):
+                    arguments.Add(individual);
+                    break;
+
+                case DescriptiveIndividualTerm description
+                    when IsValidDescription(description):
+                    arguments.Add(new IndividualTerm(description.Identifier));
+
+                    descriptionFacts.Add(CreateUnaryFact(
+                        description.Head,
+                        description.Identifier));
+
+                    foreach (var modifier in description.Modifiers)
+                    {
+                        descriptionFacts.Add(CreateUnaryFact(
+                            modifier,
+                            description.Identifier));
+                    }
+
+                    break;
+
+                default:
+                    return false;
+            }
+        }
+
+        groundedPredicate = predicate with
+        {
+            Arguments = arguments.ToImmutable()
+        };
+
+        return true;
     }
+
+    private static bool IsValidDescription(DescriptiveIndividualTerm description) =>
+        !string.IsNullOrWhiteSpace(description.Head.Value) &&
+        !description.Modifiers.IsDefault &&
+        description.Modifiers.All(modifier =>
+            !string.IsNullOrWhiteSpace(modifier.Value));
+
+    private static PredicateApplication CreateUnaryFact(
+        SemanticIdentifier predicate,
+        SemanticIdentifier individual) =>
+        new(
+            predicate,
+            ImmutableArray.Create<SemanticTerm>(new IndividualTerm(individual)));
 
     private static bool IsBoundUnaryPredicate(
         PredicateApplication predicate,

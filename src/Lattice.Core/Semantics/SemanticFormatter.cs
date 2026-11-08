@@ -35,6 +35,7 @@ public static class SemanticFormatter
         term switch
         {
             IndividualTerm individual => individual.Identifier.Value,
+            DescriptiveIndividualTerm description => description.Identifier.Value,
             VariableTerm variable => variable.Identifier.Value,
             UnresolvedReferenceTerm reference => reference.Reference.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(term), term, "Unsupported semantic term.")

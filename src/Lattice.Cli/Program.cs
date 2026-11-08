@@ -12,7 +12,7 @@ var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
-AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.5[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.6[/]");
 AnsiConsole.MarkupLine("[dim]Enter one or more sentences, :help for examples, :status for implementation status, or :quit to exit.[/]");
 AnsiConsole.WriteLine();
 
@@ -42,7 +42,9 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
-        AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]descriptive noun phrase[/]");
+        AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]descriptive relation[/]");
+        AnsiConsole.MarkupLine("  [green]The red ball is shiny.[/] [dim]property assertion[/]");
+        AnsiConsole.MarkupLine("  [green]Is the red ball red?[/]    [dim]property question[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like the red ball?[/] [dim]descriptive relation query[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like milk?[/]     [dim]relation question[/]");
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");
@@ -55,8 +57,9 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Input cleanup handles formatting artifacts only; spelling and grammar are not corrected.[/]");
         AnsiConsole.MarkupLine("[dim]Unknown means no proof was found; it does not mean false.[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions become canonical identifiers (for example, 'the red ball' becomes red-ball).[/]");
-        AnsiConsole.MarkupLine("[dim]Descriptions do not yet support adjective inference, indefinite phrases, or automatic co-reference.[/]");
-        AnsiConsole.MarkupLine("[dim]LCE 0.5 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.MarkupLine("[dim]Definite descriptions contribute head-noun and modifier facts to the knowledge base.[/]");
+        AnsiConsole.MarkupLine("[dim]Descriptions do not resolve synonyms or support indefinite noun phrases.[/]");
+        AnsiConsole.MarkupLine("[dim]LCE 0.6 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
         continue;
     }
@@ -64,7 +67,7 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.5 parser");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.6 parser");
         AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, implication, universal quantification");
         AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary-rule chaining + direct relational lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");

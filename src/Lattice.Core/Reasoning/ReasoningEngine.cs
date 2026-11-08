@@ -12,10 +12,12 @@ public sealed class ReasoningEngine
         ArgumentNullException.ThrowIfNull(knowledgeBase);
         ArgumentNullException.ThrowIfNull(query);
 
-        if (!IsGroundPredicate(query))
+        if (!TryGroundQuery(query, out var groundedQuery))
         {
             return new ReasoningResult(null);
         }
+
+        query = groundedQuery;
 
         var directFact = knowledgeBase.Facts.FirstOrDefault(fact =>
             IsSameGroundPredicate(fact.Predicate, query));
@@ -98,17 +100,48 @@ public sealed class ReasoningEngine
         return new ReasoningResult(proof);
     }
 
-    private static bool IsGroundPredicate(PredicateApplication predicate)
+    private static bool TryGroundQuery(
+        PredicateApplication predicate,
+        out PredicateApplication groundedPredicate)
     {
+        groundedPredicate = predicate;
+
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefaultOrEmpty)
         {
             return false;
         }
 
-        return predicate.Arguments.All(argument =>
-            argument is IndividualTerm individual &&
-            !string.IsNullOrWhiteSpace(individual.Identifier.Value));
+        var arguments = ImmutableArray.CreateBuilder<SemanticTerm>(predicate.Arguments.Length);
+
+        foreach (var argument in predicate.Arguments)
+        {
+            switch (argument)
+            {
+                case IndividualTerm individual when
+                    !string.IsNullOrWhiteSpace(individual.Identifier.Value):
+                    arguments.Add(individual);
+                    break;
+
+                case DescriptiveIndividualTerm description
+                    when !string.IsNullOrWhiteSpace(description.Head.Value) &&
+                         !description.Modifiers.IsDefault &&
+                         description.Modifiers.All(modifier =>
+                             !string.IsNullOrWhiteSpace(modifier.Value)):
+                    arguments.Add(new IndividualTerm(description.Identifier));
+                    break;
+
+                default:
+                    return false;
+            }
+        }
+
+        groundedPredicate = predicate with
+        {
+            Arguments = arguments.ToImmutable()
+        };
+
+        return true;
     }
 
     private static bool IsSameGroundPredicate(

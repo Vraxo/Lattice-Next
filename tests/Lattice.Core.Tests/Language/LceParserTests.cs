@@ -286,7 +286,7 @@ public sealed class LceParserTests
     [InlineData("Fido likes the red ball.", "likes(fido, red-ball)")]
     [InlineData("The red ball is a toy.", "toy(red-ball)")]
     [InlineData("The old blue car is a vehicle.", "vehicle(old-blue-car)")]
-    public void Parses_definite_descriptive_noun_phrases_as_individual_terms(
+    public void Parses_definite_descriptive_noun_phrases_with_stable_identifiers(
         string sentence,
         string expectedMeaning)
     {
@@ -325,15 +325,20 @@ public sealed class LceParserTests
         Assert.Equal(
             "fido",
             Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[0]).Identifier.Value);
-        Assert.Equal(
-            "red-ball",
-            Assert.IsType<IndividualTerm>(assertionPredicate.Arguments[1]).Identifier.Value);
+        var assertionDescription =
+            Assert.IsType<DescriptiveIndividualTerm>(assertionPredicate.Arguments[1]);
+        var questionDescription =
+            Assert.IsType<DescriptiveIndividualTerm>(questionPredicate.Arguments[1]);
+
+        Assert.Equal("ball", assertionDescription.Head.Value);
+        Assert.Equal("red", Assert.Single(assertionDescription.Modifiers).Value);
+        Assert.Equal("red-ball", assertionDescription.Identifier.Value);
+        Assert.Equal("ball", questionDescription.Head.Value);
+        Assert.Equal("red", Assert.Single(questionDescription.Modifiers).Value);
+        Assert.Equal("red-ball", questionDescription.Identifier.Value);
         Assert.Equal(
             "fido",
             Assert.IsType<IndividualTerm>(questionPredicate.Arguments[0]).Identifier.Value);
-        Assert.Equal(
-            "red-ball",
-            Assert.IsType<IndividualTerm>(questionPredicate.Arguments[1]).Identifier.Value);
     }
 
 
@@ -348,6 +353,35 @@ public sealed class LceParserTests
         Assert.Equal("toy(red-ball)", SemanticFormatter.Format(result.Utterances[0]));
         Assert.Equal("likes(fido, red-ball)", SemanticFormatter.Format(result.Utterances[1]));
         Assert.Equal("ask(likes(fido, red-ball))", SemanticFormatter.Format(result.Utterances[2]));
+    }
+
+
+    [Fact]
+    public void Represents_a_description_as_a_head_noun_and_ordered_modifiers()
+    {
+        var result = parser.Parse("The old blue car is a vehicle.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var predicate = Assert.IsType<PredicateApplication>(result.Utterance!.Meaning);
+        var description = Assert.IsType<DescriptiveIndividualTerm>(Assert.Single(predicate.Arguments));
+
+        Assert.Equal("car", description.Head.Value);
+        Assert.Equal(2, description.Modifiers.Length);
+        Assert.Equal("old", description.Modifiers[0].Value);
+        Assert.Equal("blue", description.Modifiers[1].Value);
+        Assert.Equal("old-blue-car", description.Identifier.Value);
+    }
+
+    [Fact]
+    public void Parses_a_property_assertion_and_its_question_form()
+    {
+        var assertion = parser.Parse("The red ball is red.");
+        var question = parser.Parse("Is the red ball red?");
+
+        Assert.True(assertion.IsSuccess, assertion.Error);
+        Assert.True(question.IsSuccess, question.Error);
+        Assert.Equal("red(red-ball)", SemanticFormatter.Format(assertion.Utterance!));
+        Assert.Equal("ask(red(red-ball))", SemanticFormatter.Format(question.Utterance!));
     }
 
     [Theory]
