@@ -2,7 +2,7 @@
 
 ## Decision
 
-The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
+The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.7.
 
 LCE 0.7 retains unary assertions, universal rules, relational assertions, and multi-sentence turns. It adds structured definite descriptions, which preserve a head noun and ordered modifiers as separate semantic predicates, plus explicit property assertions and questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
@@ -14,7 +14,7 @@ The official Attempto Parsing Engine (APE) converts ACE text into a Discourse Re
 
 Using APE could be a valid later option if Lattice needs broad ACE coverage. For the first language slice, however, an external parser/runtime would add deployment and integration complexity before Lattice has established its own semantic contract. We therefore start with a small native parser and keep the language layer replaceable.
 
-## LCE 0.6 grammar
+## LCE 0.7 grammar
 
 An input text contains one or more supported sentences. Each sentence is terminated by its required punctuation and is processed in source order.
 
@@ -56,7 +56,7 @@ Additional constraints:
 - Concepts, adjectives, and verbs are single lowercase tokens. Plurals, adjective ordering rules, nested noun phrases, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - A definite descriptive noun phrase has the form "the" followed by one or more lowercase descriptive tokens. The final token is the head noun; preceding tokens are modifiers. Examples include "the red ball" and "the old blue car".
-- A universal class description uses the same trailing-head convention without the article "the". In "Every red ball is a toy.", the head noun is "ball" and the modifier is "red". Multiple modifiers are supported, as in "Every old blue car is a vehicle."
+- A universal class description uses the same trailing-head convention without the article "the". In "Every red ball is a toy.", the head noun is "ball" and the modifier is "red". Multiple modifiers are supported, as in "Every old blue car is a vehicle." The modifier predicates and head-noun predicate form a conjunction: every condition must apply to the same individual before the conclusion follows.
 - A definite descriptive noun phrase becomes a structured semantic term containing its head noun and ordered modifiers. For example, "the old blue car" has head noun car and modifiers old, blue.
 - The term also exposes a stable canonical individual identifier by joining modifiers and head noun with hyphens: "the red ball" becomes red-ball. Repeating the same phrase therefore addresses the same identifier.
 - When a grounded assertion contains a descriptive term, the knowledge base stores the sentence's main predicate and adds one unary fact for the head noun and one for each modifier. Thus "The red ball is a toy." contributes toy(red-ball), ball(red-ball), and red(red-ball).
