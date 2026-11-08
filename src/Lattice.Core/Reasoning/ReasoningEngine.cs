@@ -127,7 +127,7 @@ public sealed class ReasoningEngine
                         conclusion,
                         rule.SourceText,
                         premises[0],
-                        AdditionalPremises: premises.RemoveAt(0)));
+                        AdditionalPremises: premises.Skip(1).ToImmutableArray()));
 
                     added = true;
                 }
