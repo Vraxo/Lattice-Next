@@ -7,7 +7,7 @@ namespace Lattice.Core.Language;
 public sealed class LceParser
 {
     private static readonly Regex UniversalRulePattern = new(
-        @"^Every\s+(?<subtype>[a-z][a-z0-9-]*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
+        @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
@@ -62,9 +62,14 @@ public sealed class LceParser
         if (universalMatch.Success)
         {
             var variable = new VariableTerm(new SemanticIdentifier("x"));
-            var subtype = CreatePredicate(universalMatch.Groups["subtype"].Value, variable);
+            var premises = CreateUniversalPremises(
+                universalMatch.Groups["description"].Value,
+                variable);
+            SemanticFormula premise = premises.Length == 1
+                ? premises[0]
+                : new Conjunction(premises.Cast<SemanticFormula>().ToImmutableArray());
             var supertype = CreatePredicate(universalMatch.Groups["supertype"].Value, variable);
-            var implication = new Implication(subtype, supertype);
+            var implication = new Implication(premise, supertype);
             var meaning = new UniversalQuantification(variable, implication);
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
@@ -222,6 +227,14 @@ public sealed class LceParser
 
         return TextParseResult.Success(utterances.ToImmutable());
     }
+
+    private static ImmutableArray<PredicateApplication> CreateUniversalPremises(
+        string description,
+        VariableTerm variable) =>
+        description
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => CreatePredicate(word, variable))
+            .ToImmutableArray();
 
     private static PredicateApplication CreatePredicate(string predicate, SemanticTerm argument) =>
         new(
