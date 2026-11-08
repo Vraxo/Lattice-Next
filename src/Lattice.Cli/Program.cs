@@ -1,25 +1,25 @@
 using Lattice.Core.Language;
 using Lattice.Core.Semantics;
+using Spectre.Console;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 var parser = new LceParser();
 
-Console.WriteLine("Lattice");
-Console.WriteLine("Symbolic intelligence — controlled-language foundation");
-Console.WriteLine();
-Console.WriteLine("LCE 0.1 accepts one sentence per input. It parses meaning but does not reason yet.");
-Console.WriteLine("Type :help for examples, :status for implementation status, or :quit to exit.");
-Console.WriteLine();
+AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.1[/]");
+AnsiConsole.MarkupLine("[dim]Enter a sentence, :help for examples, :status for implementation status, or :quit to exit.[/]");
+AnsiConsole.WriteLine();
 
 while (true)
 {
-    Console.Write("you> ");
+    AnsiConsole.Markup("[bold green]you[/] [dim]›[/] ");
 
     var line = Console.ReadLine();
 
     if (line is null || string.Equals(line.Trim(), ":quit", StringComparison.OrdinalIgnoreCase))
     {
+        AnsiConsole.MarkupLine("[dim]Session ended.[/]");
         break;
     }
 
@@ -32,22 +32,25 @@ while (true)
 
     if (string.Equals(input, ":help", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine("Supported forms:");
-        Console.WriteLine("  Every dog is an animal.");
-        Console.WriteLine("  Fido is a dog.");
-        Console.WriteLine("  Is Fido an animal?");
-        Console.WriteLine("LCE 0.1 is a small controlled-language subset, not full ACE or unrestricted English.");
+        AnsiConsole.MarkupLine("[bold]Supported forms[/]");
+        AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]");
+        AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]");
+        AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]");
+        AnsiConsole.MarkupLine("[dim]LCE 0.1 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.WriteLine();
         continue;
     }
 
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine("Language: LCE 0.1 parser");
-        Console.WriteLine("Semantic representation: terms, predicates, implication, universal quantification");
-        Console.WriteLine("Reasoning: not implemented");
-        Console.WriteLine("Conversation context: not implemented");
-        Console.WriteLine("Knowledge packs: none loaded");
-        Console.WriteLine("Tools: none registered");
+        AnsiConsole.MarkupLine("[bold]Implementation status[/]");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.1 parser");
+        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, predicates, implication, universal quantification");
+        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            [yellow]Not implemented[/]");
+        AnsiConsole.MarkupLine("  [cyan]Conversation memory[/] [yellow]Not implemented[/]");
+        AnsiConsole.MarkupLine("  [cyan]Knowledge packs[/]      None loaded");
+        AnsiConsole.MarkupLine("  [cyan]Tools[/]                None registered");
+        AnsiConsole.WriteLine();
         continue;
     }
 
@@ -55,11 +58,15 @@ while (true)
 
     if (result.Utterance is not { } utterance)
     {
-        Console.WriteLine($"lattice> {result.Error}");
+        AnsiConsole.Markup("[bold red]Lattice[/] ");
+        AnsiConsole.WriteLine(result.Error ?? "Input could not be parsed.");
+        AnsiConsole.WriteLine();
         continue;
     }
 
     var kind = utterance.Kind == UtteranceKind.Question ? "question" : "assertion";
-    Console.WriteLine($"lattice> Parsed {kind}.");
-    Console.WriteLine($"meaning> {SemanticFormatter.Format(utterance)}");
+    AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]Parsed {kind}.[/]");
+    AnsiConsole.Markup("[dim]meaning › [/]");
+    AnsiConsole.WriteLine(SemanticFormatter.Format(utterance));
+    AnsiConsole.WriteLine();
 }
