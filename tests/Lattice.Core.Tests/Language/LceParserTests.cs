@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Lattice.Core.Tests.Language;
 
-public sealed class ControlledEnglishParserTests
+public sealed class LceParserTests
 {
-    private readonly ControlledEnglishParser parser = new();
+    private readonly LceParser parser = new();
 
     [Fact]
     public void Parses_universal_class_rule_into_language_independent_formula()

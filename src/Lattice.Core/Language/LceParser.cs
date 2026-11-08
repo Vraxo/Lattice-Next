@@ -4,7 +4,7 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-public sealed class ControlledEnglishParser
+public sealed class LceParser
 {
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<subtype>[a-z][a-z0-9-]*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
