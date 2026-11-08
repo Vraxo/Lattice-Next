@@ -39,6 +39,8 @@ dotnet run --project src/Lattice.Cli
 dotnet test Lattice.sln --configuration Release
 ```
 
+The test runner is Microsoft Testing Platform, selected in [global.json](global.json) for the .NET 10 `dotnet test` experience.
+
 ## Development principles
 
 - Build small, runnable increments.
