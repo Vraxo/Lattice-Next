@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src\Lattice.Core\Lattice.Core.csproj" />
+  <Project Path="src\Lattice.Cli\Lattice.Cli.csproj" />
+  <Project Path="tests\Lattice.Core.Tests\Lattice.Core.Tests.csproj" />
+</Solution>

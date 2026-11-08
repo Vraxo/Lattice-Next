@@ -36,7 +36,7 @@ Requires the .NET 10 SDK.
 
 ```powershell
 dotnet run --project src/Lattice.Cli
-dotnet test Lattice.sln --configuration Release
+dotnet test Lattice.slnx --configuration Release
 ```
 
 The test runner is Microsoft Testing Platform, selected in [global.json](global.json) for the .NET 10 `dotnet test` experience.
