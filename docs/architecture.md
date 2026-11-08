@@ -10,7 +10,7 @@ The architecture must preserve a strict distinction between **intelligence**, **
 
 ### Language
 
-Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.2 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
+Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.3 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
 
 Language is an interface to meaning. It must not own reasoning or tool execution.
 
@@ -28,7 +28,7 @@ It must remain useful when no tools are registered. It must not depend on a part
 
 ### Context
 
-Maintains the active conversation and task state. The first implementation tracks explicitly mentioned individuals and conservatively resolves the singular "it" reference when exactly one individual is known. Missing or ambiguous references produce a clarification request instead of a guess. The exact policy and boundaries are recorded in [context.md](context.md).
+Maintains the active conversation and task state. The first implementation tracks explicitly mentioned individuals and conservatively resolves the singular "it" reference when exactly one individual is known. Missing or ambiguous references produce a clarification request instead of a guess. Multi-sentence input is parsed completely first, then its utterances are processed in source order so earlier accepted statements can inform later references in the same turn. The exact policy and boundaries are recorded in [context.md](context.md).
 
 Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Preserve provenance so Lattice can explain why it believes something and retract or revise conclusions when their support changes.
 
@@ -64,7 +64,7 @@ Core must not depend on the CLI. Tool implementations are called through Core co
 
 ## Language strategy
 
-LCE 0.2 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
+LCE 0.3 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
 
 A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
 

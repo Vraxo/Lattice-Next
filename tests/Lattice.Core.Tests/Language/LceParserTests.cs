@@ -79,6 +79,78 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_multiple_sentences_in_order_and_preserves_each_source_sentence()
+    {
+        var result = parser.ParseText(
+            "Every dog is an animal. Fido is a dog. Is Fido an animal?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(3, result.Utterances.Length);
+
+        Assert.Equal("Every dog is an animal.", result.Utterances[0].SourceText);
+        Assert.Equal(UtteranceKind.Assertion, result.Utterances[0].Kind);
+
+        Assert.Equal("Fido is a dog.", result.Utterances[1].SourceText);
+        Assert.Equal(UtteranceKind.Assertion, result.Utterances[1].Kind);
+
+        Assert.Equal("Is Fido an animal?", result.Utterances[2].SourceText);
+        Assert.Equal(UtteranceKind.Question, result.Utterances[2].Kind);
+    }
+
+    [Fact]
+    public void Parses_mixed_sentence_terminators_and_inter_sentence_whitespace()
+    {
+        var result = parser.ParseText(
+            "Fido is a dog.  Is Fido a dog?\tEvery dog is an animal.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(3, result.Utterances.Length);
+        Assert.Equal("Fido is a dog.", result.Utterances[0].SourceText);
+        Assert.Equal("Is Fido a dog?", result.Utterances[1].SourceText);
+        Assert.Equal("Every dog is an animal.", result.Utterances[2].SourceText);
+    }
+
+    [Fact]
+    public void Rejects_the_entire_text_when_any_sentence_is_invalid()
+    {
+        var result = parser.ParseText(
+            "Fido is a dog. Fido is probably an animal. Is Fido a dog?");
+
+        Assert.False(result.IsSuccess);
+        Assert.Empty(result.Utterances);
+        Assert.Contains("Sentence 2", result.Error);
+    }
+
+    [Fact]
+    public void Rejects_an_unterminated_final_sentence()
+    {
+        var result = parser.ParseText("Fido is a dog. Is Fido an animal");
+
+        Assert.False(result.IsSuccess);
+        Assert.Empty(result.Utterances);
+        Assert.Contains("Sentence 2", result.Error);
+    }
+
+    [Fact]
+    public void Rejects_sentences_without_intervening_whitespace()
+    {
+        var result = parser.ParseText("Fido is a dog.Is Fido a dog?");
+
+        Assert.False(result.IsSuccess);
+        Assert.Empty(result.Utterances);
+        Assert.Contains("whitespace", result.Error);
+    }
+
+    [Fact]
+    public void Single_sentence_parse_does_not_silently_accept_a_text()
+    {
+        var result = parser.Parse("Fido is a dog. Is Fido a dog?");
+
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Utterance);
+    }
+
+    [Fact]
     public void Parses_yes_no_question_without_turning_it_into_an_assertion()
     {
         var result = parser.Parse("Is Fido an animal.");
@@ -121,5 +193,11 @@ public sealed class LceParserTests
         Assert.False(result.IsSuccess);
         Assert.Null(result.Utterance);
         Assert.NotNull(result.Error);
+    }
+
+    [Fact]
+    public void Parse_text_rejects_empty_input()
+    {
+        Assert.False(parser.ParseText(" ").IsSuccess);
     }
 }

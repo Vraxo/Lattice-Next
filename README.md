@@ -16,14 +16,14 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.2**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.3**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
-It currently parses one sentence per input, including:
+A single input can now contain multiple complete sentences, for example:
 
-    Every dog is an animal.
-    Fido is a dog.
-    Is Fido an animal?
-    Is it a mammal?
+    Every dog is an animal. Fido is a dog. Is Fido an animal?
+    Fido is a dog. It is a mammal. Is it a mammal?
+
+The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
 The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. It does not guess based on recency.
 

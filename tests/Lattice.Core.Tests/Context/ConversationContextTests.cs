@@ -124,6 +124,48 @@ public sealed class ConversationContextTests
         Assert.Equal("fido", fact.ResolvedReferent!.Value.Value);
     }
 
+    [Fact]
+    public void Processes_multiple_sentences_in_order_using_context_and_reasoning()
+    {
+        var parser = new LceParser();
+        var textResult = parser.ParseText(
+            "Fido is a dog. It is a mammal. Is it a mammal?");
+
+        Assert.True(textResult.IsSuccess, textResult.Error);
+
+        var context = new ConversationContext();
+        var knowledgeBase = new KnowledgeBase();
+        var reasoningEngine = new ReasoningEngine();
+        ReasoningResult? answer = null;
+
+        foreach (var parsedUtterance in textResult.Utterances)
+        {
+            var resolution = context.Resolve(parsedUtterance);
+            Assert.True(resolution.IsSuccess);
+
+            var utterance = Assert.IsType<SemanticUtterance>(resolution.Utterance);
+
+            if (utterance.Kind == UtteranceKind.Assertion)
+            {
+                var added = knowledgeBase.TryAdd(utterance, out _, out var error);
+                Assert.True(added, error);
+                context.Observe(utterance);
+                continue;
+            }
+
+            context.Observe(utterance);
+            var query = Assert.IsType<PredicateApplication>(utterance.Meaning);
+            answer = reasoningEngine.Ask(knowledgeBase, query);
+        }
+
+        Assert.NotNull(answer);
+        Assert.True(answer.IsSupported);
+
+        var proof = Assert.IsType<ProofNode>(answer.Proof);
+        Assert.Equal("It is a mammal.", proof.SourceText);
+        Assert.Equal("fido", proof.ResolvedReferent!.Value.Value);
+    }
+
     private static SemanticUtterance Parse(string sentence)
     {
         var result = new LceParser().Parse(sentence);
