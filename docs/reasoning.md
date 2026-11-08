@@ -6,10 +6,10 @@ The first reasoning implementation provides deterministic, positive reasoning ov
 
 The current engine accepts two kinds of asserted input:
 
-- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`.
+- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
 - **Universal rule:** one universally quantified implication with one unary premise and one unary conclusion, such as `forall(x, implies(dog(x), animal(x)))`.
 
-A fact is ground only when its predicate identifier is non-empty and every argument is a concrete, non-empty `IndividualTerm`. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
+A fact is ground only when its predicate identifier is non-empty and every argument is a concrete individual or a valid descriptive individual term. Descriptive terms are normalized to `IndividualTerm` values before storage. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
 ## Direct lookup and inference
 
@@ -27,6 +27,18 @@ Known unary facts are deduplicated by predicate and individual. This lets rules 
 Relational facts are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, while the semantic and knowledge representations can retain more than two grounded arguments.
 
 The engine preserves the source sentence behind every asserted fact and rule. A ProofNode records the conclusion, the sentence that supplied or derived it, and (for an inference) the proof of its premise. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
+
+## Descriptive facts
+
+A description such as `the red ball` has a head noun (`ball`) and a modifier (`red`), while retaining the stable individual identifier `red-ball`. When an assertion uses that description, the knowledge base records the main assertion plus unary facts for the head and each modifier. This lets ordinary unary rules operate on descriptive knowledge without adding adjective-specific inference logic.
+
+For example:
+
+    Every ball is a toy.
+    The red ball is shiny.
+    Is the red ball a toy?
+
+The head noun fact `ball(red-ball)` supports the rule, which derives `toy(red-ball)`. The modifier is independently queryable with `Is the red ball red?`. Both facts retain the original sentence as their provenance.
 
 ## Answer semantics
 

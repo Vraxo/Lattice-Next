@@ -29,7 +29,9 @@ The parser validates the entire text before the CLI changes any session state. O
 
 Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
 
-Definite descriptive noun phrases such as 'the red ball' are accepted in subject and object positions. Their words form a canonical identifier (red-ball), so repeated use of the same description can retrieve the same fact. This is an identity convention for the current controlled language, not adjective reasoning or real-world entity resolution. Indefinite phrases such as 'a red ball' remain unsupported.
+Definite descriptions such as 'the red ball' are represented as a head noun ('ball') plus modifiers ('red'), while retaining the stable identity 'red-ball'. When a sentence uses that description, the knowledge base stores the head and modifiers as unary facts as well as the sentence's main assertion. This lets existing rules reason over the head noun and lets questions such as 'Is the red ball red?' retrieve the modifier fact. It is not synonym resolution or unrestricted noun-phrase understanding: 'the red ball' and 'the crimson ball' remain different identifiers, and indefinite phrases such as 'a red ball' remain unsupported.
+
+For example, 'Every ball is a toy. The red ball is shiny. Is the red ball a toy?' can now be answered through the description's head noun: the phrase contributes ball(red-ball), which activates the universal rule.
 
 The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
 

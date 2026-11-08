@@ -1,10 +1,10 @@
-# Language strategy and LCE 0.5
+# Language strategy and LCE 0.6
 
 ## Decision
 
 The initial parser uses **Lattice Controlled English (LCE) 0.5**: a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE).
 
-LCE 0.5 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.6 retains unary assertions, universal rules, questions, and multi-sentence turns. It adds binary relational assertions and direct yes/no relational questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 
@@ -14,22 +14,24 @@ The official Attempto Parsing Engine (APE) converts ACE text into a Discourse Re
 
 Using APE could be a valid later option if Lattice needs broad ACE coverage. For the first language slice, however, an external parser/runtime would add deployment and integration complexity before Lattice has established its own semantic contract. We therefore start with a small native parser and keep the language layer replaceable.
 
-## LCE 0.5 grammar
+## LCE 0.6 grammar
 
 An input text contains one or more supported sentences. Each sentence is terminated by its required punctuation and is processed in source order.
 
     text                 = sentence, { whitespace, sentence } ;
 
     sentence             = universal-rule | unary-assertion | pronoun-assertion
-                         | relation-assertion | unary-question | pronoun-question
-                         | relation-question ;
+                         | property-assertion | relation-assertion | unary-question
+                         | pronoun-question | property-question | relation-question ;
 
     universal-rule       = "Every", concept, "is", article, concept, "." ;
     unary-assertion      = noun-phrase, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
+    property-assertion   = definite-description, "is", adjective, "." ;
     relation-assertion   = noun-phrase, third-person-verb, object-term, "." ;
     unary-question       = "Is", noun-phrase, article, concept, "?" ;
     pronoun-question     = "Is", "it", article, concept, "?" ;
+    property-question    = "Is", definite-description, adjective, "?" ;
     relation-question    = "Does", noun-phrase, base-verb, object-term, "?" ;
 
     noun-phrase          = proper-name | definite-description ;
@@ -50,12 +52,14 @@ An input text contains one or more supported sentences. Each sentence is termina
 Additional constraints:
 
 - The function words and sentence-initial words use the exact capitalization shown.
-- Concepts and verbs are single lowercase tokens. Plurals, adjective semantics, nested noun phrases, and domain vocabulary rules are not supported yet.
+- Concepts, adjectives, and verbs are single lowercase tokens. Plurals, adjective ordering rules, nested noun phrases, and domain vocabulary rules are not supported yet.
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - A definite descriptive noun phrase has the form "the" followed by one or more lowercase descriptive tokens. The final token is the head noun; preceding tokens are modifiers. Examples include "the red ball" and "the old blue car".
-- A definite descriptive noun phrase becomes one canonical individual identifier by joining its tokens with hyphens: "the red ball" becomes red-ball, and "the old blue car" becomes old-blue-car. Repeating the same phrase therefore addresses the same identifier.
-- An object term is a proper name, a definite descriptive noun phrase, or a single lowercase token. It is represented as an individual identifier, not as a class or a quantified noun phrase.
-- This first slice treats the whole description as an identity key. It does not yet model adjective meaning, determine whether two different descriptions refer to the same real-world object, or interpret indefinite phrases such as "a red ball".
+- A definite descriptive noun phrase becomes a structured semantic term containing its head noun and ordered modifiers. For example, "the old blue car" has head noun car and modifiers old, blue.
+- The term also exposes a stable canonical individual identifier by joining modifiers and head noun with hyphens: "the red ball" becomes red-ball. Repeating the same phrase therefore addresses the same identifier.
+- When a grounded assertion contains a descriptive term, the knowledge base stores the sentence's main predicate and adds one unary fact for the head noun and one for each modifier. Thus "The red ball is a toy." contributes toy(red-ball), ball(red-ball), and red(red-ball).
+- A definite-description property assertion such as "The red ball is shiny." contributes shiny(red-ball), ball(red-ball), and red(red-ball). The matching property question is "Is the red ball shiny?".
+- Descriptions remain identity keys rather than full natural-language entity resolution. "The red ball" and "the crimson ball" are different identifiers; adjective synonyms, ordering variants, comparative adjectives, and indefinite phrases such as "a red ball" are not interpreted.
 - Relational assertions use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
 - Relational questions use `Does`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + `y` becomes `ies`; endings `s`, `x`, `z`, `ch`, `sh`, and `o` take `es`; other verbs take `s`.
 - The supported irregular base forms `have`, `do`, and `go` map to `has`, `does`, and `goes`. Other irregular forms are not normalized by this grammar.
@@ -79,7 +83,9 @@ Examples:
 | `Is Fido an animal?` | One unary yes/no question |
 | `Fido likes milk.` | Binary fact: `likes(fido, milk)` |
 | `Fido likes the red ball.` | Binary fact: `likes(fido, red-ball)` |
-| `The red ball is a toy.` | Unary fact: `toy(red-ball)` |
+| `The red ball is a toy.` | Main fact: `toy(red-ball)`; description facts: `ball(red-ball)`, `red(red-ball)` |
+| `The red ball is shiny.` | Property fact: `shiny(red-ball)`; description facts: `ball(red-ball)`, `red(red-ball)` |
+| `Is the red ball red?` | Property query: `ask(red(red-ball))` |
 | `Does Fido like the red ball?` | Query: `ask(likes(fido, red-ball))` |
 | `Does Fido like milk?` | Query: `ask(likes(fido, milk))` |
 | `Fido has milk. Does Fido have milk?` | A relation fact followed by its matching query |
@@ -122,7 +128,7 @@ The relational example `Fido likes milk.` is represented as:
       [IndividualTerm("fido"), IndividualTerm("milk")]
     )
 
-A definite description is represented as one individual identifier. For example, `the red ball` becomes `IndividualTerm("red-ball")`. This keeps repeated explicit descriptions consistent for exact fact lookup, while leaving adjective interpretation and identity resolution for a later semantic layer.
+A definite description is represented as a structured `DescriptiveIndividualTerm`. For example, `the red ball` has head `ball`, modifier `red`, and stable identifier `red-ball`. When an assertion is added to the knowledge base, the descriptor is grounded to that identifier and contributes the separate unary facts `ball(red-ball)` and `red(red-ball)`. The adjective is therefore available as a predicate; it is not just embedded in an opaque name.
 
 ## Input normalization
 

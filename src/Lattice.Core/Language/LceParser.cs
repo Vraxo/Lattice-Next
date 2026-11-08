@@ -14,6 +14,10 @@ public sealed class LceParser
         @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex PropertyAssertionPattern = new(
+        @"^(?<individual>[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*)\s+is\s+(?<property>[a-z][a-z0-9-]*)\.$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex PronounAssertionPattern = new(
         @"^It\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -24,6 +28,10 @@ public sealed class LceParser
 
     private static readonly Regex QuestionPattern = new(
         @"^Is\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex PropertyQuestionPattern = new(
+        @"^Is\s+(?<individual>[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*)\s+(?<property>[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PronounQuestionPattern = new(
@@ -84,6 +92,17 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
+        var propertyAssertionMatch = PropertyAssertionPattern.Match(source);
+
+        if (propertyAssertionMatch.Success)
+        {
+            var meaning = CreatePredicate(
+                propertyAssertionMatch.Groups["property"].Value,
+                CreateSubjectTerm(propertyAssertionMatch.Groups["individual"].Value));
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
         var relationAssertionMatch = RelationAssertionPattern.Match(source);
 
         if (relationAssertionMatch.Success)
@@ -118,6 +137,17 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
 
+        var propertyQuestionMatch = PropertyQuestionPattern.Match(source);
+
+        if (propertyQuestionMatch.Success)
+        {
+            var meaning = CreatePredicate(
+                propertyQuestionMatch.Groups["property"].Value,
+                CreateSubjectTerm(propertyQuestionMatch.Groups["individual"].Value));
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
+        }
+
         var relationQuestionMatch = RelationQuestionPattern.Match(source);
 
         if (relationQuestionMatch.Success)
@@ -131,7 +161,7 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.5. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.6. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
@@ -241,20 +271,21 @@ public sealed class LceParser
         return $"{verb}s";
     }
 
-    private static SemanticTerm CreateSubjectTerm(string value) =>
-        new IndividualTerm(CreateNounPhraseIdentifier(value));
-
-    private static SemanticIdentifier CreateNounPhraseIdentifier(string value)
+    private static SemanticTerm CreateSubjectTerm(string value)
     {
-        var normalized = value.StartsWith("the ", StringComparison.OrdinalIgnoreCase)
-            ? value[4..]
-            : value;
+        if (!value.StartsWith("the ", StringComparison.OrdinalIgnoreCase))
+        {
+            return new IndividualTerm(CreateIdentifier(value));
+        }
 
-        var identifier = string.Join(
-            "-",
-            normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        var words = value[4..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var modifiers = words[..^1]
+            .Select(CreateIdentifier)
+            .ToImmutableArray();
 
-        return CreateIdentifier(identifier);
+        return new DescriptiveIndividualTerm(
+            CreateIdentifier(words[^1]),
+            modifiers);
     }
 
     private static UnresolvedReferenceTerm CreateUnresolvedReference() =>

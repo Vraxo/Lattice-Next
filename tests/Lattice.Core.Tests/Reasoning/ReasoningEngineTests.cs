@@ -135,6 +135,60 @@ public sealed class ReasoningEngineTests
             new SemanticUtterance(UtteranceKind.Assertion, result.Proof.Predicate, result.Proof.SourceText)));
     }
 
+
+    [Fact]
+    public void Description_head_and_modifiers_become_facts_available_to_rules_and_queries()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every ball is a toy.");
+        Add(knowledgeBase, "The red ball is shiny.");
+
+        Assert.Equal(3, knowledgeBase.Facts.Count);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "shiny" &&
+            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "ball" &&
+            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "red" &&
+            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+
+        var headQuestion = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball a ball?"));
+        var modifierQuestion = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball red?"));
+        var inferredQuestion = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball a toy?"));
+
+        Assert.True(headQuestion.IsSupported);
+        Assert.Equal("The red ball is shiny.", headQuestion.Proof!.SourceText);
+        Assert.True(modifierQuestion.IsSupported);
+        Assert.Equal("The red ball is shiny.", modifierQuestion.Proof!.SourceText);
+
+        Assert.True(inferredQuestion.IsSupported);
+        Assert.Equal("Every ball is a toy.", inferredQuestion.Proof!.SourceText);
+        Assert.Equal("ball", inferredQuestion.Proof.Premise!.Predicate.Predicate.Value);
+        Assert.Equal("The red ball is shiny.", inferredQuestion.Proof.Premise.SourceText);
+    }
+
+    [Fact]
+    public void Does_not_transfer_a_description_modifier_to_a_different_entity()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "The red ball is shiny.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the blue ball red?"));
+
+        Assert.False(result.IsSupported);
+        Assert.Null(result.Proof);
+    }
+
     [Fact]
     public void Deduplicates_identical_ground_relational_facts()
     {

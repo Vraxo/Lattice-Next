@@ -18,9 +18,18 @@ public sealed class ConversationContext
             return;
         }
 
-        foreach (var individual in predicate.Arguments.OfType<IndividualTerm>())
+        foreach (var argument in predicate.Arguments)
         {
-            individuals.Add(individual.Identifier);
+            switch (argument)
+            {
+                case IndividualTerm individual:
+                    individuals.Add(individual.Identifier);
+                    break;
+
+                case DescriptiveIndividualTerm description:
+                    individuals.Add(description.Identifier);
+                    break;
+            }
         }
     }
 

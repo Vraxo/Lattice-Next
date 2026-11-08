@@ -18,7 +18,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Parse multiple complete sentences in one input atomically, preserving source order.
 - [x] Parse binary relational assertions and direct yes/no relational questions.
 - [x] Parse definite descriptive noun phrases in subject and object positions using stable canonical identifiers.
-- [ ] Add adjective semantics, quantified relation arguments, and relational pronoun forms deliberately.
+- [x] Represent definite descriptions with a head noun and ordered modifiers; assert them as separate unary facts on one stable individual.
+- [ ] Add quantified relation arguments and relational pronoun forms deliberately.
 
 ## 2. First symbolic reasoning slice
 
