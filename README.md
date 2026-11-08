@@ -16,11 +16,12 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.5**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.7**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
 A single input can contain multiple complete sentences, including relational facts and questions:
 
     Every dog is an animal. Fido is a dog. Is Fido an animal?
+    Every red ball is a toy. The red ball is shiny. Is the red ball a toy?
     Fido is a dog. It is a mammal. Is it a mammal?
     Fido likes milk. Does Fido like milk?
     The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?
@@ -28,19 +29,19 @@ A single input can contain multiple complete sentences, including relational fac
 
 The parser validates the entire text before the CLI changes any session state. Once parsing succeeds, sentences are processed in order, so context and knowledge established by earlier sentences are available to later sentences in the same input.
 
-Unary assertions and universal rules retain their original behavior. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
+Unary assertions and single-condition universal rules retain their original behavior. Universal rules can now require several unary conditions: `Every red ball is a toy.` is represented as `and(red(x), ball(x)) => toy(x)`, so both the adjective and head noun must be established for the same individual before the conclusion follows. Binary relational assertions are stored as ordered predicates, so `Fido likes milk.` and `Does Fido like milk?` share the meaning `likes(fido, milk)`. Question verbs use their base form; the controlled grammar applies regular third-person singular spelling and supports the irregular forms `have`, `do`, and `go`.
 
-Definite descriptions such as 'the red ball' are represented as a head noun ('ball') plus modifiers ('red'), while retaining the stable identity 'red-ball'. When a sentence uses that description, the knowledge base stores the head and modifiers as unary facts as well as the sentence's main assertion. This lets existing rules reason over the head noun and lets questions such as 'Is the red ball red?' retrieve the modifier fact. It is not synonym resolution or unrestricted noun-phrase understanding: 'the red ball' and 'the crimson ball' remain different identifiers, and indefinite phrases such as 'a red ball' remain unsupported.
+Definite descriptions such as 'the red ball' are represented as a head noun ('ball') plus modifiers ('red'), while retaining the stable identity 'red-ball'. When a sentence uses that description, the knowledge base stores the head and modifiers as unary facts as well as the sentence's main assertion. This lets rules reason over the head noun and modifiers, including conjunctive class rules such as 'Every red ball is a toy'. Questions such as 'Is the red ball red?' can also retrieve a modifier fact. It is not synonym resolution or unrestricted noun-phrase understanding: 'the red ball' and 'the crimson ball' remain different identifiers, and indefinite phrases such as 'a red ball' remain unsupported.
 
 For example, 'Every ball is a toy. The red ball is shiny. Is the red ball a toy?' can now be answered through the description's head noun: the phrase contributes ball(red-ball), which activates the universal rule.
 
-The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining still applies to unary predicates only.
+The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining applies only to unary predicates, but a rule may now require a conjunction of unary premises.
 
 Before parsing, Lattice performs conservative formatting normalization: Unicode text is canonically composed, unusual whitespace and zero-width spaces become ordinary separators, a leading byte-order mark is removed, and soft hyphens are discarded. The original sentence is retained for provenance. Words, spelling, articles, capitalization, and punctuation are not corrected or invented.
 
 The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. Relation statements and questions introduce each of their concrete individual arguments into session context, so a turn that names both Fido and milk makes "it" ambiguous until the user clarifies.
 
-The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs unary forward chaining, answers exact relational lookups, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
+The CLI retains accepted facts and universal rules in an in-memory knowledge base for the current session. Its reasoning engine performs unary forward chaining with conjunctive premises, answers exact relational lookups, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
 
 This is intentionally not a general theorem prover or a general co-reference resolver. Unknown does not mean false, and session knowledge and context are discarded when the CLI exits. See [the LCE grammar](docs/language.md), [conversational context](docs/context.md), and [the first reasoning slice](docs/reasoning.md).
 
@@ -66,6 +67,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, and an in-memory symbolic reasoning engine with unary inference and exact relational lookup. Persistent conversation context, knowledge-pack loading, relational inference, and tool execution are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, and an in-memory symbolic reasoning engine with conjunctive unary inference and exact relational lookup. Persistent conversation context, knowledge-pack loading, relational inference, and tool execution are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.

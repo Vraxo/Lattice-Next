@@ -243,6 +243,66 @@ public sealed class ReasoningEngineTests
         Assert.NotNull(relationError);
     }
 
+    [Fact]
+    public void Requires_every_conjunctive_class_condition_for_a_universal_rule()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every red ball is a toy.");
+        Add(knowledgeBase, "The red ball is shiny.");
+        Add(knowledgeBase, "The blue ball is shiny.");
+        Add(knowledgeBase, "The red cube is shiny.");
+
+        var redBall = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball a toy?"));
+        Assert.True(redBall.IsSupported);
+
+        var proof = Assert.IsType<ProofNode>(redBall.Proof);
+        Assert.Equal("Every red ball is a toy.", proof.SourceText);
+        Assert.Equal("red", proof.Premise!.Predicate.Predicate.Value);
+        Assert.Equal("The red ball is shiny.", proof.Premise.SourceText);
+
+        var secondPremise = Assert.Single(proof.AdditionalPremises);
+        Assert.Equal("ball", secondPremise.Predicate.Predicate.Value);
+        Assert.Equal("The red ball is shiny.", secondPremise.SourceText);
+
+        var blueBall = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the blue ball a toy?"));
+        Assert.False(blueBall.IsSupported);
+        Assert.Null(blueBall.Proof);
+
+        var redCube = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red cube a toy?"));
+        Assert.False(redCube.IsSupported);
+        Assert.Null(redCube.Proof);
+    }
+
+    [Fact]
+    public void Chains_a_conjunctive_rule_into_a_later_unary_rule()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every toy is a plaything.");
+        Add(knowledgeBase, "Every red ball is a toy.");
+        Add(knowledgeBase, "The red ball is shiny.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball a plaything?"));
+
+        Assert.True(result.IsSupported);
+
+        var finalProof = Assert.IsType<ProofNode>(result.Proof);
+        Assert.Equal("Every toy is a plaything.", finalProof.SourceText);
+
+        var conjunctiveProof = Assert.IsType<ProofNode>(finalProof.Premise);
+        Assert.Equal("Every red ball is a toy.", conjunctiveProof.SourceText);
+        Assert.Equal("red", conjunctiveProof.Premise!.Predicate.Predicate.Value);
+        Assert.Equal("ball", Assert.Single(conjunctiveProof.AdditionalPremises)
+            .Predicate.Predicate.Value);
+    }
+
     private static KnowledgeEntryKind Add(
         KnowledgeBase knowledgeBase,
         string sentence)

@@ -58,16 +58,15 @@ public sealed class KnowledgeBase
         if (utterance.Meaning is UniversalQuantification universal &&
             universal.Body is Implication implication &&
             universal.Variable is { } variable &&
-            implication.Premise is PredicateApplication premise &&
+            TryGetRulePremises(implication.Premise, variable, out var premises) &&
             implication.Conclusion is PredicateApplication conclusion &&
-            IsBoundUnaryPredicate(premise, variable) &&
             IsBoundUnaryPredicate(conclusion, variable))
         {
             if (!rules.Any(rule =>
-                    rule.Premise.Predicate == premise.Predicate &&
-                    rule.Conclusion.Predicate == conclusion.Predicate))
+                    AreSamePremises(rule.Premises, premises) &&
+                    IsSamePredicate(rule.Conclusion, conclusion)))
             {
-                rules.Add(new UniversalRule(premise, conclusion, utterance.SourceText));
+                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText));
             }
 
             kind = KnowledgeEntryKind.Rule;
@@ -75,7 +74,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts with individual or descriptive arguments and single-premise unary universal rules are supported by the current reasoning engine.";
+            "Only ground facts and universal rules with one or more unary premises and one unary conclusion are supported by the current reasoning engine.";
         return false;
     }
 
@@ -154,6 +153,47 @@ public sealed class KnowledgeBase
         new(
             predicate,
             ImmutableArray.Create<SemanticTerm>(new IndividualTerm(individual)));
+
+    private static bool TryGetRulePremises(
+        SemanticFormula formula,
+        VariableTerm variable,
+        out ImmutableArray<PredicateApplication> premises)
+    {
+        premises = formula switch
+        {
+            PredicateApplication predicate => ImmutableArray.Create(predicate),
+            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
+                conjunction.Conjuncts
+                    .OfType<PredicateApplication>()
+                    .ToImmutableArray(),
+            _ => ImmutableArray<PredicateApplication>.Empty
+        };
+
+        if (premises.IsDefaultOrEmpty ||
+            (formula is Conjunction compound &&
+             premises.Length != compound.Conjuncts.Length))
+        {
+            return false;
+        }
+
+        return premises.All(premise => IsBoundUnaryPredicate(premise, variable));
+    }
+
+    private static bool AreSamePremises(
+        ImmutableArray<PredicateApplication> left,
+        ImmutableArray<PredicateApplication> right) =>
+        !left.IsDefault &&
+        !right.IsDefault &&
+        left.Length == right.Length &&
+        left.Zip(right).All(pair => IsSamePredicate(pair.First, pair.Second));
+
+    private static bool IsSamePredicate(
+        PredicateApplication left,
+        PredicateApplication right) =>
+        left.Predicate == right.Predicate &&
+        !left.Arguments.IsDefault &&
+        !right.Arguments.IsDefault &&
+        left.Arguments.SequenceEqual(right.Arguments);
 
     private static bool IsBoundUnaryPredicate(
         PredicateApplication predicate,

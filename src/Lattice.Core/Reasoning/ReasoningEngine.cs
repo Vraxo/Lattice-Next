@@ -60,21 +60,61 @@ public sealed class ReasoningEngine
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                var matchingPremises = knownFacts
+                if (rule.Premises.IsDefaultOrEmpty)
+                {
+                    continue;
+                }
+
+                var candidatePremises = knownFacts
                     .Where(proof =>
                         TryGetFactKey(proof.Predicate, out var key) &&
                         string.Equals(
                             key.Predicate,
-                            rule.Premise.Predicate.Value,
+                            rule.Premises[0].Predicate.Value,
                             StringComparison.Ordinal))
                     .ToArray();
 
-                foreach (var premiseProof in matchingPremises)
+                foreach (var candidatePremise in candidatePremises)
                 {
-                    var individual = (IndividualTerm)premiseProof.Predicate.Arguments[0];
+                    if (!TryGetFactKey(candidatePremise.Predicate, out var candidateKey))
+                    {
+                        continue;
+                    }
+
+                    var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
+                    supportingPremises.Add(candidatePremise);
+                    var allPremisesSupported = true;
+
+                    foreach (var requiredPremise in rule.Premises.Skip(1))
+                    {
+                        var matchingProof = knownFacts.FirstOrDefault(proof =>
+                            TryGetFactKey(proof.Predicate, out var key) &&
+                            string.Equals(
+                                key.Predicate,
+                                requiredPremise.Predicate.Value,
+                                StringComparison.Ordinal) &&
+                            string.Equals(
+                                key.Individual,
+                                candidateKey.Individual,
+                                StringComparison.Ordinal));
+
+                        if (matchingProof is null)
+                        {
+                            allPremisesSupported = false;
+                            break;
+                        }
+
+                        supportingPremises.Add(matchingProof);
+                    }
+
+                    if (!allPremisesSupported)
+                    {
+                        continue;
+                    }
+
                     var conclusion = CreateGroundPredicate(
                         rule.Conclusion.Predicate,
-                        individual.Identifier);
+                        candidateKey.Individual);
 
                     if (!TryGetFactKey(conclusion, out var conclusionKey) ||
                         !knownKeys.Add(conclusionKey))
@@ -82,10 +122,12 @@ public sealed class ReasoningEngine
                         continue;
                     }
 
+                    var premises = supportingPremises.ToImmutable();
                     knownFacts.Add(new ProofNode(
                         conclusion,
                         rule.SourceText,
-                        premiseProof));
+                        premises[0],
+                        AdditionalPremises: premises.Skip(1).ToImmutableArray()));
 
                     added = true;
                 }
@@ -173,8 +215,9 @@ public sealed class ReasoningEngine
 
     private static PredicateApplication CreateGroundPredicate(
         SemanticIdentifier predicate,
-        SemanticIdentifier individual) =>
+        string individual) =>
         new(
             predicate,
-            ImmutableArray.Create<SemanticTerm>(new IndividualTerm(individual)));
+            ImmutableArray.Create<SemanticTerm>(
+                new IndividualTerm(new SemanticIdentifier(individual))));
 }

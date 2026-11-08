@@ -25,6 +25,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Represent simple facts and universally quantified rules.
 - [x] Derive a conclusion from a short chain of rules.
+- [x] Require every unary condition in a conjunctive universal rule to hold for the same individual, retaining all supporting premises in the proof.
 - [x] Distinguish a supported conclusion from unknown information.
 - [x] Explain a conclusion using the premises and rules that support it.
 - [x] Demonstrate the slice through the CLI with deterministic tests.
