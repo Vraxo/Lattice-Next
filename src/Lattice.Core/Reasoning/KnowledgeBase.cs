@@ -203,14 +203,6 @@ public sealed class KnowledgeBase
         !predicate.Arguments.IsDefault &&
         predicate.Arguments.Length == 1 &&
         predicate.Arguments[0] is VariableTerm argument &&
-        argument.Identifier == variable.Identifier;    private static bool IsBoundUnaryPredicate(
-        PredicateApplication predicate,
-        VariableTerm variable) =>
-        !string.IsNullOrWhiteSpace(predicate.Predicate.Value) &&
-        !string.IsNullOrWhiteSpace(variable.Identifier.Value) &&
-        !predicate.Arguments.IsDefault &&
-        predicate.Arguments.Length == 1 &&
-        predicate.Arguments[0] is VariableTerm argument &&
         argument.Identifier == variable.Identifier;
 
     private static bool IsSameFact(
