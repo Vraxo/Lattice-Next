@@ -235,7 +235,7 @@ internal static class NativeEnglishGrammar
             var bound = new VariableTerm(Id("x"));
             utterance = CreateUniversalUtterance(
                 bound,
-                description!.ToConditions(bound),
+                description!.ToUniversalConditions(bound),
                 Predicate(relationPredicate!, bound, relationObject!),
                 sourceText);
             return true;
