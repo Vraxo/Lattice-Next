@@ -13,10 +13,6 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
         @"\s*,?\s+then\s+",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex SlotPattern = new(
-        @"^\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\}$",
-        RegexOptions.CultureInvariant);
-
     private readonly ToolDescriptor descriptor;
     private readonly ToolIntentDefinition definition;
 
@@ -153,50 +149,182 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             definition,
             new Dictionary<string, object?>(StringComparer.Ordinal));
 
-        var patternTokens = definition.Pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var inputTokens = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-
-        if (patternTokens.Length == 0 || patternTokens.Length != inputTokens.Length)
+        if (!ToolIntentPatternParser.TryParse(definition.Pattern, out var parts))
         {
             return false;
         }
 
-        var slots = new Dictionary<string, object?>(StringComparer.Ordinal);
+        var inputTokens = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
-        for (var index = 0; index < patternTokens.Length; index++)
+        if (inputTokens.Length == 0 || inputTokens.Length > 256)
         {
-            var patternToken = NormalizeToken(patternTokens[index]);
-            var inputToken = NormalizeToken(inputTokens[index]);
+            return false;
+        }
 
-            if (patternToken.Length == 0 || inputToken.Length == 0)
+        var matches = new List<IReadOnlyDictionary<string, object?>>();
+        CollectMatches(
+            parts,
+            inputTokens,
+            0,
+            0,
+            new Dictionary<string, object?>(StringComparer.Ordinal),
+            matches);
+
+        if (matches.Count != 1)
+        {
+            return false;
+        }
+
+        matched = new MatchedToolIntent(definition, matches[0]);
+        return true;
+    }
+
+    private static void CollectMatches(
+        IReadOnlyList<ToolIntentPatternPart> parts,
+        IReadOnlyList<string> inputTokens,
+        int partIndex,
+        int inputIndex,
+        Dictionary<string, object?> slots,
+        List<IReadOnlyDictionary<string, object?>> matches)
+    {
+        if (matches.Count > 1)
+        {
+            return;
+        }
+
+        if (partIndex == parts.Count)
+        {
+            if (inputIndex == inputTokens.Count)
             {
-                return false;
+                AddUniqueMatch(matches, slots);
             }
 
-            var slot = SlotPattern.Match(patternToken);
+            return;
+        }
 
-            if (!slot.Success)
+        var part = parts[partIndex];
+
+        if (part.IsOptional)
+        {
+            if (MatchesLiteralTokens(part.LiteralTokens, inputTokens, inputIndex))
             {
-                if (!string.Equals(patternToken, inputToken, StringComparison.OrdinalIgnoreCase))
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + part.LiteralTokens.Length,
+                    slots,
+                    matches);
+            }
+
+            CollectMatches(
+                parts,
+                inputTokens,
+                partIndex + 1,
+                inputIndex,
+                slots,
+                matches);
+            return;
+        }
+
+        if (part.SlotName is null)
+        {
+            if (MatchesLiteralTokens(part.LiteralTokens, inputTokens, inputIndex))
+            {
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + part.LiteralTokens.Length,
+                    slots,
+                    matches);
+            }
+
+            return;
+        }
+
+        if (part.SlotType == "text")
+        {
+            for (var length = 1; length <= inputTokens.Count - inputIndex && matches.Count <= 1; length++)
+            {
+                var captured = string.Join(
+                    ' ',
+                    inputTokens.Skip(inputIndex).Take(length).Select(NormalizeToken));
+
+                if (string.IsNullOrWhiteSpace(captured))
                 {
-                    return false;
+                    continue;
                 }
 
-                continue;
+                slots[part.SlotName] = captured;
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + length,
+                    slots,
+                    matches);
+                slots.Remove(part.SlotName);
             }
 
-            var name = slot.Groups["name"].Value;
-            var type = slot.Groups["type"].Value;
+            return;
+        }
 
-            if (!TryReadSlot(inputToken, type, out var value) ||
-                !slots.TryAdd(name, value))
+        if (inputIndex >= inputTokens.Count ||
+            !TryReadSlot(NormalizeToken(inputTokens[inputIndex]), part.SlotType!, out var value))
+        {
+            return;
+        }
+
+        slots[part.SlotName] = value;
+        CollectMatches(
+            parts,
+            inputTokens,
+            partIndex + 1,
+            inputIndex + 1,
+            slots,
+            matches);
+        slots.Remove(part.SlotName);
+    }
+
+    private static bool MatchesLiteralTokens(
+        IReadOnlyList<string> expected,
+        IReadOnlyList<string> actual,
+        int inputIndex)
+    {
+        if (expected.Count > actual.Count - inputIndex)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < expected.Count; index++)
+        {
+            var expectedToken = NormalizeToken(expected[index]);
+            var actualToken = NormalizeToken(actual[inputIndex + index]);
+
+            if (!string.Equals(expectedToken, actualToken, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
         }
 
-        matched = new MatchedToolIntent(definition, slots);
         return true;
+    }
+
+    private static void AddUniqueMatch(
+        List<IReadOnlyDictionary<string, object?>> matches,
+        Dictionary<string, object?> slots)
+    {
+        if (matches.Any(existing =>
+            existing.Count == slots.Count &&
+            existing.All(pair =>
+                slots.TryGetValue(pair.Key, out var value) &&
+                Equals(pair.Value, value))))
+        {
+            return;
+        }
+
+        matches.Add(new Dictionary<string, object?>(slots, StringComparer.Ordinal));
     }
 
     private static bool TryReadSlot(
