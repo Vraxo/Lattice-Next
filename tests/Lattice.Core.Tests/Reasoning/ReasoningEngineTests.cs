@@ -403,6 +403,36 @@ public sealed class ReasoningEngineTests
         Assert.Null(result.Proof);
     }
 
+    [Fact]
+    public void Processes_an_existential_assertion_and_question_in_one_turn()
+    {
+        var parsed = new LceParser().ParseText(
+            "A red ball is shiny. Does a red ball exist.");
+
+        Assert.True(parsed.IsSuccess, parsed.Error);
+        Assert.Equal(2, parsed.Utterances.Length);
+
+        var knowledgeBase = new KnowledgeBase();
+        ReasoningResult? answer = null;
+
+        foreach (var utterance in parsed.Utterances)
+        {
+            if (utterance.Kind == UtteranceKind.Assertion)
+            {
+                var accepted = knowledgeBase.TryAdd(utterance, out _, out var error);
+                Assert.True(accepted, error);
+                continue;
+            }
+
+            var query = Assert.IsType<ExistentialQuantification>(utterance.Meaning);
+            answer = engine.Ask(knowledgeBase, query);
+        }
+
+        Assert.NotNull(answer);
+        Assert.True(answer.IsSupported);
+        Assert.Equal("A red ball is shiny.", answer.Proof!.SourceText);
+    }
+
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
     {
         var utterance = Parse(sentence);
