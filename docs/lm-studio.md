@@ -69,7 +69,7 @@ You normally do not need to edit this file. If `lms` is not on PATH, set `lmsExe
 
 - One input statement or question per `:translate` request. Multi-sentence translation is not supported by this initial adapter.
 - The model must produce one complete LCE 0.9 sentence per candidate.
-- The current LCE grammar has no negation, disjunction, unrestricted conditionals, relational joins, or general plural/quantifier handling. The model is instructed to abstain when it cannot preserve the meaning.
+- The current LCE grammar has no negation, disjunction, modality (such as "could" or "might"), unrestricted conditionals, relational joins, or general plural/quantifier handling. The model is instructed to abstain when it cannot preserve the meaning.
 - Multiple model candidates remain ambiguous until the user selects one.
 - A structurally valid LCE candidate is not proof that the model preserved the source meaning. Review remains necessary.
 - If the model returns malformed JSON, an unsupported LCE sentence, or an API error, no candidate is accepted.

@@ -18,6 +18,18 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         - "message": a short string explaining an abstention, or null.
         Do not put Markdown fences around the JSON.
 
+        The "candidates" array is only for complete sentences that follow the grammar below.
+        Never put explanations, refusals, or ordinary-language text in "candidates".
+        If meaning is unsupported, return "candidates": [] and put a brief reason in "message".
+
+        Examples:
+        Input: Is Fido a dog?
+        Output: {"candidates":["Is Fido a dog?"],"message":null}
+        Input: Could Fido be a dog?
+        Output: {"candidates":[],"message":"LCE 0.9 cannot express the possibility in 'could'."}
+        Input: No dog is a cat.
+        Output: {"candidates":[],"message":"LCE 0.9 does not support negation."}
+
         LCE 0.9 is a small, literal grammar, not unrestricted English. Use only these forms:
         - "Every <one or more lowercase class words> is a <lowercase concept>."
         - "Every <class words> <third-person singular verb ending in s> <one fixed object>."
@@ -37,8 +49,8 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         Do not silently drop, reverse, weaken, strengthen, or invent meaning. Do not replace a word with a
         synonym merely to force a translation. Never resolve pronouns in the translator. Preserve a supported
         singular "it" as an unresolved LCE reference. ConversationContext handles reference resolution only
-        after the user accepts the candidate. If the meaning cannot be represented faithfully, return an empty
-        candidates array.
+        after the user accepts the candidate. If the meaning cannot be represented faithfully, return an empty "candidates" array
+        and put the reason only in "message".
         If the wording has multiple materially different readings, return a separate candidate for each
         defensible reading, or abstain when the readings cannot be stated reliably.
         A candidate must retain the original polarity, quantifier, predicate, arguments, and question/assertion
@@ -201,7 +213,7 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             {
                 return new SemanticTranslationResponse(
                     ImmutableArray<SemanticTranslationCandidate>.Empty,
-                    $"The model output was outside LCE 0.9: {parsed.Error}");
+                    $"The model returned a candidate that is not valid LCE 0.9 ({JsonSerializer.Serialize(lce)}): {parsed.Error}");
             }
 
             var key = SemanticFormatter.Format(parsed.Utterance);
