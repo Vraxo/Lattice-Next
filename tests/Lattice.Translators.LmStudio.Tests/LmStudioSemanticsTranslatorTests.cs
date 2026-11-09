@@ -9,18 +9,17 @@ namespace Lattice.Translators.LmStudio.Tests;
 
 public sealed class LmStudioSemanticsTranslatorTests
 {
-    private static readonly Uri BaseAddress = new("http://127.0.0.1:1234/");
     private const string Model = "google/gemma-3-270m-it";
+    private const string ApiUrl = "http://127.0.0.1:1234/v1/chat/completions";
 
     [Fact]
     public async Task Converts_a_valid_lce_response_into_a_semantic_candidate()
     {
         var handler = CreateHandler(
             """{"candidates":["Fido is a dog."],"message":null}""");
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model));
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var configuration = CreateConfiguration();
+        var translator = CreateTranslator(client, configuration);
 
         var response = await translator.TranslateAsync("Fido is a canine.");
 
@@ -46,10 +45,8 @@ public sealed class LmStudioSemanticsTranslatorTests
     {
         var handler = CreateHandler(
             """{"candidates":[],"message":"Negation is not supported."}""");
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model));
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
 
         var response = await translator.TranslateAsync("No dog is a cat.");
 
@@ -62,10 +59,8 @@ public sealed class LmStudioSemanticsTranslatorTests
     {
         var handler = CreateHandler(
             """{"candidates":["Fido is a dog.","Fido is friendly and playful."],"message":null}""");
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model));
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
 
         var response = await translator.TranslateAsync("Fido is a dog and is friendly.");
 
@@ -78,10 +73,8 @@ public sealed class LmStudioSemanticsTranslatorTests
     {
         var handler = CreateHandler(
             """{"candidates":["Fido is a dog.","Fido is a pet."],"message":null}""");
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model));
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
 
         var response = await translator.TranslateAsync("Fido is a pet dog.");
 
@@ -89,91 +82,98 @@ public sealed class LmStudioSemanticsTranslatorTests
     }
 
     [Fact]
-    public async Task Loads_an_installed_model_when_auto_load_is_enabled()
+    public async Task Uses_the_loaded_instance_identifier_for_chat_completions()
     {
-        var handler = new StubHttpMessageHandler((request, _) =>
+        const string instanceIdentifier = "gemma-session-1";
+        var handler = CreateHandler(
+            """{"candidates":["Fido is a dog."],"message":null}""",
+            loadedModelIdentifier: instanceIdentifier);
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var configuration = CreateConfiguration() with
         {
-            var path = request.RequestUri!.AbsolutePath;
+            ModelIdentifier = instanceIdentifier
+        };
+        var translator = CreateTranslator(client, configuration);
 
-            if (request.Method == HttpMethod.Get && path == "/v1/models")
-            {
-                return Task.FromResult(JsonResponse("""{"data":[]}"""));
-            }
+        await translator.TranslateAsync("Fido is a dog.");
 
-            if (request.Method == HttpMethod.Get && path == "/api/v1/models")
-            {
-                return Task.FromResult(JsonResponse(
-                    """{"models":[{"key":"google/gemma-3-270m-it","type":"llm","loaded_instances":[]}]}"""));
-            }
-
-            if (request.Method == HttpMethod.Post && path == "/api/v1/models/load")
-            {
-                return Task.FromResult(JsonResponse(
-                    """{"instance_id":"gemma-session-1","status":"loaded"}"""));
-            }
-
-            if (request.Method == HttpMethod.Post && path == "/v1/chat/completions")
-            {
-                var body = JsonDocument.Parse("""{"candidates":["Fido is a dog."],"message":null}""");
-                var content = body.RootElement.GetRawText();
-                body.Dispose();
-                return Task.FromResult(CompletionResponse(content));
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-        });
-
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model, autoLoadModel: true));
-
-        var response = await translator.TranslateAsync("Fido is a dog.");
-
-        Assert.Single(response.Candidates);
-        var loadRequest = Assert.Single(handler.Requests.Where(
-            request => request.Uri!.AbsolutePath == "/api/v1/models/load"));
-        Assert.Contains(Model, loadRequest.Body);
         var chatRequest = Assert.Single(handler.Requests.Where(
             request => request.Uri!.AbsolutePath == "/v1/chat/completions"));
-        using var chatBody = JsonDocument.Parse(chatRequest.Body!);
-        Assert.Equal("gemma-session-1", chatBody.RootElement.GetProperty("model").GetString());
+        using var body = JsonDocument.Parse(chatRequest.Body!);
+        Assert.Equal(instanceIdentifier, body.RootElement.GetProperty("model").GetString());
     }
 
     [Fact]
-    public async Task Returns_a_clear_error_when_the_configured_model_is_not_visible()
+    public async Task Reports_when_a_selected_model_is_no_longer_installed()
     {
         var handler = CreateHandler(
             """{"candidates":["Fido is a dog."],"message":null}""",
             includeModel: false);
-        using var client = new HttpClient(handler);
-        var translator = new LmStudioSemanticsTranslator(
-            client,
-            new LmStudioOptions(BaseAddress, Model));
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await translator.TranslateAsync("Fido is a dog."));
 
-        Assert.Contains(Model, exception.Message);
-        Assert.Contains("not visible", exception.Message);
+        Assert.Contains("not installed", exception.Message);
+    }
+
+    private static LmStudioConfiguration CreateConfiguration() =>
+        new()
+        {
+            ApiUrl = ApiUrl,
+            ModelKey = Model,
+            ModelIdentifier = Model
+        };
+
+    private static LmStudioSemanticsTranslator CreateTranslator(
+        HttpClient client,
+        LmStudioConfiguration configuration)
+    {
+        var runtime = new LmStudioRuntime(
+            client,
+            configuration,
+            new FakeLmStudioProcessRunner());
+        return new LmStudioSemanticsTranslator(client, configuration, runtime);
     }
 
     private static StubHttpMessageHandler CreateHandler(
         string translationJson,
-        bool includeModel = true)
+        bool includeModel = true,
+        string loadedModelIdentifier = Model)
     {
         var modelJson = includeModel
-            ? """{"data":[{"id":"google/gemma-3-270m-it"}]}"""
+            ? JsonSerializer.Serialize(new
+            {
+                data = new[]
+                {
+                    new
+                    {
+                        id = loadedModelIdentifier
+                    }
+                }
+            })
             : """{"data":[]}""";
+        var installedModelJson = includeModel
+            ? """{"models":[{"key":"google/gemma-3-270m-it","display_name":"Gemma 3 270M IT","type":"llm","loaded_instances":[]}]}"""
+            : """{"models":[]}""";
 
         return new StubHttpMessageHandler((request, _) =>
         {
-            if (request.Method == HttpMethod.Get && request.RequestUri!.AbsolutePath == "/v1/models")
+            if (request.Method == HttpMethod.Get &&
+                request.RequestUri!.AbsolutePath == "/v1/models")
             {
                 return Task.FromResult(JsonResponse(modelJson));
             }
 
-            if (request.Method == HttpMethod.Post && request.RequestUri!.AbsolutePath == "/v1/chat/completions")
+            if (request.Method == HttpMethod.Get &&
+                request.RequestUri!.AbsolutePath == "/api/v1/models")
+            {
+                return Task.FromResult(JsonResponse(installedModelJson));
+            }
+
+            if (request.Method == HttpMethod.Post &&
+                request.RequestUri!.AbsolutePath == "/v1/chat/completions")
             {
                 return Task.FromResult(CompletionResponse(translationJson));
             }
