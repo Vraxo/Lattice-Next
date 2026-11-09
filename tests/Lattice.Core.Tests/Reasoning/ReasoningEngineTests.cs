@@ -303,6 +303,98 @@ public sealed class ReasoningEngineTests
             .Predicate.Predicate.Value);
     }
 
+    [Fact]
+    public void Answers_existence_from_one_anonymous_witness_without_naming_it()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "A red ball is shiny.");
+
+        Assert.Equal(3, knowledgeBase.Facts.Count);
+
+        var existence = engine.Ask(
+            knowledgeBase,
+            ParseExistentialQuestion("Does a red ball exist?"));
+
+        Assert.True(existence.IsSupported);
+        Assert.Equal("A red ball is shiny.", existence.Proof!.SourceText);
+        Assert.Equal("red", existence.Proof.Predicate.Predicate.Value);
+        Assert.Equal("ball", Assert.Single(existence.Proof.AdditionalPremises)
+            .Predicate.Predicate.Value);
+
+        var differentDescription = engine.Ask(
+            knowledgeBase,
+            ParseExistentialQuestion("Does a blue ball exist?"));
+
+        Assert.False(differentDescription.IsSupported);
+        Assert.Null(differentDescription.Proof);
+    }
+
+    [Fact]
+    public void A_named_descriptive_individual_can_support_an_existence_query()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "The red ball is shiny.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseExistentialQuestion("Does a red ball exist?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal("The red ball is shiny.", result.Proof!.SourceText);
+    }
+
+    [Fact]
+    public void Existential_witnesses_can_satisfy_universal_rules()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every red ball is a toy.");
+        Add(knowledgeBase, "A red ball is shiny.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseExistentialQuestion("Does a toy exist?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal("Every red ball is a toy.", result.Proof!.SourceText);
+        Assert.Equal("A red ball is shiny.", result.Proof.Premise!.SourceText);
+    }
+
+    [Fact]
+    public void Does_not_combine_properties_from_separate_existential_witnesses()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "A red ball is shiny.");
+        Add(knowledgeBase, "A blue ball is round.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseExistentialQuestion("Does a red round ball exist?"));
+
+        Assert.False(result.IsSupported);
+        Assert.Null(result.Proof);
+    }
+
+    [Fact]
+    public void Does_not_treat_anonymous_existential_witness_as_a_named_definite_individual()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "A red ball is shiny.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is the red ball shiny?"));
+
+        Assert.False(result.IsSupported);
+        Assert.Null(result.Proof);
+    }
+
+    private static ExistentialQuantification ParseExistentialQuestion(string sentence)
+    {
+        var utterance = Parse(sentence);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        return Assert.IsType<ExistentialQuantification>(utterance.Meaning);
+    }
+
     private static KnowledgeEntryKind Add(
         KnowledgeBase knowledgeBase,
         string sentence)
