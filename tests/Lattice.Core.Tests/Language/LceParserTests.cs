@@ -133,6 +133,43 @@ public sealed class LceParserTests
         Assert.Equal("ask(likes(fido, milk))", SemanticFormatter.Format(query));
     }
 
+
+    [Theory]
+    [InlineData("It likes milk.", UtteranceKind.Assertion, "likes(it, milk)", 0, 1)]
+    [InlineData("Fido likes it.", UtteranceKind.Assertion, "likes(fido, it)", 1, 0)]
+    [InlineData("Does it like milk?", UtteranceKind.Question, "ask(likes(it, milk))", 0, 1)]
+    [InlineData("Does Fido like it?", UtteranceKind.Question, "ask(likes(fido, it))", 1, 0)]
+    public void Parses_one_unresolved_reference_in_either_relational_argument(
+        string sentence,
+        UtteranceKind expectedKind,
+        string expectedMeaning,
+        int referenceIndex,
+        int groundedIndex)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(expectedKind, utterance.Kind);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+
+        var predicate = Assert.IsType<PredicateApplication>(utterance.Meaning);
+        Assert.IsType<UnresolvedReferenceTerm>(predicate.Arguments[referenceIndex]);
+        Assert.IsNotType<UnresolvedReferenceTerm>(predicate.Arguments[groundedIndex]);
+        Assert.Null(utterance.ResolvedReferent);
+    }
+
+    [Theory]
+    [InlineData("It likes it.")]
+    [InlineData("Does it like it?")]
+    public void Rejects_relational_sentences_with_two_unresolved_references(string sentence)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("only one 'it' reference", result.Error);
+    }
+
     [Theory]
     [InlineData("watch", "watches", "Rex")]
     [InlineData("carry", "carries", "Rex")]
