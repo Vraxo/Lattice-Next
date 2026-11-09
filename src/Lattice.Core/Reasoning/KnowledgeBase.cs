@@ -42,8 +42,8 @@ public sealed class KnowledgeBase
                 existential.Variable,
                 out var existentialConditions))
         {
-            var witness = new IndividualTerm(
-                new SemanticIdentifier($"~witness-{++nextExistentialWitnessId}"));
+            var witness = new AnonymousIndividualTerm(
+                new SemanticIdentifier($"witness-{++nextExistentialWitnessId}"));
 
             foreach (var condition in existentialConditions)
             {
