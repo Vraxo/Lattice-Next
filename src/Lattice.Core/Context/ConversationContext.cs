@@ -1,4 +1,5 @@
 using Lattice.Core.Semantics;
+using Lattice.Core.Tools;
 
 namespace Lattice.Core.Context;
 
@@ -7,6 +8,8 @@ public sealed class ConversationContext
     private readonly HashSet<SemanticIdentifier> individuals = [];
 
     public int KnownIndividualCount => individuals.Count;
+
+    public ToolObservation? LatestToolObservation { get; private set; }
 
     public void Observe(SemanticUtterance utterance)
     {
@@ -31,6 +34,12 @@ public sealed class ConversationContext
                     break;
             }
         }
+    }
+
+    public void Observe(ToolObservation observation)
+    {
+        ArgumentNullException.ThrowIfNull(observation);
+        LatestToolObservation = observation;
     }
 
     public ReferenceResolutionResult Resolve(SemanticUtterance utterance)

@@ -97,6 +97,9 @@ The configured tool directory is a trust boundary. Invoking a discovered command
 - `:tools` lists the registered capabilities and their input descriptors.
 - `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the built-in calculator.
 - `:tool unit-converter {"value":150,"from":"cm","to":"m"}` invokes the unit converter.
-- `:tool <id> <arguments-json>` explicitly invokes any registered capability.
+- `:tool <id> <arguments-json>` explicitly invokes any registered capability for diagnostics.
+- `What is 12 multiplied by 3?` selects the calculator from ordinary language.
+- `Convert 150 cm to meters.` selects the unit converter.
+- `Multiply that by 5.` resolves the latest numeric tool observation and invokes the calculator again.
 
-External tools are discovered at CLI startup but are started only when invoked. Natural-language tool selection, observation-to-context integration, durable observation storage, and automatic knowledge promotion are not implemented.
+A generic intent resolver consults registered recognizers; it does not contain a switch over tool IDs. The first recognizers intentionally support a small set of arithmetic and unit-conversion phrasings rather than unrestricted English. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.

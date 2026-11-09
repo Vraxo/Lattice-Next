@@ -1,5 +1,6 @@
 using Lattice.Core.Context;
 using Lattice.Core.Language;
+using Lattice.Core.Intelligence;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Lattice.Core.Tools;
@@ -18,7 +19,7 @@ var configuredToolsDirectory = Environment.GetEnvironmentVariable("LATTICE_TOOLS
 var toolsDirectory = string.IsNullOrWhiteSpace(configuredToolsDirectory)
     ? Path.Combine(Environment.CurrentDirectory, "tools")
     : configuredToolsDirectory;
-var registeredTools = new List<ITool> { new CalculatorTool() };
+var registeredTools = new List<ITool> { new CalculatorTool(), new UnitConverterTool() };
 var externalToolsDiscovered = StdioToolProvider.TryDiscover(
     toolsDirectory,
     out var externalTools,
@@ -61,10 +62,15 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
 }
 
 var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
+var toolIntentResolver = new ToolIntentResolver(
+[
+    new CalculatorIntentRecognizer(),
+    new UnitConversionIntentRecognizer()
+]);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
-AnsiConsole.MarkupLine("[dim]Enter sentences, :load, :tools, :tool <id> <json>, :help, :status, or :quit.[/]");
+AnsiConsole.MarkupLine("[dim]Enter ordinary-language calculations/conversions or LCE sentences; use :load, :tools, :tool, :help, :status, or :quit.[/]");
 if (!externalToolsDiscovered)
 {
     AnsiConsole.MarkupLine("[yellow]External tools could not be discovered; the built-in tools remain available.[/]");
@@ -99,8 +105,12 @@ while (true)
     {
         AnsiConsole.MarkupLine("[bold]Commands[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
-        AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/]");
-        AnsiConsole.MarkupLine("  [dim]Tool arguments are JSON objects; results are temporary sourced observations.[/]");
+        AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
+        AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
+        AnsiConsole.MarkupLine("  [green]Multiply that by 5.[/] [dim]uses the latest numeric tool observation[/]");
+        AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
+        AnsiConsole.MarkupLine("  [dim]Natural-language capability selection currently covers basic arithmetic and unit conversions.[/]");
+        AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
         AnsiConsole.MarkupLine("  [dim]External tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
         AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
@@ -236,6 +246,7 @@ while (true)
 
         AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Observation from {result.Observation!.ToolId}:[/]");
         AnsiConsole.WriteLine(result.Observation.Content);
+        conversationContext.Observe(result.Observation!);
         AnsiConsole.MarkupLine("[dim]This result is an observation; it has not been added to session knowledge.[/]");
         AnsiConsole.WriteLine();
         continue;
@@ -254,6 +265,44 @@ while (true)
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
         AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolRegistry.Descriptors.Count} registered");
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    var intentResolution = toolIntentResolver.Resolve(
+        input,
+        conversationContext.LatestToolObservation);
+
+    if (intentResolution.Status == ToolIntentResolutionStatus.Ambiguous)
+    {
+        AnsiConsole.MarkupLine(
+            "[bold yellow]Lattice[/] [dim]›[/] I found more than one possible capability for that request. Please rephrase it.");
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    if (intentResolution.IsResolved)
+    {
+        var intent = intentResolution.Intent!;
+        var result = await toolRegistry.TryInvokeAsync(intent.ToolId, intent.ArgumentsJson);
+
+        if (!result.IsSuccess)
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine(result.Error ?? "The capability could not complete the request.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        conversationContext.Observe(result.Observation!);
+        AnsiConsole.Markup("[bold cyan]Lattice[/] [dim]›[/] ");
+        AnsiConsole.WriteLine(intent.FormatResponse(result.Observation!));
+
+        var descriptor = toolRegistry.Descriptors.FirstOrDefault(
+            item => string.Equals(item.Id, intent.ToolId, StringComparison.OrdinalIgnoreCase));
+        AnsiConsole.MarkupLine(
+            $"[dim]Used {descriptor?.Name ?? intent.ToolId}; result retained as a temporary observation.[/]");
+
         AnsiConsole.WriteLine();
         continue;
     }
