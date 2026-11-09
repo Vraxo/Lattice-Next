@@ -72,6 +72,105 @@ public sealed class ConversationContextTests
         Assert.Equal("fido", individual.Identifier.Value);
     }
 
+
+    [Theory]
+    [InlineData("It likes milk.", "Fido is a dog.", "likes(fido, milk)", "fido")]
+    [InlineData("Fido likes it.", "Milk is a beverage.", "likes(fido, milk)", "milk")]
+    [InlineData("Does it like milk?", "Fido is a dog.", "ask(likes(fido, milk))", "fido")]
+    [InlineData("Does Fido like it?", "Milk is a beverage.", "ask(likes(fido, milk))", "milk")]
+    public void Resolves_one_relational_pronoun_in_either_argument_position(
+        string sentence,
+        string antecedent,
+        string expectedMeaning,
+        string expectedReferent)
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse(antecedent));
+
+        var result = context.Resolve(Parse(sentence));
+
+        Assert.Equal(ReferenceResolutionStatus.Resolved, result.Status);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(sentence, utterance.SourceText);
+        Assert.Equal(expectedReferent, utterance.ResolvedReferent!.Value.Value);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+        Assert.All(
+            Assert.IsType<PredicateApplication>(utterance.Meaning).Arguments,
+            argument => Assert.IsNotType<UnresolvedReferenceTerm>(argument));
+    }
+
+    [Theory]
+    [InlineData("It likes milk.")]
+    [InlineData("Fido likes it.")]
+    [InlineData("Does it like milk?")]
+    [InlineData("Does Fido like it?")]
+    public void Requests_a_referent_for_a_relational_pronoun_when_none_is_known(string sentence)
+    {
+        var context = new ConversationContext();
+
+        var result = context.Resolve(Parse(sentence));
+
+        Assert.Equal(ReferenceResolutionStatus.MissingReferent, result.Status);
+        Assert.Null(result.Utterance);
+    }
+
+    [Theory]
+    [InlineData("It likes milk.")]
+    [InlineData("Fido likes it.")]
+    [InlineData("Does it like milk?")]
+    [InlineData("Does Fido like it?")]
+    public void Requests_clarification_for_a_relational_pronoun_when_multiple_individuals_are_known(
+        string sentence)
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("Fido is a dog."));
+        context.Observe(Parse("Milk is a beverage."));
+
+        var result = context.Resolve(Parse(sentence));
+
+        Assert.Equal(ReferenceResolutionStatus.AmbiguousReferent, result.Status);
+        Assert.Null(result.Utterance);
+    }
+
+    [Fact]
+    public void Resolves_a_relational_pronoun_during_a_multi_sentence_turn()
+    {
+        var parser = new LceParser();
+        var parsed = parser.ParseText(
+            "Milk is a beverage. Fido likes it. Does Fido like milk?");
+
+        Assert.True(parsed.IsSuccess, parsed.Error);
+
+        var context = new ConversationContext();
+        var knowledgeBase = new KnowledgeBase();
+        var reasoningEngine = new ReasoningEngine();
+        ReasoningResult? answer = null;
+
+        foreach (var parsedUtterance in parsed.Utterances)
+        {
+            var resolution = context.Resolve(parsedUtterance);
+            Assert.True(resolution.IsSuccess);
+
+            var utterance = Assert.IsType<SemanticUtterance>(resolution.Utterance);
+
+            if (utterance.Kind == UtteranceKind.Assertion)
+            {
+                var added = knowledgeBase.TryAdd(utterance, out _, out var error);
+                Assert.True(added, error);
+                context.Observe(utterance);
+                continue;
+            }
+
+            var query = Assert.IsType<PredicateApplication>(utterance.Meaning);
+            answer = reasoningEngine.Ask(knowledgeBase, query);
+        }
+
+        Assert.NotNull(answer);
+        Assert.True(answer.IsSupported);
+        Assert.Equal("Fido likes it.", answer.Proof!.SourceText);
+        Assert.Equal("milk", answer.Proof.ResolvedReferent!.Value.Value);
+    }
+
     [Fact]
     public void Observes_each_named_argument_in_a_relational_utterance()
     {
