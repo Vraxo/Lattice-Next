@@ -89,7 +89,7 @@ public sealed class BundledPythonToolTests
 
         Assert.Equal(
             ["calculator", "unit-converter"],
-            registry.Descriptors.Select(descriptor => descriptor.Id).Order(StringComparer.Ordinal));
+            registry.Descriptors.Select(descriptor => descriptor.Id).OrderBy(id => id, StringComparer.Ordinal));
     }
 
     private static ToolRegistry CreateBundledToolRegistry()
@@ -120,7 +120,7 @@ public sealed class BundledPythonToolTests
 
         foreach (var start in startingDirectories)
         {
-            var directory = new DirectoryInfo(start);
+            DirectoryInfo? directory = new DirectoryInfo(start);
 
             while (directory is not null)
             {
