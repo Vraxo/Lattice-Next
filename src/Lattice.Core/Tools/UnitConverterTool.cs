@@ -66,7 +66,8 @@ public sealed class UnitConverterTool : ITool
         {
             var converted = value * from.Factor / to.Factor;
             return ValueTask.FromResult(
-                ToolExecutionResult.Success(converted.ToString(CultureInfo.InvariantCulture)));
+                ToolExecutionResult.Success(
+                    converted.ToString("0.############################", CultureInfo.InvariantCulture)));
         }
         catch (OverflowException)
         {
