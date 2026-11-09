@@ -10,10 +10,12 @@ var parser = new LceParser();
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
+var knowledgePackLoader = new KnowledgePackLoader();
+var loadedPacks = new List<KnowledgePack>();
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
-AnsiConsole.MarkupLine("[dim]Enter one or more sentences, :help for examples, :status for implementation status, or :quit to exit.[/]");
+AnsiConsole.MarkupLine("[dim]Enter sentences, :load <path> to load a knowledge pack, :help, :status, or :quit.[/]");
 AnsiConsole.WriteLine();
 
 while (true)
@@ -73,6 +75,57 @@ while (true)
         continue;
     }
 
+    if (input.StartsWith(":load ", StringComparison.OrdinalIgnoreCase))
+    {
+        var path = input[6..].Trim().Trim('"');
+
+        if (path.Length == 0)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Usage: :load <path-to-pack.json>");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        if (!File.Exists(path))
+        {
+            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] File not found.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        string packJson;
+
+        try
+        {
+            packJson = File.ReadAllText(path);
+        }
+        catch (IOException)
+        {
+            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] The pack file could not be read.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] Access to the pack file was denied.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        if (!knowledgePackLoader.TryLoadAndAdd(packJson, knowledgeBase, out var pack, out var error))
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine(error ?? "The knowledge pack could not be loaded.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        loadedPacks.Add(pack!);
+        AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Loaded '{pack!.Name}' ({pack.ClaimCount} claims).[/]");
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
@@ -82,8 +135,9 @@ while (true)
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
+        AnsiConsole.MarkupLine("  [cyan]Pack loading[/]         Version 1 JSON; imported claims retain pack provenance");
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
-        AnsiConsole.MarkupLine("  [cyan]Knowledge packs[/]      [yellow]Not implemented[/]");
+        AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
         AnsiConsole.MarkupLine("  [cyan]Tools[/]                None registered");
         AnsiConsole.WriteLine();
         continue;
@@ -214,7 +268,10 @@ static IEnumerable<string> GetProofStatements(ProofNode proof)
             var origin = source.Kind == KnowledgeSourceKind.UserAssertion
                 ? string.Empty
                 : $" [source: {source.Kind}]";
-            var statement = $"{source.SourceText}{referent}{origin}";
+            var pack = string.IsNullOrWhiteSpace(source.SourceId)
+                ? string.Empty
+                : $" [pack: {source.SourceId}]";
+            var statement = $"{source.SourceText}{referent}{origin}{pack}";
 
             if (emitted.Add(statement))
             {
