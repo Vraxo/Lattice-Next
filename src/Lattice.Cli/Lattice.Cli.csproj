@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.57.2" />
     <ProjectReference Include="../Lattice.Core/Lattice.Core.csproj" />
+    <ProjectReference Include="../Lattice.Tooling.Stdio/Lattice.Tooling.Stdio.csproj" />
   </ItemGroup>
 
 </Project>
