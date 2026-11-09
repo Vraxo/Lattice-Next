@@ -4,7 +4,9 @@
   "name": "Calculator",
   "description": "Performs one exact decimal arithmetic operation.",
   "command": "python",
-  "arguments": ["main.py"],
+  "arguments": [
+    "main.py"
+  ],
   "inputs": [
     {
       "name": "left",
@@ -25,5 +27,214 @@
       "required": true
     }
   ],
-  "permissions": []
+  "permissions": [],
+  "intents": [
+    {
+      "pattern": "what is {left:number} multiplied by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "{left:number} multiplied by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "{left:number} times {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "multiply {left:number} by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "what is {left:number} plus {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "add",
+        "right": "$right"
+      },
+      "response": "{left} plus {right} is {result}."
+    },
+    {
+      "pattern": "{left:number} plus {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "add",
+        "right": "$right"
+      },
+      "response": "{left} plus {right} is {result}."
+    },
+    {
+      "pattern": "add {left:number} and {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "add",
+        "right": "$right"
+      },
+      "response": "{left} plus {right} is {result}."
+    },
+    {
+      "pattern": "what is {left:number} minus {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "subtract",
+        "right": "$right"
+      },
+      "response": "{left} minus {right} is {result}."
+    },
+    {
+      "pattern": "{left:number} minus {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "subtract",
+        "right": "$right"
+      },
+      "response": "{left} minus {right} is {result}."
+    },
+    {
+      "pattern": "subtract {right:number} from {left:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "subtract",
+        "right": "$right"
+      },
+      "response": "{left} minus {right} is {result}."
+    },
+    {
+      "pattern": "what is {left:number} divided by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
+      "pattern": "{left:number} divided by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
+      "pattern": "divide {left:number} by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
+      "pattern": "multiply that by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "multiply it by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "divide that by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
+      "pattern": "divide it by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
+      "pattern": "add {right:number} to that",
+      "arguments": {
+        "left": "$previous",
+        "operation": "add",
+        "right": "$right"
+      },
+      "response": "{left} plus {right} is {result}."
+    },
+    {
+      "pattern": "subtract {right:number} from that",
+      "arguments": {
+        "left": "$previous",
+        "operation": "subtract",
+        "right": "$right"
+      },
+      "response": "{left} minus {right} is {result}."
+    },
+    {
+      "pattern": "add {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "add",
+        "right": "$right"
+      },
+      "response": "{left} plus {right} is {result}."
+    },
+    {
+      "pattern": "subtract {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "subtract",
+        "right": "$right"
+      },
+      "response": "{left} minus {right} is {result}."
+    },
+    {
+      "pattern": "multiply by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "multiply",
+        "right": "$right"
+      },
+      "response": "{left} multiplied by {right} is {result}."
+    },
+    {
+      "pattern": "divide by {right:number}",
+      "arguments": {
+        "left": "$previous",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    }
+  ]
 }
