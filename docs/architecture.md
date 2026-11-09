@@ -69,7 +69,7 @@ Core must not depend on the CLI or any provider. External-process launch, stdio 
 
 ## Language strategy
 
-LCE 0.4 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
+LCE 0.9 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
 
 A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
 

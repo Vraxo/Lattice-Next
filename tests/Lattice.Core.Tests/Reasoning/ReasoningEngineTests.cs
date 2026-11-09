@@ -202,6 +202,58 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
+    public void Processes_a_quantified_relational_rule_fact_and_question_in_one_turn()
+    {
+        var parsed = new LceParser().ParseText(
+            "Every dog likes milk. Fido is a dog. Does Fido like milk?");
+
+        Assert.True(parsed.IsSuccess, parsed.Error);
+        Assert.Equal(3, parsed.Utterances.Length);
+
+        var knowledgeBase = new KnowledgeBase();
+        ReasoningResult? answer = null;
+
+        foreach (var utterance in parsed.Utterances)
+        {
+            if (utterance.Kind == UtteranceKind.Assertion)
+            {
+                var accepted = knowledgeBase.TryAdd(
+                    utterance,
+                    out _,
+                    out var error);
+                Assert.True(accepted, error);
+                continue;
+            }
+
+            var query = Assert.IsType<PredicateApplication>(utterance.Meaning);
+            answer = engine.Ask(knowledgeBase, query);
+        }
+
+        Assert.NotNull(answer);
+        Assert.True(answer.IsSupported);
+        Assert.Equal("Every dog likes milk.", answer.Proof!.SourceText);
+        Assert.Equal("Fido is a dog.", answer.Proof.Premise!.SourceText);
+    }
+
+    [Fact]
+    public void Applies_a_relational_rule_after_a_unary_rule_chain()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every animal likes milk.");
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like milk?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal("Every animal likes milk.", result.Proof!.SourceText);
+        Assert.Equal("Every dog is an animal.", result.Proof.Premise!.SourceText);
+        Assert.Equal("Fido is a dog.", result.Proof.Premise.Premise!.SourceText);
+    }
+
+    [Fact]
     public void Stores_a_quantified_relational_rule_with_a_concrete_object()
     {
         var knowledgeBase = new KnowledgeBase();

@@ -49,6 +49,43 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Loads_a_quantified_relational_rule_as_an_imported_claim()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "dog-relations",
+              "name": "Dog relations",
+              "claims": [
+                "Every dog likes milk.",
+                "Fido is a dog."
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        var loaded = loader.TryLoadAndAdd(
+            json,
+            knowledgeBase,
+            out var pack,
+            out var error);
+
+        Assert.True(loaded, error);
+        Assert.Equal(2, pack!.ClaimCount);
+
+        var question = parser.Parse("Does Fido like milk?");
+        Assert.True(question.IsSuccess, question.Error);
+        var query = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
+        var answer = engine.Ask(knowledgeBase, query);
+
+        Assert.True(answer.IsSupported);
+        Assert.Equal(KnowledgeSourceKind.ImportedClaim, answer.Proof!.Sources[0].Kind);
+        Assert.Equal("dog-relations", answer.Proof.Sources[0].SourceId);
+        Assert.Equal(KnowledgeSourceKind.ImportedClaim, answer.Proof.Premise!.Sources[0].Kind);
+        Assert.Equal("dog-relations", answer.Proof.Premise.Sources[0].SourceId);
+    }
+
+    [Fact]
     public void Does_not_partially_add_a_pack_when_a_later_claim_is_invalid()
     {
         const string json = """

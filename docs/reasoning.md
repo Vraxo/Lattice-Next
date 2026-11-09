@@ -8,7 +8,7 @@ The current engine accepts three kinds of asserted input:
 
 - **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Definite descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
 - **Existential assertion:** a quantified formula containing one or more unary conditions, such as `exists(x, and(red(x), ball(x), shiny(x)))`. When stored, its conditions are attached to one fresh `AnonymousIndividualTerm`.
-- **Universal rule:** one universally quantified implication with one or more unary premises and one unary conclusion. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`.
+- **Universal rule:** one universally quantified implication with one or more unary premises and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
 
 A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
@@ -16,7 +16,7 @@ A ground fact has a non-empty predicate identifier and concrete individual argum
 
 For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and every individual identifier. A relational query such as `Does Fido like milk?` therefore matches `likes(fido, milk)`, but not `likes(fido, water)` or `likes(rex, milk)`.
 
-After exact lookup, the existing forward-chaining path applies to unary predicates:
+After exact lookup, the forward-chaining path derives unary predicates:
 
 1. Start with the unary facts stored in the current KnowledgeBase.
 2. For each rule, find candidate individuals that satisfy its first premise.
@@ -26,7 +26,20 @@ After exact lookup, the existing forward-chaining path applies to unary predicat
 
 Known unary facts are deduplicated by predicate and individual. This lets rules be chained even when they were added in an order that requires more than one pass, while preventing cyclic rules from causing an endless loop. Ground relational facts are deduplicated by predicate and their ordered argument list.
 
-Relational facts are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, while the semantic and knowledge representations can retain more than two grounded arguments.
+A separate relational inference pass applies the restricted quantified relation rules after unary forward chaining reaches closure:
+
+1. Find candidate subjects that satisfy the first unary premise.
+2. Require every remaining unary premise to be established for that exact same subject.
+3. Substitute that subject into the conclusion's first argument and retain the rule's fixed concrete object as its second argument.
+4. Construct a derived proof containing every supporting unary proof and the rule's source records.
+
+For example:
+
+    Every red dog likes milk.
+    The red dog is shiny.
+    Does the red dog like milk?
+
+The rule requires both `red(red-dog)` and `dog(red-dog)`. The proof includes the supporting description facts as premises and the universal rule as the derived conclusion. A blue dog does not satisfy the rule. Relational conclusions are not fed back into unary inference or reused as premises; this is not relational joining or traversal.
 
 Every asserted fact and rule retains structured source records. A source records its kind (user assertion, imported claim, or external observation), original source text, and an optional resolved referent. The default ingestion path classifies input as a user assertion; callers that ingest imported claims or observations can explicitly select the corresponding source kind.
 
@@ -93,7 +106,7 @@ Anonymous witnesses are internal knowledge-base identities. They are not added t
 ## Answer semantics
 
 - **Yes:** the queried predicate has a direct fact or a derivation from the current facts and rules.
-- **Unknown:** the engine could not find an exact fact or derive the queried unary predicate from the current knowledge base.
+- **Unknown:** the engine could not find an exact fact or derive the queried predicate from the current knowledge base.
 
 Unknown is not false. This implementation uses positive facts only; it has no negation, negative assertions, or closed-world assumption. It therefore does not answer No merely because it lacks a proof. It also does not yet resolve contradictions or represent a both-supported state.
 
@@ -101,8 +114,8 @@ Unknown is not false. This implementation uses positive facts only; it has no ne
 
 This is a first reasoning slice, not a general theorem prover. It does not currently support:
 
-- relational rule inference, joins, or relation traversal;
-- rules with multiple conclusions, disjunction, or nested formulas beyond a flat conjunction of unary predicates;
+- relational joins, relation traversal, relational premises, or multi-variable quantified rules;
+- rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
 - negation, existential relational conditions, nested existential formulas, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
@@ -129,13 +142,17 @@ The reasoning engine lives in Lattice.Core. It consumes semantic structures and 
       • Fido is a dog.
       • Every dog is an animal.
 
-    you › Fido likes milk.
+    you › Every dog likes milk.
+    Lattice › Stored rule.
+
+    you › Fido is a dog.
     Lattice › Stored fact.
 
     you › Does Fido like milk?
     Lattice › Yes.
     Because:
-      • Fido likes milk.
+      • Fido is a dog.
+      • Every dog likes milk.
 
     you › Does Fido like water?
     Lattice › Unknown.

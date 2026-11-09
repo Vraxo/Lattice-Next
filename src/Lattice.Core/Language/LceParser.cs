@@ -251,7 +251,7 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.8. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.9. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
