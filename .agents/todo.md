@@ -62,7 +62,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
 - [ ] Feed tool observations into conversation context without automatically promoting them to knowledge.
 - [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
-- [ ] Add a second capability before expanding the contract or introducing autonomous tool selection.
+- [x] Add a second independent capability before introducing autonomous tool selection.
 - [ ] Select tools from natural-language intent and render their results conversationally.
 
 ## 6. Language and knowledge expansion
