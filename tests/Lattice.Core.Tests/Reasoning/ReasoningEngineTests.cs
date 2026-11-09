@@ -322,9 +322,10 @@ public sealed class ReasoningEngineTests
             ParseExistentialQuestion("Does a red ball exist?"));
 
         Assert.True(existence.IsSupported);
-        Assert.Equal("A red ball is shiny.", existence.Proof!.SourceText);
-        Assert.Equal("red", existence.Proof.Predicate.Predicate.Value);
-        Assert.Equal("ball", Assert.Single(existence.Proof.AdditionalPremises)
+        var existenceProof = Assert.IsType<ProofNode>(existence.Proof);
+        Assert.Equal("A red ball is shiny.", existenceProof.SourceText);
+        Assert.Equal("red", existenceProof.Predicate.Predicate.Value);
+        Assert.Equal("ball", Assert.Single(existenceProof.AdditionalPremises)
             .Predicate.Predicate.Value);
 
         var differentDescription = engine.Ask(
@@ -361,8 +362,9 @@ public sealed class ReasoningEngineTests
             ParseExistentialQuestion("Does a toy exist?"));
 
         Assert.True(result.IsSupported);
-        Assert.Equal("Every red ball is a toy.", result.Proof!.SourceText);
-        Assert.Equal("A red ball is shiny.", result.Proof.Premise!.SourceText);
+        var proof = Assert.IsType<ProofNode>(result.Proof);
+        Assert.Equal("Every red ball is a toy.", proof.SourceText);
+        Assert.Equal("A red ball is shiny.", proof.Premise!.SourceText);
     }
 
     [Fact]
