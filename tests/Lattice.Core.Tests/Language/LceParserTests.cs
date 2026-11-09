@@ -65,6 +65,42 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_a_quantified_relational_rule_with_a_concrete_object()
+    {
+        var result = parser.Parse("Every dog likes milk.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.Assertion, utterance.Kind);
+
+        var universal = Assert.IsType<UniversalQuantification>(utterance.Meaning);
+        var implication = Assert.IsType<Implication>(universal.Body);
+        var premise = Assert.IsType<PredicateApplication>(implication.Premise);
+        var conclusion = Assert.IsType<PredicateApplication>(implication.Conclusion);
+
+        Assert.Equal("dog", premise.Predicate.Value);
+        Assert.Equal("likes", conclusion.Predicate.Value);
+        Assert.Equal(universal.Variable, conclusion.Arguments[0]);
+        Assert.Equal(
+            "milk",
+            Assert.IsType<IndividualTerm>(conclusion.Arguments[1]).Identifier.Value);
+        Assert.Equal(
+            "forall(x, implies(dog(x), likes(x, milk)))",
+            SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Parses_a_quantified_relational_rule_with_conjunctive_conditions()
+    {
+        var result = parser.Parse("Every old blue car likes milk.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(old(x), blue(x), car(x)), likes(x, milk)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
     public void Parses_individual_assertion()
     {
         var result = parser.Parse("Fido is a dog.");

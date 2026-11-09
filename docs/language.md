@@ -1,10 +1,10 @@
-# Language strategy and LCE 0.8
+# Language strategy and LCE 0.9
 
 ## Decision
 
-The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.8.
+The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.9.
 
-LCE 0.8 retains unary assertions, universal rules, relational assertions, definite descriptions, and multi-sentence turns. It adds explicit existential assertions and existence questions for indefinite descriptions. An indefinite assertion introduces an unnamed witness whose descriptive conditions are kept together; it does not automatically identify that witness with another statement's subject. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.9 retains unary assertions, universal rules, relational assertions, definite descriptions, and multi-sentence turns. It adds explicit existential assertions and existence questions for indefinite descriptions. An indefinite assertion introduces an unnamed witness whose descriptive conditions are kept together; it does not automatically identify that witness with another statement's subject. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 
@@ -14,18 +14,19 @@ The official Attempto Parsing Engine (APE) converts ACE text into a Discourse Re
 
 Using APE could be a valid later option if Lattice needs broad ACE coverage. For the first language slice, however, an external parser/runtime would add deployment and integration complexity before Lattice has established its own semantic contract. We therefore start with a small native parser and keep the language layer replaceable.
 
-## LCE 0.8 grammar
+## LCE 0.9 grammar
 
 An input text contains one or more supported sentences. Each sentence is terminated by its required punctuation and is processed in source order.
 
     text                 = sentence, { whitespace, sentence } ;
 
-    sentence             = universal-rule | indefinite-existential | indefinite-assertion
+    sentence             = universal-rule | universal-relational-rule | indefinite-existential | indefinite-assertion
                          | existential-question | unary-assertion | pronoun-assertion
                          | property-assertion | relation-assertion | unary-question
                          | pronoun-question | property-question | relation-question ;
 
     universal-rule       = "Every", class-description, "is", article, concept, "." ;
+    universal-relational-rule = "Every", class-description, third-person-verb, object-term, "." ;
     class-description    = { adjective, whitespace }, concept ;
     indefinite-existential = indefinite-description, "exists", "." ;
     indefinite-assertion = indefinite-description, "is", [ article ], concept, "." ;
@@ -63,6 +64,7 @@ Additional constraints:
 - Proper names are one capitalized token. Their semantic identifiers are normalized to lowercase.
 - A definite descriptive noun phrase has the form "the" followed by one or more lowercase descriptive tokens. The final token is the head noun; preceding tokens are modifiers. Examples include "the red ball" and "the old blue car".
 - A universal class description uses the same trailing-head convention without the article "the". In "Every red ball is a toy.", the head noun is "ball" and the modifier is "red". Multiple modifiers are supported, as in "Every old blue car is a vehicle." The modifier predicates and head-noun predicate form a conjunction: every condition must apply to the same individual before the conclusion follows.
+- A universal relational rule uses that same class description followed by a third-person singular relation verb and one concrete object term. For example, "Every red dog likes milk." means that every individual satisfying both red(x) and dog(x) stands in the likes relation to the fixed individual milk. The semantic conclusion is binary, with the bound subject variable in the first argument and the concrete object in the second.
 - A definite descriptive noun phrase becomes a structured semantic term containing its head noun and ordered modifiers. For example, "the old blue car" has head noun car and modifiers old, blue.
 - The term also exposes a stable canonical individual identifier by joining modifiers and head noun with hyphens: "the red ball" becomes red-ball. Repeating the same phrase therefore addresses the same identifier.
 - When a grounded assertion contains a descriptive term, the knowledge base stores the sentence's main predicate and adds one unary fact for the head noun and one for each modifier. Thus "The red ball is a toy." contributes toy(red-ball), ball(red-ball), and red(red-ball).
@@ -73,8 +75,9 @@ Additional constraints:
 - Each indefinite assertion introduces a fresh anonymous witness. Its descriptive conditions and any following predicate are attached to that one witness. Separate indefinite assertions are not assumed to refer to the same object, even when their wording overlaps.
 - Anonymous witnesses are internal knowledge-base identities, not named conversation individuals. They do not become antecedents for "it" and are not silently matched to a definite description such as "the red ball".
 - An existence question uses "Does a/an ... exist?". It succeeds when all requested unary conditions are supported by one and the same known individual or anonymous witness. A named definite individual can therefore support an existence query, but an unnamed witness does not become that named individual.
-- Indefinite descriptions are supported only in these unary existential forms. They are not yet supported as relational arguments, pronoun antecedents, or general noun phrases in other sentence patterns.
-- Relational assertions use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
+- Indefinite descriptions are supported only in unary existential forms. They are not yet supported as relational arguments, pronoun antecedents, or general noun phrases in other sentence patterns.
+- Relational assertions and universal relational rules use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
+- A universal relational rule may have one or more unary class-description premises, all bound to the same subject variable, and exactly one binary relation conclusion whose object is a concrete proper name, definite description, or lowercase word. Relational premises, multiple quantified variables, variable objects, and relational pronouns are not supported.
 - Relational questions use `Does`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + `y` becomes `ies`; endings `s`, `x`, `z`, `ch`, `sh`, and `o` take `es`; other verbs take `s`.
 - The supported irregular base forms `have`, `do`, and `go` map to `has`, `does`, and `goes`. Other irregular forms are not normalized by this grammar.
 - The relation predicate is represented using its third-person singular form. Thus, `Fido likes milk.` and `Does Fido like milk?` both produce `likes(fido, milk)`.
@@ -94,6 +97,8 @@ Examples:
 | `Every dog is an animal.` | One universal rule with one unary premise |
 | `Every red ball is a toy.` | `forall(x, implies(and(red(x), ball(x)), toy(x)))`; both unary premises are required |
 | `Every old blue car is a vehicle.` | `forall(x, implies(and(old(x), blue(x), car(x)), vehicle(x)))` |
+| `Every dog likes milk.` | `forall(x, implies(dog(x), likes(x, milk)))`; a unary premise and one fixed relation object |
+| `Every red dog likes milk.` | `forall(x, implies(and(red(x), dog(x)), likes(x, milk)))`; both conditions must hold for the same subject |
 | `A red ball exists.` | `exists(x, and(red(x), ball(x)))`; introduces one anonymous witness |
 | `A red ball is shiny.` | `exists(x, and(red(x), ball(x), shiny(x)))`; all conditions describe the same witness |
 | `A red ball is a toy.` | `exists(x, and(red(x), ball(x), toy(x)))` |
@@ -143,7 +148,17 @@ For example, `Every dog is an animal.` is represented as:
       )
     )
 
-The relational example `Fido likes milk.` is represented as:
+The quantified relational example `Every dog likes milk.` is represented as:
+    
+    UniversalQuantification(
+      VariableTerm("x"),
+      Implication(
+        PredicateApplication("dog", [VariableTerm("x")]),
+        PredicateApplication("likes", [VariableTerm("x"), IndividualTerm("milk")])
+      )
+    )
+
+The ground relational example `Fido likes milk.` is represented as:
 
     PredicateApplication(
       "likes",

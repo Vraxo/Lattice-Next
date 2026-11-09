@@ -21,7 +21,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Represent definite descriptions with a head noun and ordered modifiers; assert them as separate unary facts on one stable individual.
 - [x] Represent indefinite assertions and existence questions as existentially quantified unary conditions.
 - [x] Keep anonymous existential witnesses distinct from named individuals and from other indefinite assertions.
-- [ ] Add quantified relation arguments and relational pronoun forms deliberately.
+- [x] Add quantified relational rules with unary premises and one fixed concrete object.
+- [ ] Add relational pronoun forms deliberately.
 
 ## 2. First symbolic reasoning slice
 
@@ -33,7 +34,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Explain a conclusion using the premises and rules that support it.
 - [x] Demonstrate the slice through the CLI with deterministic tests.
 - [x] Store ground relational facts and perform exact direct lookup with provenance.
-- [ ] Add relation joins, traversal, and relational rule inference only after concrete use cases and tests exist.
+- [x] Infer fixed-object relational conclusions from unary premises and retain their proofs.
+- [ ] Add relation joins, traversal, multi-variable rules, and relational premises only after concrete use cases and tests exist.
 
 ## 3. Conversation and context
 
