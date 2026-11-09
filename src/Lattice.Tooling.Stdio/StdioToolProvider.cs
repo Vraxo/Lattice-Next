@@ -299,9 +299,8 @@ public static class StdioToolProvider
             return false;
         }
 
-        var inputNames = inputs
-            .Select(input => input.Name)
-            .ToHashSet(StringComparer.Ordinal);
+        var inputsByName = inputs.ToDictionary(input => input.Name, StringComparer.Ordinal);
+        var inputNames = inputsByName.Keys.ToHashSet(StringComparer.Ordinal);
         var requiredInputNames = inputs
             .Where(input => input.Required)
             .Select(input => input.Name)
@@ -344,7 +343,14 @@ public static class StdioToolProvider
                     {
                         var reference = text[1..];
 
-                        if (reference != "previous" && !slots.Contains(reference))
+                        var referenceType = reference == "previous"
+                            ? "number"
+                            : slots.TryGetValue(reference, out var slotType)
+                                ? slotType
+                                : null;
+
+                        if (referenceType is null ||
+                            !MatchesIntentSlotType(inputsByName[argument.Name].Type, referenceType))
                         {
                             return false;
                         }
@@ -361,6 +367,19 @@ public static class StdioToolProvider
                     JsonValueKind.Number or
                     JsonValueKind.True or
                     JsonValueKind.False))
+                {
+                    return false;
+                }
+
+                var constantType = argument.Value.ValueKind switch
+                {
+                    JsonValueKind.String => ToolInputType.String,
+                    JsonValueKind.Number => ToolInputType.Number,
+                    JsonValueKind.True or JsonValueKind.False => ToolInputType.Boolean,
+                    _ => (ToolInputType?)null
+                };
+
+                if (constantType is null || constantType != inputsByName[argument.Name].Type)
                 {
                     return false;
                 }
@@ -388,9 +407,9 @@ public static class StdioToolProvider
 
     private static bool TryGetPatternSlots(
         string pattern,
-        out HashSet<string> slots)
+        out Dictionary<string, string> slots)
     {
-        slots = new HashSet<string>(StringComparer.Ordinal);
+        slots = new Dictionary<string, string>(StringComparer.Ordinal);
         var validSlot = new Regex(
             "^\\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\\}$",
             RegexOptions.CultureInvariant);
@@ -404,7 +423,9 @@ public static class StdioToolProvider
             {
                 var match = validSlot.Match(token);
 
-                if (!match.Success || !slots.Add(match.Groups["name"].Value))
+                if (!match.Success || !slots.TryAdd(
+                    match.Groups["name"].Value,
+                    match.Groups["type"].Value))
                 {
                     return false;
                 }
@@ -417,6 +438,14 @@ public static class StdioToolProvider
 
         return slots.Count > 0;
     }
+
+    private static bool MatchesIntentSlotType(ToolInputType inputType, string slotType) =>
+        slotType switch
+        {
+            "number" => inputType == ToolInputType.Number,
+            "word" or "text" => inputType == ToolInputType.String,
+            _ => false
+        };
 
     private static bool TryValidateResponseTemplate(
         string response,
