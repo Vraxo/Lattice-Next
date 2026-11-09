@@ -338,7 +338,11 @@ public static class StdioToolProvider
         if (!command.Contains(Path.DirectorySeparatorChar) &&
             !command.Contains(Path.AltDirectorySeparatorChar))
         {
-            resolvedCommand = command;
+            var localCommandPath = Path.Combine(toolDirectory, command);
+
+            resolvedCommand = File.Exists(localCommandPath)
+                ? Path.GetFullPath(localCommandPath)
+                : command;
             return true;
         }
 
