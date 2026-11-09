@@ -4,6 +4,8 @@ namespace Lattice.Core.Tools;
 
 public sealed class ToolRegistry
 {
+    private const ToolPermission AllPermissions = ToolPermission.Read | ToolPermission.Write;
+
     private readonly Dictionary<string, ITool> tools;
     private readonly TimeSpan executionTimeout;
     private readonly ToolPermission grantedPermissions;
@@ -14,6 +16,11 @@ public sealed class ToolRegistry
         TimeSpan? executionTimeout = null)
     {
         ArgumentNullException.ThrowIfNull(registeredTools);
+
+        if ((grantedPermissions & ~AllPermissions) != 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(grantedPermissions));
+        }
 
         this.grantedPermissions = grantedPermissions;
         this.executionTimeout = executionTimeout ?? TimeSpan.FromSeconds(5);
@@ -183,13 +190,11 @@ public sealed class ToolRegistry
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        const ToolPermission allPermissions = ToolPermission.Read | ToolPermission.Write;
-
         if (string.IsNullOrWhiteSpace(descriptor.Id) ||
             string.IsNullOrWhiteSpace(descriptor.Name) ||
             string.IsNullOrWhiteSpace(descriptor.Description) ||
             descriptor.Inputs.IsDefault ||
-            (descriptor.RequiredPermissions & ~allPermissions) != 0)
+            (descriptor.RequiredPermissions & ~AllPermissions) != 0)
         {
             throw new ArgumentException("A tool descriptor must define its ID, name, description, and inputs.");
         }
@@ -200,6 +205,7 @@ public sealed class ToolRegistry
         {
             if (string.IsNullOrWhiteSpace(input.Name) ||
                 string.IsNullOrWhiteSpace(input.Description) ||
+                !Enum.IsDefined(input.Type) ||
                 !names.Add(input.Name))
             {
                 throw new ArgumentException(
