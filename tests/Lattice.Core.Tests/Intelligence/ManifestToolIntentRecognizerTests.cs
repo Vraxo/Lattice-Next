@@ -103,6 +103,8 @@ public sealed class ManifestToolIntentRecognizerTests
             first.Continue!(new ToolObservation("calculator", "180")));
         AssertInvocation(second, 180m, "subtract", 10m);
 
+        Assert.Null(second.Continue!(new ToolObservation("calculator", "not a number")));
+
         var third = Assert.IsType<ToolIntent>(
             second.Continue!(new ToolObservation("calculator", "170")));
         AssertInvocation(third, 170m, "divide", 2m);
@@ -110,6 +112,17 @@ public sealed class ManifestToolIntentRecognizerTests
         Assert.Equal(
             "170 divided by 2 is 85.",
             third.FormatResponse(new ToolObservation("calculator", "85")));
+    }
+
+    [Fact]
+    public void Does_not_continue_a_chain_from_a_non_numeric_observation()
+    {
+        var resolution = CreateResolver().Resolve(
+            "Multiply that by 5, then subtract 10.",
+            new ToolObservation("calculator", "not a number"));
+
+        Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
     }
 
     [Theory]
