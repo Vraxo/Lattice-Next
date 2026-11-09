@@ -153,8 +153,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             definition,
             new Dictionary<string, object?>(StringComparer.Ordinal));
 
-        var patternTokens = definition.Pattern.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var inputTokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var patternTokens = definition.Pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var inputTokens = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
         if (patternTokens.Length == 0 || patternTokens.Length != inputTokens.Length)
         {
