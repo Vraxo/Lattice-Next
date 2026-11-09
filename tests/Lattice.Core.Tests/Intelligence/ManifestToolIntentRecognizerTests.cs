@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using Lattice.Core.Intelligence;
 using Lattice.Core.Tools;
@@ -132,6 +133,28 @@ public sealed class ManifestToolIntentRecognizerTests
         var resolution = CreateResolver().Resolve("Multiply that by 5.");
 
         Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
+    }
+
+    [Fact]
+    public void Reports_ambiguity_when_two_tools_declare_the_same_phrase()
+    {
+        var calculator = BundledToolTestSupport.CreateRegistry()
+            .Descriptors
+            .Single(descriptor => descriptor.Id == "calculator");
+        var multiplyIntent = calculator.Intents.Single(
+            definition => definition.Pattern == "what is {left:number} multiplied by {right:number}");
+        var alternate = new ToolDescriptor(
+            "alternate-calculator",
+            "Alternate calculator",
+            "A second capability declaring the same phrase.",
+            calculator.Inputs,
+            Intents: ImmutableArray.Create(multiplyIntent));
+        var resolver = CreateResolver([calculator, alternate]);
+
+        var resolution = resolver.Resolve("What is 12 multiplied by 3?");
+
+        Assert.Equal(ToolIntentResolutionStatus.Ambiguous, resolution.Status);
         Assert.Null(resolution.Intent);
     }
 
