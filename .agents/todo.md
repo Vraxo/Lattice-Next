@@ -66,7 +66,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Add a second independent capability before introducing autonomous tool selection.
 - [x] Select capabilities through generic matchers built from typed, manifest-declared phrase patterns, argument bindings, and response templates.
 - [x] Execute bounded, deterministic follow-up chains declared through manifest bindings against successive sourced numeric observations.
-- [ ] Expand deterministic intent coverage only in response to concrete language examples; evaluate broader translation separately.
+- [x] Extend manifest intent patterns with optional literal phrases and bounded multiword text captures while retaining conservative matching.
 
 ## 6. Language and knowledge expansion
 

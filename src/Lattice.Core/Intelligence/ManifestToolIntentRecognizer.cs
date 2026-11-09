@@ -8,14 +8,12 @@ namespace Lattice.Core.Intelligence;
 public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
 {
     private const int MaximumChainLength = 8;
+    private const int MaximumMatchCandidates = 1024;
+    private const int MaximumMatchSteps = 100_000;
 
     private static readonly Regex ChainSeparator = new(
         @"\s*,?\s+then\s+",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex SlotPattern = new(
-        @"^\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\}$",
-        RegexOptions.CultureInvariant);
 
     private readonly ToolDescriptor descriptor;
     private readonly ToolIntentDefinition definition;
@@ -39,9 +37,15 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
         ArgumentNullException.ThrowIfNull(input);
         intent = null;
 
+        if (TryMatch(definition, input, out var single))
+        {
+            intent = CreateIntent(single, latestObservation, Array.Empty<MatchedToolIntent>());
+            return intent is not null;
+        }
+
         var segments = ChainSeparator.Split(input.Trim());
 
-        if (segments.Length == 0 || segments.Length > MaximumChainLength ||
+        if (segments.Length <= 1 || segments.Length > MaximumChainLength ||
             !TryMatch(definition, segments[0], out var first))
         {
             return false;
@@ -153,50 +157,248 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             definition,
             new Dictionary<string, object?>(StringComparer.Ordinal));
 
-        var patternTokens = definition.Pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var inputTokens = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-
-        if (patternTokens.Length == 0 || patternTokens.Length != inputTokens.Length)
+        if (!ToolIntentPatternParser.TryParse(definition.Pattern, out var parts))
         {
             return false;
         }
 
-        var slots = new Dictionary<string, object?>(StringComparer.Ordinal);
+        var inputTokens = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
-        for (var index = 0; index < patternTokens.Length; index++)
+        if (inputTokens.Length == 0 || inputTokens.Length > 256)
         {
-            var patternToken = NormalizeToken(patternTokens[index]);
-            var inputToken = NormalizeToken(inputTokens[index]);
+            return false;
+        }
 
-            if (patternToken.Length == 0 || inputToken.Length == 0)
+        var matches = new List<(IReadOnlyDictionary<string, object?> Slots, int OptionalMatches)>();
+        var exceededCandidateLimit = false;
+        var searchSteps = 0;
+        CollectMatches(
+            parts,
+            inputTokens,
+            0,
+            0,
+            new Dictionary<string, object?>(StringComparer.Ordinal),
+            0,
+            matches,
+            ref exceededCandidateLimit,
+            ref searchSteps);
+
+        if (exceededCandidateLimit || matches.Count == 0)
+        {
+            return false;
+        }
+
+        var maximumOptionalMatches = matches.Max(match => match.OptionalMatches);
+        var bestMatches = matches
+            .Where(match => match.OptionalMatches == maximumOptionalMatches)
+            .ToArray();
+
+        if (bestMatches.Length != 1)
+        {
+            return false;
+        }
+
+        matched = new MatchedToolIntent(definition, bestMatches[0].Slots);
+        return true;
+    }
+
+    private static void CollectMatches(
+        IReadOnlyList<ToolIntentPatternPart> parts,
+        IReadOnlyList<string> inputTokens,
+        int partIndex,
+        int inputIndex,
+        Dictionary<string, object?> slots,
+        int optionalMatches,
+        List<(IReadOnlyDictionary<string, object?> Slots, int OptionalMatches)> matches,
+        ref bool exceededCandidateLimit,
+        ref int searchSteps)
+    {
+        if (exceededCandidateLimit)
+        {
+            return;
+        }
+
+        searchSteps++;
+
+        if (searchSteps > MaximumMatchSteps)
+        {
+            exceededCandidateLimit = true;
+            return;
+        }
+
+        if (partIndex == parts.Count)
+        {
+            if (inputIndex == inputTokens.Count)
             {
-                return false;
+                AddUniqueMatch(matches, slots, optionalMatches, ref exceededCandidateLimit);
             }
 
-            var slot = SlotPattern.Match(patternToken);
+            return;
+        }
 
-            if (!slot.Success)
+        var part = parts[partIndex];
+
+        if (part.IsOptional)
+        {
+            if (MatchesLiteralTokens(part.LiteralTokens, inputTokens, inputIndex))
             {
-                if (!string.Equals(patternToken, inputToken, StringComparison.OrdinalIgnoreCase))
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + part.LiteralTokens.Length,
+                    slots,
+                    optionalMatches + 1,
+                    matches,
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
+            }
+
+            CollectMatches(
+                parts,
+                inputTokens,
+                partIndex + 1,
+                inputIndex,
+                slots,
+                optionalMatches,
+                matches,
+                ref exceededCandidateLimit,
+                ref searchSteps);
+            return;
+        }
+
+        if (part.SlotName is null)
+        {
+            if (MatchesLiteralTokens(part.LiteralTokens, inputTokens, inputIndex))
+            {
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + part.LiteralTokens.Length,
+                    slots,
+                    optionalMatches,
+                    matches,
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
+            }
+
+            return;
+        }
+
+        if (part.SlotType == "text")
+        {
+            for (var length = 1;
+                length <= inputTokens.Count - inputIndex && !exceededCandidateLimit;
+                length++)
+            {
+                var captured = string.Join(
+                    " ",
+                    inputTokens.Skip(inputIndex).Take(length).Select(NormalizeToken));
+
+                if (string.IsNullOrWhiteSpace(captured))
                 {
-                    return false;
+                    continue;
                 }
 
-                continue;
+                slots[part.SlotName] = captured;
+                CollectMatches(
+                    parts,
+                    inputTokens,
+                    partIndex + 1,
+                    inputIndex + length,
+                    slots,
+                    optionalMatches,
+                    matches,
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
+                slots.Remove(part.SlotName);
             }
 
-            var name = slot.Groups["name"].Value;
-            var type = slot.Groups["type"].Value;
+            return;
+        }
 
-            if (!TryReadSlot(inputToken, type, out var value) ||
-                !slots.TryAdd(name, value))
+        if (inputIndex >= inputTokens.Count ||
+            !TryReadSlot(NormalizeToken(inputTokens[inputIndex]), part.SlotType!, out var value))
+        {
+            return;
+        }
+
+        slots[part.SlotName] = value;
+        CollectMatches(
+            parts,
+            inputTokens,
+            partIndex + 1,
+            inputIndex + 1,
+            slots,
+            optionalMatches,
+            matches,
+            ref exceededCandidateLimit,
+            ref searchSteps);
+        slots.Remove(part.SlotName);
+    }
+
+    private static bool MatchesLiteralTokens(
+        IReadOnlyList<string> expected,
+        IReadOnlyList<string> actual,
+        int inputIndex)
+    {
+        if (expected.Count > actual.Count - inputIndex)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < expected.Count; index++)
+        {
+            var expectedToken = NormalizeToken(expected[index]);
+            var actualToken = NormalizeToken(actual[inputIndex + index]);
+
+            if (!string.Equals(expectedToken, actualToken, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
         }
 
-        matched = new MatchedToolIntent(definition, slots);
         return true;
+    }
+
+    private static void AddUniqueMatch(
+        List<(IReadOnlyDictionary<string, object?> Slots, int OptionalMatches)> matches,
+        Dictionary<string, object?> slots,
+        int optionalMatches,
+        ref bool exceededCandidateLimit)
+    {
+        for (var index = 0; index < matches.Count; index++)
+        {
+            var existing = matches[index];
+
+            if (existing.Slots.Count != slots.Count ||
+                existing.Slots.Any(pair =>
+                    !slots.TryGetValue(pair.Key, out var value) ||
+                    !Equals(pair.Value, value)))
+            {
+                continue;
+            }
+
+            if (optionalMatches > existing.OptionalMatches)
+            {
+                matches[index] = (
+                    new Dictionary<string, object?>(slots, StringComparer.Ordinal),
+                    optionalMatches);
+            }
+
+            return;
+        }
+
+        if (matches.Count >= MaximumMatchCandidates)
+        {
+            exceededCandidateLimit = true;
+            return;
+        }
+
+        matches.Add((
+            new Dictionary<string, object?>(slots, StringComparer.Ordinal),
+            optionalMatches));
     }
 
     private static bool TryReadSlot(

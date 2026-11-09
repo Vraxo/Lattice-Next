@@ -37,6 +37,7 @@ public sealed class ManifestToolIntentRecognizerTests
     [InlineData("Convert 150 cm to meters.", 150, "cm", "meters")]
     [InlineData("How many meters is 150 cm?", 150, "cm", "meters")]
     [InlineData("2 hours in minutes", 2, "hours", "minutes")]
+    [InlineData("Please do convert 150 cm to meters.", 150, "cm", "meters")]
     public void Recognizes_unit_patterns_without_a_unit_specific_recognizer(
         string input,
         decimal expectedValue,
@@ -161,6 +162,80 @@ public sealed class ManifestToolIntentRecognizerTests
     }
 
     [Fact]
+    public void Bounds_search_effort_for_pathological_multiword_patterns()
+    {
+        const int slotCount = 12;
+        var patternParts = new List<string>();
+        var inputs = ImmutableArray.CreateBuilder<ToolInputDescriptor>();
+        var bindings = ImmutableDictionary.CreateBuilder<string, ToolIntentBinding>();
+
+        for (var index = 0; index < slotCount; index++)
+        {
+            var name = $"part{index}";
+            patternParts.Add($"{{{name}:text}}");
+            inputs.Add(new ToolInputDescriptor(name, "A text segment.", ToolInputType.String));
+            bindings.Add(name, new ToolIntentBinding(name, null));
+
+            if (index < slotCount - 1)
+            {
+                patternParts.Add("a");
+            }
+        }
+
+        patternParts.Add("z");
+
+        var definition = new ToolIntentDefinition(
+            string.Join(" ", patternParts),
+            bindings.ToImmutable(),
+            "Matched {result}.");
+        var descriptor = new ToolDescriptor(
+            "pathological",
+            "Pathological matcher test",
+            "Exercises the matcher search budget.",
+            inputs.ToImmutable(),
+            Intents: ImmutableArray.Create(definition));
+        var resolver = new ToolIntentResolver(
+        [
+            new ManifestToolIntentRecognizer(descriptor, definition)
+        ]);
+        var input = string.Join(" ", Enumerable.Repeat("a", 256));
+
+        var resolution = resolver.Resolve(input);
+
+        Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
+    }
+
+    [Fact]
+    public void Rejects_a_multiword_capture_when_more_than_one_boundary_matches()
+    {
+        var definition = new ToolIntentDefinition(
+            "search {query:text} in {scope:text}",
+            ImmutableDictionary<string, ToolIntentBinding>.Empty
+                .Add("query", new ToolIntentBinding("query", null))
+                .Add("scope", new ToolIntentBinding("scope", null)),
+            "Found {result} in {scope}.");
+
+        var descriptor = new ToolDescriptor(
+            "search",
+            "Search",
+            "Searches one declared scope.",
+            ImmutableArray.Create(
+                new ToolInputDescriptor("query", "Search query.", ToolInputType.String),
+                new ToolInputDescriptor("scope", "Search scope.", ToolInputType.String)),
+            Intents: ImmutableArray.Create(definition));
+        var resolver = new ToolIntentResolver(
+        [
+            new ManifestToolIntentRecognizer(descriptor, definition)
+        ]);
+
+        var resolution = resolver.Resolve("search a in b in c");
+
+        Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
+    }
+
+    [Fact]
     public void Reports_ambiguity_when_two_tools_declare_the_same_phrase()
     {
         var calculator = BundledToolTestSupport.CreateRegistry()
@@ -238,7 +313,7 @@ public sealed class ManifestToolIntentRecognizerTests
                 {
                     new
                     {
-                        pattern = "echo {message:text}",
+                        pattern = "[please] echo {message:text} [to the console]",
                         arguments = new Dictionary<string, string>
                         {
                             ["message"] = "$message"
@@ -257,7 +332,8 @@ public sealed class ManifestToolIntentRecognizerTests
                 tools,
                 executionTimeout: TimeSpan.FromSeconds(10));
             var resolver = CreateResolver(registry.Descriptors);
-            var resolution = resolver.Resolve("Echo lattice.");
+            var resolution = resolver.Resolve(
+                "Please echo lattice from a manifest-only phrase then a final token to the console.");
 
             Assert.True(resolution.IsResolved);
             Assert.Equal("example.echo", resolution.Intent!.ToolId);
@@ -269,8 +345,21 @@ public sealed class ManifestToolIntentRecognizerTests
 
             Assert.True(invocation.IsSuccess, invocation.Error);
             Assert.Equal(
-                "Echoed: lattice.",
+                "Echoed: lattice from a manifest-only phrase then a final token.",
                 resolution.Intent.FormatResponse(invocation.Observation!));
+
+            var withoutOptionalPhrases = resolver.Resolve("Echo another multi word phrase.");
+            Assert.True(withoutOptionalPhrases.IsResolved);
+
+            var secondInvocation = await registry.TryInvokeAsync(
+                withoutOptionalPhrases.Intent!.ToolId,
+                withoutOptionalPhrases.Intent.ArgumentsJson,
+                TestContext.Current.CancellationToken);
+
+            Assert.True(secondInvocation.IsSuccess, secondInvocation.Error);
+            Assert.Equal(
+                "Echoed: another multi word phrase.",
+                withoutOptionalPhrases.Intent.FormatResponse(secondInvocation.Observation!));
         }
         finally
         {

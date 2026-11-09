@@ -30,7 +30,7 @@
   "permissions": [],
   "intents": [
     {
-      "pattern": "convert {value:number} {from:word} to {to:word}",
+      "pattern": "[please do] convert {value:number} {from:word} to {to:word}",
       "arguments": {
         "value": "$value",
         "from": "$from",

@@ -412,30 +412,15 @@ public static class StdioToolProvider
         out Dictionary<string, string> slots)
     {
         slots = new Dictionary<string, string>(StringComparer.Ordinal);
-        var validSlot = new Regex(
-            "^\\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\\}$",
-            RegexOptions.CultureInvariant);
 
-        foreach (var rawToken in pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        if (!ToolIntentPatternParser.TryParse(pattern, out var parts))
         {
-            var token = rawToken.TrimEnd('.', '?', '!', ',', ';', ':');
+            return false;
+        }
 
-            if (token.StartsWith("{", StringComparison.Ordinal) ||
-                token.EndsWith("}", StringComparison.Ordinal))
-            {
-                var match = validSlot.Match(token);
-
-                if (!match.Success || !slots.TryAdd(
-                    match.Groups["name"].Value,
-                    match.Groups["type"].Value))
-                {
-                    return false;
-                }
-            }
-            else if (token.Contains('{') || token.Contains('}'))
-            {
-                return false;
-            }
+        foreach (var part in parts.Where(part => part.SlotName is not null))
+        {
+            slots.Add(part.SlotName!, part.SlotType!);
         }
 
         return slots.Count > 0;
