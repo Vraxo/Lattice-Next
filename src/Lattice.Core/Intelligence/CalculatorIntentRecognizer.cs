@@ -7,6 +7,7 @@ namespace Lattice.Core.Intelligence;
 
 public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 {
+    private const int MaximumChainLength = 8;
     private const string Number = @"-?\d+(?:\.\d+)?";
     private const string Reference = @"(?:that|it|the\s+result)";
 
@@ -55,7 +56,8 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 
         if (segments.Length > 1)
         {
-            if (!TryGetPreviousNumber(latestObservation, out var previous) ||
+            if (segments.Length > MaximumChainLength ||
+                !TryGetPreviousNumber(latestObservation, out var previous) ||
                 !TryParseFollowUp(segments[0], out var firstOperation, out var firstRight))
             {
                 return false;
