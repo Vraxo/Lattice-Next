@@ -71,6 +71,32 @@ public sealed class ToolIntentPipelineTests
         context.Observe(afterConversionResult.Observation!);
         Assert.Equal("1.8 multiplied by 5 is 9.", afterConversion.Intent.FormatResponse(afterConversionResult.Observation!));
 
+        var chain = resolver.Resolve(
+            "Multiply that by 5, then subtract 10.",
+            context.LatestToolObservation);
+        Assert.True(chain.IsResolved);
+
+        var chainResponses = new List<string>();
+        var current = chain.Intent;
+
+        while (current is not null)
+        {
+            var result = await registry.TryInvokeAsync(
+                current.ToolId,
+                current.ArgumentsJson,
+                TestContext.Current.CancellationToken);
+
+            Assert.True(result.IsSuccess, result.Error);
+            context.Observe(result.Observation!);
+            chainResponses.Add(current.FormatResponse(result.Observation!));
+            current = current.Continue?.Invoke(result.Observation!);
+        }
+
+        Assert.Equal(
+            new[] { "9 multiplied by 5 is 45.", "45 minus 10 is 35." },
+            chainResponses);
+        Assert.Equal("35", context.LatestToolObservation!.Content);
+
         Assert.Empty(knowledgeBase.Facts);
         Assert.Empty(knowledgeBase.Rules);
     }

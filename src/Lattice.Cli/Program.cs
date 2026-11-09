@@ -9,6 +9,7 @@ using Spectre.Console;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+const int maximumToolIntentSteps = 8;
 var parser = new LceParser();
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
@@ -107,7 +108,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
         AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
-        AnsiConsole.MarkupLine("  [green]Multiply that by 5.[/] [dim]uses the latest numeric tool observation[/]");
+        AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
         AnsiConsole.MarkupLine("  [dim]Natural-language capability selection currently covers basic arithmetic and unit conversions.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
@@ -283,25 +284,51 @@ while (true)
 
     if (intentResolution.IsResolved)
     {
-        var intent = intentResolution.Intent!;
-        var result = await toolRegistry.TryInvokeAsync(intent.ToolId, intent.ArgumentsJson);
+        ToolIntent? currentIntent = intentResolution.Intent!;
+        var responses = new List<string>();
+        var usedTools = new List<string>();
+        var invocationFailed = false;
+        var invocationCount = 0;
 
-        if (!result.IsSuccess)
+        while (currentIntent is not null && invocationCount < maximumToolIntentSteps)
         {
-            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
-            AnsiConsole.WriteLine(result.Error ?? "The capability could not complete the request.");
-            AnsiConsole.WriteLine();
-            continue;
+            var result = await toolRegistry.TryInvokeAsync(
+                currentIntent.ToolId,
+                currentIntent.ArgumentsJson);
+
+            if (!result.IsSuccess)
+            {
+                AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+                AnsiConsole.WriteLine(result.Error ?? "The capability could not complete the request.");
+                invocationFailed = true;
+                break;
+            }
+
+            invocationCount++;
+            var observation = result.Observation!;
+            conversationContext.Observe(observation);
+            responses.Add(currentIntent.FormatResponse(observation));
+
+            var descriptor = toolRegistry.Descriptors.FirstOrDefault(
+                item => string.Equals(item.Id, currentIntent.ToolId, StringComparison.OrdinalIgnoreCase));
+            usedTools.Add(descriptor?.Name ?? currentIntent.ToolId);
+            currentIntent = currentIntent.Continue?.Invoke(observation);
         }
 
-        conversationContext.Observe(result.Observation!);
-        AnsiConsole.Markup("[bold cyan]Lattice[/] [dim]›[/] ");
-        AnsiConsole.WriteLine(intent.FormatResponse(result.Observation!));
+        if (!invocationFailed && currentIntent is not null)
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine("The capability chain exceeded the maximum of 8 steps.");
+            invocationFailed = true;
+        }
 
-        var descriptor = toolRegistry.Descriptors.FirstOrDefault(
-            item => string.Equals(item.Id, intent.ToolId, StringComparison.OrdinalIgnoreCase));
-        AnsiConsole.MarkupLine(
-            $"[dim]Used {descriptor?.Name ?? intent.ToolId}; result retained as a temporary observation.[/]");
+        if (!invocationFailed)
+        {
+            AnsiConsole.Markup("[bold cyan]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine(string.Join(" Then ", responses));
+            AnsiConsole.MarkupLine(
+                $"[dim]Used {string.Join(", ", usedTools.Distinct(StringComparer.OrdinalIgnoreCase))}; results retained as temporary observations.[/]");
+        }
 
         AnsiConsole.WriteLine();
         continue;

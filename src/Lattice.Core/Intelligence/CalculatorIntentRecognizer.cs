@@ -7,7 +7,9 @@ namespace Lattice.Core.Intelligence;
 
 public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 {
+    private const int MaximumChainLength = 8;
     private const string Number = @"-?\d+(?:\.\d+)?";
+    private const string Reference = @"(?:that|it|the\s+result)";
 
     private static readonly Regex ExpressionPattern = new(
         @"^(?:(?:what\s+is|calculate|compute)\s+)?(?<left>" + Number +
@@ -21,16 +23,25 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex FollowUpPattern = new(
-        @"^(?:and\s+)?(?<verb>multiply|divide)\s+(?:that|it|the\s+result)\s+by\s+(?<right>" +
+        @"^(?:and\s+)?(?<verb>multiply|divide)\s+" + Reference + @"\s+by\s+(?<right>" +
         Number + @")[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex AddFollowUpPattern = new(
-        @"^(?:and\s+)?add\s+(?<right>" + Number + @")\s+to\s+(?:that|it|the\s+result)[?.]?$",
+        @"^(?:and\s+)?add\s+(?<right>" + Number + @")\s+to\s+" + Reference + @"[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex SubtractFollowUpPattern = new(
-        @"^(?:and\s+)?subtract\s+(?<right>" + Number + @")\s+from\s+(?:that|it|the\s+result)[?.]?$",
+        @"^(?:and\s+)?subtract\s+(?<right>" + Number + @")\s+from\s+" + Reference + @"[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ChainedStepPattern = new(
+        @"^(?<verb>add|subtract|multiply|divide)\s+(?:(?:" + Reference + @")\s+)?(?:(?<prefix>by)\s+)?(?<right>" +
+        Number + @")(?:\s+(?<suffix>to|from)\s+" + Reference + @")?[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ChainSeparator = new(
+        @"\s*,?\s+then\s+",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public bool TryRecognize(
@@ -41,6 +52,32 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         ArgumentNullException.ThrowIfNull(input);
         intent = null;
         var source = input.Trim();
+        var segments = ChainSeparator.Split(source);
+
+        if (segments.Length > 1)
+        {
+            if (segments.Length > MaximumChainLength ||
+                !TryGetPreviousNumber(latestObservation, out var previous) ||
+                !TryParseFollowUp(segments[0], out var firstOperation, out var firstRight))
+            {
+                return false;
+            }
+
+            var remaining = new List<(string Operation, decimal Right)>();
+
+            foreach (var segment in segments.Skip(1))
+            {
+                if (!TryParseChainedStep(segment, out var operation, out var right))
+                {
+                    return false;
+                }
+
+                remaining.Add((operation, right));
+            }
+
+            intent = CreateChainedIntent(previous, firstOperation, firstRight, remaining);
+            return true;
+        }
 
         var expression = ExpressionPattern.Match(source);
 
@@ -90,42 +127,109 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
             }
         }
 
-        if (!TryGetPreviousNumber(latestObservation, out var previous))
+        if (!TryGetPreviousNumber(latestObservation, out var previousValue) ||
+            !TryParseFollowUp(source, out var followUpOperation, out var followUpRight))
         {
             return false;
         }
 
+        intent = CreateIntent(previousValue, followUpOperation, followUpRight);
+        return true;
+    }
+
+    private static ToolIntent CreateChainedIntent(
+        decimal left,
+        string operation,
+        decimal right,
+        IReadOnlyList<(string Operation, decimal Right)> remaining)
+    {
+        Func<ToolObservation, ToolIntent?>? continuation = null;
+
+        if (remaining.Count > 0)
+        {
+            var next = remaining[0];
+            var later = remaining.Skip(1).ToArray();
+            continuation = observation =>
+                TryGetPreviousNumber(observation, out var previous)
+                    ? CreateChainedIntent(previous, next.Operation, next.Right, later)
+                    : null;
+        }
+
+        return CreateIntent(left, operation, right, continuation);
+    }
+
+    private static bool TryParseFollowUp(
+        string source,
+        out string operation,
+        out decimal right)
+    {
+        operation = string.Empty;
+        right = 0;
+
         var followUp = FollowUpPattern.Match(source);
 
-        if (followUp.Success && TryDecimal(followUp.Groups["right"].Value, out var followUpRight))
+        if (followUp.Success && TryDecimal(followUp.Groups["right"].Value, out right))
         {
-            var operation = followUp.Groups["verb"].Value.Equals("multiply", StringComparison.OrdinalIgnoreCase)
+            operation = followUp.Groups["verb"].Value.Equals("multiply", StringComparison.OrdinalIgnoreCase)
                 ? "multiply"
                 : "divide";
-            intent = CreateIntent(previous, operation, followUpRight);
             return true;
         }
 
         var addFollowUp = AddFollowUpPattern.Match(source);
 
-        if (addFollowUp.Success && TryDecimal(addFollowUp.Groups["right"].Value, out var addRight))
+        if (addFollowUp.Success && TryDecimal(addFollowUp.Groups["right"].Value, out right))
         {
-            intent = CreateIntent(previous, "add", addRight);
+            operation = "add";
             return true;
         }
 
         var subtractFollowUp = SubtractFollowUpPattern.Match(source);
 
-        if (subtractFollowUp.Success && TryDecimal(subtractFollowUp.Groups["right"].Value, out var subtractRight))
+        if (subtractFollowUp.Success && TryDecimal(subtractFollowUp.Groups["right"].Value, out right))
         {
-            intent = CreateIntent(previous, "subtract", subtractRight);
+            operation = "subtract";
             return true;
         }
 
         return false;
     }
 
-    private static ToolIntent CreateIntent(decimal left, string operation, decimal right)
+    private static bool TryParseChainedStep(
+        string source,
+        out string operation,
+        out decimal right)
+    {
+        operation = string.Empty;
+        right = 0;
+        var match = ChainedStepPattern.Match(source);
+
+        if (!match.Success || !TryDecimal(match.Groups["right"].Value, out right))
+        {
+            return false;
+        }
+
+        var verb = match.Groups["verb"].Value.ToLowerInvariant();
+        var prefix = match.Groups["prefix"].Value.ToLowerInvariant();
+        var suffix = match.Groups["suffix"].Value.ToLowerInvariant();
+
+        operation = verb switch
+        {
+            "add" when prefix.Length == 0 && (suffix is "" or "to") => "add",
+            "subtract" when prefix.Length == 0 && (suffix is "" or "from") => "subtract",
+            "multiply" when suffix.Length == 0 && (prefix is "" or "by") => "multiply",
+            "divide" when suffix.Length == 0 && (prefix is "" or "by") => "divide",
+            _ => string.Empty
+        };
+
+        return operation.Length > 0;
+    }
+
+    private static ToolIntent CreateIntent(
+        decimal left,
+        string operation,
+        decimal right,
+        Func<ToolObservation, ToolIntent?>? continuation = null)
     {
         var arguments = JsonSerializer.Serialize(new { left, operation, right });
         var operationText = operation switch
@@ -140,7 +244,8 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         return new ToolIntent(
             "calculator",
             arguments,
-            observation => $"{Format(left)} {operationText} {Format(right)} is {observation.Content}.");
+            observation => $"{Format(left)} {operationText} {Format(right)} is {observation.Content}.",
+            continuation);
     }
 
     private static bool TryGetPreviousNumber(ToolObservation? observation, out decimal value)
