@@ -206,13 +206,20 @@ static IEnumerable<string> GetProofStatements(ProofNode proof)
             }
         }
 
-        var source = current.ResolvedReferent is { } referent
-            ? $"{current.SourceText} [it resolved to {referent.Value}]"
-            : current.SourceText;
-
-        if (emitted.Add(source))
+        foreach (var source in current.Sources)
         {
-            yield return source;
+            var referent = source.ResolvedReferent is { } resolved
+                ? $" [it resolved to {resolved.Value}]"
+                : string.Empty;
+            var origin = source.Kind == KnowledgeSourceKind.UserAssertion
+                ? string.Empty
+                : $" [source: {source.Kind}]";
+            var statement = $"{source.SourceText}{referent}{origin}";
+
+            if (emitted.Add(statement))
+            {
+                yield return statement;
+            }
         }
     }
 }
