@@ -27,6 +27,8 @@ def read_decimal(value: Any, name: str) -> Decimal:
         raise ValueError(f"'{name}' exceeds the supported decimal scale.")
 
     if exponent > 0:
+        if len(digits) + exponent > 29:
+            raise ValueError(f"'{name}' is outside the supported decimal range.")
         coefficient *= 10**exponent
 
     if coefficient > MAX_DECIMAL_COEFFICIENT:
