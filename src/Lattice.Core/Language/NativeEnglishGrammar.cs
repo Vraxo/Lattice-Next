@@ -334,8 +334,10 @@ internal static class NativeEnglishGrammar
         {
             if (Is(tokens[index], "that"))
             {
+                var relativeCopula = expectPluralHead ? "are" : "is";
+
                 if (index + 2 >= end ||
-                    !Is(tokens[index + 1], "is") ||
+                    !Is(tokens[index + 1], relativeCopula) ||
                     !IsLowerWord(tokens[index + 2]) ||
                     ReservedIndividualTerms.Contains(tokens[index + 2]))
                 {

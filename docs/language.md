@@ -159,7 +159,7 @@ This means a relative-clause description does not have a separate implementation
 
 The initial grammar also supports plural universal quantification (`All`), existential `Some` statements over unary conditions, and the reverse implication expressed by simple `Only` statements. `Only` with a multi-condition subject description is deliberately not accepted yet because the current universal-rule representation does not support a conjunctive conclusion. Plural handling is limited to regular spelling rules; irregular forms and reliable lexical category detection remain future work.
 
-The supported relative clause is deliberately restricted to `that is + adjective`. Clauses containing verbs, unrestricted coordination, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported. The parser rejects them instead of weakening or guessing their meaning.
+The supported restrictive relative clause is deliberately restricted to `that is + adjective` for singular heads and `that are + adjective` for plural heads. Clauses containing verbs, unrestricted coordination, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported. The parser rejects them instead of weakening or guessing their meaning.
 
 Both controlled LCE and native-English constructions preserve the original sentence in `SemanticUtterance.SourceText`, and both can appear together in one `ParseText` turn. This language expansion does not automatically expand what the reasoning engine can represent or prove.
   
