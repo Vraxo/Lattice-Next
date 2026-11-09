@@ -4,7 +4,7 @@ Tools are optional capabilities discovered and invoked by the application compos
 
 ## Core contract
 
-Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, description, input descriptors, and required permissions. Input descriptors define names, primitive JSON types, descriptions, and whether each input is required.
+Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, description, input descriptors, required permissions, and optional intent definitions. Input descriptors define names, primitive JSON types, descriptions, and whether each input is required.
 
 `ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise.
 
@@ -21,7 +21,7 @@ Both use the same manifest, stdio protocol, generic registry, permission checks,
 
 The separate `Lattice.Tooling.Stdio` project adapts external processes to the Core contract. Core has no dependency on this provider, process APIs, a transport, or any particular implementation language.
 
-The CLI discovers tools one directory level below `./tools` by default. Set `LATTICE_TOOLS_DIR` to use another root. Each tool directory contains a `tool.json` manifest. Directories without a manifest are ignored. Discovery parses metadata only; it never starts the declared command. Invalid manifests fail discovery as a whole instead of silently loading a partial set.
+The CLI discovers tools one directory level below `./tools` by default. Set `LATTICE_TOOLS_DIR` to use another root. Each tool directory contains a `tool.json` manifest. Directories without a manifest are ignored. Discovery parses and validates metadata only; it never starts the declared command. Invalid manifests fail discovery as a whole instead of silently loading a partial set.
 
 Example manifest:
 
@@ -41,11 +41,34 @@ Example manifest:
       "required": true
     }
   ],
-  "permissions": []
+  "permissions": [],
+  "intents": [
+    {
+      "pattern": "echo {text:text}",
+      "arguments": {
+        "text": "$text"
+      },
+      "response": "Echoed: {result}."
+    }
+  ]
 }
 ```
 
 The command may be any executable available on the host. Fixed command arguments are passed as individual process arguments, without a shell. Relative executable paths must stay inside their tool directory.
+
+### Declarative intent patterns
+
+The optional `intents` array declares which constrained phrases select a tool. Each entry has:
+
+- `pattern`: an exact sequence of literal tokens and typed placeholders such as `{value:number}`.
+- `arguments`: the tool input values. A string beginning with `$` refers to a captured slot; `$previous` refers to the latest successful numeric observation. Other strings, numbers, and booleans are literal constants.
+- `response`: a response template containing one or more tool argument names and `{result}`.
+
+Slot types are `number` (invariant decimal), `word` (letters only), and `text` (one non-whitespace token). Matching is case-insensitive; punctuation at token edges is ignored. Patterns do not support arbitrary regular expressions, optional tokens, or multiword captures. A manifest is rejected when a slot reference, binding type, required input, or response placeholder is invalid.
+
+For example, the declaration above matches `Echo lattice.`, binds the single word to the `text` input, invokes the tool, and formats its returned value as `Echoed: lattice.`. A tool author can add or change these phrases by editing only the manifest.
+
+A pattern may bind an argument to `$previous` to refer to the latest numeric tool observation. This also enables bounded chains: text separated by `then` must match one declared pattern per step, and each subsequent step must bind at least one input to `$previous`. The complete chain is matched before its first invocation and contains at most eight steps. Follow-up segments are resolved against the same tool's declared intent list as the first segment; cross-tool chains are not supported yet. Results remain temporary observations, not knowledge-base facts. These declarations are deterministic phrase matching, not unrestricted English understanding.
 
 ### JSON-lines protocol version 1
 
@@ -102,4 +125,4 @@ The configured tool directory is a trust boundary. Invoking a discovered command
 - `Convert 150 cm to meters.` selects the unit converter when its manifest is discovered.
 - `Multiply that by 5.` resolves the latest numeric tool observation and invokes the calculator again.
 
-The generic intent resolver consults recognizers; it does not contain a switch over tool IDs. The current recognizers intentionally support a small set of arithmetic and unit-conversion phrasings rather than unrestricted English. Their registration is conditioned on the corresponding tool being discovered. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.
+The generic intent resolver creates recognizers from discovered manifest declarations; it does not contain a switch over tool IDs or domains. The bundled calculator and unit converter declare their supported arithmetic and conversion phrases in their own manifests. A new tool can declare its own phrases without a matching C# recognizer. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.

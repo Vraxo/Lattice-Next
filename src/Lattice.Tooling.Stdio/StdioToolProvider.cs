@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Lattice.Core.Tools;
 
 namespace Lattice.Tooling.Stdio;
@@ -106,7 +107,8 @@ public static class StdioToolProvider
                     "command",
                     "arguments",
                     "inputs",
-                    "permissions"))
+                    "permissions",
+                    "intents"))
             {
                 error = $"Tool manifest '{manifestPath}' has an invalid root object or unknown properties.";
                 return false;
@@ -130,7 +132,8 @@ public static class StdioToolProvider
 
             if (!TryGetArguments(root, out var arguments) ||
                 !TryGetInputs(root, out var inputs) ||
-                !TryGetPermissions(root, out var permissions))
+                !TryGetPermissions(root, out var permissions) ||
+                !TryGetIntents(root, inputs, out var intents))
             {
                 error = $"Tool manifest '{manifestPath}' contains an invalid arguments, inputs, or permissions value.";
                 return false;
@@ -147,7 +150,8 @@ public static class StdioToolProvider
                 name!,
                 description!,
                 inputs,
-                permissions);
+                permissions,
+                intents);
 
             if (string.IsNullOrWhiteSpace(descriptor.Id) ||
                 string.IsNullOrWhiteSpace(descriptor.Name) ||
@@ -276,6 +280,201 @@ public static class StdioToolProvider
 
         inputs = parsed.ToImmutable();
         return true;
+    }
+
+    private static bool TryGetIntents(
+        JsonElement root,
+        ImmutableArray<ToolInputDescriptor> inputs,
+        out ImmutableArray<ToolIntentDefinition> intents)
+    {
+        intents = ImmutableArray<ToolIntentDefinition>.Empty;
+
+        if (!root.TryGetProperty("intents", out var value))
+        {
+            return true;
+        }
+
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        var inputsByName = inputs.ToDictionary(input => input.Name, StringComparer.Ordinal);
+        var inputNames = inputsByName.Keys.ToHashSet(StringComparer.Ordinal);
+        var requiredInputNames = inputs
+            .Where(input => input.Required)
+            .Select(input => input.Name)
+            .ToHashSet(StringComparer.Ordinal);
+        var parsed = ImmutableArray.CreateBuilder<ToolIntentDefinition>();
+
+        foreach (var item in value.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(item, "pattern", "arguments", "response") ||
+                !TryGetString(item, "pattern", out var pattern) ||
+                !TryGetString(item, "response", out var response) ||
+                !item.TryGetProperty("arguments", out var argumentValues) ||
+                argumentValues.ValueKind != JsonValueKind.Object ||
+                !TryGetPatternSlots(pattern!, out var slots))
+            {
+                return false;
+            }
+
+            var argumentBindings = ImmutableDictionary.CreateBuilder<string, ToolIntentBinding>(StringComparer.Ordinal);
+
+            foreach (var argument in argumentValues.EnumerateObject())
+            {
+                if (!inputNames.Contains(argument.Name) ||
+                    argumentBindings.ContainsKey(argument.Name))
+                {
+                    return false;
+                }
+
+                if (argument.Value.ValueKind == JsonValueKind.String)
+                {
+                    var text = argument.Value.GetString();
+
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        return false;
+                    }
+
+                    if (text.StartsWith("$", StringComparison.Ordinal))
+                    {
+                        var reference = text[1..];
+
+                        var referenceType = reference == "previous"
+                            ? "number"
+                            : slots.TryGetValue(reference, out var slotType)
+                                ? slotType
+                                : null;
+
+                        if (referenceType is null ||
+                            !MatchesIntentSlotType(inputsByName[argument.Name].Type, referenceType))
+                        {
+                            return false;
+                        }
+
+                        argumentBindings.Add(
+                            argument.Name,
+                            new ToolIntentBinding(reference, null));
+                        continue;
+                    }
+                }
+
+                if (argument.Value.ValueKind is not (
+                    JsonValueKind.String or
+                    JsonValueKind.Number or
+                    JsonValueKind.True or
+                    JsonValueKind.False))
+                {
+                    return false;
+                }
+
+                var constantType = argument.Value.ValueKind switch
+                {
+                    JsonValueKind.String => ToolInputType.String,
+                    JsonValueKind.Number => ToolInputType.Number,
+                    JsonValueKind.True or JsonValueKind.False => ToolInputType.Boolean,
+                    _ => (ToolInputType?)null
+                };
+
+                if (constantType is null ||
+                    constantType != inputsByName[argument.Name].Type ||
+                    (constantType == ToolInputType.Number && !argument.Value.TryGetDecimal(out _)))
+                {
+                    return false;
+                }
+
+                argumentBindings.Add(
+                    argument.Name,
+                    new ToolIntentBinding(null, argument.Value.Clone()));
+            }
+
+            if (!requiredInputNames.IsSubsetOf(argumentBindings.Keys) ||
+                !TryValidateResponseTemplate(response!, argumentBindings.Keys))
+            {
+                return false;
+            }
+
+            parsed.Add(new ToolIntentDefinition(
+                pattern!,
+                argumentBindings.ToImmutable(),
+                response!));
+        }
+
+        intents = parsed.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetPatternSlots(
+        string pattern,
+        out Dictionary<string, string> slots)
+    {
+        slots = new Dictionary<string, string>(StringComparer.Ordinal);
+        var validSlot = new Regex(
+            "^\\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\\}$",
+            RegexOptions.CultureInvariant);
+
+        foreach (var rawToken in pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var token = rawToken.TrimEnd('.', '?', '!', ',', ';', ':');
+
+            if (token.StartsWith("{", StringComparison.Ordinal) ||
+                token.EndsWith("}", StringComparison.Ordinal))
+            {
+                var match = validSlot.Match(token);
+
+                if (!match.Success || !slots.TryAdd(
+                    match.Groups["name"].Value,
+                    match.Groups["type"].Value))
+                {
+                    return false;
+                }
+            }
+            else if (token.Contains('{') || token.Contains('}'))
+            {
+                return false;
+            }
+        }
+
+        return slots.Count > 0;
+    }
+
+    private static bool MatchesIntentSlotType(ToolInputType inputType, string slotType) =>
+        slotType switch
+        {
+            "number" => inputType == ToolInputType.Number,
+            "word" or "text" => inputType == ToolInputType.String,
+            _ => false
+        };
+
+    private static bool TryValidateResponseTemplate(
+        string response,
+        IEnumerable<string> argumentNames)
+    {
+        var available = argumentNames
+            .Append("result")
+            .ToHashSet(StringComparer.Ordinal);
+        var matches = Regex.Matches(
+            response,
+            "\\{(?<name>[A-Za-z][A-Za-z0-9_]*)\\}",
+            RegexOptions.CultureInvariant);
+
+        var remaining = Regex.Replace(
+            response,
+            "\\{(?<name>[A-Za-z][A-Za-z0-9_]*)\\}",
+            string.Empty,
+            RegexOptions.CultureInvariant);
+
+        if (remaining.Contains('{') || remaining.Contains('}'))
+        {
+            return false;
+        }
+
+        return matches.Count > 0 &&
+            matches.Cast<Match>().All(match => available.Contains(match.Groups["name"].Value)) &&
+            matches.Cast<Match>().Any(match => match.Groups["name"].Value == "result");
     }
 
     private static bool TryGetPermissions(

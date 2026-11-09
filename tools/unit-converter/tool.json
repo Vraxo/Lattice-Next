@@ -4,7 +4,9 @@
   "name": "Unit converter",
   "description": "Converts values between supported units of the same dimension.",
   "command": "python",
-  "arguments": ["main.py"],
+  "arguments": [
+    "main.py"
+  ],
   "inputs": [
     {
       "name": "value",
@@ -25,5 +27,34 @@
       "required": true
     }
   ],
-  "permissions": []
+  "permissions": [],
+  "intents": [
+    {
+      "pattern": "convert {value:number} {from:word} to {to:word}",
+      "arguments": {
+        "value": "$value",
+        "from": "$from",
+        "to": "$to"
+      },
+      "response": "{value} {from} is {result} {to}."
+    },
+    {
+      "pattern": "how many {to:word} is {value:number} {from:word}",
+      "arguments": {
+        "value": "$value",
+        "from": "$from",
+        "to": "$to"
+      },
+      "response": "{value} {from} is {result} {to}."
+    },
+    {
+      "pattern": "{value:number} {from:word} in {to:word}",
+      "arguments": {
+        "value": "$value",
+        "from": "$from",
+        "to": "$to"
+      },
+      "response": "{value} {from} is {result} {to}."
+    }
+  ]
 }

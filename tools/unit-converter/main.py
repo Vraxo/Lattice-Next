@@ -9,6 +9,45 @@ PROTOCOL_VERSION = 1
 MAX_DECIMAL_COEFFICIENT = 79228162514264337593543950335
 MAX_DECIMAL_SCALE = 28
 
+UNIT_ALIASES: dict[str, str] = {
+    "millimeter": "mm",
+    "millimeters": "mm",
+    "millimetre": "mm",
+    "millimetres": "mm",
+    "centimeter": "cm",
+    "centimeters": "cm",
+    "centimetre": "cm",
+    "centimetres": "cm",
+    "meter": "m",
+    "meters": "m",
+    "metre": "m",
+    "metres": "m",
+    "kilometer": "km",
+    "kilometers": "km",
+    "kilometre": "km",
+    "kilometres": "km",
+    "milligram": "mg",
+    "milligrams": "mg",
+    "gram": "g",
+    "grams": "g",
+    "kilogram": "kg",
+    "kilograms": "kg",
+    "milliliter": "ml",
+    "milliliters": "ml",
+    "millilitre": "ml",
+    "millilitres": "ml",
+    "liter": "l",
+    "liters": "l",
+    "litre": "l",
+    "litres": "l",
+    "second": "s",
+    "seconds": "s",
+    "minute": "min",
+    "minutes": "min",
+    "hour": "h",
+    "hours": "h",
+}
+
 UNITS: dict[str, tuple[str, Decimal]] = {
     "mm": ("length", Decimal("0.001")),
     "cm": ("length", Decimal("0.01")),
@@ -100,13 +139,21 @@ def execute(request: dict[str, Any]) -> Decimal:
     from_name = arguments.get("from")
     to_name = arguments.get("to")
 
-    if not isinstance(from_name, str) or from_name.lower() not in UNITS:
+    if not isinstance(from_name, str):
         raise ValueError(f"Unsupported source unit '{from_name}'.")
-    if not isinstance(to_name, str) or to_name.lower() not in UNITS:
+    if not isinstance(to_name, str):
         raise ValueError(f"Unsupported destination unit '{to_name}'.")
 
-    from_dimension, from_factor = UNITS[from_name.lower()]
-    to_dimension, to_factor = UNITS[to_name.lower()]
+    from_unit = UNIT_ALIASES.get(from_name.lower(), from_name.lower())
+    to_unit = UNIT_ALIASES.get(to_name.lower(), to_name.lower())
+
+    if from_unit not in UNITS:
+        raise ValueError(f"Unsupported source unit '{from_name}'.")
+    if to_unit not in UNITS:
+        raise ValueError(f"Unsupported destination unit '{to_name}'.")
+
+    from_dimension, from_factor = UNITS[from_unit]
+    to_dimension, to_factor = UNITS[to_unit]
 
     if from_dimension != to_dimension:
         raise ValueError(

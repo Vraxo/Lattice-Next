@@ -79,6 +79,111 @@ public sealed class StdioToolProviderTests
     }
 
     [Fact]
+    public void Parses_manifest_intent_patterns_and_argument_bindings()
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            var toolDirectory = Directory.CreateDirectory(Path.Combine(root, "echo")).FullName;
+            var manifest = JsonSerializer.Serialize(new
+            {
+                protocolVersion = 1,
+                id = "echo",
+                name = "Echo",
+                description = "Returns one supplied word.",
+                command = "python",
+                arguments = Array.Empty<string>(),
+                inputs = new[]
+                {
+                    new { name = "text", description = "Text to echo.", type = "string", required = true },
+                    new { name = "count", description = "Number of repeats.", type = "number", required = true }
+                },
+                permissions = Array.Empty<string>(),
+                intents = new[]
+                {
+                    new
+                    {
+                        pattern = "repeat {text:word} {count:number} times",
+                        arguments = new Dictionary<string, string>
+                        {
+                            ["text"] = "$text",
+                            ["count"] = "$count"
+                        },
+                        response = "Repeated {text} {result} times."
+                    }
+                }
+            });
+            WriteManifest(toolDirectory, manifest);
+
+            var discovered = StdioToolProvider.TryDiscover(root, out var tools, out var error);
+
+            Assert.True(discovered, error);
+            var descriptor = Assert.Single(tools).Descriptor;
+            var intent = Assert.Single(descriptor.Intents);
+
+            Assert.Equal("repeat {text:word} {count:number} times", intent.Pattern);
+            Assert.Equal("text", intent.Arguments["text"].Reference);
+            Assert.Equal("count", intent.Arguments["count"].Reference);
+            Assert.Equal("Repeated {text} {result} times.", intent.ResponseTemplate);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData(
+        """{"pattern":"do {value:unknown}","arguments":{"value":"$value"},"response":"Result {result}."}""")]
+    [InlineData(
+        """{"pattern":"do {value:number}","arguments":{"value":"$missing"},"response":"Result {result}."}""")]
+    [InlineData(
+        """{"pattern":"do {value:number}","arguments":{"value":"$value"},"response":"Result {unknown}."}""")]
+    [InlineData(
+        """{"pattern":"do {value:number}","arguments":{},"response":"Result {result}."}""")]
+    public void Rejects_invalid_manifest_intent_declarations(string intent)
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            var toolDirectory = Directory.CreateDirectory(Path.Combine(root, "invalid-intent")).FullName;
+            using var intentDocument = JsonDocument.Parse(intent);
+            var manifest = JsonSerializer.Serialize(new
+            {
+                protocolVersion = 1,
+                id = "invalid-intent",
+                name = "Invalid intent",
+                description = "Contains an invalid intent declaration.",
+                command = "python",
+                inputs = new[]
+                {
+                    new
+                    {
+                        name = "value",
+                        description = "Numeric input.",
+                        type = "number",
+                        required = true
+                    }
+                },
+                intents = new[] { intentDocument.RootElement }
+            });
+            WriteManifest(toolDirectory, manifest);
+
+            var discovered = StdioToolProvider.TryDiscover(root, out var tools, out var error);
+
+            Assert.False(discovered);
+            Assert.Empty(tools);
+            Assert.Contains("invalid", error, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Rejects_unsupported_protocol_versions()
     {
         var root = CreateTemporaryDirectory();

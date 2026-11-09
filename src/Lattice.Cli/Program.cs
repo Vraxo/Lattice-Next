@@ -27,10 +27,6 @@ var externalToolsDiscovered = StdioToolProvider.TryDiscover(
 var registeredTools = externalToolsDiscovered
     ? discoveredTools
     : Array.Empty<ITool>();
-var registeredToolIds = registeredTools
-    .Select(tool => tool.Descriptor.Id)
-    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
 var grantedPermissions = ToolPermission.None;
 var configuredPermissions = Environment.GetEnvironmentVariable("LATTICE_TOOL_PERMISSIONS");
 
@@ -50,18 +46,10 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
 }
 
 var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
-var intentRecognizers = new List<IToolIntentRecognizer>();
-
-if (registeredToolIds.Contains("calculator"))
-{
-    intentRecognizers.Add(new CalculatorIntentRecognizer());
-}
-
-if (registeredToolIds.Contains("unit-converter"))
-{
-    intentRecognizers.Add(new UnitConversionIntentRecognizer());
-}
-
+var intentRecognizers = registeredTools
+    .Where(tool => !tool.Descriptor.Intents.IsDefaultOrEmpty)
+    .SelectMany(tool => tool.Descriptor.Intents.Select(
+        definition => new ManifestToolIntentRecognizer(tool.Descriptor, definition)));
 var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
@@ -105,7 +93,8 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
         AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
-        AnsiConsole.MarkupLine("  [dim]Natural-language arithmetic/conversion selection is enabled when the matching tools are discovered.[/]");
+        AnsiConsole.MarkupLine("  [dim]Natural-language selection uses exact phrase patterns declared by discovered tool manifests.[/]");
+        AnsiConsole.MarkupLine("  [dim]Patterns support single-token number, word, and text slots; they are not unrestricted English.[/]");
         AnsiConsole.MarkupLine("  [dim]The bundled calculator and unit converter are Python tools; Python 3 must be available as 'python'.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
@@ -308,7 +297,18 @@ while (true)
             var descriptor = toolRegistry.Descriptors.FirstOrDefault(
                 item => string.Equals(item.Id, currentIntent.ToolId, StringComparison.OrdinalIgnoreCase));
             usedTools.Add(descriptor?.Name ?? currentIntent.ToolId);
-            currentIntent = currentIntent.Continue?.Invoke(observation);
+
+            var continuation = currentIntent.Continue;
+            currentIntent = continuation?.Invoke(observation);
+
+            if (continuation is not null && currentIntent is null)
+            {
+                AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+                AnsiConsole.WriteLine(
+                    "The capability chain could not continue because the preceding result was not numeric.");
+                invocationFailed = true;
+                break;
+            }
         }
 
         if (!invocationFailed && currentIntent is not null)

@@ -12,12 +12,8 @@ public sealed class ToolIntentPipelineTests
     [Fact]
     public async Task Selects_invokes_and_remembers_tool_observations_without_promoting_them_to_knowledge()
     {
-        var resolver = new ToolIntentResolver(
-        [
-            new CalculatorIntentRecognizer(),
-            new UnitConversionIntentRecognizer()
-        ]);
         var registry = BundledToolTestSupport.CreateRegistry();
+        var resolver = CreateResolver(registry.Descriptors);
         var context = new ConversationContext();
         var knowledgeBase = new KnowledgeBase();
 
@@ -56,7 +52,7 @@ public sealed class ToolIntentPipelineTests
 
         Assert.True(conversionResult.IsSuccess, conversionResult.Error);
         context.Observe(conversionResult.Observation!);
-        Assert.Equal("180 cm is 1.8 m.", conversion.Intent.FormatResponse(conversionResult.Observation!));
+        Assert.Equal("180 cm is 1.8 meters.", conversion.Intent.FormatResponse(conversionResult.Observation!));
 
         Assert.Equal("unit-converter", context.LatestToolObservation!.ToolId);
 
@@ -105,15 +101,21 @@ public sealed class ToolIntentPipelineTests
     [Fact]
     public void Reports_unrecognized_language_without_selecting_a_tool()
     {
-        var resolver = new ToolIntentResolver(
-        [
-            new CalculatorIntentRecognizer(),
-            new UnitConversionIntentRecognizer()
-        ]);
+        var registry = BundledToolTestSupport.CreateRegistry();
+        var resolver = CreateResolver(registry.Descriptors);
 
         var result = resolver.Resolve("Tell me something interesting.");
 
         Assert.Equal(ToolIntentResolutionStatus.NotRecognized, result.Status);
         Assert.Null(result.Intent);
+    }
+    private static ToolIntentResolver CreateResolver(IEnumerable<ToolDescriptor> descriptors)
+    {
+        var recognizers = descriptors
+            .Where(descriptor => !descriptor.Intents.IsDefaultOrEmpty)
+            .SelectMany(descriptor => descriptor.Intents.Select(
+                definition => new ManifestToolIntentRecognizer(descriptor, definition)));
+
+        return new ToolIntentResolver(recognizers);
     }
 }
