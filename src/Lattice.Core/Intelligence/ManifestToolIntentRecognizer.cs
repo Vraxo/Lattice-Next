@@ -9,6 +9,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
 {
     private const int MaximumChainLength = 8;
     private const int MaximumMatchCandidates = 1024;
+    private const int MaximumMatchSteps = 100_000;
 
     private static readonly Regex ChainSeparator = new(
         @"\s*,?\s+then\s+",
@@ -170,6 +171,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
 
         var matches = new List<(IReadOnlyDictionary<string, object?> Slots, int OptionalMatches)>();
         var exceededCandidateLimit = false;
+        var searchSteps = 0;
         CollectMatches(
             parts,
             inputTokens,
@@ -178,7 +180,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             new Dictionary<string, object?>(StringComparer.Ordinal),
             0,
             matches,
-            ref exceededCandidateLimit);
+            ref exceededCandidateLimit,
+            ref searchSteps);
 
         if (exceededCandidateLimit || matches.Count == 0)
         {
@@ -207,10 +210,19 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
         Dictionary<string, object?> slots,
         int optionalMatches,
         List<(IReadOnlyDictionary<string, object?> Slots, int OptionalMatches)> matches,
-        ref bool exceededCandidateLimit)
+        ref bool exceededCandidateLimit,
+        ref int searchSteps)
     {
         if (exceededCandidateLimit)
         {
+            return;
+        }
+
+        searchSteps++;
+
+        if (searchSteps > MaximumMatchSteps)
+        {
+            exceededCandidateLimit = true;
             return;
         }
 
@@ -238,7 +250,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
                     slots,
                     optionalMatches + 1,
                     matches,
-                    ref exceededCandidateLimit);
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
             }
 
             CollectMatches(
@@ -249,7 +262,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
                 slots,
                 optionalMatches,
                 matches,
-                ref exceededCandidateLimit);
+                ref exceededCandidateLimit,
+                ref searchSteps);
             return;
         }
 
@@ -265,7 +279,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
                     slots,
                     optionalMatches,
                     matches,
-                    ref exceededCandidateLimit);
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
             }
 
             return;
@@ -295,7 +310,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
                     slots,
                     optionalMatches,
                     matches,
-                    ref exceededCandidateLimit);
+                    ref exceededCandidateLimit,
+                    ref searchSteps);
                 slots.Remove(part.SlotName);
             }
 
@@ -317,7 +333,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             slots,
             optionalMatches,
             matches,
-            ref exceededCandidateLimit);
+            ref exceededCandidateLimit,
+            ref searchSteps);
         slots.Remove(part.SlotName);
     }
 

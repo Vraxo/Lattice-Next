@@ -162,6 +162,51 @@ public sealed class ManifestToolIntentRecognizerTests
     }
 
     [Fact]
+    public void Bounds_search_effort_for_pathological_multiword_patterns()
+    {
+        const int slotCount = 12;
+        var patternParts = new List<string>();
+        var inputs = ImmutableArray.CreateBuilder<ToolInputDescriptor>();
+        var bindings = ImmutableDictionary.CreateBuilder<string, ToolIntentBinding>();
+
+        for (var index = 0; index < slotCount; index++)
+        {
+            var name = $"part{index}";
+            patternParts.Add($"{{{name}:text}}");
+            inputs.Add(new ToolInputDescriptor(name, "A text segment.", ToolInputType.String));
+            bindings.Add(name, new ToolIntentBinding(name, null));
+
+            if (index < slotCount - 1)
+            {
+                patternParts.Add("a");
+            }
+        }
+
+        patternParts.Add("z");
+
+        var definition = new ToolIntentDefinition(
+            string.Join(' ', patternParts),
+            bindings.ToImmutable(),
+            "Matched {result}.");
+        var descriptor = new ToolDescriptor(
+            "pathological",
+            "Pathological matcher test",
+            "Exercises the matcher search budget.",
+            inputs.ToImmutable(),
+            Intents: ImmutableArray.Create(definition));
+        var resolver = new ToolIntentResolver(
+        [
+            new ManifestToolIntentRecognizer(descriptor, definition)
+        ]);
+        var input = string.Join(' ', Enumerable.Repeat("a", 256));
+
+        var resolution = resolver.Resolve(input);
+
+        Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
+    }
+
+    [Fact]
     public void Rejects_a_multiword_capture_when_more_than_one_boundary_matches()
     {
         var definition = new ToolIntentDefinition(
