@@ -13,7 +13,7 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
     private static readonly Regex ExpressionPattern = new(
         @"^(?:(?:what\s+is|calculate|compute)\s+)?(?<left>" + Number +
         @" )\s+(?<operator>plus|added\s+to|minus|less|times|multiplied\s+by|divided\s+by|over)\s+(?<right>" +
-        Number + @")[?.]?$".Replace(Number + " ", Number),
+        Number + @")[?.]?$".Replace(Number),
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex VerbPattern = new(
@@ -56,7 +56,7 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         if (segments.Length > 1)
         {
             if (!TryGetPreviousNumber(latestObservation, out var previous) ||
-                !TryParseFollowUp(segments[0], previous, out var firstOperation, out var firstRight))
+                !TryParseFollowUp(segments[0], out var firstOperation, out var firstRight))
             {
                 return false;
             }
@@ -126,7 +126,7 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         }
 
         if (!TryGetPreviousNumber(latestObservation, out var previousValue) ||
-            !TryParseFollowUp(source, previousValue, out var followUpOperation, out var followUpRight))
+            !TryParseFollowUp(source, out var followUpOperation, out var followUpRight))
         {
             return false;
         }
@@ -158,7 +158,6 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 
     private static bool TryParseFollowUp(
         string source,
-        decimal previous,
         out string operation,
         out decimal right)
     {
@@ -209,14 +208,15 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         }
 
         var verb = match.Groups["verb"].Value.ToLowerInvariant();
-        var connector = match.Groups["connector"].Value.ToLowerInvariant();
+        var prefix = match.Groups["prefix"].Value.ToLowerInvariant();
+        var suffix = match.Groups["suffix"].Value.ToLowerInvariant();
 
         operation = verb switch
         {
-            "add" when connector is "" or "to" => "add",
-            "subtract" when connector is "" or "from" => "subtract",
-            "multiply" when connector is "" or "by" => "multiply",
-            "divide" when connector is "" or "by" => "divide",
+            "add" when prefix.Length == 0 && suffix is "" or "to" => "add",
+            "subtract" when prefix.Length == 0 && suffix is "" or "from" => "subtract",
+            "multiply" when suffix.Length == 0 && prefix is "" or "by" => "multiply",
+            "divide" when suffix.Length == 0 && prefix is "" or "by" => "divide",
             _ => string.Empty
         };
 
