@@ -28,7 +28,9 @@ public sealed class ReasoningEngine
                 directFact.Predicate,
                 directFact.SourceText,
                 null,
-                directFact.ResolvedReferent));
+                directFact.ResolvedReferent,
+                SourceKind: directFact.SourceKind,
+                AdditionalSources: directFact.AdditionalSources));
         }
 
         if (!TryGetFactKey(query, out var queryKey))
@@ -126,7 +128,9 @@ public sealed class ReasoningEngine
                     fact.Predicate,
                     fact.SourceText,
                     null,
-                    fact.ResolvedReferent));
+                    fact.ResolvedReferent,
+                    SourceKind: fact.SourceKind,
+                    AdditionalSources: fact.AdditionalSources));
             }
         }
 
@@ -202,7 +206,10 @@ public sealed class ReasoningEngine
                         conclusion,
                         rule.SourceText,
                         premises[0],
-                        AdditionalPremises: premises.Skip(1).ToImmutableArray()));
+                        AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+                        SourceKind: rule.SourceKind,
+                        AdditionalSources: rule.AdditionalSources,
+                        Kind: ProofNodeKind.Derived));
 
                     added = true;
                 }
