@@ -52,7 +52,7 @@ Use :help, :status, and :quit inside the console. The generic capability boundar
 
 ## Run
 
-Requires the .NET 10 SDK. Build outputs are centralized under the repository's artifacts/ directory instead of being scattered into project-level bin/ and obj/ directories.
+Requires the .NET 10 SDK. Python 3 must be available as `python` on `PATH` to invoke the bundled calculator and unit converter; other tools may use any runtime. Build outputs are centralized under the repository's artifacts/ directory instead of being scattered into project-level bin/ and obj/ directories.
 
     dotnet run --project src/Lattice.Cli
     dotnet test Lattice.slnx --configuration Release
@@ -70,6 +70,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, and exact relational lookup, plus atomic loading of versioned declarative knowledge packs and a generic, permission-aware, time-bounded tool registry with decimal calculator and unit-conversion capabilities. Narrow deterministic intent recognizers can select either built-in capability from ordinary-language arithmetic and unit-conversion requests; numeric tool observations remain temporary conversational context and can resolve simple follow-ups. This is not unrestricted English understanding. Relational inference, pack unloading/version replacement, and durable persistence are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, and exact relational lookup, plus atomic loading of versioned declarative knowledge packs and a generic, permission-aware, time-bounded tool registry and language-neutral stdio provider, with the repository's calculator and unit converter supplied as dynamically discovered Python tools. Narrow deterministic intent recognizers can select the discovered calculator and unit-converter examples from ordinary-language arithmetic and unit-conversion requests; numeric tool observations remain temporary conversational context and can resolve simple follow-ups. This is not unrestricted English understanding. Relational inference, pack unloading/version replacement, and durable persistence are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.
