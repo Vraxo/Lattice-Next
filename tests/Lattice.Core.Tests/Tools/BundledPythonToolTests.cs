@@ -94,54 +94,6 @@ public sealed class BundledPythonToolTests
         Assert.Contains(registry.Descriptors, descriptor => descriptor.Id == "unit-converter");
     }
 
-    private static ToolRegistry CreateBundledToolRegistry()
-    {
-        var repositoryRoot = FindRepositoryRoot();
-        var toolsDirectory = Path.Combine(repositoryRoot, "tools");
-        var discovered = StdioToolProvider.TryDiscover(
-            toolsDirectory,
-            out var tools,
-            out var error);
-
-        Assert.True(discovered, error);
-        Assert.Contains(tools, tool => tool.Descriptor.Id == "calculator");
-        Assert.Contains(tools, tool => tool.Descriptor.Id == "unit-converter");
-
-        return new ToolRegistry(
-            tools,
-            executionTimeout: TimeSpan.FromSeconds(10));
-    }
-
-    private static string FindRepositoryRoot()
-    {
-        var startingDirectories = new[]
-        {
-            Directory.GetCurrentDirectory(),
-            AppContext.BaseDirectory
-        };
-
-        foreach (var start in startingDirectories)
-        {
-            DirectoryInfo? directory = new DirectoryInfo(start);
-
-            while (directory is not null)
-            {
-                var calculatorManifest = Path.Combine(
-                    directory.FullName,
-                    "tools",
-                    "calculator",
-                    "tool.json");
-
-                if (File.Exists(calculatorManifest))
-                {
-                    return directory.FullName;
-                }
-
-                directory = directory.Parent;
-            }
-        }
-
-        throw new DirectoryNotFoundException(
-            "Could not locate the repository tools/calculator/tool.json manifest.");
-    }
+    private static ToolRegistry CreateBundledToolRegistry() =>
+        BundledToolTestSupport.CreateRegistry();
 }
