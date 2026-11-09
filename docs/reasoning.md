@@ -4,12 +4,13 @@
 
 The first reasoning implementation provides deterministic, positive reasoning over a deliberately small part of the semantic model. It demonstrates that Lattice can use parsed meaning rather than merely display it.
 
-The current engine accepts two kinds of asserted input:
+The current engine accepts three kinds of asserted input:
 
-- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
+- **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Definite descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
+- **Existential assertion:** a quantified formula containing one or more unary conditions, such as `exists(x, and(red(x), ball(x), shiny(x)))`. When stored, its conditions are attached to one fresh `AnonymousIndividualTerm`.
 - **Universal rule:** one universally quantified implication with one or more unary premises and one unary conclusion. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`.
 
-A fact is ground only when its predicate identifier is non-empty and every argument is a concrete individual or a valid descriptive individual term. Descriptive terms are normalized to `IndividualTerm` values before storage. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
+A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
 ## Direct lookup and inference
 
@@ -49,6 +50,32 @@ A conjunctive rule can be stated directly:
 
 The rule is represented as `and(red(x), ball(x)) => toy(x)`. It fires only when both predicates are established for the same individual. A blue ball does not satisfy the rule, and a red cube does not satisfy it either.
 
+## Existential claims and unnamed witnesses
+
+An indefinite assertion introduces an individual without giving it a name:
+
+    A red ball is shiny.
+
+Its semantic form is `exists(x, and(red(x), ball(x), shiny(x)))`. When the knowledge base accepts it, the three conditions become unary facts attached to one fresh anonymous witness. That single witness can satisfy a universal rule:
+
+    Every red ball is a toy.
+    A red ball is shiny.
+    Does a toy exist?
+
+The engine derives `toy(witness)` from the red and ball conditions, so the existence question is supported. The proof retains the original existential assertion and the rule that derives the queried condition.
+
+Existence questions require all requested conditions to be supported by one individual. They can match either an anonymous witness or a previously named individual. For example, `The red ball is shiny.` also supports `Does a red ball exist?`, because the knowledge base already knows one named individual with both properties.
+
+Each indefinite assertion receives a fresh witness. Thus:
+
+    A red ball is shiny.
+    A blue ball is round.
+    Does a red round ball exist?
+
+is **Unknown**. The red ball witness has no round fact, and the blue ball witness has no red fact. Lattice does not combine conditions from separate existential witnesses merely because their descriptions overlap.
+
+Anonymous witnesses are internal knowledge-base identities. They are not added to conversational context, do not resolve the pronoun `it`, and are not treated as the same individual as a definite description such as `the red ball`.
+
 ## Answer semantics
 
 - **Yes:** the queried predicate has a direct fact or a derivation from the current facts and rules.
@@ -62,7 +89,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational rule inference, joins, or relation traversal;
 - rules with multiple conclusions, disjunction, or nested formulas beyond a flat conjunction of unary predicates;
-- negation, existential quantification, or equality;
+- negation, existential relational conditions, nested existential formulas, or equality;
 - persistent storage or loading declarative knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 
