@@ -5,4 +5,5 @@ namespace Lattice.Core.Reasoning;
 public sealed record KnowledgeSource(
     KnowledgeSourceKind Kind,
     string SourceText,
-    SemanticIdentifier? ResolvedReferent = null);
+    SemanticIdentifier? ResolvedReferent = null,
+    string? SourceId = null);
