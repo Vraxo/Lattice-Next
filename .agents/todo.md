@@ -19,6 +19,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Parse binary relational assertions and direct yes/no relational questions.
 - [x] Parse definite descriptive noun phrases in subject and object positions using stable canonical identifiers.
 - [x] Represent definite descriptions with a head noun and ordered modifiers; assert them as separate unary facts on one stable individual.
+- [x] Represent indefinite assertions and existence questions as existentially quantified unary conditions.
+- [x] Keep anonymous existential witnesses distinct from named individuals and from other indefinite assertions.
 - [ ] Add quantified relation arguments and relational pronoun forms deliberately.
 
 ## 2. First symbolic reasoning slice
@@ -26,6 +28,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Represent simple facts and universally quantified rules.
 - [x] Derive a conclusion from a short chain of rules.
 - [x] Require every unary condition in a conjunctive universal rule to hold for the same individual, retaining all supporting premises in the proof.
+- [x] Answer existential questions from one matching named individual or anonymous witness, including facts derived by universal rules.
 - [x] Distinguish a supported conclusion from unknown information.
 - [x] Explain a conclusion using the premises and rules that support it.
 - [x] Demonstrate the slice through the CLI with deterministic tests.
