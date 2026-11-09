@@ -149,8 +149,8 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
 
     var answer = utterance.Meaning switch
     {
-        PredicateApplication query => reasoningEngine.Ask(knowledgeBase, query),
-        ExistentialQuantification query => reasoningEngine.Ask(knowledgeBase, query),
+        PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
+        ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
         _ => null
     };
 
