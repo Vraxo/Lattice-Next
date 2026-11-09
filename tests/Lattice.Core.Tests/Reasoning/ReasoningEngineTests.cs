@@ -310,6 +310,12 @@ public sealed class ReasoningEngineTests
         Add(knowledgeBase, "A red ball is shiny.");
 
         Assert.Equal(3, knowledgeBase.Facts.Count);
+        var witnesses = knowledgeBase.Facts
+            .Select(fact => Assert.IsType<AnonymousIndividualTerm>(
+                Assert.Single(fact.Predicate.Arguments)).Identity)
+            .Distinct()
+            .ToArray();
+        Assert.Single(witnesses);
 
         var existence = engine.Ask(
             knowledgeBase,
@@ -365,6 +371,13 @@ public sealed class ReasoningEngineTests
         var knowledgeBase = new KnowledgeBase();
         Add(knowledgeBase, "A red ball is shiny.");
         Add(knowledgeBase, "A blue ball is round.");
+
+        var witnesses = knowledgeBase.Facts
+            .Select(fact => Assert.IsType<AnonymousIndividualTerm>(
+                Assert.Single(fact.Predicate.Arguments)).Identity)
+            .Distinct()
+            .ToArray();
+        Assert.Equal(2, witnesses.Length);
 
         var result = engine.Ask(
             knowledgeBase,
