@@ -4,7 +4,7 @@
 
 The conversation-context slice connects independently parsed utterances without making the parser responsible for deciding what a pronoun means.
 
-LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. LCE 0.6 adds structured definite descriptions whose head nouns and modifiers enter the knowledge base as facts. The Core context layer still attempts pronoun resolution separately from parsing.
+LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. LCE 0.6 adds structured definite descriptions whose head nouns and modifiers enter the knowledge base as facts. LCE 0.8 adds indefinite existential assertions, which do not create conversational antecedents. The Core context layer still attempts pronoun resolution separately from parsing.
 
 ## Current resolution policy
 
@@ -14,7 +14,7 @@ This initial policy is intentionally conservative:
 - If exactly one distinct individual has been explicitly mentioned, "it" resolves to that individual.
 - If more than one distinct individual has been mentioned, the reference is considered ambiguous. Lattice asks the user to name the intended individual rather than guessing based on recency.
 
-Repeated mentions of the same individual do not create ambiguity. Universal rules do not introduce an individual. Only concrete individual arguments explicitly present in an utterance enter this context; inferred conclusions do not automatically become new conversational antecedents.
+Repeated mentions of the same individual do not create ambiguity. Universal rules do not introduce an individual. Only concrete named individual arguments explicitly present in an utterance enter this context; inferred conclusions do not automatically become new conversational antecedents. LCE 0.8 existential assertions introduce anonymous witnesses inside the knowledge base, but those witnesses are deliberately not observed as conversational individuals and cannot resolve "it".
 
 The policy deliberately favors correctness over convenience. It does not yet implement recency, grammatical gender, number agreement, salience, sentence-level co-reference, or clarification follow-up memory. Users can always repeat the individual's name explicitly.
 
@@ -41,7 +41,7 @@ A clarification request for a sentence does not abort the rest of an already par
 
 - The parser creates semantic meaning and leaves unresolved references explicit.
 - ConversationContext observes concrete individual arguments and grounds supported unary pronoun references.
-- KnowledgeBase stores only grounded individual facts and supported universal rules.
+- KnowledgeBase stores grounded facts, anonymous existential witnesses, and supported universal rules.
 - ReasoningEngine receives grounded predicates and does not know about pronouns or conversation turns.
 - The CLI composes these services and presents clarification requests.
 
