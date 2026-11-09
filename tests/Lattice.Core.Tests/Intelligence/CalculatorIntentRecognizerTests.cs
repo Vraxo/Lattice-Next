@@ -94,6 +94,18 @@ public sealed class CalculatorIntentRecognizerTests
     }
 
     [Fact]
+    public void Rejects_chains_longer_than_the_supported_limit()
+    {
+        var recognized = recognizer.TryRecognize(
+            "Multiply that by 2, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1.",
+            new ToolObservation("calculator", "1"),
+            out var intent);
+
+        Assert.False(recognized);
+        Assert.Null(intent);
+    }
+
+    [Fact]
     public void Does_not_guess_a_missing_follow_up_value()
     {
         var recognized = recognizer.TryRecognize("Multiply that by 5.", null, out var intent);
