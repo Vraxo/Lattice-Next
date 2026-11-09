@@ -71,7 +71,9 @@ Core must not depend on the CLI or any provider. External-process launch, stdio 
 
 LCE 0.9 is the first native controlled-language subset. It exists to establish a tested boundary between language and semantics, not to claim that Lattice already understands English. Full ACE and APE remain candidates for a later language expansion if the benefit justifies their broader grammar and runtime/integration requirements.
 
-A future optional translator may map ordinary language to the same validated semantic representation. Such a translator is replaceable and untrusted: it cannot add facts, make decisions, invoke tools, or bypass validation.
+Core defines the `ISemanticsTranslator` contract, while concrete translator adapters remain optional implementations outside Core. A translator receives the original input and returns candidate utterance kinds and semantic formulas; it does not return authoritative source records. `SemanticTranslationService` validates every candidate with `SemanticUtteranceValidator` and attaches the exact original input as its `SourceText`. One valid candidate is returned as ready for review; multiple candidates remain ambiguous; no candidate is an explicit no-interpretation result. If any candidate is malformed or outside the supported semantic subset, the complete response is rejected.
+
+This is a structural boundary, not a truth or semantic-faithfulness oracle. Validation cannot establish that a translator understood the user's wording correctly. Translation candidates are never added to the knowledge base, resolved against conversation context, used to make decisions, or sent to tools by this service. A caller must review a candidate and then pass it through the ordinary context and knowledge paths. The default CLI continues to use LCE, and no translator backend or model is selected or required.
 
 ## Evidence and uncertainty
 
