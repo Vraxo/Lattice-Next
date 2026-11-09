@@ -115,6 +115,17 @@ public sealed class ManifestToolIntentRecognizerTests
     }
 
     [Fact]
+    public void Rejects_chains_longer_than_the_supported_limit()
+    {
+        var resolution = CreateResolver().Resolve(
+            "Multiply that by 2, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1, then add 1.",
+            new ToolObservation("calculator", "1"));
+
+        Assert.Equal(ToolIntentResolutionStatus.NotRecognized, resolution.Status);
+        Assert.Null(resolution.Intent);
+    }
+
+    [Fact]
     public void Does_not_continue_a_chain_from_a_non_numeric_observation()
     {
         var resolution = CreateResolver().Resolve(
