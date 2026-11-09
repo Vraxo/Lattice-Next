@@ -30,7 +30,7 @@ It must remain useful when no tools are registered. It must not depend on a part
 
 Maintains the active conversation and task state. The first implementation tracks explicitly mentioned individuals from unary and relational assertions or questions, and conservatively resolves the singular "it" reference when exactly one individual is known. Missing or ambiguous references produce a clarification request instead of a guess. Multi-sentence input is parsed completely first, then its utterances are processed in source order so earlier accepted statements can inform later references in the same turn. The exact policy and boundaries are recorded in [context.md](context.md).
 
-Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Preserve provenance so Lattice can explain why it believes something and retract or revise conclusions when their support changes.
+Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Stored facts and rules retain structured source records classified as user assertions, imported claims, or external observations. Duplicate semantic claims are deduplicated while independent sources are retained. Proof nodes distinguish asserted premises from derived conclusions and preserve the sources and premises that support them. This is the initial provenance foundation; retraction and recomputation when support changes remain future work.
 
 Session context is not automatically durable knowledge.
 
