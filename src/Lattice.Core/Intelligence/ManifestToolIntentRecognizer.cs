@@ -47,7 +47,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             return false;
         }
 
-        var remaining = new List<MatchedIntent>();
+        var remaining = new List<MatchedToolIntent>();
 
         foreach (var segment in segments.Skip(1))
         {
@@ -74,9 +74,9 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
     }
 
     private ToolIntent? CreateIntent(
-        MatchedIntent matched,
+        MatchedToolIntent matched,
         ToolObservation? previous,
-        IReadOnlyList<MatchedIntent> remaining)
+        IReadOnlyList<MatchedToolIntent> remaining)
     {
         if (!TryBuildArguments(matched, previous, out var arguments))
         {
@@ -100,7 +100,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
     }
 
     private static bool TryBuildArguments(
-        MatchedIntent matched,
+        MatchedToolIntent matched,
         ToolObservation? previous,
         out Dictionary<string, object?> arguments)
     {
@@ -147,9 +147,9 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
     private static bool TryMatch(
         ToolIntentDefinition definition,
         string input,
-        out MatchedIntent matched)
+        out MatchedToolIntent matched)
     {
-        matched = new MatchedIntent(
+        matched = new MatchedToolIntent(
             definition,
             new Dictionary<string, object?>(StringComparer.Ordinal));
 
@@ -195,7 +195,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             }
         }
 
-        matched = new MatchedIntent(definition, slots);
+        matched = new MatchedToolIntent(definition, slots);
         return true;
     }
 
@@ -317,8 +317,3 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             null => string.Empty,
             _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty
         };
-
-    private sealed record MatchedIntent(
-        ToolIntentDefinition Definition,
-        IReadOnlyDictionary<string, object?> Slots);
-}
