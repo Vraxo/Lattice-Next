@@ -10,7 +10,7 @@ namespace Lattice.Translators.LmStudio.Tests;
 public sealed class LmStudioSemanticsTranslatorTests
 {
     private const string Model = "google/gemma-3-270m-it";
-    private const string ApiUrl = "http://127.0.0.1:1234/v1/chat/completions";
+    private const string ApiUrl = "http://127.0.0.1:1234/api/v1/chat";
 
     [Fact]
     public async Task Converts_a_valid_lce_response_into_a_semantic_candidate()
@@ -31,46 +31,51 @@ public sealed class LmStudioSemanticsTranslatorTests
 
         var modelRequest = Assert.Single(handler.Requests.Where(
             request => request.Method == HttpMethod.Post));
-        Assert.Equal("/v1/chat/completions", modelRequest.Uri!.AbsolutePath);
+        Assert.Equal("/api/v1/chat", modelRequest.Uri!.AbsolutePath);
         using var requestBody = JsonDocument.Parse(modelRequest.Body!);
-        Assert.Equal(Model, requestBody.RootElement.GetProperty("model").GetString());
-        var responseFormat = requestBody.RootElement.GetProperty("response_format");
-        Assert.Equal("json_schema", responseFormat.GetProperty("type").GetString());
+        var root = requestBody.RootElement;
+        Assert.Equal(Model, root.GetProperty("model").GetString());
+        Assert.Equal("Fido is a canine.", root.GetProperty("input").GetString());
+        Assert.Equal("off", root.GetProperty("reasoning").GetString());
+        Assert.False(root.GetProperty("store").GetBoolean());
+        Assert.Equal(320, root.GetProperty("max_output_tokens").GetInt32());
 
-        var systemPrompt = requestBody.RootElement.GetProperty("messages")[0]
-            .GetProperty("content").GetString();
+        var systemPrompt = root.GetProperty("system_prompt").GetString();
+        Assert.Contains("Return only a JSON object", systemPrompt);
         Assert.Contains("Never put explanations, refusals, or ordinary-language text in \"candidates\".", systemPrompt);
         Assert.Contains("Input: Could Fido be a dog?", systemPrompt);
         Assert.Contains("{\"candidates\":[],\"message\":\"LCE 0.9 cannot express the possibility in 'could'.\"}", systemPrompt);
+    }
 
-        var jsonSchema = responseFormat.GetProperty("json_schema");
-        Assert.Equal("lattice_translation", jsonSchema.GetProperty("name").GetString());
-        Assert.True(jsonSchema.GetProperty("strict").GetBoolean());
+    [Fact]
+    public async Task Ignores_reasoning_output_and_parses_only_the_assistant_message()
+    {
+        var handler = CreateHandler(
+            """{"candidates":["Fido is a dog."],"message":null}""",
+            includeReasoningOutput: true);
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
 
-        var schema = jsonSchema.GetProperty("schema");
-        Assert.Equal("object", schema.GetProperty("type").GetString());
-        Assert.False(schema.GetProperty("additionalProperties").GetBoolean());
-        Assert.Contains(
-            schema.GetProperty("required").EnumerateArray(),
-            property => property.GetString() == "candidates");
-        Assert.Contains(
-            schema.GetProperty("required").EnumerateArray(),
-            property => property.GetString() == "message");
-        Assert.Equal(
-            "array",
-            schema.GetProperty("properties").GetProperty("candidates").GetProperty("type").GetString());
-        Assert.Equal(
-            "string",
-            schema.GetProperty("properties").GetProperty("candidates")
-                .GetProperty("items").GetProperty("type").GetString());
-        Assert.Equal(
-            "string",
-            schema.GetProperty("properties").GetProperty("message")
-                .GetProperty("type")[0].GetString());
-        Assert.Equal(
-            "null",
-            schema.GetProperty("properties").GetProperty("message")
-                .GetProperty("type")[1].GetString());
+        var response = await translator.TranslateAsync("Fido is a dog.");
+
+        Assert.Single(response.Candidates);
+    }
+
+    [Fact]
+    public async Task Reports_reasoning_only_output_when_no_assistant_message_is_returned()
+    {
+        var handler = CreateHandler(
+            """{"candidates":["Fido is a dog."],"message":null}""",
+            reasoningOnly: true);
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
+
+        var exception = await Assert.ThrowsAsync<JsonException>(async () =>
+            await translator.TranslateAsync("Fido is a dog."));
+
+        Assert.Contains("no assistant message", exception.Message);
+        Assert.Contains("reasoning", exception.Message);
+        Assert.Contains("36 reasoning token(s)", exception.Message);
     }
 
     [Fact]
@@ -116,7 +121,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     }
 
     [Fact]
-    public async Task Uses_the_loaded_instance_identifier_for_chat_completions()
+    public async Task Uses_the_loaded_instance_identifier_for_native_chat()
     {
         const string instanceIdentifier = "gemma-session-1";
         var handler = CreateHandler(
@@ -132,7 +137,7 @@ public sealed class LmStudioSemanticsTranslatorTests
         await translator.TranslateAsync("Fido is a dog.");
 
         var chatRequest = Assert.Single(handler.Requests.Where(
-            request => request.Uri!.AbsolutePath == "/v1/chat/completions"));
+            request => request.Uri!.AbsolutePath == "/api/v1/chat"));
         using var body = JsonDocument.Parse(chatRequest.Body!);
         Assert.Equal(instanceIdentifier, body.RootElement.GetProperty("model").GetString());
     }
@@ -174,7 +179,9 @@ public sealed class LmStudioSemanticsTranslatorTests
     private static StubHttpMessageHandler CreateHandler(
         string translationJson,
         bool includeModel = true,
-        string loadedModelIdentifier = Model)
+        string loadedModelIdentifier = Model,
+        bool includeReasoningOutput = false,
+        bool reasoningOnly = false)
     {
         var modelJson = includeModel
             ? JsonSerializer.Serialize(new
@@ -207,32 +214,50 @@ public sealed class LmStudioSemanticsTranslatorTests
             }
 
             if (request.Method == HttpMethod.Post &&
-                request.RequestUri!.AbsolutePath == "/v1/chat/completions")
+                request.RequestUri!.AbsolutePath == "/api/v1/chat")
             {
-                return Task.FromResult(CompletionResponse(translationJson));
+                return Task.FromResult(NativeChatResponse(
+                    translationJson,
+                    includeReasoningOutput,
+                    reasoningOnly));
             }
 
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
         });
     }
 
-    private static HttpResponseMessage CompletionResponse(string translationJson)
+    private static HttpResponseMessage NativeChatResponse(
+        string translationJson,
+        bool includeReasoningOutput,
+        bool reasoningOnly)
     {
-        var content = JsonSerializer.Serialize(new
-        {
-            choices = new[]
+        object[] output = reasoningOnly
+            ? new object[]
             {
-                new
+                new { type = "reasoning", content = "Internal reasoning is not an answer." }
+            }
+            : includeReasoningOutput
+                ? new object[]
                 {
-                    message = new
-                    {
-                        content = translationJson
-                    }
+                    new { type = "reasoning", content = "Internal reasoning must not be parsed." },
+                    new { type = "message", content = translationJson }
                 }
+                : new object[]
+                {
+                    new { type = "message", content = translationJson }
+                };
+
+        var response = JsonSerializer.Serialize(new
+        {
+            model_instance_id = Model,
+            output,
+            stats = new
+            {
+                reasoning_output_tokens = reasoningOnly ? 36 : includeReasoningOutput ? 12 : 0
             }
         });
 
-        return JsonResponse(content);
+        return JsonResponse(response);
     }
 
     private static HttpResponseMessage JsonResponse(string content) =>

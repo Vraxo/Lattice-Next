@@ -110,40 +110,12 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             new
             {
                 model = modelIdentifier,
-                messages = new[]
-                {
-                    new { role = "system", content = SystemPrompt },
-                    new { role = "user", content = sourceText }
-                },
+                input = sourceText,
+                system_prompt = SystemPrompt,
                 temperature = 0.0,
-                max_tokens = MaximumOutputTokens,
-                response_format = new
-                {
-                    type = "json_schema",
-                    json_schema = new
-                    {
-                        name = "lattice_translation",
-                        strict = true,
-                        schema = new
-                        {
-                            type = "object",
-                            properties = new
-                            {
-                                candidates = new
-                                {
-                                    type = "array",
-                                    items = new { type = "string" }
-                                },
-                                message = new
-                                {
-                                    type = new[] { "string", "null" }
-                                }
-                            },
-                            required = new[] { "candidates", "message" },
-                            additionalProperties = false
-                        }
-                    }
-                }
+                max_output_tokens = MaximumOutputTokens,
+                reasoning = configuration.Reasoning,
+                store = false
             });
 
         using var response = await httpClient.SendAsync(
@@ -154,19 +126,79 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             .ConfigureAwait(false);
 
         using var completion = JsonDocument.Parse(responseBody);
-        var content = completion.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString();
-
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            throw new JsonException("LM Studio returned an empty assistant message.");
-        }
-
+        var content = GetAssistantMessageContent(completion.RootElement);
         return ParseTranslation(content);
     }
+
+    private static string GetAssistantMessageContent(JsonElement response)
+    {
+        if (!response.TryGetProperty("output", out var output) ||
+            output.ValueKind != JsonValueKind.Array)
+        {
+            throw new JsonException("LM Studio returned a native chat response without an output array.");
+        }
+
+        var messages = new List<string>();
+        var outputTypes = new List<string>();
+
+        foreach (var item in output.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !item.TryGetProperty("type", out var typeElement) ||
+                typeElement.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var type = typeElement.GetString();
+            if (type is not null)
+            {
+                outputTypes.Add(type);
+            }
+
+            if (!string.Equals(type, "message", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!item.TryGetProperty("content", out var contentElement) ||
+                contentElement.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var content = contentElement.GetString();
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                messages.Add(content);
+            }
+        }
+
+        var messageContent = string.Concat(messages);
+        if (!string.IsNullOrWhiteSpace(messageContent))
+        {
+            return messageContent;
+        }
+
+        var outputDescription = outputTypes.Count == 0
+            ? "none"
+            : string.Join(", ", outputTypes.Distinct(StringComparer.Ordinal));
+        var reasoningDescription = GetReasoningTokenCount(response) is { } reasoningTokens &&
+            reasoningTokens > 0
+                ? $" The model produced {reasoningTokens} reasoning token(s), but no message content."
+                : string.Empty;
+
+        throw new JsonException(
+            $"LM Studio returned no assistant message. Output item types: {outputDescription}.{reasoningDescription}");
+    }
+
+    private static int? GetReasoningTokenCount(JsonElement response) =>
+        response.TryGetProperty("stats", out var stats) &&
+        stats.ValueKind == JsonValueKind.Object &&
+        stats.TryGetProperty("reasoning_output_tokens", out var reasoningTokens) &&
+        reasoningTokens.TryGetInt32(out var count)
+            ? count
+            : null;
 
     private SemanticTranslationResponse ParseTranslation(string content)
     {
