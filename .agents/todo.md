@@ -73,7 +73,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 ## 6. Language and knowledge expansion
 
 - [x] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
-- [ ] Evaluate an optional natural-language-to-semantics translator with strict validation.
+- [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
+- [ ] Evaluate concrete optional natural-language translators against representative ambiguity, quantification, negation, and relational examples before selecting a backend.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.

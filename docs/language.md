@@ -182,6 +182,16 @@ An indefinite description instead produces an `ExistentialQuantification`. For e
 
 When stored, the knowledge base gives this assertion one fresh `AnonymousIndividualTerm` and records each condition against that same witness. An existence question checks the full conjunction against one known individual or witness; it never joins conditions from separate witnesses.
 
+## Optional semantics translator boundary
+
+The Core contract `ISemanticsTranslator` allows an optional adapter to propose semantic candidates from ordinary input without making a translator implementation a dependency of Core. No concrete translator backend is selected or enabled by the default CLI; LCE remains the native and default input language.
+
+A translator returns candidate `UtteranceKind` and `SemanticFormula` values. It does not choose provenance or provide an authoritative `SourceText`: `SemanticTranslationService` attaches the exact original input to every validated `SemanticUtterance`. `SemanticUtteranceValidator` restricts candidates to the currently supported forms: ground unary or binary predicates, the supported single `it` reference, unary existential claims and queries, and universal rules with unary premises and either a unary conclusion or a fixed-object binary conclusion. Unsupported arities, free variables, nested or unsupported formulas, malformed identifiers, and unsupported utterance kinds are rejected.
+
+The service validates the entire response before returning any candidates. One valid candidate is marked `ReadyForReview`; multiple valid candidates are marked `Ambiguous`; an empty response is `NoInterpretation`; malformed or unsupported output is `Rejected`; provider errors are `Failed`. Cancellation is propagated. The service does not commit facts, resolve references against session context, invoke capabilities, or select an interpretation on the user's behalf.
+
+These checks establish only that a candidate has a structure Lattice currently knows how to process. They cannot establish that the translator preserved the meaning of the original wording. Even a single structurally valid candidate remains a proposal that requires review before the caller sends it through ordinary context resolution and knowledge ingestion.
+
 ## Input normalization
 
 Normalization is a small formatting cleanup step before parsing. It does not expand LCE's grammar or attempt to repair a sentence.
@@ -207,4 +217,4 @@ This boundary is intentionally separate from the controlled grammar. More aggres
 - Parse a complete text successfully before allowing the CLI to mutate session state.
 - Do not interpret a missing predicate as false.
 - Keep original wording and resolved referents separately so explanations do not silently rewrite what the user said.
-- Future language front ends, including an optional neural translator, must produce the same validated semantic representation rather than bypass it.
+- Optional translator adapters must implement `ISemanticsTranslator` and pass through `SemanticTranslationService` and `SemanticUtteranceValidator`; they must not bypass context resolution, knowledge validation, provenance, or user review.
