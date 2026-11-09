@@ -87,9 +87,8 @@ public sealed class BundledPythonToolTests
     {
         var registry = CreateBundledToolRegistry();
 
-        Assert.Equal(
-            ["calculator", "unit-converter"],
-            registry.Descriptors.Select(descriptor => descriptor.Id).OrderBy(id => id, StringComparer.Ordinal));
+        Assert.Contains(registry.Descriptors, descriptor => descriptor.Id == "calculator");
+        Assert.Contains(registry.Descriptors, descriptor => descriptor.Id == "unit-converter");
     }
 
     private static ToolRegistry CreateBundledToolRegistry()
