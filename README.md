@@ -48,7 +48,7 @@ The CLI retains accepted facts, anonymous existential witnesses, and universal r
 
 This is intentionally not a general theorem prover or a general co-reference resolver. Unknown does not mean false, and session knowledge and context are discarded when the CLI exits. See [the LCE grammar](docs/language.md), [conversational context](docs/context.md), and [the first reasoning slice](docs/reasoning.md).
 
-Use :help, :status, and :quit inside the console.
+Use :help, :status, and :quit inside the console. The generic capability boundary is demonstrated with `:tools` and explicit invocations such as `:tool calculator {"left":12,"operation":"multiply","right":3}`. Tool outputs are returned as sourced observations and are not automatically added to knowledge.
 
 ## Run
 
@@ -70,6 +70,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, and exact relational lookup, plus atomic loading of versioned declarative knowledge packs. Persistent conversation context, relational inference, pack unloading/version replacement, and tool execution are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, and exact relational lookup, plus atomic loading of versioned declarative knowledge packs and a generic, permission-aware, time-bounded tool registry with a decimal calculator capability. Tool invocation is currently explicit through the CLI; automatic tool selection, feeding observations into conversation context, relational inference, pack unloading/version replacement, and durable persistence are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.

@@ -2,6 +2,7 @@ using Lattice.Core.Context;
 using Lattice.Core.Language;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
+using Lattice.Core.Tools;
 using Spectre.Console;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -12,10 +13,11 @@ var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
 var knowledgePackLoader = new KnowledgePackLoader();
 var loadedPacks = new List<KnowledgePack>();
+var toolRegistry = new ToolRegistry([new CalculatorTool()]);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
-AnsiConsole.MarkupLine("[dim]Enter sentences, :load <path> to load a knowledge pack, :help, :status, or :quit.[/]");
+AnsiConsole.MarkupLine("[dim]Enter sentences, :load, :tools, :tool <id> <json>, :help, :status, or :quit.[/]");
 AnsiConsole.WriteLine();
 
 while (true)
@@ -39,6 +41,10 @@ while (true)
 
     if (string.Equals(input, ":help", StringComparison.OrdinalIgnoreCase))
     {
+        AnsiConsole.MarkupLine("[bold]Commands[/]");
+        AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
+        AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/]");
+        AnsiConsole.MarkupLine("  [dim]Tool arguments are JSON objects; results are temporary sourced observations.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
@@ -126,6 +132,57 @@ while (true)
         continue;
     }
 
+    if (string.Equals(input, ":tools", StringComparison.OrdinalIgnoreCase))
+    {
+        AnsiConsole.MarkupLine("[bold]Available tools[/]");
+
+        foreach (var descriptor in toolRegistry.Descriptors.OrderBy(item => item.Id, StringComparer.Ordinal))
+        {
+            AnsiConsole.MarkupLine($"  [cyan]{descriptor.Id}[/] — {descriptor.Name}");
+            AnsiConsole.MarkupLine($"    {descriptor.Description}");
+
+            foreach (var argument in descriptor.Inputs)
+            {
+                var required = argument.Required ? "required" : "optional";
+                AnsiConsole.MarkupLine($"    [dim]{argument.Name}: {argument.Type} ({required}) — {argument.Description}[/]");
+            }
+        }
+
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    if (input.StartsWith(":tool ", StringComparison.OrdinalIgnoreCase))
+    {
+        var invocation = input[6..].Trim();
+        var separator = invocation.IndexOf(' ');
+
+        if (separator <= 0 || separator == invocation.Length - 1)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Usage: :tool <tool-id> <arguments-json>");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        var toolId = invocation[..separator];
+        var arguments = invocation[(separator + 1)..].Trim();
+        var result = await toolRegistry.TryInvokeAsync(toolId, arguments);
+
+        if (!result.IsSuccess)
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine(result.Error ?? "The tool invocation failed.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Observation from {result.Observation!.ToolId}:[/]");
+        AnsiConsole.WriteLine(result.Observation.Content);
+        AnsiConsole.MarkupLine("[dim]This result is an observation; it has not been added to session knowledge.[/]");
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
@@ -138,7 +195,7 @@ while (true)
         AnsiConsole.MarkupLine("  [cyan]Pack loading[/]         Version 1 JSON; imported claims retain pack provenance");
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
-        AnsiConsole.MarkupLine("  [cyan]Tools[/]                None registered");
+        AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolRegistry.Descriptors.Count} registered");
         AnsiConsole.WriteLine();
         continue;
     }

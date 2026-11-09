@@ -55,10 +55,11 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 5. Generic capabilities
 
-- [ ] Define a tool contract and descriptor independent of individual implementations.
-- [ ] Add generic discovery, argument validation, permission checks, bounded execution, and result recording.
-- [ ] Feed tool results into context as sourced observations.
-- [ ] Demonstrate that removing or replacing a tool requires no cognition changes.
+- [x] Define a tool contract and descriptor independent of individual implementations.
+- [x] Add generic discovery, argument validation, permission checks, bounded execution, and sourced invocation results.
+- [ ] Feed tool observations into conversation context without automatically promoting them to knowledge.
+- [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
+- [ ] Add a second capability before expanding the contract or introducing autonomous tool selection.
 
 ## 6. Language and knowledge expansion
 
