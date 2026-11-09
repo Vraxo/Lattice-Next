@@ -8,10 +8,11 @@ public sealed record UniversalRule(
     PredicateApplication Conclusion,
     string SourceText,
     KnowledgeSourceKind SourceKind = KnowledgeSourceKind.UserAssertion,
-    ImmutableArray<KnowledgeSource> AdditionalSources = default)
+    ImmutableArray<KnowledgeSource> AdditionalSources = default,
+    string? SourceId = null)
 {
     public ImmutableArray<KnowledgeSource> Sources =>
-        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText))
+        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty
                 : AdditionalSources);
