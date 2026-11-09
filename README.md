@@ -48,7 +48,7 @@ The CLI retains accepted facts, anonymous existential witnesses, and universal r
 
 This is intentionally not a general theorem prover or a general co-reference resolver. Unknown does not mean false, and session knowledge and context are discarded when the CLI exits. See [the LCE grammar](docs/language.md), [conversational context](docs/context.md), and [the first reasoning slice](docs/reasoning.md).
 
-Use :help, :status, and :quit inside the console. The generic capability boundary is demonstrated with `:tools` and explicit invocations such as `:tool calculator {"left":12,"operation":"multiply","right":3}`. Tool outputs are returned as sourced observations and are not automatically added to knowledge.
+Use :help, :status, and :quit inside the console. The generic capability boundary is demonstrated with `:tools` and explicit invocations such as `:tool calculator {"left":12,"operation":"multiply","right":3}`. External tools are discovered from one-level subdirectories of `./tools`, or from the directory selected by `LATTICE_TOOLS_DIR`. Each external tool supplies a `tool.json` manifest and communicates through the language-neutral JSON-lines stdio protocol. Lattice does not depend on the tool's implementation language. Tool outputs are returned as sourced observations and are not automatically added to knowledge. See [the external tool protocol](src/Lattice.Core/Tools/README.md).
 
 ## Run
 
