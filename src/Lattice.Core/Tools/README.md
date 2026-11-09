@@ -81,7 +81,7 @@ Failed response:
 
 The response must echo the protocol version and request ID. The `result` may be any JSON value. Lattice preserves it as JSON in the resulting sourced observation and does not infer facts from it.
 
-The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice still enforces descriptor permissions, execution timeouts, and process termination.
+The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice enforces descriptor permission gates, execution timeouts, and process termination, but these gates do not restrict what the child process can access at the OS level. The CLI grants no tool permissions by default; set `LATTICE_TOOL_PERMISSIONS` to `read`, `write`, or `read,write` to grant them for the session. This is a coarse global grant, not a per-tool policy.
 
 ## Current invocation surface
 
