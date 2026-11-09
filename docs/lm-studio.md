@@ -11,13 +11,23 @@ This integration is deliberately outside `Lattice.Core`. The adapter implements 
 3. Load the model in LM Studio.
 4. Start the local server from the Developer tab, using the default port `1234`.
 
-The adapter uses the OpenAI-compatible `GET /v1/models` and `POST /v1/chat/completions` endpoints. To find the exact model identifier exposed by the server, run:
+The adapter uses the OpenAI-compatible `GET /v1/models` and `POST /v1/chat/completions` endpoints. The OpenAI-compatible model list reports loaded instances. To inspect a model that is already loaded, run:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:1234/v1/models
 ```
 
-Use the exact `id` value returned for the loaded model. Do not assume that a Hugging Face repository name, downloaded filename, and LM Studio model identifier are identical.
+Use the exact `id` value returned for the loaded instance.
+
+For the optional auto-load path, first inspect the installed-model catalog instead:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:1234/api/v1/models |
+    Select-Object -ExpandProperty models |
+    Select-Object key, display_name, type, loaded_instances
+```
+
+Set `LATTICE_LMSTUDIO_MODEL` to the exact `key` for the installed LLM. The adapter uses this key to find and load the model, then sends requests using the loaded instance ID. Do not assume that a Hugging Face repository name, downloaded filename, loaded instance ID, and catalog key are interchangeable.
 
 ## 2. Configure Lattice
 
@@ -35,7 +45,7 @@ Optional environment settings:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LATTICE_LMSTUDIO_MODEL` | unset | Exact model ID from LM Studio; required to enable translation |
+| `LATTICE_LMSTUDIO_MODEL` | unset | Exact loaded instance `id` from `/v1/models`, or installed model `key` from `/api/v1/models` when auto-load is enabled; required to enable translation |
 | `LATTICE_LMSTUDIO_URL` | `http://127.0.0.1:1234/` | Root URL of the local LM Studio server; do not append `/v1` |
 | `LATTICE_LMSTUDIO_AUTO_START` | `false` | Run `lms server start --port <port>` on first connection failure; only HTTP loopback addresses are allowed |
 | `LATTICE_LMSTUDIO_AUTO_LOAD` | `false` | Load the configured model through LM Studio's native REST API if it is installed but not visible to the OpenAI-compatible endpoint |
