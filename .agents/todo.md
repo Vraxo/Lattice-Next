@@ -48,9 +48,10 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 4. Knowledge packs
 
-- [ ] Define a versioned declarative pack format based on the proven semantic model.
-- [ ] Validate packs and preserve provenance for imported claims.
-- [ ] Load and query a pack without compiling or loading domain-specific code.
+- [x] Define a versioned declarative JSON pack format based on LCE assertions and the proven semantic model.
+- [x] Validate the complete pack before insertion and preserve imported-claim provenance plus pack IDs.
+- [x] Load a pack through Core and query its claims through the existing reasoning engine without domain-specific code.
+- [ ] Add pack unloading/replacement and durable knowledge-base persistence only when lifecycle requirements are defined.
 
 ## 5. Generic capabilities
 
