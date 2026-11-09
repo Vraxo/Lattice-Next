@@ -74,31 +74,36 @@
       "id": "unresolved-pronoun",
       "category": "anaphora",
       "input": "Fido likes it.",
-      "expectedOutcome": "one-candidate-with-unresolved-reference",
+      "expectedOutcome": "one-candidate-then-missing-reference-clarification",
       "expectedLce": "Fido likes it.",
       "expectedMeaning": "likes(fido, it)",
-      "notes": "Preserve it as unresolved; do not invent an antecedent."
+      "notes": "Preserve it as unresolved. With no previously known individual, ConversationContext must ask who it refers to."
     },
     {
       "id": "context-ambiguous-pronoun",
       "category": "anaphora",
       "input": "Fido likes it.",
       "contextKnownIndividuals": [
-        "rex"
+        "rex",
+        "mira"
       ],
       "expectedOutcome": "one-candidate-then-context-clarification",
       "expectedLce": "Fido likes it.",
       "expectedMeaning": "likes(fido, it)",
-      "notes": "The translator preserves it unresolved. Fido is newly introduced alongside Rex, so ConversationContext must ask for clarification rather than select a referent."
+      "notes": "Both individuals are already known before this utterance is resolved. The translator preserves it unresolved, and ConversationContext must ask which individual is intended."
     },
     {
       "id": "unresolved-pronoun-subject",
       "category": "anaphora",
       "input": "Milk is liked by it.",
-      "expectedOutcome": "one-candidate-with-unresolved-reference",
+      "expectedOutcome": "one-candidate-then-context-clarification",
       "expectedLce": "It likes milk.",
       "expectedMeaning": "likes(it, milk)",
-      "notes": "Preserve the unresolved subject reference and the original relation roles."
+      "notes": "Preserve the unresolved subject reference and original relation roles. Two individuals are already known, so ConversationContext must ask for clarification.",
+      "contextKnownIndividuals": [
+        "fido",
+        "rex"
+      ]
     },
     {
       "id": "classification-question",
@@ -184,9 +189,11 @@
       "id": "only-quantifier",
       "category": "unsupported",
       "input": "Only dogs are animals.",
-      "expectedOutcome": "no-candidate-unsupported",
+      "expectedOutcome": "one-candidate",
       "expectedCandidates": [],
-      "notes": "Do not reverse the implication or substitute the superficially similar Every dog is an animal."
+      "notes": "Preserve the direction of the implication: only dogs are animals means every animal is a dog, not every dog is an animal.",
+      "expectedLce": "Every animal is a dog.",
+      "expectedMeaning": "forall(x, implies(animal(x), dog(x)))"
     },
     {
       "id": "lexical-ambiguity-outside-model",
