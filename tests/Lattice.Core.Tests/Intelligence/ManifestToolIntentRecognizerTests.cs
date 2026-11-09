@@ -185,7 +185,7 @@ public sealed class ManifestToolIntentRecognizerTests
         patternParts.Add("z");
 
         var definition = new ToolIntentDefinition(
-            string.Join(' ', patternParts),
+            string.Join(" ", patternParts),
             bindings.ToImmutable(),
             "Matched {result}.");
         var descriptor = new ToolDescriptor(
@@ -198,7 +198,7 @@ public sealed class ManifestToolIntentRecognizerTests
         [
             new ManifestToolIntentRecognizer(descriptor, definition)
         ]);
-        var input = string.Join(' ', Enumerable.Repeat("a", 256));
+        var input = string.Join(" ", Enumerable.Repeat("a", 256));
 
         var resolution = resolver.Resolve(input);
 
