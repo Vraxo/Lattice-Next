@@ -8,10 +8,11 @@ public sealed record KnowledgeFact(
     string SourceText,
     SemanticIdentifier? ResolvedReferent = null,
     KnowledgeSourceKind SourceKind = KnowledgeSourceKind.UserAssertion,
-    ImmutableArray<KnowledgeSource> AdditionalSources = default)
+    ImmutableArray<KnowledgeSource> AdditionalSources = default,
+    string? SourceId = null)
 {
     public ImmutableArray<KnowledgeSource> Sources =>
-        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, ResolvedReferent))
+        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, ResolvedReferent, SourceId))
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty
                 : AdditionalSources);

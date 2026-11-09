@@ -11,10 +11,11 @@ public sealed record ProofNode(
     ImmutableArray<ProofNode> AdditionalPremises = default,
     KnowledgeSourceKind SourceKind = KnowledgeSourceKind.UserAssertion,
     ImmutableArray<KnowledgeSource> AdditionalSources = default,
-    ProofNodeKind Kind = ProofNodeKind.Asserted)
+    ProofNodeKind Kind = ProofNodeKind.Asserted,
+    string? SourceId = null)
 {
     public ImmutableArray<KnowledgeSource> Sources =>
-        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, ResolvedReferent))
+        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, ResolvedReferent, SourceId))
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty
                 : AdditionalSources);

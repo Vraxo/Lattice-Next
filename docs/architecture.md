@@ -38,7 +38,7 @@ Session context is not automatically durable knowledge.
 
 Knowledge packs are versioned, declarative data. They may describe concepts, facts, relations, rules, and examples. They do not contain executable plugin code and should not require a special project for each subject domain.
 
-The pack format should follow the semantic model rather than forcing the model to fit an early JSON schema. Packs and individual claims need source/provenance information where applicable.
+The initial version 1 format is JSON metadata plus ordered LCE assertion strings. Core validates the entire pack against the current parser and reasoning boundary before adding any claim. This deliberately reuses the proven language-to-semantics path instead of prematurely serializing internal semantic records. Imported claims retain both their imported-claim classification and the pack ID as a structured source identifier. The format should evolve with demonstrated semantic needs, not dictate them.
 
 ### Tools
 

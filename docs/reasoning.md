@@ -34,6 +34,16 @@ Identical facts and rules remain deduplicated for reasoning, but each distinct s
 
 A ProofNode distinguishes asserted premises from derived conclusions. Asserted nodes carry the sources attached to the stored fact; derived nodes carry the sources attached to the rule that produced them and recursively retain their supporting premise proofs. A rule is never applied by matching its conditions against different individuals. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
 
+## Versioned knowledge packs
+
+Core can load version 1 JSON knowledge packs through `KnowledgePackLoader`. A pack contains a format version, stable pack ID, display name, and an ordered array of LCE assertion strings. Reusing the controlled language keeps the pack format aligned with the semantic model instead of introducing a parallel AST serialization.
+
+The loader validates the complete document and every claim before adding anything to the destination knowledge base. It rejects unsupported format versions, unknown or duplicate fields, malformed claims, questions, and assertions that the current reasoning engine cannot store. A failed validation leaves the destination knowledge base unchanged.
+
+Accepted claims are classified as imported claims and retain the pack ID in their structured source records. If a claim already exists as a user assertion or another imported claim, the semantic fact or rule remains deduplicated while both sources remain available to proof explanations. Packs contain declarative data only; they cannot execute code.
+
+The CLI loads a pack with `:load path/to/pack.json`. Loaded claims are available to ordinary queries for the rest of the current process. The current implementation does not yet save the active knowledge base back to disk, unload packs, or replace an already-loaded pack by version.
+
 ## Descriptive facts
 
 A description such as `the red ball` has a head noun (`ball`) and a modifier (`red`), while retaining the stable individual identifier `red-ball`. When an assertion uses that description, the knowledge base records the main assertion plus unary facts for the head and each modifier. This lets ordinary unary rules operate on descriptive knowledge without adding adjective-specific inference logic.
@@ -94,14 +104,14 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 - relational rule inference, joins, or relation traversal;
 - rules with multiple conclusions, disjunction, or nested formulas beyond a flat conjunction of unary predicates;
 - negation, existential relational conditions, nested existential formulas, or equality;
-- persistent storage or loading declarative knowledge packs;
+- persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 
 The semantic model can represent some structures beyond this engine's current reasoning boundary. Such structures are not silently accepted as reasoning rules.
 
 ## Lifetime and boundaries
 
-The CLI owns one in-memory KnowledgeBase for the duration of the interactive process. Accepted facts and rules remain available across turns in that process and are discarded when it ends. There is no disk persistence yet.
+The CLI owns one in-memory KnowledgeBase for the duration of the interactive process. User assertions and claims loaded from declarative knowledge packs remain available across turns in that process and are discarded when it ends. There is no durable session persistence or pack unloading yet.
 
 The reasoning engine lives in Lattice.Core. It consumes semantic structures and does not depend on LCE parsing, conversation context, Spectre.Console, a neural model, a knowledge-pack format, or external tools. The CLI remains responsible for parsing user input, invoking context resolution, storing accepted assertions in the session knowledge base, and presenting answers.
 
