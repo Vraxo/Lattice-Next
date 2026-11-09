@@ -18,7 +18,8 @@ public sealed class KnowledgeBase
         SemanticUtterance utterance,
         out KnowledgeEntryKind kind,
         out string? error,
-        KnowledgeSourceKind sourceKind = KnowledgeSourceKind.UserAssertion)
+        KnowledgeSourceKind sourceKind = KnowledgeSourceKind.UserAssertion,
+        string? sourceId = null)
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
@@ -54,7 +55,8 @@ public sealed class KnowledgeBase
                         Arguments = ImmutableArray.Create<SemanticTerm>(witness)
                     },
                     utterance.SourceText,
-                    SourceKind: sourceKind));
+                    SourceKind: sourceKind,
+                    SourceId: sourceId));
             }
 
             kind = KnowledgeEntryKind.Fact;
@@ -68,7 +70,8 @@ public sealed class KnowledgeBase
                 groundedPredicate,
                 utterance.SourceText,
                 utterance.ResolvedReferent,
-                sourceKind));
+                sourceKind,
+                SourceId: sourceId));
 
             foreach (var descriptionFact in descriptionFacts)
             {
@@ -76,7 +79,8 @@ public sealed class KnowledgeBase
                     descriptionFact,
                     utterance.SourceText,
                     utterance.ResolvedReferent,
-                    sourceKind));
+                    sourceKind,
+                    SourceId: sourceId));
             }
 
             kind = KnowledgeEntryKind.Fact;
@@ -96,13 +100,13 @@ public sealed class KnowledgeBase
 
             if (existingRuleIndex < 0)
             {
-                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText, sourceKind));
+                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText, sourceKind, SourceId: sourceId));
             }
             else
             {
                 var existingRule = rules[existingRuleIndex];
                 var sources = existingRule.Sources
-                    .Add(new KnowledgeSource(sourceKind, utterance.SourceText))
+                    .Add(new KnowledgeSource(sourceKind, utterance.SourceText, SourceId: sourceId))
                     .Distinct()
                     .ToImmutableArray();
 
