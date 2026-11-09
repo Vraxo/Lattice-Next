@@ -16,7 +16,7 @@ public sealed class ToolRegistryTests
         string arguments,
         string expected)
     {
-        var result = await registry.TryInvokeAsync("calculator", arguments);
+        var result = await registry.TryInvokeAsync("calculator", arguments, TestContext.Current.CancellationToken);
 
         Assert.True(result.IsSuccess, result.Error);
         Assert.Equal("calculator", result.Observation!.ToolId);
@@ -26,7 +26,7 @@ public sealed class ToolRegistryTests
     [Fact]
     public async Task Rejects_unknown_tools()
     {
-        var result = await registry.TryInvokeAsync("not-registered", "{}");
+        var result = await registry.TryInvokeAsync("not-registered", "{}", TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Null(result.Observation);
@@ -44,7 +44,7 @@ public sealed class ToolRegistryTests
         string arguments,
         string expectedError)
     {
-        var result = await registry.TryInvokeAsync("calculator", arguments);
+        var result = await registry.TryInvokeAsync("calculator", arguments, TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Null(result.Observation);
@@ -56,7 +56,8 @@ public sealed class ToolRegistryTests
     {
         var result = await registry.TryInvokeAsync(
             "calculator",
-            """{"left":12,"operation":"divide","right":0}""");
+            """{"left":12,"operation":"divide","right":0}""",
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Equal("Division by zero is undefined.", result.Error);
@@ -67,7 +68,8 @@ public sealed class ToolRegistryTests
     {
         var result = await registry.TryInvokeAsync(
             "calculator",
-            """{"left":12,"operation":"power","right":2}""");
+            """{"left":12,"operation":"power","right":2}""",
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Contains("Operation must be", result.Error);
@@ -78,7 +80,7 @@ public sealed class ToolRegistryTests
     {
         var restrictedRegistry = new ToolRegistry([new BlockingWriteTool()]);
 
-        var result = await restrictedRegistry.TryInvokeAsync("blocking-write", "{}");
+        var result = await restrictedRegistry.TryInvokeAsync("blocking-write", "{}", TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Contains("permissions", result.Error);
@@ -92,7 +94,7 @@ public sealed class ToolRegistryTests
             ToolPermission.Write,
             TimeSpan.FromMilliseconds(25));
 
-        var result = await boundedRegistry.TryInvokeAsync("blocking-write", "{}");
+        var result = await boundedRegistry.TryInvokeAsync("blocking-write", "{}", TestContext.Current.CancellationToken);
 
         Assert.False(result.IsSuccess);
         Assert.Equal("Tool execution exceeded its time limit.", result.Error);
