@@ -27,7 +27,7 @@ The calculator and unit converter are ordinary external tools, not C# implementa
 
 To use these bundled examples, install Python 3 and make its `python` command available on `PATH`. They have no pip dependencies. Lattice itself still builds without Python; other external tools can use any executable and implementation language.
 
-Each manifest may include an `intents` array declaring supported phrases, typed slots, argument bindings, and response templates. Lattice loads these declarations into a generic matcher; there are no calculator- or unit-converter-specific recognizer classes. A newly added tool can declare its own supported phrases in its manifest without changing C# code. Patterns are deliberately constrained exact token sequences, not arbitrary code or unrestricted English. The bundled calculator's follow-up and chained arithmetic phrases are also declared there.
+Each manifest may include an `intents` array declaring supported phrases, typed slots, argument bindings, and response templates. Lattice loads these declarations into a generic matcher; there are no calculator- or unit-converter-specific recognizer classes. A newly added tool can declare its own supported phrases in its manifest without changing C# code. Patterns are deliberately constrained exact token sequences: `number` and `word` capture one token, `text` captures a phrase, and square-bracketed literal phrases are optional. They are not arbitrary code or unrestricted English. The bundled calculator's follow-up and chained arithmetic phrases are also declared there.
 
 ## Protocol
 
