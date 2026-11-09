@@ -10,6 +10,8 @@ internal sealed class FakeLmStudioProcessRunner : ILmStudioProcessRunner
 
     public Func<string, string[], LmStudioProcessResult>? RunResult { get; set; }
 
+    public Action? OnStart { get; set; }
+
     public bool StartSucceeds { get; set; } = true;
 
     public string? StartError { get; set; }
@@ -20,6 +22,12 @@ internal sealed class FakeLmStudioProcessRunner : ILmStudioProcessRunner
         out string? error)
     {
         DetachedStarts.Add((executable, arguments.ToArray()));
+
+        if (StartSucceeds)
+        {
+            OnStart?.Invoke();
+        }
+
         error = StartError;
         return StartSucceeds;
     }

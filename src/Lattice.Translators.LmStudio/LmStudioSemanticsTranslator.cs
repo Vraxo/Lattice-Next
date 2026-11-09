@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Net.Http.Json;
 using System.Text.Json;
 using Lattice.Core.Intelligence;
 using Lattice.Core.Language;
@@ -96,7 +95,6 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         timeout.CancelAfter(runtime.RequestTimeout);
 
         using var request = runtime.CreateChatRequest(
-            modelIdentifier,
             new
             {
                 model = modelIdentifier,

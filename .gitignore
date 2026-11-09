@@ -17,3 +17,6 @@ TestResults/
 
 # Local tooling
 .artifacts/
+
+# Local Lattice configuration
+/lattice.config.json

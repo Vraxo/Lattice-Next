@@ -13,18 +13,17 @@ public sealed class LmStudioRuntimeTests
     public async Task Starts_the_server_and_lists_only_installed_language_models()
     {
         var serverStarted = false;
-        var processRunner = new FakeLmStudioProcessRunner();
-        processRunner.StartSucceeds = true;
+        var processRunner = new FakeLmStudioProcessRunner
+        {
+            OnStart = () => serverStarted = true
+        };
         var handler = new StubHttpMessageHandler((request, _) =>
         {
             if (request.RequestUri!.AbsolutePath == "/v1/models")
             {
-                if (!serverStarted)
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
-                }
-
-                return Task.FromResult(JsonResponse("""{"data":[]}"""));
+                return Task.FromResult(serverStarted
+                    ? JsonResponse("""{"data":[]}""")
+                    : new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
             }
 
             if (request.RequestUri.AbsolutePath == "/api/v1/models")
@@ -35,36 +34,7 @@ public sealed class LmStudioRuntimeTests
 
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
         });
-        processRunner.DetachedStarts.Add(("lms", new[] { "server", "start" }));
-        var originalStart = processRunner.StartSucceeds;
-        processRunner.StartSucceeds = false;
-        processRunner.StartError = "Unexpected test setup.";
         var runtime = CreateRuntime(handler, processRunner);
-
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await runtime.ListInstalledModelsAsync());
-        Assert.Contains("Unexpected test setup.", exception.Message);
-        Assert.Empty(processRunner.Runs);
-
-        processRunner.StartSucceeds = true;
-        processRunner.StartError = null;
-        serverStarted = true;
-        var secondHandler = new StubHttpMessageHandler((request, _) =>
-        {
-            if (request.RequestUri!.AbsolutePath == "/v1/models")
-            {
-                return Task.FromResult(JsonResponse("""{"data":[]}"""));
-            }
-
-            if (request.RequestUri.AbsolutePath == "/api/v1/models")
-            {
-                return Task.FromResult(JsonResponse(
-                    """{"models":[{"key":"publisher/gemma-270m-it","display_name":"Gemma 3 270M IT","type":"llm","params_string":"270M","size_bytes":300000000,"loaded_instances":[]} ,{"key":"publisher/embed","display_name":"Embedding","type":"embedding"}]}"""));
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-        });
-        runtime = CreateRuntime(secondHandler, processRunner);
 
         var models = await runtime.ListInstalledModelsAsync();
 
@@ -72,6 +42,11 @@ public sealed class LmStudioRuntimeTests
         Assert.Equal("publisher/gemma-270m-it", model.Key);
         Assert.Equal("Gemma 3 270M IT", model.DisplayName);
         Assert.Equal("270M", model.Parameters);
+        var started = Assert.Single(processRunner.DetachedStarts);
+        Assert.Equal("lms", started.Executable);
+        Assert.Equal(
+            new[] { "server", "start", "--port", "1234", "--bind", "127.0.0.1" },
+            started.Arguments);
     }
 
     [Fact]
@@ -112,7 +87,7 @@ public sealed class LmStudioRuntimeTests
         var command = Assert.Single(processRunner.Runs);
         Assert.Equal("lms", command.Executable);
         Assert.Equal(
-            new[] { "load", "publisher/gemma-270m-it", "--identifier=publisher/gemma-270m-it" },
+            new[] { "load", "publisher/gemma-270m-it", "--identifier", "publisher/gemma-270m-it" },
             command.Arguments);
     }
 

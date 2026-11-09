@@ -12,18 +12,20 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 const int maximumToolIntentSteps = 8;
 var parser = new LceParser();
-var lmStudioConfigured = LmStudioOptions.TryCreateFromEnvironment(
-    out var lmStudioOptions,
-    out var lmStudioConfigurationError);
-using var lmStudioHttpClient = lmStudioOptions is null
-    ? null
-    : new HttpClient { Timeout = lmStudioOptions.RequestTimeout };
-var lmStudioTranslator = lmStudioOptions is null || lmStudioHttpClient is null
-    ? null
-    : new LmStudioSemanticsTranslator(lmStudioHttpClient, lmStudioOptions, parser);
-var translationService = lmStudioTranslator is null
-    ? null
-    : new SemanticTranslationService(lmStudioTranslator);
+var configurationStore = new LmStudioConfigurationStore();
+var configurationLoaded = configurationStore.TryLoad(
+    out var latticeConfiguration,
+    out var configurationError);
+
+if (!configurationLoaded)
+{
+    latticeConfiguration = new LatticeConfiguration();
+}
+using var lmStudioHttpClient = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
+var lmStudioRuntime = new LmStudioRuntime(
+    lmStudioHttpClient,
+    latticeConfiguration.LmStudio);
+var translationService = CreateTranslationService(latticeConfiguration.LmStudio);
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
@@ -67,20 +69,22 @@ var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.9[/]");
-AnsiConsole.MarkupLine("[dim]Enter LCE sentences or use :translate for ordinary-language statements; use :load, :tools, :tool, :translator, :help, :status, or :quit.[/]");
-if (lmStudioConfigured && lmStudioOptions is not null)
+AnsiConsole.MarkupLine("[dim]Enter LCE sentences or use :translate for ordinary-language statements; use :load, :tools, :tool, :translator setup, :help, :status, or :quit.[/]");
+AnsiConsole.MarkupLine($"[dim]Local configuration: {configurationStore.Path}[/]");
+
+if (!configurationLoaded)
 {
-    AnsiConsole.MarkupLine(
-        $"[dim]Local translator configured: {lmStudioOptions.Model} at {lmStudioOptions.BaseAddress}.[/]");
+    AnsiConsole.MarkupLine("[yellow]LM Studio configuration could not be loaded; using defaults until setup is saved.[/]");
+    AnsiConsole.WriteLine(configurationError ?? "The local configuration is invalid.");
 }
-else if (!string.IsNullOrWhiteSpace(lmStudioConfigurationError))
+
+if (translationService is null)
 {
-    AnsiConsole.MarkupLine("[yellow]LM Studio configuration is invalid.[/]");
-    AnsiConsole.WriteLine(lmStudioConfigurationError);
+    AnsiConsole.MarkupLine("[dim]Local translator not configured. Run :translator setup to choose an installed model.[/]");
 }
 else
 {
-    AnsiConsole.MarkupLine("[dim]Local translation is disabled; set LATTICE_LMSTUDIO_MODEL to enable LM Studio.[/]");
+    AnsiConsole.MarkupLine($"[dim]Local translator configured: {latticeConfiguration.LmStudio.ModelKey}.[/]");
 }
 if (!externalToolsDiscovered)
 {
@@ -117,6 +121,7 @@ while (true)
         AnsiConsole.MarkupLine("[bold]Commands[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
         AnsiConsole.MarkupLine("  [green]:translator[/]  [dim]show local LM Studio configuration[/]");
+        AnsiConsole.MarkupLine("  [green]:translator setup[/]  [dim]start LM Studio, discover installed models, and save a selection[/]");
         AnsiConsole.MarkupLine("  [green]:translate <text>[/]  [dim]translate one ordinary-language statement/question into LCE for review[/]");
         AnsiConsole.MarkupLine("  [dim]Translation is opt-in. Lattice never stores a model proposal without your explicit selection.[/]");
         AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
@@ -172,6 +177,103 @@ while (true)
     if (string.Equals(input, ":translator", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Local semantics translator[/]");
+        AnsiConsole.MarkupLine($"  [cyan]Configuration[/]  {configurationStore.Path}");
+        AnsiConsole.MarkupLine($"  [cyan]API[/]            {latticeConfiguration.LmStudio.ApiUrl}");
+        AnsiConsole.MarkupLine($"  [cyan]LM Studio CLI[/]  {latticeConfiguration.LmStudio.LmsExecutable}");
+
+        if (string.IsNullOrWhiteSpace(latticeConfiguration.LmStudio.ModelKey))
+        {
+            AnsiConsole.MarkupLine("  [yellow]No model selected[/]");
+            AnsiConsole.MarkupLine("  Run :translator setup to discover and select an installed LLM.");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"  [cyan]Model key[/]      {latticeConfiguration.LmStudio.ModelKey}");
+            AnsiConsole.MarkupLine($"  [cyan]Model ID[/]       {latticeConfiguration.LmStudio.ModelIdentifier ?? "(assigned when loaded)"}");
+            AnsiConsole.MarkupLine("  [dim]The server and model are checked and started automatically when you translate.[/]");
+        }
+
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    if (input.Equals(":translator setup", StringComparison.OrdinalIgnoreCase))
+    {
+        try
+        {
+            var models = await lmStudioRuntime.ListInstalledModelsAsync(
+                ReportLmStudioStatus);
+
+            if (models.IsEmpty)
+            {
+                AnsiConsole.MarkupLine("[yellow]No installed language models were found in LM Studio.[/]");
+                AnsiConsole.MarkupLine("[dim]Download or import a GGUF model in LM Studio, then run :translator setup again.[/]");
+                AnsiConsole.WriteLine();
+                continue;
+            }
+
+            AnsiConsole.MarkupLine("[bold]Installed language models[/]");
+
+            for (var index = 0; index < models.Length; index++)
+            {
+                var model = models[index];
+                var parameters = string.IsNullOrWhiteSpace(model.Parameters)
+                    ? string.Empty
+                    : $" · {model.Parameters}";
+                var loaded = model.LoadedInstanceIds.IsDefaultOrEmpty
+                    ? string.Empty
+                    : " · loaded";
+                AnsiConsole.MarkupLine(
+                    $"  [cyan]{index + 1}.[/] {model.DisplayName}{parameters}{loaded}");
+                AnsiConsole.MarkupLine($"    [dim]{model.Key}[/]");
+            }
+
+            AnsiConsole.Markup("[yellow]Select a model number, or press Enter to cancel: [/]");
+            var selection = Console.ReadLine();
+
+            if (!int.TryParse(selection, out var selectedIndex) ||
+                selectedIndex < 1 ||
+                selectedIndex > models.Length)
+            {
+                AnsiConsole.MarkupLine("[dim]Setup cancelled; no configuration was changed.[/]");
+                AnsiConsole.WriteLine();
+                continue;
+            }
+
+            var selectedModel = models[selectedIndex - 1];
+            var selectedConfiguration = latticeConfiguration.LmStudio with
+            {
+                ModelKey = selectedModel.Key,
+                ModelIdentifier = selectedModel.LoadedInstanceIds.IsDefaultOrEmpty
+                    ? null
+                    : selectedModel.LoadedInstanceIds[0]
+            };
+            var updatedConfiguration = latticeConfiguration with
+            {
+                LmStudio = selectedConfiguration
+            };
+
+            await configurationStore.SaveAsync(updatedConfiguration);
+            latticeConfiguration = updatedConfiguration;
+            translationService = CreateTranslationService(selectedConfiguration);
+
+            AnsiConsole.MarkupLine(
+                $"[bold cyan]Lattice[/] [dim]› Saved '{selectedModel.DisplayName}' to lattice.config.json.[/]");
+            AnsiConsole.MarkupLine("[dim]The server and selected model will be started/loaded automatically when :translate is used.[/]");
+        }
+        catch (Exception exception)
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]› LM Studio setup failed: [/]");
+            AnsiConsole.WriteLine(exception.Message);
+        }
+
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+
+    {
+        AnsiConsole.MarkupLine("[bold]Local semantics translator[/]");
 
         if (lmStudioOptions is null)
         {
@@ -212,7 +314,7 @@ while (true)
 
         if (translationService is null)
         {
-            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Local translation is not configured. Set LATTICE_LMSTUDIO_MODEL and restart Lattice.");
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Local translation is not configured. Run :translator setup first.");
             AnsiConsole.WriteLine();
             continue;
         }
@@ -389,7 +491,7 @@ while (true)
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
         AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolRegistry.Descriptors.Count} registered");
-        AnsiConsole.MarkupLine($"  [cyan]Translation[/]          {(lmStudioOptions is null ? "disabled" : $"LM Studio · {lmStudioOptions.Model}")}");
+        AnsiConsole.MarkupLine($"  [cyan]Translation[/]          {(translationService is null ? "disabled" : $"LM Studio · {latticeConfiguration.LmStudio.ModelKey}")}");
         AnsiConsole.WriteLine();
         continue;
     }
@@ -486,6 +588,20 @@ while (true)
 
     AnsiConsole.WriteLine();
 }
+
+SemanticTranslationService? CreateTranslationService(LmStudioConfiguration configuration) =>
+    string.IsNullOrWhiteSpace(configuration.ModelKey)
+        ? null
+        : new SemanticTranslationService(
+            new LmStudioSemanticsTranslator(
+                lmStudioHttpClient,
+                configuration,
+                lmStudioRuntime,
+                parser,
+                ReportLmStudioStatus));
+
+void ReportLmStudioStatus(string message) =>
+    AnsiConsole.MarkupLine($"[dim]{Markup.Escape(message)}[/]");
 
 void ProcessUtterance(SemanticUtterance parsedUtterance)
 {

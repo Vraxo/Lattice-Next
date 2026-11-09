@@ -109,7 +109,7 @@ public sealed class LmStudioRuntime
 
             var loadResult = await processRunner.RunAsync(
                 configuration.LmsExecutable,
-                new[] { "load", modelKey, $"--identifier={requestedIdentifier}" },
+                new[] { "load", modelKey, "--identifier", requestedIdentifier },
                 TimeSpan.FromSeconds(configuration.ModelLoadTimeoutSeconds),
                 cancellationToken).ConfigureAwait(false);
 

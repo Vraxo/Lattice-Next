@@ -72,8 +72,14 @@ public sealed class LmStudioConfigurationStore
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        if (configuration.LmStudio is null ||
-            !configuration.LmStudio.TryValidate(out var error))
+        var settings = configuration.LmStudio;
+
+        if (settings is null)
+        {
+            throw new InvalidOperationException("The Lattice configuration is invalid.");
+        }
+
+        if (!settings.TryValidate(out var error))
         {
             throw new InvalidOperationException(error ?? "The Lattice configuration is invalid.");
         }
