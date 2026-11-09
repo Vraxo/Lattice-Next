@@ -50,18 +50,12 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
 }
 
 var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
-var intentRecognizers = new List<IToolIntentRecognizer>();
-
-if (registeredToolIds.Contains("calculator"))
-{
-    intentRecognizers.Add(new CalculatorIntentRecognizer());
-}
-
-if (registeredToolIds.Contains("unit-converter"))
-{
-    intentRecognizers.Add(new UnitConversionIntentRecognizer());
-}
-
+var intentRecognizers = registeredTools
+    .SelectMany(tool => tool.Descriptor.Intents.IsDefault
+        ? []
+        : tool.Descriptor.Intents.Select(
+            definition => new ManifestToolIntentRecognizer(tool.Descriptor, definition)))
+    .Cast<IToolIntentRecognizer>();
 var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
