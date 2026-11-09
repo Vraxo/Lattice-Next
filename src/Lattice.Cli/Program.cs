@@ -53,7 +53,7 @@ var intentRecognizers = registeredTools
 var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
-AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.9[/]");
 AnsiConsole.MarkupLine("[dim]Enter ordinary-language calculations/conversions or LCE sentences; use :load, :tools, :tool, :help, :status, or :quit.[/]");
 if (!externalToolsDiscovered)
 {
@@ -134,7 +134,7 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Existence questions can be supported by one matching witness or one already-known named individual.[/]");
         AnsiConsole.MarkupLine("[dim]All conditions must be supported for the same individual before a rule can fire.[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions do not resolve synonyms; indefinite relational arguments remain unsupported.[/]");
-        AnsiConsole.MarkupLine("[dim]LCE 0.8 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.MarkupLine("[dim]LCE 0.9 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
         continue;
     }
