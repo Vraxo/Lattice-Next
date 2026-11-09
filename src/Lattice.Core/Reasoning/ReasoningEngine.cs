@@ -304,14 +304,26 @@ public sealed class ReasoningEngine
 
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1 ||
-            (predicate.Arguments[0] is not IndividualTerm &&
-             predicate.Arguments[0] is not AnonymousIndividualTerm))
+            predicate.Arguments.Length != 1)
         {
             return false;
         }
 
-        key = (predicate.Predicate.Value, predicate.Arguments[0]);
+        var individual = predicate.Arguments[0];
+
+        var hasValidIdentity = individual switch
+        {
+            IndividualTerm named => !string.IsNullOrWhiteSpace(named.Identifier.Value),
+            AnonymousIndividualTerm anonymous => !string.IsNullOrWhiteSpace(anonymous.Identity.Value),
+            _ => false
+        };
+
+        if (!hasValidIdentity)
+        {
+            return false;
+        }
+
+        key = (predicate.Predicate.Value, individual);
         return true;
     }
 
