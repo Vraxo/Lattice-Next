@@ -187,7 +187,7 @@
     },
     {
       "id": "only-quantifier",
-      "category": "unsupported",
+      "category": "quantification",
       "input": "Only dogs are animals.",
       "expectedOutcome": "one-candidate",
       "notes": "Preserve the direction of the implication: only dogs are animals means every animal is a dog, not every dog is an animal.",
