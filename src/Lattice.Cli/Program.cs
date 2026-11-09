@@ -93,7 +93,8 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
         AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
-        AnsiConsole.MarkupLine("  [dim]Natural-language arithmetic/conversion selection is enabled when the matching tools are discovered.[/]");
+        AnsiConsole.MarkupLine("  [dim]Natural-language selection uses exact phrase patterns declared by discovered tool manifests.[/]");
+        AnsiConsole.MarkupLine("  [dim]Patterns support single-token number, word, and text slots; they are not unrestricted English.[/]");
         AnsiConsole.MarkupLine("  [dim]The bundled calculator and unit converter are Python tools; Python 3 must be available as 'python'.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
