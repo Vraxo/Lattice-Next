@@ -34,10 +34,37 @@ public sealed class LmStudioSemanticsTranslatorTests
         Assert.Equal("/v1/chat/completions", modelRequest.Uri!.AbsolutePath);
         using var requestBody = JsonDocument.Parse(modelRequest.Body!);
         Assert.Equal(Model, requestBody.RootElement.GetProperty("model").GetString());
-        Assert.Equal("json_object", requestBody.RootElement
-            .GetProperty("response_format")
-            .GetProperty("type")
-            .GetString());
+        var responseFormat = requestBody.RootElement.GetProperty("response_format");
+        Assert.Equal("json_schema", responseFormat.GetProperty("type").GetString());
+
+        var jsonSchema = responseFormat.GetProperty("json_schema");
+        Assert.Equal("lattice_translation", jsonSchema.GetProperty("name").GetString());
+        Assert.True(jsonSchema.GetProperty("strict").GetBoolean());
+
+        var schema = jsonSchema.GetProperty("schema");
+        Assert.Equal("object", schema.GetProperty("type").GetString());
+        Assert.False(schema.GetProperty("additionalProperties").GetBoolean());
+        Assert.Contains(
+            schema.GetProperty("required").EnumerateArray(),
+            property => property.GetString() == "candidates");
+        Assert.Contains(
+            schema.GetProperty("required").EnumerateArray(),
+            property => property.GetString() == "message");
+        Assert.Equal(
+            "array",
+            schema.GetProperty("properties").GetProperty("candidates").GetProperty("type").GetString());
+        Assert.Equal(
+            "string",
+            schema.GetProperty("properties").GetProperty("candidates")
+                .GetProperty("items").GetProperty("type").GetString());
+        Assert.Equal(
+            "string",
+            schema.GetProperty("properties").GetProperty("message")
+                .GetProperty("type")[0].GetString());
+        Assert.Equal(
+            "null",
+            schema.GetProperty("properties").GetProperty("message")
+                .GetProperty("type")[1].GetString());
     }
 
     [Fact]
