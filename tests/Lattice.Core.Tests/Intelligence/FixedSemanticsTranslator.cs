@@ -5,10 +5,14 @@ namespace Lattice.Core.Tests.Intelligence;
 internal sealed class FixedSemanticsTranslator : ISemanticsTranslator
 {
     private readonly SemanticTranslationResponse response;
+    private readonly Exception? failure;
 
-    public FixedSemanticsTranslator(SemanticTranslationResponse response)
+    public FixedSemanticsTranslator(
+        SemanticTranslationResponse response,
+        Exception? failure = null)
     {
         this.response = response;
+        this.failure = failure;
     }
 
     public string? ReceivedSourceText { get; private set; }
@@ -21,6 +25,9 @@ internal sealed class FixedSemanticsTranslator : ISemanticsTranslator
     {
         ReceivedSourceText = sourceText;
         ReceivedCancellationToken = cancellationToken;
-        return ValueTask.FromResult(response);
+
+        return failure is null
+            ? ValueTask.FromResult(response)
+            : ValueTask.FromException<SemanticTranslationResponse>(failure);
     }
 }

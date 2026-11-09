@@ -181,6 +181,21 @@ public sealed class SemanticTranslationServiceTests
         Assert.Equal(cancellation.Token, translator.ReceivedCancellationToken);
     }
 
+    [Fact]
+    public async Task Preserves_a_provider_failure_message_for_diagnostics()
+    {
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(ImmutableArray<SemanticTranslationCandidate>.Empty),
+            new InvalidOperationException("LM Studio model is not loaded."));
+        var service = new SemanticTranslationService(translator);
+
+        var result = await service.TranslateAsync("Fido is a dog.");
+
+        Assert.Equal(SemanticTranslationStatus.Failed, result.Status);
+        Assert.Contains("LM Studio model is not loaded.", result.Message);
+        Assert.Empty(result.Candidates);
+    }
+
     private static PredicateApplication Predicate(
         string name,
         params SemanticTerm[] arguments) =>
