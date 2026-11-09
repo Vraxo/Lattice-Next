@@ -379,7 +379,9 @@ public static class StdioToolProvider
                     _ => (ToolInputType?)null
                 };
 
-                if (constantType is null || constantType != inputsByName[argument.Name].Type)
+                if (constantType is null ||
+                    constantType != inputsByName[argument.Name].Type ||
+                    (constantType == ToolInputType.Number && !argument.Value.TryGetDecimal(out _)))
                 {
                     return false;
                 }
