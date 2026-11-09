@@ -34,6 +34,15 @@ public sealed class ReasoningEngine
                 SourceId: directFact.SourceId));
         }
 
+        if (query.Arguments.Length == 2)
+        {
+            var relationalProof = DeriveRelationalFacts(knowledgeBase)
+                .FirstOrDefault(candidate =>
+                    IsSameGroundPredicate(candidate.Predicate, query));
+
+            return new ReasoningResult(relationalProof);
+        }
+
         if (!TryGetFactKey(query, out var queryKey))
         {
             return new ReasoningResult(null);
@@ -144,7 +153,9 @@ public sealed class ReasoningEngine
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty)
+                if (rule.Premises.IsDefaultOrEmpty ||
+                    rule.Conclusion.Arguments.IsDefault ||
+                    rule.Conclusion.Arguments.Length != 1)
                 {
                     continue;
                 }
@@ -221,6 +232,89 @@ public sealed class ReasoningEngine
         while (added);
 
         return knownFacts;
+    }
+
+    private static List<ProofNode> DeriveRelationalFacts(KnowledgeBase knowledgeBase)
+    {
+        var unaryFacts = DeriveUnaryFacts(knowledgeBase);
+        var relationalProofs = new List<ProofNode>();
+
+        foreach (var rule in knowledgeBase.Rules)
+        {
+            if (rule.Premises.IsDefaultOrEmpty ||
+                rule.Conclusion.Arguments.IsDefault ||
+                rule.Conclusion.Arguments.Length != 2 ||
+                rule.Conclusion.Arguments[0] is not VariableTerm ||
+                rule.Conclusion.Arguments[1] is not IndividualTerm objectTerm ||
+                string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
+            {
+                continue;
+            }
+
+            var candidatePremises = unaryFacts
+                .Where(proof =>
+                    TryGetFactKey(proof.Predicate, out var key) &&
+                    string.Equals(
+                        key.Predicate,
+                        rule.Premises[0].Predicate.Value,
+                        StringComparison.Ordinal))
+                .ToArray();
+
+            foreach (var candidatePremise in candidatePremises)
+            {
+                if (!TryGetFactKey(candidatePremise.Predicate, out var candidateKey))
+                {
+                    continue;
+                }
+
+                var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
+                supportingPremises.Add(candidatePremise);
+                var allPremisesSupported = true;
+
+                foreach (var requiredPremise in rule.Premises.Skip(1))
+                {
+                    var matchingProof = unaryFacts.FirstOrDefault(proof =>
+                        TryGetFactKey(proof.Predicate, out var key) &&
+                        string.Equals(
+                            key.Predicate,
+                            requiredPremise.Predicate.Value,
+                            StringComparison.Ordinal) &&
+                        key.Individual == candidateKey.Individual);
+
+                    if (matchingProof is null)
+                    {
+                        allPremisesSupported = false;
+                        break;
+                    }
+
+                    supportingPremises.Add(matchingProof);
+                }
+
+                if (!allPremisesSupported)
+                {
+                    continue;
+                }
+
+                var conclusion = new PredicateApplication(
+                    rule.Conclusion.Predicate,
+                    ImmutableArray.Create<SemanticTerm>(
+                        candidateKey.Individual,
+                        objectTerm));
+                var premises = supportingPremises.ToImmutable();
+
+                relationalProofs.Add(new ProofNode(
+                    conclusion,
+                    rule.SourceText,
+                    premises[0],
+                    AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+                    SourceKind: rule.SourceKind,
+                    AdditionalSources: rule.AdditionalSources,
+                    Kind: ProofNodeKind.Derived,
+                    SourceId: rule.SourceId));
+            }
+        }
+
+        return relationalProofs;
     }
 
     private static bool TryGetBoundUnaryPredicates(

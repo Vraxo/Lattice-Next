@@ -131,6 +131,77 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
+    public void Infers_a_relational_conclusion_from_a_matching_unary_fact()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog likes milk.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like milk?"));
+
+        Assert.True(result.IsSupported);
+        var proof = Assert.IsType<ProofNode>(result.Proof);
+        Assert.Equal("likes", proof.Predicate.Predicate.Value);
+        Assert.Equal("Every dog likes milk.", proof.SourceText);
+        Assert.Equal(ProofNodeKind.Derived, proof.Kind);
+        Assert.Equal("fido", Assert.IsType<IndividualTerm>(proof.Predicate.Arguments[0]).Identifier.Value);
+        Assert.Equal("milk", Assert.IsType<IndividualTerm>(proof.Predicate.Arguments[1]).Identifier.Value);
+
+        var premise = Assert.IsType<ProofNode>(proof.Premise);
+        Assert.Equal("Fido is a dog.", premise.SourceText);
+        Assert.Equal("dog", premise.Predicate.Predicate.Value);
+        Assert.Equal(ProofNodeKind.Asserted, premise.Kind);
+    }
+
+    [Fact]
+    public void Applies_conjunctive_relational_rule_conditions_to_the_same_individual()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every red dog likes milk.");
+        Add(knowledgeBase, "The red dog is shiny.");
+        Add(knowledgeBase, "The blue dog is shiny.");
+
+        var supported = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does the red dog like milk?"));
+
+        Assert.True(supported.IsSupported);
+        Assert.Equal("Every red dog likes milk.", supported.Proof!.SourceText);
+        Assert.Equal("red", supported.Proof.Premise!.Predicate.Predicate.Value);
+        Assert.Equal(1, supported.Proof.AdditionalPremises.Length);
+        Assert.Equal("dog", supported.Proof.AdditionalPremises[0].Predicate.Predicate.Value);
+
+        var unsupported = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does the blue dog like milk?"));
+
+        Assert.False(unsupported.IsSupported);
+        Assert.Null(unsupported.Proof);
+    }
+
+    [Fact]
+    public void Does_not_infer_a_relational_conclusion_for_an_unmatched_subject_or_object()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog likes milk.");
+        Add(knowledgeBase, "Rex is a cat.");
+
+        var unmatchedSubject = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Rex like milk?"));
+        var unmatchedObject = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like water?"));
+
+        Assert.False(unmatchedSubject.IsSupported);
+        Assert.Null(unmatchedSubject.Proof);
+        Assert.False(unmatchedObject.IsSupported);
+        Assert.Null(unmatchedObject.Proof);
+    }
+
+    [Fact]
     public void Stores_a_quantified_relational_rule_with_a_concrete_object()
     {
         var knowledgeBase = new KnowledgeBase();
