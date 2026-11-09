@@ -109,15 +109,13 @@ public sealed class ToolIntentPipelineTests
         Assert.Equal(ToolIntentResolutionStatus.NotRecognized, result.Status);
         Assert.Null(result.Intent);
     }
-}
+    private static ToolIntentResolver CreateResolver(IEnumerable<ToolDescriptor> descriptors)
+    {
+        var recognizers = descriptors
+            .Where(descriptor => !descriptor.Intents.IsDefaultOrEmpty)
+            .SelectMany(descriptor => descriptor.Intents.Select(
+                definition => new ManifestToolIntentRecognizer(descriptor, definition)));
 
-
-static ToolIntentResolver CreateResolver(IEnumerable<ToolDescriptor> descriptors)
-{
-    var recognizers = descriptors
-        .Where(descriptor => !descriptor.Intents.IsDefaultOrEmpty)
-        .SelectMany(descriptor => descriptor.Intents.Select(
-            definition => new ManifestToolIntentRecognizer(descriptor, definition)));
-
-    return new ToolIntentResolver(recognizers);
+        return new ToolIntentResolver(recognizers);
+    }
 }
