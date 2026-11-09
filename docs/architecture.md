@@ -10,7 +10,7 @@ The architecture must preserve a strict distinction between **intelligence**, **
 
 ### Language
 
-Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.4 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
+Turns user-facing language into structured meaning and renders conclusions back into language. Lattice Controlled English (LCE) 0.9 is the first deliberately small controlled-language subset. It is inspired by ACE's approach but is not full ACE; the exact grammar and decision are recorded in [language.md](language.md).
 
 Language is an interface to meaning. It must not own reasoning or tool execution.
 

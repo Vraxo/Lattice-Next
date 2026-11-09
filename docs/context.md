@@ -4,7 +4,7 @@
 
 The conversation-context slice connects independently parsed utterances without making the parser responsible for deciding what a pronoun means.
 
-LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. LCE 0.6 adds structured definite descriptions whose head nouns and modifiers enter the knowledge base as facts. LCE 0.8 adds indefinite existential assertions, which do not create conversational antecedents. The Core context layer still attempts pronoun resolution separately from parsing.
+LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 0.3 added multiple sentences in one input. LCE 0.4 adds binary relational assertions and questions. LCE 0.6 adds structured definite descriptions whose head nouns and modifiers enter the knowledge base as facts. LCE 0.8 adds indefinite existential assertions, which do not create conversational antecedents. LCE 0.9 adds one relational "it" reference in either argument position. The Core context layer still attempts pronoun resolution separately from parsing.
 
 ## Current resolution policy
 

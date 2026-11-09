@@ -16,7 +16,7 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.8**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.9**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. It is not full ACE and does not claim to understand unrestricted English.
 
 A single input can contain multiple complete sentences, including relational facts and questions:
 
@@ -25,6 +25,8 @@ A single input can contain multiple complete sentences, including relational fac
     A red ball is shiny. Does a red ball exist?
     Fido is a dog. It is a mammal. Is it a mammal?
     Fido likes milk. Does Fido like milk?
+    It likes milk. Does it like milk?
+    Fido likes it. Does Fido like it?
     The red ball is a toy. Fido likes the red ball. Does Fido like the red ball?
     Every ball is a toy. The red ball is shiny. Is the red ball red? Is the red ball a toy?
 
@@ -38,13 +40,13 @@ Indefinite descriptions are also supported in a small existential slice. 'A red 
 
 For example, 'Every red ball is a toy. A red ball is shiny. Does a toy exist?' can be answered by applying the universal rule to the unnamed red-ball witness.
 
-The reasoning engine checks relational questions against exact stored facts. It does not yet infer relations, join multiple relations, or traverse them. Universal-rule forward chaining applies only to unary predicates, but a rule may now require a conjunction of unary premises.
+Universal-rule forward chaining applies to unary predicates, including rules with a conjunction of unary premises. A separate relational inference pass also supports restricted universal rules whose premises are unary and whose conclusion relates the matched individual to one fixed concrete object. It does not perform relational joins, use relations as premises, or traverse relation chains.
 
 Before parsing, Lattice performs conservative formatting normalization: Unicode text is canonically composed, unusual whitespace and zero-width spaces become ordinary separators, a leading byte-order mark is removed, and soft hyphens are discarded. The original sentence is retained for provenance. Words, spelling, articles, capitalization, and punctuation are not corrected or invented.
 
-The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. Relation statements and questions introduce each of their concrete individual arguments into session context, so a turn that names both Fido and milk makes "it" ambiguous until the user clarifies.
+The parser represents "it" as an unresolved reference. The conversation-context layer resolves it only when exactly one distinct individual has been explicitly mentioned in the current session. With no known individual or multiple known individuals, Lattice asks the user to clarify by naming the intended individual. Relation statements and questions introduce each of their concrete individual arguments into session context, so a turn that names both Fido and milk makes "it" ambiguous until the user clarifies. LCE 0.9 also permits one unresolved "it" in either argument position of a binary relation; a relation cannot contain two unresolved pronouns.
 
-The CLI retains accepted facts, anonymous existential witnesses, and universal rules in an in-memory knowledge base for the current session. Version 1 JSON knowledge packs can be loaded with `:load path/to/pack.json`; every claim is validated before any are accepted, and imported claims retain their pack ID as provenance. Its reasoning engine performs unary forward chaining with conjunctive premises, answers existence questions and exact relational lookups, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
+The CLI retains accepted facts, anonymous existential witnesses, and universal rules in an in-memory knowledge base for the current session. Version 1 JSON knowledge packs can be loaded with `:load path/to/pack.json`; every claim is validated before any are accepted, and imported claims retain their pack ID as provenance. Its reasoning engine performs unary forward chaining with conjunctive premises, answers existence questions, performs exact relational lookups and restricted fixed-object relational inference, and returns Unknown when it cannot find a proof. Supported answers include a trace back to the original sentences, including a note when an assertion used a resolved pronoun.
 
 This is intentionally not a general theorem prover or a general co-reference resolver. Unknown does not mean false, and session knowledge and context are discarded when the CLI exits. See [the LCE grammar](docs/language.md), [conversational context](docs/context.md), and [the first reasoning slice](docs/reasoning.md).
 
@@ -70,6 +72,6 @@ The test runner is Microsoft Testing Platform, selected in global.json for the .
 
 ## Status
 
-The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, and exact relational lookup, plus atomic loading of versioned declarative knowledge packs and a generic, permission-aware, time-bounded tool registry and language-neutral stdio provider, with the repository's calculator and unit converter supplied as dynamically discovered Python tools. Manifest-declared deterministic intent patterns can select discovered capabilities from supported phrases; numeric tool observations remain temporary conversational context and can resolve follow-ups and bounded operation chains. This is not unrestricted English understanding. Relational inference, pack unloading/version replacement, and durable persistence are not implemented yet.
+The repository has a runnable console shell, a controlled-language parser with conservative input normalization, a language-independent semantic representation, a conservative session-context layer, an in-memory symbolic reasoning engine with conjunctive unary inference, existential witness lookup, exact relational lookup, and fixed-object relational inference, plus atomic loading of versioned declarative knowledge packs and a generic, permission-aware, time-bounded tool registry and language-neutral stdio provider, with the repository's calculator and unit converter supplied as dynamically discovered Python tools. Manifest-declared deterministic intent patterns can select discovered capabilities from supported phrases; numeric tool observations remain temporary conversational context and can resolve follow-ups and bounded operation chains. This is not unrestricted English understanding. Relational joins and traversal, pack unloading/version replacement, and durable persistence are not implemented yet.
 
 See [AGENTS.md](AGENTS.md), [the architecture notes](docs/architecture.md), [the language design](docs/language.md), [the context policy](docs/context.md), [the reasoning boundary](docs/reasoning.md), and [the development queue](.agents/todo.md) for the current constraints and next steps.
