@@ -42,6 +42,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
         AnsiConsole.MarkupLine("  [green]A red ball exists.[/]     [dim]existential assertion[/]");
         AnsiConsole.MarkupLine("  [green]A red ball is shiny.[/]   [dim]indefinite property assertion[/]");
+        AnsiConsole.MarkupLine("  [green]A red ball is a toy.[/]   [dim]existential class assertion[/]");
         AnsiConsole.MarkupLine("  [green]Does a red ball exist?[/] [dim]existence question[/]");
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
@@ -66,7 +67,7 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Indefinite descriptions introduce unnamed witnesses; separate statements are not assumed to describe the same individual.[/]");
         AnsiConsole.MarkupLine("[dim]Existence questions can be supported by one matching witness or one already-known named individual.[/]");
         AnsiConsole.MarkupLine("[dim]All conditions must be supported for the same individual before a rule can fire.[/]");
-        AnsiConsole.MarkupLine("[dim]Descriptions do not resolve synonyms or support indefinite noun phrases.[/]");
+        AnsiConsole.MarkupLine("[dim]Definite descriptions do not resolve synonyms; indefinite relational arguments remain unsupported.[/]");
         AnsiConsole.MarkupLine("[dim]LCE 0.8 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
         continue;
