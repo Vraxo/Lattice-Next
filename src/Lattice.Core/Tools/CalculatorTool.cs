@@ -51,7 +51,7 @@ public sealed class CalculatorTool : ITool
                         "Operation must be add, subtract, multiply, or divide."));
             }
 
-            var output = result.Value.ToString(CultureInfo.InvariantCulture);
+            var output = result.Value.ToString("0.############################", CultureInfo.InvariantCulture);
             return ValueTask.FromResult(ToolExecutionResult.Success(output));
         }
         catch (OverflowException)
