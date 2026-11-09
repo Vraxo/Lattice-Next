@@ -5,5 +5,5 @@
   <Project Path="src\Lattice.Cli\Lattice.Cli.csproj" />
   <Project Path="tests\Lattice.Core.Tests\Lattice.Core.Tests.csproj" />
   <Project Path="tests\Lattice.Translators.LmStudio.Tests\Lattice.Translators.LmStudio.Tests.csproj" />
-  <Project Path="tools\\Lattice.Translator.Evaluation\\Lattice.Translator.Evaluation.csproj" />
+  <Project Path="tools\Lattice.Translator.Evaluation\Lattice.Translator.Evaluation.csproj" />
 </Solution>
