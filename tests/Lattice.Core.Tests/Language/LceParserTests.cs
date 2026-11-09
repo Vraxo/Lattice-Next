@@ -438,13 +438,16 @@ public sealed class LceParserTests
         var assertedMeaning = Assert.IsType<ExistentialQuantification>(assertion.Utterance!.Meaning);
         var queriedMeaning = Assert.IsType<ExistentialQuantification>(question.Utterance!.Meaning);
         Assert.Equal("x", queriedMeaning.Variable.Identifier.Value);
+        var queriedConjunction = Assert.IsType<Conjunction>(queriedMeaning.Body);
         Assert.Equal(
-            "and(red(x), ball(x))",
-            SemanticFormatter.Format(queriedMeaning.Body));
+            new[] { "red", "ball" },
+            queriedConjunction.Conjuncts
+                .Select(formula => Assert.IsType<PredicateApplication>(formula))
+                .Select(predicate => predicate.Predicate.Value));
 
         Assert.Equal(
             "exists(x, and(red(x), ball(x)))",
-            SemanticFormatter.Format(assertedMeaning));
+            SemanticFormatter.Format(assertion.Utterance!));
         Assert.Equal(
             "ask(exists(x, and(red(x), ball(x))))",
             SemanticFormatter.Format(question.Utterance!));
