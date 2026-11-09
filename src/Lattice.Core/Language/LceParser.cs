@@ -11,15 +11,15 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex ExistentialAssertionPattern = new(
-        @"^(?:A|An)\\s+(?<description>[a-z][a-z0-9-]*(?:\\s+[a-z][a-z0-9-]*)*)\\s+exists\\.$",
+        @"^(?:A|An)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exists\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex IndefiniteAssertionPattern = new(
-        @"^(?:A|An)\\s+(?<description>[a-z][a-z0-9-]*(?:\\s+[a-z][a-z0-9-]*)*)\\s+is\\s+(?:(?:a|an)\\s+)?(?<property>[a-z][a-z0-9-]*)\\.$",
+        @"^(?:A|An)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:(?:a|an)\s+)?(?<property>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex ExistentialQuestionPattern = new(
-        @"^Does\\s+(?:a|an)\\s+(?<description>[a-z][a-z0-9-]*(?:\\s+[a-z][a-z0-9-]*)*)\\s+exist\\?$",
+        @"^Does\s+(?:a|an)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exist\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
