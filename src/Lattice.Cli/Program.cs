@@ -9,6 +9,7 @@ using Spectre.Console;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+const int maximumToolIntentSteps = 8;
 var parser = new LceParser();
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
@@ -287,8 +288,9 @@ while (true)
         var responses = new List<string>();
         var usedTools = new List<string>();
         var invocationFailed = false;
+        var invocationCount = 0;
 
-        while (currentIntent is not null)
+        while (currentIntent is not null && invocationCount < maximumToolIntentSteps)
         {
             var result = await toolRegistry.TryInvokeAsync(
                 currentIntent.ToolId,
@@ -302,6 +304,7 @@ while (true)
                 break;
             }
 
+            invocationCount++;
             var observation = result.Observation!;
             conversationContext.Observe(observation);
             responses.Add(currentIntent.FormatResponse(observation));
@@ -310,6 +313,13 @@ while (true)
                 item => string.Equals(item.Id, currentIntent.ToolId, StringComparison.OrdinalIgnoreCase));
             usedTools.Add(descriptor?.Name ?? currentIntent.ToolId);
             currentIntent = currentIntent.Continue?.Invoke(observation);
+        }
+
+        if (!invocationFailed && currentIntent is not null)
+        {
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine("The capability chain exceeded the maximum of 8 steps.");
+            invocationFailed = true;
         }
 
         if (!invocationFailed)
