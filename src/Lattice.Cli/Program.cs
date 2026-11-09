@@ -297,7 +297,18 @@ while (true)
             var descriptor = toolRegistry.Descriptors.FirstOrDefault(
                 item => string.Equals(item.Id, currentIntent.ToolId, StringComparison.OrdinalIgnoreCase));
             usedTools.Add(descriptor?.Name ?? currentIntent.ToolId);
-            currentIntent = currentIntent.Continue?.Invoke(observation);
+
+            var continuation = currentIntent.Continue;
+            currentIntent = continuation?.Invoke(observation);
+
+            if (continuation is not null && currentIntent is null)
+            {
+                AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+                AnsiConsole.WriteLine(
+                    "The capability chain could not continue because the preceding result was not numeric.");
+                invocationFailed = true;
+                break;
+            }
         }
 
         if (!invocationFailed && currentIntent is not null)
