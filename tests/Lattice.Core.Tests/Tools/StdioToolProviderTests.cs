@@ -149,24 +149,26 @@ public sealed class StdioToolProviderTests
         try
         {
             var toolDirectory = Directory.CreateDirectory(Path.Combine(root, "invalid-intent")).FullName;
-            var manifest = $"""
+            using var intentDocument = JsonDocument.Parse(intent);
+            var manifest = JsonSerializer.Serialize(new
+            {
+                protocolVersion = 1,
+                id = "invalid-intent",
+                name = "Invalid intent",
+                description = "Contains an invalid intent declaration.",
+                command = "python",
+                inputs = new[]
                 {
-                  "protocolVersion": 1,
-                  "id": "invalid-intent",
-                  "name": "Invalid intent",
-                  "description": "Contains an invalid intent declaration.",
-                  "command": "python",
-                  "inputs": [
+                    new
                     {
-                      "name": "value",
-                      "description": "Numeric input.",
-                      "type": "number",
-                      "required": true
+                        name = "value",
+                        description = "Numeric input.",
+                        type = "number",
+                        required = true
                     }
-                  ],
-                  "intents": [{{intent}}]
-                }
-                """;
+                },
+                intents = new[] { intentDocument.RootElement }
+            });
             WriteManifest(toolDirectory, manifest);
 
             var discovered = StdioToolProvider.TryDiscover(root, out var tools, out var error);
