@@ -28,10 +28,11 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         - "A <description> is <property>." or "A <description> is a <concept>."
         - "<One capitalized name> is a <concept>."
         - "The <description> is <property>."
-        - "<One capitalized name> <third-person singular verb> <one object>."
-        - Questions use "Is <name or definite description> a <concept>?" or
-          "Does <name or definite description> <base-form verb> <one object>?",
-          and "Does a <description> exist?"
+        - "It is a <concept>."
+        - "<Name, definite description, or It> <third-person singular verb> <one object>."
+        - Questions use "Is <name> a <concept>?", "Is it a <concept>?",
+          "Is the <description> <property>?", "Does <name or it> <base-form verb> <one object>?",
+          "Does <name> <base-form verb> it?", and "Does a <description> exist?"
 
         LCE words are single lowercase words or hyphenated words. Proper names are one capitalized token.
         Use only the grammar forms above. LCE has no negation, disjunction, comparisons, conditionals other
