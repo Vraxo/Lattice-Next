@@ -74,6 +74,31 @@ public sealed class ToolRegistryTests
     }
 
     [Fact]
+    public async Task Denies_tools_when_their_required_permissions_are_not_granted()
+    {
+        var restrictedRegistry = new ToolRegistry([new BlockingWriteTool()]);
+
+        var result = await restrictedRegistry.TryInvokeAsync("blocking-write", "{}");
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("permissions", result.Error);
+    }
+
+    [Fact]
+    public async Task Bounds_tool_execution_time_even_when_the_tool_waits_for_cancellation()
+    {
+        var boundedRegistry = new ToolRegistry(
+            [new BlockingWriteTool()],
+            ToolPermission.Write,
+            TimeSpan.FromMilliseconds(25));
+
+        var result = await boundedRegistry.TryInvokeAsync("blocking-write", "{}");
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Tool execution exceeded its time limit.", result.Error);
+    }
+
+    [Fact]
     public void Exposes_tool_descriptors_without_tool_specific_registry_logic()
     {
         var descriptor = Assert.Single(registry.Descriptors);
