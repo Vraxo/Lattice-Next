@@ -7,7 +7,7 @@ namespace Lattice.Translators.LmStudio.Tests;
 
 public sealed class LmStudioRuntimeTests
 {
-    private static readonly Uri ApiAddress = new("http://127.0.0.1:1234/v1/chat/completions");
+    private static readonly Uri ApiAddress = new("http://127.0.0.1:1234/api/v1/chat");
 
     [Fact]
     public async Task Starts_the_server_and_lists_only_installed_language_models()

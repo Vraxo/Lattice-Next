@@ -338,7 +338,7 @@ public sealed class LmStudioRuntime
         ArgumentNullException.ThrowIfNull(body);
         return CreateRequest(
             HttpMethod.Post,
-            "v1/chat/completions",
+            "api/v1/chat",
             body);
     }
 

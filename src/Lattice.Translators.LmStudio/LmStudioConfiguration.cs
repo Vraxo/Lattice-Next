@@ -2,7 +2,7 @@ namespace Lattice.Translators.LmStudio;
 
 public sealed record LmStudioConfiguration
 {
-    public string ApiUrl { get; init; } = "http://127.0.0.1:1234/v1/chat/completions";
+    public string ApiUrl { get; init; } = "http://127.0.0.1:1234/api/v1/chat";
 
     public string? ModelKey { get; init; }
 
@@ -11,6 +11,8 @@ public sealed record LmStudioConfiguration
     public string LmsExecutable { get; init; } = "lms";
 
     public string? ApiToken { get; init; }
+
+    public string Reasoning { get; init; } = "off";
 
     public int ServerStartupTimeoutSeconds { get; init; } = 60;
 
@@ -32,13 +34,12 @@ public sealed record LmStudioConfiguration
 
         var path = apiUri.AbsolutePath.TrimEnd('/');
 
-        if (path.Length > 0 && !string.Equals(
-            path,
-            "/v1/chat/completions",
-            StringComparison.OrdinalIgnoreCase))
+        if (path.Length > 0 &&
+            !string.Equals(path, "/v1/chat/completions", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(path, "/api/v1/chat", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
-                "LM Studio apiUrl must be the server root or end in /v1/chat/completions.");
+                "LM Studio apiUrl must be the server root or end in /v1/chat/completions or /api/v1/chat.");
         }
 
         return new UriBuilder(apiUri)
@@ -84,6 +85,12 @@ public sealed record LmStudioConfiguration
         if (RequestTimeoutSeconds is < 1 or > 1800)
         {
             error = "LM Studio requestTimeoutSeconds must be between 1 and 1800.";
+            return false;
+        }
+
+        if (Reasoning is not ("off" or "low" or "medium" or "high" or "on"))
+        {
+            error = "LM Studio reasoning must be one of: off, low, medium, high, or on.";
             return false;
         }
 

@@ -18,7 +18,8 @@ public sealed class LmStudioConfigurationStoreTests
             LmStudio = new LmStudioConfiguration
             {
                 ModelKey = "publisher/gemma-270m-it",
-                ModelIdentifier = "gemma-local"
+                ModelIdentifier = "gemma-local",
+                Reasoning = "off"
             }
         };
 
@@ -29,6 +30,7 @@ public sealed class LmStudioConfigurationStoreTests
             Assert.True(store.TryLoad(out var loaded, out var error), error);
             Assert.Equal("publisher/gemma-270m-it", loaded.LmStudio.ModelKey);
             Assert.Equal("gemma-local", loaded.LmStudio.ModelIdentifier);
+            Assert.Equal("off", loaded.LmStudio.Reasoning);
         }
         finally
         {
@@ -46,6 +48,7 @@ public sealed class LmStudioConfigurationStoreTests
 
         Assert.True(store.TryLoad(out var loaded, out var error), error);
         Assert.Equal("lms", loaded.LmStudio.LmsExecutable);
+        Assert.Equal("off", loaded.LmStudio.Reasoning);
         Assert.Null(loaded.LmStudio.ModelKey);
     }
 
@@ -59,6 +62,18 @@ public sealed class LmStudioConfigurationStoreTests
 
         Assert.False(configuration.TryValidate(out var error));
         Assert.Contains("loopback", error);
+    }
+
+    [Fact]
+    public void Rejects_unsupported_reasoning_settings()
+    {
+        var configuration = new LmStudioConfiguration
+        {
+            Reasoning = "disabled"
+        };
+
+        Assert.False(configuration.TryValidate(out var error));
+        Assert.Contains("reasoning", error);
     }
 
     [Fact]
