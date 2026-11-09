@@ -41,6 +41,10 @@ while (true)
 
     if (string.Equals(input, ":help", StringComparison.OrdinalIgnoreCase))
     {
+        AnsiConsole.MarkupLine("[bold]Commands[/]");
+        AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
+        AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/]");
+        AnsiConsole.MarkupLine("  [dim]Tool arguments are JSON objects; results are temporary sourced observations.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
