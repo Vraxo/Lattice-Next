@@ -82,6 +82,7 @@ while (true)
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
+        AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine("  [cyan]Knowledge packs[/]      [yellow]Not implemented[/]");
         AnsiConsole.MarkupLine("  [cyan]Tools[/]                None registered");
         AnsiConsole.WriteLine();
