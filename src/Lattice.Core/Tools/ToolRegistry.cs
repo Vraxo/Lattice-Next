@@ -6,13 +6,16 @@ public sealed class ToolRegistry
 {
     private readonly Dictionary<string, ITool> tools;
     private readonly TimeSpan executionTimeout;
+    private readonly ToolPermission grantedPermissions;
 
     public ToolRegistry(
         IEnumerable<ITool> registeredTools,
+        ToolPermission grantedPermissions = ToolPermission.None,
         TimeSpan? executionTimeout = null)
     {
         ArgumentNullException.ThrowIfNull(registeredTools);
 
+        this.grantedPermissions = grantedPermissions;
         this.executionTimeout = executionTimeout ?? TimeSpan.FromSeconds(5);
 
         if (this.executionTimeout <= TimeSpan.Zero ||
@@ -54,6 +57,12 @@ public sealed class ToolRegistry
                 $"No tool is registered with ID '{toolId}'.");
         }
 
+        if ((tool.Descriptor.RequiredPermissions & grantedPermissions) != tool.Descriptor.RequiredPermissions)
+        {
+            return ToolInvocationResult.Failure(
+                $"Tool '{tool.Descriptor.Id}' requires permissions that have not been granted.");
+        }
+
         if (string.IsNullOrWhiteSpace(argumentsJson))
         {
             return ToolInvocationResult.Failure("Tool arguments must be a JSON object.");
@@ -86,7 +95,7 @@ public sealed class ToolRegistry
             {
                 var result = await tool.ExecuteAsync(
                     document.RootElement,
-                    timeout.Token);
+                    timeout.Token).AsTask().WaitAsync(timeout.Token);
 
                 if (!result.IsSuccess)
                 {
@@ -174,10 +183,13 @@ public sealed class ToolRegistry
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
+        const ToolPermission allPermissions = ToolPermission.Read | ToolPermission.Write;
+
         if (string.IsNullOrWhiteSpace(descriptor.Id) ||
             string.IsNullOrWhiteSpace(descriptor.Name) ||
             string.IsNullOrWhiteSpace(descriptor.Description) ||
-            descriptor.Inputs.IsDefault)
+            descriptor.Inputs.IsDefault ||
+            (descriptor.RequiredPermissions & ~allPermissions) != 0)
         {
             throw new ArgumentException("A tool descriptor must define its ID, name, description, and inputs.");
         }
