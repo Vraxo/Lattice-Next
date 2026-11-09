@@ -317,3 +317,4 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             null => string.Empty,
             _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty
         };
+}
