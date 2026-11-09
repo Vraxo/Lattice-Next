@@ -11,6 +11,8 @@ public sealed class BundledPythonToolTests
     [InlineData("""{"left":12.5,"operation":"add","right":3.25}""", "15.75")]
     [InlineData("""{"left":12,"operation":"subtract","right":3}""", "9")]
     [InlineData("""{"left":12,"operation":"divide","right":3}""", "4")]
+    [InlineData("""{"left":1,"operation":"divide","right":3}""", "0.3333333333333333333333333333")]
+    [InlineData("""{"left":79228162514264337593543950335,"operation":"add","right":0}""", "79228162514264337593543950335")]
     public async Task Invokes_the_discovered_python_calculator(
         string arguments,
         string expected)
@@ -33,6 +35,7 @@ public sealed class BundledPythonToolTests
     [InlineData("""{"value":2500,"from":"mg","to":"g"}""", "2.5")]
     [InlineData("""{"value":2,"from":"h","to":"min"}""", "120")]
     [InlineData("""{"value":1,"from":"l","to":"ml"}""", "1000")]
+    [InlineData("""{"value":1,"from":"s","to":"min"}""", "0.0166666666666666666666666667")]
     public async Task Invokes_the_discovered_python_unit_converter(
         string arguments,
         string expected)
