@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using Lattice.Core.Tools;
 
@@ -73,13 +74,15 @@ public sealed class StdioTool : ITool
                 return ToolExecutionResult.Failure("The external tool process could not be started.");
             }
 
-            var standardErrorTask = process.StandardError.ReadToEndAsync();
+            var standardErrorTask = ReadBoundedToEndAsync(
+                process.StandardError,
+                MaximumDiagnosticCharacters);
 
             await process.StandardInput.WriteLineAsync(request);
             await process.StandardInput.FlushAsync(cancellationToken);
             process.StandardInput.Close();
 
-            var responseLine = await process.StandardOutput.ReadLineAsync(cancellationToken);
+            var responseLine = await ReadResponseLineAsync(process.StandardOutput, cancellationToken);
 
             if (responseLine is null)
             {
@@ -90,13 +93,9 @@ public sealed class StdioTool : ITool
                     CreateProcessFailure(process.ExitCode, emptyOutputError));
             }
 
-            if (responseLine.Length > MaximumResponseCharacters)
-            {
-                TryKill(process);
-                return ToolExecutionResult.Failure("The external tool response exceeded the one-megabyte limit.");
-            }
-
-            var trailingOutputTask = process.StandardOutput.ReadToEndAsync();
+            var trailingOutputTask = ReadBoundedToEndAsync(
+                process.StandardOutput,
+                MaximumDiagnosticCharacters);
 
             await process.WaitForExitAsync(cancellationToken);
 
@@ -117,6 +116,11 @@ public sealed class StdioTool : ITool
 
             return ParseResponse(responseLine, requestId);
         }
+        catch (InvalidDataException)
+        {
+            TryKill(process);
+            return ToolExecutionResult.Failure("The external tool response exceeded the one-megabyte limit.");
+        }
         catch (OperationCanceledException)
         {
             TryKill(process);
@@ -134,6 +138,74 @@ public sealed class StdioTool : ITool
         finally
         {
             TryKill(process);
+        }
+    }
+
+    private static async Task<string?> ReadResponseLineAsync(
+        StreamReader reader,
+        CancellationToken cancellationToken)
+    {
+        var builder = new StringBuilder();
+        var buffer = new char[1024];
+
+        while (true)
+        {
+            var charactersRead = await reader.ReadAsync(
+                buffer.AsMemory(),
+                cancellationToken);
+
+            if (charactersRead == 0)
+            {
+                return null;
+            }
+
+            var newlineIndex = Array.IndexOf(buffer, '\n', 0, charactersRead);
+            var charactersToAppend = newlineIndex < 0 ? charactersRead : newlineIndex;
+
+            if (builder.Length + charactersToAppend > MaximumResponseCharacters)
+            {
+                throw new InvalidDataException();
+            }
+
+            builder.Append(buffer, 0, charactersToAppend);
+
+            if (newlineIndex >= 0)
+            {
+                for (var index = newlineIndex + 1; index < charactersRead; index++)
+                {
+                    if (!char.IsWhiteSpace(buffer[index]))
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+
+                return builder.ToString().TrimEnd('\r');
+            }
+        }
+    }
+
+    private static async Task<string> ReadBoundedToEndAsync(
+        StreamReader reader,
+        int maximumCharacters)
+    {
+        var builder = new StringBuilder();
+        var buffer = new char[1024];
+
+        while (true)
+        {
+            var charactersRead = await reader.ReadAsync(buffer.AsMemory());
+
+            if (charactersRead == 0)
+            {
+                return builder.ToString();
+            }
+
+            var remaining = maximumCharacters - builder.Length;
+
+            if (remaining > 0)
+            {
+                builder.Append(buffer, 0, Math.Min(remaining, charactersRead));
+            }
         }
     }
 
