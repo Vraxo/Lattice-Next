@@ -37,6 +37,49 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
+    public void Retains_multiple_source_kinds_for_one_deduplicated_fact()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        var assertion = Parse("Fido is a dog.");
+
+        Assert.True(knowledgeBase.TryAdd(assertion, out _, out var userError), userError);
+        Assert.True(knowledgeBase.TryAdd(
+            assertion,
+            out _,
+            out var observationError,
+            KnowledgeSourceKind.ExternalObservation), observationError);
+
+        var fact = Assert.Single(knowledgeBase.Facts);
+        Assert.Equal(2, fact.Sources.Length);
+        Assert.Contains(fact.Sources, source =>
+            source.Kind == KnowledgeSourceKind.UserAssertion);
+        Assert.Contains(fact.Sources, source =>
+            source.Kind == KnowledgeSourceKind.ExternalObservation);
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
+        Assert.True(result.IsSupported);
+        Assert.Equal(2, result.Proof!.Sources.Length);
+        Assert.All(result.Proof.Sources, source =>
+            Assert.Equal("Fido is a dog.", source.SourceText));
+        Assert.Equal(ProofNodeKind.Asserted, result.Proof.Kind);
+    }
+
+    [Fact]
+    public void Marks_rule_conclusions_as_derived_and_retains_rule_sources()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
+
+        Assert.True(result.IsSupported);
+        Assert.Equal(ProofNodeKind.Derived, result.Proof!.Kind);
+        Assert.Equal(KnowledgeSourceKind.UserAssertion, result.Proof.Sources[0].Kind);
+        Assert.Equal(ProofNodeKind.Asserted, result.Proof.Premise!.Kind);
+    }
+
+    [Fact]
     public void Returns_unknown_when_no_fact_supports_a_rule()
     {
         var knowledgeBase = new KnowledgeBase();
