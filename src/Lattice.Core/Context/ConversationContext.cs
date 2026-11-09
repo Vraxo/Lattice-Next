@@ -47,9 +47,33 @@ public sealed class ConversationContext
         ArgumentNullException.ThrowIfNull(utterance);
 
         if (utterance.Meaning is not PredicateApplication predicate ||
-            predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not UnresolvedReferenceTerm)
+            predicate.Arguments.IsDefault)
+        {
+            return new ReferenceResolutionResult(
+                ReferenceResolutionStatus.NotRequired,
+                utterance);
+        }
+
+        var referenceIndices = predicate.Arguments
+            .Select((argument, index) =>
+                argument is UnresolvedReferenceTerm ? index : -1)
+            .Where(index => index >= 0)
+            .ToArray();
+
+        if (referenceIndices.Length == 0)
+        {
+            return new ReferenceResolutionResult(
+                ReferenceResolutionStatus.NotRequired,
+                utterance);
+        }
+
+        if (referenceIndices.Length != 1 ||
+            predicate.Arguments.Length is < 1 or > 2 ||
+            predicate.Arguments
+                .Where((_, index) => index != referenceIndices[0])
+                .Any(argument =>
+                    argument is not IndividualTerm &&
+                    argument is not DescriptiveIndividualTerm))
         {
             return new ReferenceResolutionResult(
                 ReferenceResolutionStatus.NotRequired,
@@ -74,7 +98,7 @@ public sealed class ConversationContext
         var resolvedPredicate = predicate with
         {
             Arguments = predicate.Arguments.SetItem(
-                0,
+                referenceIndices[0],
                 new IndividualTerm(referent))
         };
         var resolvedUtterance = utterance with

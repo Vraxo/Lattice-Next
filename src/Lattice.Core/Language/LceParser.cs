@@ -43,7 +43,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationAssertionPattern = new(
-        @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>It|[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex QuestionPattern = new(
@@ -59,7 +59,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationQuestionPattern = new(
-        @"^Does\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!be\b|exist\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
+        @"^Does\s+(?<individual>it|[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*)\s+(?<predicate>(?!be\b|exist\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)
@@ -185,6 +185,12 @@ public sealed class LceParser
                 relationAssertionMatch.Groups["individual"].Value,
                 relationAssertionMatch.Groups["object"].Value);
 
+            if (HasMultipleUnresolvedReferences(meaning))
+            {
+                return ParseResult.Failure(
+                    "Relational sentences currently support only one 'it' reference at a time.");
+            }
+
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
@@ -246,6 +252,12 @@ public sealed class LceParser
                 InflectThirdPersonSingular(relationQuestionMatch.Groups["predicate"].Value),
                 relationQuestionMatch.Groups["individual"].Value,
                 relationQuestionMatch.Groups["object"].Value);
+
+            if (HasMultipleUnresolvedReferences(meaning))
+            {
+                return ParseResult.Failure(
+                    "Relational sentences currently support only one 'it' reference at a time.");
+            }
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
@@ -354,8 +366,21 @@ public sealed class LceParser
         new(
             CreateIdentifier(predicate),
             ImmutableArray.Create<SemanticTerm>(
-                CreateSubjectTerm(individual),
-                CreateSubjectTerm(objectValue)));
+                CreateRelationSubjectTerm(individual),
+                CreateRelationObjectTerm(objectValue)));
+
+    private static SemanticTerm CreateRelationSubjectTerm(string value) =>
+        value is "It" or "it"
+            ? CreateUnresolvedReference()
+            : CreateSubjectTerm(value);
+
+    private static SemanticTerm CreateRelationObjectTerm(string value) =>
+        value == "it"
+            ? CreateUnresolvedReference()
+            : CreateSubjectTerm(value);
+
+    private static bool HasMultipleUnresolvedReferences(PredicateApplication predicate) =>
+        predicate.Arguments.Count(argument => argument is UnresolvedReferenceTerm) > 1;
 
     private static string InflectThirdPersonSingular(string verb)
     {

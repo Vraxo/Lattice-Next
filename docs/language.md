@@ -36,13 +36,16 @@ An input text contains one or more supported sentences. Each sentence is termina
     unary-assertion      = noun-phrase, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
     property-assertion   = definite-description, "is", adjective, "." ;
-    relation-assertion   = noun-phrase, third-person-verb, object-term, "." ;
+    relation-assertion   = relation-subject, third-person-verb, relation-object, "." ;
     unary-question       = "Is", noun-phrase, article, concept, "?" ;
     pronoun-question     = "Is", "it", article, concept, "?" ;
     property-question    = "Is", definite-description, adjective, "?" ;
-    relation-question    = "Does", noun-phrase, base-verb, object-term, "?" ;
+    relation-question    = "Does", relation-question-subject, base-verb, relation-object, "?" ;
 
     noun-phrase          = proper-name | definite-description ;
+    relation-subject     = noun-phrase | "It" ;
+    relation-question-subject = noun-phrase | "it" ;
+    relation-object      = object-term | "it" ;
     definite-description = "the", { adjective }, noun ;
     adjective            = lowercase-word ;
     noun                 = lowercase-word ;
@@ -77,12 +80,14 @@ Additional constraints:
 - An existence question uses "Does a/an ... exist?". It succeeds when all requested unary conditions are supported by one and the same known individual or anonymous witness. A named definite individual can therefore support an existence query, but an unnamed witness does not become that named individual.
 - Indefinite descriptions are supported only in unary existential forms. They are not yet supported as relational arguments, pronoun antecedents, or general noun phrases in other sentence patterns.
 - Relational assertions and universal relational rules use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
-- A universal relational rule may have one or more unary class-description premises, all bound to the same subject variable, and exactly one binary relation conclusion whose object is a concrete proper name, definite description, or lowercase word. Relational premises, multiple quantified variables, variable objects, and relational pronouns are not supported.
+- A relational assertion may use the unresolved pronoun `It` as its subject or lowercase `it` as its object. A relational question may use lowercase `it` as either its subject or object. The parser leaves the pronoun unresolved; ConversationContext resolves it only when exactly one individual is known.
+- A relational sentence may contain only one `it` reference. Forms such as `It likes it.` and `Does it like it?` are rejected rather than treating two pronouns as the same individual.
+- A universal relational rule may have one or more unary class-description premises, all bound to the same subject variable, and exactly one binary relation conclusion whose object is a concrete proper name, definite description, or lowercase word. Relational premises, multiple quantified variables, variable objects, and pronouns inside quantified rules are not supported.
 - Relational questions use `Does`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + `y` becomes `ies`; endings `s`, `x`, `z`, `ch`, `sh`, and `o` take `es`; other verbs take `s`.
 - The supported irregular base forms `have`, `do`, and `go` map to `has`, `does`, and `goes`. Other irregular forms are not normalized by this grammar.
 - The relation predicate is represented using its third-person singular form. Thus, `Fido likes milk.` and `Does Fido like milk?` both produce `likes(fido, milk)`.
 - The verb `be` is not supported in the `Does ...` relation-question form.
-- The token `It` is reserved for the pronoun in unary assertions and cannot be used as a proper name in those subject forms. The pronoun is exactly `It` as an assertion subject and `it` in a unary yes/no question. Relational forms do not yet support pronoun arguments.
+- The token `It` is reserved for the pronoun in unary and relational assertion subjects, and cannot be used as a proper name in those subject forms. The pronoun is exactly `It` as an assertion subject and `it` in unary questions, relational-question subjects, and relational object positions.
 - Both `a` and `an` are accepted as articles. Article agreement is not checked in this initial grammar.
 - A period terminates an assertion or universal rule; a question mark terminates a yes/no question.
 - Sentences may be separated by spaces, tabs, or other whitespace. Each sentence must have its own terminator.
@@ -107,10 +112,14 @@ Examples:
 | `It is a mammal.` | One fact with an unresolved reference |
 | `Is Fido an animal?` | One unary yes/no question |
 | `Fido likes milk.` | Binary fact: `likes(fido, milk)` |
+| `It likes milk.` | Binary fact with an unresolved subject reference: `likes(it, milk)` |
+| `Fido likes it.` | Binary fact with an unresolved object reference: `likes(fido, it)` |
 | `Fido likes the red ball.` | Binary fact: `likes(fido, red-ball)` |
 | `The red ball is a toy.` | Main fact: `toy(red-ball)`; description facts: `ball(red-ball)`, `red(red-ball)` |
 | `The red ball is shiny.` | Property fact: `shiny(red-ball)`; description facts: `ball(red-ball)`, `red(red-ball)` |
 | `Is the red ball red?` | Property query: `ask(red(red-ball))` |
+| `Does it like milk?` | Query with an unresolved subject reference: `ask(likes(it, milk))` |
+| `Does Fido like it?` | Query with an unresolved object reference: `ask(likes(fido, it))` |
 | `Does Fido like the red ball?` | Query: `ask(likes(fido, red-ball))` |
 | `Does Fido like milk?` | Query: `ask(likes(fido, milk))` |
 | `Fido has milk. Does Fido have milk?` | A relation fact followed by its matching query |
