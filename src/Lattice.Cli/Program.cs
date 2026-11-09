@@ -5,12 +5,25 @@ using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Lattice.Core.Tools;
 using Lattice.Tooling.Stdio;
+using Lattice.Translators.LmStudio;
 using Spectre.Console;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 const int maximumToolIntentSteps = 8;
 var parser = new LceParser();
+var lmStudioConfigured = LmStudioOptions.TryCreateFromEnvironment(
+    out var lmStudioOptions,
+    out var lmStudioConfigurationError);
+using var lmStudioHttpClient = lmStudioOptions is null
+    ? null
+    : new HttpClient { Timeout = lmStudioOptions.RequestTimeout };
+var lmStudioTranslator = lmStudioOptions is null || lmStudioHttpClient is null
+    ? null
+    : new LmStudioSemanticsTranslator(lmStudioHttpClient, lmStudioOptions, parser);
+var translationService = lmStudioTranslator is null
+    ? null
+    : new SemanticTranslationService(lmStudioTranslator);
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
@@ -54,7 +67,21 @@ var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.9[/]");
-AnsiConsole.MarkupLine("[dim]Enter ordinary-language calculations/conversions or LCE sentences; use :load, :tools, :tool, :help, :status, or :quit.[/]");
+AnsiConsole.MarkupLine("[dim]Enter LCE sentences or use :translate for ordinary-language statements; use :load, :tools, :tool, :translator, :help, :status, or :quit.[/]");
+if (lmStudioConfigured && lmStudioOptions is not null)
+{
+    AnsiConsole.MarkupLine(
+        $"[dim]Local translator configured: {lmStudioOptions.Model} at {lmStudioOptions.BaseAddress}.[/]");
+}
+else if (!string.IsNullOrWhiteSpace(lmStudioConfigurationError))
+{
+    AnsiConsole.MarkupLine("[yellow]LM Studio configuration is invalid.[/]");
+    AnsiConsole.WriteLine(lmStudioConfigurationError);
+}
+else
+{
+    AnsiConsole.MarkupLine("[dim]Local translation is disabled; set LATTICE_LMSTUDIO_MODEL to enable LM Studio.[/]");
+}
 if (!externalToolsDiscovered)
 {
     AnsiConsole.MarkupLine("[yellow]External tools could not be discovered; no external capabilities were loaded.[/]");
@@ -89,6 +116,9 @@ while (true)
     {
         AnsiConsole.MarkupLine("[bold]Commands[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
+        AnsiConsole.MarkupLine("  [green]:translator[/]  [dim]show local LM Studio configuration[/]");
+        AnsiConsole.MarkupLine("  [green]:translate <text>[/]  [dim]translate one ordinary-language statement/question into LCE for review[/]");
+        AnsiConsole.MarkupLine("  [dim]Translation is opt-in. Lattice never stores a model proposal without your explicit selection.[/]");
         AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
         AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
@@ -135,6 +165,110 @@ while (true)
         AnsiConsole.MarkupLine("[dim]All conditions must be supported for the same individual before a rule can fire.[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions do not resolve synonyms; indefinite relational arguments remain unsupported.[/]");
         AnsiConsole.MarkupLine("[dim]LCE 0.9 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    if (string.Equals(input, ":translator", StringComparison.OrdinalIgnoreCase))
+    {
+        AnsiConsole.MarkupLine("[bold]Local semantics translator[/]");
+
+        if (lmStudioOptions is null)
+        {
+            AnsiConsole.MarkupLine("  [yellow]Disabled[/]");
+            AnsiConsole.MarkupLine("  Set LATTICE_LMSTUDIO_MODEL to the exact model identifier exposed by LM Studio.");
+
+            if (!string.IsNullOrWhiteSpace(lmStudioConfigurationError))
+            {
+                AnsiConsole.WriteLine(lmStudioConfigurationError);
+            }
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"  [cyan]Provider[/]       LM Studio");
+            AnsiConsole.MarkupLine($"  [cyan]Endpoint[/]       {lmStudioOptions.BaseAddress}");
+            AnsiConsole.MarkupLine($"  [cyan]Model[/]          {lmStudioOptions.Model}");
+            AnsiConsole.MarkupLine($"  [cyan]Auto-start[/]     {lmStudioOptions.AutoStartServer}");
+            AnsiConsole.MarkupLine($"  [cyan]Auto-load[/]      {lmStudioOptions.AutoLoadModel}");
+            AnsiConsole.MarkupLine("  [dim]Model proposals are parsed and validated, then require explicit acceptance.[/]");
+        }
+
+        AnsiConsole.WriteLine();
+        continue;
+    }
+
+    if (input.Equals(":translate", StringComparison.OrdinalIgnoreCase) ||
+        input.StartsWith(":translate ", StringComparison.OrdinalIgnoreCase))
+    {
+        var separator = input.IndexOf(' ');
+        var sourceText = separator < 0 ? string.Empty : input[(separator + 1)..].Trim();
+
+        if (sourceText.Length == 0)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Usage: :translate <one statement or question>");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        if (translationService is null)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Local translation is not configured. Set LATTICE_LMSTUDIO_MODEL and restart Lattice.");
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        var translation = await translationService.TranslateAsync(sourceText);
+
+        if (translation.Status == SemanticTranslationStatus.ReadyForReview)
+        {
+            var candidate = translation.Candidates[0];
+            AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]› Proposed meaning (not yet accepted):[/]");
+            AnsiConsole.WriteLine(SemanticFormatter.Format(candidate));
+            AnsiConsole.Markup("[yellow]Accept and process this interpretation? [y/N] [/]");
+            var acceptance = Console.ReadLine();
+
+            if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessUtterance(candidate);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[dim]Candidate discarded; session knowledge was not changed.[/]");
+            }
+
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        if (translation.Status == SemanticTranslationStatus.Ambiguous)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]› Multiple interpretations were proposed:[/]");
+            for (var index = 0; index < translation.Candidates.Length; index++)
+            {
+                AnsiConsole.MarkupLine(
+                    $"  [cyan]{index + 1}.[/] {SemanticFormatter.Format(translation.Candidates[index])}");
+            }
+
+            AnsiConsole.Markup("[yellow]Choose a candidate number, or press Enter to cancel: [/]");
+            var selection = Console.ReadLine();
+
+            if (int.TryParse(selection, out var selectedIndex) &&
+                selectedIndex >= 1 &&
+                selectedIndex <= translation.Candidates.Length)
+            {
+                ProcessUtterance(translation.Candidates[selectedIndex - 1]);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[dim]No candidate accepted; session knowledge was not changed.[/]");
+            }
+
+            AnsiConsole.WriteLine();
+            continue;
+        }
+
+        AnsiConsole.Markup("[bold yellow]Lattice[/] [dim]›[/] ");
+        AnsiConsole.WriteLine(translation.Message ?? translation.Status.ToString());
         AnsiConsole.WriteLine();
         continue;
     }
@@ -255,6 +389,7 @@ while (true)
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
         AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolRegistry.Descriptors.Count} registered");
+        AnsiConsole.MarkupLine($"  [cyan]Translation[/]          {(lmStudioOptions is null ? "disabled" : $"LM Studio · {lmStudioOptions.Model}")}");
         AnsiConsole.WriteLine();
         continue;
     }
