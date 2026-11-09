@@ -93,7 +93,7 @@ public sealed class ToolIntentPipelineTests
         }
 
         Assert.Equal(
-            ["9 multiplied by 5 is 45.", "45 minus 10 is 35."],
+            new[] { "9 multiplied by 5 is 45.", "45 minus 10 is 35." },
             chainResponses);
         Assert.Equal("35", context.LatestToolObservation!.Content);
 
