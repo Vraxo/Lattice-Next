@@ -23,7 +23,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex DefiniteExistentialQuestionPattern = new(
-        @"^Does\\s+[Tt]he\\s+(?:[a-z][a-z0-9-]*\\s+)*[a-z][a-z0-9-]*\\s+exist\\?$",
+        @"^Does\s+[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*\s+exist\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
