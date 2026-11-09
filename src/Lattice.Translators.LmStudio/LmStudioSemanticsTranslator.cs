@@ -1,6 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Lattice.Core.Intelligence;
@@ -38,8 +36,10 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         Use only the grammar forms above. LCE has no negation, disjunction, comparisons, conditionals other
         than the stated universal rule, plural quantifiers, relational joins, or multi-sentence form.
         Do not silently drop, reverse, weaken, strengthen, or invent meaning. Do not replace a word with a
-        synonym merely to force a translation. Do not resolve pronouns without an explicit unique referent
-        in the input itself. If the meaning cannot be represented faithfully, return an empty candidates array.
+        synonym merely to force a translation. Never resolve pronouns in the translator. Preserve a supported
+        singular "it" as an unresolved LCE reference. ConversationContext handles reference resolution only
+        after the user accepts the candidate. If the meaning cannot be represented faithfully, return an empty
+        candidates array.
         If the wording has multiple materially different readings, return a separate candidate for each
         defensible reading, or abstain when the readings cannot be stated reliably.
         A candidate must retain the original polarity, quantifier, predicate, arguments, and question/assertion
@@ -47,20 +47,27 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         """;
 
     private readonly HttpClient httpClient;
-    private readonly LmStudioOptions options;
+    private readonly LmStudioConfiguration configuration;
+    private readonly LmStudioRuntime runtime;
     private readonly LceParser parser;
+    private readonly Action<string>? reportStatus;
 
     public LmStudioSemanticsTranslator(
         HttpClient httpClient,
-        LmStudioOptions options,
-        LceParser? parser = null)
+        LmStudioConfiguration configuration,
+        LmStudioRuntime runtime,
+        LceParser? parser = null,
+        Action<string>? reportStatus = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
-        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(runtime);
 
         this.httpClient = httpClient;
-        this.options = options;
+        this.configuration = configuration;
+        this.runtime = runtime;
         this.parser = parser ?? new LceParser();
+        this.reportStatus = reportStatus;
     }
 
     public async ValueTask<SemanticTranslationResponse> TranslateAsync(
@@ -74,16 +81,25 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
                 "Input is empty.");
         }
 
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(options.RequestTimeout);
+        if (string.IsNullOrWhiteSpace(configuration.ModelKey))
+        {
+            throw new InvalidOperationException("No LM Studio model is configured. Run :translator setup first.");
+        }
 
-        var model = await EnsureModelAvailableAsync(timeout.Token).ConfigureAwait(false);
-        using var request = CreateRequest(
-            HttpMethod.Post,
-            "v1/chat/completions",
+        var modelIdentifier = await runtime.EnsureModelReadyAsync(
+            configuration.ModelKey,
+            configuration.ModelIdentifier,
+            reportStatus,
+            cancellationToken).ConfigureAwait(false);
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(runtime.RequestTimeout);
+
+        using var request = runtime.CreateChatRequest(
+            modelIdentifier,
             new
             {
-                model,
+                model = modelIdentifier,
                 messages = new[]
                 {
                     new { role = "system", content = SystemPrompt },
@@ -94,10 +110,11 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
                 response_format = new { type = "json_object" }
             });
 
-        using var response = await httpClient
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token)
-            .ConfigureAwait(false);
-        var responseBody = await ReadSuccessfulResponseAsync(response, timeout.Token)
+        using var response = await httpClient.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            timeout.Token).ConfigureAwait(false);
+        var responseBody = await runtime.ReadChatResponseAsync(response, timeout.Token)
             .ConfigureAwait(false);
 
         using var completion = JsonDocument.Parse(responseBody);
@@ -113,206 +130,6 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         }
 
         return ParseTranslation(content);
-    }
-
-    private async Task<string> EnsureModelAvailableAsync(CancellationToken cancellationToken)
-    {
-        JsonDocument modelResponse;
-
-        try
-        {
-            modelResponse = await GetJsonAsync("v1/models", cancellationToken).ConfigureAwait(false);
-        }
-        catch (HttpRequestException exception) when (
-            exception.StatusCode is null &&
-            options.AutoStartServer)
-        {
-            await StartServerAsync(cancellationToken).ConfigureAwait(false);
-            modelResponse = await GetJsonAsync("v1/models", cancellationToken).ConfigureAwait(false);
-        }
-
-        using (modelResponse)
-        {
-            var models = modelResponse.RootElement.GetProperty("data");
-
-            foreach (var model in models.EnumerateArray())
-            {
-                var identifier = GetString(model, "id");
-
-                if (string.Equals(identifier, options.Model, StringComparison.Ordinal))
-                {
-                    return identifier;
-                }
-            }
-        }
-
-        if (!options.AutoLoadModel)
-        {
-            throw new InvalidOperationException(
-                $"Model '{options.Model}' is not visible to LM Studio. Load it in LM Studio, enable Just-in-Time loading, or set LATTICE_LMSTUDIO_AUTO_LOAD=true.");
-        }
-
-        return await LoadModelAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    private async Task<string> LoadModelAsync(CancellationToken cancellationToken)
-    {
-        using var models = await GetJsonAsync("api/v1/models", cancellationToken)
-            .ConfigureAwait(false);
-        var availableModel = models.RootElement
-            .GetProperty("models")
-            .EnumerateArray()
-            .FirstOrDefault(model =>
-                string.Equals(
-                    GetString(model, "key"),
-                    options.Model,
-                    StringComparison.Ordinal));
-
-        if (availableModel.ValueKind == JsonValueKind.Undefined)
-        {
-            throw new InvalidOperationException(
-                $"Model '{options.Model}' is not installed in LM Studio. Download or import it first.");
-        }
-
-        if (!string.Equals(GetString(availableModel, "type"), "llm", StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException(
-                $"Model '{options.Model}' is not an LM Studio language model.");
-        }
-
-        if (availableModel.TryGetProperty("loaded_instances", out var instances) &&
-            instances.ValueKind == JsonValueKind.Array &&
-            instances.GetArrayLength() > 0)
-        {
-            return GetString(instances[0], "id") ?? options.Model;
-        }
-
-        using var request = CreateRequest(
-            HttpMethod.Post,
-            "api/v1/models/load",
-            new { model = options.Model });
-        using var response = await httpClient
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-            .ConfigureAwait(false);
-        var responseBody = await ReadSuccessfulResponseAsync(response, cancellationToken)
-            .ConfigureAwait(false);
-        using var loaded = JsonDocument.Parse(responseBody);
-
-        return GetString(loaded.RootElement, "instance_id") ?? options.Model;
-    }
-
-    private async Task StartServerAsync(CancellationToken cancellationToken)
-    {
-        if (!options.BaseAddress.IsLoopback ||
-            !string.Equals(options.BaseAddress.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException(
-                "Automatic server startup is restricted to an HTTP loopback address.");
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = options.CliPath,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-        startInfo.ArgumentList.Add("server");
-        startInfo.ArgumentList.Add("start");
-        startInfo.ArgumentList.Add("--port");
-        startInfo.ArgumentList.Add(options.BaseAddress.Port.ToString(System.Globalization.CultureInfo.InvariantCulture));
-
-        using var process = Process.Start(startInfo);
-
-        if (process is null)
-        {
-            throw new InvalidOperationException(
-                $"Could not start LM Studio CLI '{options.CliPath}'. Ensure the lms command is installed and available on PATH.");
-        }
-
-        var startedAt = Stopwatch.GetTimestamp();
-
-        while (Stopwatch.GetElapsedTime(startedAt) < TimeSpan.FromSeconds(30))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                using var models = await GetJsonAsync("v1/models", cancellationToken)
-                    .ConfigureAwait(false);
-                return;
-            }
-            catch (HttpRequestException exception) when (exception.StatusCode is null)
-            {
-                if (process.HasExited && process.ExitCode != 0)
-                {
-                    throw new InvalidOperationException(
-                        $"LM Studio CLI exited with code {process.ExitCode} while starting the server.");
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(300), cancellationToken)
-                    .ConfigureAwait(false);
-            }
-        }
-
-        throw new TimeoutException(
-            "LM Studio did not start its local server within 30 seconds.");
-    }
-
-    private async Task<JsonDocument> GetJsonAsync(
-        string relativePath,
-        CancellationToken cancellationToken)
-    {
-        using var request = CreateRequest(HttpMethod.Get, relativePath);
-        using var response = await httpClient
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-            .ConfigureAwait(false);
-        var body = await ReadSuccessfulResponseAsync(response, cancellationToken)
-            .ConfigureAwait(false);
-
-        return JsonDocument.Parse(body);
-    }
-
-    private HttpRequestMessage CreateRequest(
-        HttpMethod method,
-        string relativePath,
-        object? body = null)
-    {
-        var request = new HttpRequestMessage(
-            method,
-            new Uri(options.BaseAddress, relativePath));
-
-        if (body is not null)
-        {
-            request.Content = JsonContent.Create(body);
-        }
-
-        if (options.ApiToken is not null)
-        {
-            request.Headers.Authorization = new AuthenticationHeaderValue(
-                "Bearer",
-                options.ApiToken);
-        }
-
-        return request;
-    }
-
-    private static async Task<string> ReadSuccessfulResponseAsync(
-        HttpResponseMessage response,
-        CancellationToken cancellationToken)
-    {
-        var body = await response.Content.ReadAsStringAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var detail = body.Length > 500 ? body[..500] : body;
-            throw new HttpRequestException(
-                $"LM Studio returned HTTP {(int)response.StatusCode}: {detail}",
-                null,
-                response.StatusCode);
-        }
-
-        return body;
     }
 
     private SemanticTranslationResponse ParseTranslation(string content)
@@ -375,10 +192,4 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
 
         return new SemanticTranslationResponse(candidates.ToImmutable(), message);
     }
-
-    private static string? GetString(JsonElement element, string propertyName) =>
-        element.TryGetProperty(propertyName, out var value) &&
-        value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
 }
