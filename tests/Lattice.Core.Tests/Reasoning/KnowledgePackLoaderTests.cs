@@ -36,7 +36,7 @@ public sealed class KnowledgePackLoaderTests
         Assert.Equal("example-animals", knowledgeBase.Facts[0].Sources[0].SourceId);
         Assert.Equal("example-animals", knowledgeBase.Rules[0].Sources[0].SourceId);
 
-        var question = parser.Parse("Is Fido an animal.");
+        var question = parser.Parse("Is Fido an animal?");
         Assert.True(question.IsSuccess, question.Error);
         var predicate = Assert.IsType<PredicateApplication>(question.Utterance!.Meaning);
         var answer = engine.Ask(knowledgeBase, predicate);
