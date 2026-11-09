@@ -86,11 +86,26 @@ public sealed class KnowledgeBase
             implication.Conclusion is PredicateApplication conclusion &&
             IsBoundUnaryPredicate(conclusion, variable))
         {
-            if (!rules.Any(rule =>
-                    AreSamePremises(rule.Premises, premises) &&
-                    IsSamePredicate(rule.Conclusion, conclusion)))
+            var existingRuleIndex = rules.FindIndex(rule =>
+                AreSamePremises(rule.Premises, premises) &&
+                IsSamePredicate(rule.Conclusion, conclusion));
+
+            if (existingRuleIndex < 0)
             {
                 rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText));
+            }
+            else
+            {
+                var existingRule = rules[existingRuleIndex];
+                var sources = existingRule.Sources
+                    .Add(new KnowledgeSource(KnowledgeSourceKind.UserAssertion, utterance.SourceText))
+                    .Distinct()
+                    .ToImmutableArray();
+
+                rules[existingRuleIndex] = existingRule with
+                {
+                    AdditionalSources = sources.Skip(1).ToImmutableArray()
+                };
             }
 
             kind = KnowledgeEntryKind.Rule;
@@ -104,10 +119,25 @@ public sealed class KnowledgeBase
 
     private void AddFact(KnowledgeFact fact)
     {
-        if (!facts.Any(existing => IsSameFact(existing.Predicate, fact.Predicate)))
+        var existingFactIndex = facts.FindIndex(existing =>
+            IsSameFact(existing.Predicate, fact.Predicate));
+
+        if (existingFactIndex < 0)
         {
             facts.Add(fact);
+            return;
         }
+
+        var existingFact = facts[existingFactIndex];
+        var sources = existingFact.Sources
+            .AddRange(fact.Sources)
+            .Distinct()
+            .ToImmutableArray();
+
+        facts[existingFactIndex] = existingFact with
+        {
+            AdditionalSources = sources.Skip(1).ToImmutableArray()
+        };
     }
 
     private static bool TryGroundPredicate(
