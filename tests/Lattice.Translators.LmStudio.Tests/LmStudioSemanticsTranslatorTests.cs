@@ -37,6 +37,12 @@ public sealed class LmStudioSemanticsTranslatorTests
         var responseFormat = requestBody.RootElement.GetProperty("response_format");
         Assert.Equal("json_schema", responseFormat.GetProperty("type").GetString());
 
+        var systemPrompt = requestBody.RootElement.GetProperty("messages")[0]
+            .GetProperty("content").GetString();
+        Assert.Contains("Never put explanations, refusals, or ordinary-language text in \"candidates\".", systemPrompt);
+        Assert.Contains("Input: Could Fido be a dog?", systemPrompt);
+        Assert.Contains("{\"candidates\":[],\"message\":\"LCE 0.9 cannot express the possibility in 'could'.\"}", systemPrompt);
+
         var jsonSchema = responseFormat.GetProperty("json_schema");
         Assert.Equal("lattice_translation", jsonSchema.GetProperty("name").GetString());
         Assert.True(jsonSchema.GetProperty("strict").GetBoolean());
@@ -92,7 +98,8 @@ public sealed class LmStudioSemanticsTranslatorTests
         var response = await translator.TranslateAsync("Fido is a dog and is friendly.");
 
         Assert.Empty(response.Candidates);
-        Assert.Contains("outside LCE 0.9", response.Message);
+        Assert.Contains("not valid LCE 0.9", response.Message);
+        Assert.Contains(JsonSerializer.Serialize("Fido is friendly and playful."), response.Message);
     }
 
     [Fact]

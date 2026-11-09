@@ -178,6 +178,14 @@
       "notes": "The event requires a higher-arity relation and an indefinite object, neither of which is supported by the current validated translator subset."
     },
     {
+      "id": "modal-question",
+      "category": "unsupported",
+      "input": "Could Fido be a dog?",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Possibility is not represented. Do not weaken the question to the non-modal question 'Is Fido a dog?'. The word 'could' changes the meaning."
+    },
+    {
       "id": "modal-claim",
       "category": "unsupported",
       "input": "Fido might be a dog.",
