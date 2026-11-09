@@ -42,7 +42,25 @@ if (externalToolsDiscovered)
     }
 }
 
-var toolRegistry = new ToolRegistry(registeredTools);
+var grantedPermissions = ToolPermission.None;
+var configuredPermissions = Environment.GetEnvironmentVariable("LATTICE_TOOL_PERMISSIONS");
+
+if (!string.IsNullOrWhiteSpace(configuredPermissions))
+{
+    var knownPermissions = ToolPermission.Read | ToolPermission.Write;
+
+    if (Enum.TryParse<ToolPermission>(configuredPermissions, true, out var parsedPermissions) &&
+        (parsedPermissions & ~knownPermissions) == 0)
+    {
+        grantedPermissions = parsedPermissions;
+    }
+    else
+    {
+        Console.WriteLine("LATTICE_TOOL_PERMISSIONS is invalid; no external tool permissions were granted.");
+    }
+}
+
+var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
@@ -84,6 +102,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/]");
         AnsiConsole.MarkupLine("  [dim]Tool arguments are JSON objects; results are temporary sourced observations.[/]");
         AnsiConsole.MarkupLine("  [dim]External tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
+        AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
