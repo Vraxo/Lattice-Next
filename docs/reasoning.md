@@ -28,7 +28,11 @@ Known unary facts are deduplicated by predicate and individual. This lets rules 
 
 Relational facts are currently **lookup-only**. They are not joined with other facts, traversed, or used by universal rules. The current language parses binary relations, while the semantic and knowledge representations can retain more than two grounded arguments.
 
-The engine preserves the source sentence behind every asserted fact and rule. A ProofNode records the conclusion, the sentence that supplied or derived it, and every supporting premise proof. A rule is never applied by matching its conditions against different individuals. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
+Every asserted fact and rule retains structured source records. A source records its kind (user assertion, imported claim, or external observation), original source text, and an optional resolved referent. The default ingestion path classifies input as a user assertion; callers that ingest imported claims or observations can explicitly select the corresponding source kind.
+
+Identical facts and rules remain deduplicated for reasoning, but each distinct source is retained. Repeating the same source does not create duplicate provenance. A fact's source collection therefore represents independent support without multiplying the semantic fact itself.
+
+A ProofNode distinguishes asserted premises from derived conclusions. Asserted nodes carry the sources attached to the stored fact; derived nodes carry the sources attached to the rule that produced them and recursively retain their supporting premise proofs. A rule is never applied by matching its conditions against different individuals. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
 
 ## Descriptive facts
 
