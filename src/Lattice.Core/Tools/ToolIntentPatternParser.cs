@@ -41,7 +41,7 @@ public static class ToolIntentPatternParser
 
             if (match.Groups["optional"].Success)
             {
-                var optionalTokens = SplitTokens(match.Groups["optional"].Value[1..^1]);
+                var optionalTokens = SplitTokens(match.Groups["optional"].Value);
 
                 if (++optionalPartCount > MaximumOptionalParts ||
                     optionalTokens.Length == 0)
