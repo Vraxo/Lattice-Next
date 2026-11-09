@@ -17,7 +17,8 @@ public sealed class KnowledgeBase
     public bool TryAdd(
         SemanticUtterance utterance,
         out KnowledgeEntryKind kind,
-        out string? error)
+        out string? error,
+        KnowledgeSourceKind sourceKind = KnowledgeSourceKind.UserAssertion)
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
@@ -52,7 +53,8 @@ public sealed class KnowledgeBase
                     {
                         Arguments = ImmutableArray.Create<SemanticTerm>(witness)
                     },
-                    utterance.SourceText));
+                    utterance.SourceText,
+                    SourceKind: sourceKind));
             }
 
             kind = KnowledgeEntryKind.Fact;
@@ -65,14 +67,16 @@ public sealed class KnowledgeBase
             AddFact(new KnowledgeFact(
                 groundedPredicate,
                 utterance.SourceText,
-                utterance.ResolvedReferent));
+                utterance.ResolvedReferent,
+                sourceKind));
 
             foreach (var descriptionFact in descriptionFacts)
             {
                 AddFact(new KnowledgeFact(
                     descriptionFact,
                     utterance.SourceText,
-                    utterance.ResolvedReferent));
+                    utterance.ResolvedReferent,
+                    sourceKind));
             }
 
             kind = KnowledgeEntryKind.Fact;
@@ -92,13 +96,13 @@ public sealed class KnowledgeBase
 
             if (existingRuleIndex < 0)
             {
-                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText));
+                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText, sourceKind));
             }
             else
             {
                 var existingRule = rules[existingRuleIndex];
                 var sources = existingRule.Sources
-                    .Add(new KnowledgeSource(KnowledgeSourceKind.UserAssertion, utterance.SourceText))
+                    .Add(new KnowledgeSource(sourceKind, utterance.SourceText))
                     .Distinct()
                     .ToImmutableArray();
 
