@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 2,
+  "translationDirection": "natural-language-to-lce",
+  "semanticContract": "Lattice-Next LCE 0.9 and current SemanticUtteranceValidator subset",
+  "expectedMeaningFormat": "SemanticFormatter.Format",
+  "cases": [
+    {
+      "id": "simple-classification",
+      "category": "paraphrase",
+      "input": "Fido belongs to the class of dogs.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Fido is a dog.",
+      "expectedMeaning": "dog(fido)"
+    },
+    {
+      "id": "universal-classification",
+      "category": "quantification",
+      "input": "All dogs are animals.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every dog is an animal.",
+      "expectedMeaning": "forall(x, implies(dog(x), animal(x)))"
+    },
+    {
+      "id": "existential-description",
+      "category": "quantification",
+      "input": "There is a red ball that is shiny.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "A red ball is shiny.",
+      "expectedMeaning": "exists(x, and(red(x), ball(x), shiny(x)))"
+    },
+    {
+      "id": "passive-relation",
+      "category": "relational",
+      "input": "Milk is something that Fido likes.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Fido likes milk.",
+      "expectedMeaning": "likes(fido, milk)",
+      "notes": "Preserve the semantic argument roles; do not reverse subject and object because of the passive-like phrasing."
+    },
+    {
+      "id": "fixed-object-relational-rule",
+      "category": "relational",
+      "input": "All dogs like milk.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every dog likes milk.",
+      "expectedMeaning": "forall(x, implies(dog(x), likes(x, milk)))"
+    },
+    {
+      "id": "multi-condition-relational-rule",
+      "category": "quantification",
+      "input": "Every dog that is red likes milk.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every red dog likes milk.",
+      "expectedMeaning": "forall(x, implies(and(red(x), dog(x)), likes(x, milk)))",
+      "notes": "Both unary conditions apply to the same quantified individual."
+    },
+    {
+      "id": "definite-description-property",
+      "category": "descriptions",
+      "input": "The ball that is red is shiny.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "The red ball is shiny.",
+      "expectedMeaning": "shiny(red-ball)"
+    },
+    {
+      "id": "definite-description-object",
+      "category": "descriptions",
+      "input": "Fido likes the ball that is red.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Fido likes the red ball.",
+      "expectedMeaning": "likes(fido, red-ball)"
+    },
+    {
+      "id": "unresolved-pronoun",
+      "category": "anaphora",
+      "input": "Fido likes it.",
+      "expectedOutcome": "one-candidate-then-missing-reference-clarification",
+      "expectedLce": "Fido likes it.",
+      "expectedMeaning": "likes(fido, it)",
+      "notes": "Preserve it as unresolved. With no previously known individual, ConversationContext must ask who it refers to."
+    },
+    {
+      "id": "context-ambiguous-pronoun",
+      "category": "anaphora",
+      "input": "Fido likes it.",
+      "contextKnownIndividuals": [
+        "rex",
+        "mira"
+      ],
+      "expectedOutcome": "one-candidate-then-context-clarification",
+      "expectedLce": "Fido likes it.",
+      "expectedMeaning": "likes(fido, it)",
+      "notes": "Both individuals are already known before this utterance is resolved. The translator preserves it unresolved, and ConversationContext must ask which individual is intended."
+    },
+    {
+      "id": "unresolved-pronoun-subject",
+      "category": "anaphora",
+      "input": "Milk is liked by it.",
+      "expectedOutcome": "one-candidate-then-context-clarification",
+      "expectedLce": "It likes milk.",
+      "expectedMeaning": "likes(it, milk)",
+      "notes": "Preserve the unresolved subject reference and original relation roles. Two individuals are already known, so ConversationContext must ask for clarification.",
+      "contextKnownIndividuals": [
+        "fido",
+        "rex"
+      ]
+    },
+    {
+      "id": "classification-question",
+      "category": "questions",
+      "input": "Does Fido count as an animal?",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Is Fido an animal?",
+      "expectedMeaning": "ask(animal(fido))"
+    },
+    {
+      "id": "existence-question",
+      "category": "questions",
+      "input": "Is there a red ball?",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Does a red ball exist?",
+      "expectedMeaning": "ask(exists(x, and(red(x), ball(x))))"
+    },
+    {
+      "id": "passive-relation-question",
+      "category": "questions",
+      "input": "Is milk liked by Fido?",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Does Fido like milk?",
+      "expectedMeaning": "ask(likes(fido, milk))"
+    },
+    {
+      "id": "negated-classification",
+      "category": "unsupported",
+      "input": "No dog is a cat.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Negation is not represented by the current semantic model. Do not translate this into a positive rule or an absence of facts."
+    },
+    {
+      "id": "negated-relation",
+      "category": "unsupported",
+      "input": "Fido does not like milk.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Do not drop negation and emit a positive likes relation."
+    },
+    {
+      "id": "negated-universal",
+      "category": "unsupported",
+      "input": "Not every dog likes milk.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Negation and quantifier scope must not be erased or rewritten as a universal positive rule."
+    },
+    {
+      "id": "variable-object-quantification",
+      "category": "unsupported",
+      "input": "Every dog likes some cat.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "The existential object is variable-bound; current universal relational rules allow only one fixed concrete object."
+    },
+    {
+      "id": "relational-premise",
+      "category": "unsupported",
+      "input": "Every dog that likes milk is friendly.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "The quantified premise contains a relation; current universal rules accept unary premises only."
+    },
+    {
+      "id": "higher-arity-event",
+      "category": "unsupported",
+      "input": "Mira gave Fido a book.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "The event requires a higher-arity relation and an indefinite object, neither of which is supported by the current validated translator subset."
+    },
+    {
+      "id": "modal-claim",
+      "category": "unsupported",
+      "input": "Fido might be a dog.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Modality is not represented. Do not turn a possibility into an asserted fact."
+    },
+    {
+      "id": "only-quantifier",
+      "category": "quantification",
+      "input": "Only dogs are animals.",
+      "expectedOutcome": "one-candidate",
+      "notes": "Preserve the direction of the implication: only dogs are animals means every animal is a dog, not every dog is an animal.",
+      "expectedLce": "Every animal is a dog.",
+      "expectedMeaning": "forall(x, implies(animal(x), dog(x)))"
+    },
+    {
+      "id": "lexical-ambiguity-outside-model",
+      "category": "ambiguity",
+      "input": "I saw her duck.",
+      "expectedOutcome": "no-candidate-ambiguous-and-unsupported",
+      "expectedCandidates": [],
+      "notes": "The sentence has distinct lexical/syntactic readings, and the current model cannot represent the event. Do not choose a reading or fabricate a predicate."
+    }
+  ]
+}
