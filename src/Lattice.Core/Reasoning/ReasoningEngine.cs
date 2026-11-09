@@ -80,10 +80,7 @@ public sealed class ReasoningEngine
                         key.Predicate,
                         condition.Predicate.Value,
                         StringComparison.Ordinal) &&
-                    string.Equals(
-                        key.Individual,
-                        candidateKey.Individual,
-                        StringComparison.Ordinal));
+                    key.Individual == candidateKey.Individual);
 
                 if (matchingProof is null)
                 {
@@ -118,7 +115,7 @@ public sealed class ReasoningEngine
     private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase)
     {
         var knownFacts = new List<ProofNode>();
-        var knownKeys = new HashSet<(string Predicate, string Individual)>();
+        var knownKeys = new HashSet<(string Predicate, SemanticTerm Individual)>();
 
         foreach (var fact in knowledgeBase.Facts)
         {
@@ -174,10 +171,7 @@ public sealed class ReasoningEngine
                                 key.Predicate,
                                 requiredPremise.Predicate.Value,
                                 StringComparison.Ordinal) &&
-                            string.Equals(
-                                key.Individual,
-                                candidateKey.Individual,
-                                StringComparison.Ordinal));
+                            key.Individual == candidateKey.Individual);
 
                         if (matchingProof is null)
                         {
@@ -304,28 +298,27 @@ public sealed class ReasoningEngine
 
     private static bool TryGetFactKey(
         PredicateApplication predicate,
-        out (string Predicate, string Individual) key)
+        out (string Predicate, SemanticTerm Individual) key)
     {
         key = (string.Empty, string.Empty);
 
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefault ||
             predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not IndividualTerm individual ||
-            string.IsNullOrWhiteSpace(individual.Identifier.Value))
+            predicate.Arguments[0] is not IndividualTerm &&
+            predicate.Arguments[0] is not AnonymousIndividualTerm)
         {
             return false;
         }
 
-        key = (predicate.Predicate.Value, individual.Identifier.Value);
+        key = (predicate.Predicate.Value, predicate.Arguments[0]);
         return true;
     }
 
     private static PredicateApplication CreateGroundPredicate(
         SemanticIdentifier predicate,
-        string individual) =>
+        SemanticTerm individual) =>
         new(
             predicate,
-            ImmutableArray.Create<SemanticTerm>(
-                new IndividualTerm(new SemanticIdentifier(individual))));
+            ImmutableArray.Create(individual));
 }
