@@ -107,7 +107,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
         AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
-        AnsiConsole.MarkupLine("  [green]Multiply that by 5.[/] [dim]uses the latest numeric tool observation[/]");
+        AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
         AnsiConsole.MarkupLine("  [dim]Natural-language capability selection currently covers basic arithmetic and unit conversions.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
@@ -283,7 +283,7 @@ while (true)
 
     if (intentResolution.IsResolved)
     {
-        var currentIntent = intentResolution.Intent!;
+        ToolIntent? currentIntent = intentResolution.Intent!;
         var responses = new List<string>();
         var usedTools = new List<string>();
         var invocationFailed = false;
