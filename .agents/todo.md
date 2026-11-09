@@ -74,8 +74,9 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
 - [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
-- [x] Screen concrete grammar-based translator options (APE and GF) against the symbolic architecture and define a representative acceptance/rejection benchmark.
-- [ ] Run the benchmark against an actual pinned APE runtime, measure DRS-to-Lattice mapping coverage, and decide whether an optional APE adapter is worth maintaining.
+- [x] Define a natural-language-to-LCE benchmark covering paraphrases, quantification, relations, descriptions, questions, ambiguity, and unsupported constructions.
+- [ ] Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
+- [ ] Resolve the translation contract for parser failures and multi-utterance turns before implementing an LLM adapter.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.
