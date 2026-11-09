@@ -2,6 +2,7 @@ using Lattice.Core.Context;
 using Lattice.Core.Intelligence;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Tools;
+using Lattice.Core.Tests.Tools;
 using Xunit;
 
 namespace Lattice.Core.Tests.Intelligence;
@@ -16,7 +17,7 @@ public sealed class ToolIntentPipelineTests
             new CalculatorIntentRecognizer(),
             new UnitConversionIntentRecognizer()
         ]);
-        var registry = new ToolRegistry([new CalculatorTool(), new UnitConverterTool()]);
+        var registry = BundledToolTestSupport.CreateRegistry();
         var context = new ConversationContext();
         var knowledgeBase = new KnowledgeBase();
 
