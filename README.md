@@ -16,7 +16,7 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Current language, context, and reasoning slice
 
-The first language implementation is **Lattice Controlled English (LCE) 0.9**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. The same native parser is also growing a deterministic English grammar that recognizes additional natural constructions and maps them directly into Lattice's semantic model; it does not rewrite input into LCE first. Neither grammar is full ACE or unrestricted English.
+The first language implementation is **Lattice Controlled English (LCE) 0.9**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. The same native parser is also growing a deterministic English grammar built from reusable noun descriptions, quantifiers, and relation structures. It maps recognized constructions directly into Lattice's semantic model; it does not rewrite input into LCE first. Neither grammar is full ACE or unrestricted English.
 
 A single input can contain multiple complete sentences, including relational facts and questions:
 

@@ -4,7 +4,7 @@ using Lattice.Core.Semantics;
 namespace Lattice.Core.Language;
 
 /// <summary>
-/// Additional compositional English grammar for the native language parser.
+/// Compositional English grammar for the native language parser.
 /// Sentences are mapped directly to semantic formulas; no LCE text is generated.
 /// </summary>
 internal static class NativeEnglishGrammar
@@ -18,7 +18,8 @@ internal static class NativeEnglishGrammar
     private static readonly HashSet<string> ReservedIndividualTerms = new(StringComparer.OrdinalIgnoreCase)
     {
         "a", "an", "the", "there", "is", "are", "be", "exist",
-        "something", "that", "by", "not", "no", "every", "all", "only"
+        "something", "that", "by", "not", "no", "every", "all", "only", "some",
+        "to", "of", "class", "count", "as"
     };
 
     private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
@@ -47,6 +48,7 @@ internal static class NativeEnglishGrammar
         {
             return TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
                 TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
+                TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
                 TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
                 TryParseActiveRelationQuestion(tokens, sourceText, out utterance);
         }
@@ -131,48 +133,16 @@ internal static class NativeEnglishGrammar
     {
         meaning = null;
 
-        if (start >= end || !IsArticle(tokens[start]))
+        if (start >= end || !IsArticle(tokens[start]) ||
+            !TryParseDescription(tokens, start + 1, end, expectPluralHead: false, out var description))
         {
             return false;
         }
 
-        var relativeClause = FindToken(tokens, start + 1, end, "that");
-        var descriptionEnd = relativeClause >= 0 ? relativeClause : end;
-        var additionalProperty = (string?)null;
-
-        if (relativeClause >= 0)
-        {
-            if (relativeClause + 3 != end ||
-                !Is(tokens[relativeClause + 1], "is") ||
-                !IsLowerWord(tokens[relativeClause + 2]))
-            {
-                return false;
-            }
-
-            additionalProperty = tokens[relativeClause + 2];
-        }
-
-        var firstWord = start + 1;
-
-        if (firstWord >= descriptionEnd ||
-            !Enumerable.Range(firstWord, descriptionEnd - firstWord).All(index => IsLowerWord(tokens[index])))
-        {
-            return false;
-        }
-
-        var descriptionWords = tokens[firstWord..descriptionEnd];
         var variable = new VariableTerm(Id("x"));
-        var conditions = descriptionWords
-            .Select(word => Predicate(word, variable))
-            .Cast<SemanticFormula>()
-            .ToList();
-
-        if (additionalProperty is not null)
-        {
-            conditions.Add(Predicate(additionalProperty, variable));
-        }
-
-        meaning = new ExistentialQuantification(variable, Combine(conditions));
+        meaning = new ExistentialQuantification(
+            variable,
+            description!.ToExistentialConditions(variable));
         return true;
     }
 
@@ -183,91 +153,242 @@ internal static class NativeEnglishGrammar
     {
         utterance = null;
 
-        if (tokens.Length == 4 && Is(tokens[0], "Only") &&
-            IsPlural(tokens[1]) && Is(tokens[2], "are") &&
-            IsPlural(tokens[3]))
-        {
-            var variable = new VariableTerm(Id("x"));
-            utterance = CreateUniversalUtterance(
-                variable,
-                Predicate(Singularize(tokens[3]), variable),
-                Predicate(Singularize(tokens[1]), variable),
-                sourceText);
-            return true;
-        }
-
-        if (tokens.Length == 4 && Is(tokens[0], "All") && IsPlural(tokens[1]))
-        {
-            var variable = new VariableTerm(Id("x"));
-            var subject = Singularize(tokens[1]);
-
-            if (Is(tokens[2], "are") && IsPlural(tokens[3]))
-            {
-                utterance = CreateUniversalUtterance(
-                    variable,
-                    Predicate(subject, variable),
-                    Predicate(Singularize(tokens[3]), variable),
-                    sourceText);
-                return true;
-            }
-
-            if (BaseRelationVerbs.Contains(tokens[2]) &&
-                TryCreateIndividual(tokens[3], allowPronoun: false, out var relationObject))
-            {
-                utterance = CreateUniversalUtterance(
-                    variable,
-                    Predicate(subject, variable),
-                    Predicate(
-                        InflectThirdPersonSingular(tokens[2]),
-                        variable,
-                        relationObject!),
-                    sourceText);
-                return true;
-            }
-        }
-
-        if (tokens.Length < 7 ||
-            !Is(tokens[0], "Every") ||
-            !Is(tokens[2], "that") ||
-            !Is(tokens[3], "is") ||
-            !IsLowerWord(tokens[1]) ||
-            !IsLowerWord(tokens[4]))
+        if (tokens.Length < 4 ||
+            tokens[0] is not ("Every" or "All" or "Only" or "Some"))
         {
             return false;
         }
 
-        var bound = new VariableTerm(Id("x"));
-        var relativePremise = new Conjunction(
-            ImmutableArray.Create<SemanticFormula>(
-                Predicate(tokens[4], bound),
-                Predicate(tokens[1], bound)));
+        var quantifier = tokens[0];
+        var expectsPluralHead = !Is(quantifier, "Every");
+        var isExistential = Is(quantifier, "Some");
+        var isOnly = Is(quantifier, "Only");
 
-        if (Is(tokens[5], "is") &&
-            tokens.Length == 8 &&
-            IsArticle(tokens[6]) &&
-            IsLowerWord(tokens[7]))
+        for (var separator = 2; separator < tokens.Length - 1; separator++)
         {
+            if (!TryParseDescription(
+                tokens,
+                1,
+                separator,
+                expectsPluralHead,
+                out var description))
+            {
+                continue;
+            }
+
+            if (IsCopulaForQuantifier(tokens[separator], quantifier) &&
+                TryParseClassPredicate(tokens, separator + 1, tokens.Length, out var classPredicate))
+            {
+                var variable = new VariableTerm(Id("x"));
+                var subjectConditions = description!.ToUniversalConditions(variable);
+
+                if (isExistential)
+                {
+                    var conditions = GetConjuncts(description.ToExistentialConditions(variable))
+                        .Add(Predicate(classPredicate!, variable));
+                    utterance = new SemanticUtterance(
+                        UtteranceKind.Assertion,
+                        new ExistentialQuantification(variable, Combine(conditions)),
+                        sourceText);
+                    return true;
+                }
+
+                if (isOnly)
+                {
+                    if (!description!.Modifiers.IsEmpty)
+                    {
+                        continue;
+                    }
+
+                    utterance = CreateUniversalUtterance(
+                        variable,
+                        Predicate(classPredicate!, variable),
+                        subjectConditions,
+                        sourceText);
+                    return true;
+                }
+
+                utterance = CreateUniversalUtterance(
+                    variable,
+                    subjectConditions,
+                    Predicate(classPredicate!, variable),
+                    sourceText);
+                return true;
+            }
+
+            if (isExistential || isOnly)
+            {
+                continue;
+            }
+
+            if (!TryParseQuantifiedRelation(
+                tokens,
+                separator,
+                tokens.Length,
+                Is(quantifier, "All"),
+                out var relationPredicate,
+                out var relationObject))
+            {
+                continue;
+            }
+
+            var bound = new VariableTerm(Id("x"));
             utterance = CreateUniversalUtterance(
                 bound,
-                relativePremise,
-                Predicate(tokens[7], bound),
-                sourceText);
-            return true;
-        }
-
-        if (tokens.Length == 7 &&
-            IsThirdPersonVerb(tokens[5]) &&
-            TryCreateIndividual(tokens[6], allowPronoun: false, out var fixedObject))
-        {
-            utterance = CreateUniversalUtterance(
-                bound,
-                relativePremise,
-                Predicate(tokens[5], bound, fixedObject!),
+                description!.ToUniversalConditions(bound),
+                Predicate(relationPredicate!, bound, relationObject!),
                 sourceText);
             return true;
         }
 
         return false;
+    }
+
+    private static bool IsCopulaForQuantifier(string token, string quantifier) =>
+        Is(quantifier, "Every")
+            ? string.Equals(token, "is", StringComparison.Ordinal)
+            : string.Equals(token, "are", StringComparison.Ordinal);
+
+    private static bool TryParseClassPredicate(
+        string[] tokens,
+        int start,
+        int end,
+        out string? predicate)
+    {
+        predicate = null;
+
+        if (end - start == 1 && IsLowerWord(tokens[start]) &&
+            !ReservedIndividualTerms.Contains(tokens[start]))
+        {
+            predicate = IsPlural(tokens[start])
+                ? Singularize(tokens[start])
+                : tokens[start].ToLowerInvariant();
+            return true;
+        }
+
+        if (end - start == 2 &&
+            IsArticle(tokens[start]) &&
+            IsLowerWord(tokens[start + 1]) &&
+            !ReservedIndividualTerms.Contains(tokens[start + 1]) &&
+            !IsPlural(tokens[start + 1]))
+        {
+            predicate = tokens[start + 1].ToLowerInvariant();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseQuantifiedRelation(
+        string[] tokens,
+        int verbIndex,
+        int end,
+        bool pluralSubject,
+        out string? predicate,
+        out SemanticTerm? relationObject)
+    {
+        predicate = null;
+        relationObject = null;
+        var verb = tokens[verbIndex];
+
+        if (pluralSubject)
+        {
+            if (!BaseRelationVerbs.Contains(verb))
+            {
+                return false;
+            }
+
+            predicate = InflectThirdPersonSingular(verb);
+        }
+        else
+        {
+            if (!IsThirdPersonVerb(verb))
+            {
+                return false;
+            }
+
+            predicate = verb.ToLowerInvariant();
+        }
+
+        return TryCreateObjectTerm(tokens, verbIndex + 1, end, out relationObject);
+    }
+
+    private static bool TryParseDescription(
+        string[] tokens,
+        int start,
+        int end,
+        bool expectPluralHead,
+        out EnglishDescription? description)
+    {
+        description = null;
+
+        if (start >= end)
+        {
+            return false;
+        }
+
+        var lexicalWords = new List<string>();
+        var relativeModifiers = new List<string>();
+
+        for (var index = start; index < end;)
+        {
+            if (Is(tokens[index], "that"))
+            {
+                var relativeCopula = expectPluralHead ? "are" : "is";
+
+                if (index + 2 >= end ||
+                    !Is(tokens[index + 1], relativeCopula) ||
+                    !IsLowerWord(tokens[index + 2]) ||
+                    ReservedIndividualTerms.Contains(tokens[index + 2]))
+                {
+                    return false;
+                }
+
+                relativeModifiers.Add(tokens[index + 2].ToLowerInvariant());
+                index += 3;
+                continue;
+            }
+
+            if (!IsLowerWord(tokens[index]) ||
+                ReservedIndividualTerms.Contains(tokens[index]))
+            {
+                return false;
+            }
+
+            lexicalWords.Add(tokens[index].ToLowerInvariant());
+            index++;
+        }
+
+        if (lexicalWords.Count == 0)
+        {
+            return false;
+        }
+
+        var head = lexicalWords[^1];
+
+        if (expectPluralHead)
+        {
+            if (!IsPlural(head))
+            {
+                return false;
+            }
+
+            head = Singularize(head);
+        }
+        else if (IsPlural(head))
+        {
+            return false;
+        }
+
+        var modifiers = lexicalWords
+            .Take(lexicalWords.Count - 1)
+            .ToImmutableArray();
+
+        description = new EnglishDescription(
+            head,
+            modifiers,
+            relativeModifiers.ToImmutableArray());
+        return true;
     }
 
     private static bool TryParseClassMembershipAssertion(
@@ -353,25 +474,60 @@ internal static class NativeEnglishGrammar
         out SemanticUtterance? utterance)
     {
         utterance = null;
-        var patientIndex = isQuestion ? 1 : 0;
 
-        if (tokens.Length != 5 ||
-            (isQuestion
-                ? !Is(tokens[0], "Is")
-                : !Is(tokens[1], "is")) ||
-            !PastParticiples.TryGetValue(tokens[2], out var baseVerb) ||
-            !Is(tokens[3], "by") ||
-            !TryCreateIndividual(tokens[patientIndex], allowPronoun: false, out var patient) ||
-            !TryCreateIndividual(tokens[4], allowPronoun: true, out var agent))
+        if (isQuestion && !Is(tokens[0], "Is"))
         {
             return false;
         }
 
-        utterance = new SemanticUtterance(
-            isQuestion ? UtteranceKind.Question : UtteranceKind.Assertion,
-            Predicate(InflectThirdPersonSingular(baseVerb), agent!, patient!),
-            sourceText);
-        return true;
+        var firstParticipleIndex = isQuestion ? 2 : 2;
+
+        for (var participleIndex = firstParticipleIndex;
+             participleIndex < tokens.Length - 2;
+             participleIndex++)
+        {
+            if (!PastParticiples.TryGetValue(tokens[participleIndex], out var baseVerb) ||
+                !Is(tokens[participleIndex + 1], "by"))
+            {
+                continue;
+            }
+
+            var patientStart = isQuestion ? 1 : 0;
+            var patientEnd = isQuestion
+                ? participleIndex
+                : participleIndex - 1;
+
+            if (!isQuestion &&
+                (participleIndex < 2 || !Is(tokens[participleIndex - 1], "is")))
+            {
+                continue;
+            }
+
+            if (!TryCreateSubjectTerm(
+                    tokens,
+                    patientStart,
+                    patientEnd,
+                    allowPronoun: false,
+                    out var patient) ||
+                !TryCreateSubjectTerm(
+                    tokens,
+                    participleIndex + 2,
+                    tokens.Length,
+                    allowPronoun: true,
+                    out var agent) ||
+                HasMultipleUnresolvedReferences(patient, agent))
+            {
+                continue;
+            }
+
+            utterance = new SemanticUtterance(
+                isQuestion ? UtteranceKind.Question : UtteranceKind.Assertion,
+                Predicate(InflectThirdPersonSingular(baseVerb), agent!, patient!),
+                sourceText);
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryParseDefinitePropertyAssertion(
@@ -380,24 +536,75 @@ internal static class NativeEnglishGrammar
         out SemanticUtterance? utterance)
     {
         utterance = null;
-        var relativeClause = FindToken(tokens, 1, tokens.Length, "that");
 
-        if (relativeClause < 0 ||
-            relativeClause + 5 != tokens.Length ||
-            !Is(tokens[relativeClause + 1], "is") ||
-            !Is(tokens[relativeClause + 3], "is") ||
-            !IsLowerWord(tokens[relativeClause + 2]) ||
-            !IsLowerWord(tokens[relativeClause + 4]) ||
-            !TryCreateDefiniteDescription(tokens, 0, relativeClause + 3, out var description))
+        for (var copulaIndex = 2; copulaIndex < tokens.Length - 1; copulaIndex++)
+        {
+            if (!Is(tokens[copulaIndex], "is") ||
+                !TryCreateDefiniteDescription(tokens, 0, copulaIndex, out var description) ||
+                !TryParseSingleProperty(tokens, copulaIndex + 1, tokens.Length, out var property))
+            {
+                continue;
+            }
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Assertion,
+                Predicate(property!, description!),
+                sourceText);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseDefinitePropertyQuestion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length < 4 || !Is(tokens[0], "Is") ||
+            !TryCreateDefiniteDescription(tokens, 1, tokens.Length - 2, out var description) ||
+            !IsLowerWord(tokens[^1]) ||
+            ReservedIndividualTerms.Contains(tokens[^1]))
         {
             return false;
         }
 
         utterance = new SemanticUtterance(
-            UtteranceKind.Assertion,
-            Predicate(tokens[relativeClause + 4], description!),
+            UtteranceKind.Question,
+            Predicate(tokens[^1], description!),
             sourceText);
         return true;
+    }
+
+    private static bool TryParseSingleProperty(
+        string[] tokens,
+        int start,
+        int end,
+        out string? property)
+    {
+        property = null;
+
+        if (end - start == 1 &&
+            IsLowerWord(tokens[start]) &&
+            !ReservedIndividualTerms.Contains(tokens[start]))
+        {
+            property = tokens[start].ToLowerInvariant();
+            return true;
+        }
+
+        if (end - start == 2 &&
+            IsArticle(tokens[start]) &&
+            IsLowerWord(tokens[start + 1]) &&
+            !ReservedIndividualTerms.Contains(tokens[start + 1]) &&
+            !IsPlural(tokens[start + 1]))
+        {
+            property = tokens[start + 1].ToLowerInvariant();
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryParseActiveRelationAssertion(
@@ -407,21 +614,24 @@ internal static class NativeEnglishGrammar
     {
         utterance = null;
 
-        if (tokens.Length < 3 ||
-            !IsCapitalized(tokens[0]) ||
-            !IsThirdPersonVerb(tokens[1]) ||
-            !TryCreateIndividual(tokens[0], allowPronoun: true, out var subject) ||
-            !TryCreateObjectTerm(tokens, 2, tokens.Length, out var relationObject) ||
-            HasMultipleUnresolvedReferences(subject, relationObject))
+        for (var verbIndex = 1; verbIndex < tokens.Length - 1; verbIndex++)
         {
-            return false;
+            if (!IsThirdPersonVerb(tokens[verbIndex]) ||
+                !TryCreateSubjectTerm(tokens, 0, verbIndex, allowPronoun: true, out var subject) ||
+                !TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
+                HasMultipleUnresolvedReferences(subject, relationObject))
+            {
+                continue;
+            }
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Assertion,
+                Predicate(tokens[verbIndex], subject!, relationObject!),
+                sourceText);
+            return true;
         }
 
-        utterance = new SemanticUtterance(
-            UtteranceKind.Assertion,
-            Predicate(tokens[1], subject!, relationObject!),
-            sourceText);
-        return true;
+        return false;
     }
 
     private static bool TryParseActiveRelationQuestion(
@@ -431,24 +641,54 @@ internal static class NativeEnglishGrammar
     {
         utterance = null;
 
-        if (tokens.Length < 4 ||
-            !Is(tokens[0], "Does") ||
-            IsArticle(tokens[1]) ||
-            !TryCreateIndividual(tokens[1], allowPronoun: true, out var subject) ||
-            !IsLowerWord(tokens[2]) ||
-            Is(tokens[2], "be") ||
-            Is(tokens[2], "exist") ||
-            !TryCreateObjectTerm(tokens, 3, tokens.Length, out var relationObject) ||
-            HasMultipleUnresolvedReferences(subject, relationObject))
+        if (tokens.Length < 4 || !Is(tokens[0], "Does"))
         {
             return false;
         }
 
-        utterance = new SemanticUtterance(
-            UtteranceKind.Question,
-            Predicate(InflectThirdPersonSingular(tokens[2]), subject!, relationObject!),
-            sourceText);
-        return true;
+        for (var verbIndex = 2; verbIndex < tokens.Length - 1; verbIndex++)
+        {
+            var verb = tokens[verbIndex];
+
+            if (!IsLowerWord(verb) ||
+                ReservedIndividualTerms.Contains(verb) ||
+                Is(verb, "be") ||
+                Is(verb, "exist") ||
+                !TryCreateSubjectTerm(tokens, 1, verbIndex, allowPronoun: true, out var subject) ||
+                !TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
+                HasMultipleUnresolvedReferences(subject, relationObject))
+            {
+                continue;
+            }
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                Predicate(InflectThirdPersonSingular(verb), subject!, relationObject!),
+                sourceText);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryCreateSubjectTerm(
+        string[] tokens,
+        int start,
+        int end,
+        bool allowPronoun,
+        out SemanticTerm? term)
+    {
+        term = null;
+        var count = end - start;
+
+        if (count == 1)
+        {
+            return TryCreateIndividual(tokens[start], allowPronoun, out term);
+        }
+
+        return count > 1 &&
+            TryCreateDefiniteDescription(tokens, start, count, out var description) &&
+            AssignDescription(description!, out term);
     }
 
     private static bool TryCreateObjectTerm(
@@ -465,15 +705,17 @@ internal static class NativeEnglishGrammar
             return TryCreateIndividual(tokens[start], allowPronoun: true, out term);
         }
 
-        if (count > 1 &&
-            Is(tokens[start], "the") &&
-            TryCreateDefiniteDescription(tokens, start, count, out var description))
-        {
-            term = description;
-            return true;
-        }
+        return count > 1 &&
+            TryCreateDefiniteDescription(tokens, start, count, out var description) &&
+            AssignDescription(description!, out term);
+    }
 
-        return false;
+    private static bool AssignDescription(
+        DescriptiveIndividualTerm description,
+        out SemanticTerm? term)
+    {
+        term = description;
+        return true;
     }
 
     private static bool TryCreateDefiniteDescription(
@@ -483,49 +725,19 @@ internal static class NativeEnglishGrammar
         out DescriptiveIndividualTerm? description)
     {
         description = null;
-        var end = start + count;
 
-        if (count < 2 || !Is(tokens[start], "the"))
+        if (count < 2 || !Is(tokens[start], "the") ||
+            !TryParseDescription(
+                tokens,
+                start + 1,
+                start + count,
+                expectPluralHead: false,
+                out var parsedDescription))
         {
             return false;
         }
 
-        var relativeClause = FindToken(tokens, start + 1, end, "that");
-        var descriptionEnd = relativeClause >= 0 ? relativeClause : end;
-        var relativeModifier = (string?)null;
-
-        if (relativeClause >= 0)
-        {
-            if (relativeClause + 3 != end ||
-                !Is(tokens[relativeClause + 1], "is") ||
-                !IsLowerWord(tokens[relativeClause + 2]))
-            {
-                return false;
-            }
-
-            relativeModifier = tokens[relativeClause + 2];
-        }
-
-        var firstWord = start + 1;
-
-        if (firstWord >= descriptionEnd ||
-            !Enumerable.Range(firstWord, descriptionEnd - firstWord).All(index => IsLowerWord(tokens[index])))
-        {
-            return false;
-        }
-
-        var words = tokens[firstWord..descriptionEnd];
-        var head = words[^1];
-        var modifiers = words[..^1]
-            .Select(Id)
-            .ToImmutableArray();
-
-        if (relativeModifier is not null)
-        {
-            modifiers = modifiers.Add(Id(relativeModifier));
-        }
-
-        description = new DescriptiveIndividualTerm(Id(head), modifiers);
+        description = parsedDescription!.ToDefiniteTerm();
         return true;
     }
 
@@ -568,6 +780,11 @@ internal static class NativeEnglishGrammar
                 variable,
                 new Implication(premise, conclusion)),
             sourceText);
+
+    private static ImmutableArray<SemanticFormula> GetConjuncts(SemanticFormula formula) =>
+        formula is Conjunction conjunction
+            ? conjunction.Conjuncts
+            : ImmutableArray.Create(formula);
 
     private static SemanticFormula Combine(IReadOnlyList<SemanticFormula> conditions) =>
         conditions.Count == 1
@@ -677,19 +894,6 @@ internal static class NativeEnglishGrammar
 
     private static bool Is(string actual, string expected) =>
         string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase);
-
-    private static int FindToken(string[] tokens, int start, int end, string value)
-    {
-        for (var index = start; index < end; index++)
-        {
-            if (Is(tokens[index], value))
-            {
-                return index;
-            }
-        }
-
-        return -1;
-    }
 
     private static SemanticIdentifier Id(string value) =>
         new(value.ToLowerInvariant());

@@ -140,6 +140,9 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Fido belongs to the class of dogs.[/] [dim]native class membership[/]");
         AnsiConsole.MarkupLine("  [green]There is a red ball that is shiny.[/] [dim]native existential description[/]");
         AnsiConsole.MarkupLine("  [green]Every dog that is red likes milk.[/] [dim]native relative-clause rule[/]");
+        AnsiConsole.MarkupLine("  [green]All red dogs are animals.[/]     [dim]shared noun-description grammar[/]");
+        AnsiConsole.MarkupLine("  [green]Some red dogs are animals.[/]   [dim]native existential quantifier[/]");
+        AnsiConsole.MarkupLine("  [green]The ball that is red likes milk.[/] [dim]relative description as relation subject[/]");
         AnsiConsole.MarkupLine("  [green]Is milk liked by Fido?[/]       [dim]native passive relation question[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
