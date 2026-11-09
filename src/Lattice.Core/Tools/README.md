@@ -68,7 +68,7 @@ Slot types are `number` (invariant decimal), `word` (letters only), and `text` (
 
 For example, the declaration above matches `Echo lattice.`, binds the single word to the `text` input, invokes the tool, and formats its returned value as `Echoed: lattice.`. A tool author can add or change these phrases by editing only the manifest.
 
-A pattern may bind an argument to `$previous` to refer to the latest numeric tool observation. This also enables bounded chains: text separated by `then` must match one declared pattern per step, and each subsequent step must bind at least one input to `$previous`. The complete chain is matched before its first invocation and contains at most eight steps. Results remain temporary observations, not knowledge-base facts. These declarations are deterministic phrase matching, not unrestricted English understanding.
+A pattern may bind an argument to `$previous` to refer to the latest numeric tool observation. This also enables bounded chains: text separated by `then` must match one declared pattern per step, and each subsequent step must bind at least one input to `$previous`. The complete chain is matched before its first invocation and contains at most eight steps. Follow-up segments are resolved against the same tool's declared intent list as the first segment; cross-tool chains are not supported yet. Results remain temporary observations, not knowledge-base facts. These declarations are deterministic phrase matching, not unrestricted English understanding.
 
 ### JSON-lines protocol version 1
 
