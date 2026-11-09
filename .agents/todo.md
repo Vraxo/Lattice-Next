@@ -60,10 +60,11 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Define a versioned, language-neutral JSON-lines protocol for external tool processes.
 - [x] Discover external tools from per-tool manifests and invoke them through a stdio provider outside Core.
 - [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
-- [ ] Feed tool observations into conversation context without automatically promoting them to knowledge.
+- [x] Retain the latest sourced tool observation in conversation context for numeric follow-ups without promoting it to knowledge.
 - [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
 - [x] Add a second independent capability before introducing autonomous tool selection.
-- [ ] Select tools from natural-language intent and render their results conversationally.
+- [x] Select between the calculator and unit converter from narrow natural-language intent recognizers and render sourced results conversationally.
+- [ ] Expand deterministic intent coverage only in response to concrete language examples; evaluate broader translation separately.
 
 ## 6. Language and knowledge expansion
 

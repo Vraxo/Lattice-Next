@@ -47,6 +47,10 @@ A clarification request for a sentence does not abort the rest of an already par
 
 When a pronoun assertion is resolved, the utterance keeps its original SourceText and separately records its ResolvedReferent. The knowledge base and proof trace preserve both. An explanation can therefore show the wording the user actually supplied and the individual to which the pronoun was resolved.
 
+## Tool observations
+
+The context also retains the latest successful `ToolObservation` separately from mentioned individuals and accepted knowledge. The observation keeps its producing tool ID and content. Deterministic intent recognizers may use a numeric observation as the antecedent for a follow-up request such as `Multiply that by 5.` This is a narrow data reference, not a semantic assertion: observations do not increase the knowledge base's facts or rules and are not supplied to the reasoning engine as premises. A later successful tool invocation replaces the latest observation. Failed invocations do not replace it.
+
 ## Lifetime and limitations
 
 The CLI owns one ConversationContext for the duration of the interactive process. It is separate from the knowledge base but has the same session lifetime. It is not persisted, shared between sessions, or loaded from a knowledge pack.

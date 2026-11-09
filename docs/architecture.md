@@ -32,7 +32,7 @@ Maintains the active conversation and task state. The first implementation track
 
 Keep user statements, accepted premises, derived conclusions, questions, and external observations distinguishable. Stored facts and rules retain structured source records classified as user assertions, imported claims, or external observations. Duplicate semantic claims are deduplicated while independent sources are retained. Proof nodes distinguish asserted premises from derived conclusions and preserve the sources and premises that support them. This is the initial provenance foundation; retraction and recomputation when support changes remain future work.
 
-Session context is not automatically durable knowledge.
+Session context is not automatically durable knowledge. It also retains the latest successful tool observation as temporary conversational evidence. Numeric follow-ups may refer to that observation, but it is never inserted into the knowledge base or passed to the symbolic reasoning engine as a premise.
 
 ### Knowledge
 
@@ -50,7 +50,7 @@ Protocol version 1 uses one JSON-lines request and one JSON-lines response per p
 
 The process command can be an executable found through the host PATH, an absolute executable path, or a relative path contained within that tool's directory. Arguments are passed separately without shell interpolation. The configured tools directory is a trust boundary: discovering a manifest does not execute it, but invoking a discovered tool runs the command it declares with the current user's OS permissions. Process isolation is not a security sandbox, and descriptor permissions do not restrict the child's OS-level access. The CLI grants no tool permissions by default; the coarse session-wide `LATTICE_TOOL_PERMISSIONS` setting can grant `read`, `write`, or both. Execution timeouts and process termination remain enforced by Lattice's host and registry.
 
-The CLI composition root registers the built-in decimal calculator and discovered external tools. Tool selection is still explicit through the developer-facing `:tool` command; ordinary-language intent recognition and autonomous selection are not implemented. A tool result remains a temporary, attributable observation, not a knowledge-base assertion or reasoning premise.
+The CLI composition root registers the built-in decimal calculator, unit converter, and discovered external tools. A generic intent resolver consults independent recognizers for the supported capability domains; the recognizers produce ordinary tool IDs and JSON arguments, while the resolver has no tool-specific branches. The first deterministic recognizers cover common arithmetic requests and unit conversions. They are deliberately narrow language patterns, not unrestricted English understanding or an LLM. The CLI invokes the selected capability through the same registry used by explicit `:tool` diagnostics and renders the sourced result conversationally. A successful observation is retained as the latest conversation-context observation so a numeric follow-up such as `Multiply that by 5.` can resolve it. Observations are not inserted into the knowledge base or used as reasoning premises.
 
 Adding, removing, or replacing a provider must not require changes to cognition. Future providers may use HTTP, MCP, or another transport while exposing the same generic contract. Those transports are adapters, not foundations of the intelligence.
 
