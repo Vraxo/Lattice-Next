@@ -57,9 +57,13 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Define a tool contract and descriptor independent of individual implementations.
 - [x] Add generic discovery, argument validation, permission checks, bounded execution, and sourced invocation results.
+- [x] Define a versioned, language-neutral JSON-lines protocol for external tool processes.
+- [x] Discover external tools from per-tool manifests and invoke them through a stdio provider outside Core.
+- [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
 - [ ] Feed tool observations into conversation context without automatically promoting them to knowledge.
 - [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
 - [ ] Add a second capability before expanding the contract or introducing autonomous tool selection.
+- [ ] Select tools from natural-language intent and render their results conversationally.
 
 ## 6. Language and knowledge expansion
 
