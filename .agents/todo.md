@@ -22,7 +22,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Represent indefinite assertions and existence questions as existentially quantified unary conditions.
 - [x] Keep anonymous existential witnesses distinct from named individuals and from other indefinite assertions.
 - [x] Add quantified relational rules with unary premises and one fixed concrete object.
-- [ ] Add relational pronoun forms deliberately.
+- [x] Add relational pronoun forms deliberately; resolve one `it` in either argument position without heuristic antecedent selection.
 
 ## 2. First symbolic reasoning slice
 

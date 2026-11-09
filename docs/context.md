@@ -40,7 +40,7 @@ A clarification request for a sentence does not abort the rest of an already par
 ## Separation of responsibilities
 
 - The parser creates semantic meaning and leaves unresolved references explicit.
-- ConversationContext observes concrete individual arguments and grounds supported unary pronoun references.
+- ConversationContext observes concrete individual arguments and grounds supported unary or relational pronoun references.
 - KnowledgeBase stores grounded facts, anonymous existential witnesses, and supported universal rules.
 - ReasoningEngine receives grounded predicates and does not know about pronouns or conversation turns.
 - The CLI composes these services and presents clarification requests.
@@ -55,4 +55,4 @@ The context also retains the latest successful `ToolObservation` separately from
 
 The CLI owns one ConversationContext for the duration of the interactive process. It is separate from the knowledge base but has the same session lifetime. It is not persisted, shared between sessions, or loaded from a knowledge pack.
 
-The implementation currently supports only the unary subject-position pronoun forms listed in [language.md](language.md). Relational sentences require explicitly named subject and object terms. It is not a general co-reference resolver. Richer antecedent selection should wait until the language layer can represent more complex discourse structures.
+The implementation supports the unary subject-position forms and one relational pronoun in either argument position listed in [language.md](language.md). A relational assertion uses `It` as its subject pronoun or lowercase `it` as its object pronoun; a relational question uses lowercase `it` in either position. A relation cannot contain two unresolved pronouns. Resolution still requires exactly one distinct known individual, regardless of argument position. This is not a general co-reference resolver; recency, salience, and richer antecedent selection remain future work.

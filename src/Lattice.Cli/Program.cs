@@ -109,15 +109,19 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
+        AnsiConsole.MarkupLine("  [green]It likes milk.[/]           [dim]relation fact with subject reference[/]");
+        AnsiConsole.MarkupLine("  [green]Fido likes it.[/]           [dim]relation fact with object reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes the red ball.[/] [dim]descriptive relation[/]");
         AnsiConsole.MarkupLine("  [green]The red ball is shiny.[/] [dim]property assertion[/]");
         AnsiConsole.MarkupLine("  [green]Is the red ball red?[/]    [dim]property question[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like the red ball?[/] [dim]descriptive relation query[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like milk?[/]     [dim]relation question[/]");
+        AnsiConsole.MarkupLine("  [green]Does it like milk?[/]       [dim]relation question with subject reference[/]");
+        AnsiConsole.MarkupLine("  [green]Does Fido like it?[/]       [dim]relation question with object reference[/]");
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");
         AnsiConsole.MarkupLine("  [green]Is it a mammal?[/]          [dim]question with reference[/]");
         AnsiConsole.MarkupLine("[dim]Relation questions use the verb's base form; the parser maps it to third-person singular.[/]");
-        AnsiConsole.MarkupLine("[dim]Relations remain exact lookups; universal rules infer unary predicates from one or more unary conditions.[/]");
+        AnsiConsole.MarkupLine("[dim]Universal rules infer unary or fixed-object relational conclusions from one or more unary conditions.[/]");
         AnsiConsole.MarkupLine("[dim]Combine complete sentences in one input; they are processed in order.[/]");
         AnsiConsole.MarkupLine("[dim]The word 'it' resolves only when exactly one individual is known in this session.[/]");
         AnsiConsole.MarkupLine("[dim]When the reference is missing or ambiguous, Lattice asks you to name the individual.[/]");
@@ -241,9 +245,9 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.8 parser");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.9 parser");
         AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, existential and universal quantification");
-        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Conjunctive unary-rule chaining + existential lookup + direct relation lookup");
+        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary and fixed-object relational inference + existential lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
