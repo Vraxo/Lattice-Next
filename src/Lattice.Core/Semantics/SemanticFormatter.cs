@@ -37,6 +37,7 @@ public static class SemanticFormatter
         term switch
         {
             IndividualTerm individual => individual.Identifier.Value,
+            AnonymousIndividualTerm anonymous => $"anonymous({anonymous.Identity.Value})",
             DescriptiveIndividualTerm description => description.Identifier.Value,
             VariableTerm variable => variable.Identifier.Value,
             UnresolvedReferenceTerm reference => reference.Reference.Value,
