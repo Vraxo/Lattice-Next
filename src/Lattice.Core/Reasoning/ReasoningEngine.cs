@@ -30,7 +30,8 @@ public sealed class ReasoningEngine
                 null,
                 directFact.ResolvedReferent,
                 SourceKind: directFact.SourceKind,
-                AdditionalSources: directFact.AdditionalSources));
+                AdditionalSources: directFact.AdditionalSources,
+                SourceId: directFact.SourceId));
         }
 
         if (!TryGetFactKey(query, out var queryKey))
@@ -130,7 +131,8 @@ public sealed class ReasoningEngine
                     null,
                     fact.ResolvedReferent,
                     SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources));
+                    AdditionalSources: fact.AdditionalSources,
+                    SourceId: fact.SourceId));
             }
         }
 
@@ -209,7 +211,8 @@ public sealed class ReasoningEngine
                         AdditionalPremises: premises.Skip(1).ToImmutableArray(),
                         SourceKind: rule.SourceKind,
                         AdditionalSources: rule.AdditionalSources,
-                        Kind: ProofNodeKind.Derived));
+                        Kind: ProofNodeKind.Derived,
+                        SourceId: rule.SourceId));
 
                     added = true;
                 }
