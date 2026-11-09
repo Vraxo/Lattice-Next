@@ -333,11 +333,8 @@ public sealed class LmStudioRuntime
         return JsonDocument.Parse(body);
     }
 
-    public HttpRequestMessage CreateChatRequest(
-        string modelIdentifier,
-        object body)
+    public HttpRequestMessage CreateChatRequest(object body)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(modelIdentifier);
         ArgumentNullException.ThrowIfNull(body);
         return CreateRequest(
             HttpMethod.Post,

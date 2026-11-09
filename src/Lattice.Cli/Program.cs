@@ -272,33 +272,6 @@ while (true)
     }
 
 
-    {
-        AnsiConsole.MarkupLine("[bold]Local semantics translator[/]");
-
-        if (lmStudioOptions is null)
-        {
-            AnsiConsole.MarkupLine("  [yellow]Disabled[/]");
-            AnsiConsole.MarkupLine("  Set LATTICE_LMSTUDIO_MODEL to the exact model identifier exposed by LM Studio.");
-
-            if (!string.IsNullOrWhiteSpace(lmStudioConfigurationError))
-            {
-                AnsiConsole.WriteLine(lmStudioConfigurationError);
-            }
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"  [cyan]Provider[/]       LM Studio");
-            AnsiConsole.MarkupLine($"  [cyan]Endpoint[/]       {lmStudioOptions.BaseAddress}");
-            AnsiConsole.MarkupLine($"  [cyan]Model[/]          {lmStudioOptions.Model}");
-            AnsiConsole.MarkupLine($"  [cyan]Auto-start[/]     {lmStudioOptions.AutoStartServer}");
-            AnsiConsole.MarkupLine($"  [cyan]Auto-load[/]      {lmStudioOptions.AutoLoadModel}");
-            AnsiConsole.MarkupLine("  [dim]Model proposals are parsed and validated, then require explicit acceptance.[/]");
-        }
-
-        AnsiConsole.WriteLine();
-        continue;
-    }
-
     if (input.Equals(":translate", StringComparison.OrdinalIgnoreCase) ||
         input.StartsWith(":translate ", StringComparison.OrdinalIgnoreCase))
     {
