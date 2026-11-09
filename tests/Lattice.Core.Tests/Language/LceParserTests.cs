@@ -448,7 +448,7 @@ public sealed class LceParserTests
         Assert.Equal(
             "ask(exists(x, and(red(x), ball(x))))",
             SemanticFormatter.Format(question.Utterance!));
-        Assert.Equal("A red ball exists.", assertion.Utterance.SourceText);
+        Assert.Equal("A red ball exists.", assertion.Utterance!.SourceText);
     }
 
     [Theory]
