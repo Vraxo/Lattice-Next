@@ -83,9 +83,12 @@ public sealed record LmStudioOptions
             baseAddressText = "http://127.0.0.1:1234/";
         }
 
-        if (!Uri.TryCreate(baseAddressText, UriKind.Absolute, out var baseAddress))
+        if (!Uri.TryCreate(baseAddressText, UriKind.Absolute, out var baseAddress) ||
+            baseAddress.Scheme is not ("http" or "https") ||
+            !string.IsNullOrEmpty(baseAddress.Query) ||
+            !string.IsNullOrEmpty(baseAddress.Fragment))
         {
-            error = "LATTICE_LMSTUDIO_URL must be an absolute HTTP or HTTPS URL.";
+            error = "LATTICE_LMSTUDIO_URL must be an absolute HTTP or HTTPS URL without a query or fragment.";
             return false;
         }
 

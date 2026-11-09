@@ -184,7 +184,7 @@ When stored, the knowledge base gives this assertion one fresh `AnonymousIndivid
 
 ## Optional semantics translator boundary
 
-The Core contract `ISemanticsTranslator` allows an optional adapter to propose semantic candidates from ordinary input without making a translator implementation a dependency of Core. No concrete translator backend is selected or enabled by the default CLI; LCE remains the native and default input language.
+The Core contract `ISemanticsTranslator` allows an optional adapter to propose semantic candidates from ordinary input without making a translator implementation a dependency of Core. The separate `Lattice.Translators.LmStudio` project provides one optional adapter. It asks a local LM Studio model to produce candidate LCE text, parses each candidate with the native `LceParser`, and returns only parsed semantic structures to the provider-neutral boundary. The adapter is not enabled by default and no model is bundled or selected; LCE remains the native input language.
 
 A translator returns candidate `UtteranceKind` and `SemanticFormula` values. It does not choose provenance or provide an authoritative `SourceText`: `SemanticTranslationService` attaches the exact original input to every validated `SemanticUtterance`. `SemanticUtteranceValidator` restricts candidates to the currently supported forms: ground unary or binary predicates, the supported single `it` reference, unary existential claims and queries, and universal rules with unary premises and either a unary conclusion or a fixed-object binary conclusion. Unsupported arities, free variables, nested or unsupported formulas, malformed identifiers, and unsupported utterance kinds are rejected.
 

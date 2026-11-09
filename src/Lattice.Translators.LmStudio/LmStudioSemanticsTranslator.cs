@@ -318,9 +318,9 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
     {
         using var document = JsonDocument.Parse(content);
         var root = document.RootElement;
-        var candidatesElement = root.GetProperty("candidates");
 
         if (root.ValueKind != JsonValueKind.Object ||
+            !root.TryGetProperty("candidates", out var candidatesElement) ||
             candidatesElement.ValueKind != JsonValueKind.Array ||
             candidatesElement.GetArrayLength() > MaximumCandidates)
         {
@@ -328,10 +328,14 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
                 "The translator response must contain a candidates array with no more than four entries.");
         }
 
-        var message = root.TryGetProperty("message", out var messageElement) &&
-            messageElement.ValueKind == JsonValueKind.String
-                ? messageElement.GetString()
-                : null;
+        var message = root.TryGetProperty("message", out var messageElement)
+            ? messageElement.ValueKind switch
+            {
+                JsonValueKind.String => messageElement.GetString(),
+                JsonValueKind.Null => null,
+                _ => throw new JsonException("The translator message must be a string or null.")
+            }
+            : throw new JsonException("The translator response is missing its message property.");
         var candidates = ImmutableArray.CreateBuilder<SemanticTranslationCandidate>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
