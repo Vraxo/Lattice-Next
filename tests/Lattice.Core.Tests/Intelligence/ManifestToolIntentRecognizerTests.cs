@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Lattice.Core.Intelligence;
 using Lattice.Core.Tools;
+using Lattice.Core.Tests.Tools;
 using Lattice.Tooling.Stdio;
 using Xunit;
 
