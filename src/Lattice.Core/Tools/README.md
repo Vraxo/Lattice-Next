@@ -1,6 +1,6 @@
 # Tools
 
-Tools are optional capabilities registered by the application composition root. Core provides a generic contract and registry; reasoning does not reference individual tool implementations or their providers.
+Tools are optional capabilities discovered and invoked by the application composition root. Core provides a generic contract and registry; reasoning does not reference individual tool implementations or their providers.
 
 ## Core contract
 
@@ -8,14 +8,14 @@ Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, de
 
 `ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise.
 
-## Built-in capabilities
+## Bundled example capabilities
 
-The composition root currently registers two independent deterministic capabilities:
+The repository includes two example capabilities under `tools/`. They are ordinary external processes discovered from their manifests, not tool implementations compiled into `Lattice.Core` or `Lattice.Cli`:
 
-- `calculator`: exact decimal addition, subtraction, multiplication, and division.
-- `unit-converter`: converts length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h) values.
+- `calculator`: exact decimal addition, subtraction, multiplication, and division, implemented in Python.
+- `unit-converter`: converts length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h), implemented in Python.
 
-Both use the same generic contract and registry. Neither is special-cased by Core's registry or reasoning engine.
+Both use the same manifest, stdio protocol, generic registry, permission checks, and execution limits as community tools. They have no third-party Python dependencies. The bundled examples require Python 3 with a `python` executable on `PATH`; Lattice Core and the stdio provider do not depend on Python.
 
 ## External process provider
 
@@ -45,7 +45,7 @@ Example manifest:
 }
 ```
 
-The command may be any executable available on the host. The example uses Python only to illustrate one possible implementation; Lattice does not install, import, or otherwise depend on Python. Fixed command arguments are passed as individual process arguments, without a shell. Relative executable paths must stay inside their tool directory.
+The command may be any executable available on the host. Fixed command arguments are passed as individual process arguments, without a shell. Relative executable paths must stay inside their tool directory.
 
 ### JSON-lines protocol version 1
 
@@ -88,18 +88,18 @@ Failed response:
 }
 ```
 
-The response must echo the protocol version and request ID. The `result` may be any JSON value. Lattice preserves it as JSON in the resulting sourced observation and does not infer facts from it.
+The response must echo the protocol version and request ID. The `result` may be any JSON value. Lattice preserves it as JSON in the resulting sourced observation and does not infer facts from it. Numeric results are represented as JSON numbers so subsequent numeric intents can use the observation directly.
 
 The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice enforces descriptor permission gates, execution timeouts, and process termination, but these gates do not restrict what the child process can access at the OS level. The CLI grants no tool permissions by default; set `LATTICE_TOOL_PERMISSIONS` to `read`, `write`, or `read,write` to grant them for the session. This is a coarse global grant, not a per-tool policy.
 
 ## Current invocation surface
 
 - `:tools` lists the registered capabilities and their input descriptors.
-- `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the built-in calculator.
-- `:tool unit-converter {"value":150,"from":"cm","to":"m"}` invokes the unit converter.
+- `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the bundled external calculator when discovered.
+- `:tool unit-converter {"value":150,"from":"cm","to":"m"}` invokes the bundled external unit converter when discovered.
 - `:tool <id> <arguments-json>` explicitly invokes any registered capability for diagnostics.
-- `What is 12 multiplied by 3?` selects the calculator from ordinary language.
-- `Convert 150 cm to meters.` selects the unit converter.
+- `What is 12 multiplied by 3?` selects the calculator from ordinary language when its manifest is discovered.
+- `Convert 150 cm to meters.` selects the unit converter when its manifest is discovered.
 - `Multiply that by 5.` resolves the latest numeric tool observation and invokes the calculator again.
 
-A generic intent resolver consults registered recognizers; it does not contain a switch over tool IDs. The first recognizers intentionally support a small set of arithmetic and unit-conversion phrasings rather than unrestricted English. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.
+The generic intent resolver consults recognizers; it does not contain a switch over tool IDs. The current recognizers intentionally support a small set of arithmetic and unit-conversion phrasings rather than unrestricted English. Their registration is conditioned on the corresponding tool being discovered. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.
