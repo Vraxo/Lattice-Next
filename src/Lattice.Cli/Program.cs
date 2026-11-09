@@ -27,10 +27,6 @@ var externalToolsDiscovered = StdioToolProvider.TryDiscover(
 var registeredTools = externalToolsDiscovered
     ? discoveredTools
     : Array.Empty<ITool>();
-var registeredToolIds = registeredTools
-    .Select(tool => tool.Descriptor.Id)
-    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
 var grantedPermissions = ToolPermission.None;
 var configuredPermissions = Environment.GetEnvironmentVariable("LATTICE_TOOL_PERMISSIONS");
 
@@ -51,11 +47,9 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
 
 var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
 var intentRecognizers = registeredTools
-    .SelectMany(tool => tool.Descriptor.Intents.IsDefault
-        ? []
-        : tool.Descriptor.Intents.Select(
-            definition => new ManifestToolIntentRecognizer(tool.Descriptor, definition)))
-    .Cast<IToolIntentRecognizer>();
+    .Where(tool => !tool.Descriptor.Intents.IsDefaultOrEmpty)
+    .SelectMany(tool => tool.Descriptor.Intents.Select(
+        definition => new ManifestToolIntentRecognizer(tool.Descriptor, definition)));
 var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
