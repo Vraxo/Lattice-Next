@@ -42,11 +42,11 @@ The initial version 1 format is JSON metadata plus ordered LCE assertion strings
 
 ### Tools
 
-Tools are optional capabilities. They live together under the Core Tools/ area and implement a common, explicit contract describing purpose, inputs, output, and effects/permissions.
+Tools are optional capabilities. They live together under the Core Tools/ area and implement a common, explicit contract describing purpose, inputs, output, and required permissions. Each tool exposes a descriptor; the generic registry handles discovery, primitive argument validation, permission checks, bounded invocation, and returns a sourced observation identified by the producing tool. The initial execution limit is five seconds by default and one minute maximum.
 
-Generic infrastructure handles discovery, validation, authorization, invocation, limits, and recording. Reasoning must work from capability descriptions and results; it must not contain tool-specific branches.
+The first capability is a deterministic decimal calculator with no external effects or required permissions. It is invoked explicitly through the CLI, not selected autonomously by reasoning. Its output remains a temporary observation: it is not automatically stored as a fact or used as a premise. The context/intelligence layer must eventually decide whether observations are relevant and whether a claim can be accepted.
 
-A tool result first enters context as a sourced observation. The intelligence decides what it means and whether it supports a conclusion. Adding, removing, or replacing a tool must not require changing cognition.
+Adding, removing, or replacing a provider must not require changes to cognition. The CLI composition root may register concrete providers; Core's registry and invocation path operate only on the generic contract.
 
 External systems such as MCP servers are potential ways to supply tools, not foundations of the intelligence and not reasons to create a project per integration.
 
