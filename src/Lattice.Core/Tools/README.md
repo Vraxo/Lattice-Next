@@ -1,22 +1,92 @@
 # Tools
 
-Tools are optional capabilities registered by the application composition root. Core provides one generic contract and registry; reasoning does not reference individual tool implementations.
+Tools are optional capabilities registered by the application composition root. Core provides a generic contract and registry; reasoning does not reference individual tool implementations or their providers.
 
-## Contract
+## Core contract
 
 Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, description, input descriptors, and required permissions. Input descriptors define names, primitive JSON types, descriptions, and whether each input is required.
 
-`ToolRegistry` discovers registered tools, rejects duplicate IDs and invalid descriptors, validates argument objects against the descriptor, checks granted permissions, and bounds invocation time. The default execution limit is five seconds and the configured limit cannot exceed one minute. Tool exceptions are contained at the capability boundary and become failed invocation results.
+`ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise.
 
-A successful invocation returns a `ToolObservation` containing the tool ID and its output. This is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise. The intelligence/context layer must decide whether an observation is relevant and whether any claim can be accepted from it.
+## External process provider
 
-## First capability
+The separate `Lattice.Tooling.Stdio` project adapts external processes to the Core contract. Core has no dependency on this provider, process APIs, a transport, or any particular implementation language.
 
-`CalculatorTool` performs decimal addition, subtraction, multiplication, and division. It has no external effects and requires no permissions. It exists to exercise the generic contract without introducing network access, credentials, or mutable external state.
+The CLI discovers tools one directory level below `./tools` by default. Set `LATTICE_TOOLS_DIR` to use another root. Each tool directory contains a `tool.json` manifest. Directories without a manifest are ignored. Discovery parses metadata only; it never starts the declared command. Invalid manifests fail discovery as a whole instead of silently loading a partial set.
 
-The CLI is currently the explicit invocation surface:
+Example manifest:
 
-- `:tools` lists descriptors and their inputs.
-- `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the tool.
+```json
+{
+  "protocolVersion": 1,
+  "id": "example.echo",
+  "name": "Echo",
+  "description": "Returns the supplied text.",
+  "command": "python",
+  "arguments": ["main.py"],
+  "inputs": [
+    {
+      "name": "text",
+      "description": "Text to return.",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "permissions": []
+}
+```
 
-This is a manual invocation path, not autonomous tool selection. The generic contract is ready for additional providers, but no planner, external adapter, durable observation store, or automatic knowledge promotion is implied.
+The command may be any executable available on the host. The example uses Python only to illustrate one possible implementation; Lattice does not install, import, or otherwise depend on Python. Fixed command arguments are passed as individual process arguments, without a shell. Relative executable paths must stay inside their tool directory.
+
+### JSON-lines protocol version 1
+
+Each invocation starts one process. Lattice writes exactly one JSON object followed by a newline to standard input, closes standard input, and expects exactly one JSON response line on standard output. Diagnostics belong on standard error.
+
+Request:
+
+```json
+{
+  "protocolVersion": 1,
+  "requestId": "correlation-id",
+  "operation": "execute",
+  "arguments": {
+    "text": "hello"
+  }
+}
+```
+
+Successful response:
+
+```json
+{
+  "protocolVersion": 1,
+  "requestId": "correlation-id",
+  "success": true,
+  "result": {
+    "text": "hello"
+  }
+}
+```
+
+Failed response:
+
+```json
+{
+  "protocolVersion": 1,
+  "requestId": "correlation-id",
+  "success": false,
+  "error": "A human-readable failure."
+}
+```
+
+The response must echo the protocol version and request ID. The `result` may be any JSON value. Lattice preserves it as JSON in the resulting sourced observation and does not infer facts from it.
+
+The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice enforces descriptor permission gates, execution timeouts, and process termination, but these gates do not restrict what the child process can access at the OS level. The CLI grants no tool permissions by default; set `LATTICE_TOOL_PERMISSIONS` to `read`, `write`, or `read,write` to grant them for the session. This is a coarse global grant, not a per-tool policy.
+
+## Current invocation surface
+
+- `:tools` lists the registered capabilities and their input descriptors.
+- `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the built-in calculator.
+- `:tool <id> <arguments-json>` explicitly invokes any registered capability.
+
+External tools are discovered at CLI startup but are started only when invoked. Natural-language tool selection, observation-to-context integration, durable observation storage, and automatic knowledge promotion are not implemented.

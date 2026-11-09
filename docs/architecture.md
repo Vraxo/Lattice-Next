@@ -42,13 +42,17 @@ The initial version 1 format is JSON metadata plus ordered LCE assertion strings
 
 ### Tools
 
-Tools are optional capabilities. They live together under the Core Tools/ area and implement a common, explicit contract describing purpose, inputs, output, and required permissions. Each tool exposes a descriptor; the generic registry handles discovery, primitive argument validation, permission checks, bounded invocation, and returns a sourced observation identified by the producing tool. The initial execution limit is five seconds by default and one minute maximum.
+Tools are optional capabilities implementing Core's generic `ITool` contract. Core owns only the descriptor, primitive argument model, permission flags, invocation result, and registry. It does not discover executables, launch processes, parse manifests, or know any implementation language.
 
-The first capability is a deterministic decimal calculator with no external effects or required permissions. It is invoked explicitly through the CLI, not selected autonomously by reasoning. Its output remains a temporary observation: it is not automatically stored as a fact or used as a premise. The context/intelligence layer must eventually decide whether observations are relevant and whether a claim can be accepted.
+The first external provider is a separate `Lattice.Tooling.Stdio` assembly that references Core. It discovers one-level tool directories under a configured root. Each tool directory contains a `tool.json` manifest describing its identity, inputs, permissions, executable command, and fixed process arguments. Discovery parses and validates metadata but never starts a process. The CLI uses `./tools` by default; `LATTICE_TOOLS_DIR` can select another directory.
 
-Adding, removing, or replacing a provider must not require changes to cognition. The CLI composition root may register concrete providers; Core's registry and invocation path operate only on the generic contract.
+Protocol version 1 uses one JSON-lines request and one JSON-lines response per process invocation. Lattice starts the configured executable without a shell, sets the tool directory as its working directory, writes one request to standard input, and reads one response from standard output. Standard error is kept separate. The request carries a protocol version, correlation ID, operation, and validated arguments. The response must echo the version and correlation ID and return either a JSON result or an error. The provider does not interpret the result's domain meaning; it returns the JSON value as a sourced `ToolObservation`.
 
-External systems such as MCP servers are potential ways to supply tools, not foundations of the intelligence and not reasons to create a project per integration.
+The process command can be an executable found through the host PATH, an absolute executable path, or a relative path contained within that tool's directory. Arguments are passed separately without shell interpolation. The configured tools directory is a trust boundary: discovering a manifest does not execute it, but invoking a discovered tool runs the command it declares with the current user's OS permissions. Process isolation is not a security sandbox, and descriptor permissions do not restrict the child's OS-level access. The CLI grants no tool permissions by default; the coarse session-wide `LATTICE_TOOL_PERMISSIONS` setting can grant `read`, `write`, or both. Execution timeouts and process termination remain enforced by Lattice's host and registry.
+
+The CLI composition root registers the built-in decimal calculator and discovered external tools. Tool selection is still explicit through the developer-facing `:tool` command; ordinary-language intent recognition and autonomous selection are not implemented. A tool result remains a temporary, attributable observation, not a knowledge-base assertion or reasoning premise.
+
+Adding, removing, or replacing a provider must not require changes to cognition. Future providers may use HTTP, MCP, or another transport while exposing the same generic contract. Those transports are adapters, not foundations of the intelligence.
 
 ### CLI
 
@@ -56,11 +60,12 @@ The CLI is the initial user interface and composition root. It gathers input, pr
 
 ## Dependency direction
 
-The initial dependency direction is intentionally simple:
+The dependency direction keeps providers outside Core:
 
 Lattice.Cli -> Lattice.Core
+Lattice.Cli -> Lattice.Tooling.Stdio -> Lattice.Core
 
-Core must not depend on the CLI. Tool implementations are called through Core contracts, not concrete references from the reasoning engine. Knowledge packs are data loaded by Core, not separate compiled projects.
+Core must not depend on the CLI or any provider. External-process launch, stdio transport, and manifest parsing live in the provider assembly. Tool implementations are called through Core contracts, not concrete references from the reasoning engine. Knowledge packs are data loaded by Core, not separate compiled projects.
 
 ## Language strategy
 

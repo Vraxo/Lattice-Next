@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lattice.Core\Lattice.Core.csproj" />
+    <ProjectReference Include="..\..\src\Lattice.Tooling.Stdio\Lattice.Tooling.Stdio.csproj" />
   </ItemGroup>
 
 </Project>
