@@ -8,6 +8,15 @@ Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, de
 
 `ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise.
 
+## Built-in capabilities
+
+The composition root currently registers two independent deterministic capabilities:
+
+- `calculator`: exact decimal addition, subtraction, multiplication, and division.
+- `unit-converter`: converts length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h) values.
+
+Both use the same generic contract and registry. Neither is special-cased by Core's registry or reasoning engine.
+
 ## External process provider
 
 The separate `Lattice.Tooling.Stdio` project adapts external processes to the Core contract. Core has no dependency on this provider, process APIs, a transport, or any particular implementation language.
@@ -87,6 +96,7 @@ The configured tool directory is a trust boundary. Invoking a discovered command
 
 - `:tools` lists the registered capabilities and their input descriptors.
 - `:tool calculator {"left":12,"operation":"multiply","right":3}` invokes the built-in calculator.
+- `:tool unit-converter {"value":150,"from":"cm","to":"m"}` invokes the unit converter.
 - `:tool <id> <arguments-json>` explicitly invokes any registered capability.
 
 External tools are discovered at CLI startup but are started only when invoked. Natural-language tool selection, observation-to-context integration, durable observation storage, and automatic knowledge promotion are not implemented.
