@@ -37,6 +37,16 @@ def read_decimal(value: Any, name: str) -> Decimal:
     return number
 
 
+def fit_result(value: Decimal, name: str) -> Decimal:
+    if value.as_tuple().exponent < -MAX_DECIMAL_SCALE:
+        with localcontext() as context:
+            context.prec = 29
+            value = value.quantize(Decimal("1e-28"))
+
+    read_decimal(value, name)
+    return value
+
+
 def format_decimal(value: Decimal) -> str:
     formatted = format(value, "f")
     if "." in formatted:
@@ -82,7 +92,7 @@ def execute(request: dict[str, Any]) -> Decimal:
         raise ValueError("Division by zero is undefined.")
 
     with localcontext() as context:
-        context.prec = 28
+        context.prec = 29
         try:
             if operation == "add":
                 result = left + right
@@ -99,8 +109,7 @@ def execute(request: dict[str, Any]) -> Decimal:
         except DecimalException as error:
             raise ValueError("The operation is outside the supported decimal range.") from error
 
-    read_decimal(result, "result")
-    return result
+    return fit_result(result, "result")
 
 
 def main() -> None:
