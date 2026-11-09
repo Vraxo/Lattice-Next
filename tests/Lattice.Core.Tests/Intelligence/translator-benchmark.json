@@ -190,7 +190,6 @@
       "category": "unsupported",
       "input": "Only dogs are animals.",
       "expectedOutcome": "one-candidate",
-      "expectedCandidates": [],
       "notes": "Preserve the direction of the implication: only dogs are animals means every animal is a dog, not every dog is an animal.",
       "expectedLce": "Every animal is a dog.",
       "expectedMeaning": "forall(x, implies(animal(x), dog(x)))"
