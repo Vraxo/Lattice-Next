@@ -12,8 +12,8 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 
     private static readonly Regex ExpressionPattern = new(
         @"^(?:(?:what\s+is|calculate|compute)\s+)?(?<left>" + Number +
-        @" )\s+(?<operator>plus|added\s+to|minus|less|times|multiplied\s+by|divided\s+by|over)\s+(?<right>" +
-        Number + @")[?.]?$".Replace(Number),
+        @")\s+(?<operator>plus|added\s+to|minus|less|times|multiplied\s+by|divided\s+by|over)\s+(?<right>" +
+        Number + @")[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex VerbPattern = new(
@@ -35,8 +35,8 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ChainedStepPattern = new(
-        @"^(?<verb>add|subtract|multiply|divide)\s+(?:(?:" + Reference + @")\s+by\s+)?(?<right>" +
-        Number + @")(?:\s+(?<connector>to|from|by)\s+" + Reference + @")?[?.]?$",
+        @"^(?<verb>add|subtract|multiply|divide)\s+(?:(?:" + Reference + @")\s+)?(?:(?<prefix>by)\s+)?(?<right>" +
+        Number + @")(?:\s+(?<suffix>to|from)\s+" + Reference + @")?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ChainSeparator = new(
@@ -213,10 +213,10 @@ public sealed class CalculatorIntentRecognizer : IToolIntentRecognizer
 
         operation = verb switch
         {
-            "add" when prefix.Length == 0 && suffix is "" or "to" => "add",
-            "subtract" when prefix.Length == 0 && suffix is "" or "from" => "subtract",
-            "multiply" when suffix.Length == 0 && prefix is "" or "by" => "multiply",
-            "divide" when suffix.Length == 0 && prefix is "" or "by" => "divide",
+            "add" when prefix.Length == 0 && (suffix is "" or "to") => "add",
+            "subtract" when prefix.Length == 0 && (suffix is "" or "from") => "subtract",
+            "multiply" when suffix.Length == 0 && (prefix is "" or "by") => "multiply",
+            "divide" when suffix.Length == 0 && (prefix is "" or "by") => "divide",
             _ => string.Empty
         };
 
