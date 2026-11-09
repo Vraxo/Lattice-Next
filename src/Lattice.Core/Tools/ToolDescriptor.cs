@@ -6,4 +6,5 @@ public sealed record ToolDescriptor(
     string Id,
     string Name,
     string Description,
-    ImmutableArray<ToolInputDescriptor> Inputs);
+    ImmutableArray<ToolInputDescriptor> Inputs,
+    ToolPermission RequiredPermissions = ToolPermission.None);
