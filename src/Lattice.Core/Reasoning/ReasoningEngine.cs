@@ -300,13 +300,13 @@ public sealed class ReasoningEngine
         PredicateApplication predicate,
         out (string Predicate, SemanticTerm Individual) key)
     {
-        key = (string.Empty, string.Empty);
+        key = (string.Empty, null!);
 
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefault ||
             predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not IndividualTerm &&
-            predicate.Arguments[0] is not AnonymousIndividualTerm)
+            (predicate.Arguments[0] is not IndividualTerm &&
+             predicate.Arguments[0] is not AnonymousIndividualTerm))
         {
             return false;
         }
