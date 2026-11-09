@@ -38,6 +38,8 @@ public sealed class NativeEnglishGrammarTests
 
     [Theory]
     [InlineData("No dog is a cat.")]
+    [InlineData("Only red dogs are animals.")]
+    [InlineData("Some dogs like milk.")]
     [InlineData("Fido does not like milk.")]
     [InlineData("Not every dog likes milk.")]
     [InlineData("Every dog likes some cat.")]

@@ -74,6 +74,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Add conservative input normalization for harmless Unicode/formatting artifacts without silently rewriting words or meaning.
 - [x] Add the first compositional native-English grammar slice to the existing parser; map covered constructions directly to semantic formulas and preserve safe rejection of unsupported meanings.
+- [x] Reuse one parsed noun-description structure across quantified, existential, definite, and relational sentence positions; support composable adjective and restrictive relative-clause modifiers.
 - [ ] Expand native-English grammar coverage by adding compositional constructions and morphology with benchmarked semantic fidelity.
 - [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
 - [x] Add an optional LM Studio adapter outside Core; require generated text to pass the native LCE parser and semantic validator.

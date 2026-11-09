@@ -128,31 +128,41 @@ Examples:
 
 Inputs outside this grammar are rejected with an explicit sentence number where possible. The parser does not guess, silently repair wording, or translate arbitrary English. The parser deliberately does not resolve "it"; reference resolution requires conversation context and happens after the complete text has been parsed.
 
-## Native English grammar (initial slice)
+## Native English grammar
 
-The public `LceParser` entry point accepts both LCE 0.9 and a small, deterministic set of ordinary-English constructions. This is part of the native language parser, not a translator or a preprocessing stage: each recognized sentence is parsed directly into the same language-independent semantic formulas used by LCE. No intermediate LCE sentence is generated.
+The public `LceParser` entry point accepts both LCE 0.9 and a growing, deterministic subset of ordinary English. This is part of the native language parser, not a translator or preprocessing stage: recognized sentences are mapped directly into the existing semantic formulas. No intermediate LCE sentence is generated.
 
-The first slice covers these compositional patterns:
+The grammar is built from reusable phrase structures. One description parser recognizes a head noun, any preceding modifiers, and zero or more restrictive `that is + adjective` clauses. The same parsed description is then used in different grammatical positions:
 
-| Construction | Example | Semantic reading |
-|---|---|---|
-| Plural universal | `All dogs are animals.` | `forall(x, implies(dog(x), animal(x)))` |
-| Reverse-only quantifier | `Only dogs are animals.` | `forall(x, implies(animal(x), dog(x)))` |
-| Class membership | `Fido belongs to the class of dogs.` | `dog(fido)` |
-| Existential description | `There is a red ball that is shiny.` | `exists(x, and(red(x), ball(x), shiny(x)))` |
-| Fixed-object universal relation | `All dogs like milk.` | `forall(x, implies(dog(x), likes(x, milk)))` |
-| Relative-clause universal | `Every dog that is red likes milk.` | `forall(x, implies(and(red(x), dog(x)), likes(x, milk)))` |
-| Definite description | `The ball that is red is shiny.` | `shiny(red-ball)` |
-| Relative-clause relation object | `Fido likes the ball that is red.` | `likes(fido, red-ball)` |
-| Active/passive relation | `Milk is liked by Fido.` | `likes(fido, milk)` |
-| Class-membership question | `Does Fido count as an animal?` | `ask(animal(fido))` |
-| Existence question | `Is there a red ball?` | `ask(exists(x, and(red(x), ball(x))))` |
-| Passive relation question | `Is milk liked by Fido?` | `ask(likes(fido, milk))` |
+- As the subject conditions of universal rules.
+- As the descriptive conditions of existential claims.
+- As a definite individual in property assertions and questions.
+- As the subject or object of a binary relation.
 
-The first implementation deliberately limits relative clauses to the supported `that is + adjective` form, passive relation participles to a small explicit vocabulary, plural normalization to regular forms, and quantifier coverage to the constructions above. It does not infer arbitrary lexical categories or resolve ambiguous readings. For example, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported and are rejected rather than weakened into positive facts.
+For example, the same description structure is recognized in all of these sentences:
 
-Both the controlled LCE forms and native-English forms preserve the original sentence in `SemanticUtterance.SourceText`, and both can appear together in one `ParseText` turn. The native-English grammar adds language coverage only; it does not expand what the reasoning engine can represent or prove.
+| Input | Semantic reading |
+|---|---|
+| `All red dogs are animals.` | `forall(x, implies(and(red(x), dog(x)), animal(x)))` |
+| `Every dog that is red is an animal.` | Same meaning |
+| `All dogs that are red are animals.` | Same meaning |
+| `All red dogs that are old like milk.` | `forall(x, implies(and(red(x), old(x), dog(x)), likes(x, milk)))` |
+| `Some red dogs are animals.` | `exists(x, and(red(x), dog(x), animal(x)))` |
+| `There is a ball that is red that is shiny.` | `exists(x, and(red(x), shiny(x), ball(x)))` |
+| `The ball that is red that is shiny is a toy.` | `toy(red-shiny-ball)` |
+| `The ball that is red likes milk.` | `likes(red-ball, milk)` |
+| `Fido likes the ball that is red that is shiny.` | `likes(fido, red-shiny-ball)` |
+| `Does the ball that is red like milk?` | `ask(likes(red-ball, milk))` |
+| `Is the ball that is red shiny?` | `ask(shiny(red-ball))` |
 
+This means a relative-clause description does not have a separate implementation for every sentence type. Its head and modifiers are parsed once and then composed with the surrounding sentence structure.
+
+The initial grammar also supports plural universal quantification (`All`), existential `Some` statements over unary conditions, and the reverse implication expressed by simple `Only` statements. `Only` with a multi-condition subject description is deliberately not accepted yet because the current universal-rule representation does not support a conjunctive conclusion. Plural handling is limited to regular spelling rules; irregular forms and reliable lexical category detection remain future work.
+
+The supported relative clause is deliberately restricted to `that is + adjective`. Clauses containing verbs, unrestricted coordination, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported. The parser rejects them instead of weakening or guessing their meaning.
+
+Both controlled LCE and native-English constructions preserve the original sentence in `SemanticUtterance.SourceText`, and both can appear together in one `ParseText` turn. This language expansion does not automatically expand what the reasoning engine can represent or prove.
+  
 ## Parsing API and semantic representation
 
 - `Parse` parses exactly one sentence and retains its single-utterance result contract.
