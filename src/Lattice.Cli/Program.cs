@@ -69,7 +69,7 @@ var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.9[/]");
-AnsiConsole.MarkupLine("[dim]Enter LCE sentences or use :translate for ordinary-language statements; use :load, :tools, :tool, :translator setup, :help, :status, or :quit.[/]");
+AnsiConsole.MarkupLine("[dim]Enter LCE or supported English sentences directly; use :translate for model-assisted interpretation beyond native coverage.[/]");
 AnsiConsole.MarkupLine($"[dim]Local configuration: {configurationStore.Path}[/]");
 
 if (!configurationLoaded)
@@ -135,6 +135,12 @@ while (true)
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
         AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
+        AnsiConsole.MarkupLine("  [green]All dogs are animals.[/]       [dim]native plural universal[/]");
+        AnsiConsole.MarkupLine("  [green]Only dogs are animals.[/]      [dim]native reverse quantifier[/]");
+        AnsiConsole.MarkupLine("  [green]Fido belongs to the class of dogs.[/] [dim]native class membership[/]");
+        AnsiConsole.MarkupLine("  [green]There is a red ball that is shiny.[/] [dim]native existential description[/]");
+        AnsiConsole.MarkupLine("  [green]Every dog that is red likes milk.[/] [dim]native relative-clause rule[/]");
+        AnsiConsole.MarkupLine("  [green]Is milk liked by Fido?[/]       [dim]native passive relation question[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
         AnsiConsole.MarkupLine("  [green]A red ball exists.[/]     [dim]existential assertion[/]");
@@ -454,7 +460,7 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.9 parser");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.9 + native English grammar");
         AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, existential and universal quantification");
         AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary and fixed-object relational inference + existential lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
