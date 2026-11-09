@@ -120,6 +120,18 @@ public sealed class ConversationContextTests
     }
 
     [Fact]
+    public void An_existential_witness_does_not_become_a_named_conversation_referent()
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("A red ball exists."));
+
+        Assert.Equal(0, context.KnownIndividualCount);
+        Assert.Equal(
+            ReferenceResolutionStatus.MissingReferent,
+            context.Resolve(Parse("Is it a mammal?")).Status);
+    }
+
+    [Fact]
     public void Resolved_pronoun_assertion_keeps_its_source_and_resolution_provenance()
     {
         var context = new ConversationContext();
