@@ -10,6 +10,10 @@ public sealed class LceParser
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex UniversalRelationRulePattern = new(
+        @"^Every\\s+(?<description>[a-z][a-z0-9-]*(?:\\s+[a-z][a-z0-9-]*)*)\\s+(?<predicate>(?!is\\b)[a-z][a-z0-9-]*s)\\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\\s+(?:[a-z][a-z0-9-]*\\s+)*[a-z][a-z0-9-]*|(?!the\\b)[a-z][a-z0-9-]*)\\.$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex ExistentialAssertionPattern = new(
         @"^(?:A|An)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exists\.$",
         RegexOptions.CultureInvariant);
@@ -89,6 +93,32 @@ public sealed class LceParser
             var meaning = new UniversalQuantification(variable, implication);
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
+        var universalRelationMatch = UniversalRelationRulePattern.Match(source);
+
+        if (universalRelationMatch.Success)
+        {
+            var variable = new VariableTerm(new SemanticIdentifier("x"));
+            var premises = CreateUniversalPremises(
+                universalRelationMatch.Groups["description"].Value,
+                variable);
+            SemanticFormula premise = premises.Length == 1
+                ? premises[0]
+                : new Conjunction(premises.Cast<SemanticFormula>().ToImmutableArray());
+            var conclusion = new PredicateApplication(
+                CreateIdentifier(universalRelationMatch.Groups["predicate"].Value),
+                ImmutableArray.Create<SemanticTerm>(
+                    variable,
+                    CreateSubjectTerm(universalRelationMatch.Groups["object"].Value)));
+            var meaning = new UniversalQuantification(
+                variable,
+                new Implication(premise, conclusion));
+
+            return ParseResult.Success(new SemanticUtterance(
+                UtteranceKind.Assertion,
+                meaning,
+                originalSource));
         }
 
         var existentialAssertionMatch = ExistentialAssertionPattern.Match(source);
