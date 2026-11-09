@@ -11,7 +11,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex UniversalRelationRulePattern = new(
-        @"^Every\\s+(?<description>[a-z][a-z0-9-]*(?:\\s+[a-z][a-z0-9-]*)*)\\s+(?<predicate>(?!is\\b)[a-z][a-z0-9-]*s)\\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\\s+(?:[a-z][a-z0-9-]*\\s+)*[a-z][a-z0-9-]*|(?!the\\b)[a-z][a-z0-9-]*)\\.$",
+        @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+(?<predicate>(?!is\b)[a-z][a-z0-9-]*s)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex ExistentialAssertionPattern = new(
