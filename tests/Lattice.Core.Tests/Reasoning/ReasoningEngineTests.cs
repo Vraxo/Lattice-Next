@@ -407,7 +407,7 @@ public sealed class ReasoningEngineTests
     public void Processes_an_existential_assertion_and_question_in_one_turn()
     {
         var parsed = new LceParser().ParseText(
-            "A red ball is shiny. Does a red ball exist.");
+            "A red ball is shiny. Does a red ball exist?");
 
         Assert.True(parsed.IsSuccess, parsed.Error);
         Assert.Equal(2, parsed.Utterances.Length);
