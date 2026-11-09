@@ -129,6 +129,15 @@
       "response": "{left} divided by {right} is {result}."
     },
     {
+      "pattern": "calculate {left:number} divided by {right:number}",
+      "arguments": {
+        "left": "$left",
+        "operation": "divide",
+        "right": "$right"
+      },
+      "response": "{left} divided by {right} is {result}."
+    },
+    {
       "pattern": "{left:number} divided by {right:number}",
       "arguments": {
         "left": "$left",
