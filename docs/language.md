@@ -4,7 +4,7 @@
 
 The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.9.
 
-LCE 0.9 retains unary assertions, universal rules, relational assertions, definite descriptions, and multi-sentence turns. It adds explicit existential assertions and existence questions for indefinite descriptions. An indefinite assertion introduces an unnamed witness whose descriptive conditions are kept together; it does not automatically identify that witness with another statement's subject. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.9 retains unary assertions, universal rules, relational assertions, definite descriptions, and multi-sentence turns. It adds explicit existential assertions and existence questions for indefinite descriptions. An indefinite assertion introduces an unnamed witness whose descriptive conditions are kept together; it does not automatically identify that witness with another statement's subject. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English. The same parser entry point also accepts a growing native-English grammar; those constructions are mapped directly into the semantic model rather than translated into LCE text.
 
 ## Why not integrate full ACE immediately?
 
@@ -127,6 +127,31 @@ Examples:
 | `Fido is a dog. It is a mammal. Is it a mammal?` | A fact, a context-resolved fact, then a question |
 
 Inputs outside this grammar are rejected with an explicit sentence number where possible. The parser does not guess, silently repair wording, or translate arbitrary English. The parser deliberately does not resolve "it"; reference resolution requires conversation context and happens after the complete text has been parsed.
+
+## Native English grammar (initial slice)
+
+The public `LceParser` entry point accepts both LCE 0.9 and a small, deterministic set of ordinary-English constructions. This is part of the native language parser, not a translator or a preprocessing stage: each recognized sentence is parsed directly into the same language-independent semantic formulas used by LCE. No intermediate LCE sentence is generated.
+
+The first slice covers these compositional patterns:
+
+| Construction | Example | Semantic reading |
+|---|---|---|
+| Plural universal | `All dogs are animals.` | `forall(x, implies(dog(x), animal(x)))` |
+| Reverse-only quantifier | `Only dogs are animals.` | `forall(x, implies(animal(x), dog(x)))` |
+| Class membership | `Fido belongs to the class of dogs.` | `dog(fido)` |
+| Existential description | `There is a red ball that is shiny.` | `exists(x, and(red(x), ball(x), shiny(x)))` |
+| Fixed-object universal relation | `All dogs like milk.` | `forall(x, implies(dog(x), likes(x, milk)))` |
+| Relative-clause universal | `Every dog that is red likes milk.` | `forall(x, implies(and(red(x), dog(x)), likes(x, milk)))` |
+| Definite description | `The ball that is red is shiny.` | `shiny(red-ball)` |
+| Relative-clause relation object | `Fido likes the ball that is red.` | `likes(fido, red-ball)` |
+| Active/passive relation | `Milk is liked by Fido.` | `likes(fido, milk)` |
+| Class-membership question | `Does Fido count as an animal?` | `ask(animal(fido))` |
+| Existence question | `Is there a red ball?` | `ask(exists(x, and(red(x), ball(x))))` |
+| Passive relation question | `Is milk liked by Fido?` | `ask(likes(fido, milk))` |
+
+The first implementation deliberately limits relative clauses to the supported `that is + adjective` form, passive relation participles to a small explicit vocabulary, plural normalization to regular forms, and quantifier coverage to the constructions above. It does not infer arbitrary lexical categories or resolve ambiguous readings. For example, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported and are rejected rather than weakened into positive facts.
+
+Both the controlled LCE forms and native-English forms preserve the original sentence in `SemanticUtterance.SourceText`, and both can appear together in one `ParseText` turn. The native-English grammar adds language coverage only; it does not expand what the reasoning engine can represent or prove.
 
 ## Parsing API and semantic representation
 

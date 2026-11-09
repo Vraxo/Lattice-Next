@@ -77,6 +77,11 @@ public sealed class LceParser
             return ParseResult.Failure("Input is empty.");
         }
 
+        if (NativeEnglishGrammar.TryParse(source, originalSource, out var nativeUtterance))
+        {
+            return ParseResult.Success(nativeUtterance!);
+        }
+
         var universalMatch = UniversalRulePattern.Match(source);
 
         if (universalMatch.Success)
