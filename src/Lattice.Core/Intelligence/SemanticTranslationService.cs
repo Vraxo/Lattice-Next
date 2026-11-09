@@ -38,12 +38,16 @@ public sealed class SemanticTranslationService
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            var message = string.IsNullOrWhiteSpace(exception.Message)
+                ? "The semantics translator failed."
+                : $"The semantics translator failed: {exception.Message}";
+
             return new SemanticTranslationResult(
                 SemanticTranslationStatus.Failed,
                 ImmutableArray<SemanticUtterance>.Empty,
-                "The semantics translator failed.");
+                message);
         }
 
         if (response is null || response.Candidates.IsDefault)
