@@ -131,6 +131,76 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
+    public void Stores_a_quantified_relational_rule_with_a_concrete_object()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.Equal(
+            KnowledgeEntryKind.Rule,
+            Add(knowledgeBase, "Every dog likes milk."));
+
+        var rule = Assert.Single(knowledgeBase.Rules);
+        Assert.Equal("dog", Assert.Single(rule.Premises).Predicate.Value);
+        Assert.Equal("likes", rule.Conclusion.Predicate.Value);
+        Assert.Equal(2, rule.Conclusion.Arguments.Length);
+        Assert.Equal(
+            "x",
+            Assert.IsType<VariableTerm>(rule.Conclusion.Arguments[0]).Identifier.Value);
+        Assert.Equal(
+            "milk",
+            Assert.IsType<IndividualTerm>(rule.Conclusion.Arguments[1]).Identifier.Value);
+    }
+
+    [Fact]
+    public void Normalizes_a_descriptive_object_in_a_quantified_relational_rule()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.Equal(
+            KnowledgeEntryKind.Rule,
+            Add(knowledgeBase, "Every dog likes the red ball."));
+
+        var rule = Assert.Single(knowledgeBase.Rules);
+        Assert.Equal(
+            "red-ball",
+            Assert.IsType<IndividualTerm>(rule.Conclusion.Arguments[1]).Identifier.Value);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "ball" &&
+            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "red" &&
+            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+    }
+
+    [Fact]
+    public void Rejects_a_quantified_relation_with_an_unbound_object_variable()
+    {
+        var variable = new VariableTerm(new SemanticIdentifier("x"));
+        var otherVariable = new VariableTerm(new SemanticIdentifier("y"));
+        var meaning = new UniversalQuantification(
+            variable,
+            new Implication(
+                new PredicateApplication(
+                    new SemanticIdentifier("dog"),
+                    ImmutableArray.Create<SemanticTerm>(variable)),
+                new PredicateApplication(
+                    new SemanticIdentifier("likes"),
+                    ImmutableArray.Create<SemanticTerm>(variable, otherVariable))));
+        var utterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            meaning,
+            "Every dog likes something.");
+
+        var accepted = new KnowledgeBase().TryAdd(
+            utterance,
+            out _,
+            out var error);
+
+        Assert.False(accepted);
+        Assert.NotNull(error);
+    }
+
+    [Fact]
     public void Answers_an_exact_relational_query_without_deriving_other_relations()
     {
         var knowledgeBase = new KnowledgeBase();

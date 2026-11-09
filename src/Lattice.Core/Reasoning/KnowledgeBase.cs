@@ -92,15 +92,24 @@ public sealed class KnowledgeBase
             universal.Variable is { } variable &&
             TryGetBoundUnaryPredicates(implication.Premise, variable, out var premises) &&
             implication.Conclusion is PredicateApplication conclusion &&
-            IsBoundUnaryPredicate(conclusion, variable))
+            TryNormalizeUniversalConclusion(
+                conclusion,
+                variable,
+                out var normalizedConclusion,
+                out var conclusionDescriptionFacts))
         {
             var existingRuleIndex = rules.FindIndex(rule =>
                 AreSamePremises(rule.Premises, premises) &&
-                IsSamePredicate(rule.Conclusion, conclusion));
+                IsSamePredicate(rule.Conclusion, normalizedConclusion));
 
             if (existingRuleIndex < 0)
             {
-                rules.Add(new UniversalRule(premises, conclusion, utterance.SourceText, sourceKind, SourceId: sourceId));
+                rules.Add(new UniversalRule(
+                    premises,
+                    normalizedConclusion,
+                    utterance.SourceText,
+                    sourceKind,
+                    SourceId: sourceId));
             }
             else
             {
@@ -116,12 +125,21 @@ public sealed class KnowledgeBase
                 };
             }
 
+            foreach (var descriptionFact in conclusionDescriptionFacts)
+            {
+                AddFact(new KnowledgeFact(
+                    descriptionFact,
+                    utterance.SourceText,
+                    SourceKind: sourceKind,
+                    SourceId: sourceId));
+            }
+
             kind = KnowledgeEntryKind.Rule;
             return true;
         }
 
         error =
-            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises and one unary conclusion are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises and either one unary conclusion or one binary relation to a concrete individual are supported by the current reasoning engine.";
         return false;
     }
 
@@ -266,6 +284,67 @@ public sealed class KnowledgeBase
         predicate.Arguments.Length == 1 &&
         predicate.Arguments[0] is VariableTerm argument &&
         argument.Identifier == variable.Identifier;
+
+    private static bool TryNormalizeUniversalConclusion(
+        PredicateApplication conclusion,
+        VariableTerm variable,
+        out PredicateApplication normalizedConclusion,
+        out List<PredicateApplication> descriptionFacts)
+    {
+        normalizedConclusion = conclusion;
+        descriptionFacts = [];
+
+        if (IsBoundUnaryPredicate(conclusion, variable))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(conclusion.Predicate.Value) ||
+            string.IsNullOrWhiteSpace(variable.Identifier.Value) ||
+            conclusion.Arguments.IsDefault ||
+            conclusion.Arguments.Length != 2 ||
+            conclusion.Arguments[0] is not VariableTerm subject ||
+            subject.Identifier != variable.Identifier)
+        {
+            return false;
+        }
+
+        SemanticTerm objectTerm;
+
+        switch (conclusion.Arguments[1])
+        {
+            case IndividualTerm individual when
+                !string.IsNullOrWhiteSpace(individual.Identifier.Value):
+                objectTerm = individual;
+                break;
+
+            case DescriptiveIndividualTerm description
+                when IsValidDescription(description):
+                objectTerm = new IndividualTerm(description.Identifier);
+                descriptionFacts.Add(CreateUnaryFact(
+                    description.Head,
+                    description.Identifier));
+
+                foreach (var modifier in description.Modifiers)
+                {
+                    descriptionFacts.Add(CreateUnaryFact(
+                        modifier,
+                        description.Identifier));
+                }
+
+                break;
+
+            default:
+                return false;
+        }
+
+        normalizedConclusion = conclusion with
+        {
+            Arguments = ImmutableArray.Create<SemanticTerm>(variable, objectTerm)
+        };
+
+        return true;
+    }
 
     private static bool IsSameFact(
         PredicateApplication left,
