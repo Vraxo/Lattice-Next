@@ -44,7 +44,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Process multiple sentences in one turn in source order using the context and reasoning layers.
 - [x] Observe every concrete individual argument in a relational assertion or question.
 - [ ] Support richer antecedent selection, recency/salience, and additional pronouns.
-- [ ] Keep user assertions, derived conclusions, and observations distinguishable.
+- [x] Keep user assertions, imported claims, external observations, and derived conclusions distinguishable through structured provenance.
 
 ## 4. Knowledge packs
 

@@ -82,6 +82,7 @@ while (true)
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
+        AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine("  [cyan]Knowledge packs[/]      [yellow]Not implemented[/]");
         AnsiConsole.MarkupLine("  [cyan]Tools[/]                None registered");
         AnsiConsole.WriteLine();
@@ -205,13 +206,20 @@ static IEnumerable<string> GetProofStatements(ProofNode proof)
             }
         }
 
-        var source = current.ResolvedReferent is { } referent
-            ? $"{current.SourceText} [it resolved to {referent.Value}]"
-            : current.SourceText;
-
-        if (emitted.Add(source))
+        foreach (var source in current.Sources)
         {
-            yield return source;
+            var referent = source.ResolvedReferent is { } resolved
+                ? $" [it resolved to {resolved.Value}]"
+                : string.Empty;
+            var origin = source.Kind == KnowledgeSourceKind.UserAssertion
+                ? string.Empty
+                : $" [source: {source.Kind}]";
+            var statement = $"{source.SourceText}{referent}{origin}";
+
+            if (emitted.Add(statement))
+            {
+                yield return statement;
+            }
         }
     }
 }
