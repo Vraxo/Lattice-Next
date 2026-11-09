@@ -105,7 +105,33 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
                 },
                 temperature = 0.0,
                 max_tokens = MaximumOutputTokens,
-                response_format = new { type = "json_object" }
+                response_format = new
+                {
+                    type = "json_schema",
+                    json_schema = new
+                    {
+                        name = "lattice_translation",
+                        strict = true,
+                        schema = new
+                        {
+                            type = "object",
+                            properties = new
+                            {
+                                candidates = new
+                                {
+                                    type = "array",
+                                    items = new { type = "string" }
+                                },
+                                message = new
+                                {
+                                    type = new[] { "string", "null" }
+                                }
+                            },
+                            required = new[] { "candidates", "message" },
+                            additionalProperties = false
+                        }
+                    }
+                }
             });
 
         using var response = await httpClient.SendAsync(
