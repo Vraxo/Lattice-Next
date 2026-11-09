@@ -62,8 +62,9 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
 - [x] Retain the latest sourced tool observation in conversation context for numeric follow-ups without promoting it to knowledge.
 - [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
+- [x] Move bundled calculator and unit-conversion implementations into independently discovered external Python tools; keep their binaries and runtimes out of Core.
 - [x] Add a second independent capability before introducing autonomous tool selection.
-- [x] Select between the calculator and unit converter from narrow natural-language intent recognizers and render sourced results conversationally.
+- [x] Select discovered calculator and unit-converter capabilities from narrow natural-language intent recognizers and render sourced results conversationally.
 - [x] Execute bounded, deterministic arithmetic follow-up chains against successive sourced numeric observations.
 - [ ] Expand deterministic intent coverage only in response to concrete language examples; evaluate broader translation separately.
 

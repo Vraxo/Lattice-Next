@@ -1,0 +1,29 @@
+{
+  "protocolVersion": 1,
+  "id": "calculator",
+  "name": "Calculator",
+  "description": "Performs one exact decimal arithmetic operation.",
+  "command": "python",
+  "arguments": ["main.py"],
+  "inputs": [
+    {
+      "name": "left",
+      "description": "The left numeric operand.",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "operation",
+      "description": "One of add, subtract, multiply, or divide.",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "right",
+      "description": "The right numeric operand.",
+      "type": "number",
+      "required": true
+    }
+  ],
+  "permissions": []
+}

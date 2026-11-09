@@ -1,0 +1,29 @@
+{
+  "protocolVersion": 1,
+  "id": "unit-converter",
+  "name": "Unit converter",
+  "description": "Converts values between supported units of the same dimension.",
+  "command": "python",
+  "arguments": ["main.py"],
+  "inputs": [
+    {
+      "name": "value",
+      "description": "The numeric value to convert.",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "from",
+      "description": "The source unit.",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "to",
+      "description": "The destination unit.",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "permissions": []
+}
