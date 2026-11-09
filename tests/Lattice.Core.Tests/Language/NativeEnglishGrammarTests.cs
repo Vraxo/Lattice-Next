@@ -45,6 +45,7 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Mira gave Fido a book.")]
     [InlineData("Could Fido be a dog?")]
     [InlineData("Fido might be a dog.")]
+    [InlineData("Does Fido be happy?")]
     [InlineData("I saw her duck.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {

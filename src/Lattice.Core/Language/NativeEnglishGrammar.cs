@@ -15,6 +15,12 @@ internal static class NativeEnglishGrammar
         "need", "want", "eat", "chase", "admire", "trust"
     };
 
+    private static readonly HashSet<string> ReservedIndividualTerms = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "a", "an", "the", "there", "is", "are", "be", "exist",
+        "something", "that", "by", "not", "no", "every", "all", "only"
+    };
+
     private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
     {
         ["liked"] = "like",
@@ -405,7 +411,8 @@ internal static class NativeEnglishGrammar
             !IsCapitalized(tokens[0]) ||
             !IsThirdPersonVerb(tokens[1]) ||
             !TryCreateIndividual(tokens[0], allowPronoun: true, out var subject) ||
-            !TryCreateObjectTerm(tokens, 2, tokens.Length, out var relationObject))
+            !TryCreateObjectTerm(tokens, 2, tokens.Length, out var relationObject) ||
+            HasMultipleUnresolvedReferences(subject, relationObject))
         {
             return false;
         }
@@ -426,9 +433,13 @@ internal static class NativeEnglishGrammar
 
         if (tokens.Length < 4 ||
             !Is(tokens[0], "Does") ||
+            IsArticle(tokens[1]) ||
             !TryCreateIndividual(tokens[1], allowPronoun: true, out var subject) ||
             !IsLowerWord(tokens[2]) ||
-            !TryCreateObjectTerm(tokens, 3, tokens.Length, out var relationObject))
+            Is(tokens[2], "be") ||
+            Is(tokens[2], "exist") ||
+            !TryCreateObjectTerm(tokens, 3, tokens.Length, out var relationObject) ||
+            HasMultipleUnresolvedReferences(subject, relationObject))
         {
             return false;
         }
@@ -531,7 +542,7 @@ internal static class NativeEnglishGrammar
             return true;
         }
 
-        if (!IsWord(value))
+        if (!IsWord(value) || ReservedIndividualTerms.Contains(value))
         {
             return false;
         }
@@ -539,6 +550,12 @@ internal static class NativeEnglishGrammar
         term = new IndividualTerm(Id(value));
         return true;
     }
+
+    private static bool HasMultipleUnresolvedReferences(
+        SemanticTerm? first,
+        SemanticTerm? second) =>
+        first is UnresolvedReferenceTerm &&
+        second is UnresolvedReferenceTerm;
 
     private static SemanticUtterance CreateUniversalUtterance(
         VariableTerm variable,
