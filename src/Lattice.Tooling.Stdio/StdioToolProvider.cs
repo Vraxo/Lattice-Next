@@ -414,7 +414,7 @@ public static class StdioToolProvider
             "^\\{(?<name>[A-Za-z][A-Za-z0-9_]*):(?<type>number|word|text)\\}$",
             RegexOptions.CultureInvariant);
 
-        foreach (var rawToken in pattern.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        foreach (var rawToken in pattern.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
         {
             var token = rawToken.TrimEnd('.', '?', '!', ',', ';', ':');
 
