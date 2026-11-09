@@ -22,6 +22,10 @@ public sealed class LceParser
         @"^Does\s+(?:a|an)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exist\?$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex DefiniteExistentialQuestionPattern = new(
+        @"^Does\\s+[Tt]he\\s+(?:[a-z][a-z0-9-]*\\s+)*[a-z][a-z0-9-]*\\s+exist\\?$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex AssertionPattern = new(
         @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -163,6 +167,12 @@ public sealed class LceParser
                 null);
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
+        }
+
+        if (DefiniteExistentialQuestionPattern.IsMatch(source))
+        {
+            return ParseResult.Failure(
+                "Existence questions currently require an indefinite description beginning with 'a' or 'an'.");
         }
 
         var pronounQuestionMatch = PronounQuestionPattern.Match(source);
