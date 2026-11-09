@@ -12,7 +12,7 @@ var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
 
 AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
-AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.7[/]");
+AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.8[/]");
 AnsiConsole.MarkupLine("[dim]Enter one or more sentences, :help for examples, :status for implementation status, or :quit to exit.[/]");
 AnsiConsole.WriteLine();
 
@@ -40,6 +40,10 @@ while (true)
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]Every dog is an animal.[/]  [dim]single-condition rule[/]");
         AnsiConsole.MarkupLine("  [green]Every red ball is a toy.[/] [dim]conjunctive class rule[/]");
+        AnsiConsole.MarkupLine("  [green]A red ball exists.[/]     [dim]existential assertion[/]");
+        AnsiConsole.MarkupLine("  [green]A red ball is shiny.[/]   [dim]indefinite property assertion[/]");
+        AnsiConsole.MarkupLine("  [green]A red ball is a toy.[/]   [dim]existential class assertion[/]");
+        AnsiConsole.MarkupLine("  [green]Does a red ball exist?[/] [dim]existence question[/]");
         AnsiConsole.MarkupLine("  [green]Fido is a dog.[/]            [dim]unary fact[/]");
         AnsiConsole.MarkupLine("  [green]It is a mammal.[/]          [dim]fact with reference[/]");
         AnsiConsole.MarkupLine("  [green]Fido likes milk.[/]         [dim]relation fact[/]");
@@ -60,9 +64,11 @@ while (true)
         AnsiConsole.MarkupLine("[dim]Definite descriptions become canonical identifiers (for example, 'the red ball' becomes red-ball).[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions contribute head-noun and modifier facts to the knowledge base.[/]");
         AnsiConsole.MarkupLine("[dim]A rule such as 'Every red ball is a toy' requires both red(x) and ball(x).[/]");
+        AnsiConsole.MarkupLine("[dim]Indefinite descriptions introduce unnamed witnesses; separate statements are not assumed to describe the same individual.[/]");
+        AnsiConsole.MarkupLine("[dim]Existence questions can be supported by one matching witness or one already-known named individual.[/]");
         AnsiConsole.MarkupLine("[dim]All conditions must be supported for the same individual before a rule can fire.[/]");
-        AnsiConsole.MarkupLine("[dim]Descriptions do not resolve synonyms or support indefinite noun phrases.[/]");
-        AnsiConsole.MarkupLine("[dim]LCE 0.7 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
+        AnsiConsole.MarkupLine("[dim]Definite descriptions do not resolve synonyms; indefinite relational arguments remain unsupported.[/]");
+        AnsiConsole.MarkupLine("[dim]LCE 0.8 is a small controlled-language subset, not full ACE or unrestricted English.[/]");
         AnsiConsole.WriteLine();
         continue;
     }
@@ -70,9 +76,9 @@ while (true)
     if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
     {
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
-        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.7 parser");
-        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, implication, universal quantification");
-        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Conjunctive unary-rule chaining + direct relational lookup");
+        AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.8 parser");
+        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, existential and universal quantification");
+        AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Conjunctive unary-rule chaining + existential lookup + direct relation lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {knowledgeBase.Facts.Count} facts, {knowledgeBase.Rules.Count} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {conversationContext.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
@@ -141,14 +147,20 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
         return;
     }
 
-    if (utterance.Meaning is not PredicateApplication query)
+    var answer = utterance.Meaning switch
+    {
+        PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
+        ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
+        _ => null
+    };
+
+    if (answer is null)
     {
         AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]› Unsupported question form.[/]");
         return;
     }
 
     conversationContext.Observe(utterance);
-    var answer = reasoningEngine.Ask(knowledgeBase, query);
 
     if (!answer.IsSupported)
     {

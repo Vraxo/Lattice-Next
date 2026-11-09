@@ -36,8 +36,86 @@ public sealed class ReasoningEngine
             return new ReasoningResult(null);
         }
 
+        var proof = DeriveUnaryFacts(knowledgeBase).FirstOrDefault(candidate =>
+            TryGetFactKey(candidate.Predicate, out var key) &&
+            key == queryKey);
+
+        return new ReasoningResult(proof);
+    }
+
+    public ReasoningResult Ask(
+        KnowledgeBase knowledgeBase,
+        ExistentialQuantification query)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+        ArgumentNullException.ThrowIfNull(query);
+
+        if (!TryGetBoundUnaryPredicates(query.Body, query.Variable, out var conditions))
+        {
+            return new ReasoningResult(null);
+        }
+
+        var knownFacts = DeriveUnaryFacts(knowledgeBase);
+
+        foreach (var candidate in knownFacts)
+        {
+            if (!TryGetFactKey(candidate.Predicate, out var candidateKey) ||
+                !string.Equals(
+                    candidateKey.Predicate,
+                    conditions[0].Predicate.Value,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
+            supportingPremises.Add(candidate);
+            var allConditionsSupported = true;
+
+            foreach (var condition in conditions.Skip(1))
+            {
+                var matchingProof = knownFacts.FirstOrDefault(proof =>
+                    TryGetFactKey(proof.Predicate, out var key) &&
+                    string.Equals(
+                        key.Predicate,
+                        condition.Predicate.Value,
+                        StringComparison.Ordinal) &&
+                    key.Individual == candidateKey.Individual);
+
+                if (matchingProof is null)
+                {
+                    allConditionsSupported = false;
+                    break;
+                }
+
+                supportingPremises.Add(matchingProof);
+            }
+
+            if (!allConditionsSupported)
+            {
+                continue;
+            }
+
+            var additionalPremises = candidate.AdditionalPremises.IsDefault
+                ? ImmutableArray<ProofNode>.Empty
+                : candidate.AdditionalPremises;
+
+            var proof = candidate with
+            {
+                AdditionalPremises = additionalPremises
+                    .AddRange(supportingPremises.Skip(1))
+            };
+
+            return new ReasoningResult(proof);
+        }
+
+        return new ReasoningResult(null);
+    }
+
+    private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase)
+    {
         var knownFacts = new List<ProofNode>();
-        var knownKeys = new HashSet<(string Predicate, string Individual)>();
+        var knownKeys = new HashSet<(string Predicate, SemanticTerm Individual)>();
 
         foreach (var fact in knowledgeBase.Facts)
         {
@@ -93,10 +171,7 @@ public sealed class ReasoningEngine
                                 key.Predicate,
                                 requiredPremise.Predicate.Value,
                                 StringComparison.Ordinal) &&
-                            string.Equals(
-                                key.Individual,
-                                candidateKey.Individual,
-                                StringComparison.Ordinal));
+                            key.Individual == candidateKey.Individual);
 
                         if (matchingProof is null)
                         {
@@ -135,11 +210,38 @@ public sealed class ReasoningEngine
         }
         while (added);
 
-        var proof = knownFacts.FirstOrDefault(candidate =>
-            TryGetFactKey(candidate.Predicate, out var key) &&
-            key == queryKey);
+        return knownFacts;
+    }
 
-        return new ReasoningResult(proof);
+    private static bool TryGetBoundUnaryPredicates(
+        SemanticFormula formula,
+        VariableTerm variable,
+        out ImmutableArray<PredicateApplication> predicates)
+    {
+        predicates = formula switch
+        {
+            PredicateApplication predicate => ImmutableArray.Create(predicate),
+            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
+                conjunction.Conjuncts
+                    .OfType<PredicateApplication>()
+                    .ToImmutableArray(),
+            _ => ImmutableArray<PredicateApplication>.Empty
+        };
+
+        if (predicates.IsDefaultOrEmpty ||
+            (formula is Conjunction compound &&
+             predicates.Length != compound.Conjuncts.Length))
+        {
+            return false;
+        }
+
+        return !string.IsNullOrWhiteSpace(variable.Identifier.Value) &&
+            predicates.All(predicate =>
+                !string.IsNullOrWhiteSpace(predicate.Predicate.Value) &&
+                !predicate.Arguments.IsDefault &&
+                predicate.Arguments.Length == 1 &&
+                predicate.Arguments[0] is VariableTerm argument &&
+                argument.Identifier == variable.Identifier);
     }
 
     private static bool TryGroundQuery(
@@ -196,28 +298,39 @@ public sealed class ReasoningEngine
 
     private static bool TryGetFactKey(
         PredicateApplication predicate,
-        out (string Predicate, string Individual) key)
+        out (string Predicate, SemanticTerm Individual) key)
     {
-        key = (string.Empty, string.Empty);
+        key = (string.Empty, null!);
 
         if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
             predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1 ||
-            predicate.Arguments[0] is not IndividualTerm individual ||
-            string.IsNullOrWhiteSpace(individual.Identifier.Value))
+            predicate.Arguments.Length != 1)
         {
             return false;
         }
 
-        key = (predicate.Predicate.Value, individual.Identifier.Value);
+        var individual = predicate.Arguments[0];
+
+        var hasValidIdentity = individual switch
+        {
+            IndividualTerm named => !string.IsNullOrWhiteSpace(named.Identifier.Value),
+            AnonymousIndividualTerm anonymous => !string.IsNullOrWhiteSpace(anonymous.Identity.Value),
+            _ => false
+        };
+
+        if (!hasValidIdentity)
+        {
+            return false;
+        }
+
+        key = (predicate.Predicate.Value, individual);
         return true;
     }
 
     private static PredicateApplication CreateGroundPredicate(
         SemanticIdentifier predicate,
-        string individual) =>
+        SemanticTerm individual) =>
         new(
             predicate,
-            ImmutableArray.Create<SemanticTerm>(
-                new IndividualTerm(new SemanticIdentifier(individual))));
+            ImmutableArray.Create(individual));
 }

@@ -1,10 +1,10 @@
-# Language strategy and LCE 0.7
+# Language strategy and LCE 0.8
 
 ## Decision
 
-The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.7.
+The language began as **Lattice Controlled English (LCE) 0.5**, a small, explicitly specified controlled-language subset inspired by the design principles of Attempto Controlled English (ACE). The current supported grammar is LCE 0.8.
 
-LCE 0.7 retains unary assertions, universal rules, relational assertions, and multi-sentence turns. It adds structured definite descriptions, which preserve a head noun and ordered modifiers as separate semantic predicates, plus explicit property assertions and questions. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
+LCE 0.8 retains unary assertions, universal rules, relational assertions, definite descriptions, and multi-sentence turns. It adds explicit existential assertions and existence questions for indefinite descriptions. An indefinite assertion introduces an unnamed witness whose descriptive conditions are kept together; it does not automatically identify that witness with another statement's subject. It is not ACE, is not ACE-compatible as a whole, and must never be advertised as full ACE support. The grammar remains deliberately limited so that every supported construction can be implemented, inspected, and tested without pretending to understand unrestricted English.
 
 ## Why not integrate full ACE immediately?
 
@@ -14,18 +14,24 @@ The official Attempto Parsing Engine (APE) converts ACE text into a Discourse Re
 
 Using APE could be a valid later option if Lattice needs broad ACE coverage. For the first language slice, however, an external parser/runtime would add deployment and integration complexity before Lattice has established its own semantic contract. We therefore start with a small native parser and keep the language layer replaceable.
 
-## LCE 0.7 grammar
+## LCE 0.8 grammar
 
 An input text contains one or more supported sentences. Each sentence is terminated by its required punctuation and is processed in source order.
 
     text                 = sentence, { whitespace, sentence } ;
 
-    sentence             = universal-rule | unary-assertion | pronoun-assertion
+    sentence             = universal-rule | indefinite-existential | indefinite-assertion
+                         | existential-question | unary-assertion | pronoun-assertion
                          | property-assertion | relation-assertion | unary-question
                          | pronoun-question | property-question | relation-question ;
 
     universal-rule       = "Every", class-description, "is", article, concept, "." ;
     class-description    = { adjective, whitespace }, concept ;
+    indefinite-existential = indefinite-description, "exists", "." ;
+    indefinite-assertion = indefinite-description, "is", [ article ], concept, "." ;
+    existential-question = "Does", indefinite-question-description, "exist", "?" ;
+    indefinite-description = ("A" | "An"), { adjective, whitespace }, noun ;
+    indefinite-question-description = article, { adjective, whitespace }, noun ;
     unary-assertion      = noun-phrase, "is", article, concept, "." ;
     pronoun-assertion    = "It", "is", article, concept, "." ;
     property-assertion   = definite-description, "is", adjective, "." ;
@@ -61,7 +67,13 @@ Additional constraints:
 - The term also exposes a stable canonical individual identifier by joining modifiers and head noun with hyphens: "the red ball" becomes red-ball. Repeating the same phrase therefore addresses the same identifier.
 - When a grounded assertion contains a descriptive term, the knowledge base stores the sentence's main predicate and adds one unary fact for the head noun and one for each modifier. Thus "The red ball is a toy." contributes toy(red-ball), ball(red-ball), and red(red-ball).
 - A definite-description property assertion such as "The red ball is shiny." contributes shiny(red-ball), ball(red-ball), and red(red-ball). The matching property question is "Is the red ball shiny?".
-- Descriptions remain identity keys rather than full natural-language entity resolution. "The red ball" and "the crimson ball" are different identifiers; adjective synonyms, ordering variants, comparative adjectives, and indefinite phrases such as "a red ball" are not interpreted.
+- Definite descriptions remain identity keys rather than full natural-language entity resolution. "The red ball" and "the crimson ball" are different identifiers; adjective synonyms, ordering variants, and comparative adjectives are not interpreted.
+- An indefinite description begins with "A" or "An", followed by zero or more modifiers and a final head noun. For example, "A red ball" contributes the conditions red(x) and ball(x).
+- "A red ball exists." asserts that at least one individual satisfies the description. "A red ball is shiny." asserts that one individual satisfies red(x), ball(x), and shiny(x). The same form accepts an article after "is", as in "A red ball is a toy."
+- Each indefinite assertion introduces a fresh anonymous witness. Its descriptive conditions and any following predicate are attached to that one witness. Separate indefinite assertions are not assumed to refer to the same object, even when their wording overlaps.
+- Anonymous witnesses are internal knowledge-base identities, not named conversation individuals. They do not become antecedents for "it" and are not silently matched to a definite description such as "the red ball".
+- An existence question uses "Does a/an ... exist?". It succeeds when all requested unary conditions are supported by one and the same known individual or anonymous witness. A named definite individual can therefore support an existence query, but an unnamed witness does not become that named individual.
+- Indefinite descriptions are supported only in these unary existential forms. They are not yet supported as relational arguments, pronoun antecedents, or general noun phrases in other sentence patterns.
 - Relational assertions use a third-person singular verb form ending in `s`, such as `likes`, `watches`, or `carries`. The copula `is` is reserved for unary assertions and is not a relation predicate.
 - Relational questions use `Does`, followed by the verb's base form. Lattice maps regular verbs to third-person singular using standard spelling rules: consonant + `y` becomes `ies`; endings `s`, `x`, `z`, `ch`, `sh`, and `o` take `es`; other verbs take `s`.
 - The supported irregular base forms `have`, `do`, and `go` map to `has`, `does`, and `goes`. Other irregular forms are not normalized by this grammar.
@@ -82,6 +94,10 @@ Examples:
 | `Every dog is an animal.` | One universal rule with one unary premise |
 | `Every red ball is a toy.` | `forall(x, implies(and(red(x), ball(x)), toy(x)))`; both unary premises are required |
 | `Every old blue car is a vehicle.` | `forall(x, implies(and(old(x), blue(x), car(x)), vehicle(x)))` |
+| `A red ball exists.` | `exists(x, and(red(x), ball(x)))`; introduces one anonymous witness |
+| `A red ball is shiny.` | `exists(x, and(red(x), ball(x), shiny(x)))`; all conditions describe the same witness |
+| `A red ball is a toy.` | `exists(x, and(red(x), ball(x), toy(x)))` |
+| `Does a red ball exist?` | `ask(exists(x, and(red(x), ball(x))))` |
 | `Fido is a dog.` | One unary fact |
 | `It is a mammal.` | One fact with an unresolved reference |
 | `Is Fido an animal?` | One unary yes/no question |
@@ -113,7 +129,8 @@ The parser does not return grammar-specific syntax nodes. It produces a small la
 - **PredicateApplication:** a predicate applied to an immutable ordered list of terms. Unary predicates and n-ary relations use the same representation.
 - **Conjunction:** a formula whose conjuncts must all hold.
 - **Implication:** a formula whose conclusion follows when its premise holds.
-- **UniversalQuantification:** binds a variable over a formula.
+- **UniversalQuantification** and **ExistentialQuantification:** bind a variable over a formula.
+- **AnonymousIndividualTerm:** an internal witness introduced when an existential assertion is stored; it is deliberately not a named conversation referent.
 - **SemanticUtterance:** preserves whether the input was an assertion or a question, the meaning, and the original source text. A resolved utterance also retains the grounded referent separately from the original wording.
 
 For example, `Every dog is an animal.` is represented as:
@@ -134,6 +151,12 @@ The relational example `Fido likes milk.` is represented as:
     )
 
 A definite description is represented as a structured `DescriptiveIndividualTerm`. For example, `the red ball` has head `ball`, modifier `red`, and stable identifier `red-ball`. When an assertion is added to the knowledge base, the descriptor is grounded to that identifier and contributes the separate unary facts `ball(red-ball)` and `red(red-ball)`. The adjective is therefore available as a predicate; it is not just embedded in an opaque name.
+
+An indefinite description instead produces an `ExistentialQuantification`. For example, `A red ball is shiny.` becomes:
+
+    exists(x, and(red(x), ball(x), shiny(x)))
+
+When stored, the knowledge base gives this assertion one fresh `AnonymousIndividualTerm` and records each condition against that same witness. An existence question checks the full conjunction against one known individual or witness; it never joins conditions from separate witnesses.
 
 ## Input normalization
 

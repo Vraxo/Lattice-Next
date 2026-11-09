@@ -8,6 +8,7 @@ public sealed class KnowledgeBase
 {
     private readonly List<KnowledgeFact> facts = [];
     private readonly List<UniversalRule> rules = [];
+    private long nextExistentialWitnessId;
 
     public IReadOnlyList<KnowledgeFact> Facts => facts;
 
@@ -35,6 +36,29 @@ public sealed class KnowledgeBase
             return false;
         }
 
+        if (utterance.Meaning is ExistentialQuantification existential &&
+            TryGetBoundUnaryPredicates(
+                existential.Body,
+                existential.Variable,
+                out var existentialConditions))
+        {
+            var witness = new AnonymousIndividualTerm(
+                new SemanticIdentifier($"witness-{++nextExistentialWitnessId}"));
+
+            foreach (var condition in existentialConditions)
+            {
+                AddFact(new KnowledgeFact(
+                    condition with
+                    {
+                        Arguments = ImmutableArray.Create<SemanticTerm>(witness)
+                    },
+                    utterance.SourceText));
+            }
+
+            kind = KnowledgeEntryKind.Fact;
+            return true;
+        }
+
         if (utterance.Meaning is PredicateApplication predicate &&
             TryGroundPredicate(predicate, out var groundedPredicate, out var descriptionFacts))
         {
@@ -58,7 +82,7 @@ public sealed class KnowledgeBase
         if (utterance.Meaning is UniversalQuantification universal &&
             universal.Body is Implication implication &&
             universal.Variable is { } variable &&
-            TryGetRulePremises(implication.Premise, variable, out var premises) &&
+            TryGetBoundUnaryPredicates(implication.Premise, variable, out var premises) &&
             implication.Conclusion is PredicateApplication conclusion &&
             IsBoundUnaryPredicate(conclusion, variable))
         {
@@ -74,7 +98,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts and universal rules with one or more unary premises and one unary conclusion are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises and one unary conclusion are supported by the current reasoning engine.";
         return false;
     }
 
@@ -154,7 +178,7 @@ public sealed class KnowledgeBase
             predicate,
             ImmutableArray.Create<SemanticTerm>(new IndividualTerm(individual)));
 
-    private static bool TryGetRulePremises(
+    private static bool TryGetBoundUnaryPredicates(
         SemanticFormula formula,
         VariableTerm variable,
         out ImmutableArray<PredicateApplication> premises)

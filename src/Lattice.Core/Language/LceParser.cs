@@ -10,6 +10,22 @@ public sealed class LceParser
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex ExistentialAssertionPattern = new(
+        @"^(?:A|An)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exists\.$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex IndefiniteAssertionPattern = new(
+        @"^(?:A|An)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:(?:a|an)\s+)?(?<property>[a-z][a-z0-9-]*)\.$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex ExistentialQuestionPattern = new(
+        @"^Does\s+(?:a|an)\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+exist\?$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex DefiniteExistentialQuestionPattern = new(
+        @"^Does\s+[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*\s+exist\?$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex AssertionPattern = new(
         @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -39,7 +55,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationQuestionPattern = new(
-        @"^Does\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!be\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
+        @"^Does\s+(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+(?<predicate>(?!be\b|exist\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)
@@ -71,6 +87,28 @@ public sealed class LceParser
             var supertype = CreatePredicate(universalMatch.Groups["supertype"].Value, variable);
             var implication = new Implication(premise, supertype);
             var meaning = new UniversalQuantification(variable, implication);
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
+        var existentialAssertionMatch = ExistentialAssertionPattern.Match(source);
+
+        if (existentialAssertionMatch.Success)
+        {
+            var meaning = CreateExistentialFormula(
+                existentialAssertionMatch.Groups["description"].Value,
+                null);
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
+        var indefiniteAssertionMatch = IndefiniteAssertionPattern.Match(source);
+
+        if (indefiniteAssertionMatch.Success)
+        {
+            var meaning = CreateExistentialFormula(
+                indefiniteAssertionMatch.Groups["description"].Value,
+                indefiniteAssertionMatch.Groups["property"].Value);
 
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
@@ -120,6 +158,23 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
+        var existentialQuestionMatch = ExistentialQuestionPattern.Match(source);
+
+        if (existentialQuestionMatch.Success)
+        {
+            var meaning = CreateExistentialFormula(
+                existentialQuestionMatch.Groups["description"].Value,
+                null);
+
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
+        }
+
+        if (DefiniteExistentialQuestionPattern.IsMatch(source))
+        {
+            return ParseResult.Failure(
+                "Existence questions currently require an indefinite description beginning with 'a' or 'an'.");
+        }
+
         var pronounQuestionMatch = PronounQuestionPattern.Match(source);
 
         if (pronounQuestionMatch.Success)
@@ -166,7 +221,7 @@ public sealed class LceParser
         }
 
         return ParseResult.Failure(
-            "That sentence is outside LCE 0.7. Use :help to see the supported forms.");
+            "That sentence is outside LCE 0.8. Use :help to see the supported forms.");
     }
 
     public TextParseResult ParseText(string? input)
@@ -226,6 +281,27 @@ public sealed class LceParser
         }
 
         return TextParseResult.Success(utterances.ToImmutable());
+    }
+
+    private static ExistentialQuantification CreateExistentialFormula(
+        string description,
+        string? additionalProperty)
+    {
+        var variable = new VariableTerm(new SemanticIdentifier("x"));
+        var predicates = description
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => CreatePredicate(word, variable))
+            .ToImmutableArray();
+
+        var conditions = additionalProperty is null
+            ? predicates
+            : predicates.Add(CreatePredicate(additionalProperty, variable));
+
+        SemanticFormula body = conditions.Length == 1
+            ? conditions[0]
+            : new Conjunction(conditions.Cast<SemanticFormula>().ToImmutableArray());
+
+        return new ExistentialQuantification(variable, body);
     }
 
     private static ImmutableArray<PredicateApplication> CreateUniversalPremises(

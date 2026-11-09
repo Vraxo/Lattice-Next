@@ -427,6 +427,79 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_an_existential_assertion_and_its_existence_question()
+    {
+        var assertion = parser.Parse("A red ball exists.");
+        var question = parser.Parse("Does a red ball exist?");
+
+        Assert.True(assertion.IsSuccess, assertion.Error);
+        Assert.True(question.IsSuccess, question.Error);
+
+        var assertedMeaning = Assert.IsType<ExistentialQuantification>(assertion.Utterance!.Meaning);
+        var queriedMeaning = Assert.IsType<ExistentialQuantification>(question.Utterance!.Meaning);
+        Assert.Equal("x", queriedMeaning.Variable.Identifier.Value);
+        var queriedConjunction = Assert.IsType<Conjunction>(queriedMeaning.Body);
+        Assert.Equal(
+            new[] { "red", "ball" },
+            queriedConjunction.Conjuncts
+                .Select(formula => Assert.IsType<PredicateApplication>(formula))
+                .Select(predicate => predicate.Predicate.Value));
+
+        Assert.Equal(
+            "exists(x, and(red(x), ball(x)))",
+            SemanticFormatter.Format(assertion.Utterance!));
+        Assert.Equal(
+            "ask(exists(x, and(red(x), ball(x))))",
+            SemanticFormatter.Format(question.Utterance!));
+        Assert.Equal("A red ball exists.", assertion.Utterance!.SourceText);
+    }
+
+    [Theory]
+    [InlineData(
+        "A red ball is shiny.",
+        "exists(x, and(red(x), ball(x), shiny(x)))")]
+    [InlineData(
+        "An old blue car is a vehicle.",
+        "exists(x, and(old(x), blue(x), car(x), vehicle(x)))")]
+    [InlineData(
+        "A dog exists.",
+        "exists(x, dog(x))")]
+    public void Parses_indefinite_assertions_as_existential_conjunctions(
+        string sentence,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.Assertion, utterance.Kind);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+        Assert.Equal(sentence, utterance.SourceText);
+    }
+
+    [Fact]
+    public void Parses_existential_sentences_in_a_multi_sentence_turn()
+    {
+        var result = parser.ParseText("A red ball is shiny. Does a red ball exist?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(2, result.Utterances.Length);
+        Assert.IsType<ExistentialQuantification>(result.Utterances[0].Meaning);
+        Assert.Equal(UtteranceKind.Assertion, result.Utterances[0].Kind);
+        Assert.IsType<ExistentialQuantification>(result.Utterances[1].Meaning);
+        Assert.Equal(UtteranceKind.Question, result.Utterances[1].Kind);
+    }
+
+    [Theory]
+    [InlineData("A red ball likes Fido.")]
+    [InlineData("A red ball exists")]
+    [InlineData("Does the red ball exist?")]
+    public void Rejects_indefinite_forms_outside_the_supported_existential_grammar(string sentence)
+    {
+        Assert.False(parser.Parse(sentence).IsSuccess);
+    }
+
+    [Fact]
     public void Parse_text_rejects_empty_input()
     {
         Assert.False(parser.ParseText(" ").IsSuccess);
