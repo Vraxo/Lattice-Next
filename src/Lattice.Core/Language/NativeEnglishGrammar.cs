@@ -142,7 +142,7 @@ internal static class NativeEnglishGrammar
         var variable = new VariableTerm(Id("x"));
         meaning = new ExistentialQuantification(
             variable,
-            description!.ToConditions(variable));
+            description!.ToExistentialConditions(variable));
         return true;
     }
 
@@ -154,10 +154,7 @@ internal static class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length < 4 ||
-            !(Is(tokens[0], "Every") ||
-              Is(tokens[0], "All") ||
-              Is(tokens[0], "Only") ||
-              Is(tokens[0], "Some")))
+            tokens[0] is not ("Every" or "All" or "Only" or "Some"))
         {
             return false;
         }
@@ -183,11 +180,11 @@ internal static class NativeEnglishGrammar
                 TryParseClassPredicate(tokens, separator + 1, tokens.Length, out var classPredicate))
             {
                 var variable = new VariableTerm(Id("x"));
-                var subjectConditions = description!.ToConditions(variable);
+                var subjectConditions = description!.ToUniversalConditions(variable);
 
                 if (isExistential)
                 {
-                    var conditions = GetConjuncts(subjectConditions)
+                    var conditions = GetConjuncts(description.ToExistentialConditions(variable))
                         .Add(Predicate(classPredicate!, variable));
                     utterance = new SemanticUtterance(
                         UtteranceKind.Assertion,
@@ -249,8 +246,8 @@ internal static class NativeEnglishGrammar
 
     private static bool IsCopulaForQuantifier(string token, string quantifier) =>
         Is(quantifier, "Every")
-            ? Is(token, "is")
-            : Is(token, "are");
+            ? string.Equals(token, "is", StringComparison.Ordinal)
+            : string.Equals(token, "are", StringComparison.Ordinal);
 
     private static bool TryParseClassPredicate(
         string[] tokens,
@@ -383,10 +380,12 @@ internal static class NativeEnglishGrammar
 
         var modifiers = lexicalWords
             .Take(lexicalWords.Count - 1)
-            .Concat(relativeModifiers)
             .ToImmutableArray();
 
-        description = new EnglishDescription(head, modifiers);
+        description = new EnglishDescription(
+            head,
+            modifiers,
+            relativeModifiers.ToImmutableArray());
         return true;
     }
 
