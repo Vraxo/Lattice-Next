@@ -437,6 +437,10 @@ public sealed class LceParserTests
 
         var assertedMeaning = Assert.IsType<ExistentialQuantification>(assertion.Utterance!.Meaning);
         var queriedMeaning = Assert.IsType<ExistentialQuantification>(question.Utterance!.Meaning);
+        Assert.Equal("x", queriedMeaning.Variable.Identifier.Value);
+        Assert.Equal(
+            "and(red(x), ball(x))",
+            SemanticFormatter.Format(queriedMeaning.Body));
 
         Assert.Equal(
             "exists(x, and(red(x), ball(x)))",
