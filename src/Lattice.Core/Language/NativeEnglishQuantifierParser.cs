@@ -211,7 +211,7 @@ internal static class NativeEnglishQuantifierParser
 
         if (pluralSubject)
         {
-            if (!NativeEnglishRelationParser.IsBaseRelationVerb(verb))
+            if (!EnglishRelationLexicon.IsBaseRelationVerb(verb))
             {
                 return false;
             }
