@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AwesomeAssertions;
 using Lattice.Translators.LmStudio;
 using Xunit;
 
@@ -27,10 +28,10 @@ public sealed class LmStudioConfigurationStoreTests
         {
             await store.SaveAsync(configuration);
 
-            Assert.True(store.TryLoad(out var loaded, out var error), error);
-            Assert.Equal("publisher/gemma-270m-it", loaded.LmStudio.ModelKey);
-            Assert.Equal("gemma-local", loaded.LmStudio.ModelIdentifier);
-            Assert.Equal("off", loaded.LmStudio.Reasoning);
+            store.TryLoad(out var loaded, out var error).Should().BeTrue(error);
+            loaded.LmStudio.ModelKey.Should().Be("publisher/gemma-270m-it");
+            loaded.LmStudio.ModelIdentifier.Should().Be("gemma-local");
+            loaded.LmStudio.Reasoning.Should().Be("off");
         }
         finally
         {
@@ -46,10 +47,10 @@ public sealed class LmStudioConfigurationStoreTests
             $"lattice-{Guid.NewGuid():N}.json");
         var store = new LmStudioConfigurationStore(path);
 
-        Assert.True(store.TryLoad(out var loaded, out var error), error);
-        Assert.Equal("lms", loaded.LmStudio.LmsExecutable);
-        Assert.Equal("off", loaded.LmStudio.Reasoning);
-        Assert.Null(loaded.LmStudio.ModelKey);
+        store.TryLoad(out var loaded, out var error).Should().BeTrue(error);
+        loaded.LmStudio.LmsExecutable.Should().Be("lms");
+        loaded.LmStudio.Reasoning.Should().Be("off");
+        loaded.LmStudio.ModelKey.Should().BeNull();
     }
 
     [Fact]
@@ -60,8 +61,8 @@ public sealed class LmStudioConfigurationStoreTests
             ApiUrl = "http://192.168.1.12:1234/v1/chat/completions"
         };
 
-        Assert.False(configuration.TryValidate(out var error));
-        Assert.Contains("loopback", error);
+        configuration.TryValidate(out var error).Should().BeFalse();
+        error.Should().Contain("loopback");
     }
 
     [Fact]
@@ -72,8 +73,8 @@ public sealed class LmStudioConfigurationStoreTests
             Reasoning = "disabled"
         };
 
-        Assert.False(configuration.TryValidate(out var error));
-        Assert.Contains("reasoning", error);
+        configuration.TryValidate(out var error).Should().BeFalse();
+        error.Should().Contain("reasoning");
     }
 
     [Fact]
@@ -88,8 +89,8 @@ public sealed class LmStudioConfigurationStoreTests
         {
             var store = new LmStudioConfigurationStore(path);
 
-            Assert.False(store.TryLoad(out _, out var error));
-            Assert.Contains("invalid JSON", error);
+            store.TryLoad(out _, out var error).Should().BeFalse();
+            error.Should().Contain("invalid JSON");
         }
         finally
         {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using AwesomeAssertions;
 using Lattice.Core.Language;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -15,13 +16,13 @@ public sealed class KnowledgeBaseTests
         var knowledgeBase = new KnowledgeBase();
         var facts = Assert.IsAssignableFrom<IList<KnowledgeFact>>(knowledgeBase.Facts);
 
-        Assert.True(facts.IsReadOnly);
+        facts.IsReadOnly.Should().BeTrue();
         Assert.Throws<NotSupportedException>(() => facts.Clear());
 
         Add(knowledgeBase, "Fido is a dog.");
 
-        Assert.Single(facts);
-        Assert.Equal("dog", facts[0].Predicate.Predicate.Value);
+        facts.Should().ContainSingle()
+            .Which.Predicate.Predicate.Value.Should().Be("dog");
     }
 
     [Fact]
@@ -30,13 +31,13 @@ public sealed class KnowledgeBaseTests
         var knowledgeBase = new KnowledgeBase();
         var rules = Assert.IsAssignableFrom<IList<UniversalRule>>(knowledgeBase.Rules);
 
-        Assert.True(rules.IsReadOnly);
+        rules.IsReadOnly.Should().BeTrue();
         Assert.Throws<NotSupportedException>(() => rules.Clear());
 
         Add(knowledgeBase, "Every dog is an animal.");
 
-        Assert.Single(rules);
-        Assert.Equal("animal", rules[0].Conclusion.Predicate.Value);
+        rules.Should().ContainSingle()
+            .Which.Conclusion.Predicate.Value.Should().Be("animal");
     }
 
     [Fact]
@@ -48,10 +49,12 @@ public sealed class KnowledgeBaseTests
 
         var accepted = knowledgeBase.TryAdd(utterance, out var kind, out var error);
 
-        Assert.True(accepted, error);
-        Assert.Equal(KnowledgeEntryKind.Rule, kind);
-        var rule = Assert.Single(knowledgeBase.Rules);
-        Assert.Equal("likes", Assert.Single(rule.RelationalPremises).Predicate.Value);
+        accepted.Should().BeTrue(error);
+        kind.Should().Be(KnowledgeEntryKind.Rule);
+
+        knowledgeBase.Rules.Should().ContainSingle()
+            .Which.RelationalPremises.Should().ContainSingle()
+            .Which.Predicate.Value.Should().Be("likes");
     }
 
     [Fact]
@@ -64,9 +67,9 @@ public sealed class KnowledgeBaseTests
 
         var accepted = knowledgeBase.TryAdd(utterance, out _, out var error);
 
-        Assert.False(accepted);
-        Assert.Contains("supported", error);
-        Assert.Empty(knowledgeBase.Rules);
+        accepted.Should().BeFalse();
+        error.Should().Contain("supported");
+        knowledgeBase.Rules.Should().BeEmpty();
     }
 
     private static SemanticUtterance CreateRule(params PredicateApplication[] relationalPremises)
@@ -114,6 +117,6 @@ public sealed class KnowledgeBaseTests
             out _,
             out var error);
 
-        Assert.True(accepted, error);
+        accepted.Should().BeTrue(error);
     }
 }
