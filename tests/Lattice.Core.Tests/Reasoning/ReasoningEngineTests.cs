@@ -11,6 +11,43 @@ public sealed class ReasoningEngineTests
     private readonly ReasoningEngine engine = new();
 
     [Fact]
+    public void Uses_an_explicit_fixed_object_relation_as_a_universal_rule_premise()
+    {
+        var kb = new KnowledgeBase();
+        Add(kb, "Every dog that likes milk is friendly.");
+        Add(kb, "Fido is a dog.");
+        Add(kb, "Fido likes milk.");
+        var result = engine.Ask(kb, ParseQuestion("Is Fido friendly?"));
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal("Every dog that likes milk is friendly.", result.Proof!.SourceText);
+        Assert.Equal("Fido is a dog.", result.Proof.Premise!.SourceText);
+        var relation = Assert.Single(result.Proof.AdditionalPremises);
+        Assert.Equal("likes", relation.Predicate.Predicate.Value);
+        Assert.Equal("Fido likes milk.", relation.SourceText);
+    }
+
+    [Fact]
+    public void Missing_or_negative_relations_do_not_satisfy_positive_rule_premises()
+    {
+        var kb = new KnowledgeBase();
+        Add(kb, "Every dog that likes milk is friendly.");
+        Add(kb, "Fido is a dog.");
+        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+        Add(kb, "Fido does not like milk.");
+        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
+    public void Relational_premises_must_match_the_same_individual()
+    {
+        var kb = new KnowledgeBase();
+        Add(kb, "Every dog that likes milk is friendly.");
+        Add(kb, "Fido is a dog.");
+        Add(kb, "Rex likes milk.");
+        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Infers_a_supported_fact_and_preserves_its_explanation()
     {
         var knowledgeBase = new KnowledgeBase();

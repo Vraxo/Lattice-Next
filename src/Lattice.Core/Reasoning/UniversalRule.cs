@@ -15,6 +15,8 @@ public sealed record UniversalRule(
 
     public ImmutableArray<PredicateApplication> NegativePremises { get; init; } = [];
 
+    public ImmutableArray<PredicateApplication> RelationalPremises { get; init; } = [];
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
             .AddRange(AdditionalSources.IsDefault

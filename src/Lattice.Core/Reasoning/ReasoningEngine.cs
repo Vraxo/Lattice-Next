@@ -167,6 +167,10 @@ public sealed class ReasoningEngine
             }
         }
 
+        var relationalFacts = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
+            .Select(CreateAssertedProof).ToArray();
+
         bool added;
 
         do
@@ -176,7 +180,7 @@ public sealed class ReasoningEngine
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
+                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
@@ -189,7 +193,8 @@ public sealed class ReasoningEngine
                         rule,
                         individual,
                         positiveFacts,
-                        negativeFacts);
+                        negativeFacts,
+                        relationalFacts);
 
                     foreach (var premises in combinations)
                     {
@@ -239,12 +244,15 @@ public sealed class ReasoningEngine
         EvidencePolarity polarity)
     {
         var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
+        var relationalEvidence = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
+            .Select(CreateAssertedProof).ToArray();
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
         {
             if (rule.ConclusionPolarity != polarity ||
-                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
+                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 2 ||
                 rule.Conclusion.Arguments[0] is not VariableTerm ||
@@ -262,7 +270,8 @@ public sealed class ReasoningEngine
                     rule,
                     individual,
                     positiveFacts,
-                    negativeFacts);
+                    negativeFacts,
+                    relationalEvidence);
 
                 foreach (var premises in combinations)
                 {
@@ -305,7 +314,8 @@ public sealed class ReasoningEngine
         UniversalRule rule,
         SemanticTerm individual,
         IReadOnlyList<ProofNode> positiveFacts,
-        IReadOnlyList<ProofNode> negativeFacts)
+        IReadOnlyList<ProofNode> negativeFacts,
+        IReadOnlyList<ProofNode> relationalFacts)
     {
         var positivePremises = GetAdditionalPremiseCombinations(
             rule.Premises,
@@ -317,17 +327,38 @@ public sealed class ReasoningEngine
                 : rule.NegativePremises,
             individual,
             negativeFacts);
+        var relationPremises = GetRelationalPremiseCombinations(
+            rule.RelationalPremises.IsDefault ? ImmutableArray<PredicateApplication>.Empty : rule.RelationalPremises,
+            individual, relationalFacts);
         var combinations = new List<ImmutableArray<ProofNode>>(
-            positivePremises.Count * negativePremises.Count);
-
+            positivePremises.Count * negativePremises.Count * relationPremises.Count);
         foreach (var positive in positivePremises)
-        {
-            foreach (var negative in negativePremises)
-            {
-                combinations.Add(positive.AddRange(negative));
-            }
-        }
+        foreach (var negative in negativePremises)
+        foreach (var relation in relationPremises)
+            combinations.Add(positive.AddRange(negative).AddRange(relation));
+        return combinations;
+    }
 
+    private static List<ImmutableArray<ProofNode>> GetRelationalPremiseCombinations(
+        IEnumerable<PredicateApplication> requiredPremises,
+        SemanticTerm individual,
+        IReadOnlyList<ProofNode> knownFacts)
+    {
+        var combinations = new List<ImmutableArray<ProofNode>> { ImmutableArray<ProofNode>.Empty };
+        foreach (var required in requiredPremises)
+        {
+            if (required.Arguments.IsDefault || required.Arguments.Length != 2 ||
+                required.Arguments[1] is not IndividualTerm objectTerm) return [];
+            var matches = knownFacts.Where(proof =>
+                proof.Predicate.Predicate == required.Predicate &&
+                !proof.Predicate.Arguments.IsDefault && proof.Predicate.Arguments.Length == 2 &&
+                proof.Predicate.Arguments[0] == individual && proof.Predicate.Arguments[1] == objectTerm).ToArray();
+            if (matches.Length == 0) return [];
+            var expanded = new List<ImmutableArray<ProofNode>>(combinations.Count * matches.Length);
+            foreach (var combination in combinations)
+            foreach (var match in matches) expanded.Add(combination.Add(match));
+            combinations = expanded;
+        }
         return combinations;
     }
 

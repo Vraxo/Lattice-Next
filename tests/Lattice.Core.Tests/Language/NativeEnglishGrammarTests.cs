@@ -302,7 +302,6 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Not every dog likes milk.")]
     [InlineData("Fido does not invent milk.")]
     [InlineData("Every dog likes some cat.")]
-    [InlineData("Every dog that likes milk is friendly.")]
     [InlineData("There is a dog that is not a cat.")]
     [InlineData("The dog that is not a cat is friendly.")]
     [InlineData("Every dog that is not a cats is friendly.")]
@@ -339,6 +338,16 @@ public sealed class NativeEnglishGrammarTests
 
         Assert.False(result.IsSuccess);
         Assert.Null(result.Utterance);
+    }
+
+    [Theory]
+    [InlineData("Every dog that likes milk is friendly.", "forall(x, implies(and(dog(x), likes(x, milk)), friendly(x)))")]
+    [InlineData("All dogs that like milk are friendly.", "forall(x, implies(and(dog(x), likes(x, milk)), friendly(x)))")]
+    public void Parses_a_fixed_object_relational_relative_clause(string sentence, string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance!));
     }
 
     [Fact]

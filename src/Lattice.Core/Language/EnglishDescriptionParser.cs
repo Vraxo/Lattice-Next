@@ -11,7 +11,8 @@ internal static class EnglishDescriptionParser
         int end,
         bool expectPluralHead,
         out EnglishDescription? description,
-        bool allowNegatedRelativePredicates = false)
+        bool allowNegatedRelativePredicates = false,
+        bool allowRelationalRelativePredicates = false)
     {
         description = null;
 
@@ -23,6 +24,7 @@ internal static class EnglishDescriptionParser
         var lexicalWords = new List<string>();
         var relativeModifiers = new List<string>();
         var negativeRelativePredicates = new List<string>();
+        var relativeRelations = new List<(string Predicate, SemanticTerm Object)>();
         var index = start;
 
         while (index < end && !EnglishGrammarTokens.Is(tokens[index], "that"))
@@ -59,11 +61,12 @@ internal static class EnglishDescriptionParser
         {
             var relativeCopula = expectPluralHead ? "are" : "is";
 
-            if (index + 2 >= end ||
-                !EnglishGrammarTokens.Is(tokens[index], "that") ||
-                !EnglishGrammarTokens.Is(tokens[index + 1], relativeCopula))
+            if (!EnglishGrammarTokens.Is(tokens[index], "that") || index + 1 >= end) return false;
+            if (!EnglishGrammarTokens.Is(tokens[index + 1], relativeCopula))
             {
-                return false;
+                if (!allowRelationalRelativePredicates ||
+                    !TryParseRelationalRelativePredicate(tokens, ref index, end, expectPluralHead, relativeRelations)) return false;
+                continue;
             }
 
             index += 2;
@@ -120,7 +123,37 @@ internal static class EnglishDescriptionParser
             head,
             modifiers,
             relativeModifiers.ToImmutableArray(),
-            negativeRelativePredicates.ToImmutableArray());
+            negativeRelativePredicates.ToImmutableArray(),
+            relativeRelations.ToImmutableArray());
+        return true;
+    }
+
+    private static bool TryParseRelationalRelativePredicate(
+        string[] tokens,
+        ref int index,
+        int end,
+        bool pluralSubject,
+        List<(string Predicate, SemanticTerm Object)> relations)
+    {
+        var verb = tokens[index + 1];
+        string predicate;
+        if (pluralSubject)
+        {
+            if (!EnglishRelationLexicon.IsBaseRelationVerb(verb)) return false;
+            predicate = EnglishMorphology.InflectThirdPersonSingular(verb);
+        }
+        else
+        {
+            if (!EnglishMorphology.IsThirdPersonVerb(verb)) return false;
+            predicate = verb.ToLowerInvariant();
+        }
+
+        if (!TryCreateObjectTerm(tokens, index + 2, end, out var relationObject) ||
+            relationObject is not IndividualTerm individual ||
+            string.IsNullOrWhiteSpace(individual.Identifier.Value)) return false;
+
+        relations.Add((predicate, individual));
+        index = end;
         return true;
     }
 
