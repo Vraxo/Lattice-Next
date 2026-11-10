@@ -108,7 +108,10 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Make LM Studio abstentions explicit with examples and surface invalid model candidates in CLI diagnostics.
 - [ ] (Deferred) Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
 - [x] Resolve the translation contract for parser failures and multi-utterance turns: distinguish unsupported input from invalid LCE output, and keep each request single-utterance.
-- [ ] Evaluate web retrieval as a source of temporary, attributable observations.
+- [x] Evaluate web retrieval as a source of temporary, attributable observations.
+  - [x] Add an optional, manifest-discovered DDGS search capability that queries public search providers without requiring an account, API key, or user-hosted service, and returns retrieval timestamps and per-result source URLs, titles, domains, and snippets.
+  - [x] Keep results in the existing temporary observation path; do not add them to the knowledge base or reasoning premises.
+  - [ ] Add bounded page fetching as a separate capability only after URL-safety and content-extraction requirements are defined.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.
 

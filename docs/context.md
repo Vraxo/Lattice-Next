@@ -51,6 +51,8 @@ When a pronoun assertion is resolved, the utterance keeps its original SourceTex
 
 The context also retains the latest successful `ToolObservation` separately from mentioned individuals and accepted knowledge. The observation keeps its producing tool ID and content. Deterministic intent recognizers may use a numeric observation as the antecedent for a follow-up request such as `Multiply that by 5.` A supported chain of at most eight operations, such as `Multiply that by 5, then subtract 10.`, is executed sequentially: each next invocation is constructed from the preceding successful numeric observation, and execution stops if a step fails, does not produce a numeric result, or reaches the execution limit. This is a narrow data reference, not a semantic assertion: observations do not increase the knowledge base's facts or rules and are not supplied to the reasoning engine as premises. A later successful tool invocation replaces the latest observation. Failed invocations do not replace it.
 
+The optional `web-search` capability returns search results as one such sourced observation. Its content records the DDGS metasearch provider, the retrieval time, and each returned title, URL, domain, and snippet. These are search-provider observations, not verified facts or fetched page contents. They remain separate from knowledge and are not premises for symbolic inference. As with other tools, a later successful invocation replaces the latest observation.
+
 ## Lifetime and limitations
 
 The CLI owns one ConversationContext for the duration of the interactive process. It is separate from the knowledge base but has the same session lifetime. It is not persisted, shared between sessions, or loaded from a knowledge pack.
