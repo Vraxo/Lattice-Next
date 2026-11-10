@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
