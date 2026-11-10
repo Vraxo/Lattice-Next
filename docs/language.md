@@ -132,7 +132,7 @@ Inputs outside this grammar are rejected with an explicit sentence number where 
 
 The public `LceParser` entry point accepts both LCE 0.9 and a growing, deterministic subset of ordinary English. This is part of the native language parser, not a translator or preprocessing stage: recognized sentences are mapped directly into the existing semantic formulas. No intermediate LCE sentence is generated.
 
-The grammar is built from reusable phrase structures. One description parser recognizes a head noun, any preceding modifiers, and zero or more restrictive `that is + adjective` clauses. The same parsed description is then used in different grammatical positions:
+The grammar is built from reusable phrase structures. One description parser recognizes a head noun, preceding modifiers (including `and`-coordinated adjectives), and zero or more restrictive `that is/are + adjective` clauses. A relative clause may coordinate adjectives with `and`; it does not accept an unmarked sequence of adjectives. The same parsed description is then used in different grammatical positions:
 
 - As the subject conditions of universal rules.
 - As the descriptive conditions of existential claims.
@@ -144,6 +144,8 @@ For example, the same description structure is recognized in all of these senten
 | Input | Semantic reading |
 |---|---|
 | `All red dogs are animals.` | `forall(x, implies(and(red(x), dog(x)), animal(x)))` |
+| `All red and shiny dogs are animals.` | `forall(x, implies(and(red(x), shiny(x), dog(x)), animal(x)))` |
+| `Every dog that is red and shiny is an animal.` | Same meaning |
 | `Every dog that is red is an animal.` | Same meaning |
 | `All dogs that are red are animals.` | Same meaning |
 | `All red dogs that are old like milk.` | `forall(x, implies(and(red(x), old(x), dog(x)), likes(x, milk)))` |
@@ -159,7 +161,7 @@ This means a relative-clause description does not have a separate implementation
 
 The initial grammar also supports plural universal quantification (`All`), existential `Some` statements over unary conditions, and the reverse implication expressed by simple `Only` statements. `Only` with a multi-condition subject description is deliberately not accepted yet because the current universal-rule representation does not support a conjunctive conclusion. Plural handling is limited to regular spelling rules; irregular forms and reliable lexical category detection remain future work.
 
-The supported restrictive relative clause is deliberately restricted to `that is + adjective` for singular heads and `that are + adjective` for plural heads. Clauses containing verbs, unrestricted coordination, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported. The parser rejects them instead of weakening or guessing their meaning.
+The supported restrictive relative clause is deliberately restricted to `that is + adjective` for singular heads and `that are + adjective` for plural heads. Clauses containing verbs, unmarked adjective sequences in relative clauses, negation, modality, variable-bound relational objects, relational premises, higher-arity events, and ambiguous lexical constructions remain unsupported. The parser rejects them instead of weakening or guessing their meaning.
 
 Both controlled LCE and native-English constructions preserve the original sentence in `SemanticUtterance.SourceText`, and both can appear together in one `ParseText` turn. This language expansion does not automatically expand what the reasoning engine can represent or prove.
   
