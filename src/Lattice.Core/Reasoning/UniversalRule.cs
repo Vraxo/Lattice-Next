@@ -11,6 +11,8 @@ public sealed record UniversalRule(
     ImmutableArray<KnowledgeSource> AdditionalSources = default,
     string? SourceId = null)
 {
+    public EvidencePolarity ConclusionPolarity { get; init; } = EvidencePolarity.Positive;
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
             .AddRange(AdditionalSources.IsDefault

@@ -101,11 +101,18 @@ public sealed class SemanticUtteranceValidator
             return false;
         }
 
-        if (implication.Conclusion is not PredicateApplication conclusion ||
+        var conclusion = implication.Conclusion switch
+        {
+            PredicateApplication predicate => predicate,
+            Negation { Formula: PredicateApplication predicate } => predicate,
+            _ => null
+        };
+
+        if (conclusion is null ||
             !IsValidIdentifier(conclusion.Predicate.Value) ||
             conclusion.Arguments.IsDefault)
         {
-            error = "A universal rule must conclude with a supported predicate.";
+            error = "A universal rule must conclude with a supported predicate or its explicit negation.";
             return false;
         }
 

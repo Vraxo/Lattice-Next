@@ -134,7 +134,7 @@ Positive and negative ground assertions are stored independently with their own 
 
 A negated question reverses which side counts as supporting the question, but preserves the same underlying evidence. The CLI displays supporting and opposing proof paths separately. A contradiction is not treated as a reason to discard either side.
 
-This is a paraconsistent evidence policy for the current slice: negative facts do not satisfy positive rule premises, and a contradiction does not cause unrelated conclusions to follow. Universal rules still derive only positive conclusions from positive premises. Negative rules, negated premises, closed-world reasoning, and broader logical negation are not implemented. In particular, **Unknown is not False**, and the absence of a positive fact never creates negative evidence.
+This is a paraconsistent evidence policy for the current slice: negative facts do not satisfy positive rule premises, and a contradiction does not cause unrelated conclusions to follow. Universal rules may derive either positive or explicitly negative conclusions from positive premises. Negative conclusions are kept separate from positive closure and never satisfy positive premises. Negated premises, closed-world reasoning, and broader logical negation remain unsupported. In particular, **Unknown is not False**, and the absence of a positive fact never creates negative evidence.
 
 ## Deliberate limits
 
@@ -142,7 +142,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational joins, relation traversal, relational premises, or multi-variable quantified rules;
 - rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
-- negated rule premises or conclusions, negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
+- negated rule premises, negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 
@@ -183,3 +183,20 @@ The reasoning engine lives in Lattice.Core. It consumes semantic structures and 
     you › Does Fido like water?
     Lattice › Unknown.
     No supporting fact or rule is known in this session.
+
+
+## Explicit negative rule conclusions
+
+A universal rule may state that its positive unary conditions support an explicit negative conclusion:
+
+    Every dog is not a cat.
+    Fido is a dog.
+    Is Fido a cat?
+
+The query is **False**, with a proof containing Fido's dog fact and the negative rule. A fixed-object relation conclusion is also supported:
+
+    Every dog does not like milk.
+    Fido is a dog.
+    Does Fido like milk?
+
+The negative relation is derived for that exact subject and object. A positive assertion can coexist with it, producing **Both** while retaining both explanations. Rule premises remain positive unary predicates. Negative conclusions are not inserted into positive forward-chaining closure and cannot trigger another rule. This deliberately avoids contraposition, negated premises, and explosion.

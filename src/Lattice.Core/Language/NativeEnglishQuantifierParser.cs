@@ -94,8 +94,12 @@ internal static class NativeEnglishQuantifierParser
                 continue;
             }
 
+            var negatedClassConclusion = separator + 1 < tokens.Length &&
+                EnglishGrammarTokens.Is(tokens[separator + 1], "not");
+            var classPredicateStart = separator + (negatedClassConclusion ? 2 : 1);
+
             if (IsCopulaForQuantifier(tokens[separator], quantifier) &&
-                TryParseClassPredicate(tokens, separator + 1, tokens.Length, out var classPredicate))
+                TryParseClassPredicate(tokens, classPredicateStart, tokens.Length, out var classPredicate))
             {
                 var variable = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
                 var subjectConditions = description!.ToUniversalConditions(variable);
@@ -126,10 +130,11 @@ internal static class NativeEnglishQuantifierParser
                     return true;
                 }
 
+                var classConclusion = EnglishSemanticFactory.Predicate(classPredicate!, variable);
                 utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                     variable,
                     subjectConditions,
-                    EnglishSemanticFactory.Predicate(classPredicate!, variable),
+                    negatedClassConclusion ? new Negation(classConclusion) : classConclusion,
                     sourceText);
                 return true;
             }
@@ -139,11 +144,15 @@ internal static class NativeEnglishQuantifierParser
                 continue;
             }
 
+            var negatedRelationConclusion = separator + 2 < tokens.Length &&
+                EnglishGrammarTokens.Is(tokens[separator], "does") &&
+                EnglishGrammarTokens.Is(tokens[separator + 1], "not");
+
             if (!TryParseQuantifiedRelation(
                 tokens,
-                separator,
+                negatedRelationConclusion ? separator + 2 : separator,
                 tokens.Length,
-                EnglishGrammarTokens.Is(quantifier, "All"),
+                negatedRelationConclusion || EnglishGrammarTokens.Is(quantifier, "All"),
                 out var relationPredicate,
                 out var relationObject))
             {
@@ -151,10 +160,11 @@ internal static class NativeEnglishQuantifierParser
             }
 
             var bound = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
+            var relationConclusion = EnglishSemanticFactory.Predicate(relationPredicate!, bound, relationObject!);
             utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                 bound,
                 description!.ToUniversalConditions(bound),
-                EnglishSemanticFactory.Predicate(relationPredicate!, bound, relationObject!),
+                negatedRelationConclusion ? new Negation(relationConclusion) : relationConclusion,
                 sourceText);
             return true;
         }

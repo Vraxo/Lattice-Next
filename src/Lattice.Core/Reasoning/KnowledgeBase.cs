@@ -110,18 +110,34 @@ public sealed class KnowledgeBase
             return true;
         }
 
+        var ruleConclusion = utterance.Meaning is UniversalQuantification quantified &&
+            quantified.Body is Implication ruleImplication
+                ? ruleImplication.Conclusion switch
+                {
+                    PredicateApplication predicate => predicate,
+                    Negation { Formula: PredicateApplication predicate } => predicate,
+                    _ => null
+                }
+                : null;
+        var rulePolarity = utterance.Meaning is UniversalQuantification negativeQuantified &&
+            negativeQuantified.Body is Implication negativeImplication &&
+            negativeImplication.Conclusion is Negation
+                ? EvidencePolarity.Negative
+                : EvidencePolarity.Positive;
+
         if (utterance.Meaning is UniversalQuantification universal &&
             universal.Body is Implication implication &&
             universal.Variable is { } variable &&
             TryGetBoundUnaryPredicates(implication.Premise, variable, out var premises) &&
-            implication.Conclusion is PredicateApplication conclusion &&
+            ruleConclusion is not null &&
             TryNormalizeUniversalConclusion(
-                conclusion,
+                ruleConclusion,
                 variable,
                 out var normalizedConclusion,
                 out var conclusionDescriptionFacts))
         {
             var existingRuleIndex = rules.FindIndex(rule =>
+                rule.ConclusionPolarity == rulePolarity &&
                 AreSamePremises(rule.Premises, premises) &&
                 IsSamePredicate(rule.Conclusion, normalizedConclusion));
 
@@ -132,7 +148,10 @@ public sealed class KnowledgeBase
                     normalizedConclusion,
                     utterance.SourceText,
                     sourceKind,
-                    SourceId: sourceId));
+                    SourceId: sourceId)
+                {
+                    ConclusionPolarity = rulePolarity
+                });
             }
             else
             {
@@ -141,7 +160,6 @@ public sealed class KnowledgeBase
                     .Add(new KnowledgeSource(sourceKind, utterance.SourceText, SourceId: sourceId))
                     .Distinct()
                     .ToImmutableArray();
-
                 rules[existingRuleIndex] = existingRule with
                 {
                     AdditionalSources = sources.Skip(1).ToImmutableArray()

@@ -28,7 +28,7 @@ public sealed class ReasoningEngine
                     fact.Polarity == EvidencePolarity.Positive &&
                     IsSameGroundPredicate(fact.Predicate, query))
                 .Select(CreateAssertedProof)
-                .Concat(DeriveRelationalFacts(knowledgeBase).Where(candidate =>
+                .Concat(DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
                     IsSameGroundPredicate(candidate.Predicate, query)));
         }
         else if (query.Arguments.Length == 1 &&
@@ -47,11 +47,19 @@ public sealed class ReasoningEngine
                 .Select(CreateAssertedProof);
         }
 
+        var negativeDerivedProofs = query.Arguments.Length switch
+        {
+            1 => DeriveNegativeUnaryFacts(knowledgeBase),
+            2 => DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Negative),
+            _ => []
+        };
         var negativeProofs = knowledgeBase.Facts
             .Where(fact =>
                 fact.Polarity == EvidencePolarity.Negative &&
                 IsSameGroundPredicate(fact.Predicate, query))
-            .Select(CreateAssertedProof);
+            .Select(CreateAssertedProof)
+            .Concat(negativeDerivedProofs.Where(candidate =>
+                IsSameGroundPredicate(candidate.Predicate, query)));
 
         return CreateResult(positiveProofs, negativeProofs);
     }
@@ -153,7 +161,8 @@ public sealed class ReasoningEngine
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty ||
+                if (rule.ConclusionPolarity != EvidencePolarity.Positive ||
+                    rule.Premises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
@@ -218,14 +227,64 @@ public sealed class ReasoningEngine
         return knownFacts;
     }
 
-    private static List<ProofNode> DeriveRelationalFacts(KnowledgeBase knowledgeBase)
+    private static List<ProofNode> DeriveNegativeUnaryFacts(KnowledgeBase knowledgeBase)
+    {
+        var positiveFacts = DeriveUnaryFacts(knowledgeBase);
+        var negativeProofs = new List<ProofNode>();
+
+        foreach (var rule in knowledgeBase.Rules)
+        {
+            if (rule.ConclusionPolarity != EvidencePolarity.Negative ||
+                rule.Premises.IsDefaultOrEmpty ||
+                rule.Conclusion.Arguments.IsDefault ||
+                rule.Conclusion.Arguments.Length != 1)
+            {
+                continue;
+            }
+
+            var candidates = positiveFacts.Where(proof =>
+                TryGetFactKey(proof.Predicate, out var key) &&
+                string.Equals(key.Predicate, rule.Premises[0].Predicate.Value, StringComparison.Ordinal)).ToArray();
+
+            foreach (var candidate in candidates)
+            {
+                if (!TryGetFactKey(candidate.Predicate, out var key)) continue;
+                var combinations = GetAdditionalPremiseCombinations(rule.Premises.Skip(1), key.Individual, positiveFacts);
+                foreach (var combination in combinations)
+                {
+                    var premises = ImmutableArray.Create(candidate).AddRange(combination);
+                    var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, key.Individual);
+                    if (!TryGetFactKey(conclusion, out var conclusionKey) ||
+                        premises.Any(premise => ContainsFact(premise, conclusionKey))) continue;
+
+                    AddUniqueProof(negativeProofs, new ProofNode(
+                        conclusion, rule.SourceText, premises[0],
+                        AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+                        SourceKind: rule.SourceKind,
+                        AdditionalSources: rule.AdditionalSources,
+                        Kind: ProofNodeKind.Derived,
+                        SourceId: rule.SourceId)
+                    {
+                        Polarity = EvidencePolarity.Negative
+                    });
+                }
+            }
+        }
+
+        return negativeProofs;
+    }
+
+    private static List<ProofNode> DeriveRelationalFacts(
+        KnowledgeBase knowledgeBase,
+        EvidencePolarity polarity)
     {
         var unaryFacts = DeriveUnaryFacts(knowledgeBase);
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
         {
-            if (rule.Premises.IsDefaultOrEmpty ||
+            if (rule.ConclusionPolarity != polarity ||
+                rule.Premises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 2 ||
                 rule.Conclusion.Arguments[0] is not VariableTerm ||
@@ -276,7 +335,10 @@ public sealed class ReasoningEngine
                             SourceKind: rule.SourceKind,
                             AdditionalSources: rule.AdditionalSources,
                             Kind: ProofNodeKind.Derived,
-                            SourceId: rule.SourceId));
+                            SourceId: rule.SourceId)
+                        {
+                            Polarity = polarity
+                        });
                 }
             }
         }
