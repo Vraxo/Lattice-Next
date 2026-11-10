@@ -22,6 +22,7 @@ internal static class NativeEnglishGrammar
 
         if (terminal == '?')
         {
+            return NativeEnglishQuantifierParser.TryParseUniversalQuestion(tokens, sourceText, out utterance) ||
             return NativeEnglishQuantifierParser.TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishQuantifierParser.TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishPropertyParser.TryParseNegatedNamedPredicateQuestion(tokens, sourceText, out utterance) ||
