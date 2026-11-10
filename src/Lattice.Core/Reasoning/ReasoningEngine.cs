@@ -19,40 +19,48 @@ public sealed class ReasoningEngine
 
         query = groundedQuery;
 
-        var directFact = knowledgeBase.Facts.FirstOrDefault(fact =>
-            IsSameGroundPredicate(fact.Predicate, query));
-
-        if (directFact is not null)
-        {
-            return new ReasoningResult(new ProofNode(
-                directFact.Predicate,
-                directFact.SourceText,
-                null,
-                directFact.ResolvedReferent,
-                SourceKind: directFact.SourceKind,
-                AdditionalSources: directFact.AdditionalSources,
-                SourceId: directFact.SourceId));
-        }
-
         if (query.Arguments.Length == 2)
         {
-            var relationalProof = DeriveRelationalFacts(knowledgeBase)
-                .FirstOrDefault(candidate =>
-                    IsSameGroundPredicate(candidate.Predicate, query));
+            var proofs = knowledgeBase.Facts
+                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
+                .Select(fact => new ProofNode(
+                    fact.Predicate,
+                    fact.SourceText,
+                    null,
+                    fact.ResolvedReferent,
+                    SourceKind: fact.SourceKind,
+                    AdditionalSources: fact.AdditionalSources,
+                    SourceId: fact.SourceId))
+                .ToList();
 
-            return new ReasoningResult(relationalProof);
+            proofs.AddRange(DeriveRelationalFacts(knowledgeBase).Where(candidate =>
+                IsSameGroundPredicate(candidate.Predicate, query)));
+
+            return CreateResult(proofs);
         }
 
-        if (!TryGetFactKey(query, out var queryKey))
+        if (query.Arguments.Length != 1 ||
+            !TryGetFactKey(query, out var queryKey))
         {
-            return new ReasoningResult(null);
+            var directProofs = knowledgeBase.Facts
+                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
+                .Select(fact => new ProofNode(
+                    fact.Predicate,
+                    fact.SourceText,
+                    null,
+                    fact.ResolvedReferent,
+                    SourceKind: fact.SourceKind,
+                    AdditionalSources: fact.AdditionalSources,
+                    SourceId: fact.SourceId));
+
+            return CreateResult(directProofs);
         }
 
-        var proof = DeriveUnaryFacts(knowledgeBase).FirstOrDefault(candidate =>
+        var matchingProofs = DeriveUnaryFacts(knowledgeBase).Where(candidate =>
             TryGetFactKey(candidate.Predicate, out var key) &&
             key == queryKey);
 
-        return new ReasoningResult(proof);
+        return CreateResult(matchingProofs);
     }
 
     public ReasoningResult Ask(
@@ -68,6 +76,7 @@ public sealed class ReasoningEngine
         }
 
         var knownFacts = DeriveUnaryFacts(knowledgeBase);
+        var proofs = new List<ProofNode>();
 
         foreach (var candidate in knownFacts)
         {
@@ -80,61 +89,40 @@ public sealed class ReasoningEngine
                 continue;
             }
 
-            var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
-            supportingPremises.Add(candidate);
-            var allConditionsSupported = true;
+            var combinations = GetAdditionalPremiseCombinations(
+                conditions.Skip(1),
+                candidateKey.Individual,
+                knownFacts);
 
-            foreach (var condition in conditions.Skip(1))
+            foreach (var combination in combinations)
             {
-                var matchingProof = knownFacts.FirstOrDefault(proof =>
-                    TryGetFactKey(proof.Predicate, out var key) &&
-                    string.Equals(
-                        key.Predicate,
-                        condition.Predicate.Value,
-                        StringComparison.Ordinal) &&
-                    key.Individual == candidateKey.Individual);
+                var additionalPremises = candidate.AdditionalPremises.IsDefault
+                    ? ImmutableArray<ProofNode>.Empty
+                    : candidate.AdditionalPremises;
 
-                if (matchingProof is null)
-                {
-                    allConditionsSupported = false;
-                    break;
-                }
-
-                supportingPremises.Add(matchingProof);
+                AddUniqueProof(
+                    proofs,
+                    candidate with
+                    {
+                        AdditionalPremises = additionalPremises.AddRange(combination)
+                    });
             }
-
-            if (!allConditionsSupported)
-            {
-                continue;
-            }
-
-            var additionalPremises = candidate.AdditionalPremises.IsDefault
-                ? ImmutableArray<ProofNode>.Empty
-                : candidate.AdditionalPremises;
-
-            var proof = candidate with
-            {
-                AdditionalPremises = additionalPremises
-                    .AddRange(supportingPremises.Skip(1))
-            };
-
-            return new ReasoningResult(proof);
         }
 
-        return new ReasoningResult(null);
+        return CreateResult(proofs);
     }
 
     private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase)
     {
         var knownFacts = new List<ProofNode>();
-        var knownKeys = new HashSet<(string Predicate, SemanticTerm Individual)>();
+        var proofsByFact = new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
 
         foreach (var fact in knowledgeBase.Facts)
         {
-            if (TryGetFactKey(fact.Predicate, out var key) &&
-                knownKeys.Add(key))
-            {
-                knownFacts.Add(new ProofNode(
+            TryAddProof(
+                knownFacts,
+                proofsByFact,
+                new ProofNode(
                     fact.Predicate,
                     fact.SourceText,
                     null,
@@ -142,7 +130,6 @@ public sealed class ReasoningEngine
                     SourceKind: fact.SourceKind,
                     AdditionalSources: fact.AdditionalSources,
                     SourceId: fact.SourceId));
-            }
         }
 
         bool added;
@@ -176,56 +163,40 @@ public sealed class ReasoningEngine
                         continue;
                     }
 
-                    var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
-                    supportingPremises.Add(candidatePremise);
-                    var allPremisesSupported = true;
+                    var combinations = GetAdditionalPremiseCombinations(
+                        rule.Premises.Skip(1),
+                        candidateKey.Individual,
+                        knownFacts);
 
-                    foreach (var requiredPremise in rule.Premises.Skip(1))
+                    foreach (var combination in combinations)
                     {
-                        var matchingProof = knownFacts.FirstOrDefault(proof =>
-                            TryGetFactKey(proof.Predicate, out var key) &&
-                            string.Equals(
-                                key.Predicate,
-                                requiredPremise.Predicate.Value,
-                                StringComparison.Ordinal) &&
-                            key.Individual == candidateKey.Individual);
+                        var premises = ImmutableArray.Create(candidatePremise)
+                            .AddRange(combination);
+                        var conclusion = CreateGroundPredicate(
+                            rule.Conclusion.Predicate,
+                            candidateKey.Individual);
 
-                        if (matchingProof is null)
+                        if (!TryGetFactKey(conclusion, out var conclusionKey) ||
+                            premises.Any(premise => ContainsFact(premise, conclusionKey)))
                         {
-                            allPremisesSupported = false;
-                            break;
+                            continue;
                         }
 
-                        supportingPremises.Add(matchingProof);
+                        var proof = new ProofNode(
+                            conclusion,
+                            rule.SourceText,
+                            premises[0],
+                            AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+                            SourceKind: rule.SourceKind,
+                            AdditionalSources: rule.AdditionalSources,
+                            Kind: ProofNodeKind.Derived,
+                            SourceId: rule.SourceId);
+
+                        if (TryAddProof(knownFacts, proofsByFact, proof))
+                        {
+                            added = true;
+                        }
                     }
-
-                    if (!allPremisesSupported)
-                    {
-                        continue;
-                    }
-
-                    var conclusion = CreateGroundPredicate(
-                        rule.Conclusion.Predicate,
-                        candidateKey.Individual);
-
-                    if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                        !knownKeys.Add(conclusionKey))
-                    {
-                        continue;
-                    }
-
-                    var premises = supportingPremises.ToImmutable();
-                    knownFacts.Add(new ProofNode(
-                        conclusion,
-                        rule.SourceText,
-                        premises[0],
-                        AdditionalPremises: premises.Skip(1).ToImmutableArray(),
-                        SourceKind: rule.SourceKind,
-                        AdditionalSources: rule.AdditionalSources,
-                        Kind: ProofNodeKind.Derived,
-                        SourceId: rule.SourceId));
-
-                    added = true;
                 }
             }
         }
@@ -267,54 +238,190 @@ public sealed class ReasoningEngine
                     continue;
                 }
 
-                var supportingPremises = ImmutableArray.CreateBuilder<ProofNode>();
-                supportingPremises.Add(candidatePremise);
-                var allPremisesSupported = true;
+                var combinations = GetAdditionalPremiseCombinations(
+                    rule.Premises.Skip(1),
+                    candidateKey.Individual,
+                    unaryFacts);
 
-                foreach (var requiredPremise in rule.Premises.Skip(1))
+                foreach (var combination in combinations)
                 {
-                    var matchingProof = unaryFacts.FirstOrDefault(proof =>
-                        TryGetFactKey(proof.Predicate, out var key) &&
-                        string.Equals(
-                            key.Predicate,
-                            requiredPremise.Predicate.Value,
-                            StringComparison.Ordinal) &&
-                        key.Individual == candidateKey.Individual);
+                    var conclusion = new PredicateApplication(
+                        rule.Conclusion.Predicate,
+                        ImmutableArray.Create<SemanticTerm>(
+                            candidateKey.Individual,
+                            objectTerm));
+                    var premises = ImmutableArray.Create(candidatePremise)
+                        .AddRange(combination);
 
-                    if (matchingProof is null)
-                    {
-                        allPremisesSupported = false;
-                        break;
-                    }
-
-                    supportingPremises.Add(matchingProof);
+                    AddUniqueProof(
+                        relationalProofs,
+                        new ProofNode(
+                            conclusion,
+                            rule.SourceText,
+                            premises[0],
+                            AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+                            SourceKind: rule.SourceKind,
+                            AdditionalSources: rule.AdditionalSources,
+                            Kind: ProofNodeKind.Derived,
+                            SourceId: rule.SourceId));
                 }
-
-                if (!allPremisesSupported)
-                {
-                    continue;
-                }
-
-                var conclusion = new PredicateApplication(
-                    rule.Conclusion.Predicate,
-                    ImmutableArray.Create<SemanticTerm>(
-                        candidateKey.Individual,
-                        objectTerm));
-                var premises = supportingPremises.ToImmutable();
-
-                relationalProofs.Add(new ProofNode(
-                    conclusion,
-                    rule.SourceText,
-                    premises[0],
-                    AdditionalPremises: premises.Skip(1).ToImmutableArray(),
-                    SourceKind: rule.SourceKind,
-                    AdditionalSources: rule.AdditionalSources,
-                    Kind: ProofNodeKind.Derived,
-                    SourceId: rule.SourceId));
             }
         }
 
         return relationalProofs;
+    }
+
+    private static List<ImmutableArray<ProofNode>> GetAdditionalPremiseCombinations(
+        IEnumerable<PredicateApplication> requiredPremises,
+        SemanticTerm individual,
+        IReadOnlyList<ProofNode> knownFacts)
+    {
+        var combinations = new List<ImmutableArray<ProofNode>>
+        {
+            ImmutableArray<ProofNode>.Empty
+        };
+
+        foreach (var requiredPremise in requiredPremises)
+        {
+            var matchingProofs = knownFacts
+                .Where(proof =>
+                    TryGetFactKey(proof.Predicate, out var key) &&
+                    string.Equals(
+                        key.Predicate,
+                        requiredPremise.Predicate.Value,
+                        StringComparison.Ordinal) &&
+                    key.Individual == individual)
+                .ToArray();
+
+            if (matchingProofs.Length == 0)
+            {
+                return [];
+            }
+
+            var expanded = new List<ImmutableArray<ProofNode>>(
+                combinations.Count * matchingProofs.Length);
+
+            foreach (var combination in combinations)
+            {
+                foreach (var matchingProof in matchingProofs)
+                {
+                    expanded.Add(combination.Add(matchingProof));
+                }
+            }
+
+            combinations = expanded;
+        }
+
+        return combinations;
+    }
+
+    private static bool TryAddProof(
+        List<ProofNode> knownFacts,
+        Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>> proofsByFact,
+        ProofNode proof)
+    {
+        if (!TryGetFactKey(proof.Predicate, out var key))
+        {
+            return false;
+        }
+
+        if (!proofsByFact.TryGetValue(key, out var existingProofs))
+        {
+            existingProofs = [];
+            proofsByFact.Add(key, existingProofs);
+        }
+
+        if (existingProofs.Any(existing => AreSameProof(existing, proof)))
+        {
+            return false;
+        }
+
+        existingProofs.Add(proof);
+        knownFacts.Add(proof);
+        return true;
+    }
+
+    private static void AddUniqueProof(
+        List<ProofNode> proofs,
+        ProofNode proof)
+    {
+        if (!proofs.Any(existing => AreSameProof(existing, proof)))
+        {
+            proofs.Add(proof);
+        }
+    }
+
+    private static ReasoningResult CreateResult(IEnumerable<ProofNode> candidateProofs)
+    {
+        var proofs = new List<ProofNode>();
+
+        foreach (var proof in candidateProofs)
+        {
+            AddUniqueProof(proofs, proof);
+        }
+
+        if (proofs.Count == 0)
+        {
+            return new ReasoningResult(null);
+        }
+
+        return new ReasoningResult(proofs[0])
+        {
+            AdditionalProofs = proofs.Skip(1).ToImmutableArray()
+        };
+    }
+
+    private static bool AreSameProof(ProofNode left, ProofNode right)
+    {
+        if (!IsSameGroundPredicate(left.Predicate, right.Predicate) ||
+            !string.Equals(left.SourceText, right.SourceText, StringComparison.Ordinal) ||
+            left.ResolvedReferent != right.ResolvedReferent ||
+            left.Kind != right.Kind ||
+            !left.Sources.SequenceEqual(right.Sources) ||
+            (left.Premise is null) != (right.Premise is null))
+        {
+            return false;
+        }
+
+        if (left.Premise is not null &&
+            !AreSameProof(left.Premise, right.Premise!))
+        {
+            return false;
+        }
+
+        var leftAdditional = left.AdditionalPremises.IsDefault
+            ? ImmutableArray<ProofNode>.Empty
+            : left.AdditionalPremises;
+        var rightAdditional = right.AdditionalPremises.IsDefault
+            ? ImmutableArray<ProofNode>.Empty
+            : right.AdditionalPremises;
+
+        return leftAdditional.Length == rightAdditional.Length &&
+            leftAdditional.Zip(rightAdditional).All(pair =>
+                AreSameProof(pair.First, pair.Second));
+    }
+
+    private static bool ContainsFact(
+        ProofNode proof,
+        (string Predicate, SemanticTerm Individual) key)
+    {
+        if (TryGetFactKey(proof.Predicate, out var proofKey) &&
+            proofKey == key)
+        {
+            return true;
+        }
+
+        if (proof.Premise is not null && ContainsFact(proof.Premise, key))
+        {
+            return true;
+        }
+
+        if (!proof.AdditionalPremises.IsDefaultOrEmpty)
+        {
+            return proof.AdditionalPremises.Any(premise => ContainsFact(premise, key));
+        }
+
+        return false;
     }
 
     private static bool TryGetBoundUnaryPredicates(

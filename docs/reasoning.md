@@ -26,7 +26,9 @@ After exact lookup, the forward-chaining path derives unary predicates:
 4. Apply the rule only when all premises are supported, then add its conclusion.
 5. Repeat until a full pass derives nothing new.
 
-Known unary facts are deduplicated by predicate and individual. This lets rules be chained even when they were added in an order that requires more than one pass, while preventing cyclic rules from causing an endless loop. Ground relational facts are deduplicated by predicate and their ordered argument list.
+Known unary facts are deduplicated by predicate and individual, but their proof paths are not discarded. The engine retains every distinct acyclic derivation it can construct, including direct support alongside rule-derived support. Premise alternatives are combined only when they refer to the same individual. A derivation that would repeat its own conclusion fact in its proof ancestry is rejected, preventing cyclic rules from manufacturing circular explanations. This lets rules be chained even when they were added in an order that requires more than one pass while retaining independent explanations. Ground relational facts are deduplicated by predicate and their ordered argument list, and relational conclusions likewise retain independent rule paths.
+
+A query result exposes the first proof through the existing `Proof` property and all retained alternatives through `Proofs`. The CLI presents each independent proof separately. Duplicate source records for one stored fact or rule remain grouped as provenance on that proof rather than being represented as separate derivations.
 
 A separate relational inference pass applies the restricted quantified relation rules after unary forward chaining reaches closure:
 
