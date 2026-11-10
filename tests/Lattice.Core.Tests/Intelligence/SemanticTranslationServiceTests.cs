@@ -14,14 +14,15 @@ public sealed class SemanticTranslationServiceTests
     {
         const string sourceText = "Could Fido belong to the canine family?";
 
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Question,
-                    Predicate("dog", new IndividualTerm(Id("fido")))))))
-        {
-            Outcome = SemanticTranslationOutcome.Translated
-        });
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Question,
+                        Predicate("dog", new IndividualTerm(Id("fido"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Translated
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync(sourceText);
@@ -38,17 +39,18 @@ public sealed class SemanticTranslationServiceTests
     {
         const string sourceText = "Fido is a pet.";
 
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("pet", new IndividualTerm(Id("fido")))),
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("animal", new IndividualTerm(Id("fido")))))))
-        {
-            Outcome = SemanticTranslationOutcome.Ambiguous
-        });
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("pet", new IndividualTerm(Id("fido")))),
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("animal", new IndividualTerm(Id("fido"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Ambiguous
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync(sourceText);
