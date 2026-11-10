@@ -916,6 +916,50 @@ public sealed class ReasoningEngineTests
         Assert.Equal(2, knowledgeBase.Facts.Count);
     }
 
+    [Fact]
+    public void Derives_negative_unary_conclusions_without_using_them_as_premises()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Every cat is an animal.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var catResult = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
+        var animalResult = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
+
+        Assert.Equal(TruthValue.False, catResult.TruthValue);
+        Assert.Equal("Every dog is not a cat.", Assert.Single(catResult.ContradictingProofs).SourceText);
+        Assert.Equal(TruthValue.Unknown, animalResult.TruthValue);
+    }
+
+    [Fact]
+    public void Retains_positive_and_negative_rule_conclusions_as_both()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is a cat.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
+
+        Assert.Equal(TruthValue.Both, result.TruthValue);
+        Assert.Equal("Fido is a cat.", result.Proof!.SourceText);
+        Assert.Equal("Every dog is not a cat.", Assert.Single(result.ContradictingProofs).SourceText);
+    }
+
+    [Fact]
+    public void Derives_negative_fixed_object_relations_from_positive_unary_premises()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog does not like milk.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
+
+        Assert.Equal(TruthValue.False, result.TruthValue);
+        Assert.Equal("Every dog does not like milk.", Assert.Single(result.ContradictingProofs).SourceText);
+    }
+
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
     {
         var utterance = Parse(sentence);
