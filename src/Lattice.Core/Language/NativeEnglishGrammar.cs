@@ -19,7 +19,7 @@ internal static class NativeEnglishGrammar
     {
         "a", "an", "the", "there", "is", "are", "be", "exist",
         "something", "that", "by", "not", "no", "every", "all", "only", "some",
-        "to", "of", "class", "count", "as"
+        "to", "of", "class", "count", "as", "and"
     };
 
     private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
@@ -329,26 +329,10 @@ internal static class NativeEnglishGrammar
 
         var lexicalWords = new List<string>();
         var relativeModifiers = new List<string>();
+        var index = start;
 
-        for (var index = start; index < end;)
+        while (index < end && !Is(tokens[index], "that"))
         {
-            if (Is(tokens[index], "that"))
-            {
-                var relativeCopula = expectPluralHead ? "are" : "is";
-
-                if (index + 2 >= end ||
-                    !Is(tokens[index + 1], relativeCopula) ||
-                    !IsLowerWord(tokens[index + 2]) ||
-                    ReservedIndividualTerms.Contains(tokens[index + 2]))
-                {
-                    return false;
-                }
-
-                relativeModifiers.Add(tokens[index + 2].ToLowerInvariant());
-                index += 3;
-                continue;
-            }
-
             if (!IsLowerWord(tokens[index]) ||
                 ReservedIndividualTerms.Contains(tokens[index]))
             {
@@ -357,11 +341,43 @@ internal static class NativeEnglishGrammar
 
             lexicalWords.Add(tokens[index].ToLowerInvariant());
             index++;
+
+            if (index < end && Is(tokens[index], "and"))
+            {
+                index++;
+
+                if (index >= end ||
+                    Is(tokens[index], "that") ||
+                    Is(tokens[index], "and") ||
+                    IsPlural(tokens[index]))
+                {
+                    return false;
+                }
+            }
         }
 
         if (lexicalWords.Count == 0)
         {
             return false;
+        }
+
+        while (index < end)
+        {
+            var relativeCopula = expectPluralHead ? "are" : "is";
+
+            if (index + 2 >= end ||
+                !Is(tokens[index], "that") ||
+                !Is(tokens[index + 1], relativeCopula))
+            {
+                return false;
+            }
+
+            index += 2;
+
+            if (!TryParseRelativeAdjectives(tokens, ref index, end, relativeModifiers))
+            {
+                return false;
+            }
         }
 
         var head = lexicalWords[^1];
@@ -389,6 +405,42 @@ internal static class NativeEnglishGrammar
             modifiers,
             relativeModifiers.ToImmutableArray());
         return true;
+    }
+
+    private static bool TryParseRelativeAdjectives(
+        string[] tokens,
+        ref int index,
+        int end,
+        List<string> modifiers)
+    {
+        if (index >= end ||
+            !IsLowerWord(tokens[index]) ||
+            ReservedIndividualTerms.Contains(tokens[index]))
+        {
+            return false;
+        }
+
+        modifiers.Add(tokens[index].ToLowerInvariant());
+        index++;
+
+        while (index < end && Is(tokens[index], "and"))
+        {
+            index++;
+
+            if (index >= end ||
+                Is(tokens[index], "that") ||
+                !IsLowerWord(tokens[index]) ||
+                IsPlural(tokens[index]) ||
+                ReservedIndividualTerms.Contains(tokens[index]))
+            {
+                return false;
+            }
+
+            modifiers.Add(tokens[index].ToLowerInvariant());
+            index++;
+        }
+
+        return index == end || Is(tokens[index], "that");
     }
 
     private static bool TryParseClassMembershipAssertion(

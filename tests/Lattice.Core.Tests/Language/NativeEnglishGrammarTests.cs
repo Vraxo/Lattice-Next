@@ -35,6 +35,15 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Does the ball that is red like milk?", UtteranceKind.Question, "ask(likes(red-ball, milk))")]
     [InlineData("Is the ball that is red shiny?", UtteranceKind.Question, "ask(shiny(red-ball))")]
     [InlineData("Milk is liked by Fido.", UtteranceKind.Assertion, "likes(fido, milk)") ]
+    [InlineData("All red and shiny dogs are animals.", UtteranceKind.Assertion, "forall(x, implies(and(red(x), shiny(x), dog(x)), animal(x)))")]
+    [InlineData("Every dog that is red and shiny is an animal.", UtteranceKind.Assertion, "forall(x, implies(and(red(x), shiny(x), dog(x)), animal(x)))")]
+    [InlineData("All dogs that are red and shiny are animals.", UtteranceKind.Assertion, "forall(x, implies(and(red(x), shiny(x), dog(x)), animal(x)))")]
+    [InlineData("All red and shiny dogs that are old and tall like milk.", UtteranceKind.Assertion, "forall(x, implies(and(red(x), shiny(x), old(x), tall(x), dog(x)), likes(x, milk)))")]
+    [InlineData("Some red and shiny dogs are animals.", UtteranceKind.Assertion, "exists(x, and(red(x), shiny(x), dog(x), animal(x)))")]
+    [InlineData("There is a red and shiny ball that is old and round.", UtteranceKind.Assertion, "exists(x, and(red(x), shiny(x), ball(x), old(x), round(x)))")]
+    [InlineData("The red and shiny ball is a toy.", UtteranceKind.Assertion, "toy(red-shiny-ball)")]
+    [InlineData("Fido likes the red and shiny ball.", UtteranceKind.Assertion, "likes(fido, red-shiny-ball)")]
+    [InlineData("Does the red and shiny ball like milk?", UtteranceKind.Question, "ask(likes(red-shiny-ball, milk))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
@@ -62,6 +71,10 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Fido might be a dog.")]
     [InlineData("Does Fido be happy?")]
     [InlineData("I saw her duck.")]
+    [InlineData("All dogs that are red shiny are animals.")]
+    [InlineData("All dogs that are red and are shiny are animals.")]
+    [InlineData("All dogs that are red and are animals.")]
+    [InlineData("All red and dogs are animals.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);
