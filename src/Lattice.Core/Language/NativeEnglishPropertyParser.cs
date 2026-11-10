@@ -28,6 +28,7 @@ internal static class NativeEnglishPropertyParser
         }
 
         if (tokens.Length == 3 &&
+            EnglishGrammarTokens.IsCapitalized(tokens[0]) &&
             EnglishGrammarTokens.Is(tokens[1], "is") &&
             EnglishDescriptionParser.TryCreateIndividual(
                 tokens[0],
@@ -76,6 +77,7 @@ internal static class NativeEnglishPropertyParser
 
         if (tokens.Length != 3 ||
             !EnglishGrammarTokens.Is(tokens[0], "Is") ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[1]) ||
             !EnglishDescriptionParser.TryCreateIndividual(
                 tokens[1],
                 allowPronoun: false,
