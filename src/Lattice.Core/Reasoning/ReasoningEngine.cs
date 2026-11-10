@@ -132,53 +132,64 @@ public sealed class ReasoningEngine
         return CreateResult(proofs);
     }
 
-    private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase)
-    {
-        var knownFacts = new List<ProofNode>();
-        var proofsByFact = new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
+    private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase) =>
+        DeriveUnaryEvidence(knowledgeBase).Positive;
 
-        foreach (var fact in knowledgeBase.Facts.Where(fact =>
-            fact.Polarity == EvidencePolarity.Positive))
+    private static List<ProofNode> DeriveNegativeUnaryFacts(KnowledgeBase knowledgeBase) =>
+        DeriveUnaryEvidence(knowledgeBase).Negative;
+
+    private static (List<ProofNode> Positive, List<ProofNode> Negative) DeriveUnaryEvidence(
+        KnowledgeBase knowledgeBase)
+    {
+        var positiveFacts = new List<ProofNode>();
+        var negativeFacts = new List<ProofNode>();
+        var positiveProofsByFact =
+            new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
+        var negativeProofsByFact =
+            new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
+
+        foreach (var fact in knowledgeBase.Facts)
         {
-            TryAddProof(
-                knownFacts,
-                proofsByFact,
-                new ProofNode(
-                    fact.Predicate,
-                    fact.SourceText,
-                    null,
-                    fact.ResolvedReferent,
-                    SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources,
-                    SourceId: fact.SourceId));
+            if (!TryGetFactKey(fact.Predicate, out _))
+            {
+                continue;
+            }
+
+            var proof = CreateAssertedProof(fact);
+
+            if (fact.Polarity == EvidencePolarity.Positive)
+            {
+                TryAddProof(positiveFacts, positiveProofsByFact, proof);
+            }
+            else
+            {
+                TryAddProof(negativeFacts, negativeProofsByFact, proof);
+            }
         }
 
-        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
         bool added;
 
         do
         {
             added = false;
+            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, negativeFacts);
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.ConclusionPolarity != EvidencePolarity.Positive ||
-                    rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
+                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
                     continue;
                 }
 
-                var candidateIndividuals = GetCandidateIndividuals(knownFacts, explicitNegativeFacts);
-
                 foreach (var individual in candidateIndividuals)
                 {
                     var combinations = GetRulePremiseCombinations(
                         rule,
                         individual,
-                        knownFacts,
-                        explicitNegativeFacts);
+                        positiveFacts,
+                        negativeFacts);
 
                     foreach (var premises in combinations)
                     {
@@ -188,7 +199,7 @@ public sealed class ReasoningEngine
                             premises.Any(premise => ContainsFact(
                                 premise,
                                 conclusionKey,
-                                EvidencePolarity.Positive)))
+                                rule.ConclusionPolarity)))
                         {
                             continue;
                         }
@@ -201,9 +212,16 @@ public sealed class ReasoningEngine
                             SourceKind: rule.SourceKind,
                             AdditionalSources: rule.AdditionalSources,
                             Kind: ProofNodeKind.Derived,
-                            SourceId: rule.SourceId);
+                            SourceId: rule.SourceId)
+                        {
+                            Polarity = rule.ConclusionPolarity
+                        };
 
-                        if (TryAddProof(knownFacts, proofsByFact, proof))
+                        var proofAdded = rule.ConclusionPolarity == EvidencePolarity.Positive
+                            ? TryAddProof(positiveFacts, positiveProofsByFact, proof)
+                            : TryAddProof(negativeFacts, negativeProofsByFact, proof);
+
+                        if (proofAdded)
                         {
                             added = true;
                         }
@@ -213,73 +231,14 @@ public sealed class ReasoningEngine
         }
         while (added);
 
-        return knownFacts;
-    }
-
-    private static List<ProofNode> DeriveNegativeUnaryFacts(KnowledgeBase knowledgeBase)
-    {
-        var positiveFacts = DeriveUnaryFacts(knowledgeBase);
-        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
-        var negativeProofs = new List<ProofNode>();
-
-        foreach (var rule in knowledgeBase.Rules)
-        {
-            if (rule.ConclusionPolarity != EvidencePolarity.Negative ||
-                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
-                rule.Conclusion.Arguments.IsDefault ||
-                rule.Conclusion.Arguments.Length != 1)
-            {
-                continue;
-            }
-
-            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, explicitNegativeFacts);
-
-            foreach (var individual in candidateIndividuals)
-            {
-                var combinations = GetRulePremiseCombinations(
-                    rule,
-                    individual,
-                    positiveFacts,
-                    explicitNegativeFacts);
-
-                foreach (var premises in combinations)
-                {
-                    var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, individual);
-
-                    if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                        premises.Any(premise => ContainsFact(
-                            premise,
-                            conclusionKey,
-                            EvidencePolarity.Negative)))
-                    {
-                        continue;
-                    }
-
-                    AddUniqueProof(negativeProofs, new ProofNode(
-                        conclusion,
-                        rule.SourceText,
-                        premises[0],
-                        AdditionalPremises: premises.Skip(1).ToImmutableArray(),
-                        SourceKind: rule.SourceKind,
-                        AdditionalSources: rule.AdditionalSources,
-                        Kind: ProofNodeKind.Derived,
-                        SourceId: rule.SourceId)
-                    {
-                        Polarity = EvidencePolarity.Negative
-                    });
-                }
-            }
-        }
-
-        return negativeProofs;
+        return (positiveFacts, negativeFacts);
     }
 
     private static List<ProofNode> DeriveRelationalFacts(
         KnowledgeBase knowledgeBase,
         EvidencePolarity polarity)
     {
-        var positiveFacts = DeriveUnaryFacts(knowledgeBase);
-        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
+        var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
@@ -295,7 +254,7 @@ public sealed class ReasoningEngine
                 continue;
             }
 
-            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, explicitNegativeFacts);
+            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, negativeFacts);
 
             foreach (var individual in candidateIndividuals)
             {
@@ -303,7 +262,7 @@ public sealed class ReasoningEngine
                     rule,
                     individual,
                     positiveFacts,
-                    explicitNegativeFacts);
+                    negativeFacts);
 
                 foreach (var premises in combinations)
                 {
@@ -331,14 +290,6 @@ public sealed class ReasoningEngine
 
         return relationalProofs;
     }
-
-    private static List<ProofNode> GetExplicitNegativeUnaryFacts(KnowledgeBase knowledgeBase) =>
-        knowledgeBase.Facts
-            .Where(fact =>
-                fact.Polarity == EvidencePolarity.Negative &&
-                TryGetFactKey(fact.Predicate, out _))
-            .Select(CreateAssertedProof)
-            .ToList();
 
     private static SemanticTerm[] GetCandidateIndividuals(
         IReadOnlyList<ProofNode> positiveFacts,
