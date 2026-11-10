@@ -50,7 +50,12 @@ public sealed class ConversationContext
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
-        if (utterance.Meaning is not PredicateApplication predicate ||
+        var isNegated = utterance.Meaning is Negation;
+        var meaning = isNegated
+            ? ((Negation)utterance.Meaning).Formula
+            : utterance.Meaning;
+
+        if (meaning is not PredicateApplication predicate ||
             predicate.Arguments.IsDefault)
         {
             return new ReferenceResolutionResult(
@@ -107,7 +112,7 @@ public sealed class ConversationContext
         };
         var resolvedUtterance = utterance with
         {
-            Meaning = resolvedPredicate,
+            Meaning = isNegated ? new Negation(resolvedPredicate) : resolvedPredicate,
             ResolvedReferent = referent
         };
 
