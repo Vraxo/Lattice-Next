@@ -55,6 +55,45 @@ public sealed class ManifestToolIntentRecognizerTests
         Assert.Equal(expectedTo, arguments.RootElement.GetProperty("to").GetString());
     }
 
+    [Theory]
+    [InlineData(
+        "Search the web for the latest .NET 10 release notes.",
+        "the latest .NET 10 release notes")]
+    [InlineData(
+        "Search the web for C# 13 and ASP.NET Core.",
+        "C# 13 and ASP.NET Core")]
+    public void Preserves_punctuation_in_manifest_text_captures(
+        string input,
+        string expectedQuery)
+    {
+        var definition = new ToolIntentDefinition(
+            "[please] search the web for {query:text}",
+            ImmutableDictionary<string, ToolIntentBinding>.Empty
+                .Add("query", new ToolIntentBinding("query", null)),
+            "Searching for {query}: {result}");
+        var descriptor = new ToolDescriptor(
+            "web-search",
+            "Web search",
+            "Searches the public web.",
+            ImmutableArray.Create(
+                new ToolInputDescriptor("query", "The search query.", ToolInputType.String)),
+            Intents: ImmutableArray.Create(definition));
+        var resolver = new ToolIntentResolver(
+        [
+            new ManifestToolIntentRecognizer(descriptor, definition)
+        ]);
+
+        var resolution = resolver.Resolve(input);
+
+        Assert.True(resolution.IsResolved);
+        Assert.Equal("web-search", resolution.Intent!.ToolId);
+
+        using var arguments = JsonDocument.Parse(resolution.Intent.ArgumentsJson);
+        Assert.Equal(
+            expectedQuery,
+            arguments.RootElement.GetProperty("query").GetString());
+    }
+
     [Fact]
     public void Formats_responses_from_manifest_templates_and_tool_observations()
     {

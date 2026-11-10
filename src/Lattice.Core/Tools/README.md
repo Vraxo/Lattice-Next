@@ -114,7 +114,7 @@ Failed response:
 
 The response must echo the protocol version and request ID. The `result` may be any JSON value. Lattice preserves it as JSON in the resulting sourced observation and does not infer facts from it. Numeric results are represented as JSON numbers so subsequent numeric intents can use the observation directly.
 
-The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice enforces descriptor permission gates, execution timeouts, and process termination, but these gates do not restrict what the child process can access at the OS level. The CLI grants no tool permissions by default; set `LATTICE_TOOL_PERMISSIONS` to `read`, `write`, or `read,write` to grant them for the session. This is a coarse global grant, not a per-tool policy.
+The configured tool directory is a trust boundary. Invoking a discovered command runs it with the current user's OS permissions; process separation is not a security sandbox. Lattice enforces descriptor permission gates, execution timeouts, and process termination, but these gates do not restrict what the child process can access at the OS level. The CLI grants no tool permissions by default. Before a tool first runs, it asks the user to approve its declared permissions. Approval is session-wide: all discovered tools requesting the same permission can use it until the CLI exits. This is a coarse global grant, not a per-tool policy. For non-interactive runs, set `LATTICE_TOOL_PERMISSIONS` to `read`, `write`, or `read,write` to pre-grant permissions.
 
 ## Current invocation surface
 
@@ -124,7 +124,7 @@ The configured tool directory is a trust boundary. Invoking a discovered command
 - `:tool <id> <arguments-json>` explicitly invokes any registered capability for diagnostics.
 - `What is 12 multiplied by 3?` selects the calculator from ordinary language when its manifest is discovered.
 - `Convert 150 cm to meters.` selects the unit converter when its manifest is discovered.
-- `Search the web for Lattice symbolic reasoning.` selects `web-search` when its manifest is discovered and `read` permission is granted.
+- `Search the web for Lattice symbolic reasoning.` selects `web-search` when its manifest is discovered; the CLI asks for `read` permission before its first invocation.
 - `Multiply that by 5.` resolves the latest numeric tool observation and invokes the calculator again.
 
 The generic intent resolver creates recognizers from discovered manifest declarations; it does not contain a switch over tool IDs or domains. The bundled calculator and unit converter declare their supported arithmetic and conversion phrases in their own manifests; web search declares its search phrases in its manifest. A new tool can declare its own phrases without a matching C# recognizer. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.
