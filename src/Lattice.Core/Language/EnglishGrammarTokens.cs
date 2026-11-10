@@ -4,15 +4,8 @@ namespace Lattice.Core.Language;
 
 internal static class EnglishGrammarTokens
 {
-    private static readonly HashSet<string> ReservedTerms = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "a", "an", "the", "there", "is", "are", "be", "exist",
-        "something", "that", "by", "not", "no", "every", "all", "only", "some",
-        "to", "of", "class", "count", "as", "and"
-    };
-
     internal static bool IsReservedIndividualTerm(string value) =>
-        ReservedTerms.Contains(value);
+        EnglishLexicon.ReservedTerms.Contains(value);
 
     internal static bool TryReadSentence(
         string source,
