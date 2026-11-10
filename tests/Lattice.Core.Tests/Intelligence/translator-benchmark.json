@@ -21,6 +21,15 @@
       "expectedMeaning": "forall(x, implies(dog(x), animal(x)))"
     },
     {
+      "id": "each-quantifier",
+      "category": "quantification",
+      "input": "Each dog is an animal.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every dog is an animal.",
+      "expectedMeaning": "forall(x, implies(dog(x), animal(x)))",
+      "notes": "Each takes a singular noun and singular agreement while expressing universal quantification."
+    },
+    {
       "id": "existential-description",
       "category": "quantification",
       "input": "There is a red ball that is shiny.",
@@ -181,6 +190,14 @@
       "expectedOutcome": "one-candidate",
       "expectedLce": "Does Fido like milk?",
       "expectedMeaning": "ask(likes(fido, milk))"
+    },
+    {
+      "id": "malformed-each-quantifier",
+      "category": "unsupported",
+      "input": "Each dogs are animals.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "Each requires a singular head and singular agreement; do not silently repair malformed number agreement."
     },
     {
       "id": "negated-classification",

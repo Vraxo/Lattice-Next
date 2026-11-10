@@ -72,13 +72,14 @@ internal static class NativeEnglishQuantifierParser
         utterance = null;
 
         if (tokens.Length < 4 ||
-            tokens[0] is not ("Every" or "All" or "Only" or "Some"))
+            tokens[0] is not ("Every" or "Each" or "All" or "Only" or "Some"))
         {
             return false;
         }
 
         var quantifier = tokens[0];
-        var expectsPluralHead = !EnglishGrammarTokens.Is(quantifier, "Every");
+        var expectsPluralHead = !EnglishGrammarTokens.Is(quantifier, "Every") &&
+            !EnglishGrammarTokens.Is(quantifier, "Each");
         var isExistential = EnglishGrammarTokens.Is(quantifier, "Some");
         var isOnly = EnglishGrammarTokens.Is(quantifier, "Only");
 
@@ -175,7 +176,7 @@ internal static class NativeEnglishQuantifierParser
     }
 
     private static bool IsCopulaForQuantifier(string token, string quantifier) =>
-        EnglishGrammarTokens.Is(quantifier, "Every")
+        (EnglishGrammarTokens.Is(quantifier, "Every") || EnglishGrammarTokens.Is(quantifier, "Each"))
             ? string.Equals(token, "is", StringComparison.Ordinal)
             : string.Equals(token, "are", StringComparison.Ordinal);
 

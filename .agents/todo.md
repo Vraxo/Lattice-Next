@@ -2,7 +2,15 @@
 
 This is the active queue for the clean-slate Lattice repository. Keep it short, ordered, and tied to runnable outcomes.
 
-> Current priority: strengthen deterministic Core reasoning and correctness. Hosted/local translator evaluation is deferred for now.
+## Development goal: language–intelligence co-evolution
+
+- Treat language and intelligence as coupled development tracks. Advance them together instead of completing one track before returning to the other.
+- Every supported English construction must map faithfully to semantics that Core can represent and reason over; never weaken or approximate its meaning to fit the current engine.
+- Every meaningful reasoning capability should have a clear, usable expression in the supported native language, so it can be exercised through ordinary interaction.
+- Prefer alternating small language and reasoning increments when each side has a useful next step. This is a direction, not a rigid schedule: concrete correctness defects take priority, and neither side should gain capabilities solely to satisfy alternation.
+- Validate both sides of each boundary with exact semantic tests, rejection tests, and end-to-end reasoning tests or benchmark cases where applicable.
+
+> Current priority: develop native English and deterministic Core reasoning as coordinated, co-evolving tracks. Hosted/local translator evaluation is deferred for now.
 
 ## Bootstrap
 
