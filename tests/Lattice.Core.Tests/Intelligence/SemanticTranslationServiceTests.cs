@@ -79,18 +79,22 @@ public sealed class SemanticTranslationServiceTests
     [Fact]
     public async Task Rejects_the_entire_response_when_one_candidate_is_unsupported()
     {
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("dog", new IndividualTerm(Id("fido")))),
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Question,
-                    Predicate(
-                        "between",
-                        new IndividualTerm(Id("fido")),
-                        new IndividualTerm(Id("rex")),
-                        new IndividualTerm(Id("milk")))))));
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("dog", new IndividualTerm(Id("fido")))),
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Question,
+                        Predicate(
+                            "between",
+                            new IndividualTerm(Id("fido")),
+                            new IndividualTerm(Id("rex")),
+                            new IndividualTerm(Id("milk"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Ambiguous
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync("Fido is a dog.");

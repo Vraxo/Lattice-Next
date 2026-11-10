@@ -45,7 +45,7 @@ public sealed class LmStudioSemanticsTranslatorTests
         Assert.Contains("Never put explanations, refusals, or ordinary-language text in \"candidates\".", systemPrompt);
         Assert.Contains("Each request contains one utterance, not a multi-sentence turn.", systemPrompt);
         Assert.Contains("Input: Could Fido be a dog?", systemPrompt);
-        Assert.Contains("{\"candidates\":[],\"message\":\"LCE 0.9 cannot express the possibility in 'could'.\"}", systemPrompt);
+        Assert.Contains("{\"status\":\"unsupported\",\"candidates\":[],\"message\":\"LCE 0.9 cannot express the possibility in 'could'.\"}", systemPrompt);
     }
 
     [Fact]
