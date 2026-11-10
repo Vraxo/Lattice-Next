@@ -25,6 +25,7 @@ internal static class NativeEnglishGrammar
             return NativeEnglishQuantifierParser.TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishQuantifierParser.TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishPropertyParser.TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
+            NativeEnglishPropertyParser.TryParseNamedPropertyQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
                 NativeEnglishRelationParser.TryParseActiveRelationQuestion(tokens, sourceText, out utterance);
         }

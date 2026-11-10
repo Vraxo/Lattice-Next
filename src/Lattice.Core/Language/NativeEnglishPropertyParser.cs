@@ -27,6 +27,21 @@ internal static class NativeEnglishPropertyParser
             return true;
         }
 
+        if (tokens.Length == 3 &&
+            EnglishGrammarTokens.Is(tokens[1], "is") &&
+            EnglishDescriptionParser.TryCreateIndividual(
+                tokens[0],
+                allowPronoun: false,
+                out var individual) &&
+            TryParseSingleProperty(tokens, 2, 3, out var namedProperty))
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Assertion,
+                EnglishSemanticFactory.Predicate(namedProperty!, individual!),
+                sourceText);
+            return true;
+        }
+
         return false;
     }
 
@@ -48,6 +63,31 @@ internal static class NativeEnglishPropertyParser
         utterance = new SemanticUtterance(
             UtteranceKind.Question,
             EnglishSemanticFactory.Predicate(tokens[^1], description!),
+            sourceText);
+        return true;
+    }
+
+    internal static bool TryParseNamedPropertyQuestion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length != 3 ||
+            !EnglishGrammarTokens.Is(tokens[0], "Is") ||
+            !EnglishDescriptionParser.TryCreateIndividual(
+                tokens[1],
+                allowPronoun: false,
+                out var individual) ||
+            !TryParseSingleProperty(tokens, 2, 3, out var property))
+        {
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.Question,
+            EnglishSemanticFactory.Predicate(property!, individual!),
             sourceText);
         return true;
     }
