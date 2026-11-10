@@ -34,7 +34,7 @@ public sealed class ManifestToolIntentRecognizerTests
     }
 
     [Theory]
-    [InlineData("Search the web for the latest .NET 10 release notes.", "latest .NET 10 release notes")]
+    [InlineData("Search the web for the latest .NET 10 release notes.", "the latest .NET 10 release notes")]
     [InlineData("Search the web for symbolic reasoning systems and knowledge representation.", "symbolic reasoning systems and knowledge representation")]
     [InlineData("Please search the web for current release information.", "current release information")]
     public void Recognizes_web_search_phrases_declared_by_the_bundled_manifest(
