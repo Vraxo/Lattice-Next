@@ -14,10 +14,10 @@ public sealed class KnowledgeBaseTests
     public void Facts_are_exposed_through_a_live_read_only_collection()
     {
         var knowledgeBase = new KnowledgeBase();
-        var facts = Assert.IsAssignableFrom<IList<KnowledgeFact>>(knowledgeBase.Facts);
+        var facts = knowledgeBase.Facts.Should().BeAssignableTo<IList<KnowledgeFact>>().Which;
 
         facts.IsReadOnly.Should().BeTrue();
-        Assert.Throws<NotSupportedException>(() => facts.Clear());
+        (() => { Action assertion = () => facts.Clear(); assertion.Should().Throw<NotSupportedException>(); })();
 
         Add(knowledgeBase, "Fido is a dog.");
 
@@ -29,10 +29,10 @@ public sealed class KnowledgeBaseTests
     public void Rules_are_exposed_through_a_live_read_only_collection()
     {
         var knowledgeBase = new KnowledgeBase();
-        var rules = Assert.IsAssignableFrom<IList<UniversalRule>>(knowledgeBase.Rules);
+        var rules = knowledgeBase.Rules.Should().BeAssignableTo<IList<UniversalRule>>().Which;
 
         rules.IsReadOnly.Should().BeTrue();
-        Assert.Throws<NotSupportedException>(() => rules.Clear());
+        (() => { Action assertion = () => rules.Clear(); assertion.Should().Throw<NotSupportedException>(); })();
 
         Add(knowledgeBase, "Every dog is an animal.");
 
@@ -78,14 +78,14 @@ public sealed class KnowledgeBaseTests
         var knowledgeBase = new KnowledgeBase();
 
         var questionResult = new LceParser().Parse("Is Fido a dog?");
-        Assert.True(questionResult.IsSuccess, questionResult.Error);
+        questionResult.IsSuccess.Should().BeTrue(questionResult.Error);
         var questionAccepted = knowledgeBase.TryAdd(
-            Assert.IsType<SemanticUtterance>(questionResult.Utterance),
+            questionResult.Utterance.Should().BeOfType<SemanticUtterance>().Which,
             out _,
             out var questionError);
 
-        Assert.False(questionAccepted);
-        Assert.NotNull(questionError);
+        questionAccepted.Should().BeFalse();
+        questionError.Should().NotBeNull();
 
         var relation = new PredicateApplication(
             new SemanticIdentifier("likes"),
@@ -102,8 +102,8 @@ public sealed class KnowledgeBaseTests
             out _,
             out var relationError);
 
-        Assert.False(relationAccepted);
-        Assert.NotNull(relationError);
+        relationAccepted.Should().BeFalse();
+        relationError.Should().NotBeNull();
     }
 
     private static SemanticUtterance CreateRule(params PredicateApplication[] relationalPremises)
@@ -143,8 +143,8 @@ public sealed class KnowledgeBaseTests
     private static void Add(KnowledgeBase knowledgeBase, string sentence)
     {
         var parsed = new LceParser().Parse(sentence);
-        Assert.True(parsed.IsSuccess, parsed.Error);
-        Assert.NotNull(parsed.Utterance);
+        parsed.IsSuccess.Should().BeTrue(parsed.Error);
+        parsed.Utterance.Should().NotBeNull();
 
         var accepted = knowledgeBase.TryAdd(
             parsed.Utterance,
