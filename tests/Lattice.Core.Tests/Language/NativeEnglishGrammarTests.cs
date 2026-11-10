@@ -44,6 +44,23 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("The red and shiny ball is a toy.", UtteranceKind.Assertion, "toy(red-shiny-ball)")]
     [InlineData("Fido likes the red and shiny ball.", UtteranceKind.Assertion, "likes(fido, red-shiny-ball)")]
     [InlineData("Does the red and shiny ball like milk?", UtteranceKind.Question, "ask(likes(red-shiny-ball, milk))")]
+    [InlineData("All boxes are containers.", UtteranceKind.Assertion, "forall(x, implies(box(x), container(x)))")]
+    [InlineData("All stories are books.", UtteranceKind.Assertion, "forall(x, implies(story(x), book(x)))")]
+    [InlineData("All children are people.", UtteranceKind.Assertion, "forall(x, implies(child(x), person(x)))")]
+    [InlineData("Some mice are animals.", UtteranceKind.Assertion, "exists(x, and(mouse(x), animal(x)))")]
+    [InlineData("Fido belongs to the class of geese.", UtteranceKind.Assertion, "goose(fido)")]
+    [InlineData("All knives are tools.", UtteranceKind.Assertion, "forall(x, implies(knife(x), tool(x)))")]
+    [InlineData("All sheep are animals.", UtteranceKind.Assertion, "forall(x, implies(sheep(x), animal(x)))")]
+    [InlineData("Every sheep is an animal.", UtteranceKind.Assertion, "forall(x, implies(sheep(x), animal(x)))")]
+    [InlineData("All species are organisms.", UtteranceKind.Assertion, "forall(x, implies(species(x), organism(x)))")]
+    [InlineData("Every species is an organism.", UtteranceKind.Assertion, "forall(x, implies(species(x), organism(x)))")]
+    [InlineData("All deer are animals.", UtteranceKind.Assertion, "forall(x, implies(deer(x), animal(x)))")]
+    [InlineData("Every deer is an animal.", UtteranceKind.Assertion, "forall(x, implies(deer(x), animal(x)))")]
+    [InlineData("All fish are animals.", UtteranceKind.Assertion, "forall(x, implies(fish(x), animal(x)))")]
+    [InlineData("Every fish is an animal.", UtteranceKind.Assertion, "forall(x, implies(fish(x), animal(x)))")]
+    [InlineData("All series are collections.", UtteranceKind.Assertion, "forall(x, implies(series(x), collection(x)))")]
+    [InlineData("Every series is a collection.", UtteranceKind.Assertion, "forall(x, implies(series(x), collection(x)))")]
+    [InlineData("The species is rare.", UtteranceKind.Assertion, "rare(species)")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
@@ -75,6 +92,8 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All dogs that are red and are shiny are animals.")]
     [InlineData("All dogs that are red and are animals.")]
     [InlineData("All red and dogs are animals.")]
+    [InlineData("Every children are animals.")]
+    [InlineData("All child are animals.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);
