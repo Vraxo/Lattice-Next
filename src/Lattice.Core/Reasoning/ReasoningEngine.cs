@@ -66,6 +66,51 @@ public sealed class ReasoningEngine
 
     public ReasoningResult Ask(
         KnowledgeBase knowledgeBase,
+        UniversalQuantification query)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+        ArgumentNullException.ThrowIfNull(query);
+
+        if (!UniversalRuleFactory.TryCreate(
+                query,
+                string.Empty,
+                KnowledgeSourceKind.UserAssertion,
+                null,
+                out var requestedRule,
+                out _) ||
+            requestedRule.Premises.IsDefaultOrEmpty ||
+            !requestedRule.NegativePremises.IsDefaultOrEmpty ||
+            !requestedRule.RelationalPremises.IsDefaultOrEmpty ||
+            !requestedRule.NegativeRelationalPremises.IsDefaultOrEmpty ||
+            requestedRule.Conclusion.Arguments.IsDefault ||
+            requestedRule.Conclusion.Arguments.Length != 1)
+        {
+            return new ReasoningResult(null);
+        }
+
+        var matchingRules = knowledgeBase.Rules
+            .Where(rule => IsApplicableUniversalRule(rule, requestedRule))
+            .ToArray();
+        var supportingProofs = matchingRules
+            .Where(rule => rule.ConclusionPolarity == EvidencePolarity.Positive)
+            .Select(CreateUniversalRuleProof)
+            .ToList();
+        var contradictingProofs = matchingRules
+            .Where(rule => rule.ConclusionPolarity == EvidencePolarity.Negative)
+            .Select(CreateUniversalRuleProof)
+            .ToList();
+
+        if (contradictingProofs.Count == 0)
+        {
+            contradictingProofs.AddRange(
+                FindUniversalCounterexamples(knowledgeBase, requestedRule));
+        }
+
+        return ProofOperations.CreateResult(supportingProofs, contradictingProofs);
+    }
+
+    public ReasoningResult Ask(
+        KnowledgeBase knowledgeBase,
         Negation query)
     {
         ArgumentNullException.ThrowIfNull(knowledgeBase);
@@ -131,6 +176,102 @@ public sealed class ReasoningEngine
 
         return ProofOperations.CreateResult(proofs);
     }
+
+    private static bool IsApplicableUniversalRule(
+        UniversalRule rule,
+        UniversalRule query)
+    {
+        if (rule.ConclusionPolarity is not (EvidencePolarity.Positive or EvidencePolarity.Negative) ||
+            rule.Conclusion.Arguments.IsDefault ||
+            rule.Conclusion.Arguments.Length != 1 ||
+            !IsSamePredicate(rule.Conclusion, query.Conclusion) ||
+            rule.Premises.IsDefaultOrEmpty ||
+            !rule.NegativePremises.IsDefaultOrEmpty ||
+            !rule.RelationalPremises.IsDefaultOrEmpty ||
+            !rule.NegativeRelationalPremises.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        return rule.Premises.All(premise =>
+            query.Premises.Any(queryPremise => IsSamePredicate(premise, queryPremise)));
+    }
+
+    private static ProofNode CreateUniversalRuleProof(UniversalRule rule) =>
+        new(
+            rule.Conclusion,
+            rule.SourceText,
+            null,
+            SourceKind: rule.SourceKind,
+            AdditionalSources: rule.AdditionalSources,
+            SourceId: rule.SourceId)
+        {
+            Polarity = rule.ConclusionPolarity
+        };
+
+    private static IEnumerable<ProofNode> FindUniversalCounterexamples(
+        KnowledgeBase knowledgeBase,
+        UniversalRule query)
+    {
+        var positiveFacts = FactDeriver.DeriveUnaryFacts(knowledgeBase);
+        var negativeFacts = FactDeriver.DeriveNegativeUnaryFacts(knowledgeBase);
+        var firstPremise = query.Premises[0];
+        var contradictingProofs = new List<ProofNode>();
+
+        foreach (var classProof in positiveFacts)
+        {
+            if (!ProofOperations.TryGetFactKey(classProof.Predicate, out var classKey) ||
+                !string.Equals(
+                    classKey.Predicate,
+                    firstPremise.Predicate.Value,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var additionalPremiseCombinations = RulePremiseMatcher.GetAdditionalPremiseCombinations(
+                query.Premises.Skip(1),
+                classKey.Individual,
+                positiveFacts);
+
+            foreach (var additionalPremises in additionalPremiseCombinations)
+            {
+                var negativeConclusions = negativeFacts.Where(proof =>
+                    ProofOperations.TryGetFactKey(proof.Predicate, out var key) &&
+                    string.Equals(
+                        key.Predicate,
+                        query.Conclusion.Predicate.Value,
+                        StringComparison.Ordinal) &&
+                    key.Individual == classKey.Individual);
+
+                foreach (var negativeConclusion in negativeConclusions)
+                {
+                    var existingPremises = negativeConclusion.AdditionalPremises.IsDefault
+                        ? ImmutableArray<ProofNode>.Empty
+                        : negativeConclusion.AdditionalPremises;
+                    var counterexample = negativeConclusion with
+                    {
+                        AdditionalPremises = existingPremises
+                            .Add(classProof)
+                            .AddRange(additionalPremises),
+                        Kind = ProofNodeKind.Derived
+                    };
+
+                    ProofOperations.AddUniqueProof(contradictingProofs, counterexample);
+                }
+            }
+        }
+
+        return contradictingProofs;
+    }
+
+    private static bool IsSamePredicate(
+        PredicateApplication left,
+        PredicateApplication right) =>
+        left.Predicate == right.Predicate &&
+        !left.Arguments.IsDefault &&
+        !right.Arguments.IsDefault &&
+        left.Arguments.SequenceEqual(right.Arguments);
 
     private static bool TryGetBoundUnaryPredicates(
         SemanticFormula formula,
