@@ -39,11 +39,11 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex NegativeRelationAssertionPattern = new(
-        @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+does\s+not\s+(?<predicate>[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
+        @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+does\s+not\s+(?<predicate>(?!be\\b|exist\\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex NegativeRelationQuestionPattern = new(
-        @"^Does\s+(?<individual>[A-Z][a-zA-Z0-9-]*)\s+not\s+(?<predicate>[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
+        @"^Does\s+(?<individual>[A-Z][a-zA-Z0-9-]*)\s+not\s+(?<predicate>(?!be\\b|exist\\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex AssertionPattern = new(
