@@ -24,6 +24,7 @@ internal static class NativeEnglishGrammar
         {
             return NativeEnglishQuantifierParser.TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishQuantifierParser.TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
+                NativeEnglishPropertyParser.TryParseNegatedNamedPredicateQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishPropertyParser.TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
             NativeEnglishPropertyParser.TryParseNamedPropertyQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
@@ -33,6 +34,7 @@ internal static class NativeEnglishGrammar
         return NativeEnglishQuantifierParser.TryParseExistentialAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishQuantifierParser.TryParseQuantifiedRule(tokens, sourceText, out utterance) ||
             NativeEnglishQuantifierParser.TryParseClassMembershipAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishPropertyParser.TryParseNegatedNamedPredicateAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParsePassiveSomethingAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: false, out utterance) ||
             NativeEnglishPropertyParser.TryParseDefinitePropertyAssertion(tokens, sourceText, out utterance) ||

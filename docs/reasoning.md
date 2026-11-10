@@ -107,12 +107,29 @@ is **Unknown**. The red ball witness has no round fact, and the blue ball witnes
 
 Anonymous witnesses are internal knowledge-base identities. They are not added to conversational context, do not resolve the pronoun `it`, and are not treated as the same individual as a definite description such as `the red ball`.
 
-## Answer semantics
+## Explicit negative evidence and four-valued answers
 
-- **Yes:** the queried predicate has a direct fact or a derivation from the current facts and rules.
-- **Unknown:** the engine could not find an exact fact or derive the queried predicate from the current knowledge base.
+The native English grammar supports a deliberately narrow explicit-negation slice for named individuals:
 
-Unknown is not false. This implementation uses positive facts only; it has no negation, negative assertions, or closed-world assumption. It therefore does not answer No merely because it lacks a proof. It also does not yet resolve contradictions or represent a both-supported state.
+    Fido is a dog.
+    Fido is not a dog.
+    Is Fido a dog?
+    Is Fido not a dog?
+
+These sentences map directly to a predicate or its semantic negation; the grammar does not infer negation from missing information. LCE 0.9 itself remains unchanged and does not gain negation as part of its controlled grammar.
+
+Positive and negative ground assertions are stored independently with their own provenance. A negative assertion never deletes, overwrites, or weakens positive evidence. A query reports one of four evidence states:
+
+| Truth value | Meaning |
+|---|---|
+| **True** | Positive evidence exists; no negative evidence is known. |
+| **False** | Explicit negative evidence exists; no positive evidence is known. |
+| **Both** | Positive and negative evidence both exist. |
+| **Unknown** | Neither kind of evidence exists. |
+
+A negated question reverses which side counts as supporting the question, but preserves the same underlying evidence. The CLI displays supporting and opposing proof paths separately. A contradiction is not treated as a reason to discard either side.
+
+This is a paraconsistent evidence policy for the current slice: negative facts do not satisfy positive rule premises, and a contradiction does not cause unrelated conclusions to follow. Universal rules still derive only positive conclusions from positive premises. Negative rules, negated premises, closed-world reasoning, and broader logical negation are not implemented. In particular, **Unknown is not False**, and the absence of a positive fact never creates negative evidence.
 
 ## Deliberate limits
 
@@ -120,7 +137,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational joins, relation traversal, relational premises, or multi-variable quantified rules;
 - rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
-- negation, existential relational conditions, nested existential formulas, or equality;
+- negated rule premises or conclusions, negated relational forms, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 

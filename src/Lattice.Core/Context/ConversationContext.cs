@@ -15,7 +15,11 @@ public sealed class ConversationContext
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
-        if (utterance.Meaning is not PredicateApplication predicate ||
+        var meaning = utterance.Meaning is Negation { Formula: PredicateApplication negatedPredicate }
+            ? negatedPredicate
+            : utterance.Meaning;
+
+        if (meaning is not PredicateApplication predicate ||
             predicate.Arguments.IsDefault)
         {
             return;

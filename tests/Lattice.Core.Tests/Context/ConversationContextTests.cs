@@ -296,6 +296,20 @@ public sealed class ConversationContextTests
         Assert.Equal("fido", proof.ResolvedReferent!.Value.Value);
     }
 
+    [Fact]
+    public void Observes_named_individuals_from_explicitly_negated_utterances()
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("Fido is not a dog."));
+
+        Assert.Equal(1, context.KnownIndividualCount);
+
+        var resolution = context.Resolve(Parse("It is a mammal."));
+
+        Assert.Equal(ReferenceResolutionStatus.Resolved, resolution.Status);
+        Assert.Equal("fido", resolution.Utterance!.ResolvedReferent!.Value.Value);
+    }
+
     private static SemanticUtterance Parse(string sentence)
     {
         var result = new LceParser().Parse(sentence);

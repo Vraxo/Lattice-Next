@@ -753,6 +753,150 @@ public sealed class ReasoningEngineTests
             proof.Premise?.SourceText == "Every dog is an animal.");
     }
 
+    [Fact]
+    public void Distinguishes_true_false_both_and_unknown_evidence()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        Add(knowledgeBase, "Fido is a dog.");
+        var supported = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
+        Assert.Equal(TruthValue.True, supported.TruthValue);
+
+        Add(knowledgeBase, "Fido is not a dog.");
+        var contradictory = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
+        Assert.Equal(TruthValue.Both, contradictory.TruthValue);
+        Assert.Single(contradictory.Proofs);
+        Assert.Single(contradictory.ContradictingProofs);
+        Assert.Equal(EvidencePolarity.Positive, contradictory.Proof!.Polarity);
+        Assert.Equal(EvidencePolarity.Negative, contradictory.ContradictingProofs[0].Polarity);
+
+        var unknown = engine.Ask(knowledgeBase, ParseQuestion("Is Rex a dog?"));
+        Assert.Equal(TruthValue.Unknown, unknown.TruthValue);
+
+        var negativeOnlyKnowledge = new KnowledgeBase();
+        Add(negativeOnlyKnowledge, "Fido is not a dog.");
+        var explicitlyFalse = engine.Ask(
+            negativeOnlyKnowledge,
+            ParseQuestion("Is Fido a dog?"));
+        Assert.Equal(TruthValue.False, explicitlyFalse.TruthValue);
+        Assert.Null(explicitlyFalse.Proof);
+        Assert.Single(explicitlyFalse.ContradictingProofs);
+    }
+
+    [Fact]
+    public void Answers_a_negated_question_from_explicit_negative_evidence()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseNegatedQuestion("Is Fido not a dog?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal(EvidencePolarity.Negative, result.Proof!.Polarity);
+        Assert.Equal("Fido is not a dog.", result.Proof.SourceText);
+    }
+
+    [Fact]
+    public void Preserves_both_sides_when_asking_a_negated_question()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseNegatedQuestion("Is Fido not a dog?"));
+
+        Assert.Equal(TruthValue.Both, result.TruthValue);
+        Assert.Equal(EvidencePolarity.Negative, result.Proof!.Polarity);
+        Assert.Equal(EvidencePolarity.Positive, Assert.Single(result.ContradictingProofs).Polarity);
+    }
+
+    [Fact]
+    public void Negative_facts_do_not_satisfy_positive_rule_premises()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is Fido an animal?"));
+
+        Assert.Equal(TruthValue.Unknown, result.TruthValue);
+        Assert.Empty(result.ContradictingProofs);
+    }
+
+    [Fact]
+    public void Contradictory_evidence_does_not_cancel_a_positive_derivation()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is Fido an animal?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal("Every dog is an animal.", result.Proof!.SourceText);
+    }
+
+    [Fact]
+    public void A_contradiction_does_not_trigger_unrelated_positive_rules()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Every reptile is happy.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var unrelated = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Is Fido happy?"));
+
+        Assert.Equal(TruthValue.Unknown, unrelated.TruthValue);
+    }
+
+    [Fact]
+    public void Stores_positive_and_negative_evidence_as_separate_facts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        Assert.Equal(2, knowledgeBase.Facts.Count);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Polarity == EvidencePolarity.Positive);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Polarity == EvidencePolarity.Negative);
+    }
+
+    [Fact]
+    public void Rejects_negative_relational_assertions_until_relational_negation_is_supported()
+    {
+        var relation = new PredicateApplication(
+            new SemanticIdentifier("likes"),
+            ImmutableArray.Create<SemanticTerm>(
+                new IndividualTerm(new SemanticIdentifier("fido")),
+                new IndividualTerm(new SemanticIdentifier("milk"))));
+        var utterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            new Negation(relation),
+            "Fido does not like milk.");
+
+        var accepted = new KnowledgeBase().TryAdd(
+            utterance,
+            out _,
+            out var error);
+
+        Assert.False(accepted);
+        Assert.NotNull(error);
+    }
+
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
     {
         var utterance = Parse(sentence);
@@ -771,6 +915,13 @@ public sealed class ReasoningEngineTests
 
         Assert.True(accepted, error);
         return kind;
+    }
+
+    private static Negation ParseNegatedQuestion(string sentence)
+    {
+        var utterance = Parse(sentence);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        return Assert.IsType<Negation>(utterance.Meaning);
     }
 
     private static PredicateApplication ParseQuestion(string sentence)

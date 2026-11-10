@@ -20,6 +20,7 @@ public static class SemanticFormatter
         formula switch
         {
             PredicateApplication predicate => FormatPredicate(predicate),
+            Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
             Conjunction conjunction => $"and({string.Join(", ", conjunction.Conjuncts.Select(Format))})",
             ExistentialQuantification existential => $"exists({Format(existential.Variable)}, {Format(existential.Body)})",
