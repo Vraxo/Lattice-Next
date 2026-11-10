@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Lattice.Translators.LmStudio;
 
@@ -7,7 +8,8 @@ public sealed class LmStudioConfigurationStore
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true,
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     public LmStudioConfigurationStore(string? path = null)
@@ -35,14 +37,9 @@ public sealed class LmStudioConfigurationStore
             var json = File.ReadAllText(Path);
             var loaded = JsonSerializer.Deserialize<LatticeConfiguration>(json, JsonOptions);
 
-            if (loaded is null || loaded.LmStudio is null)
+            if (loaded is null || !loaded.TryValidate(out error))
             {
-                error = "The lattice.config.json file does not contain a valid configuration.";
-                return false;
-            }
-
-            if (!loaded.LmStudio.TryValidate(out error))
-            {
+                error ??= "The lattice.config.json file does not contain a valid configuration.";
                 return false;
             }
 
@@ -72,14 +69,7 @@ public sealed class LmStudioConfigurationStore
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var settings = configuration.LmStudio;
-
-        if (settings is null)
-        {
-            throw new InvalidOperationException("The Lattice configuration is invalid.");
-        }
-
-        if (!settings.TryValidate(out var error))
+        if (!configuration.TryValidate(out var error))
         {
             throw new InvalidOperationException(error ?? "The Lattice configuration is invalid.");
         }
