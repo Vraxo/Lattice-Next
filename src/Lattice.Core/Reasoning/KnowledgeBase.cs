@@ -47,7 +47,7 @@ public sealed class KnowledgeBase
         }
 
         if (utterance.Meaning is ExistentialQuantification existential &&
-            TryGetBoundUnaryPredicates(
+            KnowledgeFactFactory.TryGetBoundUnaryPredicates(
                 existential.Body,
                 existential.Variable,
                 out var existentialConditions))
@@ -55,108 +55,55 @@ public sealed class KnowledgeBase
             var witness = new AnonymousIndividualTerm(
                 new SemanticIdentifier($"witness-{++nextExistentialWitnessId}"));
 
-            foreach (var condition in existentialConditions)
-            {
-                AddFact(new KnowledgeFact(
-                    condition with
-                    {
-                        Arguments = ImmutableArray.Create<SemanticTerm>(witness)
-                    },
-                    utterance.SourceText,
-                    SourceKind: sourceKind,
-                    SourceId: sourceId));
-            }
-
-            kind = KnowledgeEntryKind.Fact;
-            return true;
-        }
-
-        var factMeaning = utterance.Meaning switch
-        {
-            PredicateApplication positivePredicate => positivePredicate,
-            Negation { Formula: PredicateApplication negativePredicate } => negativePredicate,
-            _ => null
-        };
-        var polarity = utterance.Meaning is Negation
-            ? EvidencePolarity.Negative
-            : EvidencePolarity.Positive;
-
-        if (factMeaning is not null &&
-            (polarity == EvidencePolarity.Positive ||
-             (!factMeaning.Arguments.IsDefault && factMeaning.Arguments.Length is 1 or 2)) &&
-            TryGroundPredicate(factMeaning, out var groundedPredicate, out var descriptionFacts))
-        {
-            AddFact(new KnowledgeFact(
-                groundedPredicate,
+            foreach (var fact in KnowledgeFactFactory.CreateExistentialFacts(
+                existentialConditions,
+                witness,
                 utterance.SourceText,
-                utterance.ResolvedReferent,
                 sourceKind,
-                SourceId: sourceId)
+                sourceId))
             {
-                Polarity = polarity
-            });
-
-            foreach (var descriptionFact in descriptionFacts)
-            {
-                AddFact(new KnowledgeFact(
-                    descriptionFact,
-                    utterance.SourceText,
-                    utterance.ResolvedReferent,
-                    sourceKind,
-                    SourceId: sourceId));
+                AddFact(fact);
             }
 
             kind = KnowledgeEntryKind.Fact;
             return true;
         }
 
-        var ruleConclusion = utterance.Meaning is UniversalQuantification quantified &&
-            quantified.Body is Implication ruleImplication
-                ? ruleImplication.Conclusion switch
-                {
-                    PredicateApplication predicate => predicate,
-                    Negation { Formula: PredicateApplication predicate } => predicate,
-                    _ => null
-                }
-                : null;
-        var rulePolarity = utterance.Meaning is UniversalQuantification negativeQuantified &&
-            negativeQuantified.Body is Implication negativeImplication &&
-            negativeImplication.Conclusion is Negation
-                ? EvidencePolarity.Negative
-                : EvidencePolarity.Positive;
+        if (KnowledgeFactFactory.TryCreateGroundFacts(
+            utterance.Meaning,
+            utterance.SourceText,
+            utterance.ResolvedReferent,
+            sourceKind,
+            sourceId,
+            out var groundFacts))
+        {
+            foreach (var fact in groundFacts)
+            {
+                AddFact(fact);
+            }
 
-        if (utterance.Meaning is UniversalQuantification universal &&
-            universal.Body is Implication implication &&
-            universal.Variable is { } variable &&
-            TryGetBoundRulePremises(implication.Premise, variable, out var premises,
-                out var negativePremises, out var relationalPremises) &&
-            ruleConclusion is not null &&
-            TryNormalizeUniversalConclusion(
-                ruleConclusion,
-                variable,
-                out var normalizedConclusion,
-                out var conclusionDescriptionFacts))
+            kind = KnowledgeEntryKind.Fact;
+            return true;
+        }
+
+        if (UniversalRuleFactory.TryCreate(
+            utterance.Meaning,
+            utterance.SourceText,
+            sourceKind,
+            sourceId,
+            out var candidateRule,
+            out var conclusionDescriptionFacts))
         {
             var existingRuleIndex = rules.FindIndex(rule =>
-                rule.ConclusionPolarity == rulePolarity &&
-                AreSamePremises(rule.Premises, premises) &&
-                AreSamePremises(rule.NegativePremises, negativePremises) &&
-                AreSamePremises(rule.RelationalPremises, relationalPremises) &&
-                IsSamePredicate(rule.Conclusion, normalizedConclusion));
+                rule.ConclusionPolarity == candidateRule.ConclusionPolarity &&
+                AreSamePremises(rule.Premises, candidateRule.Premises) &&
+                AreSamePremises(rule.NegativePremises, candidateRule.NegativePremises) &&
+                AreSamePremises(rule.RelationalPremises, candidateRule.RelationalPremises) &&
+                IsSamePredicate(rule.Conclusion, candidateRule.Conclusion));
 
             if (existingRuleIndex < 0)
             {
-                rules.Add(new UniversalRule(
-                    premises,
-                    normalizedConclusion,
-                    utterance.SourceText,
-                    sourceKind,
-                    SourceId: sourceId)
-                {
-                    ConclusionPolarity = rulePolarity,
-                    NegativePremises = negativePremises,
-                    RelationalPremises = relationalPremises
-                });
+                rules.Add(candidateRule);
             }
             else
             {
@@ -171,13 +118,9 @@ public sealed class KnowledgeBase
                 };
             }
 
-            foreach (var descriptionFact in conclusionDescriptionFacts)
+            foreach (var fact in conclusionDescriptionFacts)
             {
-                AddFact(new KnowledgeFact(
-                    descriptionFact,
-                    utterance.SourceText,
-                    SourceKind: sourceKind,
-                    SourceId: sourceId));
+                AddFact(fact);
             }
 
             kind = KnowledgeEntryKind.Rule;
@@ -213,164 +156,6 @@ public sealed class KnowledgeBase
         };
     }
 
-    private static bool TryGroundPredicate(
-        PredicateApplication predicate,
-        out PredicateApplication groundedPredicate,
-        out List<PredicateApplication> descriptionFacts)
-    {
-        groundedPredicate = predicate;
-        descriptionFacts = [];
-
-        if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
-            predicate.Arguments.IsDefaultOrEmpty)
-        {
-            return false;
-        }
-
-        var arguments = ImmutableArray.CreateBuilder<SemanticTerm>(predicate.Arguments.Length);
-
-        foreach (var argument in predicate.Arguments)
-        {
-            switch (argument)
-            {
-                case IndividualTerm individual when
-                    !string.IsNullOrWhiteSpace(individual.Identifier.Value):
-                    arguments.Add(individual);
-                    break;
-
-                case DescriptiveIndividualTerm description
-                    when IsValidDescription(description):
-                    arguments.Add(new IndividualTerm(description.Identifier));
-
-                    descriptionFacts.Add(CreateUnaryFact(
-                        description.Head,
-                        description.Identifier));
-
-                    foreach (var modifier in description.Modifiers)
-                    {
-                        descriptionFacts.Add(CreateUnaryFact(
-                            modifier,
-                            description.Identifier));
-                    }
-
-                    break;
-
-                default:
-                    return false;
-            }
-        }
-
-        groundedPredicate = predicate with
-        {
-            Arguments = arguments.ToImmutable()
-        };
-
-        return true;
-    }
-
-    private static bool IsValidDescription(DescriptiveIndividualTerm description) =>
-        !string.IsNullOrWhiteSpace(description.Head.Value) &&
-        !description.Modifiers.IsDefault &&
-        description.Modifiers.All(modifier =>
-            !string.IsNullOrWhiteSpace(modifier.Value));
-
-    private static PredicateApplication CreateUnaryFact(
-        SemanticIdentifier predicate,
-        SemanticIdentifier individual) =>
-        new(
-            predicate,
-            ImmutableArray.Create<SemanticTerm>(new IndividualTerm(individual)));
-
-    private static bool TryGetBoundUnaryPredicates(
-        SemanticFormula formula,
-        VariableTerm variable,
-        out ImmutableArray<PredicateApplication> premises)
-    {
-        premises = formula switch
-        {
-            PredicateApplication predicate => ImmutableArray.Create(predicate),
-            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
-                conjunction.Conjuncts
-                    .OfType<PredicateApplication>()
-                    .ToImmutableArray(),
-            _ => ImmutableArray<PredicateApplication>.Empty
-        };
-
-        if (premises.IsDefaultOrEmpty ||
-            (formula is Conjunction compound &&
-             premises.Length != compound.Conjuncts.Length))
-        {
-            return false;
-        }
-
-        return premises.All(premise => IsBoundUnaryPredicate(premise, variable));
-    }
-
-    private static bool TryGetBoundRulePremises(
-        SemanticFormula formula,
-        VariableTerm variable,
-        out ImmutableArray<PredicateApplication> positivePremises,
-        out ImmutableArray<PredicateApplication> negativePremises,
-        out ImmutableArray<PredicateApplication> relationalPremises)
-    {
-        positivePremises = ImmutableArray<PredicateApplication>.Empty;
-        negativePremises = ImmutableArray<PredicateApplication>.Empty;
-        relationalPremises = ImmutableArray<PredicateApplication>.Empty;
-
-        var conjuncts = formula switch
-        {
-            PredicateApplication predicate => ImmutableArray.Create<SemanticFormula>(predicate),
-            Negation { Formula: PredicateApplication predicate } =>
-                ImmutableArray.Create<SemanticFormula>(new Negation(predicate)),
-            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
-                conjunction.Conjuncts,
-            _ => ImmutableArray<SemanticFormula>.Empty
-        };
-
-        if (conjuncts.IsDefaultOrEmpty ||
-            (formula is Conjunction compound &&
-             conjuncts.Length != compound.Conjuncts.Length))
-        {
-            return false;
-        }
-
-        var positiveBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
-        var negativeBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
-        var relationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
-
-        foreach (var conjunct in conjuncts)
-        {
-            var isNegative = conjunct is Negation;
-            var predicate = conjunct switch
-            {
-                PredicateApplication positive => positive,
-                Negation { Formula: PredicateApplication negative } => negative,
-                _ => null
-            };
-
-            if (predicate is null || string.IsNullOrWhiteSpace(predicate.Predicate.Value) || predicate.Arguments.IsDefault) return false;
-            if (predicate.Arguments.Length == 1 && IsBoundUnaryPredicate(predicate, variable))
-            {
-                if (isNegative) negativeBuilder.Add(predicate);
-                else positiveBuilder.Add(predicate);
-                continue;
-            }
-            if (!isNegative && predicate.Arguments.Length == 2 &&
-                predicate.Arguments[0] is VariableTerm subject && subject.Identifier == variable.Identifier &&
-                predicate.Arguments[1] is IndividualTerm objectTerm && !string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
-            {
-                relationalBuilder.Add(predicate);
-                continue;
-            }
-            return false;
-        }
-
-        positivePremises = positiveBuilder.ToImmutable();
-        negativePremises = negativeBuilder.ToImmutable();
-        relationalPremises = relationalBuilder.ToImmutable();
-        return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
-    }
-
     private static bool AreSamePremises(
         ImmutableArray<PredicateApplication> left,
         ImmutableArray<PredicateApplication> right) =>
@@ -387,76 +172,6 @@ public sealed class KnowledgeBase
         !right.Arguments.IsDefault &&
         left.Arguments.SequenceEqual(right.Arguments);
 
-    private static bool IsBoundUnaryPredicate(
-        PredicateApplication predicate,
-        VariableTerm variable) =>
-        !string.IsNullOrWhiteSpace(predicate.Predicate.Value) &&
-        !string.IsNullOrWhiteSpace(variable.Identifier.Value) &&
-        !predicate.Arguments.IsDefault &&
-        predicate.Arguments.Length == 1 &&
-        predicate.Arguments[0] is VariableTerm argument &&
-        argument.Identifier == variable.Identifier;
-
-    private static bool TryNormalizeUniversalConclusion(
-        PredicateApplication conclusion,
-        VariableTerm variable,
-        out PredicateApplication normalizedConclusion,
-        out List<PredicateApplication> descriptionFacts)
-    {
-        normalizedConclusion = conclusion;
-        descriptionFacts = [];
-
-        if (IsBoundUnaryPredicate(conclusion, variable))
-        {
-            return true;
-        }
-
-        if (string.IsNullOrWhiteSpace(conclusion.Predicate.Value) ||
-            string.IsNullOrWhiteSpace(variable.Identifier.Value) ||
-            conclusion.Arguments.IsDefault ||
-            conclusion.Arguments.Length != 2 ||
-            conclusion.Arguments[0] is not VariableTerm subject ||
-            subject.Identifier != variable.Identifier)
-        {
-            return false;
-        }
-
-        SemanticTerm objectTerm;
-
-        switch (conclusion.Arguments[1])
-        {
-            case IndividualTerm individual when
-                !string.IsNullOrWhiteSpace(individual.Identifier.Value):
-                objectTerm = individual;
-                break;
-
-            case DescriptiveIndividualTerm description
-                when IsValidDescription(description):
-                objectTerm = new IndividualTerm(description.Identifier);
-                descriptionFacts.Add(CreateUnaryFact(
-                    description.Head,
-                    description.Identifier));
-
-                foreach (var modifier in description.Modifiers)
-                {
-                    descriptionFacts.Add(CreateUnaryFact(
-                        modifier,
-                        description.Identifier));
-                }
-
-                break;
-
-            default:
-                return false;
-        }
-
-        normalizedConclusion = conclusion with
-        {
-            Arguments = ImmutableArray.Create<SemanticTerm>(variable, objectTerm)
-        };
-
-        return true;
-    }
 
     private static bool IsSameFact(
         PredicateApplication left,
