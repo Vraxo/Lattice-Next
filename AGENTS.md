@@ -35,6 +35,21 @@ Keep these concerns independently understandable and changeable:
 - Update `.agents/todo.md` when work is completed or priorities change.
 - Do not port code from the legacy `Vraxo/Lattice` repository without reviewing its fit against this direction.
 
+## Incremental delivery and progress reporting
+
+The default unit of work is a **small, coherent, independently verifiable pull request**. Build Lattice through a sequence of clear steps, not a large batch of loosely related changes.
+
+- **One logical step at a time.** Each PR should solve one focused problem or add one cohesive capability. Split work when parts can be reviewed, tested, and understood independently.
+- **Build directly on the current baseline.** Before starting a step, identify the relevant behavior and constraints already present. Extend them without silently changing unrelated behavior; make dependencies on earlier work explicit.
+- **Keep every increment understandable.** Prefer a few focused files and a narrow diff. Avoid combining multiple features, broad refactors, speculative groundwork, and cleanup into one PR. Do not create a giant PR merely to avoid several small ones.
+- **Verify each step.** Add or update focused tests, run the relevant test suite and Release build, and inspect the resulting diff. Never describe a change as verified unless the corresponding checks actually ran and passed. If a check cannot be run, state that plainly and do not imply success.
+- **Commit in reviewable units.** Each commit should represent a coherent piece of progress. After **every commit**, report the commit and immediately provide a progress indicator showing where the current step stands on the way to a reviewable, mergeable PR. Do not go silent between commits or leave the user guessing whether work is still progressing.
+- **Keep the path to a PR visible.** Report the remaining work when useful: implementation, tests, build/CI, review, and PR readiness. Open the PR once the focused increment is ready; do not keep expanding its scope while waiting for the next idea.
+- **Stop at the merge boundary.** Once a PR is ready and its checks are known, present the result and its verification status. Treat the merged baseline as the starting point for the next step. Do not begin stacking unrelated future work into the same PR.
+- **Choose the next step only after the current one is reviewable.** Use the resulting merged state, tests, and any review feedback to decide what comes next. This makes each increment a clear checkpoint and keeps regressions and reasoning errors local.
+
+Progress indicators are status reports, not estimates of elapsed time or lines of code. Base them on explicit milestones (for example: scope agreed → implementation committed → tests/build verified → PR opened and ready). Mark incomplete or blocked milestones honestly; do not manufacture a percentage or imply that CI passed before it has. In ChatGPT conversations, render a genuinely visual, polished progress bar after every commit, alongside the commit identifier and a brief statement of the next milestone. Build it with the UI's native layout/visual components (for example, a rounded track with a proportionally sized filled segment); do not use ASCII or Unicode block characters as a substitute, and do not show raw HTML or implementation markup as the bar. Other agents do not share ChatGPT's rendering UI and may use an appropriate plain-text or ASCII progress indicator instead. This presentation requirement is specific to ChatGPT.
+
 ## C# conventions
 
 - Target .NET 10.
