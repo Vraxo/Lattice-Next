@@ -2,6 +2,8 @@
 
 This is the active queue for the clean-slate Lattice repository. Keep it short, ordered, and tied to runnable outcomes.
 
+> Current priority: strengthen deterministic Core reasoning and correctness. Hosted/local translator evaluation is deferred for now.
+
 ## Bootstrap
 
 - [x] Create a separate clean-slate repository; preserve the legacy repository unchanged.
@@ -89,7 +91,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Add a standalone LM Studio benchmark runner that evaluates canonical translations and safe abstentions through the production parser and validator.
 - [x] Define a natural-language-to-LCE benchmark covering paraphrases, quantification, relations, descriptions, questions, ambiguity, and unsupported constructions.
 - [x] Make LM Studio abstentions explicit with examples and surface invalid model candidates in CLI diagnostics.
-- [ ] Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
+- [ ] (Deferred) Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
 - [x] Resolve the translation contract for parser failures and multi-utterance turns: distinguish unsupported input from invalid LCE output, and keep each request single-utterance.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
