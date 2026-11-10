@@ -14,9 +14,9 @@ The repository includes three example capabilities under `tools/`. They are ordi
 
 - `calculator`: exact decimal addition, subtraction, multiplication, and division, implemented in Python.
 - `unit-converter`: converts length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h), implemented in Python.
-- `web-search`: queries a configured SearXNG JSON API and returns timestamped search results with source URLs, snippets, and engine metadata. It requires the session-wide `read` permission.
+- `web-search`: uses DDGS to query public search providers without requiring an account, API key, or user-hosted service; returns timestamped search results with source URLs, domains, and snippets. It requires the session-wide `read` permission.
 
-All three use the same manifest, stdio protocol, generic registry, permission checks, and execution limits as community tools. They have no third-party Python dependencies. The calculator and unit converter work without network access. Web search additionally requires `LATTICE_SEARXNG_URL` to point to a SearXNG instance with its JSON response format enabled; many public instances disable JSON, so a self-hosted or otherwise trusted instance may be necessary. The bundled examples require Python 3 with a `python` executable on `PATH`; Lattice Core and the stdio provider do not depend on Python.
+All three use the same manifest, stdio protocol, generic registry, permission checks, and execution limits as community tools. The calculator and unit converter use only the Python standard library. Web search uses the pinned `ddgs` dependency listed in `tools/web-search/requirements.txt`; it queries public search-provider pages through the library's automatic backend selection, so no API key or user-hosted service is needed. Public providers may rate-limit or block automated requests, and search results are not guaranteed to be available at all times. Install the dependency once with `python -m pip install -r tools/web-search/requirements.txt` from the repository root. The bundled examples require Python 3 with a `python` executable on `PATH`; Lattice Core and the stdio provider do not depend on Python.
 
 ## External process provider
 
@@ -124,7 +124,7 @@ The configured tool directory is a trust boundary. Invoking a discovered command
 - `:tool <id> <arguments-json>` explicitly invokes any registered capability for diagnostics.
 - `What is 12 multiplied by 3?` selects the calculator from ordinary language when its manifest is discovered.
 - `Convert 150 cm to meters.` selects the unit converter when its manifest is discovered.
-- `Search the web for Lattice symbolic reasoning.` selects `web-search` when its manifest is discovered, the SearXNG endpoint is configured, and `read` permission is granted.
+- `Search the web for Lattice symbolic reasoning.` selects `web-search` when its manifest is discovered and `read` permission is granted.
 - `Multiply that by 5.` resolves the latest numeric tool observation and invokes the calculator again.
 
 The generic intent resolver creates recognizers from discovered manifest declarations; it does not contain a switch over tool IDs or domains. The bundled calculator and unit converter declare their supported arithmetic and conversion phrases in their own manifests; web search declares its search phrases in its manifest. A new tool can declare its own phrases without a matching C# recognizer. Tool observations are kept in session conversation context, and numeric follow-ups may refer to the latest observation. They remain separate from accepted facts and rules. External tools are discovered at CLI startup but are started only when selected and invoked. Durable observation storage and automatic knowledge promotion are not implemented.

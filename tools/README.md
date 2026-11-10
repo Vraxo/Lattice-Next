@@ -29,9 +29,9 @@ The calculator and unit converter are ordinary external tools, not C# implementa
 
 - `calculator`: exact decimal addition, subtraction, multiplication, and division.
 - `unit-converter`: length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h).
-- `web-search`: timestamped result titles, source URLs, snippets, and engine metadata from a configured SearXNG JSON API.
+- `web-search`: timestamped result titles, source URLs, domains, and snippets from public search providers through DDGS, with no account, API key, or user-hosted service.
 
-To use these bundled examples, install Python 3 and make its `python` command available on `PATH`. They have no pip dependencies. Web search also requires `LATTICE_SEARXNG_URL` to point to a SearXNG instance with JSON output enabled. Set `LATTICE_TOOL_PERMISSIONS=read` to grant the web-search tool its required read permission. Lattice itself still builds without Python; other external tools can use any executable and implementation language.
+To use these bundled examples, install Python 3 and make its `python` command available on `PATH`. The calculator and unit converter have no pip dependencies. Install the web-search dependency once from the repository root with `python -m pip install -r tools/web-search/requirements.txt`. Web search uses public search pages and may be rate-limited or temporarily unavailable; it does not require an API key or a separate search server. Set `LATTICE_TOOL_PERMISSIONS=read` to grant the web-search tool its required read permission. Lattice itself still builds without Python; other external tools can use any executable and implementation language.
 
 Each manifest may include an `intents` array declaring supported phrases, typed slots, argument bindings, and response templates. Lattice loads these declarations into a generic matcher; there are no calculator- or unit-converter-specific recognizer classes. A newly added tool can declare its own supported phrases in its manifest without changing C# code. Patterns are deliberately constrained exact token sequences: `number` and `word` capture one token, `text` captures a phrase, and square-bracketed literal phrases are optional. They are not arbitrary code or unrestricted English. The bundled calculator's follow-up and chained arithmetic phrases are also declared there.
 
