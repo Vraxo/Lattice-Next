@@ -24,7 +24,7 @@ internal static class EnglishDescriptionParser
         var lexicalWords = new List<string>();
         var relativeModifiers = new List<string>();
         var negativeRelativePredicates = new List<string>();
-        var relativeRelations = new List<(string Predicate, SemanticTerm Object)>();
+        var relativeRelations = new List<(string Predicate, SemanticTerm Object, bool IsNegative)>();
         var index = start;
 
         while (index < end && !EnglishGrammarTokens.Is(tokens[index], "that"))
@@ -133,26 +133,65 @@ internal static class EnglishDescriptionParser
         ref int index,
         int end,
         bool pluralSubject,
-        List<(string Predicate, SemanticTerm Object)> relations)
+        List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations)
     {
-        var verb = tokens[index + 1];
-        string predicate;
-        if (pluralSubject)
+        if (index + 1 >= end)
         {
-            if (!EnglishRelationLexicon.IsBaseRelationVerb(verb)) return false;
-            predicate = EnglishMorphology.InflectThirdPersonSingular(verb);
+            return false;
+        }
+
+        var auxiliary = tokens[index + 1];
+        var isNegative = EnglishGrammarTokens.Is(auxiliary, pluralSubject ? "do" : "does");
+        int verbIndex;
+        int objectStart;
+
+        if (EnglishGrammarTokens.Is(auxiliary, "do") ||
+            EnglishGrammarTokens.Is(auxiliary, "does"))
+        {
+            if (!isNegative ||
+                index + 3 >= end ||
+                !EnglishGrammarTokens.Is(tokens[index + 2], "not") ||
+                !EnglishGrammarTokens.IsLowerWord(tokens[index + 3]) ||
+                !EnglishRelationLexicon.IsBaseRelationVerb(tokens[index + 3]))
+            {
+                return false;
+            }
+
+            verbIndex = index + 3;
+            objectStart = index + 4;
         }
         else
         {
-            if (!EnglishMorphology.IsThirdPersonVerb(verb)) return false;
-            predicate = verb.ToLowerInvariant();
+            var verb = auxiliary;
+
+            if (pluralSubject)
+            {
+                if (!EnglishRelationLexicon.IsBaseRelationVerb(verb))
+                {
+                    return false;
+                }
+            }
+            else if (!EnglishMorphology.IsThirdPersonVerb(verb))
+            {
+                return false;
+            }
+
+            verbIndex = index + 1;
+            objectStart = index + 2;
         }
 
-        if (!TryCreateObjectTerm(tokens, index + 2, end, out var relationObject) ||
-            relationObject is not IndividualTerm individual ||
-            string.IsNullOrWhiteSpace(individual.Identifier.Value)) return false;
+        var predicate = isNegative || pluralSubject
+            ? EnglishMorphology.InflectThirdPersonSingular(tokens[verbIndex])
+            : tokens[verbIndex].ToLowerInvariant();
 
-        relations.Add((predicate, individual));
+        if (!TryCreateObjectTerm(tokens, objectStart, end, out var relationObject) ||
+            relationObject is not IndividualTerm individual ||
+            string.IsNullOrWhiteSpace(individual.Identifier.Value))
+        {
+            return false;
+        }
+
+        relations.Add((predicate, individual, isNegative));
         index = end;
         return true;
     }

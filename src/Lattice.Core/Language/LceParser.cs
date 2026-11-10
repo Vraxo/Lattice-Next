@@ -63,7 +63,7 @@ public sealed class LceParser
         RegexOptions.CultureInvariant);
 
     private static readonly Regex NegatedRelativeClausePattern = new(
-        @"\bthat\s+(?:is|are)\s+not\b",
+        @"\bthat\s+(?:(?:is|are)|(?:does|do))\s+not\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public ParseResult Parse(string? input)

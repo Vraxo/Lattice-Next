@@ -11,7 +11,7 @@ internal sealed record EnglishDescription(
     ImmutableArray<string> Modifiers,
     ImmutableArray<string> RelativeProperties,
     ImmutableArray<string> NegativeRelativePredicates,
-    ImmutableArray<(string Predicate, SemanticTerm Object)> RelativeRelations)
+    ImmutableArray<(string Predicate, SemanticTerm Object, bool IsNegative)> RelativeRelations)
 {
     public SemanticFormula ToUniversalConditions(VariableTerm variable)
     {
@@ -31,8 +31,12 @@ internal sealed record EnglishDescription(
 
         predicates = predicates.AddRange(negativePredicates);
         predicates = predicates.AddRange(RelativeRelations.Select(relation =>
-            (SemanticFormula)new PredicateApplication(new SemanticIdentifier(relation.Predicate),
-                ImmutableArray.Create<SemanticTerm>(variable, relation.Object))));
+        {
+            var predicate = (SemanticFormula)new PredicateApplication(
+                new SemanticIdentifier(relation.Predicate),
+                ImmutableArray.Create<SemanticTerm>(variable, relation.Object));
+            return relation.IsNegative ? new Negation(predicate) : predicate;
+        }));
 
         return predicates.Length == 1
             ? predicates[0]

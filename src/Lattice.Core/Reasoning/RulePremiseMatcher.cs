@@ -10,27 +10,30 @@ internal static class RulePremiseMatcher
         SemanticTerm individual,
         IReadOnlyList<ProofNode> positiveFacts,
         IReadOnlyList<ProofNode> negativeFacts,
-        IReadOnlyList<ProofNode> relationalFacts)
+        IReadOnlyList<ProofNode> positiveRelationalFacts,
+        IReadOnlyList<ProofNode> negativeRelationalFacts)
     {
-        var positivePremises = GetAdditionalPremiseCombinations(
-            rule.Premises,
-            individual,
-            positiveFacts);
+        var positivePremises = GetAdditionalPremiseCombinations(rule.Premises, individual, positiveFacts);
         var negativePremises = GetAdditionalPremiseCombinations(
-            rule.NegativePremises.IsDefault
-                ? ImmutableArray<PredicateApplication>.Empty
-                : rule.NegativePremises,
-            individual,
-            negativeFacts);
+            rule.NegativePremises.IsDefault ? ImmutableArray<PredicateApplication>.Empty : rule.NegativePremises,
+            individual, negativeFacts);
         var relationPremises = GetRelationalPremiseCombinations(
             rule.RelationalPremises.IsDefault ? ImmutableArray<PredicateApplication>.Empty : rule.RelationalPremises,
-            individual, relationalFacts);
+            individual, positiveRelationalFacts);
+        var negativeRelationPremises = GetRelationalPremiseCombinations(
+            rule.NegativeRelationalPremises.IsDefault ? ImmutableArray<PredicateApplication>.Empty : rule.NegativeRelationalPremises,
+            individual, negativeRelationalFacts);
         var combinations = new List<ImmutableArray<ProofNode>>(
-            positivePremises.Count * negativePremises.Count * relationPremises.Count);
+            positivePremises.Count * negativePremises.Count * relationPremises.Count * negativeRelationPremises.Count);
+
         foreach (var positive in positivePremises)
         foreach (var negative in negativePremises)
         foreach (var relation in relationPremises)
-            combinations.Add(positive.AddRange(negative).AddRange(relation));
+        foreach (var negativeRelation in negativeRelationPremises)
+        {
+            combinations.Add(positive.AddRange(negative).AddRange(relation).AddRange(negativeRelation));
+        }
+
         return combinations;
     }
 
@@ -43,15 +46,27 @@ internal static class RulePremiseMatcher
         foreach (var required in requiredPremises)
         {
             if (required.Arguments.IsDefault || required.Arguments.Length != 2 ||
-                required.Arguments[1] is not IndividualTerm objectTerm) return [];
+                required.Arguments[1] is not IndividualTerm objectTerm)
+            {
+                return [];
+            }
+
             var matches = knownFacts.Where(proof =>
                 proof.Predicate.Predicate == required.Predicate &&
                 !proof.Predicate.Arguments.IsDefault && proof.Predicate.Arguments.Length == 2 &&
                 proof.Predicate.Arguments[0] == individual && proof.Predicate.Arguments[1] == objectTerm).ToArray();
-            if (matches.Length == 0) return [];
+
+            if (matches.Length == 0)
+            {
+                return [];
+            }
+
             var expanded = new List<ImmutableArray<ProofNode>>(combinations.Count * matches.Length);
             foreach (var combination in combinations)
-            foreach (var match in matches) expanded.Add(combination.Add(match));
+            foreach (var match in matches)
+            {
+                expanded.Add(combination.Add(match));
+            }
             combinations = expanded;
         }
         return combinations;
@@ -62,44 +77,26 @@ internal static class RulePremiseMatcher
         SemanticTerm individual,
         IReadOnlyList<ProofNode> knownFacts)
     {
-        var combinations = new List<ImmutableArray<ProofNode>>
-        {
-            ImmutableArray<ProofNode>.Empty
-        };
-
+        var combinations = new List<ImmutableArray<ProofNode>> { ImmutableArray<ProofNode>.Empty };
         foreach (var requiredPremise in requiredPremises)
         {
-            var matchingProofs = knownFacts
-                .Where(proof =>
-                    ProofOperations.TryGetFactKey(proof.Predicate, out var key) &&
-                    string.Equals(
-                        key.Predicate,
-                        requiredPremise.Predicate.Value,
-                        StringComparison.Ordinal) &&
-                    key.Individual == individual)
-                .ToArray();
-
+            var matchingProofs = knownFacts.Where(proof =>
+                ProofOperations.TryGetFactKey(proof.Predicate, out var key) &&
+                string.Equals(key.Predicate, requiredPremise.Predicate.Value, StringComparison.Ordinal) &&
+                key.Individual == individual).ToArray();
             if (matchingProofs.Length == 0)
             {
                 return [];
             }
 
-            var expanded = new List<ImmutableArray<ProofNode>>(
-                combinations.Count * matchingProofs.Length);
-
+            var expanded = new List<ImmutableArray<ProofNode>>(combinations.Count * matchingProofs.Length);
             foreach (var combination in combinations)
+            foreach (var matchingProof in matchingProofs)
             {
-                foreach (var matchingProof in matchingProofs)
-                {
-                    expanded.Add(combination.Add(matchingProof));
-                }
+                expanded.Add(combination.Add(matchingProof));
             }
-
             combinations = expanded;
         }
-
         return combinations;
     }
-
-
 }

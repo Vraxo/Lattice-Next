@@ -40,8 +40,11 @@ internal static class FactDeriver
             }
         }
 
-        var relationalFacts = knowledgeBase.Facts
+        var positiveRelationalFacts = knowledgeBase.Facts
             .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
+            .Select(ProofOperations.CreateAssertedProof).ToArray();
+        var negativeRelationalFacts = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Negative && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
             .Select(ProofOperations.CreateAssertedProof).ToArray();
 
         bool added;
@@ -53,7 +56,7 @@ internal static class FactDeriver
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
+                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
@@ -67,7 +70,8 @@ internal static class FactDeriver
                         individual,
                         positiveFacts,
                         negativeFacts,
-                        relationalFacts);
+                        positiveRelationalFacts,
+                        negativeRelationalFacts);
 
                     foreach (var premises in combinations)
                     {
@@ -117,15 +121,18 @@ internal static class FactDeriver
         EvidencePolarity polarity)
     {
         var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
-        var relationalEvidence = knowledgeBase.Facts
+        var positiveRelationalFacts = knowledgeBase.Facts
             .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
+            .Select(ProofOperations.CreateAssertedProof).ToArray();
+        var negativeRelationalFacts = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Negative && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
             .Select(ProofOperations.CreateAssertedProof).ToArray();
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
         {
             if (rule.ConclusionPolarity != polarity ||
-                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
+                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 2 ||
                 rule.Conclusion.Arguments[0] is not VariableTerm ||
@@ -144,7 +151,8 @@ internal static class FactDeriver
                     individual,
                     positiveFacts,
                     negativeFacts,
-                    relationalEvidence);
+                    positiveRelationalFacts,
+                    negativeRelationalFacts);
 
                 foreach (var premises in combinations)
                 {
