@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AwesomeAssertions;
+using Lattice.Core.Tools;
 using Lattice.Translators.LmStudio;
 using Xunit;
 
