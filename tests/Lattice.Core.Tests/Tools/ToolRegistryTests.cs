@@ -73,6 +73,34 @@ public sealed class ToolRegistryTests
     }
 
     [Fact]
+    public async Task Applies_permission_grants_only_to_the_named_tool()
+    {
+        var scopedRegistry = new ToolRegistry(
+            [
+                new RegistryEchoTool("allowed-read", ToolPermission.Read),
+                new RegistryEchoTool("denied-read", ToolPermission.Read)
+            ],
+            toolPermissions: new Dictionary<string, ToolPermission>
+            {
+                ["ALLOWED-READ"] = ToolPermission.Read
+            });
+
+        var allowed = await scopedRegistry.TryInvokeAsync(
+            "allowed-read",
+            """{"value":7}""",
+            TestContext.Current.CancellationToken);
+        var denied = await scopedRegistry.TryInvokeAsync(
+            "denied-read",
+            """{"value":7}""",
+            TestContext.Current.CancellationToken);
+
+        Assert.True(allowed.IsSuccess, allowed.Error);
+        Assert.Equal("7", allowed.Observation!.Content);
+        Assert.False(denied.IsSuccess);
+        Assert.Contains("permissions", denied.Error);
+    }
+
+    [Fact]
     public async Task Bounds_tool_execution_time_even_when_the_tool_waits_for_cancellation()
     {
         var boundedRegistry = new ToolRegistry(
