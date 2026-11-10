@@ -28,6 +28,10 @@ Keep these concerns independently understandable and changeable:
 
 ## Development workflow
 
+- Develop language and intelligence as coupled, co-evolving tracks; do not complete one before returning to the other.
+- Every supported English construction must map faithfully to semantics that Core can represent and reason over. Every meaningful reasoning capability should have a clear, usable expression in the supported native language.
+- Prefer alternating small language and reasoning increments where each has a useful next step, but do not treat alternation as a rigid schedule or add capabilities merely to satisfy it. Concrete correctness defects take priority.
+- Validate both sides of the boundary with exact semantic tests, rejection tests, and end-to-end reasoning tests or benchmark cases where applicable.
 - Prefer small, independently reviewable PRs that leave the repository runnable.
 - Make one vertical improvement at a time. Avoid speculative frameworks and empty abstraction layers.
 - Add behavioral tests with each meaningful language, semantic, reasoning, context, or tool feature.
