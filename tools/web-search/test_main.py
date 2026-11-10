@@ -119,6 +119,7 @@ class WebSearchTests(unittest.TestCase):
                 {"title": "First", "url": "https://example.org/page"},
                 {"title": "Duplicate", "url": "https://example.org/page"},
                 {"title": "Credentials", "url": "https://user:pass@example.org/page"},
+                {"title": "Malformed", "url": "https://[broken"},
             ]
         }
 
@@ -133,6 +134,7 @@ class WebSearchTests(unittest.TestCase):
         self.assertNotIn("Unsafe", result)
         self.assertNotIn("Duplicate", result)
         self.assertNotIn("Credentials", result)
+        self.assertNotIn("Malformed", result)
 
     def test_reports_empty_results_without_claiming_the_topic_is_false(self) -> None:
         payload = {

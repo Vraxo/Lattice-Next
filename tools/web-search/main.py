@@ -85,11 +85,16 @@ def safe_result_url(value: Any) -> str:
         return ""
 
     candidate = value.strip()
-    parsed = urlsplit(candidate)
+
+    try:
+        parsed = urlsplit(candidate)
+        hostname = parsed.hostname
+    except ValueError:
+        return ""
 
     if (
         parsed.scheme.lower() not in ("http", "https")
-        or not parsed.hostname
+        or not hostname
         or parsed.username is not None
         or parsed.password is not None
     ):

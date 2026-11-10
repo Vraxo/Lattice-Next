@@ -10,7 +10,7 @@ Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, de
 
 ## Bundled example capabilities
 
-The repository includes two example capabilities under `tools/`. They are ordinary external processes discovered from their manifests, not tool implementations compiled into `Lattice.Core` or `Lattice.Cli`:
+The repository includes three example capabilities under `tools/`. They are ordinary external processes discovered from their manifests, not tool implementations compiled into `Lattice.Core` or `Lattice.Cli`:
 
 - `calculator`: exact decimal addition, subtraction, multiplication, and division, implemented in Python.
 - `unit-converter`: converts length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h), implemented in Python.
