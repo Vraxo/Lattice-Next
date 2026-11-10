@@ -5,7 +5,7 @@ internal static class EnglishRelationLexicon
     private static readonly HashSet<string> BaseRelationVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
         "admire", "build", "buy", "carry", "catch", "chase", "close", "create",
-        "do", "eat", "follow", "give", "go", "hear", "have", "help", "hold",
+        "do", "eat", "find", "follow", "give", "go", "hear", "have", "help", "hold",
         "know", "keep", "leave", "like", "love", "make", "need", "open", "read",
         "see", "sell", "send", "take", "teach", "tell", "trust", "use", "visit",
         "want", "watch", "write"
@@ -21,6 +21,7 @@ internal static class EnglishRelationLexicon
         ["chased"] = "chase",
         ["closed"] = "close",
         ["created"] = "create",
+        ["done"] = "do",
         ["eaten"] = "eat",
         ["followed"] = "follow",
         ["found"] = "find",
