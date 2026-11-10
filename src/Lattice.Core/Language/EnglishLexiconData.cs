@@ -4,6 +4,7 @@ namespace Lattice.Core.Language;
 
 internal sealed class EnglishLexiconData(
     FrozenSet<string> reservedTerms,
+    FrozenSet<string> namedIndividualPropertyAdjectives,
     FrozenDictionary<string, string> explicitPluralNounForms,
     FrozenSet<string> invariantNouns,
     FrozenSet<string> singularNounsEndingInS,
@@ -12,6 +13,7 @@ internal sealed class EnglishLexiconData(
     FrozenDictionary<string, string> pastParticiples)
 {
     internal FrozenSet<string> ReservedTerms { get; } = reservedTerms;
+    internal FrozenSet<string> NamedIndividualPropertyAdjectives { get; } = namedIndividualPropertyAdjectives;
     internal FrozenDictionary<string, string> ExplicitPluralNounForms { get; } = explicitPluralNounForms;
     internal FrozenSet<string> InvariantNouns { get; } = invariantNouns;
     internal FrozenSet<string> SingularNounsEndingInS { get; } = singularNounsEndingInS;

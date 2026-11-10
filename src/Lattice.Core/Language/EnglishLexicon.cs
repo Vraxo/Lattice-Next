@@ -10,6 +10,7 @@ internal static class EnglishLexicon
     private static readonly Lazy<EnglishLexiconData> Data = new(LoadEmbedded);
 
     internal static FrozenSet<string> ReservedTerms => Data.Value.ReservedTerms;
+    internal static FrozenSet<string> NamedIndividualPropertyAdjectives => Data.Value.NamedIndividualPropertyAdjectives;
     internal static FrozenDictionary<string, string> ExplicitPluralNounForms => Data.Value.ExplicitPluralNounForms;
     internal static FrozenSet<string> InvariantNouns => Data.Value.InvariantNouns;
     internal static FrozenSet<string> SingularNounsEndingInS => Data.Value.SingularNounsEndingInS;
@@ -41,13 +42,14 @@ internal static class EnglishLexicon
             {
                 if (error.Length == 0)
                 {
-                    error = "The lexicon schema-version must be 1.";
+                    error = "The lexicon schema-version must be 2.";
                 }
 
                 return false;
             }
 
             if (!TryReadStringSet(root, "reserved-terms", out var reservedTerms, out error) ||
+                !TryReadStringSet(root, "named-individual-property-adjectives", out var namedIndividualPropertyAdjectives, out error) ||
                 !TryReadStringMap(root, "irregular-plural-nouns", out var irregularPluralNouns, out error) ||
                 !TryReadStringSet(root, "invariant-nouns", out var invariantNouns, out error) ||
                 !TryReadStringSet(root, "singular-nouns-ending-in-s", out var singularNounsEndingInS, out error) ||
@@ -64,7 +66,8 @@ internal static class EnglishLexicon
                 singularNounsEndingInS.Count == 0 ||
                 irregularThirdPersonVerbs.Count == 0 ||
                 baseRelationVerbs.Count == 0 ||
-                pastParticiples.Count == 0)
+                pastParticiples.Count == 0 ||
+                namedIndividualPropertyAdjectives.Count == 0)
             {
                 error = "Every lexicon collection must contain at least one entry.";
                 return false;
@@ -102,6 +105,7 @@ internal static class EnglishLexicon
 
             lexicon = new EnglishLexiconData(
                 reservedTerms.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
+                namedIndividualPropertyAdjectives.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
                 irregularPluralNouns.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase),
                 invariantNouns.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
                 singularNounsEndingInS.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
@@ -137,6 +141,7 @@ internal static class EnglishLexicon
         {
             "schema-version",
             "reserved-terms",
+            "named-individual-property-adjectives",
             "irregular-plural-nouns",
             "invariant-nouns",
             "singular-nouns-ending-in-s",
@@ -175,7 +180,7 @@ internal static class EnglishLexicon
         root.TryGetProperty("schema-version", out var version) &&
         version.ValueKind == JsonValueKind.Number &&
         version.TryGetInt32(out var value) &&
-        value == 1;
+        value == 2;
 
     private static bool TryReadStringSet(
         JsonElement root,
