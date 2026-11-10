@@ -68,6 +68,18 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All viruses are pathogens.", UtteranceKind.Assertion, "forall(x, implies(virus(x), pathogen(x)))")]
     [InlineData("Every virus is a pathogen.", UtteranceKind.Assertion, "forall(x, implies(virus(x), pathogen(x)))")]
     [InlineData("Every lens is an object.", UtteranceKind.Assertion, "forall(x, implies(lens(x), object(x)))")]
+    [InlineData("All feet are body-parts.", UtteranceKind.Assertion, "forall(x, implies(foot(x), body-part(x)))")]
+    [InlineData("All leaves are plants.", UtteranceKind.Assertion, "forall(x, implies(leaf(x), plant(x)))")]
+    [InlineData("All lice are parasites.", UtteranceKind.Assertion, "forall(x, implies(louse(x), parasite(x)))")]
+    [InlineData("All lives are experiences.", UtteranceKind.Assertion, "forall(x, implies(life(x), experience(x)))")]
+    [InlineData("All men are adults.", UtteranceKind.Assertion, "forall(x, implies(man(x), adult(x)))")]
+    [InlineData("All oxen are animals.", UtteranceKind.Assertion, "forall(x, implies(ox(x), animal(x)))")]
+    [InlineData("All teeth are bones.", UtteranceKind.Assertion, "forall(x, implies(tooth(x), bone(x)))")]
+    [InlineData("All theses are documents.", UtteranceKind.Assertion, "forall(x, implies(thesis(x), document(x)))")]
+    [InlineData("All thieves are criminals.", UtteranceKind.Assertion, "forall(x, implies(thief(x), criminal(x)))")]
+    [InlineData("All wives are spouses.", UtteranceKind.Assertion, "forall(x, implies(wife(x), spouse(x)))")]
+    [InlineData("All women are adults.", UtteranceKind.Assertion, "forall(x, implies(woman(x), adult(x)))")]
+    [InlineData("All wolves are animals.", UtteranceKind.Assertion, "forall(x, implies(wolf(x), animal(x)))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
