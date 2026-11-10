@@ -8,7 +8,7 @@ The current engine accepts three kinds of asserted input:
 
 - **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Definite descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
 - **Existential assertion:** a quantified formula containing one or more unary conditions, such as `exists(x, and(red(x), ball(x), shiny(x)))`. When stored, its conditions are attached to one fresh `AnonymousIndividualTerm`.
-- **Universal rule:** one universally quantified implication with one or more unary premises (positive predicates or explicitly negated predicates) and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a rule with an explicit negative condition is `forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
+- **Universal rule:** one universally quantified implication with one or more unary premises (positive predicates or explicitly negated predicates), optionally one positive binary relation premise to a fixed concrete object, and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a rule with an explicit negative condition is `forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
 
 A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
@@ -22,7 +22,7 @@ After exact lookup, the forward-chaining path derives unary predicates:
 
 1. Start with the unary facts stored in the current KnowledgeBase.
 2. For each rule, find candidate individuals that satisfy its first premise.
-3. Check that every remaining premise is also established for that same individual.
+3. Check that every remaining unary premise is established for that same individual, and any fixed-object relational premise is explicitly established for that subject and exact object.
 4. Apply the rule only when all premises are supported, then add its conclusion.
 5. Repeat until a full pass derives nothing new.
 
@@ -30,7 +30,7 @@ Known unary facts are deduplicated by predicate and individual, but their proof 
 
 A query result exposes the first proof through the existing `Proof` property and all retained alternatives through `Proofs`. The CLI presents each independent proof separately. Duplicate source records for one stored fact or rule remain grouped as provenance on that proof rather than being represented as separate derivations.
 
-A separate relational inference pass applies the restricted quantified relation rules after unary forward chaining reaches closure:
+A separate relational inference pass applies the restricted quantified relation rules after unary forward chaining reaches closure. Both unary and relational premises must be supported; a relational premise matches only an explicitly stored positive ground relation with the same subject and exact fixed object:
 
 1. Find candidate subjects that satisfy the first unary premise.
 2. Require every remaining unary premise to be established for that exact same subject.
@@ -140,7 +140,7 @@ This is a paraconsistent evidence policy for the current slice: negative facts d
 
 This is a first reasoning slice, not a general theorem prover. It does not currently support:
 
-- relational joins, relation traversal, relational premises, or multi-variable quantified rules;
+- relational joins, relation traversal, variable-bound relation objects, or multi-variable quantified rules;
 - rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
 - negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
