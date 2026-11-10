@@ -200,6 +200,20 @@ The rule matches the negative relation only for the same subject, predicate, and
 
 A universal rule may state that its positive unary conditions support an explicit negative conclusion:
 
+The native-English `No` quantifier expresses the same negative-universal semantics directly:
+
+    No dogs are cats.
+    Fido is a dog.
+    Is Fido a cat?
+
+This is represented as `forall(x, implies(dog(x), not(cat(x)))` and derives explicit negative evidence for Fido's cat membership. The relational form works the same way:
+
+    No dogs like milk.
+    Fido is a dog.
+    Does Fido like milk?
+
+It derives negative `likes(fido, milk)` evidence. Singular and plural noun agreement are both supported, and the negative conclusion still requires a supported universal rule with the same proof and provenance rules as other negative conclusions.
+
     Every dog is not a cat.
     Fido is a dog.
     Is Fido a cat?

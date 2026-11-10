@@ -72,19 +72,23 @@ internal static class NativeEnglishQuantifierParser
         utterance = null;
 
         if (tokens.Length < 4 ||
-            tokens[0] is not ("Every" or "Each" or "All" or "Only" or "Some"))
+            tokens[0] is not ("Every" or "Each" or "All" or "Only" or "Some" or "No"))
         {
             return false;
         }
 
         var quantifier = tokens[0];
-        var expectsPluralHead = !EnglishGrammarTokens.Is(quantifier, "Every") &&
-            !EnglishGrammarTokens.Is(quantifier, "Each");
+        var isNo = EnglishGrammarTokens.Is(quantifier, "No");
         var isExistential = EnglishGrammarTokens.Is(quantifier, "Some");
         var isOnly = EnglishGrammarTokens.Is(quantifier, "Only");
 
         for (var separator = 2; separator < tokens.Length - 1; separator++)
         {
+            var expectsPluralHead = isNo
+                ? ExpectsPluralHeadForNo(tokens[separator])
+                : !EnglishGrammarTokens.Is(quantifier, "Every") &&
+                    !EnglishGrammarTokens.Is(quantifier, "Each");
+
             if (!EnglishDescriptionParser.TryParseDescription(
                 tokens,
                 1,
@@ -101,7 +105,12 @@ internal static class NativeEnglishQuantifierParser
                 EnglishGrammarTokens.Is(tokens[separator + 1], "not");
             var classPredicateStart = separator + (negatedClassConclusion ? 2 : 1);
 
-            if (IsCopulaForQuantifier(tokens[separator], quantifier) &&
+            if (isNo && negatedClassConclusion)
+            {
+                continue;
+            }
+
+            if (IsCopulaForQuantifier(tokens[separator], quantifier, expectsPluralHead) &&
                 TryParseClassPredicate(tokens, classPredicateStart, tokens.Length, out var classPredicate))
             {
                 var variable = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
@@ -137,7 +146,9 @@ internal static class NativeEnglishQuantifierParser
                 utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                     variable,
                     subjectConditions,
-                    negatedClassConclusion ? new Negation(classConclusion) : classConclusion,
+                    isNo || negatedClassConclusion
+                        ? new Negation(classConclusion)
+                        : classConclusion,
                     sourceText);
                 return true;
             }
@@ -151,11 +162,18 @@ internal static class NativeEnglishQuantifierParser
                 EnglishGrammarTokens.Is(tokens[separator], "does") &&
                 EnglishGrammarTokens.Is(tokens[separator + 1], "not");
 
+            if (isNo && negatedRelationConclusion)
+            {
+                continue;
+            }
+
             if (!TryParseQuantifiedRelation(
                 tokens,
                 negatedRelationConclusion ? separator + 2 : separator,
                 tokens.Length,
-                negatedRelationConclusion || EnglishGrammarTokens.Is(quantifier, "All"),
+                isNo
+                    ? expectsPluralHead
+                    : negatedRelationConclusion || EnglishGrammarTokens.Is(quantifier, "All"),
                 out var relationPredicate,
                 out var relationObject))
             {
@@ -167,7 +185,9 @@ internal static class NativeEnglishQuantifierParser
             utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                 bound,
                 description!.ToUniversalConditions(bound),
-                negatedRelationConclusion ? new Negation(relationConclusion) : relationConclusion,
+                isNo || negatedRelationConclusion
+                    ? new Negation(relationConclusion)
+                    : relationConclusion,
                 sourceText);
             return true;
         }
@@ -175,10 +195,27 @@ internal static class NativeEnglishQuantifierParser
         return false;
     }
 
-    private static bool IsCopulaForQuantifier(string token, string quantifier) =>
-        (EnglishGrammarTokens.Is(quantifier, "Every") || EnglishGrammarTokens.Is(quantifier, "Each"))
-            ? string.Equals(token, "is", StringComparison.Ordinal)
-            : string.Equals(token, "are", StringComparison.Ordinal);
+    private static bool IsCopulaForQuantifier(
+        string token,
+        string quantifier,
+        bool expectsPluralHead)
+    {
+        if (EnglishGrammarTokens.Is(quantifier, "No"))
+        {
+            return expectsPluralHead
+                ? EnglishGrammarTokens.Is(token, "are")
+                : EnglishGrammarTokens.Is(token, "is");
+        }
+
+        return (EnglishGrammarTokens.Is(quantifier, "Every") ||
+                EnglishGrammarTokens.Is(quantifier, "Each"))
+            ? EnglishGrammarTokens.Is(token, "is")
+            : EnglishGrammarTokens.Is(token, "are");
+    }
+
+    private static bool ExpectsPluralHeadForNo(string followingPredicate) =>
+        EnglishGrammarTokens.Is(followingPredicate, "are") ||
+        EnglishRelationLexicon.IsBaseRelationVerb(followingPredicate);
 
     private static bool TryParseClassPredicate(
         string[] tokens,
