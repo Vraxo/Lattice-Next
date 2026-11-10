@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using Lattice.Core.Language;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Xunit;
