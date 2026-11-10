@@ -16,7 +16,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Converts_a_valid_lce_response_into_a_semantic_candidate()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog."],"message":null}""");
+            """{"status":"translated","candidates":["Fido is a dog."],"message":null}""");
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var configuration = CreateConfiguration();
         var translator = CreateTranslator(client, configuration);
@@ -43,6 +43,7 @@ public sealed class LmStudioSemanticsTranslatorTests
         var systemPrompt = root.GetProperty("system_prompt").GetString();
         Assert.Contains("Return only a JSON object", systemPrompt);
         Assert.Contains("Never put explanations, refusals, or ordinary-language text in \"candidates\".", systemPrompt);
+        Assert.Contains("Each request contains one utterance, not a multi-sentence turn.", systemPrompt);
         Assert.Contains("Input: Could Fido be a dog?", systemPrompt);
         Assert.Contains("{\"candidates\":[],\"message\":\"LCE 0.9 cannot express the possibility in 'could'.\"}", systemPrompt);
     }
@@ -51,7 +52,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Ignores_reasoning_output_and_parses_only_the_assistant_message()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog."],"message":null}""",
+            """{"status":"translated","candidates":["Fido is a dog."],"message":null}""",
             includeReasoningOutput: true);
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
@@ -65,7 +66,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Reports_reasoning_only_output_when_no_assistant_message_is_returned()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog."],"message":null}""",
+            """{"status":"translated","candidates":["Fido is a dog."],"message":null}""",
             reasoningOnly: true);
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
@@ -82,13 +83,14 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Returns_no_candidates_when_the_model_abstains()
     {
         var handler = CreateHandler(
-            """{"candidates":[],"message":"Negation is not supported."}""");
+            """{"status":"unsupported","candidates":[],"message":"Negation is not supported."}""");
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
 
         var response = await translator.TranslateAsync("No dog is a cat.");
 
         Assert.Empty(response.Candidates);
+        Assert.Equal(SemanticTranslationOutcome.Unsupported, response.Outcome);
         Assert.Equal("Negation is not supported.", response.Message);
     }
 
@@ -96,13 +98,14 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Rejects_the_entire_model_response_when_any_candidate_is_not_lce()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog.","Fido is friendly and playful."],"message":null}""");
+            """{"status":"ambiguous","candidates":["Fido is a dog.","Fido is friendly and playful."],"message":null}""");
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
 
         var response = await translator.TranslateAsync("Fido is a dog and is friendly.");
 
         Assert.Empty(response.Candidates);
+        Assert.Equal(SemanticTranslationOutcome.Invalid, response.Outcome);
         Assert.Contains("not valid LCE 0.9", response.Message);
         Assert.Contains(JsonSerializer.Serialize("Fido is friendly and playful."), response.Message);
     }
@@ -111,7 +114,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Preserves_multiple_distinct_valid_candidates()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog.","Fido is a pet."],"message":null}""");
+            """{"status":"ambiguous","candidates":["Fido is a dog.","Fido is a pet."],"message":null}""");
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
 
@@ -125,7 +128,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     {
         const string instanceIdentifier = "gemma-session-1";
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog."],"message":null}""",
+            """{"status":"translated","candidates":["Fido is a dog."],"message":null}""",
             loadedModelIdentifier: instanceIdentifier);
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var configuration = CreateConfiguration() with
@@ -146,7 +149,7 @@ public sealed class LmStudioSemanticsTranslatorTests
     public async Task Reports_when_a_selected_model_is_no_longer_installed()
     {
         var handler = CreateHandler(
-            """{"candidates":["Fido is a dog."],"message":null}""",
+            """{"status":"translated","candidates":["Fido is a dog."],"message":null}""",
             includeModel: false);
         using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         var translator = CreateTranslator(client, CreateConfiguration());
