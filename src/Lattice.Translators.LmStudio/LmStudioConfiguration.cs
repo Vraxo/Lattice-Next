@@ -1,3 +1,5 @@
+using Lattice.Core.Tools;
+
 namespace Lattice.Translators.LmStudio;
 
 public sealed record LmStudioConfiguration
@@ -106,5 +108,44 @@ public sealed record LmStudioConfiguration
 
 public sealed record LatticeConfiguration
 {
+    private const ToolPermission KnownToolPermissions =
+        ToolPermission.Read | ToolPermission.Write;
+
     public LmStudioConfiguration LmStudio { get; init; } = new();
+
+    public Dictionary<string, ToolPermission> ToolPermissions { get; init; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    public bool TryValidate(out string? error)
+    {
+        error = null;
+
+        if (LmStudio is null || !LmStudio.TryValidate(out error))
+        {
+            error ??= "The Lattice configuration must define valid LM Studio settings.";
+            return false;
+        }
+
+        if (ToolPermissions is null)
+        {
+            error = "The toolPermissions configuration must be an object.";
+            return false;
+        }
+
+        var toolIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var pair in ToolPermissions)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Key) ||
+                !toolIds.Add(pair.Key) ||
+                pair.Value == ToolPermission.None ||
+                (pair.Value & ~KnownToolPermissions) != 0)
+            {
+                error = "Tool permission grants must use unique tool IDs and known, non-empty permissions.";
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
