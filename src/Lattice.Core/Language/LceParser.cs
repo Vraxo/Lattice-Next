@@ -30,6 +30,10 @@ public sealed class LceParser
         @"^Does\s+[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*\s+exist\?$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex UnsupportedNegatedQuantifiedPattern = new(
+        @"^(?:There\s+is|A|An|Every|All|Some|Only)\b.*\bnot\b",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex NegativeAssertionPattern = new(
         @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+is\s+not\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -91,6 +95,12 @@ public sealed class LceParser
         if (source.Length == 0)
         {
             return ParseResult.Failure("Input is empty.");
+        }
+
+        if (UnsupportedNegatedQuantifiedPattern.IsMatch(source))
+        {
+            return ParseResult.Failure(
+                "Negation is currently supported only for direct ground atomic statements and questions.");
         }
 
         if (NativeEnglishGrammar.TryParse(source, originalSource, out var nativeUtterance))
