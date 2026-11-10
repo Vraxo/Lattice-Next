@@ -131,12 +131,16 @@ internal static class UniversalRuleFactory
             return false;
         }
 
+        if (relationalBuilder.Count > 1)
+        {
+            return false;
+        }
+
         positivePremises = positiveBuilder.ToImmutable();
         negativePremises = negativeBuilder.ToImmutable();
         relationalPremises = relationalBuilder.ToImmutable();
         return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
     }
-
 
     private static bool TryNormalizeUniversalConclusion(
         PredicateApplication conclusion,
@@ -198,6 +202,4 @@ internal static class UniversalRuleFactory
 
         return true;
     }
-
-
 }
