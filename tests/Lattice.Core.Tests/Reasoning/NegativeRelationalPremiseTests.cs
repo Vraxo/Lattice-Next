@@ -243,7 +243,7 @@ public sealed class NegativeRelationalPremiseTests
             knowledgeBase.Rules.Select(rule =>
                 $"object={GetNegativeRelationalObject(rule)}; sources={string.Join(" | ", rule.Sources.Select(source => source.SourceText))}"));
 
-        Assert.Equal(2, knowledgeBase.Rules.Count, storedRuleDetails);
+        Assert.True(knowledgeBase.Rules.Count == 2, storedRuleDetails);
 
         AddParsed(knowledgeBase, milkRule.Utterance!);
 
