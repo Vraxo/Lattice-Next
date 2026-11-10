@@ -138,7 +138,8 @@ while (true)
         AnsiConsole.MarkupLine("  [dim]Install it once with: python -m pip install -r tools/web-search/requirements.txt.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
-        AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools; web search requires read.[/]");
+        AnsiConsole.MarkupLine("  [dim]Tools request their declared permissions before first use; approval applies to all matching tools for this session.[/]");
+        AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS can pre-grant read, write, or read,write for non-interactive runs.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]All dogs are animals.[/]       [dim]native plural universal[/]");
         AnsiConsole.MarkupLine("  [green]Only dogs are animals.[/]      [dim]native reverse quantifier[/]");
@@ -448,7 +449,13 @@ while (true)
 
         var toolId = invocation[..separator];
         var arguments = invocation[(separator + 1)..].Trim();
-        var result = await toolRegistry.TryInvokeAsync(toolId, arguments);
+        var result = await InvokeToolWithPermissionPromptAsync(toolId, arguments);
+
+        if (result is null)
+        {
+            AnsiConsole.WriteLine();
+            continue;
+        }
 
         if (!result.IsSuccess)
         {
@@ -506,9 +513,15 @@ while (true)
 
         while (currentIntent is not null && invocationCount < maximumToolIntentSteps)
         {
-            var result = await toolRegistry.TryInvokeAsync(
+            var result = await InvokeToolWithPermissionPromptAsync(
                 currentIntent.ToolId,
                 currentIntent.ArgumentsJson);
+
+            if (result is null)
+            {
+                invocationFailed = true;
+                break;
+            }
 
             if (!result.IsSuccess)
             {
@@ -575,6 +588,83 @@ while (true)
     }
 
     AnsiConsole.WriteLine();
+}
+
+async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
+    string requestedToolId,
+    string argumentsJson)
+{
+    var descriptor = toolRegistry.Descriptors.FirstOrDefault(
+        item => string.Equals(item.Id, requestedToolId, StringComparison.OrdinalIgnoreCase));
+
+    if (descriptor is not null)
+    {
+        var missingPermissions = descriptor.RequiredPermissions & ~grantedPermissions;
+
+        if (missingPermissions != ToolPermission.None)
+        {
+            var permissionNames = FormatPermissionNames(missingPermissions);
+            var permissionNoun = missingPermissions == (ToolPermission.Read | ToolPermission.Write)
+                ? "permissions"
+                : "permission";
+
+            AnsiConsole.MarkupLine(
+                $"[yellow]{Markup.Escape(descriptor.Name)} requires {Markup.Escape(permissionNames)} {permissionNoun}.[/]");
+
+            var descriptions = new List<string>();
+
+            if ((missingPermissions & ToolPermission.Read) != 0)
+            {
+                descriptions.Add("Read allows a tool to access information outside this conversation.");
+            }
+
+            if ((missingPermissions & ToolPermission.Write) != 0)
+            {
+                descriptions.Add("Write allows a tool to make changes outside this conversation.");
+            }
+
+            AnsiConsole.MarkupLine($"[dim]{Markup.Escape(string.Join(" ", descriptions))}[/]");
+            AnsiConsole.MarkupLine(
+                "[dim]Approval also covers other discovered tools requesting the same permission until this session ends.[/]");
+
+            AnsiConsole.Markup($"[yellow]Grant {Markup.Escape(permissionNames)} for this session? [[y/N]] [/]");
+            var acceptance = Console.ReadLine();
+
+            if (!string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+            {
+                AnsiConsole.MarkupLine("[dim]Permission was not granted; the tool was not run.[/]");
+                return null;
+            }
+
+            grantedPermissions |= missingPermissions;
+            toolRegistry = new ToolRegistry(
+                registeredTools,
+                grantedPermissions,
+                executionTimeout: TimeSpan.FromSeconds(15));
+
+            AnsiConsole.MarkupLine(
+                $"[dim]Granted {Markup.Escape(permissionNames)} for this session.[/]");
+        }
+    }
+
+    return await toolRegistry.TryInvokeAsync(requestedToolId, argumentsJson);
+}
+
+static string FormatPermissionNames(ToolPermission permissions)
+{
+    var names = new List<string>(2);
+
+    if ((permissions & ToolPermission.Read) != 0)
+    {
+        names.Add("read");
+    }
+
+    if ((permissions & ToolPermission.Write) != 0)
+    {
+        names.Add("write");
+    }
+
+    return string.Join(" and ", names);
 }
 
 SemanticTranslationService? CreateTranslationService(LmStudioConfiguration configuration) =>
