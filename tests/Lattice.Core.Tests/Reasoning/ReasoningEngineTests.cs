@@ -879,10 +879,10 @@ public sealed class ReasoningEngineTests
     public void Rejects_negative_relational_assertions_until_relational_negation_is_supported()
     {
         var relation = new PredicateApplication(
-            Id("likes"),
+            new SemanticIdentifier("likes"),
             ImmutableArray.Create<SemanticTerm>(
-                new IndividualTerm(Id("fido")),
-                new IndividualTerm(Id("milk"))));
+                new IndividualTerm(new SemanticIdentifier("fido")),
+                new IndividualTerm(new SemanticIdentifier("milk"))));
         var utterance = new SemanticUtterance(
             UtteranceKind.Assertion,
             new Negation(relation),
