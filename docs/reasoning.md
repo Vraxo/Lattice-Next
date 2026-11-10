@@ -12,6 +12,8 @@ The current engine accepts three kinds of asserted input:
 
 A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
+The knowledge base exposes its stored facts and rules through live read-only collection views. Callers must use `TryAdd` to insert claims, preserving the same validation, deduplication, and provenance behavior for every source.
+
 ## Direct lookup and inference
 
 For any ground predicate, the engine first checks for an exact stored fact. Matching includes the predicate identifier, argument count, argument order, and every individual identifier. A relational query such as `Does Fido like milk?` therefore matches `likes(fido, milk)`, but not `likes(fido, water)` or `likes(rex, milk)`.

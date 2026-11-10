@@ -8,11 +8,19 @@ public sealed class KnowledgeBase
 {
     private readonly List<KnowledgeFact> facts = [];
     private readonly List<UniversalRule> rules = [];
+    private readonly IReadOnlyList<KnowledgeFact> readOnlyFacts;
+    private readonly IReadOnlyList<UniversalRule> readOnlyRules;
     private long nextExistentialWitnessId;
 
-    public IReadOnlyList<KnowledgeFact> Facts => facts;
+    public KnowledgeBase()
+    {
+        readOnlyFacts = facts.AsReadOnly();
+        readOnlyRules = rules.AsReadOnly();
+    }
 
-    public IReadOnlyList<UniversalRule> Rules => rules;
+    public IReadOnlyList<KnowledgeFact> Facts => readOnlyFacts;
+
+    public IReadOnlyList<UniversalRule> Rules => readOnlyRules;
 
     public bool TryAdd(
         SemanticUtterance utterance,
