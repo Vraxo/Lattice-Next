@@ -7,9 +7,12 @@ public sealed class EnglishLexiconTests
 {
     private const string ValidDocument = """
         {
-          "schema-version": 1,
+          "schema-version": 2,
           "reserved-terms": [
             "a"
+          ],
+          "named-individual-property-adjectives": [
+            "happy"
           ],
           "irregular-plural-nouns": {
             "criteria": "criterion"
@@ -37,6 +40,7 @@ public sealed class EnglishLexiconTests
     public void Loads_the_embedded_lexicon_into_case_insensitive_immutable_collections()
     {
         Assert.True(EnglishLexicon.ReservedTerms.Contains("THE"));
+        Assert.True(EnglishLexicon.NamedIndividualPropertyAdjectives.Contains("HAPPY"));
         Assert.Equal("criterion", EnglishLexicon.ExplicitPluralNounForms["CRITERIA"]);
         Assert.True(EnglishLexicon.InvariantNouns.Contains("Deer"));
         Assert.True(EnglishLexicon.InvariantNouns.Contains("AIRCRAFT"));
@@ -93,7 +97,7 @@ public sealed class EnglishLexiconTests
     [Fact]
     public void Rejects_an_unsupported_schema_version()
     {
-        var json = ValidDocument.Replace("\"schema-version\": 1", "\"schema-version\": 2");
+        var json = ValidDocument.Replace("\"schema-version\": 2", "\"schema-version\": 3");
 
         AssertInvalid(json);
     }

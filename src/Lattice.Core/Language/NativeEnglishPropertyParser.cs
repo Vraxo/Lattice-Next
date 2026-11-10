@@ -35,7 +35,7 @@ internal static class NativeEnglishPropertyParser
                 tokens[0],
                 allowPronoun: false,
                 out var individual) &&
-            TryParseSingleProperty(tokens, 2, 3, out var namedProperty))
+            TryParseNamedIndividualProperty(tokens, 2, 3, out var namedProperty))
         {
             utterance = new SemanticUtterance(
                 UtteranceKind.Assertion,
@@ -84,7 +84,7 @@ internal static class NativeEnglishPropertyParser
                 tokens[1],
                 allowPronoun: false,
                 out var individual) ||
-            !TryParseSingleProperty(tokens, 2, 3, out var property))
+            !TryParseNamedIndividualProperty(tokens, 2, 3, out var property))
         {
             return false;
         }
@@ -93,6 +93,25 @@ internal static class NativeEnglishPropertyParser
             UtteranceKind.Question,
             EnglishSemanticFactory.Predicate(property!, individual!),
             sourceText);
+        return true;
+    }
+
+    private static bool TryParseNamedIndividualProperty(
+        string[] tokens,
+        int start,
+        int end,
+        out string? property)
+    {
+        property = null;
+
+        if (end - start != 1 ||
+            !EnglishGrammarTokens.IsLowerWord(tokens[start]) ||
+            !EnglishLexicon.NamedIndividualPropertyAdjectives.Contains(tokens[start]))
+        {
+            return false;
+        }
+
+        property = tokens[start].ToLowerInvariant();
         return true;
     }
 

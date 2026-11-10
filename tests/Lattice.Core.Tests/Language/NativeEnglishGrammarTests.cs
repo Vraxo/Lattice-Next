@@ -295,6 +295,8 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Could Fido be a dog?")]
     [InlineData("Fido might be a dog.")]
     [InlineData("Does Fido be happy?")]
+    [InlineData("Fido is dog.")]
+    [InlineData("Is Fido dog?")]
     [InlineData("Fido is not happy.")]
     [InlineData("Is Fido not happy?")]
     [InlineData("Fido is happy and shiny.")]

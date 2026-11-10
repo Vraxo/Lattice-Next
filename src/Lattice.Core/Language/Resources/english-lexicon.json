@@ -1,5 +1,5 @@
 {
-  "schema-version": 1,
+  "schema-version": 2,
   "reserved-terms": [
     "a",
     "an",
@@ -24,6 +24,21 @@
     "count",
     "as",
     "and"
+  ],
+  "named-individual-property-adjectives": [
+    "blue",
+    "bright",
+    "dark",
+    "friendly",
+    "happy",
+    "heavy",
+    "light",
+    "old",
+    "red",
+    "round",
+    "shiny",
+    "tall",
+    "young"
   ],
   "irregular-plural-nouns": {
     "algae": "alga",
