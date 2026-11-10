@@ -296,6 +296,15 @@ public sealed class ConversationContextTests
         Assert.Equal("fido", proof.ResolvedReferent!.Value.Value);
     }
 
+    [Fact]
+    public void Observes_named_individuals_in_negated_assertions()
+    {
+        var context = new ConversationContext();
+        context.Observe(Parse("Fido is not happy."));
+
+        Assert.Equal(1, context.KnownIndividualCount);
+    }
+
     private static SemanticUtterance Parse(string sentence)
     {
         var result = new LceParser().Parse(sentence);

@@ -15,7 +15,7 @@ public sealed class ConversationContext
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
-        if (utterance.Meaning is not PredicateApplication predicate ||
+        if (!TryGetPredicate(utterance.Meaning, out var predicate) ||
             predicate.Arguments.IsDefault)
         {
             return;
@@ -36,6 +36,20 @@ public sealed class ConversationContext
         }
     }
 
+    private static bool TryGetPredicate(
+        SemanticFormula formula,
+        out PredicateApplication predicate)
+    {
+        predicate = formula switch
+        {
+            PredicateApplication direct => direct,
+            Negation { Formula: PredicateApplication negated } => negated,
+            _ => null!
+        };
+
+        return predicate is not null;
+    }
+
     public void Observe(ToolObservation observation)
     {
         ArgumentNullException.ThrowIfNull(observation);
@@ -46,7 +60,7 @@ public sealed class ConversationContext
     {
         ArgumentNullException.ThrowIfNull(utterance);
 
-        if (utterance.Meaning is not PredicateApplication predicate ||
+        if (!TryGetPredicate(utterance.Meaning, out var predicate) ||
             predicate.Arguments.IsDefault)
         {
             return new ReferenceResolutionResult(
@@ -101,9 +115,12 @@ public sealed class ConversationContext
                 referenceIndices[0],
                 new IndividualTerm(referent))
         };
+        var resolvedMeaning = utterance.Meaning is Negation
+            ? new Negation(resolvedPredicate)
+            : resolvedPredicate;
         var resolvedUtterance = utterance with
         {
-            Meaning = resolvedPredicate,
+            Meaning = resolvedMeaning,
             ResolvedReferent = referent
         };
 
