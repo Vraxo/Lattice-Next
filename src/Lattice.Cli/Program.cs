@@ -630,6 +630,7 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
     var answer = utterance.Meaning switch
     {
         PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
+        Negation negatedQuery => reasoningEngine.Ask(knowledgeBase, negatedQuery),
         ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
         _ => null
     };
@@ -642,24 +643,43 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
 
     conversationContext.Observe(utterance);
 
-    if (!answer.IsSupported)
+    switch (answer.TruthValue)
     {
-        AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Unknown.");
-        AnsiConsole.MarkupLine("[dim]No supporting fact or rule is known in this session.[/]");
+        case TruthValue.True:
+            AnsiConsole.MarkupLine("[bold green]Lattice[/] [dim]›[/] Yes.");
+            break;
+        case TruthValue.False:
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] No (explicit negative evidence).");
+            break;
+        case TruthValue.Both:
+            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] Contradiction: both the statement and its negation are supported.");
+            break;
+        default:
+            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Unknown.");
+            break;
+    }
+
+    WriteProofGroup("Evidence supporting the answer:", answer.Proofs);
+    WriteProofGroup("Evidence opposing the answer:", answer.ContradictingProofs);
+}
+
+static void WriteProofGroup(string heading, IReadOnlyList<ProofNode> proofs)
+{
+    if (proofs.Count == 0)
+    {
         return;
     }
 
-    AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]›[/] Yes.");
-    AnsiConsole.MarkupLine("[dim]Because:[/]");
+    AnsiConsole.MarkupLine($"[dim]{heading}[/]");
 
-    for (var index = 0; index < answer.Proofs.Length; index++)
+    for (var index = 0; index < proofs.Count; index++)
     {
         if (index > 0)
         {
             AnsiConsole.MarkupLine("[dim]Another independent proof:[/]");
         }
 
-        foreach (var statement in GetProofStatements(answer.Proofs[index]))
+        foreach (var statement in GetProofStatements(proofs[index]))
         {
             AnsiConsole.Markup("[dim]  • [/]");
             AnsiConsole.WriteLine(statement);

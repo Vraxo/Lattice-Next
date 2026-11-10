@@ -10,11 +10,11 @@ LCE 0.2 introduced the singular pronoun "it" as an UnresolvedReferenceTerm. LCE 
 
 This initial policy is intentionally conservative:
 
-- If no individual has been explicitly mentioned in a supported unary assertion or yes/no question, or as an argument in a relational assertion or question, "it" has no known referent and Lattice asks the user to name the individual.
+- If no individual has been explicitly mentioned in a supported unary assertion or yes/no question (including a supported explicitly negated predicate), or as an argument in a relational assertion or question, "it" has no known referent and Lattice asks the user to name the individual.
 - If exactly one distinct individual has been explicitly mentioned, "it" resolves to that individual.
 - If more than one distinct individual has been mentioned, the reference is considered ambiguous. Lattice asks the user to name the intended individual rather than guessing based on recency.
 
-Repeated mentions of the same individual do not create ambiguity. Universal rules do not introduce an individual. Only concrete named individual arguments explicitly present in an utterance enter this context; inferred conclusions do not automatically become new conversational antecedents. LCE 0.8 existential assertions introduce anonymous witnesses inside the knowledge base, but those witnesses are deliberately not observed as conversational individuals and cannot resolve "it".
+Repeated mentions of the same individual do not create ambiguity. Universal rules do not introduce an individual. Concrete named individual arguments explicitly present in an utterance enter this context, including the individual named by a supported explicit-negation assertion; inferred conclusions do not automatically become new conversational antecedents. LCE 0.8 existential assertions introduce anonymous witnesses inside the knowledge base, but those witnesses are deliberately not observed as conversational individuals and cannot resolve "it".
 
 The policy deliberately favors correctness over convenience. It does not yet implement recency, grammatical gender, number agreement, salience, sentence-level co-reference, or clarification follow-up memory. Users can always repeat the individual's name explicitly.
 
