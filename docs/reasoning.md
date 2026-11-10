@@ -109,14 +109,19 @@ Anonymous witnesses are internal knowledge-base identities. They are not added t
 
 ## Explicit negative evidence and four-valued answers
 
-The native English grammar supports a deliberately narrow explicit-negation slice for named individuals:
+The native English grammar supports a deliberately narrow explicit-negation slice for unary predicates and exact binary relations:
 
     Fido is a dog.
     Fido is not a dog.
     Is Fido a dog?
     Is Fido not a dog?
 
-These sentences map directly to a predicate or its semantic negation; the grammar does not infer negation from missing information. LCE 0.9 itself remains unchanged and does not gain negation as part of its controlled grammar.
+    Fido likes milk.
+    Fido does not like milk.
+    Does Fido like milk?
+    Does Fido not like milk?
+
+These sentences map directly to a predicate or its semantic negation; the grammar does not infer negation from missing information. Negative relational evidence is stored and queried by exact predicate and ordered arguments, just like positive ground relations. It does not participate in positive rule inference. LCE 0.9 itself remains unchanged and does not gain negation as part of its controlled grammar.
 
 Positive and negative ground assertions are stored independently with their own provenance. A negative assertion never deletes, overwrites, or weakens positive evidence. A query reports one of four evidence states:
 
@@ -137,7 +142,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational joins, relation traversal, relational premises, or multi-variable quantified rules;
 - rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
-- negated rule premises or conclusions, negated relational forms, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
+- negated rule premises or conclusions, negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 

@@ -876,25 +876,44 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
-    public void Rejects_negative_relational_assertions_until_relational_negation_is_supported()
+    public void Negative_relational_evidence_answers_exact_queries_without_assuming_unrelated_relations()
     {
-        var relation = new PredicateApplication(
-            new SemanticIdentifier("likes"),
-            ImmutableArray.Create<SemanticTerm>(
-                new IndividualTerm(new SemanticIdentifier("fido")),
-                new IndividualTerm(new SemanticIdentifier("milk"))));
-        var utterance = new SemanticUtterance(
-            UtteranceKind.Assertion,
-            new Negation(relation),
-            "Fido does not like milk.");
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido does not like milk.");
 
-        var accepted = new KnowledgeBase().TryAdd(
-            utterance,
-            out _,
-            out var error);
+        var positiveQuery = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like milk?"));
+        var negativeQuery = engine.Ask(
+            knowledgeBase,
+            ParseNegatedQuestion("Does Fido not like milk?"));
+        var differentObject = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like water?"));
 
-        Assert.False(accepted);
-        Assert.NotNull(error);
+        Assert.Equal(TruthValue.False, positiveQuery.TruthValue);
+        Assert.Null(positiveQuery.Proof);
+        Assert.Equal("Fido does not like milk.", Assert.Single(positiveQuery.ContradictingProofs).SourceText);
+        Assert.Equal(TruthValue.True, negativeQuery.TruthValue);
+        Assert.Equal(EvidencePolarity.Negative, negativeQuery.Proof!.Polarity);
+        Assert.Equal(TruthValue.Unknown, differentObject.TruthValue);
+    }
+
+    [Fact]
+    public void Positive_and_negative_relational_evidence_remain_independent()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido likes milk.");
+        Add(knowledgeBase, "Fido does not like milk.");
+
+        var result = engine.Ask(
+            knowledgeBase,
+            ParseQuestion("Does Fido like milk?"));
+
+        Assert.Equal(TruthValue.Both, result.TruthValue);
+        Assert.Equal("Fido likes milk.", result.Proof!.SourceText);
+        Assert.Equal("Fido does not like milk.", Assert.Single(result.ContradictingProofs).SourceText);
+        Assert.Equal(2, knowledgeBase.Facts.Count);
     }
 
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)

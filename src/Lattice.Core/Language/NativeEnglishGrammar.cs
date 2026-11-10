@@ -28,6 +28,7 @@ internal static class NativeEnglishGrammar
                 NativeEnglishPropertyParser.TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
             NativeEnglishPropertyParser.TryParseNamedPropertyQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
+                NativeEnglishRelationParser.TryParseNegatedActiveRelationQuestion(tokens, sourceText, out utterance) ||
                 NativeEnglishRelationParser.TryParseActiveRelationQuestion(tokens, sourceText, out utterance);
         }
 
@@ -38,6 +39,7 @@ internal static class NativeEnglishGrammar
             NativeEnglishRelationParser.TryParsePassiveSomethingAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: false, out utterance) ||
             NativeEnglishPropertyParser.TryParseDefinitePropertyAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishRelationParser.TryParseNegatedActiveRelationAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParseActiveRelationAssertion(tokens, sourceText, out utterance);
     }
 }

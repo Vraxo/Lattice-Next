@@ -92,6 +92,100 @@ internal static class NativeEnglishRelationParser
         return false;
     }
 
+    internal static bool TryParseNegatedActiveRelationAssertion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        for (var auxiliaryIndex = 1; auxiliaryIndex < tokens.Length - 3; auxiliaryIndex++)
+        {
+            if (!EnglishGrammarTokens.Is(tokens[auxiliaryIndex], "does") ||
+                !EnglishGrammarTokens.Is(tokens[auxiliaryIndex + 1], "not") ||
+                !EnglishGrammarTokens.IsLowerWord(tokens[auxiliaryIndex + 2]) ||
+                !EnglishRelationLexicon.IsBaseRelationVerb(tokens[auxiliaryIndex + 2]) ||
+                !EnglishDescriptionParser.TryCreateSubjectTerm(
+                    tokens,
+                    0,
+                    auxiliaryIndex,
+                    allowPronoun: true,
+                    out var subject) ||
+                !EnglishDescriptionParser.TryCreateObjectTerm(
+                    tokens,
+                    auxiliaryIndex + 3,
+                    tokens.Length,
+                    out var relationObject) ||
+                HasMultipleUnresolvedReferences(subject, relationObject))
+            {
+                continue;
+            }
+
+            var predicate = EnglishSemanticFactory.Predicate(
+                EnglishMorphology.InflectThirdPersonSingular(tokens[auxiliaryIndex + 2]),
+                subject!,
+                relationObject!);
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Assertion,
+                new Negation(predicate),
+                sourceText);
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool TryParseNegatedActiveRelationQuestion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length < 5 || !EnglishGrammarTokens.Is(tokens[0], "Does"))
+        {
+            return false;
+        }
+
+        for (var negationIndex = 2; negationIndex < tokens.Length - 2; negationIndex++)
+        {
+            var verbIndex = negationIndex + 1;
+
+            if (!EnglishGrammarTokens.Is(tokens[negationIndex], "not") ||
+                !EnglishGrammarTokens.IsLowerWord(tokens[verbIndex]) ||
+                !EnglishRelationLexicon.IsBaseRelationVerb(tokens[verbIndex]) ||
+                !EnglishDescriptionParser.TryCreateSubjectTerm(
+                    tokens,
+                    1,
+                    negationIndex,
+                    allowPronoun: true,
+                    out var subject) ||
+                !EnglishDescriptionParser.TryCreateObjectTerm(
+                    tokens,
+                    verbIndex + 1,
+                    tokens.Length,
+                    out var relationObject) ||
+                HasMultipleUnresolvedReferences(subject, relationObject))
+            {
+                continue;
+            }
+
+            var predicate = EnglishSemanticFactory.Predicate(
+                EnglishMorphology.InflectThirdPersonSingular(tokens[verbIndex]),
+                subject!,
+                relationObject!);
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new Negation(predicate),
+                sourceText);
+            return true;
+        }
+
+        return false;
+    }
+
     internal static bool TryParseActiveRelationAssertion(
         string[] tokens,
         string sourceText,

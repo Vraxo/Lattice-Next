@@ -74,6 +74,10 @@ public sealed class ConversationContextTests
 
 
     [Theory]
+    [InlineData("It does not like milk.", "Fido is a dog.", "not(likes(fido, milk))", "fido")]
+    [InlineData("Fido does not like it.", "Milk is a beverage.", "not(likes(fido, milk))", "milk")]
+    [InlineData("Does it not like milk?", "Fido is a dog.", "ask(not(likes(fido, milk)))", "fido")]
+    [InlineData("Does Fido not like it?", "Milk is a beverage.", "ask(not(likes(fido, milk)))", "milk")]
     [InlineData("It likes milk.", "Fido is a dog.", "likes(fido, milk)", "fido")]
     [InlineData("Fido likes it.", "Milk is a beverage.", "likes(fido, milk)", "milk")]
     [InlineData("Does it like milk?", "Fido is a dog.", "ask(likes(fido, milk))", "fido")]
@@ -94,8 +98,11 @@ public sealed class ConversationContextTests
         Assert.Equal(sentence, utterance.SourceText);
         Assert.Equal(expectedReferent, utterance.ResolvedReferent!.Value.Value);
         Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
+        var meaning = utterance.Meaning is Negation negation
+            ? negation.Formula
+            : utterance.Meaning;
         Assert.All(
-            Assert.IsType<PredicateApplication>(utterance.Meaning).Arguments,
+            Assert.IsType<PredicateApplication>(meaning).Arguments,
             argument => Assert.IsNotType<UnresolvedReferenceTerm>(argument));
     }
 
