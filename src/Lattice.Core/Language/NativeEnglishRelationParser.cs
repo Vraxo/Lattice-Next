@@ -4,25 +4,6 @@ namespace Lattice.Core.Language;
 
 internal static class NativeEnglishRelationParser
 {
-    private static readonly HashSet<string> BaseRelationVerbs = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "like", "love", "watch", "carry", "have", "do", "go",
-        "need", "want", "eat", "chase", "admire", "trust"
-    };
-
-    internal static bool IsBaseRelationVerb(string verb) =>
-        BaseRelationVerbs.Contains(verb);
-
-    private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["liked"] = "like",
-        ["loved"] = "love",
-        ["watched"] = "watch",
-        ["carried"] = "carry",
-        ["needed"] = "need",
-        ["used"] = "use"
-    };
-
     internal static bool TryParsePassiveSomethingAssertion(
         string[] tokens,
         string sourceText,
@@ -67,7 +48,7 @@ internal static class NativeEnglishRelationParser
              participleIndex < tokens.Length - 2;
              participleIndex++)
         {
-            if (!PastParticiples.TryGetValue(tokens[participleIndex], out var baseVerb) ||
+            if (!EnglishRelationLexicon.TryGetPastParticiple(tokens[participleIndex], out var baseVerb) ||
                 !EnglishGrammarTokens.Is(tokens[participleIndex + 1], "by"))
             {
                 continue;

@@ -167,7 +167,7 @@ internal static class NativeEnglishQuantifierParser
             ? string.Equals(token, "is", StringComparison.Ordinal)
             : string.Equals(token, "are", StringComparison.Ordinal);
 
-    private static bool TryParseClassEnglishSemanticFactory.Predicate(
+    private static bool TryParseClassPredicate(
         string[] tokens,
         int start,
         int end,
