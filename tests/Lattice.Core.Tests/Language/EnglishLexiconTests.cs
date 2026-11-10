@@ -21,12 +21,12 @@ public sealed class EnglishLexiconTests
     [Fact]
     public void Loads_the_embedded_lexicon_into_case_insensitive_immutable_collections()
     {
-        Assert.Contains("THE", EnglishLexicon.ReservedTerms);
+        Assert.True(EnglishLexicon.ReservedTerms.Contains("THE"));
         Assert.Equal("criterion", EnglishLexicon.ExplicitPluralNounForms["CRITERIA"]);
-        Assert.Contains("Deer", EnglishLexicon.InvariantNouns);
-        Assert.Contains("ANALYSIS", EnglishLexicon.SingularNounsEndingInS);
+        Assert.True(EnglishLexicon.InvariantNouns.Contains("Deer"));
+        Assert.True(EnglishLexicon.SingularNounsEndingInS.Contains("ANALYSIS"));
         Assert.Equal("has", EnglishLexicon.IrregularThirdPersonVerbs["HAVE"]);
-        Assert.Contains("WRITE", EnglishLexicon.BaseRelationVerbs);
+        Assert.True(EnglishLexicon.BaseRelationVerbs.Contains("WRITE"));
         Assert.Equal("write", EnglishLexicon.PastParticiples["WRITTEN"]);
     }
 
