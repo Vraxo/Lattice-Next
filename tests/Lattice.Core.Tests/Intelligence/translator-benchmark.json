@@ -55,6 +55,32 @@
       "notes": "The plural universal form uses the explicit base verb; the canonical rule stores its third-person singular predicate."
     },
     {
+      "id": "invariant-noun-aircraft",
+      "category": "morphology",
+      "input": "All aircraft are vehicles.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every aircraft is a vehicle.",
+      "expectedMeaning": "forall(x, implies(aircraft(x), vehicle(x)))",
+      "notes": "Aircraft has the same singular and plural form; preserve the noun rather than stripping its final letters."
+    },
+    {
+      "id": "invariant-noun-crossroads",
+      "category": "morphology",
+      "input": "Every crossroads is a location.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every crossroads is a location.",
+      "expectedMeaning": "forall(x, implies(crossroads(x), location(x)))",
+      "notes": "Crossroads is valid as a singular head despite ending in s."
+    },
+    {
+      "id": "singular-noun-news",
+      "category": "unsupported",
+      "input": "All news are reports.",
+      "expectedOutcome": "no-candidate-unsupported",
+      "expectedCandidates": [],
+      "notes": "News is singular/mass and must not be classified as a plural merely because it ends in s."
+    },
+    {
       "id": "expanded-passive-relation",
       "category": "relational",
       "input": "The letter is written by Fido.",

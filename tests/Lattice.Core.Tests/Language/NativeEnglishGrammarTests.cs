@@ -240,6 +240,45 @@ public sealed class NativeEnglishGrammarTests
         Assert.Equal(expectedMeaning, SemanticFormatter.Format(utterance));
     }
 
+
+    [Theory]
+    [InlineData("All aircraft are vehicles.", "forall(x, implies(aircraft(x), vehicle(x)))")]
+    [InlineData("Every aircraft is a vehicle.", "forall(x, implies(aircraft(x), vehicle(x)))")]
+    [InlineData("All barracks are buildings.", "forall(x, implies(barracks(x), building(x)))")]
+    [InlineData("Every barracks is an building.", "forall(x, implies(barracks(x), building(x)))")]
+    [InlineData("All bison are animals.", "forall(x, implies(bison(x), animal(x)))")]
+    [InlineData("Every bison is an animal.", "forall(x, implies(bison(x), animal(x)))")]
+    [InlineData("All crossroads are locations.", "forall(x, implies(crossroads(x), location(x)))")]
+    [InlineData("Every crossroads is an location.", "forall(x, implies(crossroads(x), location(x)))")]
+    [InlineData("All headquarters are buildings.", "forall(x, implies(headquarters(x), building(x)))")]
+    [InlineData("Every headquarters is an building.", "forall(x, implies(headquarters(x), building(x)))")]
+    [InlineData("All means are methods.", "forall(x, implies(means(x), method(x)))")]
+    [InlineData("Every means is an method.", "forall(x, implies(means(x), method(x)))")]
+    [InlineData("All moose are animals.", "forall(x, implies(moose(x), animal(x)))")]
+    [InlineData("Every moose is an animal.", "forall(x, implies(moose(x), animal(x)))")]
+    [InlineData("All offspring are organisms.", "forall(x, implies(offspring(x), organism(x)))")]
+    [InlineData("Every offspring is an organism.", "forall(x, implies(offspring(x), organism(x)))")]
+    [InlineData("All reindeer are animals.", "forall(x, implies(reindeer(x), animal(x)))")]
+    [InlineData("Every reindeer is an animal.", "forall(x, implies(reindeer(x), animal(x)))")]
+    [InlineData("All salmon are fish.", "forall(x, implies(salmon(x), fish(x)))")]
+    [InlineData("Every salmon is an fish.", "forall(x, implies(salmon(x), fish(x)))")]
+    [InlineData("All spacecraft are vehicles.", "forall(x, implies(spacecraft(x), vehicle(x)))")]
+    [InlineData("Every spacecraft is a vehicle.", "forall(x, implies(spacecraft(x), vehicle(x)))")]
+    [InlineData("All swine are animals.", "forall(x, implies(swine(x), animal(x)))")]
+    [InlineData("Every swine is an animal.", "forall(x, implies(swine(x), animal(x)))")]
+    [InlineData("All trout are fish.", "forall(x, implies(trout(x), fish(x)))")]
+    [InlineData("Every trout is an fish.", "forall(x, implies(trout(x), fish(x)))")]
+    public void Parses_invariant_nouns_in_singular_and_plural_quantifier_forms(
+        string sentence,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance!));
+        Assert.Equal(sentence, result.Utterance!.SourceText);
+    }
+
     [Theory]
     [InlineData("No dog is a cat.")]
     [InlineData("Only red dogs are animals.")]
@@ -266,6 +305,7 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All cactus are plants.")]
     [InlineData("All fungus are organisms.")]
     [InlineData("All syllabus are documents.")]
+    [InlineData("All news are reports.")]
     [InlineData("All criterion are requirements.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
