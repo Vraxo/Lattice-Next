@@ -80,6 +80,10 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All wives are spouses.", UtteranceKind.Assertion, "forall(x, implies(wife(x), spouse(x)))")]
     [InlineData("All women are adults.", UtteranceKind.Assertion, "forall(x, implies(woman(x), adult(x)))")]
     [InlineData("All wolves are animals.", UtteranceKind.Assertion, "forall(x, implies(wolf(x), animal(x)))")]
+    [InlineData("All houses are buildings.", UtteranceKind.Assertion, "forall(x, implies(house(x), building(x)))")]
+    [InlineData("All courses are lessons.", UtteranceKind.Assertion, "forall(x, implies(course(x), lesson(x)))")]
+    [InlineData("All noses are body-parts.", UtteranceKind.Assertion, "forall(x, implies(nose(x), body-part(x)))")]
+    [InlineData("All spouses are partners.", UtteranceKind.Assertion, "forall(x, implies(spouse(x), partner(x)))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,

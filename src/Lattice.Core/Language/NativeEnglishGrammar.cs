@@ -22,15 +22,20 @@ internal static class NativeEnglishGrammar
         "to", "of", "class", "count", "as", "and"
     };
 
-    private static readonly Dictionary<string, string> IrregularPluralNouns = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> ExplicitPluralNounForms = new(StringComparer.OrdinalIgnoreCase)
     {
         ["analyses"] = "analysis",
         ["bases"] = "basis",
+        ["cases"] = "case",
         ["children"] = "child",
+        ["courses"] = "course",
         ["crises"] = "crisis",
         ["diagnoses"] = "diagnosis",
+        ["diseases"] = "disease",
         ["emphases"] = "emphasis",
         ["feet"] = "foot",
+        ["horses"] = "horse",
+        ["houses"] = "house",
         ["geese"] = "goose",
         ["knives"] = "knife",
         ["leaves"] = "leaf",
@@ -38,13 +43,22 @@ internal static class NativeEnglishGrammar
         ["lives"] = "life",
         ["men"] = "man",
         ["mice"] = "mouse",
+        ["noises"] = "noise",
+        ["noses"] = "nose",
+        ["nurses"] = "nurse",
         ["oxen"] = "ox",
         ["oases"] = "oasis",
         ["parentheses"] = "parenthesis",
+        ["pauses"] = "pause",
         ["people"] = "person",
+        ["phases"] = "phase",
+        ["phrases"] = "phrase",
+        ["promises"] = "promise",
+        ["spouses"] = "spouse",
         ["teeth"] = "tooth",
         ["theses"] = "thesis",
         ["thieves"] = "thief",
+        ["universes"] = "universe",
         ["wives"] = "wife",
         ["women"] = "woman",
         ["wolves"] = "wolf"
@@ -932,7 +946,7 @@ internal static class NativeEnglishGrammar
             return normalized;
         }
 
-        if (IrregularPluralNouns.TryGetValue(normalized, out var irregularSingular))
+        if (ExplicitPluralNounForms.TryGetValue(normalized, out var irregularSingular))
         {
             return irregularSingular;
         }
@@ -962,7 +976,7 @@ internal static class NativeEnglishGrammar
         IsLowerWord(word) &&
         !InvariantNouns.Contains(word) &&
         !SingularNounsEndingInS.Contains(word) &&
-        (IrregularPluralNouns.ContainsKey(word) ||
+        (ExplicitPluralNounForms.ContainsKey(word) ||
          (word.Length > 1 &&
           word.EndsWith("s", StringComparison.Ordinal) &&
           !word.EndsWith("ss", StringComparison.Ordinal)));
