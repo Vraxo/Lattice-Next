@@ -72,6 +72,40 @@ public sealed class KnowledgeBaseTests
         knowledgeBase.Rules.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Does_not_accept_questions_or_relations_with_unresolved_arguments_as_facts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        var questionResult = new LceParser().Parse("Is Fido a dog?");
+        Assert.True(questionResult.IsSuccess, questionResult.Error);
+        var questionAccepted = knowledgeBase.TryAdd(
+            Assert.IsType<SemanticUtterance>(questionResult.Utterance),
+            out _,
+            out var questionError);
+
+        Assert.False(questionAccepted);
+        Assert.NotNull(questionError);
+
+        var relation = new PredicateApplication(
+            new SemanticIdentifier("likes"),
+            ImmutableArray.Create<SemanticTerm>(
+                new IndividualTerm(new SemanticIdentifier("fido")),
+                new UnresolvedReferenceTerm(new SemanticIdentifier("it"))));
+        var relationUtterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            relation,
+            "Fido likes it.");
+
+        var relationAccepted = knowledgeBase.TryAdd(
+            relationUtterance,
+            out _,
+            out var relationError);
+
+        Assert.False(relationAccepted);
+        Assert.NotNull(relationError);
+    }
+
     private static SemanticUtterance CreateRule(params PredicateApplication[] relationalPremises)
     {
         var variable = new VariableTerm(new SemanticIdentifier("x"));
