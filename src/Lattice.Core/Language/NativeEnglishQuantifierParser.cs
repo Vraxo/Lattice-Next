@@ -90,7 +90,8 @@ internal static class NativeEnglishQuantifierParser
                 separator,
                 expectsPluralHead,
                 out var description,
-                allowNegatedRelativePredicates: !isExistential && !isOnly))
+                allowNegatedRelativePredicates: !isExistential && !isOnly,
+                allowRelationalRelativePredicates: !isExistential && !isOnly))
             {
                 continue;
             }

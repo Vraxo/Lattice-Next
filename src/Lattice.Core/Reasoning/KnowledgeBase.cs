@@ -128,11 +128,8 @@ public sealed class KnowledgeBase
         if (utterance.Meaning is UniversalQuantification universal &&
             universal.Body is Implication implication &&
             universal.Variable is { } variable &&
-            TryGetBoundUnaryRulePremises(
-                implication.Premise,
-                variable,
-                out var premises,
-                out var negativePremises) &&
+            TryGetBoundRulePremises(implication.Premise, variable, out var premises,
+                out var negativePremises, out var relationalPremises) &&
             ruleConclusion is not null &&
             TryNormalizeUniversalConclusion(
                 ruleConclusion,
@@ -144,6 +141,7 @@ public sealed class KnowledgeBase
                 rule.ConclusionPolarity == rulePolarity &&
                 AreSamePremises(rule.Premises, premises) &&
                 AreSamePremises(rule.NegativePremises, negativePremises) &&
+                AreSamePremises(rule.RelationalPremises, relationalPremises) &&
                 IsSamePredicate(rule.Conclusion, normalizedConclusion));
 
             if (existingRuleIndex < 0)
@@ -156,7 +154,8 @@ public sealed class KnowledgeBase
                     SourceId: sourceId)
                 {
                     ConclusionPolarity = rulePolarity,
-                    NegativePremises = negativePremises
+                    NegativePremises = negativePremises,
+                    RelationalPremises = relationalPremises
                 });
             }
             else
@@ -307,14 +306,16 @@ public sealed class KnowledgeBase
         return premises.All(premise => IsBoundUnaryPredicate(premise, variable));
     }
 
-    private static bool TryGetBoundUnaryRulePremises(
+    private static bool TryGetBoundRulePremises(
         SemanticFormula formula,
         VariableTerm variable,
         out ImmutableArray<PredicateApplication> positivePremises,
-        out ImmutableArray<PredicateApplication> negativePremises)
+        out ImmutableArray<PredicateApplication> negativePremises,
+        out ImmutableArray<PredicateApplication> relationalPremises)
     {
         positivePremises = ImmutableArray<PredicateApplication>.Empty;
         negativePremises = ImmutableArray<PredicateApplication>.Empty;
+        relationalPremises = ImmutableArray<PredicateApplication>.Empty;
 
         var conjuncts = formula switch
         {
@@ -335,6 +336,7 @@ public sealed class KnowledgeBase
 
         var positiveBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
         var negativeBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var relationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
 
         foreach (var conjunct in conjuncts)
         {
@@ -346,23 +348,26 @@ public sealed class KnowledgeBase
                 _ => null
             };
 
-            if (predicate is null || !IsBoundUnaryPredicate(predicate, variable))
+            if (predicate is null || string.IsNullOrWhiteSpace(predicate.Predicate.Value) || predicate.Arguments.IsDefault) return false;
+            if (predicate.Arguments.Length == 1 && IsBoundUnaryPredicate(predicate, variable))
             {
-                return false;
+                if (isNegative) negativeBuilder.Add(predicate);
+                else positiveBuilder.Add(predicate);
+                continue;
             }
-
-            if (isNegative)
+            if (!isNegative && predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm subject && subject.Identifier == variable.Identifier &&
+                predicate.Arguments[1] is IndividualTerm objectTerm && !string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
             {
-                negativeBuilder.Add(predicate);
+                relationalBuilder.Add(predicate);
+                continue;
             }
-            else
-            {
-                positiveBuilder.Add(predicate);
-            }
+            return false;
         }
 
         positivePremises = positiveBuilder.ToImmutable();
         negativePremises = negativeBuilder.ToImmutable();
+        relationalPremises = relationalBuilder.ToImmutable();
         return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
     }
 

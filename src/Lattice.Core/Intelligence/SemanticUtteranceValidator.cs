@@ -93,11 +93,7 @@ public sealed class SemanticUtteranceValidator
             return false;
         }
 
-        if (!TryValidateUnaryConditions(
-            implication.Premise,
-            universal.Variable,
-            out error,
-            allowNegation: true))
+        if (!TryValidateUniversalConditions(implication.Premise, universal.Variable, out error))
         {
             return false;
         }
@@ -134,6 +130,49 @@ public sealed class SemanticUtteranceValidator
 
         error = "A universal rule must conclude with its bound individual or relate it to one fixed concrete object.";
         return false;
+    }
+
+    private static bool TryValidateUniversalConditions(SemanticFormula formula, VariableTerm variable, out string? error)
+    {
+        if (!TryGetFlatConjuncts(formula, out var conjuncts))
+        {
+            error = "Universal conditions must be a flat, non-empty conjunction of supported premises.";
+            return false;
+        }
+        var hasUnaryPremise = false;
+        foreach (var conjunct in conjuncts)
+        {
+            var isNegative = conjunct is Negation;
+            var predicate = conjunct switch
+            {
+                PredicateApplication positive => positive,
+                Negation { Formula: PredicateApplication negative } => negative,
+                _ => null
+            };
+            if (predicate is null || !IsValidIdentifier(predicate.Predicate.Value) || predicate.Arguments.IsDefault)
+            {
+                error = "Every universal condition must be a supported predicate.";
+                return false;
+            }
+            if (predicate.Arguments.Length == 1 &&
+                predicate.Arguments[0] is VariableTerm unary && unary.Identifier == variable.Identifier)
+            {
+                hasUnaryPremise = true;
+                continue;
+            }
+            if (!isNegative && predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm subject && subject.Identifier == variable.Identifier &&
+                IsConcreteIndividual(predicate.Arguments[1])) continue;
+            error = "Universal conditions may contain unary premises and positive relations to one fixed concrete object.";
+            return false;
+        }
+        if (!hasUnaryPremise)
+        {
+            error = "A universal rule must include at least one unary premise to identify its subject.";
+            return false;
+        }
+        error = null;
+        return true;
     }
 
     private static bool TryValidateUnaryConditions(
