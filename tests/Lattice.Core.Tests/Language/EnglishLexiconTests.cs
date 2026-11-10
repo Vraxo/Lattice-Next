@@ -39,6 +39,11 @@ public sealed class EnglishLexiconTests
         Assert.True(EnglishLexicon.ReservedTerms.Contains("THE"));
         Assert.Equal("criterion", EnglishLexicon.ExplicitPluralNounForms["CRITERIA"]);
         Assert.True(EnglishLexicon.InvariantNouns.Contains("Deer"));
+        Assert.True(EnglishLexicon.InvariantNouns.Contains("AIRCRAFT"));
+        Assert.True(EnglishLexicon.InvariantNouns.Contains("HEADQUARTERS"));
+        Assert.True(EnglishLexicon.InvariantNouns.Contains("MEANS"));
+        Assert.True(EnglishLexicon.InvariantNouns.Contains("REINDEER"));
+        Assert.True(EnglishLexicon.SingularNounsEndingInS.Contains("NEWS"));
         Assert.True(EnglishLexicon.SingularNounsEndingInS.Contains("ANALYSIS"));
         Assert.Equal("has", EnglishLexicon.IrregularThirdPersonVerbs["HAVE"]);
         Assert.True(EnglishLexicon.BaseRelationVerbs.Contains("WRITE"));
