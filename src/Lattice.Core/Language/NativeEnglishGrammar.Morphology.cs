@@ -1,0 +1,177 @@
+namespace Lattice.Core.Language;
+
+internal static partial class NativeEnglishGrammar
+{
+    private static readonly Dictionary<string, string> ExplicitPluralNounForms = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["analyses"] = "analysis",
+        ["bases"] = "basis",
+        ["cases"] = "case",
+        ["children"] = "child",
+        ["courses"] = "course",
+        ["crises"] = "crisis",
+        ["diagnoses"] = "diagnosis",
+        ["diseases"] = "disease",
+        ["emphases"] = "emphasis",
+        ["feet"] = "foot",
+        ["horses"] = "horse",
+        ["houses"] = "house",
+        ["geese"] = "goose",
+        ["knives"] = "knife",
+        ["leaves"] = "leaf",
+        ["lice"] = "louse",
+        ["lives"] = "life",
+        ["men"] = "man",
+        ["mice"] = "mouse",
+        ["noises"] = "noise",
+        ["noses"] = "nose",
+        ["nurses"] = "nurse",
+        ["oxen"] = "ox",
+        ["oases"] = "oasis",
+        ["parentheses"] = "parenthesis",
+        ["pauses"] = "pause",
+        ["people"] = "person",
+        ["phases"] = "phase",
+        ["phrases"] = "phrase",
+        ["promises"] = "promise",
+        ["spouses"] = "spouse",
+        ["teeth"] = "tooth",
+        ["theses"] = "thesis",
+        ["thieves"] = "thief",
+        ["universes"] = "universe",
+        ["wives"] = "wife",
+        ["women"] = "woman",
+        ["wolves"] = "wolf"
+    };
+
+    private static readonly HashSet<string> InvariantNouns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "deer", "fish", "series", "sheep", "species"
+    };
+
+    private static readonly HashSet<string> SingularNounsEndingInS = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "analysis", "basis", "bonus", "bus", "campus", "crisis", "diagnosis",
+        "emphasis", "gas", "hypothesis", "lens", "octopus", "oasis", "parenthesis",
+        "status", "thesis", "virus"
+    };
+
+    private static string InflectThirdPersonSingular(string verb)
+    {
+        var normalized = verb.ToLowerInvariant();
+
+        if (normalized is "have" or "do" or "go")
+        {
+            return normalized switch
+            {
+                "have" => "has",
+                "do" => "does",
+                "go" => "goes",
+                _ => normalized
+            };
+        }
+
+        if (normalized.Length > 1 &&
+            normalized.EndsWith("y", StringComparison.Ordinal) &&
+            normalized[^2] is not ('a' or 'e' or 'i' or 'o' or 'u'))
+        {
+            return $"{normalized[..^1]}ies";
+        }
+
+        if (normalized.EndsWith("s", StringComparison.Ordinal) ||
+            normalized.EndsWith("x", StringComparison.Ordinal) ||
+            normalized.EndsWith("z", StringComparison.Ordinal) ||
+            normalized.EndsWith("ch", StringComparison.Ordinal) ||
+            normalized.EndsWith("sh", StringComparison.Ordinal) ||
+            normalized.EndsWith("o", StringComparison.Ordinal))
+        {
+            return $"{normalized}es";
+        }
+
+        return $"{normalized}s";
+    }
+
+    private static string Singularize(string noun)
+    {
+        var normalized = noun.ToLowerInvariant();
+
+        if (InvariantNouns.Contains(normalized))
+        {
+            return normalized;
+        }
+
+        if (ExplicitPluralNounForms.TryGetValue(normalized, out var irregularSingular))
+        {
+            return irregularSingular;
+        }
+
+        if (normalized.Length > 3 && normalized.EndsWith("ies", StringComparison.Ordinal))
+        {
+            return $"{normalized[..^3]}y";
+        }
+
+        if (normalized.Length > 3 &&
+            (normalized.EndsWith("ses", StringComparison.Ordinal) ||
+             normalized.EndsWith("xes", StringComparison.Ordinal) ||
+             normalized.EndsWith("zes", StringComparison.Ordinal) ||
+             normalized.EndsWith("ches", StringComparison.Ordinal) ||
+             normalized.EndsWith("shes", StringComparison.Ordinal) ||
+             normalized.EndsWith("oes", StringComparison.Ordinal)))
+        {
+            return normalized[..^2];
+        }
+
+        return normalized.Length > 1 && normalized.EndsWith("s", StringComparison.Ordinal)
+            ? normalized[..^1]
+            : normalized;
+    }
+
+    private static bool IsPlural(string word) =>
+        IsLowerWord(word) &&
+        !InvariantNouns.Contains(word) &&
+        !SingularNounsEndingInS.Contains(word) &&
+        (ExplicitPluralNounForms.ContainsKey(word) ||
+         (word.Length > 1 &&
+          word.EndsWith("s", StringComparison.Ordinal) &&
+          !word.EndsWith("ss", StringComparison.Ordinal)));
+
+    private static bool IsPluralHead(string word) =>
+        IsLowerWord(word) &&
+        (InvariantNouns.Contains(word) || IsPlural(word));
+
+    private static bool IsThirdPersonVerb(string word) =>
+        IsLowerWord(word) &&
+        word.Length > 1 &&
+        word.EndsWith("s", StringComparison.Ordinal) &&
+        !Is(word, "is");
+
+    private static bool IsArticle(string word) =>
+        Is(word, "a") || Is(word, "an");
+
+    private static bool IsCapitalized(string word) =>
+        word.Length > 0 &&
+        word[0] is >= 'A' and <= 'Z' &&
+        word.Skip(1).All(character =>
+            character is >= 'a' and <= 'z' or
+                >= 'A' and <= 'Z' or
+                >= '0' and <= '9' or '-');
+
+    private static bool IsLowerWord(string word) =>
+        word.Length > 0 &&
+        word[0] is >= 'a' and <= 'z' &&
+        word.All(character =>
+            character is >= 'a' and <= 'z' or
+                >= '0' and <= '9' or '-');
+
+    private static bool IsWord(string word) =>
+        word.Length > 0 &&
+        char.IsAsciiLetter(word[0]) &&
+        word.All(character =>
+            char.IsAsciiLetterOrDigit(character) || character == '-');
+
+    private static bool Is(string actual, string expected) =>
+        string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase);
+
+    private static SemanticIdentifier Id(string value) =>
+        new(value.ToLowerInvariant());
+}
