@@ -14,6 +14,8 @@ public sealed record ProofNode(
     ProofNodeKind Kind = ProofNodeKind.Asserted,
     string? SourceId = null)
 {
+    public bool IsNegated { get; init; }
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, ResolvedReferent, SourceId))
             .AddRange(AdditionalSources.IsDefault

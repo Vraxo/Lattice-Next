@@ -30,6 +30,22 @@ public sealed class LceParser
         @"^Does\s+[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*\s+exist\?$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex NegativeAssertionPattern = new(
+        @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+is\s+not\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex NegativeQuestionPattern = new(
+        @"^Is\s+(?<individual>[A-Z][a-zA-Z0-9-]*)\s+not\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\?$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex NegativeRelationAssertionPattern = new(
+        @"^(?<individual>[A-Z][a-zA-Z0-9-]*)\s+does\s+not\s+(?<predicate>[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\.$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex NegativeRelationQuestionPattern = new(
+        @"^Does\s+(?<individual>[A-Z][a-zA-Z0-9-]*)\s+not\s+(?<predicate>[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[a-z][a-z0-9-]*)\?$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex AssertionPattern = new(
         @"^(?<individual>(?!It\s)(?:[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*))\s+is\s+(?:a|an)\s+(?<concept>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -159,6 +175,24 @@ public sealed class LceParser
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
         }
 
+        var negativeAssertionMatch = NegativeAssertionPattern.Match(source);
+        if (negativeAssertionMatch.Success)
+        {
+            var meaning = new Negation(CreatePredicate(negativeAssertionMatch.Groups["concept"].Value,
+                CreateSubjectTerm(negativeAssertionMatch.Groups["individual"].Value)));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
+        var negativeRelationAssertionMatch = NegativeRelationAssertionPattern.Match(source);
+        if (negativeRelationAssertionMatch.Success)
+        {
+            var meaning = new Negation(CreateRelationPredicate(
+                InflectThirdPersonSingular(negativeRelationAssertionMatch.Groups["predicate"].Value),
+                negativeRelationAssertionMatch.Groups["individual"].Value,
+                negativeRelationAssertionMatch.Groups["object"].Value));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Assertion, meaning, originalSource));
+        }
+
         var assertionMatch = AssertionPattern.Match(source);
 
         if (assertionMatch.Success)
@@ -224,6 +258,24 @@ public sealed class LceParser
                 pronounQuestionMatch.Groups["concept"].Value,
                 CreateUnresolvedReference());
 
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
+        }
+
+        var negativeQuestionMatch = NegativeQuestionPattern.Match(source);
+        if (negativeQuestionMatch.Success)
+        {
+            var meaning = new Negation(CreatePredicate(negativeQuestionMatch.Groups["concept"].Value,
+                CreateSubjectTerm(negativeQuestionMatch.Groups["individual"].Value)));
+            return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
+        }
+
+        var negativeRelationQuestionMatch = NegativeRelationQuestionPattern.Match(source);
+        if (negativeRelationQuestionMatch.Success)
+        {
+            var meaning = new Negation(CreateRelationPredicate(
+                InflectThirdPersonSingular(negativeRelationQuestionMatch.Groups["predicate"].Value),
+                negativeRelationQuestionMatch.Groups["individual"].Value,
+                negativeRelationQuestionMatch.Groups["object"].Value));
             return ParseResult.Success(new SemanticUtterance(UtteranceKind.Question, meaning, originalSource));
         }
 

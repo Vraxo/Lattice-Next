@@ -630,6 +630,7 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
     var answer = utterance.Meaning switch
     {
         PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
+        Negation negatedQuery => reasoningEngine.Ask(knowledgeBase, negatedQuery),
         ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
         _ => null
     };
@@ -642,27 +643,36 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
 
     conversationContext.Observe(utterance);
 
-    if (!answer.IsSupported)
+    var status = answer.TruthStatus switch
     {
-        AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Unknown.");
-        AnsiConsole.MarkupLine("[dim]No supporting fact or rule is known in this session.[/]");
-        return;
+        TruthStatus.True => "Yes.",
+        TruthStatus.False => "No.",
+        TruthStatus.Both => "Conflicting evidence: both the statement and its negation are supported.",
+        _ => "Unknown."
+    };
+
+    AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]›[/] {Markup.Escape(status)}");
+
+    if (!answer.Proofs.IsEmpty)
+    {
+        AnsiConsole.MarkupLine("[dim]Supporting evidence:[/]");
+        foreach (var proof in answer.Proofs)
+        {
+            foreach (var statement in GetProofStatements(proof))
+            {
+                AnsiConsole.Markup("[dim]  • [/]");
+                AnsiConsole.WriteLine(statement);
+            }
+        }
     }
 
-    AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]›[/] Yes.");
-    AnsiConsole.MarkupLine("[dim]Because:[/]");
-
-    for (var index = 0; index < answer.Proofs.Length; index++)
+    if (!answer.NegativeProofs.IsEmpty)
     {
-        if (index > 0)
-        {
-            AnsiConsole.MarkupLine("[dim]Another independent proof:[/]");
-        }
-
-        foreach (var statement in GetProofStatements(answer.Proofs[index]))
+        AnsiConsole.MarkupLine("[dim]Contrary evidence:[/]");
+        foreach (var proof in answer.NegativeProofs)
         {
             AnsiConsole.Markup("[dim]  • [/]");
-            AnsiConsole.WriteLine(statement);
+            AnsiConsole.WriteLine(proof.SourceText);
         }
     }
 }

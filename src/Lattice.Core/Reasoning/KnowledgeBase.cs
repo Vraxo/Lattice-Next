@@ -71,6 +71,24 @@ public sealed class KnowledgeBase
             return true;
         }
 
+        if (utterance.Meaning is Negation { Formula: PredicateApplication negativePredicate } &&
+            TryGroundPredicate(negativePredicate, out var groundedNegativePredicate, out var negativeDescriptionFacts) &&
+            negativeDescriptionFacts.Count == 0)
+        {
+            AddFact(new KnowledgeFact(
+                groundedNegativePredicate,
+                utterance.SourceText,
+                utterance.ResolvedReferent,
+                sourceKind,
+                SourceId: sourceId)
+            {
+                IsNegated = true
+            });
+
+            kind = KnowledgeEntryKind.Fact;
+            return true;
+        }
+
         if (utterance.Meaning is PredicateApplication predicate &&
             TryGroundPredicate(predicate, out var groundedPredicate, out var descriptionFacts))
         {
@@ -154,6 +172,7 @@ public sealed class KnowledgeBase
     private void AddFact(KnowledgeFact fact)
     {
         var existingFactIndex = facts.FindIndex(existing =>
+            existing.IsNegated == fact.IsNegated &&
             IsSameFact(existing.Predicate, fact.Predicate));
 
         if (existingFactIndex < 0)

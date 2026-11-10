@@ -11,57 +11,55 @@ public sealed class ReasoningEngine
     {
         ArgumentNullException.ThrowIfNull(knowledgeBase);
         ArgumentNullException.ThrowIfNull(query);
-
-        if (!TryGroundQuery(query, out var groundedQuery))
-        {
-            return new ReasoningResult(null);
-        }
-
+        if (!TryGroundQuery(query, out var groundedQuery)) return new ReasoningResult(null);
         query = groundedQuery;
+
+        var negativeProofs = knowledgeBase.Facts
+            .Where(fact => fact.IsNegated && IsSameGroundPredicate(fact.Predicate, query))
+            .Select(CreateAssertedProof).ToArray();
 
         if (query.Arguments.Length == 2)
         {
             var proofs = knowledgeBase.Facts
-                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
-                .Select(fact => new ProofNode(
-                    fact.Predicate,
-                    fact.SourceText,
-                    null,
-                    fact.ResolvedReferent,
-                    SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources,
-                    SourceId: fact.SourceId))
-                .ToList();
-
-            proofs.AddRange(DeriveRelationalFacts(knowledgeBase).Where(candidate =>
-                IsSameGroundPredicate(candidate.Predicate, query)));
-
-            return CreateResult(proofs);
+                .Where(fact => !fact.IsNegated && IsSameGroundPredicate(fact.Predicate, query))
+                .Select(CreateAssertedProof).ToList();
+            proofs.AddRange(DeriveRelationalFacts(knowledgeBase).Where(candidate => IsSameGroundPredicate(candidate.Predicate, query)));
+            return CreateResult(proofs, negativeProofs);
         }
 
-        if (query.Arguments.Length != 1 ||
-            !TryGetFactKey(query, out var queryKey))
+        if (query.Arguments.Length != 1 || !TryGetFactKey(query, out var queryKey))
         {
             var directProofs = knowledgeBase.Facts
-                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
-                .Select(fact => new ProofNode(
-                    fact.Predicate,
-                    fact.SourceText,
-                    null,
-                    fact.ResolvedReferent,
-                    SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources,
-                    SourceId: fact.SourceId));
-
-            return CreateResult(directProofs);
+                .Where(fact => !fact.IsNegated && IsSameGroundPredicate(fact.Predicate, query))
+                .Select(CreateAssertedProof);
+            return CreateResult(directProofs, negativeProofs);
         }
 
         var matchingProofs = DeriveUnaryFacts(knowledgeBase).Where(candidate =>
-            TryGetFactKey(candidate.Predicate, out var key) &&
-            key == queryKey);
-
-        return CreateResult(matchingProofs);
+            TryGetFactKey(candidate.Predicate, out var key) && key == queryKey);
+        return CreateResult(matchingProofs, negativeProofs);
     }
+
+    public ReasoningResult Ask(KnowledgeBase knowledgeBase, Negation query)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+        ArgumentNullException.ThrowIfNull(query);
+        if (query.Formula is not PredicateApplication predicate) return new ReasoningResult(null);
+        var result = Ask(knowledgeBase, predicate);
+        return new ReasoningResult(result.NegativeProofs.FirstOrDefault())
+        {
+            AdditionalProofs = result.NegativeProofs.Skip(1).ToImmutableArray(),
+            NegativeProof = result.Proofs.FirstOrDefault(),
+            AdditionalNegativeProofs = result.Proofs.Skip(1).ToImmutableArray()
+        };
+    }
+
+    private static ProofNode CreateAssertedProof(KnowledgeFact fact) =>
+        new(fact.Predicate, fact.SourceText, null, fact.ResolvedReferent,
+            SourceKind: fact.SourceKind, AdditionalSources: fact.AdditionalSources, SourceId: fact.SourceId)
+        {
+            IsNegated = fact.IsNegated
+        };
 
     public ReasoningResult Ask(
         KnowledgeBase knowledgeBase,
@@ -117,7 +115,7 @@ public sealed class ReasoningEngine
         var knownFacts = new List<ProofNode>();
         var proofsByFact = new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
 
-        foreach (var fact in knowledgeBase.Facts)
+        foreach (var fact in knowledgeBase.Facts.Where(fact => !fact.IsNegated))
         {
             TryAddProof(
                 knownFacts,
@@ -351,7 +349,9 @@ public sealed class ReasoningEngine
         }
     }
 
-    private static ReasoningResult CreateResult(IEnumerable<ProofNode> candidateProofs)
+    private static ReasoningResult CreateResult(
+        IEnumerable<ProofNode> candidateProofs,
+        IEnumerable<ProofNode>? candidateNegativeProofs = null)
     {
         var proofs = new List<ProofNode>();
 
@@ -360,14 +360,17 @@ public sealed class ReasoningEngine
             AddUniqueProof(proofs, proof);
         }
 
-        if (proofs.Count == 0)
+        var negativeProofs = new List<ProofNode>();
+        foreach (var proof in candidateNegativeProofs ?? [])
         {
-            return new ReasoningResult(null);
+            AddUniqueProof(negativeProofs, proof);
         }
 
-        return new ReasoningResult(proofs[0])
+        return new ReasoningResult(proofs.FirstOrDefault())
         {
-            AdditionalProofs = proofs.Skip(1).ToImmutableArray()
+            AdditionalProofs = proofs.Skip(1).ToImmutableArray(),
+            NegativeProof = negativeProofs.FirstOrDefault(),
+            AdditionalNegativeProofs = negativeProofs.Skip(1).ToImmutableArray()
         };
     }
 
@@ -377,6 +380,7 @@ public sealed class ReasoningEngine
             !string.Equals(left.SourceText, right.SourceText, StringComparison.Ordinal) ||
             left.ResolvedReferent != right.ResolvedReferent ||
             left.Kind != right.Kind ||
+            left.IsNegated != right.IsNegated ||
             !left.Sources.SequenceEqual(right.Sources) ||
             (left.Premise is null) != (right.Premise is null))
         {

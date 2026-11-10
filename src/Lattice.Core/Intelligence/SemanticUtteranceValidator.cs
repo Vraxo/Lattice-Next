@@ -34,6 +34,12 @@ public sealed class SemanticUtteranceValidator
             case PredicateApplication predicate:
                 return TryValidateGroundPredicate(predicate, allowUnresolvedReference: true, out error);
 
+            case Negation { Formula: PredicateApplication negatedPredicate }:
+                return TryValidateGroundPredicate(negatedPredicate, allowUnresolvedReference: false, out error);
+
+            case Negation { Formula: PredicateApplication negatedPredicate }:
+                return TryValidateGroundPredicate(negatedPredicate, allowUnresolvedReference: false, out error);
+
             case ExistentialQuantification existential:
                 return TryValidateExistential(existential, out error);
 

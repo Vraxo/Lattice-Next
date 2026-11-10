@@ -27,6 +27,19 @@ internal static class NativeEnglishPropertyParser
             return true;
         }
 
+        if (tokens.Length == 4 &&
+            EnglishGrammarTokens.IsCapitalized(tokens[0]) &&
+            !EnglishGrammarTokens.Is(tokens[0], "It") &&
+            EnglishGrammarTokens.Is(tokens[1], "is") &&
+            EnglishGrammarTokens.Is(tokens[2], "not") &&
+            EnglishDescriptionParser.TryCreateIndividual(tokens[0], allowPronoun: false, out var negativeIndividual) &&
+            TryParseNamedIndividualProperty(tokens, 3, 4, out var negativeProperty))
+        {
+            utterance = new SemanticUtterance(UtteranceKind.Assertion,
+                new Negation(EnglishSemanticFactory.Predicate(negativeProperty!, negativeIndividual!)), sourceText);
+            return true;
+        }
+
         if (tokens.Length == 3 &&
             EnglishGrammarTokens.IsCapitalized(tokens[0]) &&
             !EnglishGrammarTokens.Is(tokens[0], "It") &&
@@ -75,6 +88,19 @@ internal static class NativeEnglishPropertyParser
         out SemanticUtterance? utterance)
     {
         utterance = null;
+
+        if (tokens.Length == 4 &&
+            EnglishGrammarTokens.Is(tokens[0], "Is") &&
+            EnglishGrammarTokens.IsCapitalized(tokens[1]) &&
+            !EnglishGrammarTokens.Is(tokens[1], "It") &&
+            EnglishGrammarTokens.Is(tokens[2], "not") &&
+            EnglishDescriptionParser.TryCreateIndividual(tokens[1], allowPronoun: false, out var negativeIndividual) &&
+            TryParseNamedIndividualProperty(tokens, 3, 4, out var negativeProperty))
+        {
+            utterance = new SemanticUtterance(UtteranceKind.Question,
+                new Negation(EnglishSemanticFactory.Predicate(negativeProperty!, negativeIndividual!)), sourceText);
+            return true;
+        }
 
         if (tokens.Length != 3 ||
             !EnglishGrammarTokens.Is(tokens[0], "Is") ||
