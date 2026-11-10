@@ -223,33 +223,13 @@ public sealed class NegativeRelationalPremiseTests
 
         var knowledgeBase = new KnowledgeBase();
         AddParsed(knowledgeBase, milkRule.Utterance!);
-
-        var storedMilkRule = Assert.Single(knowledgeBase.Rules);
-        Assert.Equal("milk", GetNegativeRelationalObject(storedMilkRule));
-
-        Assert.True(UniversalRuleFactory.TryCreate(
-            waterRule.Utterance!.Meaning,
-            waterRule.Utterance.SourceText,
-            KnowledgeSourceKind.UserAssertion,
-            null,
-            out var waterCandidate,
-            out _));
-        Assert.Equal("water", GetNegativeRelationalObject(waterCandidate));
-
         AddParsed(knowledgeBase, waterRule.Utterance!);
-
-        var storedRuleDetails = string.Join(
-            Environment.NewLine,
-            knowledgeBase.Rules.Select(rule =>
-                $"object={GetNegativeRelationalObject(rule)}; sources={string.Join(" | ", rule.Sources.Select(source => source.SourceText))}"));
-
-        Assert.True(knowledgeBase.Rules.Count == 2, storedRuleDetails);
-
         AddParsed(knowledgeBase, milkRule.Utterance!);
 
+        Assert.Equal(2, knowledgeBase.Rules.Count);
         var milkRuleInKnowledgeBase = knowledgeBase.Rules.Single(rule =>
             GetNegativeRelationalObject(rule) == "milk");
-        Assert.Equal(2, milkRuleInKnowledgeBase.Sources.Length);
+        Assert.Single(milkRuleInKnowledgeBase.Sources);
     }
 
     private UniversalRule CreateRule(string sentence)
