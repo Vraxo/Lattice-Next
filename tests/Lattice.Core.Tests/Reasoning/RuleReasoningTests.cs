@@ -1,5 +1,6 @@
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
+using AwesomeAssertions;
 using Xunit;
 using static Lattice.Core.Tests.Reasoning.ReasoningTestSupport;
 
@@ -18,8 +19,8 @@ public sealed class RuleReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
 
-        Assert.False(result.IsSupported);
-        Assert.Null(result.Proof);
+        result.IsSupported.Should().BeFalse();
+        result.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -34,17 +35,17 @@ public sealed class RuleReasoningTests
             knowledgeBase,
             ParseQuestion("Is Fido a living-thing?"));
 
-        Assert.True(result.IsSupported);
+        result.IsSupported.Should().BeTrue();
 
-        var finalProof = Assert.IsType<ProofNode>(result.Proof);
-        Assert.Equal("Every animal is a living-thing.", finalProof.SourceText);
+        var finalProof = result.Proof.Should().BeOfType<ProofNode>().Which;
+        finalProof.SourceText.Should().Be("Every animal is a living-thing.");
 
-        var middleProof = Assert.IsType<ProofNode>(finalProof.Premise);
-        Assert.Equal("Every dog is an animal.", middleProof.SourceText);
+        var middleProof = finalProof.Premise.Should().BeOfType<ProofNode>().Which;
+        middleProof.SourceText.Should().Be("Every dog is an animal.");
 
-        var initialFact = Assert.IsType<ProofNode>(middleProof.Premise);
-        Assert.Equal("Fido is a dog.", initialFact.SourceText);
-        Assert.Null(initialFact.Premise);
+        var initialFact = middleProof.Premise.Should().BeOfType<ProofNode>().Which;
+        initialFact.SourceText.Should().Be("Fido is a dog.");
+        initialFact.Premise.Should().BeNull();
     }
 
     [Fact]
@@ -55,9 +56,9 @@ public sealed class RuleReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
 
-        Assert.True(result.IsSupported);
-        Assert.Equal("Fido is a dog.", result.Proof!.SourceText);
-        Assert.Null(result.Proof.Premise);
+        result.IsSupported.Should().BeTrue();
+        result.Proof!.SourceText.Should().Be("Fido is a dog.");
+        result.Proof.Premise.Should().BeNull();
     }
 
     [Fact]
@@ -67,7 +68,7 @@ public sealed class RuleReasoningTests
             new KnowledgeBase(),
             ParseQuestion("Is Fido a reptile?"));
 
-        Assert.False(result.IsSupported);
+        result.IsSupported.Should().BeFalse();
     }
 
     [Fact]
@@ -82,28 +83,28 @@ public sealed class RuleReasoningTests
         var redBall = engine.Ask(
             knowledgeBase,
             ParseQuestion("Is the red ball a toy?"));
-        Assert.True(redBall.IsSupported);
+        redBall.IsSupported.Should().BeTrue();
 
-        var proof = Assert.IsType<ProofNode>(redBall.Proof);
-        Assert.Equal("Every red ball is a toy.", proof.SourceText);
-        Assert.Equal("red", proof.Premise!.Predicate.Predicate.Value);
-        Assert.Equal("The red ball is shiny.", proof.Premise.SourceText);
+        var proof = redBall.Proof.Should().BeOfType<ProofNode>().Which;
+        proof.SourceText.Should().Be("Every red ball is a toy.");
+        proof.Premise!.Predicate.Predicate.Value.Should().Be("red");
+        proof.Premise.SourceText.Should().Be("The red ball is shiny.");
 
-        var secondPremise = Assert.Single(proof.AdditionalPremises);
-        Assert.Equal("ball", secondPremise.Predicate.Predicate.Value);
-        Assert.Equal("The red ball is shiny.", secondPremise.SourceText);
+        var secondPremise = proof.AdditionalPremises.Should().ContainSingle().Which;
+        secondPremise.Predicate.Predicate.Value.Should().Be("ball");
+        secondPremise.SourceText.Should().Be("The red ball is shiny.");
 
         var blueBall = engine.Ask(
             knowledgeBase,
             ParseQuestion("Is the blue ball a toy?"));
-        Assert.False(blueBall.IsSupported);
-        Assert.Null(blueBall.Proof);
+        blueBall.IsSupported.Should().BeFalse();
+        blueBall.Proof.Should().BeNull();
 
         var redCube = engine.Ask(
             knowledgeBase,
             ParseQuestion("Is the red cube a toy?"));
-        Assert.False(redCube.IsSupported);
-        Assert.Null(redCube.Proof);
+        redCube.IsSupported.Should().BeFalse();
+        redCube.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -118,15 +119,15 @@ public sealed class RuleReasoningTests
             knowledgeBase,
             ParseQuestion("Is the red ball a plaything?"));
 
-        Assert.True(result.IsSupported);
+        result.IsSupported.Should().BeTrue();
 
-        var finalProof = Assert.IsType<ProofNode>(result.Proof);
-        Assert.Equal("Every toy is a plaything.", finalProof.SourceText);
+        var finalProof = result.Proof.Should().BeOfType<ProofNode>().Which;
+        finalProof.SourceText.Should().Be("Every toy is a plaything.");
 
-        var conjunctiveProof = Assert.IsType<ProofNode>(finalProof.Premise);
-        Assert.Equal("Every red ball is a toy.", conjunctiveProof.SourceText);
-        Assert.Equal("red", conjunctiveProof.Premise!.Predicate.Predicate.Value);
-        Assert.Equal("ball", Assert.Single(conjunctiveProof.AdditionalPremises)
-            .Predicate.Predicate.Value);
+        var conjunctiveProof = finalProof.Premise.Should().BeOfType<ProofNode>().Which;
+        conjunctiveProof.SourceText.Should().Be("Every red ball is a toy.");
+        conjunctiveProof.Premise!.Predicate.Predicate.Value.Should().Be("red");
+        conjunctiveProof.AdditionalPremises.Should().ContainSingle().Which
+            .Predicate.Predicate.Value.Should().Be("ball");
     }
 }
