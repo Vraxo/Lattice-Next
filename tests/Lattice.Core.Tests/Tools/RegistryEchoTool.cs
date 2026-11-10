@@ -6,14 +6,20 @@ namespace Lattice.Core.Tests.Tools;
 
 public sealed class RegistryEchoTool : ITool
 {
-    private static readonly ToolDescriptor ToolDescriptor = new(
-        "number-echo",
-        "Number echo",
-        "Returns the supplied numeric value.",
-        ImmutableArray.Create(
-            new ToolInputDescriptor("value", "The numeric value to return.", ToolInputType.Number)));
+    public RegistryEchoTool(
+        string id = "number-echo",
+        ToolPermission requiredPermissions = ToolPermission.None)
+    {
+        Descriptor = new ToolDescriptor(
+            id,
+            "Number echo",
+            "Returns the supplied numeric value.",
+            ImmutableArray.Create(
+                new ToolInputDescriptor("value", "The numeric value to return.", ToolInputType.Number)),
+            requiredPermissions);
+    }
 
-    public ToolDescriptor Descriptor => ToolDescriptor;
+    public ToolDescriptor Descriptor { get; }
 
     public ValueTask<ToolExecutionResult> ExecuteAsync(
         JsonElement arguments,
