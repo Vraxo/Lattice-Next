@@ -61,6 +61,48 @@ Accepted claims are classified as imported claims and retain the pack ID in thei
 
 The CLI loads a pack with `:load path/to/pack.json`. Loaded claims are available to ordinary queries for the rest of the current process. The current implementation does not yet save the active knowledge base back to disk, unload packs, or replace an already-loaded pack by version.
 
+## Universal questions
+
+The native-English grammar accepts direct class-wide yes/no questions such as:
+
+    Every dog is an animal.
+    Are all dogs animals?
+    Is every dog an animal?
+
+The question is represented with the same universal implication semantics as an assertion, for example
+`forall(x, implies(dog(x), animal(x)))`. It is evaluated as a universal claim, not as a request to
+check only the individuals currently known to the knowledge base.
+
+A matching positive universal rule supports the answer. A rule with fewer positive class conditions
+can also support a narrower question: `Every dog is an animal.` supports `Are all red dogs animals?`,
+because every red dog is a dog. The reverse does not follow: `Every red dog is an animal.` does not
+establish that every dog is an animal. This rule-level check is deliberately conservative; it does
+not compose chains of universal rules or treat rules with additional negative or relational premises
+as proof of an unrestricted class claim.
+
+A concrete counterexample refutes the question only when the knowledge base supports every condition
+of the queried class for the same individual and also supports explicit negative evidence for the
+conclusion. That negative evidence may be asserted directly or derived by the existing negative
+inference pass. For example:
+
+    Fido is a dog.
+    Fido is not an animal.
+    Are all dogs animals?
+
+The result is **False**, and its explanation retains both the dog membership and the negative
+animal evidence. If a positive universal rule also exists, the result is **Both**; neither side is
+discarded.
+
+Known positive examples do not establish a universal rule. Even when every currently known dog is
+known to be an animal, the answer remains **Unknown** unless a universal rule supports the claim.
+Likewise, an explicit negative conclusion for one individual does not refute a universal question
+unless that individual is also known to satisfy every condition in the queried class. Missing facts
+are never treated as negative evidence.
+
+This first question slice covers unary class conclusions. Universal questions about binary
+relationships, rule-to-rule chaining, and a general quantified query language remain outside the
+current boundary.
+
 ## Descriptive facts
 
 A description such as `the red ball` has a head noun (`ball`) and a modifier (`red`), while retaining the stable individual identifier `red-ball`. When an assertion uses that description, the knowledge base records the main assertion plus unary facts for the head and each modifier. This lets ordinary unary rules operate on descriptive knowledge without adding adjective-specific inference logic.
