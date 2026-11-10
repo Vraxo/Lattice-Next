@@ -82,6 +82,8 @@ public sealed class KnowledgeBase
             : EvidencePolarity.Positive;
 
         if (factMeaning is not null &&
+            (polarity == EvidencePolarity.Positive ||
+             (!factMeaning.Arguments.IsDefault && factMeaning.Arguments.Length == 1)) &&
             TryGroundPredicate(factMeaning, out var groundedPredicate, out var descriptionFacts))
         {
             AddFact(new KnowledgeFact(

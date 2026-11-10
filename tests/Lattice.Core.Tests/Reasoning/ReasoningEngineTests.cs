@@ -850,13 +850,13 @@ public sealed class ReasoningEngineTests
     {
         var knowledgeBase = new KnowledgeBase();
         Add(knowledgeBase, "Every dog is an animal.");
-        Add(knowledgeBase, "Every reptile is dangerous.");
+        Add(knowledgeBase, "Every reptile is happy.");
         Add(knowledgeBase, "Fido is a dog.");
         Add(knowledgeBase, "Fido is not a dog.");
 
         var unrelated = engine.Ask(
             knowledgeBase,
-            ParseQuestion("Is Fido dangerous?"));
+            ParseQuestion("Is Fido happy?"));
 
         Assert.Equal(TruthValue.Unknown, unrelated.TruthValue);
     }
@@ -873,6 +873,28 @@ public sealed class ReasoningEngineTests
             fact.Polarity == EvidencePolarity.Positive);
         Assert.Contains(knowledgeBase.Facts, fact =>
             fact.Polarity == EvidencePolarity.Negative);
+    }
+
+    [Fact]
+    public void Rejects_negative_relational_assertions_until_relational_negation_is_supported()
+    {
+        var relation = new PredicateApplication(
+            Id("likes"),
+            ImmutableArray.Create<SemanticTerm>(
+                new IndividualTerm(Id("fido")),
+                new IndividualTerm(Id("milk"))));
+        var utterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            new Negation(relation),
+            "Fido does not like milk.");
+
+        var accepted = new KnowledgeBase().TryAdd(
+            utterance,
+            out _,
+            out var error);
+
+        Assert.False(accepted);
+        Assert.NotNull(error);
     }
 
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
