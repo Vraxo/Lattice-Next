@@ -32,11 +32,13 @@ A proposed provider-neutral response shape is:
 }
 ```
 
-The status is one of `translated`, `ambiguous`, or `unsupported`. A translated response has exactly one candidate. An ambiguous response has two or more distinct candidate readings, and every candidate must be representable in LCE. An unsupported response has no candidates. If an input is ambiguous but none of its readings can be represented safely, return unsupported with an explanation rather than inventing or collapsing a reading.
+The provider response status is one of `translated`, `ambiguous`, or `unsupported`. A translated response has exactly one candidate. An ambiguous response has two or more distinct candidate readings, and every candidate must be representable in LCE. An unsupported response has no candidates. Core also records an adapter outcome: `Translated`, `Ambiguous`, `Unsupported`, or `Invalid`. A valid abstention maps to `Unsupported`; malformed JSON, inconsistent status/count combinations, or an LCE candidate rejected by the parser map to `Invalid`. Provider, network, and runtime exceptions remain failures, not abstentions.
+
+Translation requests are single-utterance. A multi-sentence input is not represented by multiple candidates: the adapter must abstain rather than merge sentences or treat them as alternative readings. Multi-utterance translation requires a separate ordered-turn contract and is out of scope for this interface. If an input is ambiguous but none of its readings can be represented safely, return unsupported with an explanation rather than inventing or collapsing a reading.
 
 The adapter must enforce those cross-field rules itself; JSON Schema only guarantees the response shape. It must parse every candidate as one complete LCE utterance, reject the whole response if any candidate is malformed or outside the current semantic contract, and deduplicate candidates by their parsed meaning rather than surface wording. It must never silently discard a bad candidate and keep the rest.
 
-**Existing-boundary limitation to resolve before implementation:** `SemanticTranslationResponse` currently contains candidates and an optional message, but no explicit provider outcome. A parse failure and a genuine model abstention therefore both become an empty candidate list unless the contract is extended or the adapter defines a carefully tested failure convention. The current candidate type also represents one utterance, not a multi-sentence translated turn. Keep this benchmark to one utterance per case; settle multi-utterance translation separately rather than overloading multiple candidates to mean multiple sentences.
+The response contract distinguishes unsupported input from invalid translator output. The current interface handles one utterance per request; multi-utterance translation remains a separate future contract rather than overloading candidates to mean a sequence.
 
 ## LCE 0.9 scope
 

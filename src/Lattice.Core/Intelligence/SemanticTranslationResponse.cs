@@ -4,4 +4,7 @@ namespace Lattice.Core.Intelligence;
 
 public sealed record SemanticTranslationResponse(
     ImmutableArray<SemanticTranslationCandidate> Candidates,
-    string? Message = null);
+    string? Message = null)
+{
+    public SemanticTranslationOutcome Outcome { get; init; } = SemanticTranslationOutcome.Translated;
+}

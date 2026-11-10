@@ -89,7 +89,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Define a natural-language-to-LCE benchmark covering paraphrases, quantification, relations, descriptions, questions, ambiguity, and unsupported constructions.
 - [x] Make LM Studio abstentions explicit with examples and surface invalid model candidates in CLI diagnostics.
 - [ ] Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
-- [ ] Resolve the translation contract for parser failures and multi-utterance turns before implementing an LLM adapter.
+- [x] Resolve the translation contract for parser failures and multi-utterance turns: distinguish unsupported input from invalid LCE output, and keep each request single-utterance.
 - [ ] Evaluate web retrieval as a source of temporary, attributable observations.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.

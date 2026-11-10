@@ -55,12 +55,30 @@ public sealed class SemanticTranslationService
             return Rejected("The translator returned an invalid response.");
         }
 
-        if (response.Candidates.IsEmpty)
+        if (response.Outcome == SemanticTranslationOutcome.Unsupported)
         {
-            return new SemanticTranslationResult(
-                SemanticTranslationStatus.NoInterpretation,
-                ImmutableArray<SemanticUtterance>.Empty,
-                response.Message ?? "No interpretation was produced.");
+            return response.Candidates.IsEmpty
+                ? new SemanticTranslationResult(SemanticTranslationStatus.NoInterpretation, ImmutableArray<SemanticUtterance>.Empty, response.Message ?? "The input is unsupported.")
+                : Rejected("An unsupported translation response cannot contain candidates.");
+        }
+
+        if (response.Outcome == SemanticTranslationOutcome.Invalid)
+        {
+            return response.Candidates.IsEmpty
+                ? Rejected(response.Message ?? "The translator returned an invalid candidate.")
+                : Rejected("An invalid translation response cannot contain candidates.");
+        }
+
+        var candidateCountMatches = response.Outcome switch
+        {
+            SemanticTranslationOutcome.Translated => response.Candidates.Length == 1,
+            SemanticTranslationOutcome.Ambiguous => response.Candidates.Length >= 2,
+            _ => false
+        };
+
+        if (!candidateCountMatches)
+        {
+            return Rejected("The translator outcome does not match its candidate count.");
         }
 
         var candidates = ImmutableArray.CreateBuilder<SemanticUtterance>(
@@ -80,7 +98,7 @@ public sealed class SemanticTranslationService
         }
 
         var validatedCandidates = candidates.ToImmutable();
-        var status = validatedCandidates.Length == 1
+        var status = response.Outcome == SemanticTranslationOutcome.Translated
             ? SemanticTranslationStatus.ReadyForReview
             : SemanticTranslationStatus.Ambiguous;
 

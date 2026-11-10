@@ -14,11 +14,15 @@ public sealed class SemanticTranslationServiceTests
     {
         const string sourceText = "Could Fido belong to the canine family?";
 
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Question,
-                    Predicate("dog", new IndividualTerm(Id("fido")))))));
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Question,
+                        Predicate("dog", new IndividualTerm(Id("fido"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Translated
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync(sourceText);
@@ -35,14 +39,18 @@ public sealed class SemanticTranslationServiceTests
     {
         const string sourceText = "Fido is a pet.";
 
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("pet", new IndividualTerm(Id("fido")))),
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("animal", new IndividualTerm(Id("fido")))))));
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("pet", new IndividualTerm(Id("fido")))),
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("animal", new IndividualTerm(Id("fido"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Ambiguous
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync(sourceText);
@@ -58,7 +66,7 @@ public sealed class SemanticTranslationServiceTests
         var translator = new FixedSemanticsTranslator(
             new SemanticTranslationResponse(
                 ImmutableArray<SemanticTranslationCandidate>.Empty,
-                "The wording is outside the translator's vocabulary."));
+                "The wording is outside the translator's vocabulary.") { Outcome = SemanticTranslationOutcome.Unsupported });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync("A sentence it cannot interpret.");
@@ -71,18 +79,22 @@ public sealed class SemanticTranslationServiceTests
     [Fact]
     public async Task Rejects_the_entire_response_when_one_candidate_is_unsupported()
     {
-        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray.Create(
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Assertion,
-                    Predicate("dog", new IndividualTerm(Id("fido")))),
-                new SemanticTranslationCandidate(
-                    UtteranceKind.Question,
-                    Predicate(
-                        "between",
-                        new IndividualTerm(Id("fido")),
-                        new IndividualTerm(Id("rex")),
-                        new IndividualTerm(Id("milk")))))));
+        var translator = new FixedSemanticsTranslator(
+            new SemanticTranslationResponse(
+                ImmutableArray.Create(
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Assertion,
+                        Predicate("dog", new IndividualTerm(Id("fido")))),
+                    new SemanticTranslationCandidate(
+                        UtteranceKind.Question,
+                        Predicate(
+                            "between",
+                            new IndividualTerm(Id("fido")),
+                            new IndividualTerm(Id("rex")),
+                            new IndividualTerm(Id("milk"))))))
+            {
+                Outcome = SemanticTranslationOutcome.Ambiguous
+            });
         var service = new SemanticTranslationService(translator);
 
         var result = await service.TranslateAsync("Fido is a dog.");
@@ -90,6 +102,33 @@ public sealed class SemanticTranslationServiceTests
         Assert.Equal(SemanticTranslationStatus.Rejected, result.Status);
         Assert.Empty(result.Candidates);
         Assert.Contains("one or two arguments", result.Message);
+    }
+
+    [Fact]
+    public async Task Rejects_invalid_parser_output_separately_from_unsupported_input()
+    {
+        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
+            ImmutableArray<SemanticTranslationCandidate>.Empty,
+            "The model returned malformed LCE.") { Outcome = SemanticTranslationOutcome.Invalid });
+        var service = new SemanticTranslationService(translator);
+
+        var result = await service.TranslateAsync("Fido is a dog.");
+
+        Assert.Equal(SemanticTranslationStatus.Rejected, result.Status);
+        Assert.Contains("malformed LCE", result.Message);
+    }
+
+    [Fact]
+    public async Task Rejects_an_outcome_that_does_not_match_candidate_count()
+    {
+        var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
+            ImmutableArray<SemanticTranslationCandidate>.Empty));
+        var service = new SemanticTranslationService(translator);
+
+        var result = await service.TranslateAsync("Fido is a dog.");
+
+        Assert.Equal(SemanticTranslationStatus.Rejected, result.Status);
+        Assert.Contains("does not match", result.Message);
     }
 
     [Fact]
@@ -173,7 +212,7 @@ public sealed class SemanticTranslationServiceTests
     {
         using var cancellation = new CancellationTokenSource();
         var translator = new FixedSemanticsTranslator(new SemanticTranslationResponse(
-            ImmutableArray<SemanticTranslationCandidate>.Empty));
+            ImmutableArray<SemanticTranslationCandidate>.Empty) { Outcome = SemanticTranslationOutcome.Unsupported });
         var service = new SemanticTranslationService(translator);
 
         await service.TranslateAsync("Try this sentence.", cancellation.Token);

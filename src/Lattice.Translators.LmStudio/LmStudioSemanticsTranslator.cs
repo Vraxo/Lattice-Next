@@ -12,23 +12,28 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
     private const int MaximumOutputTokens = 320;
 
     private const string SystemPrompt = """
-        You translate one ordinary-language statement or question into Lattice Controlled English (LCE) 0.9.
+        You translate exactly one ordinary-language statement or question into Lattice Controlled English (LCE) 0.9.
+        Each request contains one utterance, not a multi-sentence turn. If the input contains multiple
+        independent utterances, return unsupported; never combine them or treat them as alternative readings.
         Return only a JSON object with exactly these properties:
+        - "status": "translated", "ambiguous", or "unsupported".
         - "candidates": an array of zero to four strings. Each string must be exactly one complete LCE sentence.
         - "message": a short string explaining an abstention, or null.
+        "translated" requires exactly one candidate; "ambiguous" requires at least two distinct candidates;
+        "unsupported" requires zero candidates.
         Do not put Markdown fences around the JSON.
 
         The "candidates" array is only for complete sentences that follow the grammar below.
         Never put explanations, refusals, or ordinary-language text in "candidates".
-        If meaning is unsupported, return "candidates": [] and put a brief reason in "message".
+        If meaning is unsupported, return "status":"unsupported", "candidates":[], and put a brief reason in "message".
 
         Examples:
         Input: Is Fido a dog?
-        Output: {"candidates":["Is Fido a dog?"],"message":null}
+        Output: {"status":"translated","candidates":["Is Fido a dog?"],"message":null}
         Input: Could Fido be a dog?
-        Output: {"candidates":[],"message":"LCE 0.9 cannot express the possibility in 'could'."}
+        Output: {"status":"unsupported","candidates":[],"message":"LCE 0.9 cannot express the possibility in 'could'."}
         Input: No dog is a cat.
-        Output: {"candidates":[],"message":"LCE 0.9 does not support negation."}
+        Output: {"status":"unsupported","candidates":[],"message":"LCE 0.9 does not support negation."}
 
         LCE 0.9 is a small, literal grammar, not unrestricted English. Use only these forms:
         - "Every <one or more lowercase class words> is a <lowercase concept>."
@@ -49,7 +54,7 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         Do not silently drop, reverse, weaken, strengthen, or invent meaning. Do not replace a word with a
         synonym merely to force a translation. Never resolve pronouns in the translator. Preserve a supported
         singular "it" as an unresolved LCE reference. ConversationContext handles reference resolution only
-        after the user accepts the candidate. If the meaning cannot be represented faithfully, return an empty "candidates" array
+        after the user accepts the candidate. If the meaning cannot be represented faithfully, return "status":"unsupported", an empty "candidates" array,
         and put the reason only in "message".
         If the wording has multiple materially different readings, return a separate candidate for each
         defensible reading, or abstain when the readings cannot be stated reliably.
@@ -89,7 +94,10 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         {
             return new SemanticTranslationResponse(
                 ImmutableArray<SemanticTranslationCandidate>.Empty,
-                "Input is empty.");
+                "Input is empty.")
+            {
+                Outcome = SemanticTranslationOutcome.Invalid
+            };
         }
 
         if (string.IsNullOrWhiteSpace(configuration.ModelKey))
@@ -127,7 +135,20 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
 
         using var completion = JsonDocument.Parse(responseBody);
         var content = GetAssistantMessageContent(completion.RootElement);
-        return ParseTranslation(content);
+
+        try
+        {
+            return ParseTranslation(content);
+        }
+        catch (JsonException exception)
+        {
+            return new SemanticTranslationResponse(
+                ImmutableArray<SemanticTranslationCandidate>.Empty,
+                $"The translator returned malformed structured output: {exception.Message}")
+            {
+                Outcome = SemanticTranslationOutcome.Invalid
+            };
+        }
     }
 
     private static string GetAssistantMessageContent(JsonElement response)
@@ -206,6 +227,8 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         var root = document.RootElement;
 
         if (root.ValueKind != JsonValueKind.Object ||
+            !root.TryGetProperty("status", out var statusElement) ||
+            statusElement.ValueKind != JsonValueKind.String ||
             !root.TryGetProperty("candidates", out var candidatesElement) ||
             candidatesElement.ValueKind != JsonValueKind.Array ||
             candidatesElement.GetArrayLength() > MaximumCandidates)
@@ -214,6 +237,13 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
                 "The translator response must contain a candidates array with no more than four entries.");
         }
 
+        var outcome = statusElement.GetString() switch
+        {
+            "translated" => SemanticTranslationOutcome.Translated,
+            "ambiguous" => SemanticTranslationOutcome.Ambiguous,
+            "unsupported" => SemanticTranslationOutcome.Unsupported,
+            _ => throw new JsonException("The translator status must be translated, ambiguous, or unsupported.")
+        };
         var message = root.TryGetProperty("message", out var messageElement)
             ? messageElement.ValueKind switch
             {
@@ -245,7 +275,10 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             {
                 return new SemanticTranslationResponse(
                     ImmutableArray<SemanticTranslationCandidate>.Empty,
-                    $"The model returned a candidate that is not valid LCE 0.9 ({JsonSerializer.Serialize(lce)}): {parsed.Error}");
+                    $"The model returned a candidate that is not valid LCE 0.9 ({JsonSerializer.Serialize(lce)}): {parsed.Error}")
+                {
+                    Outcome = SemanticTranslationOutcome.Invalid
+                };
             }
 
             var key = SemanticFormatter.Format(parsed.Utterance);
@@ -258,6 +291,23 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             }
         }
 
-        return new SemanticTranslationResponse(candidates.ToImmutable(), message);
+        var result = candidates.ToImmutable();
+        var countMatches = outcome switch
+        {
+            SemanticTranslationOutcome.Translated => result.Length == 1,
+            SemanticTranslationOutcome.Ambiguous => result.Length >= 2,
+            SemanticTranslationOutcome.Unsupported => result.IsEmpty,
+            _ => false
+        };
+
+        if (!countMatches)
+        {
+            return new SemanticTranslationResponse(ImmutableArray<SemanticTranslationCandidate>.Empty, "The translator status does not match the number of distinct candidates.")
+            {
+                Outcome = SemanticTranslationOutcome.Invalid
+            };
+        }
+
+        return new SemanticTranslationResponse(result, message) { Outcome = outcome };
     }
 }
