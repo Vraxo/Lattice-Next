@@ -41,19 +41,19 @@ internal static class EnglishLexicon
             {
                 if (error.Length == 0)
                 {
-                    error = "The lexicon schemaVersion must be 1.";
+                    error = "The lexicon schema-version must be 1.";
                 }
 
                 return false;
             }
 
-            if (!TryReadStringSet(root, "reservedTerms", out var reservedTerms, out error) ||
-                !TryReadStringMap(root, "irregularPluralNouns", out var irregularPluralNouns, out error) ||
-                !TryReadStringSet(root, "invariantNouns", out var invariantNouns, out error) ||
-                !TryReadStringSet(root, "singularNounsEndingInS", out var singularNounsEndingInS, out error) ||
-                !TryReadStringMap(root, "irregularThirdPersonVerbs", out var irregularThirdPersonVerbs, out error) ||
-                !TryReadStringSet(root, "baseRelationVerbs", out var baseRelationVerbs, out error) ||
-                !TryReadStringMap(root, "pastParticiples", out var pastParticiples, out error))
+            if (!TryReadStringSet(root, "reserved-terms", out var reservedTerms, out error) ||
+                !TryReadStringMap(root, "irregular-plural-nouns", out var irregularPluralNouns, out error) ||
+                !TryReadStringSet(root, "invariant-nouns", out var invariantNouns, out error) ||
+                !TryReadStringSet(root, "singular-nouns-ending-in-s", out var singularNounsEndingInS, out error) ||
+                !TryReadStringMap(root, "irregular-third-person-verbs", out var irregularThirdPersonVerbs, out error) ||
+                !TryReadStringSet(root, "base-relation-verbs", out var baseRelationVerbs, out error) ||
+                !TryReadStringMap(root, "past-participles", out var pastParticiples, out error))
             {
                 return false;
             }
@@ -135,14 +135,14 @@ internal static class EnglishLexicon
     {
         var expected = new HashSet<string>(StringComparer.Ordinal)
         {
-            "schemaVersion",
-            "reservedTerms",
-            "irregularPluralNouns",
-            "invariantNouns",
-            "singularNounsEndingInS",
-            "irregularThirdPersonVerbs",
-            "baseRelationVerbs",
-            "pastParticiples"
+            "schema-version",
+            "reserved-terms",
+            "irregular-plural-nouns",
+            "invariant-nouns",
+            "singular-nouns-ending-in-s",
+            "irregular-third-person-verbs",
+            "base-relation-verbs",
+            "past-participles"
         };
         var actual = new HashSet<string>(StringComparer.Ordinal);
 
@@ -172,7 +172,7 @@ internal static class EnglishLexicon
     }
 
     private static bool HasSupportedSchemaVersion(JsonElement root) =>
-        root.TryGetProperty("schemaVersion", out var version) &&
+        root.TryGetProperty("schema-version", out var version) &&
         version.ValueKind == JsonValueKind.Number &&
         version.TryGetInt32(out var value) &&
         value == 1;

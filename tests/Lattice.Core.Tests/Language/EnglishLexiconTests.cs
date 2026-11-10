@@ -7,14 +7,29 @@ public sealed class EnglishLexiconTests
 {
     private const string ValidDocument = """
         {
-          "schemaVersion": 1,
-          "reservedTerms": ["a"],
-          "irregularPluralNouns": { "criteria": "criterion" },
-          "invariantNouns": ["deer"],
-          "singularNounsEndingInS": ["analysis"],
-          "irregularThirdPersonVerbs": { "have": "has" },
-          "baseRelationVerbs": ["have", "like"],
-          "pastParticiples": { "liked": "like" }
+          "schema-version": 1,
+          "reserved-terms": [
+            "a"
+          ],
+          "irregular-plural-nouns": {
+            "criteria": "criterion"
+          },
+          "invariant-nouns": [
+            "deer"
+          ],
+          "singular-nouns-ending-in-s": [
+            "analysis"
+          ],
+          "irregular-third-person-verbs": {
+            "have": "has"
+          },
+          "base-relation-verbs": [
+            "have",
+            "like"
+          ],
+          "past-participles": {
+            "liked": "like"
+          }
         }
         """;
 
@@ -34,8 +49,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_a_duplicate_token_even_when_case_differs()
     {
         var json = ValidDocument.Replace(
-            "\"reservedTerms\": [\"a\"]",
-            "\"reservedTerms\": [\"a\", \"A\"]");
+            "\"reserved-terms\": [\n    \"a\"\n  ]",
+            "\"reserved-terms\": [\n    \"a\",\n    \"A\"\n  ]");
 
         AssertInvalid(json);
     }
@@ -44,8 +59,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_overlapping_noun_classifications()
     {
         var json = ValidDocument.Replace(
-            "\"invariantNouns\": [\"deer\"]",
-            "\"invariantNouns\": [\"deer\", \"criteria\"]");
+            "\"invariant-nouns\": [\n    \"deer\"\n  ]",
+            "\"invariant-nouns\": [\n    \"deer\",\n    \"criteria\"\n  ]");
 
         AssertInvalid(json);
     }
@@ -54,8 +69,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_a_past_participle_that_maps_to_an_unknown_base_verb()
     {
         var json = ValidDocument.Replace(
-            "\"pastParticiples\": { \"liked\": \"like\" }",
-            "\"pastParticiples\": { \"liked\": \"invent\" }");
+            "\"past-participles\": {\n    \"liked\": \"like\"\n  }",
+            "\"past-participles\": {\n    \"liked\": \"invent\"\n  }");
 
         AssertInvalid(json);
     }
@@ -64,8 +79,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_an_irregular_third_person_form_for_an_unknown_base_verb()
     {
         var json = ValidDocument.Replace(
-            "\"irregularThirdPersonVerbs\": { \"have\": \"has\" }",
-            "\"irregularThirdPersonVerbs\": { \"invent\": \"invents\" }");
+            "\"irregular-third-person-verbs\": {\n    \"have\": \"has\"\n  }",
+            "\"irregular-third-person-verbs\": {\n    \"invent\": \"invents\"\n  }");
 
         AssertInvalid(json);
     }
@@ -73,7 +88,15 @@ public sealed class EnglishLexiconTests
     [Fact]
     public void Rejects_an_unsupported_schema_version()
     {
-        var json = ValidDocument.Replace("\"schemaVersion\": 1", "\"schemaVersion\": 2");
+        var json = ValidDocument.Replace("\"schema-version\": 1", "\"schema-version\": 2");
+
+        AssertInvalid(json);
+    }
+
+    [Fact]
+    public void Rejects_legacy_camel_case_property_names()
+    {
+        var json = ValidDocument.Replace("\"schema-version\"", "\"schemaVersion\"");
 
         AssertInvalid(json);
     }
@@ -82,8 +105,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_duplicate_object_keys()
     {
         var json = ValidDocument.Replace(
-            "\"irregularPluralNouns\": { \"criteria\": \"criterion\" }",
-            "\"irregularPluralNouns\": { \"criteria\": \"criterion\", \"CRITERIA\": \"criterion\" }");
+            "\"irregular-plural-nouns\": {\n    \"criteria\": \"criterion\"\n  }",
+            "\"irregular-plural-nouns\": {\n    \"criteria\": \"criterion\",\n    \"CRITERIA\": \"criterion\"\n  }");
 
         AssertInvalid(json);
     }
@@ -92,8 +115,8 @@ public sealed class EnglishLexiconTests
     public void Rejects_an_empty_lexicon_collection()
     {
         var json = ValidDocument.Replace(
-            "\"baseRelationVerbs\": [\"have\", \"like\"]",
-            "\"baseRelationVerbs\": []");
+            "\"base-relation-verbs\": [\n    \"have\",\n    \"like\"\n  ]",
+            "\"base-relation-verbs\": []");
 
         AssertInvalid(json);
     }
@@ -103,11 +126,11 @@ public sealed class EnglishLexiconTests
     {
         var json = ValidDocument
             .Replace(
-                "\"irregularPluralNouns\": { \"criteria\": \"criterion\" }",
-                "\"irregularPluralNouns\": { \"analyses\": \"analysis\" }")
+                "\"irregular-plural-nouns\": {\n    \"criteria\": \"criterion\"\n  }",
+                "\"irregular-plural-nouns\": {\n    \"analyses\": \"analysis\"\n  }")
             .Replace(
-                "\"singularNounsEndingInS\": [\"analysis\"]",
-                "\"singularNounsEndingInS\": [\"basis\"]");
+                "\"singular-nouns-ending-in-s\": [\n    \"analysis\"\n  ]",
+                "\"singular-nouns-ending-in-s\": [\n    \"basis\"\n  ]");
 
         AssertInvalid(json);
     }
