@@ -22,7 +22,7 @@ public sealed class ExistentialReasoningTests
             .Select(fact => fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<AnonymousIndividualTerm>().Which.Identity)
             .Distinct()
             .ToArray();
-        witnesses.Should().ContainSingle().Which;
+        witnesses.Should().ContainSingle();
 
         var existence = engine.Ask(
             knowledgeBase,
