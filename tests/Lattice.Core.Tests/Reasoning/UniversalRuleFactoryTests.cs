@@ -1,4 +1,4 @@
-using Lattice.Core.Language;
+using System.Collections.Immutable;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Xunit;
@@ -10,8 +10,7 @@ public sealed class UniversalRuleFactoryTests
     [Fact]
     public void Creates_rules_with_separate_positive_negative_and_relational_premises()
     {
-        var utterance = Parse(
-            "forall(x, implies(and(dog(x), not(cat(x)), likes(x, milk)), friendly(x)))");
+        var utterance = CreateRule(new IndividualTerm(new SemanticIdentifier("milk")));
 
         var created = UniversalRuleFactory.TryCreate(
             utterance.Meaning,
@@ -35,8 +34,7 @@ public sealed class UniversalRuleFactoryTests
     [Fact]
     public void Rejects_a_relational_premise_with_a_variable_object()
     {
-        var utterance = Parse(
-            "forall(x, implies(and(dog(x), likes(x, y)), friendly(x)))");
+        var utterance = CreateRule(new VariableTerm(new SemanticIdentifier("y")));
 
         var created = UniversalRuleFactory.TryCreate(
             utterance.Meaning,
@@ -49,10 +47,28 @@ public sealed class UniversalRuleFactoryTests
         Assert.False(created);
     }
 
-    private static SemanticUtterance Parse(string sentence)
+    private static SemanticUtterance CreateRule(SemanticTerm relationObject)
     {
-        var result = new LceParser().Parse(sentence);
-        Assert.True(result.IsSuccess, result.Error);
-        return result.Utterance!;
+        var subject = new VariableTerm(new SemanticIdentifier("x"));
+        var relationalPremise = new PredicateApplication(
+            new SemanticIdentifier("likes"),
+            ImmutableArray.Create<SemanticTerm>(subject, relationObject));
+        var premises = new Conjunction(ImmutableArray.Create<SemanticFormula>(
+            CreateUnaryPredicate("dog", subject),
+            new Negation(CreateUnaryPredicate("cat", subject)),
+            relationalPremise));
+        var conclusion = CreateUnaryPredicate("friendly", subject);
+
+        return new SemanticUtterance(
+            UtteranceKind.Assertion,
+            new UniversalQuantification(subject, new Implication(premises, conclusion)),
+            "test universal rule");
     }
+
+    private static PredicateApplication CreateUnaryPredicate(
+        string predicate,
+        SemanticTerm subject) =>
+        new(
+            new SemanticIdentifier(predicate),
+            ImmutableArray.Create(subject));
 }
