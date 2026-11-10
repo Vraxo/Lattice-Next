@@ -19,9 +19,9 @@ public sealed record ReasoningResult(ProofNode? Proof)
     public TruthStatus TruthStatus =>
         (Proofs.IsEmpty, NegativeProofs.IsEmpty) switch
         {
-            (false, false) => TruthStatus.Both,
-            (false, true) => TruthStatus.True,
-            (true, false) => TruthStatus.False,
+            (false, false) => Lattice.Core.Reasoning.TruthStatus.Both,
+            (false, true) => Lattice.Core.Reasoning.TruthStatus.True,
+            (true, false) => Lattice.Core.Reasoning.TruthStatus.False,
             _ => TruthStatus.Neither
         };
 

@@ -319,6 +319,21 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All syllabus are documents.")]
     [InlineData("All news are reports.")]
     [InlineData("All criterion are requirements.")]
+    [Theory]
+    [InlineData("Fido is not happy.", UtteranceKind.Assertion, "not(happy(fido))")]
+    [InlineData("Is Fido not happy?", UtteranceKind.Question, "ask(not(happy(fido)))")]
+    public void Parses_negated_named_individual_properties(
+        string sentence,
+        UtteranceKind expectedKind,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(expectedKind, result.Utterance!.Kind);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance));
+    }
+
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);

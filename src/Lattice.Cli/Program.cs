@@ -171,7 +171,8 @@ while (true)
         AnsiConsole.MarkupLine("[dim]The word 'it' resolves only when exactly one individual is known in this session.[/]");
         AnsiConsole.MarkupLine("[dim]When the reference is missing or ambiguous, Lattice asks you to name the individual.[/]");
         AnsiConsole.MarkupLine("[dim]Input cleanup handles formatting artifacts only; spelling and grammar are not corrected.[/]");
-        AnsiConsole.MarkupLine("[dim]Unknown means no proof was found; it does not mean false.[/]");
+        AnsiConsole.MarkupLine("[dim]Unknown means neither positive nor negative evidence is known; it does not mean false.[/]");
+        AnsiConsole.MarkupLine("[dim]Contradictory evidence is reported explicitly; negative facts do not trigger arbitrary inference.[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions become canonical identifiers (for example, 'the red ball' becomes red-ball).[/]");
         AnsiConsole.MarkupLine("[dim]Definite descriptions contribute head-noun and modifier facts to the knowledge base.[/]");
         AnsiConsole.MarkupLine("[dim]A rule such as 'Every red ball is a toy' requires both red(x) and ball(x).[/]");

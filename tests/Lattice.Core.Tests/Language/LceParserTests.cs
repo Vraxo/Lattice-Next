@@ -572,6 +572,23 @@ public sealed class LceParserTests
         Assert.False(parser.Parse(sentence).IsSuccess);
     }
 
+    [Theory]
+    [InlineData("Fido is not a dog.", UtteranceKind.Assertion, "not(dog(fido))")]
+    [InlineData("Is Fido not a dog?", UtteranceKind.Question, "ask(not(dog(fido)))")]
+    [InlineData("Fido does not like milk.", UtteranceKind.Assertion, "not(likes(fido, milk))")]
+    [InlineData("Does Fido not like milk?", UtteranceKind.Question, "ask(not(likes(fido, milk)))")]
+    public void Parses_direct_negated_ground_class_and_relation_statements(
+        string sentence,
+        UtteranceKind expectedKind,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(expectedKind, result.Utterance!.Kind);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance));
+    }
+
     [Fact]
     public void Parse_text_rejects_empty_input()
     {

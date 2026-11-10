@@ -38,6 +38,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Store ground relational facts and perform exact direct lookup with provenance.
 - [x] Infer fixed-object relational conclusions from unary premises and retain their proofs.
 - [x] Expose facts and rules through live read-only views so callers cannot bypass knowledge-base validation, deduplication, or provenance handling.
+- [x] Represent direct negative ground evidence separately and report four evidence states without allowing contradictions to trigger arbitrary inference.
 - [ ] Add relation joins, traversal, multi-variable rules, and relational premises only after concrete use cases and tests exist.
 
 ## 3. Conversation and context

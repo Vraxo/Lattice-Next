@@ -753,6 +753,98 @@ public sealed class ReasoningEngineTests
             proof.Premise?.SourceText == "Every dog is an animal.");
     }
 
+    [Fact]
+    public void Reports_both_when_positive_and_negative_evidence_are_present()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is happy.");
+        Add(knowledgeBase, "Fido is not happy.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido happy?"));
+
+        Assert.Equal(TruthStatus.Both, result.TruthStatus);
+        Assert.Single(result.Proofs);
+        Assert.Single(result.NegativeProofs);
+        Assert.Equal("Fido is happy.", result.Proofs[0].SourceText);
+        Assert.Equal("Fido is not happy.", result.NegativeProofs[0].SourceText);
+    }
+
+    [Fact]
+    public void Reports_false_when_only_negative_evidence_is_present()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is not happy.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido happy?"));
+
+        Assert.Equal(TruthStatus.False, result.TruthStatus);
+        Assert.Empty(result.Proofs);
+        Assert.Single(result.NegativeProofs);
+    }
+
+    [Fact]
+    public void Reports_neither_when_no_evidence_is_present()
+    {
+        var result = engine.Ask(new KnowledgeBase(), ParseQuestion("Is Fido happy?"));
+        Assert.Equal(TruthStatus.Neither, result.TruthStatus);
+    }
+
+    [Fact]
+    public void Does_not_use_negative_facts_as_premises_or_trigger_explosion()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is not a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
+
+        Assert.Equal(TruthStatus.Neither, result.TruthStatus);
+        Assert.Empty(result.Proofs);
+        Assert.Empty(result.NegativeProofs);
+    }
+
+    [Fact]
+    public void Preserves_negative_evidence_when_positive_evidence_is_derived()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is an animal.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not an animal.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
+
+        Assert.Equal(TruthStatus.Both, result.TruthStatus);
+        Assert.Single(result.Proofs);
+        Assert.Single(result.NegativeProofs);
+        Assert.Equal(ProofNodeKind.Derived, result.Proofs[0].Kind);
+    }
+
+    [Fact]
+    public void A_negated_question_queries_negative_evidence()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido is not happy.");
+
+        var result = engine.Ask(knowledgeBase, Assert.IsType<Negation>(
+            Parse("Is Fido not happy?").Meaning));
+
+        Assert.Equal(TruthStatus.True, result.TruthStatus);
+        Assert.Single(result.Proofs);
+        Assert.Empty(result.NegativeProofs);
+    }
+
+    [Fact]
+    public void Retains_negative_evidence_for_relational_facts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Fido does not like milk.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
+
+        Assert.Equal(TruthStatus.False, result.TruthStatus);
+        Assert.Single(result.NegativeProofs);
+    }
+
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
     {
         var utterance = Parse(sentence);

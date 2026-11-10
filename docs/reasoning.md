@@ -161,3 +161,15 @@ The reasoning engine lives in Lattice.Core. It consumes semantic structures and 
     you › Does Fido like water?
     Lattice › Unknown.
     No supporting fact or rule is known in this session.
+
+
+## Contradictory evidence
+
+Ground atomic assertions may be explicitly negated. Positive and negative evidence are stored independently, with their own provenance. A query reports one of four evidence states:
+
+- `True`: positive support only
+- `False`: negative support only
+- `Both`: positive and negative support
+- `Neither`: neither kind of support
+
+These are evidence states, not a closed-world truth assumption. Unknown information remains unknown. A contradiction does not invalidate unrelated knowledge or allow arbitrary conclusions: negative facts are not used as premises by the current positive rule engine. Negated quantified statements, negated rule conditions or conclusions, and negated existential claims are not supported in this slice.
