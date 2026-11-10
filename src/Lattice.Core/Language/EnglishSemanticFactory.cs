@@ -3,9 +3,9 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class EnglishSemanticFactory
 {
-    private static SemanticUtterance CreateUniversalUtterance(
+    internal static SemanticUtterance CreateUniversalUtterance(
         VariableTerm variable,
         SemanticFormula premise,
         SemanticFormula conclusion,
@@ -17,18 +17,18 @@ internal static partial class NativeEnglishGrammar
                 new Implication(premise, conclusion)),
             sourceText);
 
-    private static ImmutableArray<SemanticFormula> GetConjuncts(SemanticFormula formula) =>
+    internal static ImmutableArray<SemanticFormula> GetConjuncts(SemanticFormula formula) =>
         formula is Conjunction conjunction
             ? conjunction.Conjuncts
             : ImmutableArray.Create(formula);
 
-    private static SemanticFormula Combine(IReadOnlyList<SemanticFormula> conditions) =>
+    internal static SemanticFormula Combine(IReadOnlyList<SemanticFormula> conditions) =>
         conditions.Count == 1
             ? conditions[0]
             : new Conjunction(conditions.ToImmutableArray());
 
-    private static PredicateApplication Predicate(
+    internal static PredicateApplication Predicate(
         string name,
         params SemanticTerm[] arguments) =>
-        new(Id(name), ImmutableArray.CreateRange(arguments));
+        new(EnglishGrammarTokens.CreateIdentifier(name), ImmutableArray.CreateRange(arguments));
 }

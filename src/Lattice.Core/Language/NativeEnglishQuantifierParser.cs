@@ -3,9 +3,9 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class NativeEnglishQuantifierParser
 {
-    private static bool TryParseExistenceQuestion(
+    internal static bool TryParseExistenceQuestion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -13,8 +13,8 @@ internal static partial class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length < 4 ||
-            !Is(tokens[0], "Is") ||
-            !Is(tokens[1], "there") ||
+            !EnglishGrammarTokens.Is(tokens[0], "Is") ||
+            !EnglishGrammarTokens.Is(tokens[1], "there") ||
             !TryCreateExistentialFormula(tokens, 2, tokens.Length, out var meaning))
         {
             return false;
@@ -24,7 +24,7 @@ internal static partial class NativeEnglishGrammar
         return true;
     }
 
-    private static bool TryParseExistentialAssertion(
+    internal static bool TryParseExistentialAssertion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -32,8 +32,8 @@ internal static partial class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length < 4 ||
-            !Is(tokens[0], "There") ||
-            !Is(tokens[1], "is") ||
+            !EnglishGrammarTokens.Is(tokens[0], "There") ||
+            !EnglishGrammarTokens.Is(tokens[1], "is") ||
             !TryCreateExistentialFormula(tokens, 2, tokens.Length, out var meaning))
         {
             return false;
@@ -51,20 +51,20 @@ internal static partial class NativeEnglishGrammar
     {
         meaning = null;
 
-        if (start >= end || !IsArticle(tokens[start]) ||
-            !TryParseDescription(tokens, start + 1, end, expectPluralHead: false, out var description))
+        if (start >= end || !EnglishGrammarTokens.IsArticle(tokens[start]) ||
+            !EnglishDescriptionParser.TryParseDescription(tokens, start + 1, end, expectPluralHead: false, out var description))
         {
             return false;
         }
 
-        var variable = new VariableTerm(Id("x"));
+        var variable = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
         meaning = new ExistentialQuantification(
             variable,
             description!.ToExistentialConditions(variable));
         return true;
     }
 
-    private static bool TryParseQuantifiedRule(
+    internal static bool TryParseQuantifiedRule(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -78,13 +78,13 @@ internal static partial class NativeEnglishGrammar
         }
 
         var quantifier = tokens[0];
-        var expectsPluralHead = !Is(quantifier, "Every");
-        var isExistential = Is(quantifier, "Some");
-        var isOnly = Is(quantifier, "Only");
+        var expectsPluralHead = !EnglishGrammarTokens.Is(quantifier, "Every");
+        var isExistential = EnglishGrammarTokens.Is(quantifier, "Some");
+        var isOnly = EnglishGrammarTokens.Is(quantifier, "Only");
 
         for (var separator = 2; separator < tokens.Length - 1; separator++)
         {
-            if (!TryParseDescription(
+            if (!EnglishDescriptionParser.TryParseDescription(
                 tokens,
                 1,
                 separator,
@@ -97,16 +97,16 @@ internal static partial class NativeEnglishGrammar
             if (IsCopulaForQuantifier(tokens[separator], quantifier) &&
                 TryParseClassPredicate(tokens, separator + 1, tokens.Length, out var classPredicate))
             {
-                var variable = new VariableTerm(Id("x"));
+                var variable = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
                 var subjectConditions = description!.ToUniversalConditions(variable);
 
                 if (isExistential)
                 {
-                    var conditions = GetConjuncts(description.ToExistentialConditions(variable))
-                        .Add(Predicate(classPredicate!, variable));
+                    var conditions = EnglishSemanticFactory.GetConjuncts(description.ToExistentialConditions(variable))
+                        .Add(EnglishSemanticFactory.Predicate(classPredicate!, variable));
                     utterance = new SemanticUtterance(
                         UtteranceKind.Assertion,
-                        new ExistentialQuantification(variable, Combine(conditions)),
+                        new ExistentialQuantification(variable, EnglishSemanticFactory.Combine(conditions)),
                         sourceText);
                     return true;
                 }
@@ -118,18 +118,18 @@ internal static partial class NativeEnglishGrammar
                         continue;
                     }
 
-                    utterance = CreateUniversalUtterance(
+                    utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                         variable,
-                        Predicate(classPredicate!, variable),
+                        EnglishSemanticFactory.Predicate(classPredicate!, variable),
                         subjectConditions,
                         sourceText);
                     return true;
                 }
 
-                utterance = CreateUniversalUtterance(
+                utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                     variable,
                     subjectConditions,
-                    Predicate(classPredicate!, variable),
+                    EnglishSemanticFactory.Predicate(classPredicate!, variable),
                     sourceText);
                 return true;
             }
@@ -143,18 +143,18 @@ internal static partial class NativeEnglishGrammar
                 tokens,
                 separator,
                 tokens.Length,
-                Is(quantifier, "All"),
+                EnglishGrammarTokens.Is(quantifier, "All"),
                 out var relationPredicate,
                 out var relationObject))
             {
                 continue;
             }
 
-            var bound = new VariableTerm(Id("x"));
-            utterance = CreateUniversalUtterance(
+            var bound = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
+            utterance = EnglishSemanticFactory.CreateUniversalUtterance(
                 bound,
                 description!.ToUniversalConditions(bound),
-                Predicate(relationPredicate!, bound, relationObject!),
+                EnglishSemanticFactory.Predicate(relationPredicate!, bound, relationObject!),
                 sourceText);
             return true;
         }
@@ -163,7 +163,7 @@ internal static partial class NativeEnglishGrammar
     }
 
     private static bool IsCopulaForQuantifier(string token, string quantifier) =>
-        Is(quantifier, "Every")
+        EnglishGrammarTokens.Is(quantifier, "Every")
             ? string.Equals(token, "is", StringComparison.Ordinal)
             : string.Equals(token, "are", StringComparison.Ordinal);
 
@@ -175,20 +175,20 @@ internal static partial class NativeEnglishGrammar
     {
         predicate = null;
 
-        if (end - start == 1 && IsLowerWord(tokens[start]) &&
-            !ReservedIndividualTerms.Contains(tokens[start]))
+        if (end - start == 1 && EnglishGrammarTokens.IsLowerWord(tokens[start]) &&
+            !EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start]))
         {
-            predicate = IsPlural(tokens[start])
-                ? Singularize(tokens[start])
+            predicate = EnglishMorphology.IsPlural(tokens[start])
+                ? EnglishMorphology.Singularize(tokens[start])
                 : tokens[start].ToLowerInvariant();
             return true;
         }
 
         if (end - start == 2 &&
-            IsArticle(tokens[start]) &&
-            IsLowerWord(tokens[start + 1]) &&
-            !ReservedIndividualTerms.Contains(tokens[start + 1]) &&
-            !IsPlural(tokens[start + 1]))
+            EnglishGrammarTokens.IsArticle(tokens[start]) &&
+            EnglishGrammarTokens.IsLowerWord(tokens[start + 1]) &&
+            !EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start + 1]) &&
+            !EnglishMorphology.IsPlural(tokens[start + 1]))
         {
             predicate = tokens[start + 1].ToLowerInvariant();
             return true;
@@ -211,16 +211,16 @@ internal static partial class NativeEnglishGrammar
 
         if (pluralSubject)
         {
-            if (!BaseRelationVerbs.Contains(verb))
+            if (!EnglishRelationLexicon.IsBaseRelationVerb(verb))
             {
                 return false;
             }
 
-            predicate = InflectThirdPersonSingular(verb);
+            predicate = EnglishMorphology.InflectThirdPersonSingular(verb);
         }
         else
         {
-            if (!IsThirdPersonVerb(verb))
+            if (!EnglishMorphology.IsThirdPersonVerb(verb))
             {
                 return false;
             }
@@ -228,10 +228,10 @@ internal static partial class NativeEnglishGrammar
             predicate = verb.ToLowerInvariant();
         }
 
-        return TryCreateObjectTerm(tokens, verbIndex + 1, end, out relationObject);
+        return EnglishDescriptionParser.TryCreateObjectTerm(tokens, verbIndex + 1, end, out relationObject);
     }
 
-    private static bool TryParseClassMembershipAssertion(
+    internal static bool TryParseClassMembershipAssertion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -239,25 +239,25 @@ internal static partial class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length != 7 ||
-            !IsCapitalized(tokens[0]) ||
-            !Is(tokens[1], "belongs") ||
-            !Is(tokens[2], "to") ||
-            !Is(tokens[3], "the") ||
-            !Is(tokens[4], "class") ||
-            !Is(tokens[5], "of") ||
-            !IsPluralHead(tokens[6]))
+            !EnglishGrammarTokens.IsCapitalized(tokens[0]) ||
+            !EnglishGrammarTokens.Is(tokens[1], "belongs") ||
+            !EnglishGrammarTokens.Is(tokens[2], "to") ||
+            !EnglishGrammarTokens.Is(tokens[3], "the") ||
+            !EnglishGrammarTokens.Is(tokens[4], "class") ||
+            !EnglishGrammarTokens.Is(tokens[5], "of") ||
+            !EnglishMorphology.IsPluralHead(tokens[6]))
         {
             return false;
         }
 
         utterance = new SemanticUtterance(
             UtteranceKind.Assertion,
-            Predicate(Singularize(tokens[6]), new IndividualTerm(Id(tokens[0]))),
+            EnglishSemanticFactory.Predicate(EnglishMorphology.Singularize(tokens[6]), new IndividualTerm(EnglishGrammarTokens.CreateIdentifier(tokens[0]))),
             sourceText);
         return true;
     }
 
-    private static bool TryParseClassMembershipQuestion(
+    internal static bool TryParseClassMembershipQuestion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -265,19 +265,19 @@ internal static partial class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length != 6 ||
-            !Is(tokens[0], "Does") ||
-            !IsCapitalized(tokens[1]) ||
-            !Is(tokens[2], "count") ||
-            !Is(tokens[3], "as") ||
-            !IsArticle(tokens[4]) ||
-            !IsLowerWord(tokens[5]))
+            !EnglishGrammarTokens.Is(tokens[0], "Does") ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[1]) ||
+            !EnglishGrammarTokens.Is(tokens[2], "count") ||
+            !EnglishGrammarTokens.Is(tokens[3], "as") ||
+            !EnglishGrammarTokens.IsArticle(tokens[4]) ||
+            !EnglishGrammarTokens.IsLowerWord(tokens[5]))
         {
             return false;
         }
 
         utterance = new SemanticUtterance(
             UtteranceKind.Question,
-            Predicate(tokens[5], new IndividualTerm(Id(tokens[1]))),
+            EnglishSemanticFactory.Predicate(tokens[5], new IndividualTerm(EnglishGrammarTokens.CreateIdentifier(tokens[1]))),
             sourceText);
         return true;
     }

@@ -3,16 +3,9 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class EnglishDescriptionParser
 {
-    private static readonly HashSet<string> ReservedIndividualTerms = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "a", "an", "the", "there", "is", "are", "be", "exist",
-        "something", "that", "by", "not", "no", "every", "all", "only", "some",
-        "to", "of", "class", "count", "as", "and"
-    };
-
-    private static bool TryParseDescription(
+    internal static bool TryParseDescription(
         string[] tokens,
         int start,
         int end,
@@ -30,10 +23,10 @@ internal static partial class NativeEnglishGrammar
         var relativeModifiers = new List<string>();
         var index = start;
 
-        while (index < end && !Is(tokens[index], "that"))
+        while (index < end && !EnglishGrammarTokens.Is(tokens[index], "that"))
         {
-            if (!IsLowerWord(tokens[index]) ||
-                ReservedIndividualTerms.Contains(tokens[index]))
+            if (!EnglishGrammarTokens.IsLowerWord(tokens[index]) ||
+                EnglishGrammarTokens.IsReservedIndividualTerm(tokens[index]))
             {
                 return false;
             }
@@ -41,14 +34,14 @@ internal static partial class NativeEnglishGrammar
             lexicalWords.Add(tokens[index].ToLowerInvariant());
             index++;
 
-            if (index < end && Is(tokens[index], "and"))
+            if (index < end && EnglishGrammarTokens.Is(tokens[index], "and"))
             {
                 index++;
 
                 if (index >= end ||
-                    Is(tokens[index], "that") ||
-                    Is(tokens[index], "and") ||
-                    IsPluralHead(tokens[index]))
+                    EnglishGrammarTokens.Is(tokens[index], "that") ||
+                    EnglishGrammarTokens.Is(tokens[index], "and") ||
+                    EnglishMorphology.IsPluralHead(tokens[index]))
                 {
                     return false;
                 }
@@ -65,8 +58,8 @@ internal static partial class NativeEnglishGrammar
             var relativeCopula = expectPluralHead ? "are" : "is";
 
             if (index + 2 >= end ||
-                !Is(tokens[index], "that") ||
-                !Is(tokens[index + 1], relativeCopula))
+                !EnglishGrammarTokens.Is(tokens[index], "that") ||
+                !EnglishGrammarTokens.Is(tokens[index + 1], relativeCopula))
             {
                 return false;
             }
@@ -83,14 +76,14 @@ internal static partial class NativeEnglishGrammar
 
         if (expectPluralHead)
         {
-            if (!IsPluralHead(head))
+            if (!EnglishMorphology.IsPluralHead(head))
             {
                 return false;
             }
 
-            head = Singularize(head);
+            head = EnglishMorphology.Singularize(head);
         }
-        else if (IsPlural(head))
+        else if (EnglishMorphology.IsPlural(head))
         {
             return false;
         }
@@ -113,8 +106,8 @@ internal static partial class NativeEnglishGrammar
         List<string> modifiers)
     {
         if (index >= end ||
-            !IsLowerWord(tokens[index]) ||
-            ReservedIndividualTerms.Contains(tokens[index]))
+            !EnglishGrammarTokens.IsLowerWord(tokens[index]) ||
+            EnglishGrammarTokens.IsReservedIndividualTerm(tokens[index]))
         {
             return false;
         }
@@ -122,15 +115,15 @@ internal static partial class NativeEnglishGrammar
         modifiers.Add(tokens[index].ToLowerInvariant());
         index++;
 
-        while (index < end && Is(tokens[index], "and"))
+        while (index < end && EnglishGrammarTokens.Is(tokens[index], "and"))
         {
             index++;
 
             if (index >= end ||
-                Is(tokens[index], "that") ||
-                !IsLowerWord(tokens[index]) ||
-                IsPluralHead(tokens[index]) ||
-                ReservedIndividualTerms.Contains(tokens[index]))
+                EnglishGrammarTokens.Is(tokens[index], "that") ||
+                !EnglishGrammarTokens.IsLowerWord(tokens[index]) ||
+                EnglishMorphology.IsPluralHead(tokens[index]) ||
+                EnglishGrammarTokens.IsReservedIndividualTerm(tokens[index]))
             {
                 return false;
             }
@@ -139,10 +132,10 @@ internal static partial class NativeEnglishGrammar
             index++;
         }
 
-        return index == end || Is(tokens[index], "that");
+        return index == end || EnglishGrammarTokens.Is(tokens[index], "that");
     }
 
-    private static bool TryCreateSubjectTerm(
+    internal static bool TryCreateSubjectTerm(
         string[] tokens,
         int start,
         int end,
@@ -157,12 +150,17 @@ internal static partial class NativeEnglishGrammar
             return TryCreateIndividual(tokens[start], allowPronoun, out term);
         }
 
-        return count > 1 &&
-            TryCreateDefiniteDescription(tokens, start, count, out var description) &&
-            AssignDescription(description!, out term);
+        if (count <= 1 ||
+            !TryCreateDefiniteDescription(tokens, start, count, out var description))
+        {
+            return false;
+        }
+
+        term = description;
+        return true;
     }
 
-    private static bool TryCreateObjectTerm(
+    internal static bool TryCreateObjectTerm(
         string[] tokens,
         int start,
         int end,
@@ -176,20 +174,17 @@ internal static partial class NativeEnglishGrammar
             return TryCreateIndividual(tokens[start], allowPronoun: true, out term);
         }
 
-        return count > 1 &&
-            TryCreateDefiniteDescription(tokens, start, count, out var description) &&
-            AssignDescription(description!, out term);
-    }
+        if (count <= 1 ||
+            !TryCreateDefiniteDescription(tokens, start, count, out var description))
+        {
+            return false;
+        }
 
-    private static bool AssignDescription(
-        DescriptiveIndividualTerm description,
-        out SemanticTerm? term)
-    {
         term = description;
         return true;
     }
 
-    private static bool TryCreateDefiniteDescription(
+    internal static bool TryCreateDefiniteDescription(
         string[] tokens,
         int start,
         int count,
@@ -197,7 +192,7 @@ internal static partial class NativeEnglishGrammar
     {
         description = null;
 
-        if (count < 2 || !Is(tokens[start], "the") ||
+        if (count < 2 || !EnglishGrammarTokens.Is(tokens[start], "the") ||
             !TryParseDescription(
                 tokens,
                 start + 1,
@@ -212,25 +207,25 @@ internal static partial class NativeEnglishGrammar
         return true;
     }
 
-    private static bool TryCreateIndividual(
+    internal static bool TryCreateIndividual(
         string value,
         bool allowPronoun,
         out SemanticTerm? term)
     {
         term = null;
 
-        if (allowPronoun && Is(value, "it"))
+        if (allowPronoun && EnglishGrammarTokens.Is(value, "it"))
         {
-            term = new UnresolvedReferenceTerm(Id("it"));
+            term = new UnresolvedReferenceTerm(EnglishGrammarTokens.CreateIdentifier("it"));
             return true;
         }
 
-        if (!IsWord(value) || ReservedIndividualTerms.Contains(value))
+        if (!EnglishGrammarTokens.IsWord(value) || EnglishGrammarTokens.IsReservedIndividualTerm(value))
         {
             return false;
         }
 
-        term = new IndividualTerm(Id(value));
+        term = new IndividualTerm(EnglishGrammarTokens.CreateIdentifier(value));
         return true;
     }
 }

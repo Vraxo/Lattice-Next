@@ -2,25 +2,9 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class NativeEnglishRelationParser
 {
-    private static readonly HashSet<string> BaseRelationVerbs = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "like", "love", "watch", "carry", "have", "do", "go",
-        "need", "want", "eat", "chase", "admire", "trust"
-    };
-
-    private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["liked"] = "like",
-        ["loved"] = "love",
-        ["watched"] = "watch",
-        ["carried"] = "carry",
-        ["needed"] = "need",
-        ["used"] = "use"
-    };
-
-    private static bool TryParsePassiveSomethingAssertion(
+    internal static bool TryParsePassiveSomethingAssertion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -28,24 +12,24 @@ internal static partial class NativeEnglishGrammar
         utterance = null;
 
         if (tokens.Length != 6 ||
-            !Is(tokens[1], "is") ||
-            !Is(tokens[2], "something") ||
-            !Is(tokens[3], "that") ||
-            !IsCapitalized(tokens[4]) ||
-            !IsThirdPersonVerb(tokens[5]) ||
-            !TryCreateIndividual(tokens[0], allowPronoun: false, out var patient))
+            !EnglishGrammarTokens.Is(tokens[1], "is") ||
+            !EnglishGrammarTokens.Is(tokens[2], "something") ||
+            !EnglishGrammarTokens.Is(tokens[3], "that") ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[4]) ||
+            !EnglishMorphology.IsThirdPersonVerb(tokens[5]) ||
+            !EnglishDescriptionParser.TryCreateIndividual(tokens[0], allowPronoun: false, out var patient))
         {
             return false;
         }
 
         utterance = new SemanticUtterance(
             UtteranceKind.Assertion,
-            Predicate(tokens[5], new IndividualTerm(Id(tokens[4])), patient!),
+            EnglishSemanticFactory.Predicate(tokens[5], new IndividualTerm(EnglishGrammarTokens.CreateIdentifier(tokens[4])), patient!),
             sourceText);
         return true;
     }
 
-    private static bool TryParsePassiveRelation(
+    internal static bool TryParsePassiveRelation(
         string[] tokens,
         string sourceText,
         bool isQuestion,
@@ -53,7 +37,7 @@ internal static partial class NativeEnglishGrammar
     {
         utterance = null;
 
-        if (isQuestion && !Is(tokens[0], "Is"))
+        if (isQuestion && !EnglishGrammarTokens.Is(tokens[0], "Is"))
         {
             return false;
         }
@@ -64,8 +48,8 @@ internal static partial class NativeEnglishGrammar
              participleIndex < tokens.Length - 2;
              participleIndex++)
         {
-            if (!PastParticiples.TryGetValue(tokens[participleIndex], out var baseVerb) ||
-                !Is(tokens[participleIndex + 1], "by"))
+            if (!EnglishRelationLexicon.TryGetPastParticiple(tokens[participleIndex], out var baseVerb) ||
+                !EnglishGrammarTokens.Is(tokens[participleIndex + 1], "by"))
             {
                 continue;
             }
@@ -76,18 +60,18 @@ internal static partial class NativeEnglishGrammar
                 : participleIndex - 1;
 
             if (!isQuestion &&
-                (participleIndex < 2 || !Is(tokens[participleIndex - 1], "is")))
+                (participleIndex < 2 || !EnglishGrammarTokens.Is(tokens[participleIndex - 1], "is")))
             {
                 continue;
             }
 
-            if (!TryCreateSubjectTerm(
+            if (!EnglishDescriptionParser.TryCreateSubjectTerm(
                     tokens,
                     patientStart,
                     patientEnd,
                     allowPronoun: false,
                     out var patient) ||
-                !TryCreateSubjectTerm(
+                !EnglishDescriptionParser.TryCreateSubjectTerm(
                     tokens,
                     participleIndex + 2,
                     tokens.Length,
@@ -100,7 +84,7 @@ internal static partial class NativeEnglishGrammar
 
             utterance = new SemanticUtterance(
                 isQuestion ? UtteranceKind.Question : UtteranceKind.Assertion,
-                Predicate(InflectThirdPersonSingular(baseVerb), agent!, patient!),
+                EnglishSemanticFactory.Predicate(EnglishMorphology.InflectThirdPersonSingular(baseVerb), agent!, patient!),
                 sourceText);
             return true;
         }
@@ -108,7 +92,7 @@ internal static partial class NativeEnglishGrammar
         return false;
     }
 
-    private static bool TryParseActiveRelationAssertion(
+    internal static bool TryParseActiveRelationAssertion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -117,9 +101,9 @@ internal static partial class NativeEnglishGrammar
 
         for (var verbIndex = 1; verbIndex < tokens.Length - 1; verbIndex++)
         {
-            if (!IsThirdPersonVerb(tokens[verbIndex]) ||
-                !TryCreateSubjectTerm(tokens, 0, verbIndex, allowPronoun: true, out var subject) ||
-                !TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
+            if (!EnglishMorphology.IsThirdPersonVerb(tokens[verbIndex]) ||
+                !EnglishDescriptionParser.TryCreateSubjectTerm(tokens, 0, verbIndex, allowPronoun: true, out var subject) ||
+                !EnglishDescriptionParser.TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
                 HasMultipleUnresolvedReferences(subject, relationObject))
             {
                 continue;
@@ -127,7 +111,7 @@ internal static partial class NativeEnglishGrammar
 
             utterance = new SemanticUtterance(
                 UtteranceKind.Assertion,
-                Predicate(tokens[verbIndex], subject!, relationObject!),
+                EnglishSemanticFactory.Predicate(tokens[verbIndex], subject!, relationObject!),
                 sourceText);
             return true;
         }
@@ -135,14 +119,14 @@ internal static partial class NativeEnglishGrammar
         return false;
     }
 
-    private static bool TryParseActiveRelationQuestion(
+    internal static bool TryParseActiveRelationQuestion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
     {
         utterance = null;
 
-        if (tokens.Length < 4 || !Is(tokens[0], "Does"))
+        if (tokens.Length < 4 || !EnglishGrammarTokens.Is(tokens[0], "Does"))
         {
             return false;
         }
@@ -151,12 +135,12 @@ internal static partial class NativeEnglishGrammar
         {
             var verb = tokens[verbIndex];
 
-            if (!IsLowerWord(verb) ||
-                ReservedIndividualTerms.Contains(verb) ||
-                Is(verb, "be") ||
-                Is(verb, "exist") ||
-                !TryCreateSubjectTerm(tokens, 1, verbIndex, allowPronoun: true, out var subject) ||
-                !TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
+            if (!EnglishGrammarTokens.IsLowerWord(verb) ||
+                EnglishGrammarTokens.IsReservedIndividualTerm(verb) ||
+                EnglishGrammarTokens.Is(verb, "be") ||
+                EnglishGrammarTokens.Is(verb, "exist") ||
+                !EnglishDescriptionParser.TryCreateSubjectTerm(tokens, 1, verbIndex, allowPronoun: true, out var subject) ||
+                !EnglishDescriptionParser.TryCreateObjectTerm(tokens, verbIndex + 1, tokens.Length, out var relationObject) ||
                 HasMultipleUnresolvedReferences(subject, relationObject))
             {
                 continue;
@@ -164,7 +148,7 @@ internal static partial class NativeEnglishGrammar
 
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
-                Predicate(InflectThirdPersonSingular(verb), subject!, relationObject!),
+                EnglishSemanticFactory.Predicate(EnglishMorphology.InflectThirdPersonSingular(verb), subject!, relationObject!),
                 sourceText);
             return true;
         }
