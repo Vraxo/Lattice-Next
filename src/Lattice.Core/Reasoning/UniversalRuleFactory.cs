@@ -138,17 +138,6 @@ internal static class UniversalRuleFactory
     }
 
 
-    internal static bool IsBoundUnaryPredicate(
-        PredicateApplication predicate,
-        VariableTerm variable) =>
-        !string.IsNullOrWhiteSpace(predicate.Predicate.Value) &&
-        !string.IsNullOrWhiteSpace(variable.Identifier.Value) &&
-        !predicate.Arguments.IsDefault &&
-        predicate.Arguments.Length == 1 &&
-        predicate.Arguments[0] is VariableTerm argument &&
-        argument.Identifier == variable.Identifier;
-
-
     private static bool TryNormalizeUniversalConclusion(
         PredicateApplication conclusion,
         VariableTerm variable,
@@ -158,7 +147,7 @@ internal static class UniversalRuleFactory
         normalizedConclusion = conclusion;
         descriptionFacts = [];
 
-        if (IsBoundUnaryPredicate(conclusion, variable))
+        if (KnowledgeFactFactory.IsBoundUnaryPredicate(conclusion, variable))
         {
             return true;
         }
@@ -183,15 +172,15 @@ internal static class UniversalRuleFactory
                 break;
 
             case DescriptiveIndividualTerm description
-                when IsValidDescription(description):
+                when KnowledgeFactFactory.IsValidDescription(description):
                 objectTerm = new IndividualTerm(description.Identifier);
-                descriptionFacts.Add(CreateUnaryFact(
+                descriptionFacts.Add(KnowledgeFactFactory.CreateUnaryFact(
                     description.Head,
                     description.Identifier));
 
                 foreach (var modifier in description.Modifiers)
                 {
-                    descriptionFacts.Add(CreateUnaryFact(
+                    descriptionFacts.Add(KnowledgeFactFactory.CreateUnaryFact(
                         modifier,
                         description.Identifier));
                 }

@@ -181,5 +181,3 @@ public sealed class KnowledgeBase
         !right.Arguments.IsDefault &&
         left.Arguments.SequenceEqual(right.Arguments);
 }
-
-}
