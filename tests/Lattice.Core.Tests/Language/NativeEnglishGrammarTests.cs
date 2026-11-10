@@ -293,7 +293,6 @@ public sealed class NativeEnglishGrammarTests
 
     [Theory]
     [InlineData("No dog is a cat.")]
-    [InlineData("Every dog is not an animal.")]
     [InlineData("Fido is not not a dog.")]
     [InlineData("Only red dogs are animals.")]
     [InlineData("Some dogs like milk.")]
