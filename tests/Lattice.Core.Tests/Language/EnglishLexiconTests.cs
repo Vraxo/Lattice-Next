@@ -40,7 +40,7 @@ public sealed class EnglishLexiconTests
     public void Loads_the_embedded_lexicon_into_case_insensitive_immutable_collections()
     {
         Assert.True(EnglishLexicon.ReservedTerms.Contains("THE"));
-        Assert.True(EnglishLexicon.ReservedTerms.Contains("EACH"));
+        Assert.Contains("EACH", EnglishLexicon.ReservedTerms);
         Assert.True(EnglishLexicon.NamedIndividualPropertyAdjectives.Contains("HAPPY"));
         Assert.Equal("criterion", EnglishLexicon.ExplicitPluralNounForms["CRITERIA"]);
         Assert.True(EnglishLexicon.InvariantNouns.Contains("Deer"));
