@@ -129,14 +129,16 @@ while (true)
         AnsiConsole.MarkupLine("  [dim]Translation is opt-in. Lattice never stores a model proposal without your explicit selection.[/]");
         AnsiConsole.MarkupLine("  [green]What is 12 multiplied by 3?[/] [dim]natural-language calculator request[/]");
         AnsiConsole.MarkupLine("  [green]Convert 150 cm to meters.[/] [dim]natural-language unit conversion[/]");
+        AnsiConsole.MarkupLine("  [green]Search the web for Lattice symbolic reasoning.[/] [dim]public web search; no API key or server required[/]");
         AnsiConsole.MarkupLine("  [green]Multiply that by 5, then subtract 10.[/] [dim]chains operations over successive results[/]");
         AnsiConsole.MarkupLine("  [green]:tool calculator {\"left\":12,\"operation\":\"multiply\",\"right\":3}[/] [dim]explicit diagnostic invocation[/]");
         AnsiConsole.MarkupLine("  [dim]Natural-language selection uses exact phrase patterns declared by discovered tool manifests.[/]");
         AnsiConsole.MarkupLine("  [dim]Patterns support single-token numbers and words, multiword text captures, and optional literal phrases; they are not unrestricted English.[/]");
-        AnsiConsole.MarkupLine("  [dim]The bundled calculator and unit converter are Python tools; Python 3 must be available as 'python'.[/]");
+        AnsiConsole.MarkupLine("  [dim]The calculator and unit converter use Python's standard library. Web search also needs the pinned 'ddgs' package.[/]");
+        AnsiConsole.MarkupLine("  [dim]Install it once with: python -m pip install -r tools/web-search/requirements.txt.[/]");
         AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
-        AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools.[/]");
+        AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS may grant read, write, or read,write to registered tools; web search requires read.[/]");
         AnsiConsole.MarkupLine("[bold]Supported sentences[/]");
         AnsiConsole.MarkupLine("  [green]All dogs are animals.[/]       [dim]native plural universal[/]");
         AnsiConsole.MarkupLine("  [green]Only dogs are animals.[/]      [dim]native reverse quantifier[/]");
