@@ -32,9 +32,7 @@ var reasoningEngine = new ReasoningEngine();
 var knowledgePackLoader = new KnowledgePackLoader();
 var loadedPacks = new List<KnowledgePack>();
 var configuredToolsDirectory = Environment.GetEnvironmentVariable("LATTICE_TOOLS_DIR");
-var toolsDirectory = string.IsNullOrWhiteSpace(configuredToolsDirectory)
-    ? Path.Combine(Environment.CurrentDirectory, "tools")
-    : configuredToolsDirectory;
+var toolsDirectory = ResolveToolsDirectory(configuredToolsDirectory);
 var externalToolsDiscovered = StdioToolProvider.TryDiscover(
     toolsDirectory,
     out var discoveredTools,
@@ -74,6 +72,7 @@ AnsiConsole.MarkupLine("[bold cyan]Lattice[/]");
 AnsiConsole.MarkupLine("[dim]Symbolic intelligence · LCE 0.9[/]");
 AnsiConsole.MarkupLine("[dim]Enter LCE or supported English sentences directly; use :translate for model-assisted interpretation beyond native coverage.[/]");
 AnsiConsole.MarkupLine($"[dim]Local configuration: {configurationStore.Path}[/]");
+AnsiConsole.MarkupLine($"[dim]External tools directory: {Markup.Escape(toolsDirectory)}[/]");
 
 if (!configurationLoaded)
 {
@@ -97,6 +96,11 @@ if (!externalToolsDiscovered)
 else if (registeredTools.Count > 0)
 {
     AnsiConsole.MarkupLine($"[dim]Discovered {registeredTools.Count} external tool(s).[/]");
+}
+else
+{
+    AnsiConsole.MarkupLine(
+        $"[yellow]No external tools were discovered in '{Markup.Escape(toolsDirectory)}'. Check that tool folders and their tool.json manifests are present.[/]");
 }
 AnsiConsole.WriteLine();
 
@@ -418,6 +422,12 @@ while (true)
     {
         AnsiConsole.MarkupLine("[bold]Available tools[/]");
 
+        if (toolRegistry.Descriptors.Count == 0)
+        {
+            AnsiConsole.MarkupLine(
+                $"[yellow]No tools are registered. Expected tool manifests under '{Markup.Escape(toolsDirectory)}'.[/]");
+        }
+
         foreach (var descriptor in toolRegistry.Descriptors.OrderBy(item => item.Id, StringComparer.Ordinal))
         {
             AnsiConsole.MarkupLine($"  [cyan]{descriptor.Id}[/] — {descriptor.Name}");
@@ -590,6 +600,35 @@ SemanticTranslationService? CreateTranslationService(LmStudioConfiguration confi
 
 void ReportLmStudioStatus(string message) =>
     AnsiConsole.MarkupLine($"[dim]{Markup.Escape(message)}[/]");
+
+string ResolveToolsDirectory(string? configuredDirectory)
+{
+    if (!string.IsNullOrWhiteSpace(configuredDirectory))
+    {
+        return Path.GetFullPath(configuredDirectory);
+    }
+
+    var workingDirectoryTools = Path.Combine(Environment.CurrentDirectory, "tools");
+
+    if (Directory.Exists(workingDirectoryTools))
+    {
+        return Path.GetFullPath(workingDirectoryTools);
+    }
+
+    for (DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        directory is not null;
+        directory = directory.Parent)
+    {
+        var candidate = Path.Combine(directory.FullName, "tools");
+
+        if (Directory.Exists(candidate))
+        {
+            return candidate;
+        }
+    }
+
+    return Path.GetFullPath(workingDirectoryTools);
+}
 
 void ProcessUtterance(SemanticUtterance parsedUtterance)
 {

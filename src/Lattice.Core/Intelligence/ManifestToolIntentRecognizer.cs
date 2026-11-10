@@ -442,7 +442,7 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
     }
 
     private static string NormalizeToken(string token) =>
-        token.Trim(',', '.', '?', '!', ';', ':');
+        token.TrimEnd(',', '.', '?', '!', ';', ':');
 
     private static bool TryGetConstant(JsonElement value, out object? result)
     {

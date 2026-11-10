@@ -86,6 +86,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Select capabilities through generic matchers built from typed, manifest-declared phrase patterns, argument bindings, and response templates.
 - [x] Execute bounded, deterministic follow-up chains declared through manifest bindings against successive sourced numeric observations.
 - [x] Extend manifest intent patterns with optional literal phrases and bounded multiword text captures while retaining conservative matching.
+- [x] Resolve the bundled tools directory independently of the CLI's current working directory and report an empty discovery result clearly.
+- [x] Preserve meaningful leading punctuation in multiword text captures and regression-test the bundled web-search phrases.
 
 ## 6. Language and knowledge expansion
 

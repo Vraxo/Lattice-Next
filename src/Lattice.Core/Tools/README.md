@@ -22,7 +22,7 @@ All three use the same manifest, stdio protocol, generic registry, permission ch
 
 The separate `Lattice.Tooling.Stdio` project adapts external processes to the Core contract. Core has no dependency on this provider, process APIs, a transport, or any particular implementation language.
 
-The CLI discovers tools one directory level below `./tools` by default. Set `LATTICE_TOOLS_DIR` to use another root. Each tool directory contains a `tool.json` manifest. Directories without a manifest are ignored. Discovery parses and validates metadata only; it never starts the declared command. Invalid manifests fail discovery as a whole instead of silently loading a partial set.
+The CLI discovers tools one directory level below the repository/application `tools` directory by default. It checks the current working directory first, then searches upward from the executable location. Set `LATTICE_TOOLS_DIR` to use another root. Each tool directory contains a `tool.json` manifest. Directories without a manifest are ignored. Discovery parses and validates metadata only; it never starts the declared command. Invalid manifests fail discovery as a whole instead of silently loading a partial set.
 
 Example manifest:
 
