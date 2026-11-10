@@ -106,6 +106,14 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All stimuli are signals.", UtteranceKind.Assertion, "forall(x, implies(stimulus(x), signal(x)))")]
     [InlineData("All vertebrae are bones.", UtteranceKind.Assertion, "forall(x, implies(vertebra(x), bone(x)))")]
     [InlineData("All vertices are points.", UtteranceKind.Assertion, "forall(x, implies(vertex(x), point(x)))")]
+    [InlineData("Every cactus is a plant.", UtteranceKind.Assertion, "forall(x, implies(cactus(x), plant(x)))")]
+    [InlineData("Every focus is a point.", UtteranceKind.Assertion, "forall(x, implies(focus(x), point(x)))")]
+    [InlineData("Every fungus is an organism.", UtteranceKind.Assertion, "forall(x, implies(fungus(x), organism(x)))")]
+    [InlineData("Every locus is a position.", UtteranceKind.Assertion, "forall(x, implies(locus(x), position(x)))")]
+    [InlineData("Every nucleus is a structure.", UtteranceKind.Assertion, "forall(x, implies(nucleus(x), structure(x)))")]
+    [InlineData("Every radius is a measurement.", UtteranceKind.Assertion, "forall(x, implies(radius(x), measurement(x)))")]
+    [InlineData("Every stimulus is a signal.", UtteranceKind.Assertion, "forall(x, implies(stimulus(x), signal(x)))")]
+    [InlineData("Every syllabus is a document.", UtteranceKind.Assertion, "forall(x, implies(syllabus(x), document(x)))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
