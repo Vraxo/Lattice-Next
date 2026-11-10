@@ -223,14 +223,32 @@ public sealed class NegativeRelationalPremiseTests
 
         var knowledgeBase = new KnowledgeBase();
         AddParsed(knowledgeBase, milkRule.Utterance!);
+
+        var storedMilkRule = Assert.Single(knowledgeBase.Rules);
+        Assert.Equal("milk", GetNegativeRelationalObject(storedMilkRule));
+
+        Assert.True(UniversalRuleFactory.TryCreate(
+            waterRule.Utterance!.Meaning,
+            waterRule.Utterance.SourceText,
+            KnowledgeSourceKind.UserAssertion,
+            null,
+            out var waterCandidate,
+            out _));
+        Assert.Equal("water", GetNegativeRelationalObject(waterCandidate));
+
         AddParsed(knowledgeBase, waterRule.Utterance!);
+
+        var storedRuleDetails = string.Join(
+            Environment.NewLine,
+            knowledgeBase.Rules.Select(rule =>
+                $"object={GetNegativeRelationalObject(rule)}; sources={string.Join(" | ", rule.Sources.Select(source => source.SourceText))}"));
+
+        Assert.Equal(2, knowledgeBase.Rules.Count, storedRuleDetails);
+
         AddParsed(knowledgeBase, milkRule.Utterance!);
 
-        Assert.Equal(2, knowledgeBase.Rules.Count);
         var milkRuleInKnowledgeBase = knowledgeBase.Rules.Single(rule =>
-            rule.NegativeRelationalPremises.Length == 1 &&
-            rule.NegativeRelationalPremises[0].Arguments[1] is IndividualTerm individual &&
-            individual.Identifier.Value == "milk");
+            GetNegativeRelationalObject(rule) == "milk");
         Assert.Equal(2, milkRuleInKnowledgeBase.Sources.Length);
     }
 
@@ -255,6 +273,10 @@ public sealed class NegativeRelationalPremiseTests
         Assert.True(result.IsSuccess, result.Error);
         return result.Utterance!;
     }
+
+    private static string GetNegativeRelationalObject(UniversalRule rule) =>
+        Assert.IsType<IndividualTerm>(
+            Assert.Single(rule.NegativeRelationalPremises).Arguments[1]).Identifier.Value;
 
     private static void AddParsed(KnowledgeBase knowledgeBase, SemanticUtterance utterance)
     {
