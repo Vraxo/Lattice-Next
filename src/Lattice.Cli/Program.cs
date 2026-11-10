@@ -652,10 +652,18 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
     AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]›[/] Yes.");
     AnsiConsole.MarkupLine("[dim]Because:[/]");
 
-    foreach (var statement in GetProofStatements(answer.Proof!))
+    for (var index = 0; index < answer.Proofs.Length; index++)
     {
-        AnsiConsole.Markup("[dim]  • [/]");
-        AnsiConsole.WriteLine(statement);
+        if (index > 0)
+        {
+            AnsiConsole.MarkupLine("[dim]Another independent proof:[/]");
+        }
+
+        foreach (var statement in GetProofStatements(answer.Proofs[index]))
+        {
+            AnsiConsole.Markup("[dim]  • [/]");
+            AnsiConsole.WriteLine(statement);
+        }
     }
 }
 
