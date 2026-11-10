@@ -5,6 +5,64 @@ namespace Lattice.Core.Language;
 
 internal static class NativeEnglishQuantifierParser
 {
+    internal static bool TryParseUniversalQuestion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length < 4)
+        {
+            return false;
+        }
+
+        var pluralSubject = EnglishGrammarTokens.Is(tokens[0], "Are") &&
+            EnglishGrammarTokens.Is(tokens[1], "all");
+        var singularSubject = EnglishGrammarTokens.Is(tokens[0], "Is") &&
+            (EnglishGrammarTokens.Is(tokens[1], "Every") ||
+             EnglishGrammarTokens.Is(tokens[1], "Each"));
+
+        if (!pluralSubject && !singularSubject)
+        {
+            return false;
+        }
+
+        var expectPluralHead = pluralSubject;
+
+        for (var conclusionStart = Math.Max(3, tokens.Length - 2);
+             conclusionStart < tokens.Length;
+             conclusionStart++)
+        {
+            if (!EnglishDescriptionParser.TryParseDescription(
+                    tokens,
+                    2,
+                    conclusionStart,
+                    expectPluralHead,
+                    out var description) ||
+                !TryParseClassPredicate(
+                    tokens,
+                    conclusionStart,
+                    tokens.Length,
+                    out var conclusionPredicate))
+            {
+                continue;
+            }
+
+            var variable = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
+            var meaning = new UniversalQuantification(
+                variable,
+                new Implication(
+                    description!.ToUniversalConditions(variable),
+                    EnglishSemanticFactory.Predicate(conclusionPredicate!, variable)));
+
+            utterance = new SemanticUtterance(UtteranceKind.Question, meaning, sourceText);
+            return true;
+        }
+
+        return false;
+    }
+
     internal static bool TryParseExistenceQuestion(
         string[] tokens,
         string sourceText,
