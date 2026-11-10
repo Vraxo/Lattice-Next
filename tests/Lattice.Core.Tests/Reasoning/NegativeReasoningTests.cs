@@ -1,5 +1,6 @@
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
+using AwesomeAssertions;
 using Xunit;
 using static Lattice.Core.Tests.Reasoning.ReasoningTestSupport;
 
@@ -16,27 +17,27 @@ public sealed class NegativeReasoningTests
 
         Add(knowledgeBase, "Fido is a dog.");
         var supported = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
-        Assert.Equal(TruthValue.True, supported.TruthValue);
+        supported.TruthValue.Should().Be(TruthValue.True);
 
         Add(knowledgeBase, "Fido is not a dog.");
         var contradictory = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
-        Assert.Equal(TruthValue.Both, contradictory.TruthValue);
-        Assert.Single(contradictory.Proofs);
-        Assert.Single(contradictory.ContradictingProofs);
-        Assert.Equal(EvidencePolarity.Positive, contradictory.Proof!.Polarity);
-        Assert.Equal(EvidencePolarity.Negative, contradictory.ContradictingProofs[0].Polarity);
+        contradictory.TruthValue.Should().Be(TruthValue.Both);
+        contradictory.Proofs.Should().ContainSingle().Which;
+        contradictory.ContradictingProofs.Should().ContainSingle().Which;
+        contradictory.Proof!.Polarity.Should().Be(EvidencePolarity.Positive);
+        contradictory.ContradictingProofs[0].Polarity.Should().Be(EvidencePolarity.Negative);
 
         var unknown = engine.Ask(knowledgeBase, ParseQuestion("Is Rex a dog?"));
-        Assert.Equal(TruthValue.Unknown, unknown.TruthValue);
+        unknown.TruthValue.Should().Be(TruthValue.Unknown);
 
         var negativeOnlyKnowledge = new KnowledgeBase();
         Add(negativeOnlyKnowledge, "Fido is not a dog.");
         var explicitlyFalse = engine.Ask(
             negativeOnlyKnowledge,
             ParseQuestion("Is Fido a dog?"));
-        Assert.Equal(TruthValue.False, explicitlyFalse.TruthValue);
-        Assert.Null(explicitlyFalse.Proof);
-        Assert.Single(explicitlyFalse.ContradictingProofs);
+        explicitlyFalse.TruthValue.Should().Be(TruthValue.False);
+        explicitlyFalse.Proof.Should().BeNull();
+        explicitlyFalse.ContradictingProofs.Should().ContainSingle().Which;
     }
 
     [Fact]
@@ -49,9 +50,9 @@ public sealed class NegativeReasoningTests
             knowledgeBase,
             ParseNegatedQuestion("Is Fido not a dog?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal(EvidencePolarity.Negative, result.Proof!.Polarity);
-        Assert.Equal("Fido is not a dog.", result.Proof.SourceText);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.Polarity.Should().Be(EvidencePolarity.Negative);
+        result.Proof.SourceText.Should().Be("Fido is not a dog.");
     }
 
     [Fact]
@@ -65,9 +66,9 @@ public sealed class NegativeReasoningTests
             knowledgeBase,
             ParseNegatedQuestion("Is Fido not a dog?"));
 
-        Assert.Equal(TruthValue.Both, result.TruthValue);
-        Assert.Equal(EvidencePolarity.Negative, result.Proof!.Polarity);
-        Assert.Equal(EvidencePolarity.Positive, Assert.Single(result.ContradictingProofs).Polarity);
+        result.TruthValue.Should().Be(TruthValue.Both);
+        result.Proof!.Polarity.Should().Be(EvidencePolarity.Negative);
+        result.ContradictingProofs.Should().ContainSingle().Which.Polarity.Should().Be(EvidencePolarity.Positive);
     }
 
     [Fact]
@@ -81,8 +82,8 @@ public sealed class NegativeReasoningTests
             knowledgeBase,
             ParseQuestion("Is Fido an animal?"));
 
-        Assert.Equal(TruthValue.Unknown, result.TruthValue);
-        Assert.Empty(result.ContradictingProofs);
+        result.TruthValue.Should().Be(TruthValue.Unknown);
+        result.ContradictingProofs.Should().BeEmpty();
     }
 
     [Fact]
@@ -97,8 +98,8 @@ public sealed class NegativeReasoningTests
             knowledgeBase,
             ParseQuestion("Is Fido an animal?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal("Every dog is an animal.", result.Proof!.SourceText);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.SourceText.Should().Be("Every dog is an animal.");
     }
 
     [Fact]
@@ -114,7 +115,7 @@ public sealed class NegativeReasoningTests
             knowledgeBase,
             ParseQuestion("Is Fido happy?"));
 
-        Assert.Equal(TruthValue.Unknown, unrelated.TruthValue);
+        unrelated.TruthValue.Should().Be(TruthValue.Unknown);
     }
 
     [Fact]
@@ -124,10 +125,10 @@ public sealed class NegativeReasoningTests
         Add(knowledgeBase, "Fido is a dog.");
         Add(knowledgeBase, "Fido is not a dog.");
 
-        Assert.Equal(2, knowledgeBase.Facts.Count);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        knowledgeBase.Facts.Count.Should().Be(2);
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Polarity == EvidencePolarity.Positive);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Polarity == EvidencePolarity.Negative);
     }
 
@@ -141,15 +142,13 @@ public sealed class NegativeReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal(
-            "Every dog that is not a cat is friendly.",
-            result.Proof!.SourceText);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.SourceText.Should().Be("Every dog that is not a cat is friendly.");
 
-        var negativePremise = Assert.Single(result.Proof.AdditionalPremises);
-        Assert.Equal("Every dog is not a cat.", negativePremise.SourceText);
-        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
-        Assert.Equal("Fido is a dog.", negativePremise.Premise!.SourceText);
+        var negativePremise = result.Proof.AdditionalPremises.Should().ContainSingle().Which;
+        negativePremise.SourceText.Should().Be("Every dog is not a cat.");
+        negativePremise.Polarity.Should().Be(EvidencePolarity.Negative);
+        negativePremise.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -162,16 +161,14 @@ public sealed class NegativeReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a wolf?"));
 
-        Assert.Equal(TruthValue.False, result.TruthValue);
-        var negativeWolf = Assert.Single(result.ContradictingProofs);
-        Assert.Equal(
-            "Every dog that is not a cat is not a wolf.",
-            negativeWolf.SourceText);
+        result.TruthValue.Should().Be(TruthValue.False);
+        var negativeWolf = result.ContradictingProofs.Should().ContainSingle().Which;
+        negativeWolf.SourceText.Should().Be("Every dog that is not a cat is not a wolf.");
 
-        var negativeCat = Assert.Single(negativeWolf.AdditionalPremises);
-        Assert.Equal("Every dog is not a cat.", negativeCat.SourceText);
-        Assert.Equal(EvidencePolarity.Negative, negativeCat.Polarity);
-        Assert.Equal("Fido is a dog.", negativeCat.Premise!.SourceText);
+        var negativeCat = negativeWolf.AdditionalPremises.Should().ContainSingle().Which;
+        negativeCat.SourceText.Should().Be("Every dog is not a cat.");
+        negativeCat.Polarity.Should().Be(EvidencePolarity.Negative);
+        negativeCat.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -185,10 +182,10 @@ public sealed class NegativeReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
 
-        Assert.Equal(TruthValue.False, result.TruthValue);
-        var negativeCat = Assert.Single(result.ContradictingProofs);
-        Assert.Equal("Every dog is not a cat.", negativeCat.SourceText);
-        Assert.Equal("Fido is a dog.", negativeCat.Premise!.SourceText);
+        result.TruthValue.Should().Be(TruthValue.False);
+        var negativeCat = result.ContradictingProofs.Should().ContainSingle().Which;
+        negativeCat.SourceText.Should().Be("Every dog is not a cat.");
+        negativeCat.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -201,9 +198,9 @@ public sealed class NegativeReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
 
-        Assert.Equal(TruthValue.Both, result.TruthValue);
-        Assert.Equal("Fido is a cat.", result.Proof!.SourceText);
-        Assert.Equal("Every dog is not a cat.", Assert.Single(result.ContradictingProofs).SourceText);
+        result.TruthValue.Should().Be(TruthValue.Both);
+        result.Proof!.SourceText.Should().Be("Fido is a cat.");
+        result.ContradictingProofs.Should().ContainSingle().Which.SourceText.Should().Be("Every dog is not a cat.");
     }
 
     [Fact]
@@ -214,18 +211,18 @@ public sealed class NegativeReasoningTests
         Add(knowledgeBase, "Fido is a dog.");
         Add(knowledgeBase, "Fido is not a cat.");
 
-        var rule = Assert.Single(knowledgeBase.Rules);
-        Assert.Equal("dog", Assert.Single(rule.Premises).Predicate.Value);
-        Assert.Equal("cat", Assert.Single(rule.NegativePremises).Predicate.Value);
+        var rule = knowledgeBase.Rules.Should().ContainSingle().Which;
+        rule.Premises.Should().ContainSingle().Which.Predicate.Value.Should().Be("dog");
+        rule.NegativePremises.Should().ContainSingle().Which.Predicate.Value.Should().Be("cat");
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal("Every dog that is not a cat is friendly.", result.Proof!.SourceText);
-        Assert.Equal("Fido is a dog.", result.Proof.Premise!.SourceText);
-        var negativePremise = Assert.Single(result.Proof.AdditionalPremises);
-        Assert.Equal("Fido is not a cat.", negativePremise.SourceText);
-        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.SourceText.Should().Be("Every dog that is not a cat is friendly.");
+        result.Proof.Premise!.SourceText.Should().Be("Fido is a dog.");
+        var negativePremise = result.Proof.AdditionalPremises.Should().ContainSingle().Which;
+        negativePremise.SourceText.Should().Be("Fido is not a cat.");
+        negativePremise.Polarity.Should().Be(EvidencePolarity.Negative);
     }
 
     [Fact]
@@ -236,12 +233,12 @@ public sealed class NegativeReasoningTests
         Add(knowledgeBase, "Fido is a dog.");
 
         var unknown = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
-        Assert.Equal(TruthValue.Unknown, unknown.TruthValue);
+        unknown.TruthValue.Should().Be(TruthValue.Unknown);
 
         Add(knowledgeBase, "Fido is a cat.");
 
         var positiveOnly = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
-        Assert.Equal(TruthValue.Unknown, positiveOnly.TruthValue);
+        positiveOnly.TruthValue.Should().Be(TruthValue.Unknown);
     }
 
     [Fact]
@@ -255,12 +252,12 @@ public sealed class NegativeReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal("Fido is not a cat.", Assert.Single(result.Proof!.AdditionalPremises).SourceText);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.AdditionalPremises.Should().ContainSingle().Which.SourceText.Should().Be("Fido is not a cat.");
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "cat" &&
             fact.Polarity == EvidencePolarity.Positive);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "cat" &&
             fact.Polarity == EvidencePolarity.Negative);
     }
@@ -276,7 +273,7 @@ public sealed class NegativeReasoningTests
         var negativeCat = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
         var animal = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
 
-        Assert.Equal(TruthValue.False, negativeCat.TruthValue);
-        Assert.Equal(TruthValue.Unknown, animal.TruthValue);
+        negativeCat.TruthValue.Should().Be(TruthValue.False);
+        animal.TruthValue.Should().Be(TruthValue.Unknown);
     }
 }
