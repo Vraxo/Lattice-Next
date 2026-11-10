@@ -71,6 +71,7 @@ internal static class EnglishDescriptionParser
             if (index < end && EnglishGrammarTokens.Is(tokens[index], "not"))
             {
                 if (!allowNegatedRelativePredicates ||
+                    negativeRelativePredicates.Count > 0 ||
                     !TryParseRelativeNegatedPredicate(
                         tokens,
                         ref index,

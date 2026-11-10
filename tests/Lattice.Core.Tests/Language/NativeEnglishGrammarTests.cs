@@ -28,7 +28,7 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Every dog that is red likes milk.", UtteranceKind.Assertion, "forall(x, implies(and(red(x), dog(x)), likes(x, milk)))")]
     [InlineData("Every dog that is not a cat is friendly.", UtteranceKind.Assertion, "forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))")]
     [InlineData("All dogs that are not cats are friendly.", UtteranceKind.Assertion, "forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))")]
-    [InlineData("Every dog that is not happy is dangerous.", UtteranceKind.Assertion, "forall(x, implies(and(dog(x), not(happy(x))), dangerous(x)))")
+    [InlineData("Every dog that is not happy is dangerous.", UtteranceKind.Assertion, "forall(x, implies(and(dog(x), not(happy(x))), dangerous(x)))")]
     [InlineData("The ball that is red is shiny.", UtteranceKind.Assertion, "shiny(red-ball)")]
     [InlineData("Fido likes the ball that is red.", UtteranceKind.Assertion, "likes(fido, red-ball)")]
     [InlineData("Milk is liked by it.", UtteranceKind.Assertion, "likes(it, milk)")]

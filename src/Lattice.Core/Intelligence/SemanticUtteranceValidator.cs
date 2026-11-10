@@ -185,6 +185,10 @@ public sealed class SemanticUtteranceValidator
                 conjuncts = ImmutableArray.Create<SemanticFormula>(predicate);
                 return true;
 
+            case Negation { Formula: PredicateApplication }:
+                conjuncts = ImmutableArray.Create(formula);
+                return true;
+
             case Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty:
                 conjuncts = conjunction.Conjuncts;
                 return true;
