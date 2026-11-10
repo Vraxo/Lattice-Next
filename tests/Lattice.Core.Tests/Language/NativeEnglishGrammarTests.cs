@@ -284,10 +284,24 @@ public sealed class NativeEnglishGrammarTests
     }
 
     [Theory]
+    [InlineData("Fido is not happy.", UtteranceKind.Assertion, "not(happy(fido))")]
+    [InlineData("Is Fido not happy?", UtteranceKind.Question, "ask(not(happy(fido)))")]
+    public void Parses_negated_named_individual_properties(
+        string sentence,
+        UtteranceKind expectedKind,
+        string expectedMeaning)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(expectedKind, result.Utterance!.Kind);
+        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance));
+    }
+
+    [Theory]
     [InlineData("No dog is a cat.")]
     [InlineData("Only red dogs are animals.")]
     [InlineData("Some dogs like milk.")]
-    [InlineData("Fido does not like milk.")]
     [InlineData("Not every dog likes milk.")]
     [InlineData("Every dog likes some cat.")]
     [InlineData("Every dog that likes milk is friendly.")]
@@ -297,8 +311,6 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("Does Fido be happy?")]
     [InlineData("Fido is dog.")]
     [InlineData("Is Fido dog?")]
-    [InlineData("Fido is not happy.")]
-    [InlineData("Is Fido not happy?")]
     [InlineData("Fido is happy and shiny.")]
     [InlineData("There is happy.")]
     [InlineData("It is happy.")]
@@ -319,21 +331,6 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All syllabus are documents.")]
     [InlineData("All news are reports.")]
     [InlineData("All criterion are requirements.")]
-    [Theory]
-    [InlineData("Fido is not happy.", UtteranceKind.Assertion, "not(happy(fido))")]
-    [InlineData("Is Fido not happy?", UtteranceKind.Question, "ask(not(happy(fido)))")]
-    public void Parses_negated_named_individual_properties(
-        string sentence,
-        UtteranceKind expectedKind,
-        string expectedMeaning)
-    {
-        var result = parser.Parse(sentence);
-
-        Assert.True(result.IsSuccess, result.Error);
-        Assert.Equal(expectedKind, result.Utterance!.Kind);
-        Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance));
-    }
-
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);

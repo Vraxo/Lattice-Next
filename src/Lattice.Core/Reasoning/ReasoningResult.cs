@@ -22,7 +22,7 @@ public sealed record ReasoningResult(ProofNode? Proof)
             (false, false) => Lattice.Core.Reasoning.TruthStatus.Both,
             (false, true) => Lattice.Core.Reasoning.TruthStatus.True,
             (true, false) => Lattice.Core.Reasoning.TruthStatus.False,
-            _ => TruthStatus.Neither
+            _ => Lattice.Core.Reasoning.TruthStatus.Neither
         };
 
     public bool IsSupported => !Proofs.IsEmpty;
