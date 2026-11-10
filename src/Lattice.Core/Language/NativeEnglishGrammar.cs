@@ -22,6 +22,60 @@ internal static class NativeEnglishGrammar
         "to", "of", "class", "count", "as", "and"
     };
 
+    private static readonly Dictionary<string, string> ExplicitPluralNounForms = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["analyses"] = "analysis",
+        ["bases"] = "basis",
+        ["cases"] = "case",
+        ["children"] = "child",
+        ["courses"] = "course",
+        ["crises"] = "crisis",
+        ["diagnoses"] = "diagnosis",
+        ["diseases"] = "disease",
+        ["emphases"] = "emphasis",
+        ["feet"] = "foot",
+        ["horses"] = "horse",
+        ["houses"] = "house",
+        ["geese"] = "goose",
+        ["knives"] = "knife",
+        ["leaves"] = "leaf",
+        ["lice"] = "louse",
+        ["lives"] = "life",
+        ["men"] = "man",
+        ["mice"] = "mouse",
+        ["noises"] = "noise",
+        ["noses"] = "nose",
+        ["nurses"] = "nurse",
+        ["oxen"] = "ox",
+        ["oases"] = "oasis",
+        ["parentheses"] = "parenthesis",
+        ["pauses"] = "pause",
+        ["people"] = "person",
+        ["phases"] = "phase",
+        ["phrases"] = "phrase",
+        ["promises"] = "promise",
+        ["spouses"] = "spouse",
+        ["teeth"] = "tooth",
+        ["theses"] = "thesis",
+        ["thieves"] = "thief",
+        ["universes"] = "universe",
+        ["wives"] = "wife",
+        ["women"] = "woman",
+        ["wolves"] = "wolf"
+    };
+
+    private static readonly HashSet<string> InvariantNouns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "deer", "fish", "series", "sheep", "species"
+    };
+
+    private static readonly HashSet<string> SingularNounsEndingInS = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "analysis", "basis", "bonus", "bus", "campus", "crisis", "diagnosis",
+        "emphasis", "gas", "hypothesis", "lens", "octopus", "oasis", "parenthesis",
+        "status", "thesis", "virus"
+    };
+
     private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
     {
         ["liked"] = "like",
@@ -349,7 +403,7 @@ internal static class NativeEnglishGrammar
                 if (index >= end ||
                     Is(tokens[index], "that") ||
                     Is(tokens[index], "and") ||
-                    IsPlural(tokens[index]))
+                    IsPluralHead(tokens[index]))
                 {
                     return false;
                 }
@@ -384,7 +438,7 @@ internal static class NativeEnglishGrammar
 
         if (expectPluralHead)
         {
-            if (!IsPlural(head))
+            if (!IsPluralHead(head))
             {
                 return false;
             }
@@ -430,7 +484,7 @@ internal static class NativeEnglishGrammar
             if (index >= end ||
                 Is(tokens[index], "that") ||
                 !IsLowerWord(tokens[index]) ||
-                IsPlural(tokens[index]) ||
+                IsPluralHead(tokens[index]) ||
                 ReservedIndividualTerms.Contains(tokens[index]))
             {
                 return false;
@@ -457,7 +511,7 @@ internal static class NativeEnglishGrammar
             !Is(tokens[3], "the") ||
             !Is(tokens[4], "class") ||
             !Is(tokens[5], "of") ||
-            !IsPlural(tokens[6]))
+            !IsPluralHead(tokens[6]))
         {
             return false;
         }
@@ -887,6 +941,16 @@ internal static class NativeEnglishGrammar
     {
         var normalized = noun.ToLowerInvariant();
 
+        if (InvariantNouns.Contains(normalized))
+        {
+            return normalized;
+        }
+
+        if (ExplicitPluralNounForms.TryGetValue(normalized, out var irregularSingular))
+        {
+            return irregularSingular;
+        }
+
         if (normalized.Length > 3 && normalized.EndsWith("ies", StringComparison.Ordinal))
         {
             return $"{normalized[..^3]}y";
@@ -910,9 +974,16 @@ internal static class NativeEnglishGrammar
 
     private static bool IsPlural(string word) =>
         IsLowerWord(word) &&
-        word.Length > 1 &&
-        word.EndsWith("s", StringComparison.Ordinal) &&
-        !word.EndsWith("ss", StringComparison.Ordinal);
+        !InvariantNouns.Contains(word) &&
+        !SingularNounsEndingInS.Contains(word) &&
+        (ExplicitPluralNounForms.ContainsKey(word) ||
+         (word.Length > 1 &&
+          word.EndsWith("s", StringComparison.Ordinal) &&
+          !word.EndsWith("ss", StringComparison.Ordinal)));
+
+    private static bool IsPluralHead(string word) =>
+        IsLowerWord(word) &&
+        (InvariantNouns.Contains(word) || IsPlural(word));
 
     private static bool IsThirdPersonVerb(string word) =>
         IsLowerWord(word) &&
