@@ -6,7 +6,7 @@ namespace Lattice.Core.Language;
 /// Compositional English grammar for the native language parser.
 /// Sentences are mapped directly to semantic formulas; no LCE text is generated.
 /// </summary>
-internal static partial class NativeEnglishGrammar
+internal static class NativeEnglishGrammar
 {
     public static bool TryParse(
         string source,
@@ -15,52 +15,26 @@ internal static partial class NativeEnglishGrammar
     {
         utterance = null;
 
-        if (!TryReadTokens(source, out var tokens, out var terminal))
+        if (!EnglishGrammarTokens.TryReadSentence(source, out var tokens, out var terminal))
         {
             return false;
         }
 
         if (terminal == '?')
         {
-            return TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
-                TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
-                TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
-                TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
-                TryParseActiveRelationQuestion(tokens, sourceText, out utterance);
+            return NativeEnglishQuantifierParser.TryParseExistenceQuestion(tokens, sourceText, out utterance) ||
+                NativeEnglishQuantifierParser.TryParseClassMembershipQuestion(tokens, sourceText, out utterance) ||
+                NativeEnglishPropertyParser.TryParseDefinitePropertyQuestion(tokens, sourceText, out utterance) ||
+                NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: true, out utterance) ||
+                NativeEnglishRelationParser.TryParseActiveRelationQuestion(tokens, sourceText, out utterance);
         }
 
-        return TryParseExistentialAssertion(tokens, sourceText, out utterance) ||
-            TryParseQuantifiedRule(tokens, sourceText, out utterance) ||
-            TryParseClassMembershipAssertion(tokens, sourceText, out utterance) ||
-            TryParsePassiveSomethingAssertion(tokens, sourceText, out utterance) ||
-            TryParsePassiveRelation(tokens, sourceText, isQuestion: false, out utterance) ||
-            TryParseDefinitePropertyAssertion(tokens, sourceText, out utterance) ||
-            TryParseActiveRelationAssertion(tokens, sourceText, out utterance);
+        return NativeEnglishQuantifierParser.TryParseExistentialAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishQuantifierParser.TryParseQuantifiedRule(tokens, sourceText, out utterance) ||
+            NativeEnglishQuantifierParser.TryParseClassMembershipAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishRelationParser.TryParsePassiveSomethingAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: false, out utterance) ||
+            NativeEnglishPropertyParser.TryParseDefinitePropertyAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishRelationParser.TryParseActiveRelationAssertion(tokens, sourceText, out utterance);
     }
-
-    private static bool TryReadTokens(
-        string source,
-        out string[] tokens,
-        out char terminal)
-    {
-        tokens = [];
-        terminal = '\0';
-
-        if (source.Length < 2 || source[^1] is not ('.' or '?'))
-        {
-            return false;
-        }
-
-        terminal = source[^1];
-        var body = source[..^1].Trim();
-
-        if (body.Length == 0)
-        {
-            return false;
-        }
-
-        tokens = body.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        return tokens.Length > 0 && tokens.All(IsWord);
-    }
-
 }

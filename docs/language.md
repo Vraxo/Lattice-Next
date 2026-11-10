@@ -132,6 +132,8 @@ Inputs outside this grammar are rejected with an explicit sentence number where 
 
 The public `LceParser` entry point accepts both LCE 0.9 and a growing, deterministic subset of ordinary English. This is part of the native language parser, not a translator or preprocessing stage: recognized sentences are mapped directly into the existing semantic formulas. No intermediate LCE sentence is generated.
 
+The native-English entry point is a small dispatcher. Separate internal components own quantifier constructions, noun descriptions, relational constructions, and definite-description properties. Shared helpers own token validation, morphology, and semantic formula construction. The sentence parsers depend on these shared helpers and on the noun-description parser where needed; shared helpers do not depend back on sentence parsers. This keeps each grammar responsibility independently navigable without relying on partial classes.
+
 The grammar is built from reusable phrase structures. One description parser recognizes a head noun, preceding modifiers (including `and`-coordinated adjectives), and zero or more restrictive `that is/are + adjective` clauses. A relative clause may coordinate adjectives with `and`; it does not accept an unmarked sequence of adjectives. The same parsed description is then used in different grammatical positions:
 
 - As the subject conditions of universal rules.

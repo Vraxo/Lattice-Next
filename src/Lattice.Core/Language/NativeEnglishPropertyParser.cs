@@ -2,9 +2,9 @@ using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class NativeEnglishPropertyParser
 {
-    private static bool TryParseDefinitePropertyAssertion(
+    internal static bool TryParseDefinitePropertyAssertion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -13,8 +13,8 @@ internal static partial class NativeEnglishGrammar
 
         for (var copulaIndex = 2; copulaIndex < tokens.Length - 1; copulaIndex++)
         {
-            if (!Is(tokens[copulaIndex], "is") ||
-                !TryCreateDefiniteDescription(tokens, 0, copulaIndex, out var description) ||
+            if (!EnglishGrammarTokens.Is(tokens[copulaIndex], "is") ||
+                !EnglishDescriptionParser.TryCreateDefiniteDescription(tokens, 0, copulaIndex, out var description) ||
                 !TryParseSingleProperty(tokens, copulaIndex + 1, tokens.Length, out var property))
             {
                 continue;
@@ -22,7 +22,7 @@ internal static partial class NativeEnglishGrammar
 
             utterance = new SemanticUtterance(
                 UtteranceKind.Assertion,
-                Predicate(property!, description!),
+                EnglishSemanticFactory.Predicate(property!, description!),
                 sourceText);
             return true;
         }
@@ -30,24 +30,24 @@ internal static partial class NativeEnglishGrammar
         return false;
     }
 
-    private static bool TryParseDefinitePropertyQuestion(
+    internal static bool TryParseDefinitePropertyQuestion(
         string[] tokens,
         string sourceText,
         out SemanticUtterance? utterance)
     {
         utterance = null;
 
-        if (tokens.Length < 4 || !Is(tokens[0], "Is") ||
-            !TryCreateDefiniteDescription(tokens, 1, tokens.Length - 2, out var description) ||
-            !IsLowerWord(tokens[^1]) ||
-            ReservedIndividualTerms.Contains(tokens[^1]))
+        if (tokens.Length < 4 || !EnglishGrammarTokens.Is(tokens[0], "Is") ||
+            !EnglishDescriptionParser.TryCreateDefiniteDescription(tokens, 1, tokens.Length - 2, out var description) ||
+            !EnglishGrammarTokens.IsLowerWord(tokens[^1]) ||
+            EnglishGrammarTokens.IsReservedIndividualTerm(tokens[^1]))
         {
             return false;
         }
 
         utterance = new SemanticUtterance(
             UtteranceKind.Question,
-            Predicate(tokens[^1], description!),
+            EnglishSemanticFactory.Predicate(tokens[^1], description!),
             sourceText);
         return true;
     }
@@ -61,18 +61,18 @@ internal static partial class NativeEnglishGrammar
         property = null;
 
         if (end - start == 1 &&
-            IsLowerWord(tokens[start]) &&
-            !ReservedIndividualTerms.Contains(tokens[start]))
+            EnglishGrammarTokens.IsLowerWord(tokens[start]) &&
+            !EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start]))
         {
             property = tokens[start].ToLowerInvariant();
             return true;
         }
 
         if (end - start == 2 &&
-            IsArticle(tokens[start]) &&
-            IsLowerWord(tokens[start + 1]) &&
-            !ReservedIndividualTerms.Contains(tokens[start + 1]) &&
-            !IsPlural(tokens[start + 1]))
+            EnglishGrammarTokens.IsArticle(tokens[start]) &&
+            EnglishGrammarTokens.IsLowerWord(tokens[start + 1]) &&
+            !EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start + 1]) &&
+            !EnglishMorphology.IsPlural(tokens[start + 1]))
         {
             property = tokens[start + 1].ToLowerInvariant();
             return true;

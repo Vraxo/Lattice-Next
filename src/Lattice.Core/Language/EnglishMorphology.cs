@@ -1,6 +1,6 @@
 namespace Lattice.Core.Language;
 
-internal static partial class NativeEnglishGrammar
+internal static class EnglishMorphology
 {
     private static readonly Dictionary<string, string> ExplicitPluralNounForms = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -56,7 +56,7 @@ internal static partial class NativeEnglishGrammar
         "status", "thesis", "virus"
     };
 
-    private static string InflectThirdPersonSingular(string verb)
+    internal static string InflectThirdPersonSingular(string verb)
     {
         var normalized = verb.ToLowerInvariant();
 
@@ -91,7 +91,7 @@ internal static partial class NativeEnglishGrammar
         return $"{normalized}s";
     }
 
-    private static string Singularize(string noun)
+    internal static string Singularize(string noun)
     {
         var normalized = noun.ToLowerInvariant();
 
@@ -126,8 +126,8 @@ internal static partial class NativeEnglishGrammar
             : normalized;
     }
 
-    private static bool IsPlural(string word) =>
-        IsLowerWord(word) &&
+    internal static bool IsPlural(string word) =>
+        EnglishGrammarTokens.IsLowerWord(word) &&
         !InvariantNouns.Contains(word) &&
         !SingularNounsEndingInS.Contains(word) &&
         (ExplicitPluralNounForms.ContainsKey(word) ||
@@ -135,14 +135,14 @@ internal static partial class NativeEnglishGrammar
           word.EndsWith("s", StringComparison.Ordinal) &&
           !word.EndsWith("ss", StringComparison.Ordinal)));
 
-    private static bool IsPluralHead(string word) =>
-        IsLowerWord(word) &&
+    internal static bool IsPluralHead(string word) =>
+        EnglishGrammarTokens.IsLowerWord(word) &&
         (InvariantNouns.Contains(word) || IsPlural(word));
 
-    private static bool IsThirdPersonVerb(string word) =>
-        IsLowerWord(word) &&
+    internal static bool IsThirdPersonVerb(string word) =>
+        EnglishGrammarTokens.IsLowerWord(word) &&
         word.Length > 1 &&
         word.EndsWith("s", StringComparison.Ordinal) &&
-        !Is(word, "is");
+        !EnglishGrammarTokens.Is(word, "is");
 
 }
