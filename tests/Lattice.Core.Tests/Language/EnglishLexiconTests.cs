@@ -101,9 +101,13 @@ public sealed class EnglishLexiconTests
     [Fact]
     public void Requires_singular_plural_exceptions_to_be_classified_as_singular()
     {
-        var json = ValidDocument.Replace(
-            "\"irregularPluralNouns\": { \"criteria\": \"criterion\" }",
-            "\"irregularPluralNouns\": { \"analyses\": \"analysis\" }");
+        var json = ValidDocument
+            .Replace(
+                "\"irregularPluralNouns\": { \"criteria\": \"criterion\" }",
+                "\"irregularPluralNouns\": { \"analyses\": \"analysis\" }")
+            .Replace(
+                "\"singularNounsEndingInS\": [\"analysis\"]",
+                "\"singularNounsEndingInS\": [\"basis\"]");
 
         AssertInvalid(json);
     }
