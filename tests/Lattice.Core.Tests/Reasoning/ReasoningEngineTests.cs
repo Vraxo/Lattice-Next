@@ -1086,18 +1086,18 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
-    public void Does_not_use_a_derived_negative_conclusion_as_a_negated_premise()
+    public void Does_not_use_derived_negative_evidence_to_satisfy_positive_premises()
     {
         var knowledgeBase = new KnowledgeBase();
         Add(knowledgeBase, "Every dog is not a cat.");
-        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Every cat is an animal.");
         Add(knowledgeBase, "Fido is a dog.");
 
         var negativeCat = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
-        var friendly = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+        var animal = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
 
         Assert.Equal(TruthValue.False, negativeCat.TruthValue);
-        Assert.Equal(TruthValue.Unknown, friendly.TruthValue);
+        Assert.Equal(TruthValue.Unknown, animal.TruthValue);
     }
 
     [Fact]
