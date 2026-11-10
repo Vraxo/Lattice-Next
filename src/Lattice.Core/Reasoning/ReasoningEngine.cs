@@ -27,7 +27,7 @@ public sealed class ReasoningEngine
                 .Where(fact =>
                     fact.Polarity == EvidencePolarity.Positive &&
                     ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
-                .Select(CreateAssertedProof)
+                .Select(ProofOperations.CreateAssertedProof)
                 .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
                     ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
         }
@@ -44,7 +44,7 @@ public sealed class ReasoningEngine
                 .Where(fact =>
                     fact.Polarity == EvidencePolarity.Positive &&
                     ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
-                .Select(CreateAssertedProof);
+                .Select(ProofOperations.CreateAssertedProof);
         }
 
         var negativeDerivedProofs = query.Arguments.Length switch
@@ -57,7 +57,7 @@ public sealed class ReasoningEngine
             .Where(fact =>
                 fact.Polarity == EvidencePolarity.Negative &&
                 ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
-            .Select(CreateAssertedProof)
+            .Select(ProofOperations.CreateAssertedProof)
             .Concat(negativeDerivedProofs.Where(candidate =>
                 ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
 

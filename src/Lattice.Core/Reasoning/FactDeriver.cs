@@ -23,26 +23,26 @@ internal static class FactDeriver
 
         foreach (var fact in knowledgeBase.Facts)
         {
-            if (!TryGetFactKey(fact.Predicate, out _))
+            if (!ProofOperations.TryGetFactKey(fact.Predicate, out _))
             {
                 continue;
             }
 
-            var proof = CreateAssertedProof(fact);
+            var proof = ProofOperations.CreateAssertedProof(fact);
 
             if (fact.Polarity == EvidencePolarity.Positive)
             {
-                TryAddProof(positiveFacts, positiveProofsByFact, proof);
+                ProofOperations.TryAddProof(positiveFacts, positiveProofsByFact, proof);
             }
             else
             {
-                TryAddProof(negativeFacts, negativeProofsByFact, proof);
+                ProofOperations.TryAddProof(negativeFacts, negativeProofsByFact, proof);
             }
         }
 
         var relationalFacts = knowledgeBase.Facts
             .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
-            .Select(CreateAssertedProof).ToArray();
+            .Select(ProofOperations.CreateAssertedProof).ToArray();
 
         bool added;
 
@@ -62,7 +62,7 @@ internal static class FactDeriver
 
                 foreach (var individual in candidateIndividuals)
                 {
-                    var combinations = GetRulePremiseCombinations(
+                    var combinations = RulePremiseMatcher.GetRulePremiseCombinations(
                         rule,
                         individual,
                         positiveFacts,
@@ -71,10 +71,10 @@ internal static class FactDeriver
 
                     foreach (var premises in combinations)
                     {
-                        var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, individual);
+                        var conclusion = ProofOperations.CreateGroundPredicate(rule.Conclusion.Predicate, individual);
 
-                        if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                            premises.Any(premise => ContainsFact(
+                        if (!ProofOperations.TryGetFactKey(conclusion, out var conclusionKey) ||
+                            premises.Any(premise => ProofOperations.ContainsFact(
                                 premise,
                                 conclusionKey,
                                 rule.ConclusionPolarity)))
@@ -96,8 +96,8 @@ internal static class FactDeriver
                         };
 
                         var proofAdded = rule.ConclusionPolarity == EvidencePolarity.Positive
-                            ? TryAddProof(positiveFacts, positiveProofsByFact, proof)
-                            : TryAddProof(negativeFacts, negativeProofsByFact, proof);
+                            ? ProofOperations.TryAddProof(positiveFacts, positiveProofsByFact, proof)
+                            : ProofOperations.TryAddProof(negativeFacts, negativeProofsByFact, proof);
 
                         if (proofAdded)
                         {
@@ -119,7 +119,7 @@ internal static class FactDeriver
         var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
         var relationalEvidence = knowledgeBase.Facts
             .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
-            .Select(CreateAssertedProof).ToArray();
+            .Select(ProofOperations.CreateAssertedProof).ToArray();
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
@@ -139,7 +139,7 @@ internal static class FactDeriver
 
             foreach (var individual in candidateIndividuals)
             {
-                var combinations = GetRulePremiseCombinations(
+                var combinations = RulePremiseMatcher.GetRulePremiseCombinations(
                     rule,
                     individual,
                     positiveFacts,
@@ -152,7 +152,7 @@ internal static class FactDeriver
                         rule.Conclusion.Predicate,
                         ImmutableArray.Create<SemanticTerm>(individual, objectTerm));
 
-                    AddUniqueProof(
+                    ProofOperations.AddUniqueProof(
                         relationalProofs,
                         new ProofNode(
                             conclusion,
@@ -178,7 +178,7 @@ internal static class FactDeriver
         IReadOnlyList<ProofNode> negativeFacts) =>
         positiveFacts
             .Concat(negativeFacts)
-            .Select(proof => TryGetFactKey(proof.Predicate, out var key) ? key.Individual : null)
+            .Select(proof => ProofOperations.TryGetFactKey(proof.Predicate, out var key) ? key.Individual : null)
             .OfType<SemanticTerm>()
             .Distinct()
             .ToArray();

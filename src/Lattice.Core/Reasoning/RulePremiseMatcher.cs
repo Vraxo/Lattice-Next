@@ -71,7 +71,7 @@ internal static class RulePremiseMatcher
         {
             var matchingProofs = knownFacts
                 .Where(proof =>
-                    TryGetFactKey(proof.Predicate, out var key) &&
+                    ProofOperations.TryGetFactKey(proof.Predicate, out var key) &&
                     string.Equals(
                         key.Predicate,
                         requiredPremise.Predicate.Value,
