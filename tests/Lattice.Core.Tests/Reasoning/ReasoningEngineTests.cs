@@ -917,19 +917,85 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
-    public void Derives_negative_unary_conclusions_without_using_them_as_premises()
+    public void Uses_a_derived_negative_conclusion_as_a_premise_for_a_later_positive_rule()
     {
         var knowledgeBase = new KnowledgeBase();
         Add(knowledgeBase, "Every dog is not a cat.");
-        Add(knowledgeBase, "Every cat is an animal.");
+        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
         Add(knowledgeBase, "Fido is a dog.");
 
-        var catResult = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
-        var animalResult = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
 
-        Assert.Equal(TruthValue.False, catResult.TruthValue);
-        Assert.Equal("Every dog is not a cat.", Assert.Single(catResult.ContradictingProofs).SourceText);
-        Assert.Equal(TruthValue.Unknown, animalResult.TruthValue);
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal(
+            "Every dog that is not a cat is friendly.",
+            result.Proof!.SourceText);
+
+        var negativePremise = Assert.Single(result.Proof.AdditionalPremises);
+        Assert.Equal("Every dog is not a cat.", negativePremise.SourceText);
+        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
+        Assert.Equal("Fido is a dog.", negativePremise.Premise!.SourceText);
+    }
+
+    [Fact]
+    public void Uses_a_derived_negative_conclusion_as_a_premise_for_a_later_negative_rule()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Every dog that is not a cat is not a wolf.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a wolf?"));
+
+        Assert.Equal(TruthValue.False, result.TruthValue);
+        var negativeWolf = Assert.Single(result.ContradictingProofs);
+        Assert.Equal(
+            "Every dog that is not a cat is not a wolf.",
+            negativeWolf.SourceText);
+
+        var negativeCat = Assert.Single(negativeWolf.AdditionalPremises);
+        Assert.Equal("Every dog is not a cat.", negativeCat.SourceText);
+        Assert.Equal(EvidencePolarity.Negative, negativeCat.Polarity);
+        Assert.Equal("Fido is a dog.", negativeCat.Premise!.SourceText);
+    }
+
+    [Fact]
+    public void Does_not_create_circular_proofs_when_negative_rules_form_a_cycle()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Every dog that is not a cat is not a wolf.");
+        Add(knowledgeBase, "Every dog that is not a wolf is not a cat.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
+
+        Assert.Equal(TruthValue.False, result.TruthValue);
+        var negativeCat = Assert.Single(result.ContradictingProofs);
+        Assert.Equal("Every dog is not a cat.", negativeCat.SourceText);
+        Assert.Equal("Fido is a dog.", negativeCat.Premise!.SourceText);
+    }
+
+    [Fact]
+    public void Uses_a_derived_negative_premise_for_a_fixed_object_relational_conclusion()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Every dog that is not a cat does not like milk.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
+
+        Assert.Equal(TruthValue.False, result.TruthValue);
+        var negativeRelation = Assert.Single(result.ContradictingProofs);
+        Assert.Equal(
+            "Every dog that is not a cat does not like milk.",
+            negativeRelation.SourceText);
+
+        var negativePremise = Assert.Single(negativeRelation.AdditionalPremises);
+        Assert.Equal("Every dog is not a cat.", negativePremise.SourceText);
+        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
+        Assert.Equal("Fido is a dog.", negativePremise.Premise!.SourceText);
     }
 
     [Fact]
@@ -1020,18 +1086,18 @@ public sealed class ReasoningEngineTests
     }
 
     [Fact]
-    public void Does_not_use_a_derived_negative_conclusion_as_a_negated_premise()
+    public void Does_not_use_derived_negative_evidence_to_satisfy_positive_premises()
     {
         var knowledgeBase = new KnowledgeBase();
         Add(knowledgeBase, "Every dog is not a cat.");
-        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Every cat is an animal.");
         Add(knowledgeBase, "Fido is a dog.");
 
         var negativeCat = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
-        var friendly = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+        var animal = engine.Ask(knowledgeBase, ParseQuestion("Is Fido an animal?"));
 
         Assert.Equal(TruthValue.False, negativeCat.TruthValue);
-        Assert.Equal(TruthValue.Unknown, friendly.TruthValue);
+        Assert.Equal(TruthValue.Unknown, animal.TruthValue);
     }
 
     [Fact]
