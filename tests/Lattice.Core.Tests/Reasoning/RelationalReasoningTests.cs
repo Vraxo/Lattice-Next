@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Lattice.Core.Language;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
+using AwesomeAssertions;
 using Xunit;
 using static Lattice.Core.Tests.Reasoning.ReasoningTestSupport;
 
@@ -19,12 +20,12 @@ public sealed class RelationalReasoningTests
         Add(kb, "Fido is a dog.");
         Add(kb, "Fido likes milk.");
         var result = engine.Ask(kb, ParseQuestion("Is Fido friendly?"));
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal("Every dog that likes milk is friendly.", result.Proof!.SourceText);
-        Assert.Equal("Fido is a dog.", result.Proof.Premise!.SourceText);
-        var relation = Assert.Single(result.Proof.AdditionalPremises);
-        Assert.Equal("likes", relation.Predicate.Predicate.Value);
-        Assert.Equal("Fido likes milk.", relation.SourceText);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.SourceText.Should().Be("Every dog that likes milk is friendly.");
+        result.Proof.Premise!.SourceText.Should().Be("Fido is a dog.");
+        var relation = result.Proof.AdditionalPremises.Should().ContainSingle().Which;
+        relation.Predicate.Predicate.Value.Should().Be("likes");
+        relation.SourceText.Should().Be("Fido likes milk.");
     }
 
     [Fact]
@@ -33,9 +34,9 @@ public sealed class RelationalReasoningTests
         var kb = new KnowledgeBase();
         Add(kb, "Every dog that likes milk is friendly.");
         Add(kb, "Fido is a dog.");
-        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+        engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue.Should().Be(TruthValue.Unknown);
         Add(kb, "Fido does not like milk.");
-        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+        engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue.Should().Be(TruthValue.Unknown);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public sealed class RelationalReasoningTests
         Add(kb, "Every dog that likes milk is friendly.");
         Add(kb, "Fido is a dog.");
         Add(kb, "Rex likes milk.");
-        Assert.Equal(TruthValue.Unknown, engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue);
+        engine.Ask(kb, ParseQuestion("Is Fido friendly?")).TruthValue.Should().Be(TruthValue.Unknown);
     }
 
     [Fact]
@@ -59,18 +60,18 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like milk?"));
 
-        Assert.True(result.IsSupported);
-        var proof = Assert.IsType<ProofNode>(result.Proof);
-        Assert.Equal("likes", proof.Predicate.Predicate.Value);
-        Assert.Equal("Every dog likes milk.", proof.SourceText);
-        Assert.Equal(ProofNodeKind.Derived, proof.Kind);
-        Assert.Equal("fido", Assert.IsType<IndividualTerm>(proof.Predicate.Arguments[0]).Identifier.Value);
-        Assert.Equal("milk", Assert.IsType<IndividualTerm>(proof.Predicate.Arguments[1]).Identifier.Value);
+        result.IsSupported.Should().BeTrue();
+        var proof = result.Proof.Should().BeOfType<ProofNode>().Which;
+        proof.Predicate.Predicate.Value.Should().Be("likes");
+        proof.SourceText.Should().Be("Every dog likes milk.");
+        proof.Kind.Should().Be(ProofNodeKind.Derived);
+        proof.Predicate.Arguments[0].Should().BeOfType<IndividualTerm>().Which.Identifier.Value.Should().Be("fido");
+        proof.Predicate.Arguments[1].Should().BeOfType<IndividualTerm>().Which.Identifier.Value.Should().Be("milk");
 
-        var premise = Assert.IsType<ProofNode>(proof.Premise);
-        Assert.Equal("Fido is a dog.", premise.SourceText);
-        Assert.Equal("dog", premise.Predicate.Predicate.Value);
-        Assert.Equal(ProofNodeKind.Asserted, premise.Kind);
+        var premise = proof.Premise.Should().BeOfType<ProofNode>().Which;
+        premise.SourceText.Should().Be("Fido is a dog.");
+        premise.Predicate.Predicate.Value.Should().Be("dog");
+        premise.Kind.Should().Be(ProofNodeKind.Asserted);
     }
 
     [Fact]
@@ -85,18 +86,18 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does the red dog like milk?"));
 
-        Assert.True(supported.IsSupported);
-        Assert.Equal("Every red dog likes milk.", supported.Proof!.SourceText);
-        Assert.Equal("red", supported.Proof.Premise!.Predicate.Predicate.Value);
-        Assert.Equal(1, supported.Proof.AdditionalPremises.Length);
-        Assert.Equal("dog", supported.Proof.AdditionalPremises[0].Predicate.Predicate.Value);
+        supported.IsSupported.Should().BeTrue();
+        supported.Proof!.SourceText.Should().Be("Every red dog likes milk.");
+        supported.Proof.Premise!.Predicate.Predicate.Value.Should().Be("red");
+        supported.Proof.AdditionalPremises.Length.Should().Be(1);
+        supported.Proof.AdditionalPremises[0].Predicate.Predicate.Value.Should().Be("dog");
 
         var unsupported = engine.Ask(
             knowledgeBase,
             ParseQuestion("Does the blue dog like milk?"));
 
-        Assert.False(unsupported.IsSupported);
-        Assert.Null(unsupported.Proof);
+        unsupported.IsSupported.Should().BeFalse();
+        unsupported.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -113,10 +114,10 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like water?"));
 
-        Assert.False(unmatchedSubject.IsSupported);
-        Assert.Null(unmatchedSubject.Proof);
-        Assert.False(unmatchedObject.IsSupported);
-        Assert.Null(unmatchedObject.Proof);
+        unmatchedSubject.IsSupported.Should().BeFalse();
+        unmatchedSubject.Proof.Should().BeNull();
+        unmatchedObject.IsSupported.Should().BeFalse();
+        unmatchedObject.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -125,8 +126,8 @@ public sealed class RelationalReasoningTests
         var parsed = new LceParser().ParseText(
             "Every dog likes milk. Fido is a dog. Does Fido like milk?");
 
-        Assert.True(parsed.IsSuccess, parsed.Error);
-        Assert.Equal(3, parsed.Utterances.Length);
+        parsed.IsSuccess.Should().BeTrue(parsed.Error);
+        parsed.Utterances.Length.Should().Be(3);
 
         var knowledgeBase = new KnowledgeBase();
         ReasoningResult? answer = null;
@@ -139,18 +140,18 @@ public sealed class RelationalReasoningTests
                     utterance,
                     out _,
                     out var error);
-                Assert.True(accepted, error);
+                accepted.Should().BeTrue(error);
                 continue;
             }
 
-            var query = Assert.IsType<PredicateApplication>(utterance.Meaning);
+            var query = utterance.Meaning.Should().BeOfType<PredicateApplication>().Which;
             answer = engine.Ask(knowledgeBase, query);
         }
 
-        Assert.NotNull(answer);
-        Assert.True(answer.IsSupported);
-        Assert.Equal("Every dog likes milk.", answer.Proof!.SourceText);
-        Assert.Equal("Fido is a dog.", answer.Proof.Premise!.SourceText);
+        answer.Should().NotBeNull();
+        answer.IsSupported.Should().BeTrue();
+        answer.Proof!.SourceText.Should().Be("Every dog likes milk.");
+        answer.Proof.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -165,10 +166,10 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like milk?"));
 
-        Assert.True(result.IsSupported);
-        Assert.Equal("Every animal likes milk.", result.Proof!.SourceText);
-        Assert.Equal("Every dog is an animal.", result.Proof.Premise!.SourceText);
-        Assert.Equal("Fido is a dog.", result.Proof.Premise.Premise!.SourceText);
+        result.IsSupported.Should().BeTrue();
+        result.Proof!.SourceText.Should().Be("Every animal likes milk.");
+        result.Proof.Premise!.SourceText.Should().Be("Every dog is an animal.");
+        result.Proof.Premise.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -176,20 +177,14 @@ public sealed class RelationalReasoningTests
     {
         var knowledgeBase = new KnowledgeBase();
 
-        Assert.Equal(
-            KnowledgeEntryKind.Rule,
-            Add(knowledgeBase, "Every dog likes milk."));
+        Add(knowledgeBase, "Every dog likes milk.").Should().Be(KnowledgeEntryKind.Rule);
 
-        var rule = Assert.Single(knowledgeBase.Rules);
-        Assert.Equal("dog", Assert.Single(rule.Premises).Predicate.Value);
-        Assert.Equal("likes", rule.Conclusion.Predicate.Value);
-        Assert.Equal(2, rule.Conclusion.Arguments.Length);
-        Assert.Equal(
-            "x",
-            Assert.IsType<VariableTerm>(rule.Conclusion.Arguments[0]).Identifier.Value);
-        Assert.Equal(
-            "milk",
-            Assert.IsType<IndividualTerm>(rule.Conclusion.Arguments[1]).Identifier.Value);
+        var rule = knowledgeBase.Rules.Should().ContainSingle().Which;
+        rule.Premises.Should().ContainSingle().Which.Predicate.Value.Should().Be("dog");
+        rule.Conclusion.Predicate.Value.Should().Be("likes");
+        rule.Conclusion.Arguments.Length.Should().Be(2);
+        rule.Conclusion.Arguments[0].Should().BeOfType<VariableTerm>().Which.Identifier.Value.Should().Be("x");
+        rule.Conclusion.Arguments[1].Should().BeOfType<IndividualTerm>().Which.Identifier.Value.Should().Be("milk");
     }
 
     [Fact]
@@ -197,20 +192,16 @@ public sealed class RelationalReasoningTests
     {
         var knowledgeBase = new KnowledgeBase();
 
-        Assert.Equal(
-            KnowledgeEntryKind.Rule,
-            Add(knowledgeBase, "Every dog likes the red ball."));
+        Add(knowledgeBase, "Every dog likes the red ball.").Should().Be(KnowledgeEntryKind.Rule);
 
-        var rule = Assert.Single(knowledgeBase.Rules);
-        Assert.Equal(
-            "red-ball",
-            Assert.IsType<IndividualTerm>(rule.Conclusion.Arguments[1]).Identifier.Value);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        var rule = knowledgeBase.Rules.Should().ContainSingle().Which;
+        rule.Conclusion.Arguments[1].Should().BeOfType<IndividualTerm>().Which.Identifier.Value.Should().Be("red-ball");
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "ball" &&
-            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
-        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<IndividualTerm>().Which.Identifier.Value == "red-ball");
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "red" &&
-            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+            fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<IndividualTerm>().Which.Identifier.Value == "red-ball");
     }
 
     [Fact]
@@ -237,8 +228,8 @@ public sealed class RelationalReasoningTests
             out _,
             out var error);
 
-        Assert.False(accepted);
-        Assert.NotNull(error);
+        accepted.Should().BeFalse();
+        error.Should().NotBeNull();
     }
 
     [Fact]
@@ -251,25 +242,25 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like milk?"));
 
-        Assert.True(result.IsSupported);
-        Assert.Equal("Fido likes milk.", result.Proof!.SourceText);
-        Assert.Equal("likes", result.Proof.Predicate.Predicate.Value);
-        Assert.Equal(2, result.Proof.Predicate.Arguments.Length);
-        Assert.Null(result.Proof.Premise);
+        result.IsSupported.Should().BeTrue();
+        result.Proof!.SourceText.Should().Be("Fido likes milk.");
+        result.Proof.Predicate.Predicate.Value.Should().Be("likes");
+        result.Proof.Predicate.Arguments.Length.Should().Be(2);
+        result.Proof.Premise.Should().BeNull();
 
         var differentObject = engine.Ask(
             knowledgeBase,
             ParseQuestion("Does Fido like water?"));
 
-        Assert.False(differentObject.IsSupported);
-        Assert.Null(differentObject.Proof);
+        differentObject.IsSupported.Should().BeFalse();
+        differentObject.Proof.Should().BeNull();
 
         var differentSubject = engine.Ask(
             knowledgeBase,
             ParseQuestion("Does Rex like milk?"));
 
-        Assert.False(differentSubject.IsSupported);
-        Assert.Null(differentSubject.Proof);
+        differentSubject.IsSupported.Should().BeFalse();
+        differentSubject.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -282,10 +273,10 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like the red ball?"));
 
-        Assert.True(result.IsSupported);
-        Assert.Equal("Fido likes the red ball.", result.Proof!.SourceText);
-        Assert.Equal("likes(fido, red-ball)", SemanticFormatter.Format(
-            new SemanticUtterance(UtteranceKind.Assertion, result.Proof.Predicate, result.Proof.SourceText)));
+        result.IsSupported.Should().BeTrue();
+        result.Proof!.SourceText.Should().Be("Fido likes the red ball.");
+        SemanticFormatter.Format(
+            new SemanticUtterance(UtteranceKind.Assertion, result.Proof.Predicate, result.Proof.SourceText)).Should().Be("likes(fido, red-ball)");
     }
 
     [Fact]
@@ -295,16 +286,16 @@ public sealed class RelationalReasoningTests
         Add(knowledgeBase, "Every ball is a toy.");
         Add(knowledgeBase, "The red ball is shiny.");
 
-        Assert.Equal(3, knowledgeBase.Facts.Count);
-        Assert.Contains(knowledgeBase.Facts, fact =>
+        knowledgeBase.Facts.Count.Should().Be(3);
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "shiny" &&
-            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
-        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<IndividualTerm>().Which.Identifier.Value == "red-ball");
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "ball" &&
-            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
-        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<IndividualTerm>().Which.Identifier.Value == "red-ball");
+        knowledgeBase.Facts.Should().Contain(fact =>
             fact.Predicate.Predicate.Value == "red" &&
-            Assert.IsType<IndividualTerm>(Assert.Single(fact.Predicate.Arguments)).Identifier.Value == "red-ball");
+            fact.Predicate.Arguments.Should().ContainSingle().Which.Should().BeOfType<IndividualTerm>().Which.Identifier.Value == "red-ball");
 
         var headQuestion = engine.Ask(
             knowledgeBase,
@@ -316,15 +307,15 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Is the red ball a toy?"));
 
-        Assert.True(headQuestion.IsSupported);
-        Assert.Equal("The red ball is shiny.", headQuestion.Proof!.SourceText);
-        Assert.True(modifierQuestion.IsSupported);
-        Assert.Equal("The red ball is shiny.", modifierQuestion.Proof!.SourceText);
+        headQuestion.IsSupported.Should().BeTrue();
+        headQuestion.Proof!.SourceText.Should().Be("The red ball is shiny.");
+        modifierQuestion.IsSupported.Should().BeTrue();
+        modifierQuestion.Proof!.SourceText.Should().Be("The red ball is shiny.");
 
-        Assert.True(inferredQuestion.IsSupported);
-        Assert.Equal("Every ball is a toy.", inferredQuestion.Proof!.SourceText);
-        Assert.Equal("ball", inferredQuestion.Proof.Premise!.Predicate.Predicate.Value);
-        Assert.Equal("The red ball is shiny.", inferredQuestion.Proof.Premise.SourceText);
+        inferredQuestion.IsSupported.Should().BeTrue();
+        inferredQuestion.Proof!.SourceText.Should().Be("Every ball is a toy.");
+        inferredQuestion.Proof.Premise!.Predicate.Predicate.Value.Should().Be("ball");
+        inferredQuestion.Proof.Premise.SourceText.Should().Be("The red ball is shiny.");
     }
 
     [Fact]
@@ -337,8 +328,8 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Is the blue ball red?"));
 
-        Assert.False(result.IsSupported);
-        Assert.Null(result.Proof);
+        result.IsSupported.Should().BeFalse();
+        result.Proof.Should().BeNull();
     }
 
     [Fact]
@@ -346,11 +337,11 @@ public sealed class RelationalReasoningTests
     {
         var knowledgeBase = new KnowledgeBase();
 
-        Assert.Equal(KnowledgeEntryKind.Fact, Add(knowledgeBase, "Fido likes milk."));
-        Assert.Equal(KnowledgeEntryKind.Fact, Add(knowledgeBase, "Fido likes milk."));
+        Add(knowledgeBase, "Fido likes milk.").Should().Be(KnowledgeEntryKind.Fact);
+        Add(knowledgeBase, "Fido likes milk.").Should().Be(KnowledgeEntryKind.Fact);
 
-        var fact = Assert.Single(knowledgeBase.Facts);
-        Assert.Equal("Fido likes milk.", fact.SourceText);
+        var fact = knowledgeBase.Facts.Should().ContainSingle().Which;
+        fact.SourceText.Should().Be("Fido likes milk.");
     }
 
     [Fact]
@@ -369,12 +360,12 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like water?"));
 
-        Assert.Equal(TruthValue.False, positiveQuery.TruthValue);
-        Assert.Null(positiveQuery.Proof);
-        Assert.Equal("Fido does not like milk.", Assert.Single(positiveQuery.ContradictingProofs).SourceText);
-        Assert.Equal(TruthValue.True, negativeQuery.TruthValue);
-        Assert.Equal(EvidencePolarity.Negative, negativeQuery.Proof!.Polarity);
-        Assert.Equal(TruthValue.Unknown, differentObject.TruthValue);
+        positiveQuery.TruthValue.Should().Be(TruthValue.False);
+        positiveQuery.Proof.Should().BeNull();
+        positiveQuery.ContradictingProofs.Should().ContainSingle().Which.SourceText.Should().Be("Fido does not like milk.");
+        negativeQuery.TruthValue.Should().Be(TruthValue.True);
+        negativeQuery.Proof!.Polarity.Should().Be(EvidencePolarity.Negative);
+        differentObject.TruthValue.Should().Be(TruthValue.Unknown);
     }
 
     [Fact]
@@ -388,10 +379,10 @@ public sealed class RelationalReasoningTests
             knowledgeBase,
             ParseQuestion("Does Fido like milk?"));
 
-        Assert.Equal(TruthValue.Both, result.TruthValue);
-        Assert.Equal("Fido likes milk.", result.Proof!.SourceText);
-        Assert.Equal("Fido does not like milk.", Assert.Single(result.ContradictingProofs).SourceText);
-        Assert.Equal(2, knowledgeBase.Facts.Count);
+        result.TruthValue.Should().Be(TruthValue.Both);
+        result.Proof!.SourceText.Should().Be("Fido likes milk.");
+        result.ContradictingProofs.Should().ContainSingle().Which.SourceText.Should().Be("Fido does not like milk.");
+        knowledgeBase.Facts.Count.Should().Be(2);
     }
 
     [Fact]
@@ -404,16 +395,14 @@ public sealed class RelationalReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
 
-        Assert.Equal(TruthValue.False, result.TruthValue);
-        var negativeRelation = Assert.Single(result.ContradictingProofs);
-        Assert.Equal(
-            "Every dog that is not a cat does not like milk.",
-            negativeRelation.SourceText);
+        result.TruthValue.Should().Be(TruthValue.False);
+        var negativeRelation = result.ContradictingProofs.Should().ContainSingle().Which;
+        negativeRelation.SourceText.Should().Be("Every dog that is not a cat does not like milk.");
 
-        var negativePremise = Assert.Single(negativeRelation.AdditionalPremises);
-        Assert.Equal("Every dog is not a cat.", negativePremise.SourceText);
-        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
-        Assert.Equal("Fido is a dog.", negativePremise.Premise!.SourceText);
+        var negativePremise = negativeRelation.AdditionalPremises.Should().ContainSingle().Which;
+        negativePremise.SourceText.Should().Be("Every dog is not a cat.");
+        negativePremise.Polarity.Should().Be(EvidencePolarity.Negative);
+        negativePremise.Premise!.SourceText.Should().Be("Fido is a dog.");
     }
 
     [Fact]
@@ -425,8 +414,8 @@ public sealed class RelationalReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
 
-        Assert.Equal(TruthValue.False, result.TruthValue);
-        Assert.Equal("Every dog does not like milk.", Assert.Single(result.ContradictingProofs).SourceText);
+        result.TruthValue.Should().Be(TruthValue.False);
+        result.ContradictingProofs.Should().ContainSingle().Which.SourceText.Should().Be("Every dog does not like milk.");
     }
 
     [Fact]
@@ -439,8 +428,8 @@ public sealed class RelationalReasoningTests
 
         var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
 
-        Assert.Equal(TruthValue.True, result.TruthValue);
-        Assert.Equal("Every dog that is not a cat likes milk.", result.Proof!.SourceText);
-        Assert.Equal("Fido is not a cat.", result.Proof.AdditionalPremises.Single().SourceText);
+        result.TruthValue.Should().Be(TruthValue.True);
+        result.Proof!.SourceText.Should().Be("Every dog that is not a cat likes milk.");
+        result.Proof.AdditionalPremises.Single().SourceText.Should().Be("Fido is not a cat.");
     }
 }
