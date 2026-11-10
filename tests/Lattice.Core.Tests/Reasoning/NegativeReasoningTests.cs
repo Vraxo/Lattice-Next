@@ -372,49 +372,6 @@ public sealed class NegativeReasoningTests
         Assert.Equal("Fido is not a cat.", result.Proof.AdditionalPremises.Single().SourceText);
     }
 
-    private static ExistentialQuantification ParseExistentialQuestion(string sentence)
-    {
-        var utterance = Parse(sentence);
-        Assert.Equal(UtteranceKind.Question, utterance.Kind);
-        return Assert.IsType<ExistentialQuantification>(utterance.Meaning);
-    }
-
-    private static KnowledgeEntryKind Add(
-        KnowledgeBase knowledgeBase,
-        string sentence)
-    {
-        var accepted = knowledgeBase.TryAdd(
-            Parse(sentence),
-            out var kind,
-            out var error);
-
-        Assert.True(accepted, error);
-        return kind;
-    }
-
-    private static Negation ParseNegatedQuestion(string sentence)
-    {
-        var utterance = Parse(sentence);
-        Assert.Equal(UtteranceKind.Question, utterance.Kind);
-        return Assert.IsType<Negation>(utterance.Meaning);
-    }
-
-    private static PredicateApplication ParseQuestion(string sentence)
-    {
-        var utterance = Parse(sentence);
-        Assert.Equal(UtteranceKind.Question, utterance.Kind);
-        return Assert.IsType<PredicateApplication>(utterance.Meaning);
-    }
-
-    private static SemanticUtterance Parse(string sentence)
-    {
-        var result = new LceParser().Parse(sentence);
-        Assert.True(result.IsSuccess, result.Error);
-        return Assert.IsType<SemanticUtterance>(result.Utterance);
-    }
-}
-
-
     private static Negation ParseNegatedQuestion(string sentence)
     {
         var utterance = Parse(sentence);
