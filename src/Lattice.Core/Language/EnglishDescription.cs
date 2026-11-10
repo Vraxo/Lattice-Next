@@ -9,7 +9,8 @@ namespace Lattice.Core.Language;
 internal sealed record EnglishDescription(
     string Head,
     ImmutableArray<string> Modifiers,
-    ImmutableArray<string> RelativeProperties)
+    ImmutableArray<string> RelativeProperties,
+    ImmutableArray<string> NegativeRelativePredicates)
 {
     public SemanticFormula ToUniversalConditions(VariableTerm variable)
     {
@@ -20,6 +21,14 @@ internal sealed record EnglishDescription(
                 new SemanticIdentifier(modifier),
                 ImmutableArray.Create<SemanticTerm>(variable)))
             .ToImmutableArray();
+
+        var negativePredicates = NegativeRelativePredicates
+            .Select(predicate => (SemanticFormula)new Negation(new PredicateApplication(
+                new SemanticIdentifier(predicate),
+                ImmutableArray.Create<SemanticTerm>(variable))))
+            .ToImmutableArray();
+
+        predicates = predicates.AddRange(negativePredicates);
 
         return predicates.Length == 1
             ? predicates[0]

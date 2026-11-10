@@ -8,7 +8,7 @@ The current engine accepts three kinds of asserted input:
 
 - **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Definite descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
 - **Existential assertion:** a quantified formula containing one or more unary conditions, such as `exists(x, and(red(x), ball(x), shiny(x)))`. When stored, its conditions are attached to one fresh `AnonymousIndividualTerm`.
-- **Universal rule:** one universally quantified implication with one or more unary premises and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
+- **Universal rule:** one universally quantified implication with one or more unary premises (positive predicates or explicitly negated predicates) and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a rule with an explicit negative condition is `forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
 
 A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
@@ -134,7 +134,7 @@ Positive and negative ground assertions are stored independently with their own 
 
 A negated question reverses which side counts as supporting the question, but preserves the same underlying evidence. The CLI displays supporting and opposing proof paths separately. A contradiction is not treated as a reason to discard either side.
 
-This is a paraconsistent evidence policy for the current slice: negative facts do not satisfy positive rule premises, and a contradiction does not cause unrelated conclusions to follow. Universal rules may derive either positive or explicitly negative conclusions from positive premises. Negative conclusions are kept separate from positive closure and never satisfy positive premises. Negated premises, closed-world reasoning, and broader logical negation remain unsupported. In particular, **Unknown is not False**, and the absence of a positive fact never creates negative evidence.
+This is a paraconsistent evidence policy for the current slice: negative facts do not satisfy positive rule premises, and a contradiction does not cause unrelated conclusions to follow. A universal rule may also require an explicit negative unary premise, such as `and(dog(x), not(cat(x))) => friendly(x)`. Positive premises are matched against the positive forward-chaining closure; negative premises are matched only against explicitly stored negative ground unary facts. A derived negative rule conclusion is deliberately not reused as a negative premise, so this slice does not perform negative-to-negative rule chaining. If both positive and negative evidence exist for a premise, the explicit negative evidence still satisfies its negated condition; the contradiction is not erased. If only positive evidence exists, or neither polarity is known, the negated condition does not match. Universal rules may derive either positive or explicitly negative conclusions from conditions supported by positive and/or explicit negative evidence. In particular, **Unknown is not False**, and the absence of a positive fact never creates negative evidence.
 
 ## Deliberate limits
 
@@ -142,7 +142,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 - relational joins, relation traversal, relational premises, or multi-variable quantified rules;
 - rules with multiple conclusions, disjunction, existential relational conditions, or nested formulas beyond a flat conjunction of unary premises;
-- negated rule premises, negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
+- negated passive relations, existential relational conditions, nested formulas beyond the supported existential slice, or equality;
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 

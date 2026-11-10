@@ -13,6 +13,8 @@ public sealed record UniversalRule(
 {
     public EvidencePolarity ConclusionPolarity { get; init; } = EvidencePolarity.Positive;
 
+    public ImmutableArray<PredicateApplication> NegativePremises { get; init; } = [];
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
             .AddRange(AdditionalSources.IsDefault

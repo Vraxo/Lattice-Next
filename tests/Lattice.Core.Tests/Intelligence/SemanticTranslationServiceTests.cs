@@ -149,6 +149,18 @@ public sealed class SemanticTranslationServiceTests
             new Implication(
                 unaryConditions,
                 Predicate("likes", variable, new IndividualTerm(Id("milk")))));
+        var negatedPremiseRule = new UniversalQuantification(
+            variable,
+            new Implication(
+                new Conjunction(ImmutableArray.Create<SemanticFormula>(
+                    Predicate("dog", variable),
+                    new Negation(Predicate("cat", variable)))),
+                Predicate("friendly", variable)));
+        var negativeOnlyPremiseRule = new UniversalQuantification(
+            variable,
+            new Implication(
+                new Negation(Predicate("cat", variable)),
+                Predicate("careful", variable)));
         var descriptiveObject = new DescriptiveIndividualTerm(
             Id("ball"),
             ImmutableArray.Create(Id("red")));
@@ -168,6 +180,8 @@ public sealed class SemanticTranslationServiceTests
             new SemanticTranslationCandidate(UtteranceKind.Assertion, existential),
             new SemanticTranslationCandidate(UtteranceKind.Assertion, unaryRule),
             new SemanticTranslationCandidate(UtteranceKind.Assertion, relationalRule),
+            new SemanticTranslationCandidate(UtteranceKind.Assertion, negatedPremiseRule),
+            new SemanticTranslationCandidate(UtteranceKind.Assertion, negativeOnlyPremiseRule),
             new SemanticTranslationCandidate(
                 UtteranceKind.Question,
                 Predicate("animal", reference)),

@@ -960,6 +960,95 @@ public sealed class ReasoningEngineTests
         Assert.Equal("Every dog does not like milk.", Assert.Single(result.ContradictingProofs).SourceText);
     }
 
+    [Fact]
+    public void Applies_a_rule_when_an_explicit_negative_fact_satisfies_a_premise()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a cat.");
+
+        var rule = Assert.Single(knowledgeBase.Rules);
+        Assert.Equal("dog", Assert.Single(rule.Premises).Predicate.Value);
+        Assert.Equal("cat", Assert.Single(rule.NegativePremises).Predicate.Value);
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal("Every dog that is not a cat is friendly.", result.Proof!.SourceText);
+        Assert.Equal("Fido is a dog.", result.Proof.Premise!.SourceText);
+        var negativePremise = Assert.Single(result.Proof.AdditionalPremises);
+        Assert.Equal("Fido is not a cat.", negativePremise.SourceText);
+        Assert.Equal(EvidencePolarity.Negative, negativePremise.Polarity);
+    }
+
+    [Fact]
+    public void Does_not_apply_a_negated_premise_without_explicit_negative_evidence()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var unknown = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+        Assert.Equal(TruthValue.Unknown, unknown.TruthValue);
+
+        Add(knowledgeBase, "Fido is a cat.");
+
+        var positiveOnly = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+        Assert.Equal(TruthValue.Unknown, positiveOnly.TruthValue);
+    }
+
+    [Fact]
+    public void Both_evidence_still_satisfies_a_negated_premise_without_discarding_the_contradiction()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is a cat.");
+        Add(knowledgeBase, "Fido is not a cat.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal("Fido is not a cat.", Assert.Single(result.Proof!.AdditionalPremises).SourceText);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "cat" &&
+            fact.Polarity == EvidencePolarity.Positive);
+        Assert.Contains(knowledgeBase.Facts, fact =>
+            fact.Predicate.Predicate.Value == "cat" &&
+            fact.Polarity == EvidencePolarity.Negative);
+    }
+
+    [Fact]
+    public void Does_not_use_a_derived_negative_conclusion_as_a_negated_premise()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog is not a cat.");
+        Add(knowledgeBase, "Every dog that is not a cat is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+
+        var negativeCat = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a cat?"));
+        var friendly = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.False, negativeCat.TruthValue);
+        Assert.Equal(TruthValue.Unknown, friendly.TruthValue);
+    }
+
+    [Fact]
+    public void Applies_negated_premises_to_fixed_object_relational_conclusions()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that is not a cat likes milk.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido is not a cat.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Does Fido like milk?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal("Every dog that is not a cat likes milk.", result.Proof!.SourceText);
+        Assert.Equal("Fido is not a cat.", result.Proof.AdditionalPremises.Single().SourceText);
+    }
+
     private static ExistentialQuantification ParseExistentialQuestion(string sentence)
     {
         var utterance = Parse(sentence);

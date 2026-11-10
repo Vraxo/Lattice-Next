@@ -153,6 +153,7 @@ public sealed class ReasoningEngine
                     SourceId: fact.SourceId));
         }
 
+        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
         bool added;
 
         do
@@ -162,44 +163,32 @@ public sealed class ReasoningEngine
             foreach (var rule in knowledgeBase.Rules)
             {
                 if (rule.ConclusionPolarity != EvidencePolarity.Positive ||
-                    rule.Premises.IsDefaultOrEmpty ||
+                    rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
                     continue;
                 }
 
-                var candidatePremises = knownFacts
-                    .Where(proof =>
-                        TryGetFactKey(proof.Predicate, out var key) &&
-                        string.Equals(
-                            key.Predicate,
-                            rule.Premises[0].Predicate.Value,
-                            StringComparison.Ordinal))
-                    .ToArray();
+                var candidateIndividuals = GetCandidateIndividuals(knownFacts, explicitNegativeFacts);
 
-                foreach (var candidatePremise in candidatePremises)
+                foreach (var individual in candidateIndividuals)
                 {
-                    if (!TryGetFactKey(candidatePremise.Predicate, out var candidateKey))
-                    {
-                        continue;
-                    }
+                    var combinations = GetRulePremiseCombinations(
+                        rule,
+                        individual,
+                        knownFacts,
+                        explicitNegativeFacts);
 
-                    var combinations = GetAdditionalPremiseCombinations(
-                        rule.Premises.Skip(1),
-                        candidateKey.Individual,
-                        knownFacts);
-
-                    foreach (var combination in combinations)
+                    foreach (var premises in combinations)
                     {
-                        var premises = ImmutableArray.Create(candidatePremise)
-                            .AddRange(combination);
-                        var conclusion = CreateGroundPredicate(
-                            rule.Conclusion.Predicate,
-                            candidateKey.Individual);
+                        var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, individual);
 
                         if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                            premises.Any(premise => ContainsFact(premise, conclusionKey)))
+                            premises.Any(premise => ContainsFact(
+                                premise,
+                                conclusionKey,
+                                EvidencePolarity.Positive)))
                         {
                             continue;
                         }
@@ -230,35 +219,46 @@ public sealed class ReasoningEngine
     private static List<ProofNode> DeriveNegativeUnaryFacts(KnowledgeBase knowledgeBase)
     {
         var positiveFacts = DeriveUnaryFacts(knowledgeBase);
+        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
         var negativeProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
         {
             if (rule.ConclusionPolarity != EvidencePolarity.Negative ||
-                rule.Premises.IsDefaultOrEmpty ||
+                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 1)
             {
                 continue;
             }
 
-            var candidates = positiveFacts.Where(proof =>
-                TryGetFactKey(proof.Predicate, out var key) &&
-                string.Equals(key.Predicate, rule.Premises[0].Predicate.Value, StringComparison.Ordinal)).ToArray();
+            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, explicitNegativeFacts);
 
-            foreach (var candidate in candidates)
+            foreach (var individual in candidateIndividuals)
             {
-                if (!TryGetFactKey(candidate.Predicate, out var key)) continue;
-                var combinations = GetAdditionalPremiseCombinations(rule.Premises.Skip(1), key.Individual, positiveFacts);
-                foreach (var combination in combinations)
+                var combinations = GetRulePremiseCombinations(
+                    rule,
+                    individual,
+                    positiveFacts,
+                    explicitNegativeFacts);
+
+                foreach (var premises in combinations)
                 {
-                    var premises = ImmutableArray.Create(candidate).AddRange(combination);
-                    var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, key.Individual);
+                    var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, individual);
+
                     if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                        premises.Any(premise => ContainsFact(premise, conclusionKey))) continue;
+                        premises.Any(premise => ContainsFact(
+                            premise,
+                            conclusionKey,
+                            EvidencePolarity.Negative)))
+                    {
+                        continue;
+                    }
 
                     AddUniqueProof(negativeProofs, new ProofNode(
-                        conclusion, rule.SourceText, premises[0],
+                        conclusion,
+                        rule.SourceText,
+                        premises[0],
                         AdditionalPremises: premises.Skip(1).ToImmutableArray(),
                         SourceKind: rule.SourceKind,
                         AdditionalSources: rule.AdditionalSources,
@@ -278,13 +278,14 @@ public sealed class ReasoningEngine
         KnowledgeBase knowledgeBase,
         EvidencePolarity polarity)
     {
-        var unaryFacts = DeriveUnaryFacts(knowledgeBase);
+        var positiveFacts = DeriveUnaryFacts(knowledgeBase);
+        var explicitNegativeFacts = GetExplicitNegativeUnaryFacts(knowledgeBase);
         var relationalProofs = new List<ProofNode>();
 
         foreach (var rule in knowledgeBase.Rules)
         {
             if (rule.ConclusionPolarity != polarity ||
-                rule.Premises.IsDefaultOrEmpty ||
+                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 2 ||
                 rule.Conclusion.Arguments[0] is not VariableTerm ||
@@ -294,36 +295,21 @@ public sealed class ReasoningEngine
                 continue;
             }
 
-            var candidatePremises = unaryFacts
-                .Where(proof =>
-                    TryGetFactKey(proof.Predicate, out var key) &&
-                    string.Equals(
-                        key.Predicate,
-                        rule.Premises[0].Predicate.Value,
-                        StringComparison.Ordinal))
-                .ToArray();
+            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, explicitNegativeFacts);
 
-            foreach (var candidatePremise in candidatePremises)
+            foreach (var individual in candidateIndividuals)
             {
-                if (!TryGetFactKey(candidatePremise.Predicate, out var candidateKey))
-                {
-                    continue;
-                }
+                var combinations = GetRulePremiseCombinations(
+                    rule,
+                    individual,
+                    positiveFacts,
+                    explicitNegativeFacts);
 
-                var combinations = GetAdditionalPremiseCombinations(
-                    rule.Premises.Skip(1),
-                    candidateKey.Individual,
-                    unaryFacts);
-
-                foreach (var combination in combinations)
+                foreach (var premises in combinations)
                 {
                     var conclusion = new PredicateApplication(
                         rule.Conclusion.Predicate,
-                        ImmutableArray.Create<SemanticTerm>(
-                            candidateKey.Individual,
-                            objectTerm));
-                    var premises = ImmutableArray.Create(candidatePremise)
-                        .AddRange(combination);
+                        ImmutableArray.Create<SemanticTerm>(individual, objectTerm));
 
                     AddUniqueProof(
                         relationalProofs,
@@ -344,6 +330,54 @@ public sealed class ReasoningEngine
         }
 
         return relationalProofs;
+    }
+
+    private static List<ProofNode> GetExplicitNegativeUnaryFacts(KnowledgeBase knowledgeBase) =>
+        knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Negative &&
+                TryGetFactKey(fact.Predicate, out _))
+            .Select(CreateAssertedProof)
+            .ToList();
+
+    private static SemanticTerm[] GetCandidateIndividuals(
+        IReadOnlyList<ProofNode> positiveFacts,
+        IReadOnlyList<ProofNode> negativeFacts) =>
+        positiveFacts
+            .Concat(negativeFacts)
+            .Select(proof => TryGetFactKey(proof.Predicate, out var key) ? key.Individual : null)
+            .OfType<SemanticTerm>()
+            .Distinct()
+            .ToArray();
+
+    private static List<ImmutableArray<ProofNode>> GetRulePremiseCombinations(
+        UniversalRule rule,
+        SemanticTerm individual,
+        IReadOnlyList<ProofNode> positiveFacts,
+        IReadOnlyList<ProofNode> negativeFacts)
+    {
+        var positivePremises = GetAdditionalPremiseCombinations(
+            rule.Premises,
+            individual,
+            positiveFacts);
+        var negativePremises = GetAdditionalPremiseCombinations(
+            rule.NegativePremises.IsDefault
+                ? ImmutableArray<PredicateApplication>.Empty
+                : rule.NegativePremises,
+            individual,
+            negativeFacts);
+        var combinations = new List<ImmutableArray<ProofNode>>(
+            positivePremises.Count * negativePremises.Count);
+
+        foreach (var positive in positivePremises)
+        {
+            foreach (var negative in negativePremises)
+            {
+                combinations.Add(positive.AddRange(negative));
+            }
+        }
+
+        return combinations;
     }
 
     private static List<ImmutableArray<ProofNode>> GetAdditionalPremiseCombinations(
@@ -500,22 +534,24 @@ public sealed class ReasoningEngine
 
     private static bool ContainsFact(
         ProofNode proof,
-        (string Predicate, SemanticTerm Individual) key)
+        (string Predicate, SemanticTerm Individual) key,
+        EvidencePolarity polarity)
     {
-        if (TryGetFactKey(proof.Predicate, out var proofKey) &&
+        if (proof.Polarity == polarity &&
+            TryGetFactKey(proof.Predicate, out var proofKey) &&
             proofKey == key)
         {
             return true;
         }
 
-        if (proof.Premise is not null && ContainsFact(proof.Premise, key))
+        if (proof.Premise is not null && ContainsFact(proof.Premise, key, polarity))
         {
             return true;
         }
 
         if (!proof.AdditionalPremises.IsDefaultOrEmpty)
         {
-            return proof.AdditionalPremises.Any(premise => ContainsFact(premise, key));
+            return proof.AdditionalPremises.Any(premise => ContainsFact(premise, key, polarity));
         }
 
         return false;

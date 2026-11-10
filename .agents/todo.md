@@ -40,6 +40,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Expose facts and rules through live read-only views so callers cannot bypass knowledge-base validation, deduplication, or provenance handling.
 - [x] Preserve explicit positive and negative ground evidence separately and report True, False, Both, or Unknown without allowing contradictions to trigger unrelated inferences.
 - [x] Derive explicit negative universal conclusions from positive unary premises without feeding negative conclusions back into positive inference.
+- [x] Support explicit negative unary premises in universal rules; match them only against asserted negative ground facts, not derived negative conclusions.
 - [ ] Add relation joins, traversal, multi-variable rules, and relational premises only after concrete use cases and tests exist.
 
 ## 3. Conversation and context
