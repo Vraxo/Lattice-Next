@@ -98,7 +98,8 @@ public sealed class KnowledgeBase
                 rule.ConclusionPolarity == candidateRule.ConclusionPolarity &&
                 AreSamePremises(rule.Premises, candidateRule.Premises) &&
                 AreSamePremises(rule.NegativePremises, candidateRule.NegativePremises) &&
-                AreSamePremises(rule.RelationalPremises, candidateRule.RelationalPremises) &&
+                AreSameRelationalPremises(rule.RelationalPremises, candidateRule.RelationalPremises) &&
+                AreSameRelationalPremises(rule.NegativeRelationalPremises, candidateRule.NegativeRelationalPremises) &&
                 IsSamePredicate(rule.Conclusion, candidateRule.Conclusion));
 
             if (existingRuleIndex < 0)
@@ -128,7 +129,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises, optionally one positive fixed-object relational premise, and either one unary conclusion or one binary relation to a concrete individual are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises, optionally one positive or explicitly negative fixed-object relational premise, and either one unary conclusion or one binary relation to a concrete individual are supported by the current reasoning engine.";
         return false;
     }
 
@@ -163,6 +164,46 @@ public sealed class KnowledgeBase
         !right.IsDefault &&
         left.Length == right.Length &&
         left.Zip(right).All(pair => IsSamePredicate(pair.First, pair.Second));
+
+
+    private static bool AreSameRelationalPremises(
+        ImmutableArray<PredicateApplication> left,
+        ImmutableArray<PredicateApplication> right)
+    {
+        if (left.IsDefault || right.IsDefault || left.Length != right.Length)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < left.Length; index++)
+        {
+            var leftPremise = left[index];
+            var rightPremise = right[index];
+
+            if (leftPremise.Predicate != rightPremise.Predicate ||
+                leftPremise.Arguments.IsDefault ||
+                rightPremise.Arguments.IsDefault ||
+                leftPremise.Arguments.Length != 2 ||
+                rightPremise.Arguments.Length != 2 ||
+                leftPremise.Arguments[0] is not VariableTerm leftSubject ||
+                rightPremise.Arguments[0] is not VariableTerm rightSubject ||
+                !string.Equals(
+                    leftSubject.Identifier.Value,
+                    rightSubject.Identifier.Value,
+                    StringComparison.Ordinal) ||
+                leftPremise.Arguments[1] is not IndividualTerm leftObject ||
+                rightPremise.Arguments[1] is not IndividualTerm rightObject ||
+                !string.Equals(
+                    leftObject.Identifier.Value,
+                    rightObject.Identifier.Value,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static bool IsSamePredicate(
         PredicateApplication left,

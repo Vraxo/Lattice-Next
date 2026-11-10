@@ -39,7 +39,8 @@ internal static class UniversalRuleFactory
                 variable,
                 out var premises,
                 out var negativePremises,
-                out var relationalPremises) ||
+                out var relationalPremises,
+                out var negativeRelationalPremises) ||
             !TryNormalizeUniversalConclusion(
                 ruleConclusion,
                 variable,
@@ -58,7 +59,8 @@ internal static class UniversalRuleFactory
         {
             ConclusionPolarity = rulePolarity,
             NegativePremises = negativePremises,
-            RelationalPremises = relationalPremises
+            RelationalPremises = relationalPremises,
+            NegativeRelationalPremises = negativeRelationalPremises
         };
 
         descriptionFacts = conclusionDescriptionFacts
@@ -77,11 +79,13 @@ internal static class UniversalRuleFactory
         VariableTerm variable,
         out ImmutableArray<PredicateApplication> positivePremises,
         out ImmutableArray<PredicateApplication> negativePremises,
-        out ImmutableArray<PredicateApplication> relationalPremises)
+        out ImmutableArray<PredicateApplication> relationalPremises,
+        out ImmutableArray<PredicateApplication> negativeRelationalPremises)
     {
         positivePremises = ImmutableArray<PredicateApplication>.Empty;
         negativePremises = ImmutableArray<PredicateApplication>.Empty;
         relationalPremises = ImmutableArray<PredicateApplication>.Empty;
+        negativeRelationalPremises = ImmutableArray<PredicateApplication>.Empty;
 
         var conjuncts = formula switch
         {
@@ -103,6 +107,7 @@ internal static class UniversalRuleFactory
         var positiveBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
         var negativeBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var negativeRelationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
 
         foreach (var conjunct in conjuncts)
         {
@@ -121,17 +126,18 @@ internal static class UniversalRuleFactory
                 else positiveBuilder.Add(predicate);
                 continue;
             }
-            if (!isNegative && predicate.Arguments.Length == 2 &&
+            if (predicate.Arguments.Length == 2 &&
                 predicate.Arguments[0] is VariableTerm subject && subject.Identifier == variable.Identifier &&
                 predicate.Arguments[1] is IndividualTerm objectTerm && !string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
             {
-                relationalBuilder.Add(predicate);
+                if (isNegative) negativeRelationalBuilder.Add(predicate);
+                else relationalBuilder.Add(predicate);
                 continue;
             }
             return false;
         }
 
-        if (relationalBuilder.Count > 1)
+        if (relationalBuilder.Count + negativeRelationalBuilder.Count > 1)
         {
             return false;
         }
@@ -139,6 +145,7 @@ internal static class UniversalRuleFactory
         positivePremises = positiveBuilder.ToImmutable();
         negativePremises = negativeBuilder.ToImmutable();
         relationalPremises = relationalBuilder.ToImmutable();
+        negativeRelationalPremises = negativeRelationalBuilder.ToImmutable();
         return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
     }
 
