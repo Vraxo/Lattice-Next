@@ -22,8 +22,8 @@ public sealed class NegativeReasoningTests
         Add(knowledgeBase, "Fido is not a dog.");
         var contradictory = engine.Ask(knowledgeBase, ParseQuestion("Is Fido a dog?"));
         contradictory.TruthValue.Should().Be(TruthValue.Both);
-        contradictory.Proofs.Should().ContainSingle().Which;
-        contradictory.ContradictingProofs.Should().ContainSingle().Which;
+        contradictory.Proofs.Should().ContainSingle();
+        contradictory.ContradictingProofs.Should().ContainSingle();
         contradictory.Proof!.Polarity.Should().Be(EvidencePolarity.Positive);
         contradictory.ContradictingProofs[0].Polarity.Should().Be(EvidencePolarity.Negative);
 
@@ -37,7 +37,7 @@ public sealed class NegativeReasoningTests
             ParseQuestion("Is Fido a dog?"));
         explicitlyFalse.TruthValue.Should().Be(TruthValue.False);
         explicitlyFalse.Proof.Should().BeNull();
-        explicitlyFalse.ContradictingProofs.Should().ContainSingle().Which;
+        explicitlyFalse.ContradictingProofs.Should().ContainSingle();
     }
 
     [Fact]
