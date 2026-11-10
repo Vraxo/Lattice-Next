@@ -88,6 +88,26 @@ public sealed class EnglishLexiconTests
         AssertInvalid(json);
     }
 
+    [Fact]
+    public void Rejects_an_empty_lexicon_collection()
+    {
+        var json = ValidDocument.Replace(
+            "\"baseRelationVerbs\": [\"have\", \"like\"]",
+            "\"baseRelationVerbs\": []");
+
+        AssertInvalid(json);
+    }
+
+    [Fact]
+    public void Requires_singular_plural_exceptions_to_be_classified_as_singular()
+    {
+        var json = ValidDocument.Replace(
+            "\"irregularPluralNouns\": { \"criteria\": \"criterion\" }",
+            "\"irregularPluralNouns\": { \"analyses\": \"analysis\" }");
+
+        AssertInvalid(json);
+    }
+
     private static void AssertInvalid(string json)
     {
         Assert.False(EnglishLexicon.TryLoad(json, out var lexicon, out var error));

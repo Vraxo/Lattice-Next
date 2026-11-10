@@ -58,6 +58,26 @@ internal static class EnglishLexicon
                 return false;
             }
 
+            if (reservedTerms.Count == 0 ||
+                irregularPluralNouns.Count == 0 ||
+                invariantNouns.Count == 0 ||
+                singularNounsEndingInS.Count == 0 ||
+                irregularThirdPersonVerbs.Count == 0 ||
+                baseRelationVerbs.Count == 0 ||
+                pastParticiples.Count == 0)
+            {
+                error = "Every lexicon collection must contain at least one entry.";
+                return false;
+            }
+
+            if (irregularPluralNouns.Values.Any(value =>
+                    value.EndsWith("s", StringComparison.Ordinal) &&
+                    !singularNounsEndingInS.Contains(value)))
+            {
+                error = "Irregular plural singular forms ending in 's' must be listed in singularNounsEndingInS.";
+                return false;
+            }
+
             if (irregularPluralNouns.Keys.Any(invariantNouns.Contains) ||
                 irregularPluralNouns.Keys.Any(singularNounsEndingInS.Contains) ||
                 invariantNouns.Any(singularNounsEndingInS.Contains))
