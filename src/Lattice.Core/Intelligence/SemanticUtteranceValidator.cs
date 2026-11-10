@@ -37,9 +37,6 @@ public sealed class SemanticUtteranceValidator
             case Negation { Formula: PredicateApplication negatedPredicate }:
                 return TryValidateGroundPredicate(negatedPredicate, allowUnresolvedReference: false, out error);
 
-            case Negation { Formula: PredicateApplication negatedPredicate }:
-                return TryValidateGroundPredicate(negatedPredicate, allowUnresolvedReference: false, out error);
-
             case ExistentialQuantification existential:
                 return TryValidateExistential(existential, out error);
 
@@ -47,7 +44,7 @@ public sealed class SemanticUtteranceValidator
                 return TryValidateUniversalRule(universal, out error);
 
             default:
-                error = "Assertions must be ground facts, supported existential claims, or supported universal rules.";
+                error = "Assertions must be ground facts, negated ground facts, supported existential claims, or supported universal rules.";
                 return false;
         }
     }
@@ -61,11 +58,14 @@ public sealed class SemanticUtteranceValidator
             case PredicateApplication predicate:
                 return TryValidateGroundPredicate(predicate, allowUnresolvedReference: true, out error);
 
+            case Negation { Formula: PredicateApplication negatedPredicate }:
+                return TryValidateGroundPredicate(negatedPredicate, allowUnresolvedReference: false, out error);
+
             case ExistentialQuantification existential:
                 return TryValidateExistential(existential, out error);
 
             default:
-                error = "Questions must be ground predicate queries or supported existence queries.";
+                error = "Questions must be ground predicate queries, negated ground predicate queries, or supported existence queries.";
                 return false;
         }
     }
