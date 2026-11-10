@@ -60,7 +60,10 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
     }
 }
 
-var toolRegistry = new ToolRegistry(registeredTools, grantedPermissions);
+var toolRegistry = new ToolRegistry(
+    registeredTools,
+    grantedPermissions,
+    executionTimeout: TimeSpan.FromSeconds(15));
 var intentRecognizers = registeredTools
     .Where(tool => !tool.Descriptor.Intents.IsDefaultOrEmpty)
     .SelectMany(tool => tool.Descriptor.Intents.Select(

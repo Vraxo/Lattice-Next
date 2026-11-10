@@ -34,5 +34,8 @@ jobs:
       - name: Test
         run: dotnet test Lattice.slnx --configuration Release
 
+      - name: Install web-search dependency
+        run: python -m pip install -r tools/web-search/requirements.txt
+
       - name: Test external Python tools
         run: python -m unittest discover -s tools/web-search -p "test_*.py"

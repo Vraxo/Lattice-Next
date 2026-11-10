@@ -14,6 +14,7 @@ tools/
   web-search/
     tool.json
     main.py
+    requirements.txt
     test_main.py
   example-tool/
     tool.json

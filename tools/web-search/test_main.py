@@ -1,178 +1,140 @@
 from __future__ import annotations
 
-import json
-import os
 import unittest
 from datetime import datetime, timezone
-from io import BytesIO
 from unittest.mock import patch
-from urllib.error import HTTPError
-from urllib.parse import parse_qs, urlsplit
 
 import main
 
 
-class FakeResponse:
-    def __init__(self, body: bytes, status: int = 200):
-        self.body = body
-        self.status = status
+class FakeSearchClient:
+    def __init__(self, results, timeout=None, error=None):
+        self.results = results
+        self.timeout = timeout
+        self.error = error
+        self.request = None
 
-    def read(self, maximum: int = -1) -> bytes:
-        return self.body if maximum < 0 else self.body[:maximum]
-
-    def __enter__(self) -> "FakeResponse":
-        return self
-
-    def __exit__(self, exception_type, exception, traceback) -> None:
-        return None
+    def text(self, query, **options):
+        self.request = {"query": query, **options}
+        if self.error is not None:
+            raise self.error
+        return self.results
 
 
 class WebSearchTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.environment = patch.dict(
-            os.environ,
-            {"LATTICE_SEARXNG_URL": "https://search.example"},
-            clear=True,
-        )
-        self.environment.start()
-        self.addCleanup(self.environment.stop)
+    def test_searches_without_service_url_or_api_key_and_attributes_results(self) -> None:
+        results = [
+            {
+                "title": "First result",
+                "href": "https://example.org/first",
+                "body": "  A useful   summary. ",
+            },
+            {
+                "title": "Second result",
+                "href": "https://example.net/second",
+                "body": "Another summary.",
+            },
+        ]
+        client = FakeSearchClient(results)
 
-    def test_returns_timestamped_results_with_source_attribution(self) -> None:
-        payload = {
-            "results": [
-                {
-                    "title": "First result",
-                    "url": "https://example.org/first",
-                    "content": "  A useful   summary. ",
-                    "engine": "example",
-                    "publishedDate": "2026-11-09T00:00:00",
-                },
-                {
-                    "title": "Second result",
-                    "url": "https://example.org/second",
-                    "content": "Another summary.",
-                },
-            ],
-            "unresponsive_engines": [],
-        }
-        observed_request = {}
+        def factory(timeout):
+            client.timeout = timeout
+            return client
 
-        def opener(request, timeout):
-            observed_request["url"] = request.full_url
-            observed_request["timeout"] = timeout
-            observed_request["accept"] = request.get_header("Accept")
-            return FakeResponse(json.dumps(payload).encode("utf-8"))
-
-        result = main.search(
+        observation = main.search(
             {"query": "  lattice reasoning  "},
-            opener=opener,
+            search_client_factory=factory,
             clock=lambda: datetime(2026, 11, 10, 18, 30, tzinfo=timezone.utc),
         )
 
-        parsed_url = urlsplit(observed_request["url"])
-        query = parse_qs(parsed_url.query)
-        self.assertEqual("/search", parsed_url.path)
-        self.assertEqual(["lattice reasoning"], query["q"])
-        self.assertEqual(["json"], query["format"])
-        self.assertEqual(["1"], query["safesearch"])
-        self.assertEqual(4, observed_request["timeout"])
-        self.assertEqual("application/json", observed_request["accept"])
-        self.assertIn("Retrieved at: 2026-11-10T18:30:00Z", result)
-        self.assertIn("1. First result", result)
-        self.assertIn("Source: https://example.org/first", result)
-        self.assertIn("Search engine: example", result)
-        self.assertIn("Published date (reported): 2026-11-09T00:00:00", result)
-        self.assertIn("A useful summary.", result)
-        self.assertIn("2. Second result", result)
+        self.assertEqual(main.REQUEST_TIMEOUT_SECONDS, client.timeout)
+        self.assertEqual(
+            {
+                "query": "lattice reasoning",
+                "max_results": main.DEFAULT_MAX_RESULTS,
+                "safesearch": "moderate",
+                "backend": "auto",
+            },
+            client.request,
+        )
+        self.assertIn("Search provider: DDGS metasearch", observation)
+        self.assertIn("Retrieved at: 2026-11-10T18:30:00Z", observation)
+        self.assertIn("unverified external content", observation)
+        self.assertIn("1. First result", observation)
+        self.assertIn("Source: https://example.org/first", observation)
+        self.assertIn("Domain: example.org", observation)
+        self.assertIn("A useful summary.", observation)
+        self.assertIn("2. Second result", observation)
 
-    def test_honors_configured_instance_path_and_result_limit(self) -> None:
-        os.environ["LATTICE_SEARXNG_URL"] = "https://search.example/searx"
-        payload = {
-            "results": [
-                {"title": f"Result {index}", "url": f"https://example.org/{index}"}
-                for index in range(1, 5)
-            ]
-        }
-        observed_url = {}
+    def test_honors_result_limit(self) -> None:
+        results = [
+            {
+                "title": f"Result {index}",
+                "href": f"https://example.org/{index}",
+                "body": "Summary",
+            }
+            for index in range(1, 5)
+        ]
+        client = FakeSearchClient(results)
 
-        def opener(request, timeout):
-            observed_url["value"] = request.full_url
-            return FakeResponse(json.dumps(payload).encode("utf-8"))
-
-        result = main.search(
+        observation = main.search(
             {"query": "lattice", "max_results": 2},
-            opener=opener,
+            search_client_factory=lambda timeout: client,
             clock=lambda: datetime(2026, 11, 10, tzinfo=timezone.utc),
         )
 
-        self.assertIn("/searx/search?", observed_url["value"])
-        self.assertIn("Results: 2", result)
-        self.assertIn("1. Result 1", result)
-        self.assertIn("2. Result 2", result)
-        self.assertNotIn("3. Result 3", result)
+        self.assertEqual(2, client.request["max_results"])
+        self.assertIn("Results: 2", observation)
+        self.assertIn("1. Result 1", observation)
+        self.assertIn("2. Result 2", observation)
+        self.assertNotIn("3. Result 3", observation)
 
     def test_filters_unsafe_duplicate_and_incomplete_result_links(self) -> None:
-        payload = {
-            "results": [
-                {"title": "Unsafe", "url": "javascript:alert(1)"},
-                {"title": "Missing target"},
-                {"title": "First", "url": "https://example.org/page"},
-                {"title": "Duplicate", "url": "https://example.org/page"},
-                {"title": "Credentials", "url": "https://user:pass@example.org/page"},
-                {"title": "Malformed", "url": "https://[broken"},
-            ]
-        }
+        results = [
+            {"title": "Unsafe", "href": "javascript:alert(1)"},
+            {"title": "Missing target"},
+            {"title": "First", "href": "https://example.org/page"},
+            {"title": "Duplicate", "href": "https://example.org/page"},
+            {"title": "Credentials", "href": "https://user:pass@example.org/page"},
+            {"title": "Malformed", "href": "https://[broken"},
+        ]
 
-        result = main.search(
+        observation = main.search(
             {"query": "lattice"},
-            opener=lambda request, timeout: FakeResponse(json.dumps(payload).encode("utf-8")),
+            search_client_factory=lambda timeout: FakeSearchClient(results),
             clock=lambda: datetime(2026, 11, 10, tzinfo=timezone.utc),
         )
 
-        self.assertIn("Results: 1", result)
-        self.assertIn("1. First", result)
-        self.assertNotIn("Unsafe", result)
-        self.assertNotIn("Duplicate", result)
-        self.assertNotIn("Credentials", result)
-        self.assertNotIn("Malformed", result)
+        self.assertIn("Results: 1", observation)
+        self.assertIn("1. First", observation)
+        self.assertNotIn("Unsafe", observation)
+        self.assertNotIn("Duplicate", observation)
+        self.assertNotIn("Credentials", observation)
+        self.assertNotIn("Malformed", observation)
 
-    def test_reports_empty_results_without_claiming_the_topic_is_false(self) -> None:
-        payload = {
-            "results": [],
-            "unresponsive_engines": [["example", "timeout"]],
-        }
-
-        result = main.search(
+    def test_reports_empty_results_without_treating_them_as_negative_evidence(self) -> None:
+        observation = main.search(
             {"query": "an obscure topic"},
-            opener=lambda request, timeout: FakeResponse(json.dumps(payload).encode("utf-8")),
+            search_client_factory=lambda timeout: FakeSearchClient([]),
             clock=lambda: datetime(2026, 11, 10, tzinfo=timezone.utc),
         )
 
-        self.assertIn("No search results were returned.", result)
-        self.assertIn("Search engines that did not respond: example", result)
+        self.assertIn("No search results were returned.", observation)
+        self.assertIn("unverified external content", observation)
 
-    def test_rejects_missing_or_invalid_instance_configuration(self) -> None:
-        del os.environ["LATTICE_SEARXNG_URL"]
-        with self.assertRaisesRegex(ValueError, "Set LATTICE_SEARXNG_URL"):
-            main.search({"query": "lattice"}, opener=lambda request, timeout: None)
+    def test_reports_a_clear_error_when_the_optional_dependency_is_missing(self) -> None:
+        with patch.object(main, "DDGS", None):
+            with self.assertRaisesRegex(ValueError, "requirements.txt"):
+                main.search({"query": "lattice"})
 
-        for invalid in (
-            "file:///tmp/search",
-            "https://user:pass@example.org",
-            "https://example.org/?token=value",
-            "https://example.org/#fragment",
-        ):
-            with self.subTest(invalid=invalid):
-                os.environ["LATTICE_SEARXNG_URL"] = invalid
-                with self.assertRaises(ValueError):
-                    main.search({"query": "lattice"}, opener=lambda request, timeout: None)
+    def test_reports_temporary_provider_failures_without_exposing_provider_errors(self) -> None:
+        client = FakeSearchClient([], error=RuntimeError("internal network detail"))
 
-    def test_explains_when_json_format_is_disabled(self) -> None:
-        def opener(request, timeout):
-            raise HTTPError(request.full_url, 403, "Forbidden", {}, BytesIO())
-
-        with self.assertRaisesRegex(ValueError, "Enable 'json' under search.formats"):
-            main.search({"query": "lattice"}, opener=opener)
+        with self.assertRaisesRegex(ValueError, "temporarily unavailable or rate-limiting"):
+            main.search(
+                {"query": "lattice"},
+                search_client_factory=lambda timeout: client,
+            )
 
     def test_rejects_invalid_query_and_result_limits(self) -> None:
         invalid_arguments = (
@@ -190,19 +152,12 @@ class WebSearchTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     main.read_arguments(arguments)
 
-    def test_rejects_oversized_or_non_json_responses(self) -> None:
-        with self.assertRaisesRegex(ValueError, "one-megabyte limit"):
+    def test_requires_timezone_aware_retrieval_time(self) -> None:
+        with self.assertRaisesRegex(ValueError, "timezone-aware"):
             main.search(
                 {"query": "lattice"},
-                opener=lambda request, timeout: FakeResponse(
-                    b"x" * (main.MAX_RESPONSE_BYTES + 1)
-                ),
-            )
-
-        with self.assertRaisesRegex(ValueError, "valid UTF-8 JSON"):
-            main.search(
-                {"query": "lattice"},
-                opener=lambda request, timeout: FakeResponse(b"<html>blocked</html>"),
+                search_client_factory=lambda timeout: FakeSearchClient([]),
+                clock=lambda: datetime(2026, 11, 10),
             )
 
 

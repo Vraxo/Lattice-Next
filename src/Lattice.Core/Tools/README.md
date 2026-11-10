@@ -6,7 +6,7 @@ Tools are optional capabilities discovered and invoked by the application compos
 
 Each `ITool` exposes a `ToolDescriptor` containing a stable ID, display name, description, input descriptors, required permissions, and optional intent definitions. Input descriptors define names, primitive JSON types, descriptions, and whether each input is required.
 
-`ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise.
+`ToolRegistry` validates argument objects against descriptors, checks granted permissions, bounds invocation time, contains tool exceptions, and returns sourced observations. The default execution limit is five seconds and the configured limit cannot exceed one minute. A successful `ToolObservation` is evidence attributed to its producer, not a knowledge-base assertion. It is not automatically persisted or used as a premise. The CLI uses a 15-second limit to accommodate network-backed capabilities such as web search.
 
 ## Bundled example capabilities
 

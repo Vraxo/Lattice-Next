@@ -2,7 +2,7 @@
   "protocolVersion": 1,
   "id": "web-search",
   "name": "Web search",
-  "description": "Searches the web through a configured SearXNG instance and returns sourced, timestamped results.",
+  "description": "Searches public web providers through DDGS and returns sourced, timestamped results without requiring an API key or user-hosted service.",
   "command": "python",
   "arguments": [
     "main.py"
