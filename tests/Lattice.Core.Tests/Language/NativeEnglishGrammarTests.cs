@@ -306,6 +306,7 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("There is a dog that is not a cat.")]
     [InlineData("The dog that is not a cat is friendly.")]
     [InlineData("Every dog that is not a cats is friendly.")]
+    [InlineData("Every dog that is not a cat that is not happy is friendly.")]
     [InlineData("Mira gave Fido a book.")]
     [InlineData("Could Fido be a dog?")]
     [InlineData("Fido might be a dog.")]

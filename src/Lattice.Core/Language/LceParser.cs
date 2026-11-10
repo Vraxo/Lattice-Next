@@ -62,6 +62,10 @@ public sealed class LceParser
         @"^Does\s+(?<individual>it|[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*)\s+(?<predicate>(?!be\b|exist\b)[a-z][a-z0-9-]*)\s+(?<object>[A-Z][a-zA-Z0-9-]*|[Tt]he\s+(?:[a-z][a-z0-9-]*\s+)*[a-z][a-z0-9-]*|(?!the\b)[a-z][a-z0-9-]*)\?$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex NegatedRelativeClausePattern = new(
+        @"\bthat\s+(?:is|are)\s+not\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     public ParseResult Parse(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -80,6 +84,12 @@ public sealed class LceParser
         if (NativeEnglishGrammar.TryParse(source, originalSource, out var nativeUtterance))
         {
             return ParseResult.Success(nativeUtterance!);
+        }
+
+        if (NegatedRelativeClausePattern.IsMatch(source))
+        {
+            return ParseResult.Failure(
+                "Explicitly negated relative conditions are currently supported only in universal rules.");
         }
 
         var universalMatch = UniversalRulePattern.Match(source);
