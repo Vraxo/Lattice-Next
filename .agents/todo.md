@@ -77,6 +77,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Reuse one parsed noun-description structure across quantified, existential, definite, and relational sentence positions; support composable adjective and restrictive relative-clause modifiers.
 - [x] Extend compositional noun descriptions with explicitly coordinated adjective modifiers and canonical-meaning/rejection tests.
 - [x] Add explicit irregular and invariant plural noun forms while keeping unsupported morphology conservative.
+- [x] Move native-English lexical tables into a validated, versioned embedded resource while keeping grammar algorithms in code.
 - [x] Separate native-English sentence parsing, noun-description parsing, morphology, lexical validation, and semantic construction into independent internal components.
 - [ ] Expand native-English grammar coverage by adding further compositional constructions and morphology with benchmarked semantic fidelity.
 - [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
