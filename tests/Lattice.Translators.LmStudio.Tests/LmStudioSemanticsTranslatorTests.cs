@@ -63,6 +63,23 @@ public sealed class LmStudioSemanticsTranslatorTests
     }
 
     [Fact]
+    public async Task Uses_explicit_unsupported_outcome_for_a_multi_utterance_request()
+    {
+        var handler = CreateHandler(
+            """{"status":"unsupported","candidates":[],"message":"Only one utterance can be translated per request."}""");
+        using var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
+        var translator = CreateTranslator(client, CreateConfiguration());
+
+        var response = await translator.TranslateAsync("Fido is a dog. Rex is a cat.");
+
+        Assert.Equal(SemanticTranslationOutcome.Unsupported, response.Outcome);
+        Assert.Empty(response.Candidates);
+        var request = Assert.Single(handler.Requests.Where(x => x.Method == HttpMethod.Post));
+        using var body = JsonDocument.Parse(request.Body!);
+        Assert.Equal("Fido is a dog. Rex is a cat.", body.RootElement.GetProperty("input").GetString());
+    }
+
+    [Fact]
     public async Task Reports_reasoning_only_output_when_no_assistant_message_is_returned()
     {
         var handler = CreateHandler(

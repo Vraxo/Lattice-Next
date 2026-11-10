@@ -94,7 +94,10 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
         {
             return new SemanticTranslationResponse(
                 ImmutableArray<SemanticTranslationCandidate>.Empty,
-                "Input is empty.");
+                "Input is empty.")
+            {
+                Outcome = SemanticTranslationOutcome.Invalid
+            };
         }
 
         if (string.IsNullOrWhiteSpace(configuration.ModelKey))
@@ -132,7 +135,20 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
 
         using var completion = JsonDocument.Parse(responseBody);
         var content = GetAssistantMessageContent(completion.RootElement);
-        return ParseTranslation(content);
+
+        try
+        {
+            return ParseTranslation(content);
+        }
+        catch (JsonException exception)
+        {
+            return new SemanticTranslationResponse(
+                ImmutableArray<SemanticTranslationCandidate>.Empty,
+                $"The translator returned malformed structured output: {exception.Message}")
+            {
+                Outcome = SemanticTranslationOutcome.Invalid
+            };
+        }
     }
 
     private static string GetAssistantMessageContent(JsonElement response)
