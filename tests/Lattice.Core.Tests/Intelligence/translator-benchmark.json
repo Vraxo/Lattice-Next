@@ -46,6 +46,33 @@
       "expectedMeaning": "forall(x, implies(dog(x), likes(x, milk)))"
     },
     {
+      "id": "expanded-plural-relational-rule",
+      "category": "relational",
+      "input": "All dogs build houses.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Every dog builds houses.",
+      "expectedMeaning": "forall(x, implies(dog(x), builds(x, houses)))",
+      "notes": "The plural universal form uses the explicit base verb; the canonical rule stores its third-person singular predicate."
+    },
+    {
+      "id": "expanded-passive-relation",
+      "category": "relational",
+      "input": "The letter is written by Fido.",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Fido writes the letter.",
+      "expectedMeaning": "writes(fido, letter)",
+      "notes": "The passive patient remains the relation object and the agent remains the relation subject."
+    },
+    {
+      "id": "expanded-passive-relation-question",
+      "category": "relational",
+      "input": "Is the book made by Fido?",
+      "expectedOutcome": "one-candidate",
+      "expectedLce": "Does Fido make the book?",
+      "expectedMeaning": "ask(makes(fido, book))",
+      "notes": "The passive question preserves the same argument order as the corresponding active relation."
+    },
+    {
       "id": "multi-condition-relational-rule",
       "category": "quantification",
       "input": "Every dog that is red likes milk.",
