@@ -4,6 +4,78 @@ namespace Lattice.Core.Language;
 
 internal static class NativeEnglishPropertyParser
 {
+    internal static bool TryParseNegatedNamedPredicateAssertion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length is not (4 or 5) ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[0]) ||
+            EnglishGrammarTokens.Is(tokens[0], "It") ||
+            !EnglishGrammarTokens.Is(tokens[1], "is") ||
+            !EnglishGrammarTokens.Is(tokens[2], "not") ||
+            !EnglishDescriptionParser.TryCreateIndividual(tokens[0], allowPronoun: false, out var individual) ||
+            !TryParseNegatedPredicate(tokens, 3, tokens.Length, out var predicate))
+        {
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            new Negation(EnglishSemanticFactory.Predicate(predicate!, individual!)),
+            sourceText);
+        return true;
+    }
+
+    internal static bool TryParseNegatedNamedPredicateQuestion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length is not (4 or 5) ||
+            !EnglishGrammarTokens.Is(tokens[0], "Is") ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[1]) ||
+            EnglishGrammarTokens.Is(tokens[1], "It") ||
+            !EnglishGrammarTokens.Is(tokens[2], "not") ||
+            !EnglishDescriptionParser.TryCreateIndividual(tokens[1], allowPronoun: false, out var individual) ||
+            !TryParseNegatedPredicate(tokens, 3, tokens.Length, out var predicate))
+        {
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.Question,
+            new Negation(EnglishSemanticFactory.Predicate(predicate!, individual!)),
+            sourceText);
+        return true;
+    }
+
+    private static bool TryParseNegatedPredicate(
+        string[] tokens,
+        int start,
+        int end,
+        out string? predicate)
+    {
+        predicate = null;
+
+        if (end - start == 2 &&
+            EnglishGrammarTokens.IsArticle(tokens[start]) &&
+            EnglishGrammarTokens.IsLowerWord(tokens[start + 1]) &&
+            !EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start + 1]) &&
+            !EnglishMorphology.IsPlural(tokens[start + 1]))
+        {
+            predicate = tokens[start + 1].ToLowerInvariant();
+            return true;
+        }
+
+        return end - start == 1 &&
+            TryParseNamedIndividualProperty(tokens, start, end, out predicate);
+    }
+
     internal static bool TryParseDefinitePropertyAssertion(
         string[] tokens,
         string sourceText,

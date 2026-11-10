@@ -19,48 +19,60 @@ public sealed class ReasoningEngine
 
         query = groundedQuery;
 
+        IEnumerable<ProofNode> positiveProofs;
+
         if (query.Arguments.Length == 2)
         {
-            var proofs = knowledgeBase.Facts
-                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
-                .Select(fact => new ProofNode(
-                    fact.Predicate,
-                    fact.SourceText,
-                    null,
-                    fact.ResolvedReferent,
-                    SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources,
-                    SourceId: fact.SourceId))
-                .ToList();
-
-            proofs.AddRange(DeriveRelationalFacts(knowledgeBase).Where(candidate =>
-                IsSameGroundPredicate(candidate.Predicate, query)));
-
-            return CreateResult(proofs);
+            positiveProofs = knowledgeBase.Facts
+                .Where(fact =>
+                    fact.Polarity == EvidencePolarity.Positive &&
+                    IsSameGroundPredicate(fact.Predicate, query))
+                .Select(CreateAssertedProof)
+                .Concat(DeriveRelationalFacts(knowledgeBase).Where(candidate =>
+                    IsSameGroundPredicate(candidate.Predicate, query)));
         }
-
-        if (query.Arguments.Length != 1 ||
-            !TryGetFactKey(query, out var queryKey))
+        else if (query.Arguments.Length == 1 &&
+            TryGetFactKey(query, out var queryKey))
         {
-            var directProofs = knowledgeBase.Facts
-                .Where(fact => IsSameGroundPredicate(fact.Predicate, query))
-                .Select(fact => new ProofNode(
-                    fact.Predicate,
-                    fact.SourceText,
-                    null,
-                    fact.ResolvedReferent,
-                    SourceKind: fact.SourceKind,
-                    AdditionalSources: fact.AdditionalSources,
-                    SourceId: fact.SourceId));
-
-            return CreateResult(directProofs);
+            positiveProofs = DeriveUnaryFacts(knowledgeBase).Where(candidate =>
+                TryGetFactKey(candidate.Predicate, out var key) &&
+                key == queryKey);
+        }
+        else
+        {
+            positiveProofs = knowledgeBase.Facts
+                .Where(fact =>
+                    fact.Polarity == EvidencePolarity.Positive &&
+                    IsSameGroundPredicate(fact.Predicate, query))
+                .Select(CreateAssertedProof);
         }
 
-        var matchingProofs = DeriveUnaryFacts(knowledgeBase).Where(candidate =>
-            TryGetFactKey(candidate.Predicate, out var key) &&
-            key == queryKey);
+        var negativeProofs = knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Negative &&
+                IsSameGroundPredicate(fact.Predicate, query))
+            .Select(CreateAssertedProof);
 
-        return CreateResult(matchingProofs);
+        return CreateResult(positiveProofs, negativeProofs);
+    }
+
+    public ReasoningResult Ask(
+        KnowledgeBase knowledgeBase,
+        Negation query)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+        ArgumentNullException.ThrowIfNull(query);
+
+        if (query.Formula is not PredicateApplication predicate)
+        {
+            return new ReasoningResult(null);
+        }
+
+        var result = Ask(knowledgeBase, predicate);
+
+        return CreateResult(
+            result.ContradictingProofs,
+            result.Proofs);
     }
 
     public ReasoningResult Ask(
@@ -117,7 +129,8 @@ public sealed class ReasoningEngine
         var knownFacts = new List<ProofNode>();
         var proofsByFact = new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
 
-        foreach (var fact in knowledgeBase.Facts)
+        foreach (var fact in knowledgeBase.Facts.Where(fact =>
+            fact.Polarity == EvidencePolarity.Positive))
         {
             TryAddProof(
                 knownFacts,
@@ -351,23 +364,44 @@ public sealed class ReasoningEngine
         }
     }
 
-    private static ReasoningResult CreateResult(IEnumerable<ProofNode> candidateProofs)
+    private static ProofNode CreateAssertedProof(KnowledgeFact fact) =>
+        new(
+            fact.Predicate,
+            fact.SourceText,
+            null,
+            fact.ResolvedReferent,
+            SourceKind: fact.SourceKind,
+            AdditionalSources: fact.AdditionalSources,
+            SourceId: fact.SourceId)
+        {
+            Polarity = fact.Polarity
+        };
+
+    private static ReasoningResult CreateResult(
+        IEnumerable<ProofNode> supportingProofs,
+        IEnumerable<ProofNode>? contradictingProofs = null)
     {
-        var proofs = new List<ProofNode>();
+        var supporting = new List<ProofNode>();
 
-        foreach (var proof in candidateProofs)
+        foreach (var proof in supportingProofs)
         {
-            AddUniqueProof(proofs, proof);
+            AddUniqueProof(supporting, proof);
         }
 
-        if (proofs.Count == 0)
+        var contradicting = new List<ProofNode>();
+
+        if (contradictingProofs is not null)
         {
-            return new ReasoningResult(null);
+            foreach (var proof in contradictingProofs)
+            {
+                AddUniqueProof(contradicting, proof);
+            }
         }
 
-        return new ReasoningResult(proofs[0])
+        return new ReasoningResult(supporting.FirstOrDefault())
         {
-            AdditionalProofs = proofs.Skip(1).ToImmutableArray()
+            AdditionalProofs = supporting.Skip(1).ToImmutableArray(),
+            ContradictingProofs = contradicting.ToImmutableArray()
         };
     }
 
@@ -377,6 +411,7 @@ public sealed class ReasoningEngine
             !string.Equals(left.SourceText, right.SourceText, StringComparison.Ordinal) ||
             left.ResolvedReferent != right.ResolvedReferent ||
             left.Kind != right.Kind ||
+            left.Polarity != right.Polarity ||
             !left.Sources.SequenceEqual(right.Sources) ||
             (left.Premise is null) != (right.Premise is null))
         {

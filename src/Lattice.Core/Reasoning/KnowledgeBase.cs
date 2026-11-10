@@ -71,15 +71,28 @@ public sealed class KnowledgeBase
             return true;
         }
 
-        if (utterance.Meaning is PredicateApplication predicate &&
-            TryGroundPredicate(predicate, out var groundedPredicate, out var descriptionFacts))
+        var factMeaning = utterance.Meaning switch
+        {
+            PredicateApplication positivePredicate => positivePredicate,
+            Negation { Formula: PredicateApplication negativePredicate } => negativePredicate,
+            _ => null
+        };
+        var polarity = utterance.Meaning is Negation
+            ? EvidencePolarity.Negative
+            : EvidencePolarity.Positive;
+
+        if (factMeaning is not null &&
+            TryGroundPredicate(factMeaning, out var groundedPredicate, out var descriptionFacts))
         {
             AddFact(new KnowledgeFact(
                 groundedPredicate,
                 utterance.SourceText,
                 utterance.ResolvedReferent,
                 sourceKind,
-                SourceId: sourceId));
+                SourceId: sourceId)
+            {
+                Polarity = polarity
+            });
 
             foreach (var descriptionFact in descriptionFacts)
             {
@@ -154,6 +167,7 @@ public sealed class KnowledgeBase
     private void AddFact(KnowledgeFact fact)
     {
         var existingFactIndex = facts.FindIndex(existing =>
+            existing.Polarity == fact.Polarity &&
             IsSameFact(existing.Predicate, fact.Predicate));
 
         if (existingFactIndex < 0)
