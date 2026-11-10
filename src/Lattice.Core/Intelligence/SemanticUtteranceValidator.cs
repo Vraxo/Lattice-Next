@@ -96,7 +96,8 @@ public sealed class SemanticUtteranceValidator
         if (!TryValidateUnaryConditions(
             implication.Premise,
             universal.Variable,
-            out error))
+            out error,
+            allowNegation: true))
         {
             return false;
         }
@@ -138,7 +139,8 @@ public sealed class SemanticUtteranceValidator
     private static bool TryValidateUnaryConditions(
         SemanticFormula formula,
         VariableTerm variable,
-        out string? error)
+        out string? error,
+        bool allowNegation = false)
     {
         if (!TryGetFlatConjuncts(formula, out var conjuncts))
         {
@@ -148,14 +150,23 @@ public sealed class SemanticUtteranceValidator
 
         foreach (var conjunct in conjuncts)
         {
-            if (conjunct is not PredicateApplication predicate ||
+            var predicate = conjunct switch
+            {
+                PredicateApplication positive => positive,
+                Negation { Formula: PredicateApplication negative } when allowNegation => negative,
+                _ => null
+            };
+
+            if (predicate is null ||
                 !IsValidIdentifier(predicate.Predicate.Value) ||
                 predicate.Arguments.IsDefault ||
                 predicate.Arguments.Length != 1 ||
                 predicate.Arguments[0] is not VariableTerm argument ||
                 argument.Identifier != variable.Identifier)
             {
-                error = "Every quantified condition must be a unary predicate over the declared variable.";
+                error = allowNegation
+                    ? "Every quantified condition must be a unary predicate or its explicit negation over the declared variable."
+                    : "Every quantified condition must be a unary predicate over the declared variable.";
                 return false;
             }
         }

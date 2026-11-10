@@ -128,7 +128,11 @@ public sealed class KnowledgeBase
         if (utterance.Meaning is UniversalQuantification universal &&
             universal.Body is Implication implication &&
             universal.Variable is { } variable &&
-            TryGetBoundUnaryPredicates(implication.Premise, variable, out var premises) &&
+            TryGetBoundUnaryRulePremises(
+                implication.Premise,
+                variable,
+                out var premises,
+                out var negativePremises) &&
             ruleConclusion is not null &&
             TryNormalizeUniversalConclusion(
                 ruleConclusion,
@@ -139,6 +143,7 @@ public sealed class KnowledgeBase
             var existingRuleIndex = rules.FindIndex(rule =>
                 rule.ConclusionPolarity == rulePolarity &&
                 AreSamePremises(rule.Premises, premises) &&
+                AreSamePremises(rule.NegativePremises, negativePremises) &&
                 IsSamePredicate(rule.Conclusion, normalizedConclusion));
 
             if (existingRuleIndex < 0)
@@ -150,7 +155,8 @@ public sealed class KnowledgeBase
                     sourceKind,
                     SourceId: sourceId)
                 {
-                    ConclusionPolarity = rulePolarity
+                    ConclusionPolarity = rulePolarity,
+                    NegativePremises = negativePremises
                 });
             }
             else
@@ -299,6 +305,65 @@ public sealed class KnowledgeBase
         }
 
         return premises.All(premise => IsBoundUnaryPredicate(premise, variable));
+    }
+
+    private static bool TryGetBoundUnaryRulePremises(
+        SemanticFormula formula,
+        VariableTerm variable,
+        out ImmutableArray<PredicateApplication> positivePremises,
+        out ImmutableArray<PredicateApplication> negativePremises)
+    {
+        positivePremises = ImmutableArray<PredicateApplication>.Empty;
+        negativePremises = ImmutableArray<PredicateApplication>.Empty;
+
+        var conjuncts = formula switch
+        {
+            PredicateApplication predicate => ImmutableArray.Create<SemanticFormula>(predicate),
+            Negation { Formula: PredicateApplication predicate } =>
+                ImmutableArray.Create<SemanticFormula>(new Negation(predicate)),
+            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
+                conjunction.Conjuncts,
+            _ => ImmutableArray<SemanticFormula>.Empty
+        };
+
+        if (conjuncts.IsDefaultOrEmpty ||
+            (formula is Conjunction compound &&
+             conjuncts.Length != compound.Conjuncts.Length))
+        {
+            return false;
+        }
+
+        var positiveBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var negativeBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
+
+        foreach (var conjunct in conjuncts)
+        {
+            var isNegative = conjunct is Negation;
+            var predicate = conjunct switch
+            {
+                PredicateApplication positive => positive,
+                Negation { Formula: PredicateApplication negative } => negative,
+                _ => null
+            };
+
+            if (predicate is null || !IsBoundUnaryPredicate(predicate, variable))
+            {
+                return false;
+            }
+
+            if (isNegative)
+            {
+                negativeBuilder.Add(predicate);
+            }
+            else
+            {
+                positiveBuilder.Add(predicate);
+            }
+        }
+
+        positivePremises = positiveBuilder.ToImmutable();
+        negativePremises = negativeBuilder.ToImmutable();
+        return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
     }
 
     private static bool AreSamePremises(

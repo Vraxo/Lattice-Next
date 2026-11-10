@@ -10,7 +10,8 @@ internal static class EnglishDescriptionParser
         int start,
         int end,
         bool expectPluralHead,
-        out EnglishDescription? description)
+        out EnglishDescription? description,
+        bool allowNegatedRelativePredicates = false)
     {
         description = null;
 
@@ -21,6 +22,7 @@ internal static class EnglishDescriptionParser
 
         var lexicalWords = new List<string>();
         var relativeModifiers = new List<string>();
+        var negativeRelativePredicates = new List<string>();
         var index = start;
 
         while (index < end && !EnglishGrammarTokens.Is(tokens[index], "that"))
@@ -66,7 +68,22 @@ internal static class EnglishDescriptionParser
 
             index += 2;
 
-            if (!TryParseRelativeAdjectives(tokens, ref index, end, relativeModifiers))
+            if (index < end && EnglishGrammarTokens.Is(tokens[index], "not"))
+            {
+                if (!allowNegatedRelativePredicates ||
+                    !TryParseRelativeNegatedPredicate(
+                        tokens,
+                        ref index,
+                        end,
+                        expectPluralHead,
+                        out var negativePredicate))
+                {
+                    return false;
+                }
+
+                negativeRelativePredicates.Add(negativePredicate!);
+            }
+            else if (!TryParseRelativeAdjectives(tokens, ref index, end, relativeModifiers))
             {
                 return false;
             }
@@ -95,8 +112,64 @@ internal static class EnglishDescriptionParser
         description = new EnglishDescription(
             head,
             modifiers,
-            relativeModifiers.ToImmutableArray());
+            relativeModifiers.ToImmutableArray(),
+            negativeRelativePredicates.ToImmutableArray());
         return true;
+    }
+
+    private static bool TryParseRelativeNegatedPredicate(
+        string[] tokens,
+        ref int index,
+        int end,
+        bool expectPluralHead,
+        out string? predicate)
+    {
+        predicate = null;
+
+        if (index >= end)
+        {
+            return false;
+        }
+
+        if (EnglishGrammarTokens.IsArticle(tokens[index]))
+        {
+            if (index + 1 >= end ||
+                !EnglishGrammarTokens.IsLowerWord(tokens[index + 1]) ||
+                EnglishGrammarTokens.IsReservedIndividualTerm(tokens[index + 1]) ||
+                EnglishMorphology.IsPlural(tokens[index + 1]))
+            {
+                return false;
+            }
+
+            predicate = tokens[index + 1].ToLowerInvariant();
+            index += 2;
+            return index == end || EnglishGrammarTokens.Is(tokens[index], "that");
+        }
+
+        var word = tokens[index];
+
+        if (!EnglishGrammarTokens.IsLowerWord(word) ||
+            EnglishGrammarTokens.IsReservedIndividualTerm(word))
+        {
+            return false;
+        }
+
+        if (EnglishMorphology.IsPlural(word))
+        {
+            if (!expectPluralHead)
+            {
+                return false;
+            }
+
+            predicate = EnglishMorphology.Singularize(word);
+        }
+        else
+        {
+            predicate = word.ToLowerInvariant();
+        }
+
+        index++;
+        return index == end || EnglishGrammarTokens.Is(tokens[index], "that");
     }
 
     private static bool TryParseRelativeAdjectives(
