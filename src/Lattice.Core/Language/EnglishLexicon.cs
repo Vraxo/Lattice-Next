@@ -74,7 +74,7 @@ internal static class EnglishLexicon
                     value.EndsWith("s", StringComparison.Ordinal) &&
                     !singularNounsEndingInS.Contains(value)))
             {
-                error = "Irregular plural singular forms ending in 's' must be listed in singularNounsEndingInS.";
+                error = "Irregular plural singular forms ending in 's' must be listed in singular-nouns-ending-in-s.";
                 return false;
             }
 
@@ -96,7 +96,7 @@ internal static class EnglishLexicon
 
             if (pastParticiples.Any(entry => !baseRelationVerbs.Contains(entry.Value)))
             {
-                error = "Every past participle must map to a verb in baseRelationVerbs.";
+                error = "Every past participle must map to a verb in base-relation-verbs.";
                 return false;
             }
 
