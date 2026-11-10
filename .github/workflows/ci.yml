@@ -33,3 +33,6 @@ jobs:
 
       - name: Test
         run: dotnet test Lattice.slnx --configuration Release
+
+      - name: Test external Python tools
+        run: python -m unittest discover -s tools/web-search -p "test_*.py"
