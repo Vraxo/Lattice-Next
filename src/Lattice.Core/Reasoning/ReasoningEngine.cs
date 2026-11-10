@@ -26,16 +26,16 @@ public sealed class ReasoningEngine
             positiveProofs = knowledgeBase.Facts
                 .Where(fact =>
                     fact.Polarity == EvidencePolarity.Positive &&
-                    IsSameGroundPredicate(fact.Predicate, query))
+                    ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
                 .Select(CreateAssertedProof)
-                .Concat(DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
-                    IsSameGroundPredicate(candidate.Predicate, query)));
+                .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
+                    ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
         }
         else if (query.Arguments.Length == 1 &&
-            TryGetFactKey(query, out var queryKey))
+            ProofOperations.TryGetFactKey(query, out var queryKey))
         {
-            positiveProofs = DeriveUnaryFacts(knowledgeBase).Where(candidate =>
-                TryGetFactKey(candidate.Predicate, out var key) &&
+            positiveProofs = FactDeriver.DeriveUnaryFacts(knowledgeBase).Where(candidate =>
+                ProofOperations.TryGetFactKey(candidate.Predicate, out var key) &&
                 key == queryKey);
         }
         else
@@ -43,25 +43,25 @@ public sealed class ReasoningEngine
             positiveProofs = knowledgeBase.Facts
                 .Where(fact =>
                     fact.Polarity == EvidencePolarity.Positive &&
-                    IsSameGroundPredicate(fact.Predicate, query))
+                    ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
                 .Select(CreateAssertedProof);
         }
 
         var negativeDerivedProofs = query.Arguments.Length switch
         {
-            1 => DeriveNegativeUnaryFacts(knowledgeBase),
-            2 => DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Negative),
+            1 => FactDeriver.DeriveNegativeUnaryFacts(knowledgeBase),
+            2 => FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Negative),
             _ => []
         };
         var negativeProofs = knowledgeBase.Facts
             .Where(fact =>
                 fact.Polarity == EvidencePolarity.Negative &&
-                IsSameGroundPredicate(fact.Predicate, query))
+                ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
             .Select(CreateAssertedProof)
             .Concat(negativeDerivedProofs.Where(candidate =>
-                IsSameGroundPredicate(candidate.Predicate, query)));
+                ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
 
-        return CreateResult(positiveProofs, negativeProofs);
+        return ProofOperations.CreateResult(positiveProofs, negativeProofs);
     }
 
     public ReasoningResult Ask(
@@ -78,7 +78,7 @@ public sealed class ReasoningEngine
 
         var result = Ask(knowledgeBase, predicate);
 
-        return CreateResult(
+        return ProofOperations.CreateResult(
             result.ContradictingProofs,
             result.Proofs);
     }
@@ -95,12 +95,12 @@ public sealed class ReasoningEngine
             return new ReasoningResult(null);
         }
 
-        var knownFacts = DeriveUnaryFacts(knowledgeBase);
+        var knownFacts = FactDeriver.DeriveUnaryFacts(knowledgeBase);
         var proofs = new List<ProofNode>();
 
         foreach (var candidate in knownFacts)
         {
-            if (!TryGetFactKey(candidate.Predicate, out var candidateKey) ||
+            if (!ProofOperations.TryGetFactKey(candidate.Predicate, out var candidateKey) ||
                 !string.Equals(
                     candidateKey.Predicate,
                     conditions[0].Predicate.Value,
@@ -109,7 +109,7 @@ public sealed class ReasoningEngine
                 continue;
             }
 
-            var combinations = GetAdditionalPremiseCombinations(
+            var combinations = RulePremiseMatcher.GetAdditionalPremiseCombinations(
                 conditions.Skip(1),
                 candidateKey.Individual,
                 knownFacts);
@@ -120,7 +120,7 @@ public sealed class ReasoningEngine
                     ? ImmutableArray<ProofNode>.Empty
                     : candidate.AdditionalPremises;
 
-                AddUniqueProof(
+                ProofOperations.AddUniqueProof(
                     proofs,
                     candidate with
                     {
@@ -129,414 +129,7 @@ public sealed class ReasoningEngine
             }
         }
 
-        return CreateResult(proofs);
-    }
-
-    private static List<ProofNode> DeriveUnaryFacts(KnowledgeBase knowledgeBase) =>
-        DeriveUnaryEvidence(knowledgeBase).Positive;
-
-    private static List<ProofNode> DeriveNegativeUnaryFacts(KnowledgeBase knowledgeBase) =>
-        DeriveUnaryEvidence(knowledgeBase).Negative;
-
-    private static (List<ProofNode> Positive, List<ProofNode> Negative) DeriveUnaryEvidence(
-        KnowledgeBase knowledgeBase)
-    {
-        var positiveFacts = new List<ProofNode>();
-        var negativeFacts = new List<ProofNode>();
-        var positiveProofsByFact =
-            new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
-        var negativeProofsByFact =
-            new Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>>();
-
-        foreach (var fact in knowledgeBase.Facts)
-        {
-            if (!TryGetFactKey(fact.Predicate, out _))
-            {
-                continue;
-            }
-
-            var proof = CreateAssertedProof(fact);
-
-            if (fact.Polarity == EvidencePolarity.Positive)
-            {
-                TryAddProof(positiveFacts, positiveProofsByFact, proof);
-            }
-            else
-            {
-                TryAddProof(negativeFacts, negativeProofsByFact, proof);
-            }
-        }
-
-        var relationalFacts = knowledgeBase.Facts
-            .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
-            .Select(CreateAssertedProof).ToArray();
-
-        bool added;
-
-        do
-        {
-            added = false;
-            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, negativeFacts);
-
-            foreach (var rule in knowledgeBase.Rules)
-            {
-                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
-                    rule.Conclusion.Arguments.IsDefault ||
-                    rule.Conclusion.Arguments.Length != 1)
-                {
-                    continue;
-                }
-
-                foreach (var individual in candidateIndividuals)
-                {
-                    var combinations = GetRulePremiseCombinations(
-                        rule,
-                        individual,
-                        positiveFacts,
-                        negativeFacts,
-                        relationalFacts);
-
-                    foreach (var premises in combinations)
-                    {
-                        var conclusion = CreateGroundPredicate(rule.Conclusion.Predicate, individual);
-
-                        if (!TryGetFactKey(conclusion, out var conclusionKey) ||
-                            premises.Any(premise => ContainsFact(
-                                premise,
-                                conclusionKey,
-                                rule.ConclusionPolarity)))
-                        {
-                            continue;
-                        }
-
-                        var proof = new ProofNode(
-                            conclusion,
-                            rule.SourceText,
-                            premises[0],
-                            AdditionalPremises: premises.Skip(1).ToImmutableArray(),
-                            SourceKind: rule.SourceKind,
-                            AdditionalSources: rule.AdditionalSources,
-                            Kind: ProofNodeKind.Derived,
-                            SourceId: rule.SourceId)
-                        {
-                            Polarity = rule.ConclusionPolarity
-                        };
-
-                        var proofAdded = rule.ConclusionPolarity == EvidencePolarity.Positive
-                            ? TryAddProof(positiveFacts, positiveProofsByFact, proof)
-                            : TryAddProof(negativeFacts, negativeProofsByFact, proof);
-
-                        if (proofAdded)
-                        {
-                            added = true;
-                        }
-                    }
-                }
-            }
-        }
-        while (added);
-
-        return (positiveFacts, negativeFacts);
-    }
-
-    private static List<ProofNode> DeriveRelationalFacts(
-        KnowledgeBase knowledgeBase,
-        EvidencePolarity polarity)
-    {
-        var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
-        var relationalEvidence = knowledgeBase.Facts
-            .Where(fact => fact.Polarity == EvidencePolarity.Positive && !fact.Predicate.Arguments.IsDefault && fact.Predicate.Arguments.Length == 2)
-            .Select(CreateAssertedProof).ToArray();
-        var relationalProofs = new List<ProofNode>();
-
-        foreach (var rule in knowledgeBase.Rules)
-        {
-            if (rule.ConclusionPolarity != polarity ||
-                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty ||
-                rule.Conclusion.Arguments.IsDefault ||
-                rule.Conclusion.Arguments.Length != 2 ||
-                rule.Conclusion.Arguments[0] is not VariableTerm ||
-                rule.Conclusion.Arguments[1] is not IndividualTerm objectTerm ||
-                string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
-            {
-                continue;
-            }
-
-            var candidateIndividuals = GetCandidateIndividuals(positiveFacts, negativeFacts);
-
-            foreach (var individual in candidateIndividuals)
-            {
-                var combinations = GetRulePremiseCombinations(
-                    rule,
-                    individual,
-                    positiveFacts,
-                    negativeFacts,
-                    relationalEvidence);
-
-                foreach (var premises in combinations)
-                {
-                    var conclusion = new PredicateApplication(
-                        rule.Conclusion.Predicate,
-                        ImmutableArray.Create<SemanticTerm>(individual, objectTerm));
-
-                    AddUniqueProof(
-                        relationalProofs,
-                        new ProofNode(
-                            conclusion,
-                            rule.SourceText,
-                            premises[0],
-                            AdditionalPremises: premises.Skip(1).ToImmutableArray(),
-                            SourceKind: rule.SourceKind,
-                            AdditionalSources: rule.AdditionalSources,
-                            Kind: ProofNodeKind.Derived,
-                            SourceId: rule.SourceId)
-                        {
-                            Polarity = polarity
-                        });
-                }
-            }
-        }
-
-        return relationalProofs;
-    }
-
-    private static SemanticTerm[] GetCandidateIndividuals(
-        IReadOnlyList<ProofNode> positiveFacts,
-        IReadOnlyList<ProofNode> negativeFacts) =>
-        positiveFacts
-            .Concat(negativeFacts)
-            .Select(proof => TryGetFactKey(proof.Predicate, out var key) ? key.Individual : null)
-            .OfType<SemanticTerm>()
-            .Distinct()
-            .ToArray();
-
-    private static List<ImmutableArray<ProofNode>> GetRulePremiseCombinations(
-        UniversalRule rule,
-        SemanticTerm individual,
-        IReadOnlyList<ProofNode> positiveFacts,
-        IReadOnlyList<ProofNode> negativeFacts,
-        IReadOnlyList<ProofNode> relationalFacts)
-    {
-        var positivePremises = GetAdditionalPremiseCombinations(
-            rule.Premises,
-            individual,
-            positiveFacts);
-        var negativePremises = GetAdditionalPremiseCombinations(
-            rule.NegativePremises.IsDefault
-                ? ImmutableArray<PredicateApplication>.Empty
-                : rule.NegativePremises,
-            individual,
-            negativeFacts);
-        var relationPremises = GetRelationalPremiseCombinations(
-            rule.RelationalPremises.IsDefault ? ImmutableArray<PredicateApplication>.Empty : rule.RelationalPremises,
-            individual, relationalFacts);
-        var combinations = new List<ImmutableArray<ProofNode>>(
-            positivePremises.Count * negativePremises.Count * relationPremises.Count);
-        foreach (var positive in positivePremises)
-        foreach (var negative in negativePremises)
-        foreach (var relation in relationPremises)
-            combinations.Add(positive.AddRange(negative).AddRange(relation));
-        return combinations;
-    }
-
-    private static List<ImmutableArray<ProofNode>> GetRelationalPremiseCombinations(
-        IEnumerable<PredicateApplication> requiredPremises,
-        SemanticTerm individual,
-        IReadOnlyList<ProofNode> knownFacts)
-    {
-        var combinations = new List<ImmutableArray<ProofNode>> { ImmutableArray<ProofNode>.Empty };
-        foreach (var required in requiredPremises)
-        {
-            if (required.Arguments.IsDefault || required.Arguments.Length != 2 ||
-                required.Arguments[1] is not IndividualTerm objectTerm) return [];
-            var matches = knownFacts.Where(proof =>
-                proof.Predicate.Predicate == required.Predicate &&
-                !proof.Predicate.Arguments.IsDefault && proof.Predicate.Arguments.Length == 2 &&
-                proof.Predicate.Arguments[0] == individual && proof.Predicate.Arguments[1] == objectTerm).ToArray();
-            if (matches.Length == 0) return [];
-            var expanded = new List<ImmutableArray<ProofNode>>(combinations.Count * matches.Length);
-            foreach (var combination in combinations)
-            foreach (var match in matches) expanded.Add(combination.Add(match));
-            combinations = expanded;
-        }
-        return combinations;
-    }
-
-    private static List<ImmutableArray<ProofNode>> GetAdditionalPremiseCombinations(
-        IEnumerable<PredicateApplication> requiredPremises,
-        SemanticTerm individual,
-        IReadOnlyList<ProofNode> knownFacts)
-    {
-        var combinations = new List<ImmutableArray<ProofNode>>
-        {
-            ImmutableArray<ProofNode>.Empty
-        };
-
-        foreach (var requiredPremise in requiredPremises)
-        {
-            var matchingProofs = knownFacts
-                .Where(proof =>
-                    TryGetFactKey(proof.Predicate, out var key) &&
-                    string.Equals(
-                        key.Predicate,
-                        requiredPremise.Predicate.Value,
-                        StringComparison.Ordinal) &&
-                    key.Individual == individual)
-                .ToArray();
-
-            if (matchingProofs.Length == 0)
-            {
-                return [];
-            }
-
-            var expanded = new List<ImmutableArray<ProofNode>>(
-                combinations.Count * matchingProofs.Length);
-
-            foreach (var combination in combinations)
-            {
-                foreach (var matchingProof in matchingProofs)
-                {
-                    expanded.Add(combination.Add(matchingProof));
-                }
-            }
-
-            combinations = expanded;
-        }
-
-        return combinations;
-    }
-
-    private static bool TryAddProof(
-        List<ProofNode> knownFacts,
-        Dictionary<(string Predicate, SemanticTerm Individual), List<ProofNode>> proofsByFact,
-        ProofNode proof)
-    {
-        if (!TryGetFactKey(proof.Predicate, out var key))
-        {
-            return false;
-        }
-
-        if (!proofsByFact.TryGetValue(key, out var existingProofs))
-        {
-            existingProofs = [];
-            proofsByFact.Add(key, existingProofs);
-        }
-
-        if (existingProofs.Any(existing => AreSameProof(existing, proof)))
-        {
-            return false;
-        }
-
-        existingProofs.Add(proof);
-        knownFacts.Add(proof);
-        return true;
-    }
-
-    private static void AddUniqueProof(
-        List<ProofNode> proofs,
-        ProofNode proof)
-    {
-        if (!proofs.Any(existing => AreSameProof(existing, proof)))
-        {
-            proofs.Add(proof);
-        }
-    }
-
-    private static ProofNode CreateAssertedProof(KnowledgeFact fact) =>
-        new(
-            fact.Predicate,
-            fact.SourceText,
-            null,
-            fact.ResolvedReferent,
-            SourceKind: fact.SourceKind,
-            AdditionalSources: fact.AdditionalSources,
-            SourceId: fact.SourceId)
-        {
-            Polarity = fact.Polarity
-        };
-
-    private static ReasoningResult CreateResult(
-        IEnumerable<ProofNode> supportingProofs,
-        IEnumerable<ProofNode>? contradictingProofs = null)
-    {
-        var supporting = new List<ProofNode>();
-
-        foreach (var proof in supportingProofs)
-        {
-            AddUniqueProof(supporting, proof);
-        }
-
-        var contradicting = new List<ProofNode>();
-
-        if (contradictingProofs is not null)
-        {
-            foreach (var proof in contradictingProofs)
-            {
-                AddUniqueProof(contradicting, proof);
-            }
-        }
-
-        return new ReasoningResult(supporting.FirstOrDefault())
-        {
-            AdditionalProofs = supporting.Skip(1).ToImmutableArray(),
-            ContradictingProofs = contradicting.ToImmutableArray()
-        };
-    }
-
-    private static bool AreSameProof(ProofNode left, ProofNode right)
-    {
-        if (!IsSameGroundPredicate(left.Predicate, right.Predicate) ||
-            !string.Equals(left.SourceText, right.SourceText, StringComparison.Ordinal) ||
-            left.ResolvedReferent != right.ResolvedReferent ||
-            left.Kind != right.Kind ||
-            left.Polarity != right.Polarity ||
-            !left.Sources.SequenceEqual(right.Sources) ||
-            (left.Premise is null) != (right.Premise is null))
-        {
-            return false;
-        }
-
-        if (left.Premise is not null &&
-            !AreSameProof(left.Premise, right.Premise!))
-        {
-            return false;
-        }
-
-        var leftAdditional = left.AdditionalPremises.IsDefault
-            ? ImmutableArray<ProofNode>.Empty
-            : left.AdditionalPremises;
-        var rightAdditional = right.AdditionalPremises.IsDefault
-            ? ImmutableArray<ProofNode>.Empty
-            : right.AdditionalPremises;
-
-        return leftAdditional.Length == rightAdditional.Length &&
-            leftAdditional.Zip(rightAdditional).All(pair =>
-                AreSameProof(pair.First, pair.Second));
-    }
-
-    private static bool ContainsFact(
-        ProofNode proof,
-        (string Predicate, SemanticTerm Individual) key,
-        EvidencePolarity polarity)
-    {
-        if (proof.Polarity == polarity &&
-            TryGetFactKey(proof.Predicate, out var proofKey) &&
-            proofKey == key)
-        {
-            return true;
-        }
-
-        if (proof.Premise is not null && ContainsFact(proof.Premise, key, polarity))
-        {
-            return true;
-        }
-
-        if (!proof.AdditionalPremises.IsDefaultOrEmpty)
-        {
-            return proof.AdditionalPremises.Any(premise => ContainsFact(premise, key, polarity));
-        }
-
-        return false;
+        return ProofOperations.CreateResult(proofs);
     }
 
     private static bool TryGetBoundUnaryPredicates(
@@ -614,49 +207,5 @@ public sealed class ReasoningEngine
         return true;
     }
 
-    private static bool IsSameGroundPredicate(
-        PredicateApplication left,
-        PredicateApplication right) =>
-        left.Predicate == right.Predicate &&
-        !left.Arguments.IsDefault &&
-        !right.Arguments.IsDefault &&
-        left.Arguments.SequenceEqual(right.Arguments);
 
-    private static bool TryGetFactKey(
-        PredicateApplication predicate,
-        out (string Predicate, SemanticTerm Individual) key)
-    {
-        key = (string.Empty, null!);
-
-        if (string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
-            predicate.Arguments.IsDefault ||
-            predicate.Arguments.Length != 1)
-        {
-            return false;
-        }
-
-        var individual = predicate.Arguments[0];
-
-        var hasValidIdentity = individual switch
-        {
-            IndividualTerm named => !string.IsNullOrWhiteSpace(named.Identifier.Value),
-            AnonymousIndividualTerm anonymous => !string.IsNullOrWhiteSpace(anonymous.Identity.Value),
-            _ => false
-        };
-
-        if (!hasValidIdentity)
-        {
-            return false;
-        }
-
-        key = (predicate.Predicate.Value, individual);
-        return true;
-    }
-
-    private static PredicateApplication CreateGroundPredicate(
-        SemanticIdentifier predicate,
-        SemanticTerm individual) =>
-        new(
-            predicate,
-            ImmutableArray.Create(individual));
 }
