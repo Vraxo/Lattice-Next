@@ -174,6 +174,7 @@ while (true)
         AnsiConsole.MarkupLine("  [green]Does it like milk?[/]       [dim]relation question with subject reference[/]");
         AnsiConsole.MarkupLine("  [green]Does Fido like it?[/]       [dim]relation question with object reference[/]");
         AnsiConsole.MarkupLine("  [green]Is Fido an animal?[/]       [dim]unary question[/]");
+        AnsiConsole.MarkupLine("  [green]Are all dogs animals?[/]    [dim]universal question[/]");
         AnsiConsole.MarkupLine("  [green]Is it a mammal?[/]          [dim]question with reference[/]");
         AnsiConsole.MarkupLine("[dim]Relation questions use the verb's base form; the parser maps it to third-person singular.[/]");
         AnsiConsole.MarkupLine("[dim]Universal rules infer unary or fixed-object relational conclusions from one or more unary conditions.[/]");
@@ -951,6 +952,7 @@ void ProcessUtterance(SemanticUtterance parsedUtterance)
         PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
         Negation negatedQuery => reasoningEngine.Ask(knowledgeBase, negatedQuery),
         ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
+        UniversalQuantification universalQuery => reasoningEngine.Ask(knowledgeBase, universalQuery),
         _ => null
     };
 
