@@ -294,7 +294,8 @@ public sealed class ManifestToolIntentRecognizer : IToolIntentRecognizer
             {
                 var captured = string.Join(
                     " ",
-                    inputTokens.Skip(inputIndex).Take(length).Select(NormalizeToken));
+                    inputTokens.Skip(inputIndex).Take(length))
+                    .TrimEnd(',', '.', '?', '!', ';', ':');
 
                 if (string.IsNullOrWhiteSpace(captured))
                 {
