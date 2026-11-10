@@ -17,7 +17,8 @@ public sealed class KnowledgeBaseTests
         var facts = knowledgeBase.Facts.Should().BeAssignableTo<IList<KnowledgeFact>>().Which;
 
         facts.IsReadOnly.Should().BeTrue();
-        (() => { Action assertion = () => facts.Clear(); assertion.Should().Throw<NotSupportedException>(); })();
+        Action clearFacts = () => facts.Clear();
+        clearFacts.Should().Throw<NotSupportedException>();
 
         Add(knowledgeBase, "Fido is a dog.");
 
@@ -32,7 +33,8 @@ public sealed class KnowledgeBaseTests
         var rules = knowledgeBase.Rules.Should().BeAssignableTo<IList<UniversalRule>>().Which;
 
         rules.IsReadOnly.Should().BeTrue();
-        (() => { Action assertion = () => rules.Clear(); assertion.Should().Throw<NotSupportedException>(); })();
+        Action clearRules = () => rules.Clear();
+        clearRules.Should().Throw<NotSupportedException>();
 
         Add(knowledgeBase, "Every dog is an animal.");
 
