@@ -7,13 +7,15 @@ public sealed class ToolRegistry
     private const ToolPermission AllPermissions = ToolPermission.Read | ToolPermission.Write;
 
     private readonly Dictionary<string, ITool> tools;
+    private readonly Dictionary<string, ToolPermission> toolPermissions;
     private readonly TimeSpan executionTimeout;
     private readonly ToolPermission grantedPermissions;
 
     public ToolRegistry(
         IEnumerable<ITool> registeredTools,
         ToolPermission grantedPermissions = ToolPermission.None,
-        TimeSpan? executionTimeout = null)
+        TimeSpan? executionTimeout = null,
+        IReadOnlyDictionary<string, ToolPermission>? toolPermissions = null)
     {
         ArgumentNullException.ThrowIfNull(registeredTools);
 
@@ -23,6 +25,25 @@ public sealed class ToolRegistry
         }
 
         this.grantedPermissions = grantedPermissions;
+        this.toolPermissions = new Dictionary<string, ToolPermission>(
+            StringComparer.OrdinalIgnoreCase);
+
+        if (toolPermissions is not null)
+        {
+            foreach (var pair in toolPermissions)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key) ||
+                    (pair.Value & ~AllPermissions) != 0)
+                {
+                    throw new ArgumentException(
+                        "Tool permission grants must use a non-empty tool ID and known permissions.",
+                        nameof(toolPermissions));
+                }
+
+                this.toolPermissions.Add(pair.Key, pair.Value);
+            }
+        }
+
         this.executionTimeout = executionTimeout ?? TimeSpan.FromSeconds(5);
 
         if (this.executionTimeout <= TimeSpan.Zero ||
@@ -64,7 +85,14 @@ public sealed class ToolRegistry
                 $"No tool is registered with ID '{toolId}'.");
         }
 
-        if ((tool.Descriptor.RequiredPermissions & grantedPermissions) != tool.Descriptor.RequiredPermissions)
+        var toolGrantedPermissions = toolPermissions.TryGetValue(
+            tool.Descriptor.Id,
+            out var configuredToolPermissions)
+            ? configuredToolPermissions
+            : ToolPermission.None;
+        var effectivePermissions = grantedPermissions | toolGrantedPermissions;
+
+        if ((tool.Descriptor.RequiredPermissions & effectivePermissions) != tool.Descriptor.RequiredPermissions)
         {
             return ToolInvocationResult.Failure(
                 $"Tool '{tool.Descriptor.Id}' requires permissions that have not been granted.");

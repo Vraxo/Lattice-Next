@@ -76,7 +76,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Define a tool contract and descriptor independent of individual implementations.
 - [x] Add generic discovery, argument validation, permission checks, bounded execution, and sourced invocation results.
-- [x] Prompt for declared tool permissions on first use; make approvals session-wide and retain environment-variable pre-grants for non-interactive runs.
+- [x] Prompt for declared tool permissions on first use; support remembered per-tool approvals, session-only grants, revocation, and environment-variable pre-grants for non-interactive runs.
 - [x] Define a versioned, language-neutral JSON-lines protocol for external tool processes.
 - [x] Discover external tools from per-tool manifests and invoke them through a stdio provider outside Core.
 - [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.

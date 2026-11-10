@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AwesomeAssertions;
+using Lattice.Core.Tools;
 using Lattice.Translators.LmStudio;
 using Xunit;
 
@@ -21,6 +22,11 @@ public sealed class LmStudioConfigurationStoreTests
                 ModelKey = "publisher/gemma-270m-it",
                 ModelIdentifier = "gemma-local",
                 Reasoning = "off"
+            },
+            ToolPermissions = new Dictionary<string, ToolPermission>
+            {
+                ["web-search"] = ToolPermission.Read,
+                ["trusted-sync"] = ToolPermission.Read | ToolPermission.Write
             }
         };
 
@@ -32,6 +38,11 @@ public sealed class LmStudioConfigurationStoreTests
             loaded.LmStudio.ModelKey.Should().Be("publisher/gemma-270m-it");
             loaded.LmStudio.ModelIdentifier.Should().Be("gemma-local");
             loaded.LmStudio.Reasoning.Should().Be("off");
+            loaded.ToolPermissions.Should().ContainKey("web-search")
+                .WhoseValue.Should().Be(ToolPermission.Read);
+            loaded.ToolPermissions.Should().ContainKey("trusted-sync")
+                .WhoseValue.Should().Be(ToolPermission.Read | ToolPermission.Write);
+            File.ReadAllText(path).Should().Contain("\"web-search\": \"read\"");
         }
         finally
         {
@@ -51,6 +62,22 @@ public sealed class LmStudioConfigurationStoreTests
         loaded.LmStudio.LmsExecutable.Should().Be("lms");
         loaded.LmStudio.Reasoning.Should().Be("off");
         loaded.LmStudio.ModelKey.Should().BeNull();
+        loaded.ToolPermissions.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Rejects_unknown_or_empty_persisted_tool_permissions()
+    {
+        var configuration = new LatticeConfiguration
+        {
+            ToolPermissions = new Dictionary<string, ToolPermission>
+            {
+                ["web-search"] = (ToolPermission)8
+            }
+        };
+
+        configuration.TryValidate(out var error).Should().BeFalse();
+        error.Should().Contain("known, non-empty permissions");
     }
 
     [Fact]
