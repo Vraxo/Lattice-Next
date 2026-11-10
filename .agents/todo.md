@@ -42,7 +42,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Derive explicit negative universal conclusions from positive unary premises without feeding negative conclusions back into positive inference.
 - [x] Support explicit negative unary premises in universal rules; match them against explicit or safely derived negative ground unary evidence, never absence.
 - [x] Reuse positive and negative unary rule conclusions in iterative, polarity-separated inference closure with cycle-safe proof ancestry.
-- [x] Support one fixed-object positive relational premise alongside unary conditions in universal rules, matching explicit evidence for the same subject and preserving proof provenance.
+- [x] Support at most one fixed-object positive relational premise alongside unary conditions in universal rules, matching explicit evidence for the same subject and preserving proof provenance.
+- [x] Reject universal rules with multiple fixed-object relational premises rather than implicitly expanding the supported relational language.
 - [ ] Add relation joins, traversal, multi-variable rules, and broader relational premises only after concrete use cases and tests exist.
 
 ## 3. Conversation and context
