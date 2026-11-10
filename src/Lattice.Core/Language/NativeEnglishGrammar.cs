@@ -348,7 +348,8 @@ internal static class NativeEnglishGrammar
 
                 if (index >= end ||
                     Is(tokens[index], "that") ||
-                    Is(tokens[index], "and"))
+                    Is(tokens[index], "and") ||
+                    IsPlural(tokens[index]))
                 {
                     return false;
                 }
@@ -429,6 +430,7 @@ internal static class NativeEnglishGrammar
             if (index >= end ||
                 Is(tokens[index], "that") ||
                 !IsLowerWord(tokens[index]) ||
+                IsPlural(tokens[index]) ||
                 ReservedIndividualTerms.Contains(tokens[index]))
             {
                 return false;
