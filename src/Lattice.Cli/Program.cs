@@ -775,6 +775,9 @@ async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
             if (string.Equals(acceptance, "a", StringComparison.OrdinalIgnoreCase))
             {
                 var updatedPermissions = toolPermissions | missingPermissions;
+                var hadRememberedPermissions = rememberedToolPermissions.TryGetValue(
+                    descriptor.Id,
+                    out var previousRememberedPermissions);
                 rememberedToolPermissions[descriptor.Id] = updatedPermissions;
 
                 if (configurationLoaded)
@@ -796,7 +799,10 @@ async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
                     catch (IOException)
                     {
                         RememberSessionPermission(descriptor.Id, missingPermissions);
-                        rememberedToolPermissions.Remove(descriptor.Id);
+                        RestoreRememberedPermissions(
+                            descriptor.Id,
+                            hadRememberedPermissions,
+                            previousRememberedPermissions);
 
                         AnsiConsole.MarkupLine(
                             "[yellow]Could not save the approval; allowed for this session only.[/]");
@@ -804,7 +810,10 @@ async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
                     catch (UnauthorizedAccessException)
                     {
                         RememberSessionPermission(descriptor.Id, missingPermissions);
-                        rememberedToolPermissions.Remove(descriptor.Id);
+                        RestoreRememberedPermissions(
+                            descriptor.Id,
+                            hadRememberedPermissions,
+                            previousRememberedPermissions);
 
                         AnsiConsole.MarkupLine(
                             "[yellow]Could not save the approval; allowed for this session only.[/]");
@@ -813,7 +822,10 @@ async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
                 else
                 {
                     RememberSessionPermission(descriptor.Id, missingPermissions);
-                    rememberedToolPermissions.Remove(descriptor.Id);
+                    RestoreRememberedPermissions(
+                        descriptor.Id,
+                        hadRememberedPermissions,
+                        previousRememberedPermissions);
 
                     AnsiConsole.MarkupLine(
                         "[yellow]Configuration could not be loaded; allowed for this session only.[/]");
@@ -836,6 +848,21 @@ async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
     }
 
     return await toolRegistry.TryInvokeAsync(requestedToolId, argumentsJson);
+}
+
+void RestoreRememberedPermissions(
+    string toolId,
+    bool hadRememberedPermissions,
+    ToolPermission previousPermissions)
+{
+    if (hadRememberedPermissions)
+    {
+        rememberedToolPermissions[toolId] = previousPermissions;
+    }
+    else
+    {
+        rememberedToolPermissions.Remove(toolId);
+    }
 }
 
 void RememberSessionPermission(string toolId, ToolPermission permissions)
