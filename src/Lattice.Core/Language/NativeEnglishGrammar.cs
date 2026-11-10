@@ -24,7 +24,12 @@ internal static class NativeEnglishGrammar
 
     private static readonly Dictionary<string, string> IrregularPluralNouns = new(StringComparer.OrdinalIgnoreCase)
     {
+        ["analyses"] = "analysis",
+        ["bases"] = "basis",
         ["children"] = "child",
+        ["crises"] = "crisis",
+        ["diagnoses"] = "diagnosis",
+        ["emphases"] = "emphasis",
         ["feet"] = "foot",
         ["geese"] = "goose",
         ["knives"] = "knife",
@@ -34,8 +39,11 @@ internal static class NativeEnglishGrammar
         ["men"] = "man",
         ["mice"] = "mouse",
         ["oxen"] = "ox",
+        ["oases"] = "oasis",
+        ["parentheses"] = "parenthesis",
         ["people"] = "person",
         ["teeth"] = "tooth",
+        ["theses"] = "thesis",
         ["thieves"] = "thief",
         ["wives"] = "wife",
         ["women"] = "woman",
@@ -45,6 +53,13 @@ internal static class NativeEnglishGrammar
     private static readonly HashSet<string> InvariantNouns = new(StringComparer.OrdinalIgnoreCase)
     {
         "deer", "fish", "series", "sheep", "species"
+    };
+
+    private static readonly HashSet<string> SingularNounsEndingInS = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "analysis", "basis", "bonus", "bus", "campus", "crisis", "diagnosis",
+        "emphasis", "gas", "hypothesis", "lens", "octopus", "oasis", "parenthesis",
+        "status", "thesis", "virus"
     };
 
     private static readonly Dictionary<string, string> PastParticiples = new(StringComparer.OrdinalIgnoreCase)
@@ -946,6 +961,7 @@ internal static class NativeEnglishGrammar
     private static bool IsPlural(string word) =>
         IsLowerWord(word) &&
         !InvariantNouns.Contains(word) &&
+        !SingularNounsEndingInS.Contains(word) &&
         (IrregularPluralNouns.ContainsKey(word) ||
          (word.Length > 1 &&
           word.EndsWith("s", StringComparison.Ordinal) &&

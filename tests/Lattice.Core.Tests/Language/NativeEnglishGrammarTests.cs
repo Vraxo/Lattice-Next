@@ -61,6 +61,13 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All series are collections.", UtteranceKind.Assertion, "forall(x, implies(series(x), collection(x)))")]
     [InlineData("Every series is a collection.", UtteranceKind.Assertion, "forall(x, implies(series(x), collection(x)))")]
     [InlineData("The species is rare.", UtteranceKind.Assertion, "rare(species)")]
+    [InlineData("All analyses are reports.", UtteranceKind.Assertion, "forall(x, implies(analysis(x), report(x)))")]
+    [InlineData("Every analysis is a report.", UtteranceKind.Assertion, "forall(x, implies(analysis(x), report(x)))")]
+    [InlineData("All buses are vehicles.", UtteranceKind.Assertion, "forall(x, implies(bus(x), vehicle(x)))")]
+    [InlineData("Every bus is a vehicle.", UtteranceKind.Assertion, "forall(x, implies(bus(x), vehicle(x)))")]
+    [InlineData("All viruses are pathogens.", UtteranceKind.Assertion, "forall(x, implies(virus(x), pathogen(x)))")]
+    [InlineData("Every virus is a pathogen.", UtteranceKind.Assertion, "forall(x, implies(virus(x), pathogen(x)))")]
+    [InlineData("Every lens is an object.", UtteranceKind.Assertion, "forall(x, implies(lens(x), object(x)))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
@@ -94,6 +101,8 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All red and dogs are animals.")]
     [InlineData("Every children are animals.")]
     [InlineData("All child are animals.")]
+    [InlineData("All analysis are reports.")]
+    [InlineData("All bus are vehicles.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);
