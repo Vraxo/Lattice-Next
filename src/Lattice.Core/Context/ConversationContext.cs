@@ -115,7 +115,7 @@ public sealed class ConversationContext
                 referenceIndices[0],
                 new IndividualTerm(referent))
         };
-        var resolvedMeaning = utterance.Meaning is Negation
+        SemanticFormula resolvedMeaning = utterance.Meaning is Negation
             ? new Negation(resolvedPredicate)
             : resolvedPredicate;
         var resolvedUtterance = utterance with
