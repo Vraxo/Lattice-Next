@@ -84,6 +84,28 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All courses are lessons.", UtteranceKind.Assertion, "forall(x, implies(course(x), lesson(x)))")]
     [InlineData("All noses are body-parts.", UtteranceKind.Assertion, "forall(x, implies(nose(x), body-part(x)))")]
     [InlineData("All spouses are partners.", UtteranceKind.Assertion, "forall(x, implies(spouse(x), partner(x)))")]
+    [InlineData("All algae are organisms.", UtteranceKind.Assertion, "forall(x, implies(alga(x), organism(x)))")]
+    [InlineData("All appendices are documents.", UtteranceKind.Assertion, "forall(x, implies(appendix(x), document(x)))")]
+    [InlineData("All antennae are sensors.", UtteranceKind.Assertion, "forall(x, implies(antenna(x), sensor(x)))")]
+    [InlineData("All bacteria are organisms.", UtteranceKind.Assertion, "forall(x, implies(bacterium(x), organism(x)))")]
+    [InlineData("All cacti are plants.", UtteranceKind.Assertion, "forall(x, implies(cactus(x), plant(x)))")]
+    [InlineData("All criteria are requirements.", UtteranceKind.Assertion, "forall(x, implies(criterion(x), requirement(x)))")]
+    [InlineData("All curricula are programs.", UtteranceKind.Assertion, "forall(x, implies(curriculum(x), program(x)))")]
+    [InlineData("All fungi are organisms.", UtteranceKind.Assertion, "forall(x, implies(fungus(x), organism(x)))")]
+    [InlineData("All formulae are expressions.", UtteranceKind.Assertion, "forall(x, implies(formula(x), expression(x)))")]
+    [InlineData("All foci are points.", UtteranceKind.Assertion, "forall(x, implies(focus(x), point(x)))")]
+    [InlineData("All indices are identifiers.", UtteranceKind.Assertion, "forall(x, implies(index(x), identifier(x)))")]
+    [InlineData("All larvae are animals.", UtteranceKind.Assertion, "forall(x, implies(larva(x), animal(x)))")]
+    [InlineData("All loci are positions.", UtteranceKind.Assertion, "forall(x, implies(locus(x), position(x)))")]
+    [InlineData("All matrices are arrays.", UtteranceKind.Assertion, "forall(x, implies(matrix(x), array(x)))")]
+    [InlineData("All nebulae are clouds.", UtteranceKind.Assertion, "forall(x, implies(nebula(x), cloud(x)))")]
+    [InlineData("All nuclei are structures.", UtteranceKind.Assertion, "forall(x, implies(nucleus(x), structure(x)))")]
+    [InlineData("All phenomena are events.", UtteranceKind.Assertion, "forall(x, implies(phenomenon(x), event(x)))")]
+    [InlineData("All radii are measurements.", UtteranceKind.Assertion, "forall(x, implies(radius(x), measurement(x)))")]
+    [InlineData("All syllabi are documents.", UtteranceKind.Assertion, "forall(x, implies(syllabus(x), document(x)))")]
+    [InlineData("All stimuli are signals.", UtteranceKind.Assertion, "forall(x, implies(stimulus(x), signal(x)))")]
+    [InlineData("All vertebrae are bones.", UtteranceKind.Assertion, "forall(x, implies(vertebra(x), bone(x)))")]
+    [InlineData("All vertices are points.", UtteranceKind.Assertion, "forall(x, implies(vertex(x), point(x)))")]
     public void Parses_supported_english_directly_into_semantics(
         string input,
         UtteranceKind expectedKind,
@@ -119,6 +141,10 @@ public sealed class NativeEnglishGrammarTests
     [InlineData("All child are animals.")]
     [InlineData("All analysis are reports.")]
     [InlineData("All bus are vehicles.")]
+    [InlineData("All cactus are plants.")]
+    [InlineData("All fungus are organisms.")]
+    [InlineData("All syllabus are documents.")]
+    [InlineData("All criterion are requirements.")]
     public void Does_not_guess_at_unsupported_or_ambiguous_meanings(string input)
     {
         var result = parser.Parse(input);

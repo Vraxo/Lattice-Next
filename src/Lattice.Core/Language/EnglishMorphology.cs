@@ -4,7 +4,14 @@ internal static class EnglishMorphology
 {
     private static readonly Dictionary<string, string> ExplicitPluralNounForms = new(StringComparer.OrdinalIgnoreCase)
     {
+        ["algae"] = "alga",
+        ["appendices"] = "appendix",
+        ["antennae"] = "antenna",
         ["analyses"] = "analysis",
+        ["bacteria"] = "bacterium",
+        ["cacti"] = "cactus",
+        ["criteria"] = "criterion",
+        ["curricula"] = "curriculum",
         ["bases"] = "basis",
         ["cases"] = "case",
         ["children"] = "child",
@@ -14,14 +21,23 @@ internal static class EnglishMorphology
         ["diseases"] = "disease",
         ["emphases"] = "emphasis",
         ["feet"] = "foot",
+        ["foci"] = "focus",
+        ["formulae"] = "formula",
+        ["fungi"] = "fungus",
         ["horses"] = "horse",
         ["houses"] = "house",
         ["geese"] = "goose",
+        ["indices"] = "index",
         ["knives"] = "knife",
+        ["larvae"] = "larva",
+        ["loci"] = "locus",
         ["leaves"] = "leaf",
         ["lice"] = "louse",
         ["lives"] = "life",
+        ["matrices"] = "matrix",
         ["men"] = "man",
+        ["nebulae"] = "nebula",
+        ["nuclei"] = "nucleus",
         ["mice"] = "mouse",
         ["noises"] = "noise",
         ["noses"] = "nose",
@@ -29,16 +45,22 @@ internal static class EnglishMorphology
         ["oxen"] = "ox",
         ["oases"] = "oasis",
         ["parentheses"] = "parenthesis",
+        ["radii"] = "radius",
         ["pauses"] = "pause",
         ["people"] = "person",
+        ["phenomena"] = "phenomenon",
         ["phases"] = "phase",
         ["phrases"] = "phrase",
         ["promises"] = "promise",
         ["spouses"] = "spouse",
+        ["syllabi"] = "syllabus",
+        ["stimuli"] = "stimulus",
         ["teeth"] = "tooth",
         ["theses"] = "thesis",
         ["thieves"] = "thief",
         ["universes"] = "universe",
+        ["vertebrae"] = "vertebra",
+        ["vertices"] = "vertex",
         ["wives"] = "wife",
         ["women"] = "woman",
         ["wolves"] = "wolf"
@@ -53,7 +75,7 @@ internal static class EnglishMorphology
     {
         "analysis", "basis", "bonus", "bus", "campus", "crisis", "diagnosis",
         "emphasis", "gas", "hypothesis", "lens", "octopus", "oasis", "parenthesis",
-        "status", "thesis", "virus"
+        "status", "syllabus", "stimulus", "thesis", "virus", "cactus", "fungus", "nucleus", "radius", "focus", "locus"
     };
 
     internal static string InflectThirdPersonSingular(string verb)
