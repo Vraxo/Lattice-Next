@@ -29,7 +29,6 @@ internal sealed class ReplSessionCommands
         toolCommands = new ReplToolCommands(toolAccess, conversationContext, translationCommands);
         statusCommand = new ReplStatusCommand(
             session,
-            conversationContext,
             toolAccess,
             translationCommands);
         toolIntentCommand = new ReplToolIntentCommand(

@@ -46,7 +46,19 @@ internal sealed class ReplTranslationCommands
         SemanticFormatter.Format(new SemanticUtterance(
             candidate.Kind,
             candidate.Meaning,
-            candidate.LceText));
+            candidate.AcceptedLceText ?? string.Empty));
+
+    private async ValueTask ProcessCandidateAsync(SemanticUtterance candidate)
+    {
+        if (string.IsNullOrWhiteSpace(candidate.AcceptedLceText))
+        {
+            AnsiConsole.MarkupLine(
+                "[bold red]Lattice[/] [dim]›[/] The accepted translation did not retain its validated LCE text.");
+            return;
+        }
+
+        await utteranceProcessor.ProcessAsync(candidate.AcceptedLceText);
+    }
 
     public async ValueTask<bool> TryHandleAsync(string input)
     {
@@ -178,7 +190,7 @@ internal sealed class ReplTranslationCommands
 
                 if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    await utteranceProcessor.ProcessAsync(candidate.LceText);
+                    await ProcessCandidateAsync(candidate);
                 }
                 else
                 {
@@ -205,8 +217,8 @@ internal sealed class ReplTranslationCommands
                     selectedIndex >= 1 &&
                     selectedIndex <= translation.Candidates.Length)
                 {
-                    await utteranceProcessor.ProcessAsync(
-                        translation.Candidates[selectedIndex - 1].LceText);
+                    await ProcessCandidateAsync(
+                        translation.Candidates[selectedIndex - 1]);
                 }
                 else
                 {

@@ -1,5 +1,4 @@
 using Lattice.Client;
-using Lattice.Core.Context;
 using Lattice.Core.Tools;
 using Spectre.Console;
 
@@ -7,7 +6,6 @@ namespace Lattice.Repl;
 
 internal sealed class ReplStatusCommand(
     ILatticeSession session,
-    ConversationContext conversationContext,
     ReplToolAccess toolAccess,
     ReplTranslationCommands translationCommands)
 {
