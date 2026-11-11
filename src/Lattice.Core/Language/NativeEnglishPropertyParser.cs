@@ -66,6 +66,12 @@ internal static class NativeEnglishPropertyParser
         out SemanticFormula? meaning)
     {
         meaning = null;
+
+        if (start >= end)
+        {
+            return false;
+        }
+
         var isNegative = EnglishGrammarTokens.Is(tokens[start], "not");
         var predicateStart = isNegative ? start + 1 : start;
 
