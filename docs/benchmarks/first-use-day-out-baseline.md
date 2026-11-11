@@ -37,16 +37,22 @@ This is a generic session mechanism driven by the condition's expected value kin
 4. **Candidate evaluation and planning remain untested.** No feasibility comparison, recommendation, trade-off analysis, or plan has been performed. These downstream capabilities must not be implied by objective recognition.
 5. **The laptop prompt now verifies cross-domain condition capture.** The same generic path retains its explicit $1,000 spending limit and its screen-quality/reliability/repairability preference. No laptop-specific workflow is used. Longevity and the lack of gaming need remain in preserved source text; no candidate comparison or reliability conclusion has been performed.
 
-## Candidate-data representation boundary
+## Candidate-data representation and evaluation checkpoint
 
-The current knowledge-pack path can store unary categorical claims and binary relations about named individuals. For example, it can store `Fernbank is a reserve.` and `Fernbank costs six-dollars.`, then answer an exact query for that same symbolic relation. The second argument in the cost relation is an `IndividualTerm` identifier—not a decimal or money value.
+The knowledge base now has a generic typed-attribute collection for named entities. Each attribute carries a typed value and source provenance. The Core objective evaluator matches objective conditions to candidate attributes by the condition's declared target attribute.
 
-The current assertion path rejects a money literal such as `Fernbank costs $6.`, and the native parser does not accept a comparative query such as `Does Fernbank cost less than ten-dollars?`. The reasoning engine performs exact ground-predicate lookup and its existing unary derivation; it has no typed numeric comparison or general candidate evaluation.
+The evaluator reports per-condition outcomes:
+- `Satisfied` or `Violated` for supported comparisons;
+- `PartiallySatisfied` when only some requested preference tags match;
+- `Unknown` when the attribute or a compatible typed value is unavailable;
+- `Conflicting` when the same candidate attribute has multiple distinct values.
 
-Consequently, the candidate table cannot yet be represented faithfully enough to compare transport cost, entry price, journey duration, activity duration, and time windows against an objective. Qualitative facts can be stored symbolically, but that is not sufficient to establish feasibility or rank options. No destination recommendation has been produced by Lattice.
+Hard-constraint violations and unresolved hard constraints are surfaced separately. The first executable proof evaluates budget, transport mode, and quiet/outdoors preference tags for a small synthetic candidate set. A walking-only revision rejects bus candidates and retains walking candidates. Unknown values are not silently treated as satisfied.
+
+This evaluator does not rank options, calculate a score, or recommend a destination. The full benchmark candidate table is not yet imported: typed attributes are currently supplied through the Core API rather than the knowledge-pack format, and detailed bus timetables, facilities, and all four candidate records are not represented. The initial candidate-data proof therefore does not establish that the day-out benchmark has been solved.
 
 ## Next capability
 
-The next increment should introduce only the smallest reusable representation and reasoning mechanism needed to express candidate attributes with typed values and evaluate them against objective conditions. It should preserve unknown attributes, explain which conditions are supported or unresolved, and be tested on the day-out candidates before attempting any planner or numerical scoring framework. A cross-domain check should follow before the mechanism is considered general.
+The next increment should make typed attributes importable through a versioned knowledge pack, then represent the complete day-out candidate table—including costs, travel modes, activity durations, opening times, and timetable facts. Extend condition evaluation only where the full benchmark exposes a missing general comparison. Keep unknowns and provenance explicit; do not add ranking or planning yet.
 
 See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).

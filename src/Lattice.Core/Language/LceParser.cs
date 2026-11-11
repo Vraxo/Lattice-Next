@@ -430,7 +430,10 @@ public sealed class LceParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Equals,
                 new ObjectiveTextValue("bring-lunch"),
-                sourceText));
+                sourceText)
+            {
+                TargetAttribute = "meal-plan"
+            });
         }
 
         var locationMatch = StartingLocationPattern.Match(source);
@@ -442,7 +445,10 @@ public sealed class LceParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Equals,
                 new ObjectiveTextValue(locationMatch.Groups["location"].Value.Trim()),
-                sourceText));
+                sourceText)
+            {
+                TargetAttribute = "origin"
+            });
         }
 
         var timeMatch = TimeWindowPattern.Match(source);
@@ -464,7 +470,10 @@ public sealed class LceParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Within,
                 new ObjectiveTimeWindowValue(start, end),
-                sourceText));
+                sourceText)
+            {
+                TargetAttribute = "opening-window"
+            });
         }
 
         if (NoBusPattern.IsMatch(source))
@@ -474,7 +483,10 @@ public sealed class LceParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Excludes,
                 new ObjectiveTextValue("bus"),
-                sourceText));
+                sourceText)
+            {
+                TargetAttribute = "transport-mode"
+            });
         }
 
         if (WalkingOnlyPattern.IsMatch(source))
@@ -484,7 +496,10 @@ public sealed class LceParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Equals,
                 new ObjectiveTextValue("walking"),
-                sourceText));
+                sourceText)
+            {
+                TargetAttribute = "transport-mode"
+            });
         }
 
         if (conditions.Count == 0)

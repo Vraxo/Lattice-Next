@@ -8,19 +8,63 @@ public sealed class KnowledgeBase
 {
     private readonly List<KnowledgeFact> facts = [];
     private readonly List<UniversalRule> rules = [];
+    private readonly List<KnowledgeAttribute> attributes = [];
     private readonly IReadOnlyList<KnowledgeFact> readOnlyFacts;
     private readonly IReadOnlyList<UniversalRule> readOnlyRules;
+    private readonly IReadOnlyList<KnowledgeAttribute> readOnlyAttributes;
     private long nextExistentialWitnessId;
 
     public KnowledgeBase()
     {
         readOnlyFacts = facts.AsReadOnly();
         readOnlyRules = rules.AsReadOnly();
+        readOnlyAttributes = attributes.AsReadOnly();
     }
 
     public IReadOnlyList<KnowledgeFact> Facts => readOnlyFacts;
 
     public IReadOnlyList<UniversalRule> Rules => readOnlyRules;
+
+    public IReadOnlyList<KnowledgeAttribute> Attributes => readOnlyAttributes;
+
+    public bool TryAddAttribute(KnowledgeAttribute attribute, out string? error)
+    {
+        ArgumentNullException.ThrowIfNull(attribute);
+
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(attribute.Subject.Value) ||
+            string.IsNullOrWhiteSpace(attribute.Name.Value) ||
+            !IsValidAttributeValue(attribute.Value) ||
+            string.IsNullOrWhiteSpace(attribute.SourceText))
+        {
+            error = "A knowledge attribute requires a subject, name, valid typed value, and source text.";
+            return false;
+        }
+
+        var existingIndex = attributes.FindIndex(existing =>
+            existing.Subject == attribute.Subject &&
+            existing.Name == attribute.Name &&
+            AreSameAttributeValue(existing.Value, attribute.Value));
+
+        if (existingIndex < 0)
+        {
+            attributes.Add(attribute);
+            return true;
+        }
+
+        var existingAttribute = attributes[existingIndex];
+        var sources = existingAttribute.Sources
+            .AddRange(attribute.Sources)
+            .Distinct()
+            .ToImmutableArray();
+
+        attributes[existingIndex] = existingAttribute with
+        {
+            AdditionalSources = sources.Skip(1).ToImmutableArray()
+        };
+        return true;
+    }
 
     public bool TryAdd(
         SemanticUtterance utterance,
@@ -132,6 +176,31 @@ public sealed class KnowledgeBase
             "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises, optionally one positive or explicitly negative fixed-object relational premise, and either one unary conclusion or one binary relation to a concrete individual are supported by the current reasoning engine.";
         return false;
     }
+
+    private static bool IsValidAttributeValue(ObjectiveConditionValue value) =>
+        value switch
+        {
+            ObjectiveMoneyValue money =>
+                money.Amount >= 0m && !string.IsNullOrWhiteSpace(money.CurrencySymbol),
+            ObjectiveTextValue text =>
+                !string.IsNullOrWhiteSpace(text.Value),
+            ObjectiveTextSetValue set =>
+                !set.Values.IsDefaultOrEmpty &&
+                set.Values.All(item => !string.IsNullOrWhiteSpace(item)),
+            ObjectiveTimeWindowValue time =>
+                time.Start < time.End,
+            _ => false
+        };
+
+    private static bool AreSameAttributeValue(
+        ObjectiveConditionValue left,
+        ObjectiveConditionValue right) =>
+        (left, right) switch
+        {
+            (ObjectiveTextSetValue leftSet, ObjectiveTextSetValue rightSet) =>
+                leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
+            _ => Equals(left, right)
+        };
 
     private void AddFact(KnowledgeFact fact)
     {

@@ -53,7 +53,7 @@ public sealed class ObjectiveSessionTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, utterance.Kind);
         Assert.Contains("hardconstraint(spending-limit, atmost, $1000)", utterance.Meaning);
-        Assert.Contains("preference(preference, desires, screen quality, reliability, and repairability)", utterance.Meaning);
+        Assert.Contains("preference(preference, desires, screen quality+reliability+repairability)", utterance.Meaning);
         Assert.Equal("compare these three options", status.ActiveObjective);
         Assert.Equal(input, status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);

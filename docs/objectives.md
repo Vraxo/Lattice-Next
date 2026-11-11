@@ -99,7 +99,7 @@ The initial native objective slice now retains a distinct goal and extracts a de
 - a stated limited budget without an amount is represented as an unresolved spending limit, not as zero or as a satisfied constraint;
 - an explicit budget amount is represented as a typed money value, retaining its currency symbol rather than guessing a currency code;
 - an explicit lack of a car is retained as a transport exclusion;
-- simple preference clauses retain their source wording as preference values.
+- simple preference clauses are represented as sets of desired tags while retaining their original source wording.
 
 This is a bounded language slice, not general natural-language understanding. Unrecognized clauses remain in the preserved original source and are not promoted to conditions.
 

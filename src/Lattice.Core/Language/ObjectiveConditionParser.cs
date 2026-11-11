@@ -42,6 +42,7 @@ internal static class ObjectiveConditionParser
                 new ObjectiveMoneyValue(amount, budgetAmount.Groups["symbol"].Value),
                 budgetAmount.Value)
             {
+                TargetAttribute = "total-cost",
                 ExpectedValueKind = ObjectiveConditionValueKind.Money,
                 MissingValuePrompt = "What is your spending limit?"
             }));
@@ -59,6 +60,7 @@ internal static class ObjectiveConditionParser
                     null,
                     limitedBudget.Value)
                 {
+                    TargetAttribute = "total-cost",
                     ExpectedValueKind = ObjectiveConditionValueKind.Money,
                     MissingValuePrompt = "What is your spending limit?"
                 }));
@@ -74,19 +76,47 @@ internal static class ObjectiveConditionParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.Excludes,
                 new ObjectiveTextValue("car"),
-                noCar.Value)));
+                noCar.Value)
+            {
+                TargetAttribute = "transport-mode"
+            }));
         }
 
         var preference = PreferencePattern.Match(source);
 
         if (preference.Success)
         {
-            conditions.Add((preference.Index, new ObjectiveCondition(
-                "preference",
-                ObjectiveConditionRole.Preference,
-                ObjectiveConditionOperator.Desires,
-                new ObjectiveTextValue(preference.Groups["value"].Value.Trim()),
-                preference.Value)));
+            var preferenceText = preference.Groups["value"].Value.Trim();
+
+            if (preferenceText.StartsWith("somewhere ", StringComparison.OrdinalIgnoreCase))
+            {
+                preferenceText = preferenceText["somewhere ".Length..];
+            }
+
+            preferenceText = Regex.Replace(
+                preferenceText,
+                @",?\s+\band\b\s+",
+                ",",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            var preferenceValues = preferenceText
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(value => value.Trim().ToLowerInvariant())
+                .Where(value => value.Length > 0)
+                .ToImmutableArray();
+
+            if (!preferenceValues.IsDefaultOrEmpty)
+            {
+                conditions.Add((preference.Index, new ObjectiveCondition(
+                    "preference",
+                    ObjectiveConditionRole.Preference,
+                    ObjectiveConditionOperator.Desires,
+                    new ObjectiveTextSetValue(preferenceValues),
+                    preference.Value)
+                {
+                    TargetAttribute = "tags"
+                }));
+            }
         }
 
         return conditions

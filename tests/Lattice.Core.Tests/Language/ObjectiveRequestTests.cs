@@ -37,15 +37,20 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(ObjectiveConditionValueKind.Money, budget.ExpectedValueKind);
         Assert.Equal("What is your spending limit?", budget.MissingValuePrompt);
         Assert.Equal("limited budget", budget.SourceText);
+        Assert.Equal("total-cost", budget.TargetAttribute);
 
         var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
         Assert.Equal(ObjectiveConditionRole.HardConstraint, transport.Role);
         Assert.Equal(ObjectiveConditionOperator.Excludes, transport.Operator);
         Assert.Equal(new ObjectiveTextValue("car"), transport.Value);
+        Assert.Equal("transport-mode", transport.TargetAttribute);
 
         var preference = Assert.Single(objective.Conditions, condition => condition.Role == ObjectiveConditionRole.Preference);
         Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
-        Assert.Equal(new ObjectiveTextValue("somewhere quiet and outdoors"), preference.Value);
+        Assert.Equal("tags", preference.TargetAttribute);
+        Assert.Equal(
+            new[] { "quiet", "outdoors" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
     }
 
     [Fact]
@@ -77,7 +82,9 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(new ObjectiveMoneyValue(1000m, "$"), budget.Value);
         Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
         Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
-        Assert.Equal(new ObjectiveTextValue("screen quality, reliability, and repairability"), preference.Value);
+        Assert.Equal(
+            new[] { "screen quality", "reliability", "repairability" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
         Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
     }
 
