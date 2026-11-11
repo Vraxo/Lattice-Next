@@ -64,7 +64,7 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
-    public async Task Unsupported_multi_sentence_follow_up_leaves_the_pending_request_unchanged()
+    public async Task Unsupported_sentence_after_valid_follow_up_leaves_the_session_unchanged()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
@@ -73,12 +73,12 @@ public sealed class ObjectiveSessionTests
         await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
-            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00. This is complicated.",
             TestContext.Current.CancellationToken);
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(LatticeTurnStatus.Rejected, result.Status);
-        Assert.Contains("Sentence 2:", result.Error);
+        Assert.Contains("Sentence 4:", result.Error);
         Assert.Equal("put together a good day", status.ActiveObjective);
         Assert.Equal(originalRequest, status.ActiveObjectiveSource);
         Assert.Equal("spending-limit", status.PendingInformationName);
