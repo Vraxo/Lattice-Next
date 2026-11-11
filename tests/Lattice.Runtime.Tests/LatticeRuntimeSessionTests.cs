@@ -1,3 +1,4 @@
+using Xunit;
 using Lattice.Client;
 using Lattice.Runtime;
 
