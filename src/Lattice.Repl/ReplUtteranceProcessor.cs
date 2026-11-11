@@ -1,90 +1,73 @@
-using Lattice.Core.Context;
-using Lattice.Core.Reasoning;
-using Lattice.Core.Semantics;
+using Lattice.Client;
 using Spectre.Console;
 
 namespace Lattice.Repl;
 
-internal sealed class ReplUtteranceProcessor(
-    ConversationContext conversationContext,
-    KnowledgeBase knowledgeBase,
-    ReasoningEngine reasoningEngine)
+internal sealed class ReplUtteranceProcessor(ILatticeSession session)
 {
-    public void Process(SemanticUtterance parsedUtterance)
+    public async ValueTask ProcessAsync(string input)
     {
-        var resolution = conversationContext.Resolve(parsedUtterance);
-    
-        if (!resolution.IsSuccess)
+        var result = await session.SubmitAsync(input);
+
+        if (!result.IsSuccess)
         {
-            AnsiConsole.Markup("[bold yellow]Lattice[/] [dim]›[/] ");
-    
-            var clarification = resolution.Status switch
-            {
-                ReferenceResolutionStatus.MissingReferent =>
-                    "I don't know who 'it' refers to yet. Please name the individual.",
-                ReferenceResolutionStatus.AmbiguousReferent =>
-                    "More than one individual is known. Which one do you mean by 'it'? Please name them.",
-                _ => "I couldn't resolve that reference. Please name the individual."
-            };
-    
-            AnsiConsole.WriteLine(clarification);
+            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+            AnsiConsole.WriteLine(result.Error ?? "Input could not be processed.");
             return;
         }
-    
-        var utterance = resolution.Utterance!;
-    
-        if (utterance.Kind == UtteranceKind.Assertion)
+
+        foreach (var utterance in result.Utterances)
         {
-            if (!knowledgeBase.TryAdd(utterance, out var kind, out var error))
+            switch (utterance.Kind)
             {
-                AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
-                AnsiConsole.WriteLine(error ?? "The statement could not be stored.");
-                return;
+                case LatticeUtteranceResultKind.StatementStored:
+                    var entryKind = utterance.EntryKind?.ToString().ToLowerInvariant() ?? "statement";
+                    AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Stored {entryKind}.[/]");
+                    AnsiConsole.Markup("[dim]meaning › [/]");
+                    AnsiConsole.WriteLine(utterance.Meaning ?? string.Empty);
+                    break;
+
+                case LatticeUtteranceResultKind.StatementRejected:
+                case LatticeUtteranceResultKind.UnsupportedQuestion:
+                    AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
+                    AnsiConsole.WriteLine(utterance.Message ?? "The utterance could not be processed.");
+                    break;
+
+                case LatticeUtteranceResultKind.ClarificationRequired:
+                    AnsiConsole.Markup("[bold yellow]Lattice[/] [dim]›[/] ");
+                    AnsiConsole.WriteLine(utterance.Message ?? "Please clarify the reference.");
+                    break;
+
+                case LatticeUtteranceResultKind.QuestionAnswered:
+                    WriteAnswer(utterance);
+                    break;
             }
-    
-            conversationContext.Observe(utterance);
-    
-            AnsiConsole.MarkupLine(
-                $"[bold cyan]Lattice[/] [dim]› Stored {kind.ToString().ToLowerInvariant()}.[/]");
-            AnsiConsole.Markup("[dim]meaning › [/]");
-            AnsiConsole.WriteLine(SemanticFormatter.Format(utterance));
-            return;
         }
-    
-        var answer = utterance.Meaning switch
+    }
+
+    private static void WriteAnswer(LatticeUtteranceResult utterance)
+    {
+        switch (utterance.TruthValue)
         {
-            PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
-            Negation negatedQuery => reasoningEngine.Ask(knowledgeBase, negatedQuery),
-            ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
-            UniversalQuantification universalQuery => reasoningEngine.Ask(knowledgeBase, universalQuery),
-            _ => null
-        };
-    
-        if (answer is null)
-        {
-            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]› Unsupported question form.[/]");
-            return;
-        }
-    
-        conversationContext.Observe(utterance);
-    
-        switch (answer.TruthValue)
-        {
-            case TruthValue.True:
+            case LatticeTruthValue.True:
                 AnsiConsole.MarkupLine("[bold green]Lattice[/] [dim]›[/] Yes.");
                 break;
-            case TruthValue.False:
+            case LatticeTruthValue.False:
                 AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] No (explicit negative evidence).");
                 break;
-            case TruthValue.Both:
+            case LatticeTruthValue.Both:
                 AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] Contradiction: both the statement and its negation are supported.");
                 break;
             default:
                 AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Unknown.");
                 break;
         }
-    
-        ReplProofFormatter.WriteProofGroup("Evidence supporting the answer:", answer.Proofs);
-        ReplProofFormatter.WriteProofGroup("Evidence opposing the answer:", answer.ContradictingProofs);
+
+        ReplProofFormatter.WriteProofGroup(
+            "Evidence supporting the answer:",
+            utterance.SupportingEvidence);
+        ReplProofFormatter.WriteProofGroup(
+            "Evidence opposing the answer:",
+            utterance.OpposingEvidence);
     }
 }

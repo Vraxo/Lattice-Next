@@ -10,4 +10,11 @@ public interface ILatticeSession : IAsyncDisposable
     ValueTask<LatticeTurnResult> SubmitAsync(
         string input,
         CancellationToken cancellationToken = default);
+
+    ValueTask<LatticeKnowledgePackResult> LoadKnowledgePackAsync(
+        string json,
+        CancellationToken cancellationToken = default);
+
+    ValueTask<LatticeSessionStatus> GetStatusAsync(
+        CancellationToken cancellationToken = default);
 }

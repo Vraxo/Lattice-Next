@@ -1,6 +1,6 @@
+using Lattice.Client;
 using Lattice.Core.Context;
 using Lattice.Core.Intelligence;
-using Lattice.Core.Reasoning;
 using Lattice.Translators.LmStudio;
 
 namespace Lattice.Repl;
@@ -15,8 +15,7 @@ internal sealed class ReplSessionCommands
     public ReplSessionCommands(
         ReplToolAccess toolAccess,
         ConversationContext conversationContext,
-        KnowledgeBase knowledgeBase,
-        List<KnowledgePack> loadedPacks,
+        ILatticeSession session,
         ToolIntentResolver toolIntentResolver,
         LmStudioConfigurationStore configurationStore,
         bool configurationLoaded,
@@ -29,9 +28,7 @@ internal sealed class ReplSessionCommands
             translationCommands);
         toolCommands = new ReplToolCommands(toolAccess, conversationContext, translationCommands);
         statusCommand = new ReplStatusCommand(
-            knowledgeBase,
-            conversationContext,
-            loadedPacks,
+            session,
             toolAccess,
             translationCommands);
         toolIntentCommand = new ReplToolIntentCommand(
@@ -53,7 +50,7 @@ internal sealed class ReplSessionCommands
             return true;
         }
 
-        if (statusCommand.TryHandle(input))
+        if (await statusCommand.TryHandleAsync(input))
         {
             return true;
         }

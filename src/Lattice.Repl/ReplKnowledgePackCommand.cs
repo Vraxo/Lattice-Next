@@ -1,15 +1,13 @@
-using Lattice.Core.Reasoning;
+using Lattice.Client;
 using Spectre.Console;
 
 namespace Lattice.Repl;
 
 internal static class ReplKnowledgePackCommand
 {
-    public static bool TryHandle(
+    public static async ValueTask<bool> TryHandleAsync(
         string input,
-        KnowledgePackLoader knowledgePackLoader,
-        KnowledgeBase knowledgeBase,
-        List<KnowledgePack> loadedPacks)
+        ILatticeSession session)
     {
         if (!input.StartsWith(":load ", StringComparison.OrdinalIgnoreCase))
         {
@@ -36,7 +34,7 @@ internal static class ReplKnowledgePackCommand
 
         try
         {
-            packJson = File.ReadAllText(path);
+            packJson = await File.ReadAllTextAsync(path);
         }
         catch (IOException)
         {
@@ -51,16 +49,18 @@ internal static class ReplKnowledgePackCommand
             return true;
         }
 
-        if (!knowledgePackLoader.TryLoadAndAdd(packJson, knowledgeBase, out var pack, out var error))
+        var result = await session.LoadKnowledgePackAsync(packJson);
+
+        if (!result.IsSuccess)
         {
             AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
-            AnsiConsole.WriteLine(error ?? "The knowledge pack could not be loaded.");
+            AnsiConsole.WriteLine(result.Error ?? "The knowledge pack could not be loaded.");
             AnsiConsole.WriteLine();
             return true;
         }
 
-        loadedPacks.Add(pack!);
-        AnsiConsole.MarkupLine($"[bold cyan]Lattice[/] [dim]› Loaded '{pack!.Name}' ({pack.ClaimCount} claims).[/]");
+        AnsiConsole.MarkupLine(
+            $"[bold cyan]Lattice[/] [dim]› Loaded '{Markup.Escape(result.Name ?? "knowledge pack")}' ({result.ClaimCount} claims).[/]");
         AnsiConsole.WriteLine();
         return true;
     }

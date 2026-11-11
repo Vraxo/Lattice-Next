@@ -42,6 +42,21 @@ internal sealed class ReplTranslationCommands
         configuration = updatedConfiguration;
     }
 
+    private static string FormatCandidate(SemanticUtterance candidate) =>
+        SemanticFormatter.Format(candidate);
+
+    private async ValueTask ProcessCandidateAsync(SemanticUtterance candidate)
+    {
+        if (string.IsNullOrWhiteSpace(candidate.AcceptedLceText))
+        {
+            AnsiConsole.MarkupLine(
+                "[bold red]Lattice[/] [dim]›[/] The accepted translation did not retain its validated LCE text.");
+            return;
+        }
+
+        await utteranceProcessor.ProcessAsync(candidate.AcceptedLceText);
+    }
+
     public async ValueTask<bool> TryHandleAsync(string input)
     {
         if (string.Equals(input, ":translator", StringComparison.OrdinalIgnoreCase))
@@ -71,8 +86,7 @@ internal sealed class ReplTranslationCommands
         {
             try
             {
-                var models = await lmStudioRuntime.ListInstalledModelsAsync(
-                    reportStatus);
+                var models = await lmStudioRuntime.ListInstalledModelsAsync(reportStatus);
 
                 if (models.IsEmpty)
                 {
@@ -125,7 +139,6 @@ internal sealed class ReplTranslationCommands
 
                 await configurationStore.SaveAsync(updatedConfiguration);
                 configuration = updatedConfiguration;
-
                 translationService = createTranslationService(selectedConfiguration);
 
                 AnsiConsole.MarkupLine(
@@ -141,7 +154,6 @@ internal sealed class ReplTranslationCommands
             AnsiConsole.WriteLine();
             return true;
         }
-
 
         if (input.Equals(":translate", StringComparison.OrdinalIgnoreCase) ||
             input.StartsWith(":translate ", StringComparison.OrdinalIgnoreCase))
@@ -169,13 +181,13 @@ internal sealed class ReplTranslationCommands
             {
                 var candidate = translation.Candidates[0];
                 AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]› Proposed meaning (not yet accepted):[/]");
-                AnsiConsole.WriteLine(SemanticFormatter.Format(candidate));
+                AnsiConsole.WriteLine(FormatCandidate(candidate));
                 AnsiConsole.Markup("[yellow]Accept and process this interpretation? [[y/N]] [/]");
                 var acceptance = Console.ReadLine();
 
                 if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    utteranceProcessor.Process(candidate);
+                    await ProcessCandidateAsync(candidate);
                 }
                 else
                 {
@@ -192,7 +204,7 @@ internal sealed class ReplTranslationCommands
                 for (var index = 0; index < translation.Candidates.Length; index++)
                 {
                     AnsiConsole.MarkupLine(
-                        $"  [cyan]{index + 1}.[/] {SemanticFormatter.Format(translation.Candidates[index])}");
+                        $"  [cyan]{index + 1}.[/] {FormatCandidate(translation.Candidates[index])}");
                 }
 
                 AnsiConsole.Markup("[yellow]Choose a candidate number, or press Enter to cancel: [/]");
@@ -202,7 +214,8 @@ internal sealed class ReplTranslationCommands
                     selectedIndex >= 1 &&
                     selectedIndex <= translation.Candidates.Length)
                 {
-                    utteranceProcessor.Process(translation.Candidates[selectedIndex - 1]);
+                    await ProcessCandidateAsync(
+                        translation.Candidates[selectedIndex - 1]);
                 }
                 else
                 {
@@ -219,6 +232,6 @@ internal sealed class ReplTranslationCommands
             return true;
         }
 
-    return false;
-}
+        return false;
+    }
 }

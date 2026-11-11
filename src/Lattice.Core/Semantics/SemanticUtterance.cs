@@ -6,4 +6,6 @@ public sealed record SemanticUtterance(
     string SourceText)
 {
     public SemanticIdentifier? ResolvedReferent { get; init; }
+
+    public string? AcceptedLceText { get; init; }
 }

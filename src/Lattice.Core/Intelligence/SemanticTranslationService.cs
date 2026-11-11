@@ -94,7 +94,10 @@ public sealed class SemanticTranslationService
             candidates.Add(new SemanticUtterance(
                 candidate!.Kind,
                 candidate.Meaning,
-                sourceText));
+                sourceText)
+            {
+                AcceptedLceText = candidate.LceText
+            });
         }
 
         var validatedCandidates = candidates.ToImmutable();

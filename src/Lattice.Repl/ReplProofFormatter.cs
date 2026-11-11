@@ -1,12 +1,13 @@
-using Lattice.Core.Reasoning;
-using Lattice.Core.Semantics;
+using Lattice.Client;
 using Spectre.Console;
 
 namespace Lattice.Repl;
 
 internal static class ReplProofFormatter
 {
-    public static void WriteProofGroup(string heading, IReadOnlyList<ProofNode> proofs)
+    public static void WriteProofGroup(
+        string heading,
+        IReadOnlyList<LatticeEvidence> proofs)
     {
         if (proofs.Count == 0)
         {
@@ -30,38 +31,29 @@ internal static class ReplProofFormatter
         }
     }
 
-    static IEnumerable<string> GetProofStatements(ProofNode proof)
+    private static IEnumerable<string> GetProofStatements(LatticeEvidence proof)
     {
         var emitted = new HashSet<string>(StringComparer.Ordinal);
         return Collect(proof, emitted);
 
-        static IEnumerable<string> Collect(ProofNode current, HashSet<string> emitted)
+        static IEnumerable<string> Collect(
+            LatticeEvidence current,
+            HashSet<string> emitted)
         {
-            if (current.Premise is not null)
+            foreach (var premise in current.Premises)
             {
-                foreach (var statement in Collect(current.Premise, emitted))
+                foreach (var statement in Collect(premise, emitted))
                 {
                     yield return statement;
-                }
-            }
-
-            if (!current.AdditionalPremises.IsDefaultOrEmpty)
-            {
-                foreach (var additionalPremise in current.AdditionalPremises)
-                {
-                    foreach (var statement in Collect(additionalPremise, emitted))
-                    {
-                        yield return statement;
-                    }
                 }
             }
 
             foreach (var source in current.Sources)
             {
                 var referent = source.ResolvedReferent is { } resolved
-                    ? $" [it resolved to {resolved.Value}]"
+                    ? $" [it resolved to {resolved}]"
                     : string.Empty;
-                var origin = source.Kind == KnowledgeSourceKind.UserAssertion
+                var origin = source.Kind == LatticeKnowledgeSourceKind.UserAssertion
                     ? string.Empty
                     : $" [source: {source.Kind}]";
                 var pack = string.IsNullOrWhiteSpace(source.SourceId)

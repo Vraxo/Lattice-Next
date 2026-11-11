@@ -121,7 +121,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Rename the interactive console frontend from `Lattice.Cli` to `Lattice.Repl` without changing its behavior.
 - [x] Define a transport-independent public client/session contract and an in-process runtime implementation with isolated sessions and structured turn/evidence results.
-- [ ] Adapt the REPL to use that contract through an in-process client.
+- [x] Adapt the REPL to use that contract through an in-process client.
 - [ ] Add a genuinely non-interactive `Lattice.Cli` for scripts and automation.
 - [ ] Add an optional long-running host and remote client over a narrow localhost HTTP API; preserve the same contract for every frontend.
 
