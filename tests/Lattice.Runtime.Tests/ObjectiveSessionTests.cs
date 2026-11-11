@@ -50,7 +50,7 @@ public sealed class ObjectiveSessionTests
         var busy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Busy Park");
         Assert.True(busy.HasHardConstraintViolation);
         Assert.False(busy.HasUnresolvedHardConstraint);
-        Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "Violated");
+        Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "PartiallySatisfied");
     }
 
     [Theory]
