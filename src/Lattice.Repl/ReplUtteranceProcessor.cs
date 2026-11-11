@@ -6,13 +6,21 @@ namespace Lattice.Repl;
 
 internal sealed class ReplUtteranceProcessor(ILatticeSession session)
 {
-    public async ValueTask ProcessAsync(
+    public ValueTask ProcessAsync(
+        string input,
+        CancellationToken cancellationToken = default) =>
+        ProcessInputAsync(input, cancellationToken);
+
+    public ValueTask ProcessAsync(
         SemanticUtterance parsedUtterance,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ProcessInputAsync(SemanticFormatter.Format(parsedUtterance), cancellationToken);
+
+    private async ValueTask ProcessInputAsync(
+        string input,
+        CancellationToken cancellationToken)
     {
-        var result = await session.SubmitAsync(
-            SemanticFormatter.Format(parsedUtterance),
-            cancellationToken);
+        var result = await session.SubmitAsync(input, cancellationToken);
 
         if (!result.IsSuccess)
         {
