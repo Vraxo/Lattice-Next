@@ -53,6 +53,52 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "Violated");
     }
 
+    [Fact]
+    public async Task Exposes_evidence_based_candidate_assessments_in_session_status()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "objective-evaluation-test",
+              "name": "Objective evaluation test",
+              "claims": [],
+              "attributes": [
+                { "subject": "Quiet Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Quiet Park costs $10." },
+                { "subject": "Quiet Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Quiet Park is reachable by walking." },
+                { "subject": "Quiet Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Quiet Park is quiet and outdoors." },
+                { "subject": "Busy Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Busy Park costs $10." },
+                { "subject": "Busy Park", "name": "transport-mode", "value": { "type": "text", "value": "bus" }, "sourceText": "Busy Park is reachable by bus." },
+                { "subject": "Busy Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Busy Park is busy and outdoors." }
+              ]
+            }
+            """;
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        await session.SubmitAsync(
+            "I have a limited budget and no car. I would prefer somewhere quiet and outdoors. Help me choose a place. My budget is $25.",
+            TestContext.Current.CancellationToken);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Equal(2, evaluation.Candidates.Length);
+
+        var quiet = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Quiet Park");
+        Assert.False(quiet.HasHardConstraintViolation);
+        Assert.False(quiet.HasUnresolvedHardConstraint);
+        Assert.All(quiet.Conditions, condition => Assert.Equal("Satisfied", condition.Status));
+        Assert.Contains(
+            quiet.Conditions.SelectMany(condition => condition.Evidence),
+            source => source.SourceText == "Quiet Park is quiet and outdoors.");
+
+        var busy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Busy Park");
+        Assert.True(busy.HasHardConstraintViolation);
+        Assert.False(busy.HasUnresolvedHardConstraint);
+        Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "Violated");
+    }
+
     [Theory]
     [InlineData("I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.", "put together a good day", LatticeUtteranceResultKind.ClarificationRequired)]
     [InlineData("I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.", "compare these three options", LatticeUtteranceResultKind.ObjectiveReceived)]
