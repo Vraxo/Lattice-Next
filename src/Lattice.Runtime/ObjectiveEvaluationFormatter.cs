@@ -1,5 +1,6 @@
 using System.Text;
 using Lattice.Core.Reasoning;
+using Lattice.Core.Semantics;
 
 namespace Lattice.Runtime;
 
