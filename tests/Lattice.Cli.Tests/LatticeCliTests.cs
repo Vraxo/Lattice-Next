@@ -109,6 +109,24 @@ public sealed class LatticeCliTests
     }
 
     [Fact]
+    public async Task Treats_objective_clarification_as_a_successful_text_response()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await LatticeCli.RunAsync(
+            ["--format", "text", "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day."],
+            new StringReader(string.Empty),
+            output,
+            error,
+            standardInputIsRedirected: false);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("What is your spending limit?", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
+    [Fact]
     public async Task Returns_a_usage_exit_code_for_unknown_options()
     {
         using var output = new StringWriter();
