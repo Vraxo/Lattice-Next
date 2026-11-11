@@ -2,4 +2,7 @@ using System.Collections.Immutable;
 
 namespace Lattice.Core.Semantics;
 
-public sealed record ObjectiveConditionUpdateFormula(ImmutableArray<ObjectiveCondition> Conditions) : SemanticFormula;
+public sealed record ObjectiveConditionUpdateFormula(ImmutableArray<ObjectiveCondition> Conditions) : SemanticFormula
+{
+    public ImmutableArray<ObjectivePreferenceEdit> PreferenceEdits { get; init; } = [];
+}
