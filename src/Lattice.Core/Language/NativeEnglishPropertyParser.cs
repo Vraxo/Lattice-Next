@@ -212,26 +212,65 @@ internal static class NativeEnglishPropertyParser
     {
         meaning = null;
 
-        if (end - start == 1 &&
-            TryParseNamedIndividualProperty(tokens, start, end, out var property))
+        var conjunctionIndex = Array.FindIndex(
+            tokens,
+            start,
+            end - start,
+            token => EnglishGrammarTokens.Is(token, "and"));
+
+        if (conjunctionIndex < 0)
         {
-            meaning = EnglishSemanticFactory.Predicate(property!, individual);
+            if (!TryParseNamedIndividualPredicate(tokens, start, end, out var predicate))
+            {
+                return false;
+            }
+
+            meaning = EnglishSemanticFactory.Predicate(predicate!, individual);
             return true;
         }
 
-        if (end - start != 3 ||
-            !EnglishGrammarTokens.Is(tokens[start + 1], "and") ||
-            !TryParseNamedIndividualProperty(tokens, start, start + 1, out var firstProperty) ||
-            !TryParseNamedIndividualProperty(tokens, start + 2, end, out var secondProperty))
+        if (Array.FindIndex(
+                tokens,
+                conjunctionIndex + 1,
+                end - conjunctionIndex - 1,
+                token => EnglishGrammarTokens.Is(token, "and")) >= 0 ||
+            !TryParseNamedIndividualPredicate(tokens, start, conjunctionIndex, out var firstPredicate) ||
+            !TryParseNamedIndividualPredicate(tokens, conjunctionIndex + 1, end, out var secondPredicate))
         {
             return false;
         }
 
         meaning = EnglishSemanticFactory.Combine(
         [
-            EnglishSemanticFactory.Predicate(firstProperty!, individual),
-            EnglishSemanticFactory.Predicate(secondProperty!, individual)
+            EnglishSemanticFactory.Predicate(firstPredicate!, individual),
+            EnglishSemanticFactory.Predicate(secondPredicate!, individual)
         ]);
+        return true;
+    }
+
+    private static bool TryParseNamedIndividualPredicate(
+        string[] tokens,
+        int start,
+        int end,
+        out string? predicate)
+    {
+        predicate = null;
+
+        if (TryParseNamedIndividualProperty(tokens, start, end, out predicate))
+        {
+            return true;
+        }
+
+        if (end - start != 2 ||
+            !EnglishGrammarTokens.IsArticle(tokens[start]) ||
+            !EnglishGrammarTokens.IsLowerWord(tokens[start + 1]) ||
+            EnglishGrammarTokens.IsReservedIndividualTerm(tokens[start + 1]) ||
+            EnglishMorphology.IsPlural(tokens[start + 1]))
+        {
+            return false;
+        }
+
+        predicate = tokens[start + 1].ToLowerInvariant();
         return true;
     }
 

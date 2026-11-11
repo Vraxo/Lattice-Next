@@ -36,6 +36,33 @@ public sealed class ConjunctiveGroundFactTests
     }
 
     [Fact]
+    public void Stores_and_reasons_over_class_membership_and_adjective_conjuncts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        var utterance = Parse("Fido is a dog and happy.");
+
+        var accepted = knowledgeBase.TryAdd(
+            utterance,
+            out var kind,
+            out var error);
+
+        accepted.Should().BeTrue(error);
+        kind.Should().Be(KnowledgeEntryKind.Fact);
+        knowledgeBase.Facts.Should().HaveCount(2);
+        knowledgeBase.Facts.Should().OnlyContain(fact =>
+            fact.SourceText == "Fido is a dog and happy.");
+
+        var engine = new ReasoningEngine();
+        var dog = engine.Ask(knowledgeBase, ParseQuestion("Does Fido count as a dog?"));
+        var happy = engine.Ask(knowledgeBase, ParseQuestion("Is Fido happy?"));
+
+        dog.IsSupported.Should().BeTrue();
+        dog.Proof!.SourceText.Should().Be("Fido is a dog and happy.");
+        happy.IsSupported.Should().BeTrue();
+        happy.Proof!.SourceText.Should().Be("Fido is a dog and happy.");
+    }
+
+    [Fact]
     public void Stores_and_reasons_over_each_explicitly_negative_conjunct()
     {
         var knowledgeBase = new KnowledgeBase();
