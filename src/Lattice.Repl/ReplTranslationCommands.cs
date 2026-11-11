@@ -46,7 +46,7 @@ internal sealed class ReplTranslationCommands
         SemanticFormatter.Format(new SemanticUtterance(
             candidate.Kind,
             candidate.Meaning,
-            candidate.AcceptedLceText ?? string.Empty));
+            candidate.LceText ?? string.Empty));
 
     private async ValueTask ProcessCandidateAsync(SemanticUtterance candidate)
     {
