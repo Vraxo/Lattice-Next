@@ -54,3 +54,15 @@ var turn = await session.SubmitAsync("Fido is a dog. Is Fido a dog?");
 ```
 
 The session API and result types are the same as the in-process runtime. Session state is held in server memory; sessions are lost when the host stops, and idle-session expiration and durable persistence are not included in this first hosted slice.
+
+## Use the REPL with a remote server
+
+The interactive REPL defaults to the in-process runtime. Select the hosted runtime at startup with:
+
+```sh
+dotnet run --project src/Lattice.Repl -- --server http://127.0.0.1:5080
+```
+
+Set `LATTICE_SERVER_API_KEY` in the REPL process environment when the server requires bearer-token authentication. The REPL uses the same session contract in either mode; `:load`, `:status`, and ordinary statements/questions operate on the selected session.
+
+External tools, tool permissions, and LM Studio translation remain local to the REPL machine. They are composed by the frontend and are not installed on or executed by the remote server.
