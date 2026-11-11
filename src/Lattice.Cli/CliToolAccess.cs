@@ -61,7 +61,7 @@ internal sealed class CliToolAccess
         var combinedToolPermissions = new Dictionary<string, ToolPermission>(
             rememberedToolPermissions,
             StringComparer.OrdinalIgnoreCase);
-    
+
         foreach (var pair in sessionToolPermissions)
         {
             combinedToolPermissions[pair.Key] = combinedToolPermissions.TryGetValue(
@@ -70,21 +70,21 @@ internal sealed class CliToolAccess
                 ? remembered | pair.Value
                 : pair.Value;
         }
-    
+
         return new ToolRegistry(
             registeredTools,
             grantedPermissions,
             executionTimeout: TimeSpan.FromSeconds(15),
             toolPermissions: combinedToolPermissions);
     }
-    
+
     public async ValueTask<ToolInvocationResult?> InvokeAsync(
         string requestedToolId,
         string argumentsJson)
     {
         var descriptor = toolRegistry.Descriptors.FirstOrDefault(
             item => string.Equals(item.Id, requestedToolId, StringComparison.OrdinalIgnoreCase));
-    
+
         if (descriptor is not null)
         {
             var toolPermissions = rememberedToolPermissions.TryGetValue(
@@ -97,32 +97,32 @@ internal sealed class CliToolAccess
                 out var session)
                 ? session
                 : ToolPermission.None;
-    
+
             var missingPermissions = descriptor.RequiredPermissions &
                 ~(grantedPermissions | toolPermissions);
-    
+
             if (missingPermissions != ToolPermission.None)
             {
                 var permissionNames = FormatPermissionNames(missingPermissions);
                 var descriptions = new List<string>();
-    
+
                 if ((missingPermissions & ToolPermission.Read) != 0)
                 {
                     descriptions.Add("read: access information outside this conversation");
                 }
-    
+
                 if ((missingPermissions & ToolPermission.Write) != 0)
                 {
                     descriptions.Add("write: make changes outside this conversation");
                 }
-    
+
                 AnsiConsole.MarkupLine(
                     $"[yellow]{Markup.Escape(descriptor.Name)} requests {Markup.Escape(permissionNames)}.[/]");
                 AnsiConsole.MarkupLine($"[dim]{Markup.Escape(string.Join("; ", descriptions))}.[/]");
                 AnsiConsole.Markup(
                     "[yellow][[a]] Always allow / [[y]] This session / [[N]] Deny: [/]");
                 var acceptance = Console.ReadLine()?.Trim();
-    
+
                 if (string.Equals(acceptance, "a", StringComparison.OrdinalIgnoreCase))
                 {
                     var updatedPermissions = toolPermissions | missingPermissions;
@@ -130,7 +130,7 @@ internal sealed class CliToolAccess
                         descriptor.Id,
                         out var previousRememberedPermissions);
                     rememberedToolPermissions[descriptor.Id] = updatedPermissions;
-    
+
                     if (configurationLoaded)
                     {
                         var updatedConfiguration = latticeConfiguration with
@@ -139,7 +139,7 @@ internal sealed class CliToolAccess
                                 rememberedToolPermissions,
                                 StringComparer.OrdinalIgnoreCase)
                         };
-    
+
                         try
                         {
                             await configurationStore.SaveAsync(updatedConfiguration);
@@ -154,7 +154,7 @@ internal sealed class CliToolAccess
                                 descriptor.Id,
                                 hadRememberedPermissions,
                                 previousRememberedPermissions);
-    
+
                             AnsiConsole.MarkupLine(
                                 "[yellow]Could not save the approval; allowed for this session only.[/]");
                         }
@@ -165,7 +165,7 @@ internal sealed class CliToolAccess
                                 descriptor.Id,
                                 hadRememberedPermissions,
                                 previousRememberedPermissions);
-    
+
                             AnsiConsole.MarkupLine(
                                 "[yellow]Could not save the approval; allowed for this session only.[/]");
                         }
@@ -177,7 +177,7 @@ internal sealed class CliToolAccess
                             descriptor.Id,
                             hadRememberedPermissions,
                             previousRememberedPermissions);
-    
+
                         AnsiConsole.MarkupLine(
                             "[yellow]Configuration could not be loaded; allowed for this session only.[/]");
                     }
@@ -193,14 +193,14 @@ internal sealed class CliToolAccess
                     AnsiConsole.MarkupLine("[dim]Permission was not granted; the tool was not run.[/]");
                     return null;
                 }
-    
+
                 toolRegistry = CreateToolRegistry();
             }
         }
-    
+
         return await toolRegistry.TryInvokeAsync(requestedToolId, argumentsJson);
     }
-    
+
     private void RestoreRememberedPermissions(
         string toolId,
         bool hadRememberedPermissions,
@@ -215,7 +215,7 @@ internal sealed class CliToolAccess
             rememberedToolPermissions.Remove(toolId);
         }
     }
-    
+
     private void RememberSessionPermission(string toolId, ToolPermission permissions)
     {
         sessionToolPermissions[toolId] = sessionToolPermissions.TryGetValue(
@@ -224,21 +224,21 @@ internal sealed class CliToolAccess
             ? existing | permissions
             : permissions;
     }
-    
+
     public static string FormatPermissionNames(ToolPermission permissions)
     {
         var names = new List<string>(2);
-    
+
         if ((permissions & ToolPermission.Read) != 0)
         {
             names.Add("read");
         }
-    
+
         if ((permissions & ToolPermission.Write) != 0)
         {
             names.Add("write");
         }
-    
+
         return string.Join(" and ", names);
     }
 }
