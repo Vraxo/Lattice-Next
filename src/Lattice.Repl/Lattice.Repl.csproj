@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.57.2" />
     <ProjectReference Include="../Lattice.Client/Lattice.Client.csproj" />
+    <ProjectReference Include="../Lattice.Client.Http/Lattice.Client.Http.csproj" />
     <ProjectReference Include="../Lattice.Core/Lattice.Core.csproj" />
     <ProjectReference Include="../Lattice.Runtime/Lattice.Runtime.csproj" />
     <ProjectReference Include="../Lattice.Translators.LmStudio/Lattice.Translators.LmStudio.csproj" />
