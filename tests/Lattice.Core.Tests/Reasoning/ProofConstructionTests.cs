@@ -91,10 +91,10 @@ public sealed class ProofConstructionTests
         result.Proofs.Length.Should().Be(2);
         result.Proofs.Should().Contain(proof =>
             proof.SourceText == "Every dog is a pet." &&
-            proof.Premise is not null && proof.Premise.SourceText == "Fido is a dog.");
+            proof.Premise != null && proof.Premise.SourceText == "Fido is a dog.");
         result.Proofs.Should().Contain(proof =>
             proof.SourceText == "Every animal is a pet." &&
-            proof.Premise is not null && proof.Premise.SourceText == "Every dog is an animal.");
+            proof.Premise != null && proof.Premise.SourceText == "Every dog is an animal.");
         result.Proofs.Should().AllSatisfy(proof => proof.Kind.Should().Be(ProofNodeKind.Derived));
     }
 
@@ -156,6 +156,6 @@ public sealed class ProofConstructionTests
             proof.SourceText == "Every dog likes milk.");
         result.Proofs.Should().Contain(proof =>
             proof.SourceText == "Every animal likes milk." &&
-            proof.Premise?.SourceText == "Every dog is an animal.");
+            proof.Premise != null && proof.Premise.SourceText == "Every dog is an animal.");
     }
 }
