@@ -30,7 +30,6 @@ var lmStudioRuntime = new LmStudioRuntime(
 var translationService = CreateTranslationService(latticeConfiguration.LmStudio);
 var utteranceProcessor = new ReplUtteranceProcessor(runtimeSession);
 var conversationContext = new ConversationContext();
-var loadedPacks = new List<KnowledgePack>();
 var configuredToolsDirectory = Environment.GetEnvironmentVariable("LATTICE_TOOLS_DIR");
 var toolsDirectory = ResolveToolsDirectory(configuredToolsDirectory);
 var externalToolsDiscovered = StdioToolProvider.TryDiscover(
