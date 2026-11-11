@@ -109,7 +109,7 @@ The session now selects an unresolved hard constraint that declares an expected 
 
 The motivating benchmark is [the first-use day-out task](benchmarks/first-use-day-out.md). It requires Lattice to retain a user's goal and conditions while asking for a missing spending limit, then accept a follow-up and continue without losing earlier information.
 
-A second, unrelated task must exercise the same objective and clarification mechanism. The laptop comparison prompt is a later transfer check: it should be able to request the missing candidate details without introducing laptop-specific clarification logic into Core.
+A second, unrelated task now exercises the same objective and condition representation. The laptop prompt is recognized through the same generic objective path: its explicit budget is a typed money constraint and its `I care about ...` clause is a preference. No laptop-specific workflow is introduced. The longevity and gaming-performance clauses remain preserved source text, and the current implementation still cannot compare the three candidates or infer which is more reliable.
 
 The native baseline and its exact current rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
 

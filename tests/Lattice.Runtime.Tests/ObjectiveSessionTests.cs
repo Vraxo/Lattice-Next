@@ -40,6 +40,28 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Laptop_objective_uses_the_same_generic_condition_model_without_a_special_workflow()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string input = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+
+        var result = await session.SubmitAsync(input, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, utterance.Kind);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $1000)", utterance.Meaning);
+        Assert.Contains("preference(preference, desires, screen quality, reliability, and repairability)", utterance.Meaning);
+        Assert.Equal("compare these three options", status.ActiveObjective);
+        Assert.Equal(input, status.ActiveObjectiveSource);
+        Assert.Null(status.PendingInformationName);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Applies_a_typed_answer_to_the_pending_condition_without_storing_a_fact()
     {
         var client = new LatticeRuntimeClient();

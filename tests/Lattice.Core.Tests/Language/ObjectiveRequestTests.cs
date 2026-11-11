@@ -64,6 +64,24 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Transfers_the_same_typed_budget_and_preference_model_to_a_laptop_objective()
+    {
+        const string input = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var objective = Assert.IsType<ObjectiveFormula>(Assert.Single(result.Utterances).Meaning);
+        var budget = Assert.Single(objective.Conditions, condition => condition.Name == "spending-limit");
+        var preference = Assert.Single(objective.Conditions, condition => condition.Role == ObjectiveConditionRole.Preference);
+
+        Assert.Equal(new ObjectiveMoneyValue(1000m, "$"), budget.Value);
+        Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
+        Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
+        Assert.Equal(new ObjectiveTextValue("screen quality, reliability, and repairability"), preference.Value);
+        Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
+    }
+
+    [Fact]
     public void Parses_a_typed_money_answer_as_objective_information()
     {
         var result = parser.ParseText("$25 total.");
