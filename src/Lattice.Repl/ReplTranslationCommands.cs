@@ -42,6 +42,12 @@ internal sealed class ReplTranslationCommands
         configuration = updatedConfiguration;
     }
 
+    private static string FormatCandidate(SemanticTranslationCandidate candidate) =>
+        SemanticFormatter.Format(new SemanticUtterance(
+            candidate.Kind,
+            candidate.Meaning,
+            candidate.LceText));
+
     public async ValueTask<bool> TryHandleAsync(string input)
     {
         if (string.Equals(input, ":translator", StringComparison.OrdinalIgnoreCase))
@@ -166,7 +172,7 @@ internal sealed class ReplTranslationCommands
             {
                 var candidate = translation.Candidates[0];
                 AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]› Proposed meaning (not yet accepted):[/]");
-                AnsiConsole.WriteLine(SemanticFormatter.Format(candidate));
+                AnsiConsole.WriteLine(FormatCandidate(candidate));
                 AnsiConsole.Markup("[yellow]Accept and process this interpretation? [[y/N]] [/]");
                 var acceptance = Console.ReadLine();
 
@@ -189,7 +195,7 @@ internal sealed class ReplTranslationCommands
                 for (var index = 0; index < translation.Candidates.Length; index++)
                 {
                     AnsiConsole.MarkupLine(
-                        $"  [cyan]{index + 1}.[/] {SemanticFormatter.Format(translation.Candidates[index])}");
+                        $"  [cyan]{index + 1}.[/] {FormatCandidate(translation.Candidates[index])}");
                 }
 
                 AnsiConsole.Markup("[yellow]Choose a candidate number, or press Enter to cancel: [/]");
