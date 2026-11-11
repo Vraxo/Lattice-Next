@@ -7,4 +7,7 @@ public sealed record ObjectiveConditionAssessment(
     string ConditionName,
     ObjectiveConditionRole Role,
     ObjectiveConditionAssessmentStatus Status,
-    ImmutableArray<KnowledgeAttribute> Evidence);
+    ImmutableArray<KnowledgeAttribute> Evidence)
+{
+    public ImmutableArray<ObjectiveTemporalStageResult> TemporalWitness { get; init; } = [];
+}
