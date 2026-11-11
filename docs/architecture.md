@@ -56,6 +56,14 @@ The REPL composition root discovers tool manifests and registers the resulting e
 
 Adding, removing, or replacing a provider must not require changes to cognition. Future providers may use HTTP, MCP, or another transport while exposing the same generic contract. Those transports are adapters, not foundations of the intelligence.
 
+### Application client contract and runtime
+
+`Lattice.Client` defines the transport-independent public boundary shared by frontends: `ILatticeClient` creates isolated `ILatticeSession` instances, and each session accepts turns and returns structured outcomes, truth values, and provenance-bearing evidence. The contract project has no dependency on Core, providers, transports, or user interfaces.
+
+`Lattice.Runtime` is the first in-process implementation. It composes the parser, conversation context, knowledge base, and reasoning engine behind the client/session contracts. Each session owns isolated state and serializes its own turn processing. This is the runtime boundary future hosts will expose; it is not an HTTP server and does not yet include tool execution, translation, persistence, or knowledge-pack management through the client contract.
+
+The REPL, genuine CLI, GUI, and remote clients should consume this same contract. Transport-specific clients and server adapters belong outside both the contract and Core.
+
 ### REPL
 
 The REPL is one frontend. It gathers interactive input and presents responses, but it is not a privileged path into Lattice's application behavior. As additional frontends or a hosted runtime are introduced, they must use the same public client contract. The REPL may use an in-process client when it hosts the runtime itself or a remote client when connecting to another host.
@@ -64,9 +72,9 @@ The REPL is one frontend. It gathers interactive input and presents responses, b
 
 The dependency direction keeps providers outside Core:
 
-The REPL's eventual client dependency should point to a shared application/client contract; the runtime host composes Core and providers behind that contract. No frontend should call around it.
+Frontends depend on `Lattice.Client`. The in-process runtime implements that contract and composes Core with optional providers. Future transport adapters implement the same client contract; neither frontends nor transports call around it.
 
-Core must not depend on the REPL or any provider. External-process launch, stdio transport, and manifest parsing live in the provider assembly. Tool implementations are called through Core contracts, not concrete references from the reasoning engine. Knowledge packs are data loaded by Core, not separate compiled projects.
+Core must not depend on the client contract, runtime, REPL, or any provider. External-process launch, stdio transport, and manifest parsing live in the provider assembly. Tool implementations are called through Core contracts, not concrete references from the reasoning engine. Knowledge packs are data loaded by Core, not separate compiled projects.
 
 ## Language strategy
 
