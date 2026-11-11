@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "id": "laptop-candidates",
+  "name": "Laptop candidates",
+  "claims": [],
+  "attributes": [
+    {
+      "subject": "Aster 14",
+      "name": "candidate-type",
+      "value": {
+        "type": "text",
+        "value": "laptop"
+      },
+      "sourceText": "Aster 14 is one of the laptop options in this comparison."
+    },
+    {
+      "subject": "Birch 15",
+      "name": "candidate-type",
+      "value": {
+        "type": "text",
+        "value": "laptop"
+      },
+      "sourceText": "Birch 15 is one of the laptop options in this comparison."
+    },
+    {
+      "subject": "Cedar 14",
+      "name": "candidate-type",
+      "value": {
+        "type": "text",
+        "value": "laptop"
+      },
+      "sourceText": "Cedar 14 is one of the laptop options in this comparison."
+    },
+    {
+      "subject": "Cedar 14",
+      "name": "tags",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "repairability"
+        ]
+      },
+      "sourceText": "Cedar 14 has an upgrade path."
+    }
+  ]
+}

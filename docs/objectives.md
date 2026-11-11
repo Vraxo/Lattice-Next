@@ -125,6 +125,6 @@ Conditions that describe the user's own context rather than a candidate property
 
 Typed candidate attributes may also define a bounded `sum` over other named attributes. The evaluator resolves money sums only when all components share a currency, and duration sums when all components are durations. Nested sums are bounded and retain the definition plus every component as evidence. Missing components remain Unknown, contradictory values remain Conflicting, and incompatible types or cyclic definitions are not guessed.
 
-The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
+The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md). A sparse adjacent-domain transfer benchmark is recorded in [laptop-candidate-comparison.md](benchmarks/laptop-candidate-comparison.md). It reuses the same objective/evaluation path while deliberately leaving prices, screen quality, and reliability unsupported; Cedar 14's upgrade path is the only supplied product-specific comparison fact.
 
 This contract is intentionally smaller than a planner architecture. Implementation should add further structure only when an executable task demonstrates the need.
