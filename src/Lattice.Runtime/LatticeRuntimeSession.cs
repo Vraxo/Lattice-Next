@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using Lattice.Client;
 using Lattice.Core.Context;
 using Lattice.Core.Intelligence;
@@ -425,7 +426,16 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                         source.Kind.ToString(),
                         source.SourceText,
                         source.SourceId))
-                    .ToImmutableArray()))
+                    .ToImmutableArray())
+            {
+                TemporalWitness = condition.TemporalWitness.Select(stage => new LatticeObjectiveTemporalStage(
+                    stage.Index,
+                    stage.DurationAttribute,
+                    stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    stage.End.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    stage.DurationMinutes))
+                    .ToImmutableArray()
+            })
                 .ToImmutableArray()))
             .ToImmutableArray());
 
