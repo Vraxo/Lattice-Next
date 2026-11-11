@@ -70,6 +70,25 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Reports_conflicting_positive_and_negative_evidence_for_the_same_preference()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Candidate", "tags", new ObjectiveTextSetValue(
+            ImmutableArray.Create("quiet", "outdoors"))
+        {
+            ExcludedValues = ImmutableArray.Create("quiet")
+        });
+
+        var candidate = Assert.Single(evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase).Candidates);
+        var preference = GetCondition(candidate, "preference");
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Conflicting, preference.Status);
+        var quiet = Assert.Single(preference.Preferences, item => item.Preference == "quiet");
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Conflicting, quiet.Status);
+        Assert.Single(quiet.Evidence);
+    }
+
+    [Fact]
     public void Derives_money_and_duration_sums_from_components_with_evidence()
     {
         var knowledgeBase = new KnowledgeBase();
