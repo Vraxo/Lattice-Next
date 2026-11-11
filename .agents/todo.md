@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: support more than one candidate-provided temporal plan without confusing alternatives with conflicting facts. The evaluator now returns a concrete first-feasible witness, and the session presents it only for candidates with no hard-constraint failure. Add alternative plans only when the benchmark demonstrates a real multi-mode case; preserve evidence and do not rank or optimize.
+> Current priority: preserve the meaning of incomplete preference evidence across domains. The laptop transfer benchmark confirms that the same objective/evaluator path works with sparse candidate facts, but preference sets collapse to one aggregate status: Cedar's upgrade path partly matches repairability while screen quality and reliability remain individually unknown. Expose per-preference evidence/status without treating absent attributes as negative and without creating a ranking.
 
 
 ## Bootstrap
