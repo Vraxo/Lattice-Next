@@ -17,7 +17,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
     private readonly ObjectiveEvaluator objectiveEvaluator = new();
-    private readonly ObjectiveEvaluator objectiveEvaluator = new();
     private readonly List<KnowledgePack> loadedPacks = [];
     private ObjectiveFormula? activeObjective;
     private string? activeObjectiveSource;
@@ -92,7 +91,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 ActiveObjectiveSource = activeObjectiveSource,
                 PendingInformationName = pendingObjectiveCondition?.Name,
                 PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
-                ObjectiveEvaluation = activeObjective is null ? null : MapObjectiveEvaluation(objectiveEvaluator.Evaluate(activeObjective, knowledgeBase)),
                 ObjectiveEvaluation = activeObjective is null
                     ? null
                     : MapObjectiveEvaluation(objectiveEvaluator.Evaluate(activeObjective, knowledgeBase))
