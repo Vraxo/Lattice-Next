@@ -27,7 +27,7 @@ The native evaluator derives each candidate's total outing cost by summing its r
 
 The shared session status exposes the evaluator's candidate assessments and their supporting source text/pack IDs. Objective updates also return a concise, explicitly unranked summary of each candidate's hard-constraint disposition, preference fit, condition statuses, and evidence. The REPL displays the detailed assessments through `:status`, and the CLI text mode prints objective responses. The user's overall 09:00–18:00 boundary is retained separately from destination opening hours; it is not incorrectly compared as though the destination must remain open for the entire day.
 
-The sequence is represented as ordered duration stages. A stage may begin at a supplied set of event times, must fit within an available time window, or begin immediately after the preceding stage. The evaluator checks whether any complete sequence fits between the user's earliest start and latest return, retaining each referenced attribute as evidence.
+The sequence is represented as ordered duration stages. A stage may begin at a supplied set of event times, must fit within an available time window, or begin immediately after the preceding stage. The evaluator checks whether any complete sequence fits between the user's earliest start and latest return, retaining each referenced attribute as evidence. For a feasible sequence it also returns the first concrete stage-time witness. For example, Fernbank's earliest bus itinerary is 09:00–09:25 outbound, 09:25–11:25 for the activity, and 14:00–14:25 for the return. Quarry Lake's witness is 09:15–10:00 outbound, 10:00–13:00 at the destination, and 15:45–16:30 on the return. These are feasibility witnesses, not optimized schedules.
 
 For 09:00–18:00, Fernbank, Quarry Lake, and Hilltop each have a feasible bus itinerary, and Riverside's candidate-provided walking itinerary also fits. Quarry Lake is not rejected merely because it closes at 17:00: its visit can occur during opening hours, and its 15:45 return bus reaches Central Station by 16:30. A tighter 09:00–16:00 test correctly rejects Quarry Lake because its only listed return service arrives at 16:30. The subsequent walking-only update excludes bus candidates while retaining Riverside's feasible walking plan.
 
@@ -38,7 +38,7 @@ The dataset deliberately omits attributes for facts the benchmark leaves unspeci
 Lattice now has a reusable temporal-sequence feasibility comparison, but it has **not** solved the complete outing task. In particular:
 - the session exposes condition assessments and evidence, but does not yet synthesize a natural-language recommendation or explain trade-offs in prose;
 - the evaluator reports condition assessments, not a recommendation or ranked list;
-- the summary is an evidence-based assessment, not a chosen itinerary or a ranked recommendation; it does not yet return the concrete stage times that witness temporal feasibility;
+- the summary is an evidence-based assessment, not a ranked recommendation; the first feasible temporal witness is shown, but no optimization or preference-based selection is performed;
 - each candidate currently supplies one temporal plan for its represented transport mode; choosing among multiple plans for the same candidate is not implemented.
 
 The next increment should be driven by the exact missing general mechanism exposed by timetable feasibility, rather than by adding a destination-specific planner. Do not add ranking or opaque scoring.

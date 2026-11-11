@@ -46,17 +46,32 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "itinerary").Status);
         Assert.Equal("day-out-candidates", GetCondition(fernbank, "itinerary").Evidence[0].SourceId);
+        Assert.Collection(
+            GetCondition(fernbank, "itinerary").TemporalWitness,
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 0), new TimeOnly(9, 25), 25), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(9, 25), new TimeOnly(11, 25), 120), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(14, 0), new TimeOnly(14, 25), 25), stage));
 
         var quarry = GetCandidate(evaluation, "Quarry Lake Trail");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "itinerary").Status);
+        Assert.Collection(
+            GetCondition(quarry, "itinerary").TemporalWitness,
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 15), new TimeOnly(10, 0), 45), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(10, 0), new TimeOnly(13, 0), 180), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(15, 45), new TimeOnly(16, 30), 45), stage));
 
         var riverside = GetCandidate(evaluation, "Riverside Gardens");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "transport").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.PartiallySatisfied, GetCondition(riverside, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "itinerary").Status);
+        Assert.Collection(
+            GetCondition(riverside, "itinerary").TemporalWitness,
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 0), new TimeOnly(9, 15), 15), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(9, 15), new TimeOnly(10, 45), 90), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(10, 45), new TimeOnly(11, 0), 15), stage));
 
         var hilltop = GetCandidate(evaluation, "Hilltop Farm Grounds");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "spending-limit").Status);
@@ -96,6 +111,7 @@ public sealed class DayOutBenchmarkDataTests
             GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Violated,
             GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").Status);
+        Assert.Empty(GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").TemporalWitness);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(GetCandidate(result, "Hilltop Farm Grounds"), "itinerary").Status);
     }
@@ -152,6 +168,7 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.Conflicting,
             GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
+        Assert.Empty(GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").TemporalWitness);
     }
 
     [Fact]

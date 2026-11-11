@@ -319,19 +319,30 @@ public sealed class ObjectiveEvaluator
             }
         }
 
-        var fits = CanFitStage(sequence, values, 0, previousEnd: null);
+        var fits = TryFindTemporalWitness(
+            sequence,
+            values,
+            stageIndex: 0,
+            previousEnd: null,
+            priorStages: [],
+            out var witness);
 
         return CreateAssessment(
             condition,
             fits ? ObjectiveConditionAssessmentStatus.Satisfied : ObjectiveConditionAssessmentStatus.Violated,
-            resolvedEvidence);
+            resolvedEvidence) with
+        {
+            TemporalWitness = witness
+        };
     }
 
-    private static bool CanFitStage(
+    private static bool TryFindTemporalWitness(
         ObjectiveTemporalSequenceValue sequence,
         IReadOnlyDictionary<string, ObjectiveConditionValue> values,
         int stageIndex,
-        TimeOnly? previousEnd)
+        TimeOnly? previousEnd,
+        ImmutableArray<ObjectiveTemporalStageResult> priorStages,
+        out ImmutableArray<ObjectiveTemporalStageResult> witness)
     {
         var stage = sequence.Stages[stageIndex];
         var duration = (ObjectiveDurationValue)values[stage.DurationAttribute];
@@ -365,22 +376,37 @@ public sealed class ObjectiveEvaluator
                 }
             }
 
+            var currentStages = priorStages.Add(new ObjectiveTemporalStageResult(
+                stageIndex + 1,
+                stage.DurationAttribute,
+                start,
+                end,
+                duration.Minutes));
+
             if (stageIndex == sequence.Stages.Length - 1)
             {
                 if (end <= sequence.LatestEnd)
                 {
+                    witness = currentStages;
                     return true;
                 }
 
                 continue;
             }
 
-            if (CanFitStage(sequence, values, stageIndex + 1, end))
+            if (TryFindTemporalWitness(
+                sequence,
+                values,
+                stageIndex + 1,
+                end,
+                currentStages,
+                out witness))
             {
                 return true;
             }
         }
 
+        witness = [];
         return false;
     }
 
