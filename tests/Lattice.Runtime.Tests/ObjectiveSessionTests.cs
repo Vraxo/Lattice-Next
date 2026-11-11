@@ -170,6 +170,68 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Revises_one_preference_and_budget_without_losing_other_objective_conditions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string originalRequest = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+
+        var preferenceRevision = await session.SubmitAsync(
+            "Actually, I prefer repairability.",
+            TestContext.Current.CancellationToken);
+        var afterPreferenceRevision = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var preferenceEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(
+            afterPreferenceRevision.ObjectiveEvaluation);
+        var cedarAfterPreference = Assert.Single(
+            preferenceEvaluation.Candidates,
+            candidate => candidate.Candidate == "Cedar 14");
+        var revisedPreference = Assert.Single(
+            cedarAfterPreference.Conditions,
+            condition => condition.Name == "preference");
+
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(preferenceRevision.Utterances).Kind);
+        Assert.Single(revisedPreference.Preferences);
+        Assert.Equal("repairability", revisedPreference.Preferences[0].Name);
+        Assert.Equal("Satisfied", revisedPreference.Preferences[0].Status);
+        Assert.Contains(
+            "hardconstraint(spending-limit, atmost, $1000)",
+            preferenceRevision.Utterances.Single().Meaning);
+        Assert.Contains(
+            "preference(preference, desires, repairability)",
+            preferenceRevision.Utterances.Single().Meaning);
+
+        var budgetRevision = await session.SubmitAsync(
+            "Actually, my budget is $800.",
+            TestContext.Current.CancellationToken);
+        var afterBudgetRevision = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(budgetRevision.Utterances).Kind);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $800)",
+            budgetRevision.Utterances.Single().Meaning);
+        Assert.DoesNotContain("hardconstraint(spending-limit, atmost, $1000)",
+            budgetRevision.Utterances.Single().Meaning);
+        Assert.Equal("compare these three options", afterBudgetRevision.ActiveObjective);
+        Assert.Contains(originalRequest, afterBudgetRevision.ActiveObjectiveSource);
+        Assert.Contains("Actually, I prefer repairability.", afterBudgetRevision.ActiveObjectiveSource);
+        Assert.Contains("Actually, my budget is $800.", afterBudgetRevision.ActiveObjectiveSource);
+
+        var finalEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(
+            afterBudgetRevision.ObjectiveEvaluation);
+        var cedarFinal = Assert.Single(finalEvaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+        Assert.Single(Assert.Single(cedarFinal.Conditions, condition => condition.Name == "preference").Preferences);
+        Assert.Equal("Unknown",
+            Assert.Single(cedarFinal.Conditions, condition => condition.Name == "spending-limit").Status);
+    }
+
+    [Fact]
     public async Task Applies_a_typed_answer_to_the_pending_condition_without_storing_a_fact()
     {
         var client = new LatticeRuntimeClient();
