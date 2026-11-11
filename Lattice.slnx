@@ -1,9 +1,12 @@
 <Solution>
+  <Project Path="src\Lattice.Client\Lattice.Client.csproj" />
+  <Project Path="src\Lattice.Runtime\Lattice.Runtime.csproj" />
   <Project Path="src\Lattice.Core\Lattice.Core.csproj" />
   <Project Path="src\Lattice.Tooling.Stdio\Lattice.Tooling.Stdio.csproj" />
   <Project Path="src\Lattice.Translators.LmStudio\Lattice.Translators.LmStudio.csproj" />
   <Project Path="src\Lattice.Repl\Lattice.Repl.csproj" />
   <Project Path="tests\Lattice.Core.Tests\Lattice.Core.Tests.csproj" />
+  <Project Path="tests\Lattice.Runtime.Tests\Lattice.Runtime.Tests.csproj" />
   <Project Path="tests\Lattice.Translators.LmStudio.Tests\Lattice.Translators.LmStudio.Tests.csproj" />
   <Project Path="tools\Lattice.Translator.Evaluation\Lattice.Translator.Evaluation.csproj" />
 </Solution>
