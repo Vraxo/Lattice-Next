@@ -1,9 +1,9 @@
 using Lattice.Core.Reasoning;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal static class CliKnowledgePackCommand
+internal static class ReplKnowledgePackCommand
 {
     public static bool TryHandle(
         string input,

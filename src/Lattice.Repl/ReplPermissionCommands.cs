@@ -2,13 +2,13 @@ using Lattice.Core.Tools;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliPermissionCommands(
-    CliToolAccess toolAccess,
+internal sealed class ReplPermissionCommands(
+    ReplToolAccess toolAccess,
     LmStudioConfigurationStore configurationStore,
     bool configurationLoaded,
-    CliTranslationCommands translationCommands)
+    ReplTranslationCommands translationCommands)
 {
     public async ValueTask<bool> TryHandleAsync(string input)
     {
@@ -30,7 +30,7 @@ internal sealed class CliPermissionCommands(
                     StringComparer.OrdinalIgnoreCase))
                 {
                     AnsiConsole.MarkupLine(
-                        $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
+                        $"    {Markup.Escape(pair.Key)} — {Markup.Escape(ReplToolAccess.FormatPermissionNames(pair.Value))}");
                 }
             }
 
@@ -43,14 +43,14 @@ internal sealed class CliPermissionCommands(
                     StringComparer.OrdinalIgnoreCase))
                 {
                     AnsiConsole.MarkupLine(
-                        $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
+                        $"    {Markup.Escape(pair.Key)} — {Markup.Escape(ReplToolAccess.FormatPermissionNames(pair.Value))}");
                 }
             }
 
             if (toolAccess.GrantedPermissions != ToolPermission.None)
             {
                 AnsiConsole.MarkupLine(
-                    $"  [cyan]Environment pre-grants[/] {Markup.Escape(CliToolAccess.FormatPermissionNames(toolAccess.GrantedPermissions))}");
+                    $"  [cyan]Environment pre-grants[/] {Markup.Escape(ReplToolAccess.FormatPermissionNames(toolAccess.GrantedPermissions))}");
             }
 
             AnsiConsole.MarkupLine("  [dim]Use :permissions revoke <tool-id> to forget a remembered approval.[/]");

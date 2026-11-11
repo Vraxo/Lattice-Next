@@ -2,9 +2,9 @@ using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal static class CliProofFormatter
+internal static class ReplProofFormatter
 {
     public static void WriteProofGroup(string heading, IReadOnlyList<ProofNode> proofs)
     {
