@@ -166,7 +166,7 @@ internal sealed class ReplTranslationCommands
             {
                 var candidate = translation.Candidates[0];
                 AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]› Proposed meaning (not yet accepted):[/]");
-                AnsiConsole.WriteLine(candidate.LceText);
+                AnsiConsole.WriteLine(SemanticFormatter.Format(candidate));
                 AnsiConsole.Markup("[yellow]Accept and process this interpretation? [[y/N]] [/]");
                 var acceptance = Console.ReadLine();
 

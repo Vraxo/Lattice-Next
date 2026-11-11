@@ -25,7 +25,6 @@ public sealed class LmStudioSemanticsTranslatorTests
 
         var candidate = Assert.Single(response.Candidates);
         Assert.Equal(UtteranceKind.Assertion, candidate.Kind);
-        Assert.Equal("Fido is a dog.", candidate.LceText);
         Assert.Equal(
             "dog(fido)",
             SemanticFormatter.Format(new SemanticUtterance(candidate.Kind, candidate.Meaning, "Fido is a canine.")));

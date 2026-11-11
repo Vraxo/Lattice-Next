@@ -287,8 +287,7 @@ public sealed class LmStudioSemanticsTranslator : ISemanticsTranslator
             {
                 candidates.Add(new SemanticTranslationCandidate(
                     parsed.Utterance.Kind,
-                    parsed.Utterance.Meaning,
-                    lce));
+                    parsed.Utterance.Meaning));
             }
         }
 
