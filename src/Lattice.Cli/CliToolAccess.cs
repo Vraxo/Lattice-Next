@@ -25,17 +25,20 @@ internal sealed class CliToolAccess
         this.configurationStore = configurationStore;
         this.configurationLoaded = configurationLoaded;
         this.latticeConfiguration = latticeConfiguration;
-        RememberedToolPermissions = new Dictionary<string, ToolPermission>(
+        rememberedToolPermissions = new Dictionary<string, ToolPermission>(
             latticeConfiguration.ToolPermissions,
             StringComparer.OrdinalIgnoreCase);
-        SessionToolPermissions = new Dictionary<string, ToolPermission>(
+        sessionToolPermissions = new Dictionary<string, ToolPermission>(
             StringComparer.OrdinalIgnoreCase);
         toolRegistry = CreateToolRegistry();
     }
 
-    public Dictionary<string, ToolPermission> RememberedToolPermissions { get; }
+    private readonly Dictionary<string, ToolPermission> rememberedToolPermissions;
+    private readonly Dictionary<string, ToolPermission> sessionToolPermissions;
 
-    public Dictionary<string, ToolPermission> SessionToolPermissions { get; }
+    public Dictionary<string, ToolPermission> RememberedToolPermissions => rememberedToolPermissions;
+
+    public Dictionary<string, ToolPermission> SessionToolPermissions => sessionToolPermissions;
 
     public ToolPermission GrantedPermissions => grantedPermissions;
 

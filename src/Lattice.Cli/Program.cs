@@ -47,7 +47,7 @@ var externalToolsDiscovered = StdioToolProvider.TryDiscover(
 var registeredTools = externalToolsDiscovered
     ? discoveredTools
     : Array.Empty<ITool>();
-var toolAccess.GrantedPermissions = ToolPermission.None;
+var grantedPermissions = ToolPermission.None;
 var configuredPermissions = Environment.GetEnvironmentVariable("LATTICE_TOOL_PERMISSIONS");
 
 if (!string.IsNullOrWhiteSpace(configuredPermissions))
@@ -57,7 +57,7 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
     if (Enum.TryParse<ToolPermission>(configuredPermissions, true, out var parsedPermissions) &&
         (parsedPermissions & ~knownPermissions) == 0)
     {
-        toolAccess.GrantedPermissions = parsedPermissions;
+        grantedPermissions = parsedPermissions;
     }
     else
     {
@@ -67,7 +67,7 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
 
 var toolAccess = new CliToolAccess(
     registeredTools,
-    toolAccess.GrantedPermissions,
+    grantedPermissions,
     configurationStore,
     configurationLoaded,
     latticeConfiguration);
@@ -333,7 +333,7 @@ while (true)
                 StringComparer.OrdinalIgnoreCase))
             {
                 AnsiConsole.MarkupLine(
-                    $"    {Markup.Escape(pair.Key)} — {Markup.Escape(FormatPermissionNames(pair.Value))}");
+                    $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
             }
         }
 
@@ -346,14 +346,14 @@ while (true)
                 StringComparer.OrdinalIgnoreCase))
             {
                 AnsiConsole.MarkupLine(
-                    $"    {Markup.Escape(pair.Key)} — {Markup.Escape(FormatPermissionNames(pair.Value))}");
+                    $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
             }
         }
 
         if (toolAccess.GrantedPermissions != ToolPermission.None)
         {
             AnsiConsole.MarkupLine(
-                $"  [cyan]Environment pre-grants[/] {Markup.Escape(FormatPermissionNames(toolAccess.GrantedPermissions))}");
+                $"  [cyan]Environment pre-grants[/] {Markup.Escape(CliToolAccess.FormatPermissionNames(toolAccess.GrantedPermissions))}");
         }
 
         AnsiConsole.MarkupLine("  [dim]Use :permissions revoke <tool-id> to forget a remembered approval.[/]");
