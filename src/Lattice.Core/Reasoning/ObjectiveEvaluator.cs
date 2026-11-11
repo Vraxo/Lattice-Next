@@ -152,6 +152,7 @@ public sealed class ObjectiveEvaluator
             sequence.Stages.Length > 64 ||
             sequence.EarliestStart >= sequence.LatestEnd ||
             sequence.Stages.Any(stage =>
+                stage is null ||
                 string.IsNullOrWhiteSpace(stage.DurationAttribute) ||
                 (stage.StartTimesAttribute is not null && string.IsNullOrWhiteSpace(stage.StartTimesAttribute)) ||
                 (stage.AvailabilityWindowAttribute is not null && string.IsNullOrWhiteSpace(stage.AvailabilityWindowAttribute))))
