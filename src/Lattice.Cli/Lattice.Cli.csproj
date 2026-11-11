@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Lattice.Client.Http/Lattice.Client.Http.csproj" />
     <ProjectReference Include="../Lattice.Client/Lattice.Client.csproj" />
     <ProjectReference Include="../Lattice.Runtime/Lattice.Runtime.csproj" />
   </ItemGroup>

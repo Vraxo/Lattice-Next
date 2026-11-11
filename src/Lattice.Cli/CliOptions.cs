@@ -5,6 +5,7 @@ namespace Lattice.Cli;
 internal sealed record CliOptions(
     string Format,
     string? InputFile,
+    string? ServerUrl,
     ImmutableArray<string> KnowledgePackPaths,
     string? InputText,
     bool ShowHelp,
@@ -20,6 +21,7 @@ internal sealed record CliOptions(
 
         var format = "json";
         string? inputFile = null;
+        string? serverUrl = null;
         var knowledgePackPaths = ImmutableArray.CreateBuilder<string>();
         var positional = new List<string>();
         var positionalOnly = false;
@@ -85,6 +87,31 @@ internal sealed record CliOptions(
                     inputFile = requestedInputFile;
                     break;
 
+                case "--server":
+                    if (!TryReadValue(arguments, ref index, out var requestedServerUrl))
+                    {
+                        error = "The --server option requires an absolute HTTP or HTTPS URL.";
+                        return false;
+                    }
+
+                    if (!Uri.TryCreate(requestedServerUrl, UriKind.Absolute, out var serverUri) ||
+                        (serverUri.Scheme != Uri.UriSchemeHttp && serverUri.Scheme != Uri.UriSchemeHttps) ||
+                        !string.IsNullOrEmpty(serverUri.Query) ||
+                        !string.IsNullOrEmpty(serverUri.Fragment))
+                    {
+                        error = "The --server option requires an absolute HTTP or HTTPS URL without a query or fragment.";
+                        return false;
+                    }
+
+                    if (serverUrl is not null)
+                    {
+                        error = "The --server option can only be specified once.";
+                        return false;
+                    }
+
+                    serverUrl = requestedServerUrl;
+                    break;
+
                 case "--load-pack":
                     if (!TryReadValue(arguments, ref index, out var packPath))
                     {
@@ -116,6 +143,7 @@ internal sealed record CliOptions(
         options = new CliOptions(
             format,
             inputFile,
+            serverUrl,
             knowledgePackPaths.ToImmutable(),
             positional.Count == 0 ? null : string.Join(" ", positional),
             showHelp,

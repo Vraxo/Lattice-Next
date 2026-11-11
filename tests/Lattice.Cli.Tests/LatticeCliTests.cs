@@ -106,6 +106,25 @@ public sealed class LatticeCliTests
         Assert.Contains("Unknown option '--unknown'.", error.ToString());
         Assert.Equal(string.Empty, output.ToString());
     }
+
+    [Fact]
+    public async Task Rejects_server_urls_that_are_not_absolute_http_urls()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await LatticeCli.RunAsync(
+            ["--server", "ftp://localhost:5080", "Is Fido a dog?"],
+            new StringReader(string.Empty),
+            output,
+            error,
+            standardInputIsRedirected: false);
+
+        Assert.Equal(64, exitCode);
+        Assert.Contains("absolute HTTP or HTTPS URL", error.ToString());
+        Assert.Equal(string.Empty, output.ToString());
+    }
+
     [Fact]
     public async Task Returns_a_processing_exit_code_and_json_error_for_rejected_input()
     {
@@ -127,5 +146,4 @@ public sealed class LatticeCliTests
         Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("error").GetString()));
         Assert.Equal(string.Empty, error.ToString());
     }
-
 }
