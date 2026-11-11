@@ -64,6 +64,28 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Unsupported_multi_sentence_follow_up_leaves_the_pending_request_unchanged()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Rejected, result.Status);
+        Assert.Contains("Sentence 2:", result.Error);
+        Assert.Equal("put together a good day", status.ActiveObjective);
+        Assert.Equal(originalRequest, status.ActiveObjectiveSource);
+        Assert.Equal("spending-limit", status.PendingInformationName);
+        Assert.Equal(0, status.FactCount);
+    }
+
+    [Fact]
     public async Task Unrelated_assertions_do_not_consume_a_pending_information_request()
     {
         var client = new LatticeRuntimeClient();

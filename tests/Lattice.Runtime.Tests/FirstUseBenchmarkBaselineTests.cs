@@ -27,7 +27,7 @@ public sealed class FirstUseBenchmarkBaselineTests
         if (expectedGoal is null)
         {
             Assert.Empty(result.Utterances);
-            Assert.StartsWith("Sentence 1:", result.Error);
+            Assert.Contains("That sentence is outside LCE 0.9.", result.Error);
             return;
         }
 
