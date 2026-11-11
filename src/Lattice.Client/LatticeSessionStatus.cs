@@ -1,7 +1,7 @@
 namespace Lattice.Client;
 
 /// <summary>
-/// Read-only counts describing the current session.
+/// Read-only counts and pending conversational state for the current session.
 /// </summary>
 public sealed record LatticeSessionStatus(
     int FactCount,
@@ -12,4 +12,8 @@ public sealed record LatticeSessionStatus(
     public string? ActiveObjective { get; init; }
 
     public string? ActiveObjectiveSource { get; init; }
+
+    public string? PendingInformationName { get; init; }
+
+    public string? PendingInformationPrompt { get; init; }
 }

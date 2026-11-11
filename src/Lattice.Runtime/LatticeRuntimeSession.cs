@@ -19,6 +19,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly List<KnowledgePack> loadedPacks = [];
     private ObjectiveFormula? activeObjective;
     private string? activeObjectiveSource;
+    private ObjectiveCondition? pendingObjectiveCondition;
     private bool isDisposed;
 
     public Guid SessionId { get; } = Guid.NewGuid();
@@ -86,7 +87,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 loadedPacks.Count)
             {
                 ActiveObjective = activeObjective?.Goal,
-                ActiveObjectiveSource = activeObjectiveSource
+                ActiveObjectiveSource = activeObjectiveSource,
+                PendingInformationName = pendingObjectiveCondition?.Name,
+                PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt
             });
         }
     }
@@ -124,15 +127,31 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessUtterance(SemanticUtterance parsedUtterance)
     {
+        if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
+            parsedUtterance.Meaning is ObjectiveInformationFormula information)
+        {
+            return ProcessObjectiveInformation(parsedUtterance, information);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.Objective &&
             parsedUtterance.Meaning is ObjectiveFormula objective)
         {
             activeObjective = objective;
             activeObjectiveSource = parsedUtterance.SourceText;
+            pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+
+            if (pendingObjectiveCondition is not null)
+            {
+                return new LatticeUtteranceResult(
+                    LatticeUtteranceResultKind.ClarificationRequired,
+                    pendingObjectiveCondition.MissingValuePrompt ??
+                        $"What value should I use for {pendingObjectiveCondition.Name}?",
+                    SemanticFormatter.Format(parsedUtterance));
+            }
 
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ObjectiveReceived,
-                $"I've retained this objective: {objective.Goal}. The rest of your request is preserved as context, but its conditions have not been interpreted yet.",
+                $"I've retained this objective: {objective.Goal}.",
                 SemanticFormatter.Format(parsedUtterance));
         }
 
@@ -214,6 +233,81 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
     }
+
+    private LatticeUtteranceResult ProcessObjectiveInformation(
+        SemanticUtterance parsedUtterance,
+        ObjectiveInformationFormula information)
+    {
+        var objective = activeObjective;
+        var pendingCondition = pendingObjectiveCondition;
+
+        if (objective is null || pendingCondition is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no outstanding objective information request to answer.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (!IsExpectedValue(pendingCondition.ExpectedValueKind, information.Value))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                pendingCondition.MissingValuePrompt ??
+                    $"Please provide a value for {pendingCondition.Name}.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var answeredCondition = pendingCondition with
+        {
+            Value = information.Value,
+            ValueSourceText = parsedUtterance.SourceText
+        };
+
+        objective = objective with
+        {
+            Conditions = objective.Conditions
+                .Select(condition => ReferenceEquals(condition, pendingCondition)
+                    ? answeredCondition
+                    : condition)
+                .ToImmutableArray()
+        };
+        activeObjective = objective;
+        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
+        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+
+        var message = $"Recorded {parsedUtterance.SourceText} for {answeredCondition.Name}.";
+
+        if (pendingObjectiveCondition is not null)
+        {
+            message = $"{message} {pendingObjectiveCondition.MissingValuePrompt}";
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            message,
+            SemanticFormatter.Format(new SemanticUtterance(
+                UtteranceKind.Objective,
+                objective,
+                activeObjectiveSource)));
+    }
+
+    private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
+        objective.Conditions.FirstOrDefault(condition =>
+            condition.Role == ObjectiveConditionRole.HardConstraint &&
+            condition.Value is null &&
+            condition.ExpectedValueKind != ObjectiveConditionValueKind.None);
+
+    private static bool IsExpectedValue(
+        ObjectiveConditionValueKind expectedKind,
+        ObjectiveConditionValue value) =>
+        expectedKind switch
+        {
+            ObjectiveConditionValueKind.Money => value is ObjectiveMoneyValue,
+            ObjectiveConditionValueKind.Text => value is ObjectiveTextValue,
+            _ => false
+        };
 
     private static string GetClarificationMessage(ReferenceResolutionStatus status) =>
         status switch

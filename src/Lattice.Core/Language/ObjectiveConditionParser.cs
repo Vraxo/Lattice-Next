@@ -40,7 +40,11 @@ internal static class ObjectiveConditionParser
                 ObjectiveConditionRole.HardConstraint,
                 ObjectiveConditionOperator.AtMost,
                 new ObjectiveMoneyValue(amount, budgetAmount.Groups["symbol"].Value),
-                budgetAmount.Value)));
+                budgetAmount.Value)
+            {
+                ExpectedValueKind = ObjectiveConditionValueKind.Money,
+                MissingValuePrompt = "What is your spending limit?"
+            }));
         }
         else
         {
@@ -53,7 +57,11 @@ internal static class ObjectiveConditionParser
                     ObjectiveConditionRole.HardConstraint,
                     ObjectiveConditionOperator.AtMost,
                     null,
-                    limitedBudget.Value)));
+                    limitedBudget.Value)
+                {
+                    ExpectedValueKind = ObjectiveConditionValueKind.Money,
+                    MissingValuePrompt = "What is your spending limit?"
+                }));
             }
         }
 

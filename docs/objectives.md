@@ -101,7 +101,9 @@ The initial native objective slice now retains a distinct goal and extracts a de
 - an explicit lack of a car is retained as a transport exclusion;
 - simple preference clauses retain their source wording as preference values.
 
-This is a bounded language slice, not general natural-language understanding. Unrecognized clauses remain in the preserved original source and are not promoted to conditions. The next increment is to let a capability request a missing typed value, retain that request across turns, and safely associate a user's answer with it.
+This is a bounded language slice, not general natural-language understanding. Unrecognized clauses remain in the preserved original source and are not promoted to conditions.
+
+The session now selects an unresolved hard constraint that declares an expected value type and emits its missing-value prompt. The request is retained in session status. A matching typed response can fill that condition and records its own source wording; it is not added to the general knowledge base. An unrelated assertion does not consume the request. The first response parser supports a standalone currency amount such as `$25 total.` only. It does not yet parse the benchmark's other follow-up details (lunch, origin, departure/return times), revise transport preferences, or evaluate candidates.
 
 ## Validation
 

@@ -13,6 +13,7 @@ public static class SemanticFormatter
             UtteranceKind.Assertion => meaning,
             UtteranceKind.Question => $"ask({meaning})",
             UtteranceKind.Objective => meaning,
+            UtteranceKind.ObjectiveInformation => meaning,
             _ => throw new ArgumentOutOfRangeException(nameof(utterance), utterance.Kind, "Unsupported utterance kind.")
         };
     }
@@ -21,6 +22,7 @@ public static class SemanticFormatter
         formula switch
         {
             ObjectiveFormula objective => FormatObjective(objective),
+            ObjectiveInformationFormula information => FormatObjectiveInformation(information),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
@@ -28,6 +30,14 @@ public static class SemanticFormatter
             ExistentialQuantification existential => $"exists({Format(existential.Variable)}, {Format(existential.Body)})",
             UniversalQuantification universal => $"forall({Format(universal.Variable)}, {Format(universal.Body)})",
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
+        };
+
+    private static string FormatObjectiveInformation(ObjectiveInformationFormula information) =>
+        information.Value switch
+        {
+            ObjectiveMoneyValue money => $"money({money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)})",
+            ObjectiveTextValue text => $"text({text.Value})",
+            _ => "information(unsupported)"
         };
 
     private static string FormatObjective(ObjectiveFormula objective)
