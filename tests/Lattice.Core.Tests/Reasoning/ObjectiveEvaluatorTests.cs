@@ -31,6 +31,9 @@ public sealed class ObjectiveEvaluatorTests
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(fernbank, "preference").Status);
+        Assert.Equal(
+            "candidate-fixture",
+            GetCondition(fernbank, "spending-limit").Evidence[0].SourceId);
         Assert.False(fernbank.HasHardConstraintViolation);
 
         var riverside = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Riverside");

@@ -37,14 +37,17 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(ObjectiveConditionValueKind.Money, budget.ExpectedValueKind);
         Assert.Equal("What is your spending limit?", budget.MissingValuePrompt);
         Assert.Equal("limited budget", budget.SourceText);
+        Assert.Equal("total-cost", budget.TargetAttribute);
 
         var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
         Assert.Equal(ObjectiveConditionRole.HardConstraint, transport.Role);
         Assert.Equal(ObjectiveConditionOperator.Excludes, transport.Operator);
         Assert.Equal(new ObjectiveTextValue("car"), transport.Value);
+        Assert.Equal("transport-mode", transport.TargetAttribute);
 
         var preference = Assert.Single(objective.Conditions, condition => condition.Role == ObjectiveConditionRole.Preference);
         Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
+        Assert.Equal("tags", preference.TargetAttribute);
         Assert.Equal(
             new[] { "quiet", "outdoors" },
             Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
