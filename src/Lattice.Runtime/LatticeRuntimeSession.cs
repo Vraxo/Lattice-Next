@@ -16,6 +16,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly KnowledgeBase knowledgeBase = new();
     private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
+    private readonly ObjectiveEvaluator objectiveEvaluator = new();
     private readonly List<KnowledgePack> loadedPacks = [];
     private ObjectiveFormula? activeObjective;
     private string? activeObjectiveSource;
@@ -89,7 +90,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 ActiveObjective = activeObjective?.Goal,
                 ActiveObjectiveSource = activeObjectiveSource,
                 PendingInformationName = pendingObjectiveCondition?.Name,
-                PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt
+                PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
+                ObjectiveEvaluation = activeObjective is null
+                    ? null
+                    : MapObjectiveEvaluation(objectiveEvaluator.Evaluate(activeObjective, knowledgeBase))
             });
         }
     }
@@ -384,6 +388,26 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 "More than one individual is known. Which one do you mean by 'it'? Please name them.",
             _ => "I couldn't resolve that reference. Please name the individual."
         };
+
+    private static LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
+        new(evaluation.Candidates.Select(candidate => new LatticeCandidateAssessment(
+            candidate.Candidate.Value,
+            candidate.HasHardConstraintViolation,
+            candidate.HasUnresolvedHardConstraint,
+            candidate.Conditions.Select(condition => new LatticeObjectiveConditionAssessment(
+                condition.ConditionName,
+                condition.Role.ToString(),
+                condition.Status.ToString(),
+                condition.Evidence
+                    .SelectMany(attribute => attribute.Sources)
+                    .Distinct()
+                    .Select(source => new LatticeObjectiveEvidenceSource(
+                        source.Kind.ToString(),
+                        source.SourceText,
+                        source.SourceId))
+                    .ToImmutableArray()))
+                .ToImmutableArray()))
+            .ToImmutableArray());
 
     private static LatticeEvidence MapEvidence(ProofNode proof)
     {
