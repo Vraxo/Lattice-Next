@@ -52,7 +52,18 @@ The default unit of work is a **small, coherent, independently verifiable pull r
 - **Stop at the merge boundary.** Once a PR is ready and its checks are known, present the result and its verification status. Treat the merged baseline as the starting point for the next step. Do not begin stacking unrelated future work into the same PR.
 - **Choose the next step only after the current one is reviewable.** Use the resulting merged state, tests, and any review feedback to decide what comes next. This makes each increment a clear checkpoint and keeps regressions and reasoning errors local.
 
-Progress indicators are status reports, not estimates of elapsed time or lines of code. Base them on explicit milestones (for example: scope agreed → implementation committed → tests/build verified → PR opened and ready). Mark incomplete or blocked milestones honestly; do not manufacture a percentage or imply that CI passed before it has. In ChatGPT conversations, render a genuinely visual, polished progress bar after every commit, alongside the commit identifier and a brief statement of the next milestone. Build it with the UI's native layout/visual components (for example, a rounded track with a proportionally sized filled segment); do not use ASCII or Unicode block characters as a substitute, and do not show raw HTML or implementation markup as the bar. Other agents do not share ChatGPT's rendering UI and may use an appropriate plain-text or ASCII progress indicator instead. This presentation requirement is specific to ChatGPT.
+## Pull-request auto-merge — mandatory
+
+**EVERY pull request opened for this repository MUST have GitHub auto-merge explicitly enabled. This is a standing requirement for all future work, not an optional convenience and not something that depends on the user remembering to request it.**
+
+- Immediately after creating each PR, explicitly enable auto-merge through GitHub. Do not assume repository-level availability, CI workflows, or branch settings automatically enroll a PR.
+- Confirm that the auto-merge request succeeded. If GitHub rejects it, investigate and report the exact blocker; do not silently leave the PR waiting for a manual merge.
+- Keep the repository's required status checks and review requirements intact. Auto-merge must wait for the configured requirements; it must never be used to bypass checks or reviews.
+- Do not manually merge a PR as a workaround unless the user explicitly asks for that PR to be merged manually.
+- Apply this rule to documentation-only PRs, maintenance PRs, refactors, and feature PRs alike.
+- Before reporting a PR as ready, state whether auto-merge was successfully enabled. A PR with auto-merge unavailable or not enabled is not considered complete under this workflow.
+
+This instruction is intentionally explicit so it remains discoverable and enforceable by future agents even when prior conversation context is unavailable.
 
 ## C# conventions
 
