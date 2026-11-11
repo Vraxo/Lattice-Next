@@ -142,6 +142,7 @@ public sealed class ObjectiveRequestTests
         Assert.Equal("meal-plan", meal.Name);
         Assert.Equal(ObjectiveConditionRole.HardConstraint, meal.Role);
         Assert.Equal(new ObjectiveTextValue("bring-lunch"), meal.Value);
+        Assert.Null(meal.TargetAttribute);
     }
 
     [Fact]
