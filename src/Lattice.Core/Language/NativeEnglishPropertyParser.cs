@@ -46,7 +46,10 @@ internal static class NativeEnglishPropertyParser
                 conjunctionIndex + 1,
                 tokens.Length,
                 individual!,
-                out var secondMeaning))
+                out var secondMeaning) ||
+            (EnglishGrammarTokens.Is(tokens[2], "not") &&
+             !EnglishGrammarTokens.Is(tokens[conjunctionIndex + 1], "not") &&
+             !EnglishGrammarTokens.IsArticle(tokens[conjunctionIndex + 1])))
         {
             return false;
         }
