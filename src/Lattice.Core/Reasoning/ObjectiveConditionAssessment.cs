@@ -10,4 +10,6 @@ public sealed record ObjectiveConditionAssessment(
     ImmutableArray<KnowledgeAttribute> Evidence)
 {
     public ImmutableArray<ObjectiveTemporalStageResult> TemporalWitness { get; init; } = [];
+
+    public ImmutableArray<ObjectivePreferenceAssessment> Preferences { get; init; } = [];
 }
