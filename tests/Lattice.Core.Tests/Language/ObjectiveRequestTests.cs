@@ -34,6 +34,8 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
         Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
         Assert.Null(budget.Value);
+        Assert.Equal(ObjectiveConditionValueKind.Money, budget.ExpectedValueKind);
+        Assert.Equal("What is your spending limit?", budget.MissingValuePrompt);
         Assert.Equal("limited budget", budget.SourceText);
 
         var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
@@ -58,6 +60,20 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
         Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
         Assert.Equal(new ObjectiveMoneyValue(1000m, "$"), budget.Value);
+        Assert.Equal(ObjectiveConditionValueKind.Money, budget.ExpectedValueKind);
+    }
+
+    [Fact]
+    public void Parses_a_typed_money_answer_as_objective_information()
+    {
+        var result = parser.ParseText("$25 total.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.ObjectiveInformation, utterance.Kind);
+        Assert.Equal(
+            new ObjectiveInformationFormula(new ObjectiveMoneyValue(25m, "$")),
+            utterance.Meaning);
     }
 
     [Fact]

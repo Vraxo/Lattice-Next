@@ -13,37 +13,32 @@ Environment:
 
 At that revision, all four benchmark prompts were rejected before any utterance was processed, with `That sentence is outside LCE 0.9`. The original CI-backed observation is retained here as the historical baseline.
 
-## Current checkpoint: first-class objective capture
+## Current checkpoint: objective capture and one typed clarification
 
-The first objective implementation adds a bounded native construction for a contextual request containing a sentence beginning with **"Help me ..."**. It recognizes the following goals:
+The native interface recognizes the day-out and laptop objectives. It extracts a small set of typed conditions, distinguishing hard constraints from preferences. A limited budget without an amount is represented as an unresolved spending limit; an explicit amount is represented as a typed money value.
 
-- Day out: `put together a good day`
-- Laptop comparison: `compare these three options`
+For the day-out request, the runtime now:
+- retains the objective and original request;
+- identifies the unresolved spending-limit condition;
+- returns `ClarificationRequired` with the condition's missing-value prompt;
+- retains the pending request in session state;
+- accepts a standalone typed amount such as `$25 total.` on the next turn;
+- attaches the value and answer source to the original condition, clears the pending request, and leaves the general knowledge base unchanged.
 
-For both, the runtime now:
-- returns `Completed` with an `ObjectiveReceived` utterance result;
-- stores the extracted goal separately from factual assertions and questions;
-- retains the complete original request in session state, exposed through `LatticeSessionStatus`;
-- leaves the knowledge base unchanged.
+An unrelated assertion can be processed while the request remains pending. A currency amount supplied without an outstanding information request is not stored as a fact.
 
-The same objective representation is used for both domains. This is only objective capture and retention. Lattice explicitly reports that it has not interpreted the surrounding conditions.
-
-The other two prompts remain unsupported:
-- the budget/origin/time follow-up is rejected;
-- the walking-only revision is rejected.
-
-The current executable checkpoint is covered by `tests/Lattice.Runtime.Tests/FirstUseBenchmarkBaselineTests.cs` and `ObjectiveSessionTests.cs`. The tests run through the in-process runtime with no translator and no external tools.
+This is a generic session mechanism driven by the condition's expected value kind and prompt metadata. The current supported answer type is money, and the native response grammar is deliberately narrow. The full benchmark follow-up (`$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.`) remains unsupported as a whole because lunch, origin, and time expressions are not yet represented. The walking-only revision also remains unsupported.
 
 ## What this establishes—and what it does not
 
 1. **The first natural-language boundary has moved.** Lattice can now identify a requested outcome in two unrelated prompts and retain the full source context.
-2. **The surrounding context is not yet understood.** Statements about a free Saturday, budget, transport, preferences, product requirements, and price are preserved as text, not represented as typed constraints.
-3. **Clarification is still missing.** The runtime cannot yet ask for task information, associate an answer with an outstanding request, or revise a condition across turns.
+2. **Condition understanding is partial.** Budget, transport exclusion, and one preference clause are represented; most surrounding details and all laptop requirements remain preserved source text rather than typed conditions.
+3. **Clarification is partial.** One unresolved typed money value can be requested and supplied on a later turn. Other response details, condition revisions, and multi-request handling are not implemented.
 4. **Candidate evaluation and planning remain untested.** No feasibility comparison, recommendation, trade-off analysis, or plan has been performed. These downstream capabilities must not be implied by objective recognition.
 5. **The laptop prompt is only a transfer check for objective capture.** It does not demonstrate laptop comparison or a general selection capability.
 
 ## Next capability
 
-The next increment should add typed hard constraints and preferences, followed by a generic missing-information lifecycle driven by a capability's actual information requirements. It must preserve unknown information, keep the objective across turns, and avoid domain-specific clarification rules. Candidate evaluation should follow only when the necessary conditions and candidate data can be represented faithfully.
+The next increment should extend typed objective information beyond the initial money value, then represent the remaining benchmark follow-up (time window, origin, lunch, and transport revision) without travel-specific session logic. Candidate evaluation should follow only when the necessary conditions and candidate data can be represented faithfully.
 
 See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).

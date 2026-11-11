@@ -10,6 +10,10 @@ public sealed class LceParser
         @"(?:^|[.!?]\s*)Help me\s+(?<goal>[^.!?]+)[.!?]",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectiveMoneyResponsePattern = new(
+        @"^(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -83,6 +87,11 @@ public sealed class LceParser
         if (source.Length == 0)
         {
             return ParseResult.Failure("Input is empty.");
+        }
+
+        if (TryParseObjectiveInformation(source, originalSource, out var informationUtterance))
+        {
+            return ParseResult.Success(informationUtterance!);
         }
 
         if (TryParseObjective(source, originalSource, out var objectiveUtterance))
@@ -353,6 +362,33 @@ public sealed class LceParser
         }
 
         return TextParseResult.Success(utterances.ToImmutable());
+    }
+
+    private static bool TryParseObjectiveInformation(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        var match = ObjectiveMoneyResponsePattern.Match(source);
+
+        if (!match.Success ||
+            !decimal.TryParse(
+                match.Groups["amount"].Value,
+                System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var amount))
+        {
+            utterance = null;
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.ObjectiveInformation,
+            new ObjectiveInformationFormula(new ObjectiveMoneyValue(
+                amount,
+                match.Groups["symbol"].Value)),
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseObjective(

@@ -43,6 +43,11 @@ internal sealed class ReplUtteranceProcessor(ILatticeSession session)
                     AnsiConsole.WriteLine(utterance.Message ?? "Objective retained.");
                     break;
 
+                case LatticeUtteranceResultKind.ObjectiveInformationReceived:
+                    AnsiConsole.Markup("[bold cyan]Lattice[/] [dim]›[/] ");
+                    AnsiConsole.WriteLine(utterance.Message ?? "Objective information recorded.");
+                    break;
+
                 case LatticeUtteranceResultKind.QuestionAnswered:
                     WriteAnswer(utterance);
                     break;

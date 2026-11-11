@@ -4,5 +4,6 @@ public enum UtteranceKind
 {
     Assertion,
     Question,
-    Objective
+    Objective,
+    ObjectiveInformation
 }

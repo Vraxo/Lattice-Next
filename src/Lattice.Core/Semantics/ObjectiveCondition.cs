@@ -5,4 +5,11 @@ public sealed record ObjectiveCondition(
     ObjectiveConditionRole Role,
     ObjectiveConditionOperator Operator,
     ObjectiveConditionValue? Value,
-    string SourceText);
+    string SourceText)
+{
+    public ObjectiveConditionValueKind ExpectedValueKind { get; init; }
+
+    public string? MissingValuePrompt { get; init; }
+
+    public string? ValueSourceText { get; init; }
+}
