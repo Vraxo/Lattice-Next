@@ -11,13 +11,43 @@ internal static class NativeEnglishPropertyParser
     {
         utterance = null;
 
-        if (tokens.Length is not (4 or 5) ||
+        if (tokens.Length < 4 ||
             !EnglishGrammarTokens.IsCapitalized(tokens[0]) ||
             EnglishGrammarTokens.Is(tokens[0], "It") ||
             !EnglishGrammarTokens.Is(tokens[1], "is") ||
             !EnglishGrammarTokens.Is(tokens[2], "not") ||
-            !EnglishDescriptionParser.TryCreateIndividual(tokens[0], allowPronoun: false, out var individual) ||
-            !TryParseNegatedPredicate(tokens, 3, tokens.Length, out var predicate))
+            !EnglishDescriptionParser.TryCreateIndividual(tokens[0], allowPronoun: false, out var individual))
+        {
+            return false;
+        }
+
+        var conjunctionIndex = Array.FindIndex(
+            tokens,
+            3,
+            token => EnglishGrammarTokens.Is(token, "and"));
+
+        if (conjunctionIndex >= 0)
+        {
+            if (conjunctionIndex + 1 >= tokens.Length ||
+                !EnglishGrammarTokens.Is(tokens[conjunctionIndex + 1], "not") ||
+                !TryParseNegatedPredicate(tokens, 3, conjunctionIndex, out var firstPredicate) ||
+                !TryParseNegatedPredicate(tokens, conjunctionIndex + 2, tokens.Length, out var secondPredicate))
+            {
+                return false;
+            }
+
+            utterance = new SemanticUtterance(
+                UtteranceKind.Assertion,
+                EnglishSemanticFactory.Combine(
+                [
+                    new Negation(EnglishSemanticFactory.Predicate(firstPredicate!, individual!)),
+                    new Negation(EnglishSemanticFactory.Predicate(secondPredicate!, individual!))
+                ]),
+                sourceText);
+            return true;
+        }
+
+        if (!TryParseNegatedPredicate(tokens, 3, tokens.Length, out var predicate))
         {
             return false;
         }
