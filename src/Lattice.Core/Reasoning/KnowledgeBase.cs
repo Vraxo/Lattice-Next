@@ -202,6 +202,10 @@ public sealed class KnowledgeBase
                     !string.IsNullOrWhiteSpace(stage.DurationAttribute) &&
                     (stage.StartTimesAttribute is null || !string.IsNullOrWhiteSpace(stage.StartTimesAttribute)) &&
                     (stage.AvailabilityWindowAttribute is null || !string.IsNullOrWhiteSpace(stage.AvailabilityWindowAttribute))),
+            ObjectiveSumValue sum =>
+                sum.Attributes.Length is >= 2 and <= 64 &&
+                sum.Attributes.All(name => !string.IsNullOrWhiteSpace(name)) &&
+                sum.Attributes.Distinct(StringComparer.OrdinalIgnoreCase).Count() == sum.Attributes.Length,
             _ => false
         };
 
@@ -216,6 +220,8 @@ public sealed class KnowledgeBase
                 leftSet.Times.SequenceEqual(rightSet.Times),
             (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>
                 leftPlan.Stages.SequenceEqual(rightPlan.Stages),
+            (ObjectiveSumValue leftSum, ObjectiveSumValue rightSum) =>
+                leftSum.Attributes.SequenceEqual(rightSum.Attributes, StringComparer.OrdinalIgnoreCase),
             _ => Equals(left, right)
         };
 
