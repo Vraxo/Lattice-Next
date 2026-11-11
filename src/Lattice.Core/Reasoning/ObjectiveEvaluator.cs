@@ -55,33 +55,19 @@ public sealed class ObjectiveEvaluator
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, []);
         }
 
-        var evidence = attributes
-            .Where(attribute =>
-                attribute.Subject == candidate &&
-                string.Equals(attribute.Name.Value, condition.TargetAttribute, StringComparison.OrdinalIgnoreCase))
-            .ToImmutableArray();
+        var resolution = ResolveAttributeValue(
+            candidate,
+            condition.TargetAttribute,
+            attributes,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            depth: 0);
 
-        if (evidence.IsDefaultOrEmpty)
+        if (resolution.Status != ObjectiveConditionAssessmentStatus.Satisfied)
         {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, evidence);
+            return CreateAssessment(condition, resolution.Status, resolution.Evidence);
         }
 
-        var distinctValues = new List<ObjectiveConditionValue>();
-
-        foreach (var attribute in evidence)
-        {
-            if (!distinctValues.Any(value => AreSameValue(value, attribute.Value)))
-            {
-                distinctValues.Add(attribute.Value);
-            }
-        }
-
-        if (distinctValues.Count > 1)
-        {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Conflicting, evidence);
-        }
-
-        return CreateAssessment(condition, Compare(condition, distinctValues[0]), evidence);
+        return CreateAssessment(condition, Compare(condition, resolution.Value!), resolution.Evidence);
     }
 
     private static ObjectiveConditionAssessment EvaluateTemporalPlan(
@@ -95,35 +81,21 @@ public sealed class ObjectiveEvaluator
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, []);
         }
 
-        var planEvidence = attributes
-            .Where(attribute =>
-                attribute.Subject == candidate &&
-                string.Equals(attribute.Name.Value, condition.TargetAttribute, StringComparison.OrdinalIgnoreCase))
-            .ToImmutableArray();
+        var planResolution = ResolveAttributeValue(
+            candidate,
+            condition.TargetAttribute,
+            attributes,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            depth: 0);
 
-        if (planEvidence.IsDefaultOrEmpty)
+        if (planResolution.Status != ObjectiveConditionAssessmentStatus.Satisfied)
         {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
+            return CreateAssessment(condition, planResolution.Status, planResolution.Evidence);
         }
 
-        var distinctValues = new List<ObjectiveConditionValue>();
-
-        foreach (var attribute in planEvidence)
+        if (planResolution.Value is not ObjectiveTemporalPlanValue plan)
         {
-            if (!distinctValues.Any(value => AreSameValue(value, attribute.Value)))
-            {
-                distinctValues.Add(attribute.Value);
-            }
-        }
-
-        if (distinctValues.Count > 1)
-        {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Conflicting, planEvidence);
-        }
-
-        if (distinctValues[0] is not ObjectiveTemporalPlanValue plan)
-        {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planResolution.Evidence);
         }
 
         var sequence = new ObjectiveTemporalSequenceValue(
@@ -138,8 +110,145 @@ public sealed class ObjectiveEvaluator
 
         return assessment with
         {
-            Evidence = assessment.Evidence.AddRange(planEvidence)
+            Evidence = assessment.Evidence.AddRange(planResolution.Evidence)
         };
+    }
+
+    private static (
+        ObjectiveConditionAssessmentStatus Status,
+        ObjectiveConditionValue? Value,
+        ImmutableArray<KnowledgeAttribute> Evidence) ResolveAttributeValue(
+            SemanticIdentifier candidate,
+            string attributeName,
+            IReadOnlyList<KnowledgeAttribute> attributes,
+            HashSet<string> resolving,
+            int depth)
+    {
+        if (depth >= 16 || !resolving.Add(attributeName))
+        {
+            return (ObjectiveConditionAssessmentStatus.Unknown, null, []);
+        }
+
+        try
+        {
+            var evidence = attributes
+                .Where(attribute =>
+                    attribute.Subject == candidate &&
+                    string.Equals(attribute.Name.Value, attributeName, StringComparison.OrdinalIgnoreCase))
+                .ToImmutableArray();
+
+            if (evidence.IsDefaultOrEmpty)
+            {
+                return (ObjectiveConditionAssessmentStatus.Unknown, null, evidence);
+            }
+
+            var distinctValues = new List<ObjectiveConditionValue>();
+
+            foreach (var attribute in evidence)
+            {
+                if (!distinctValues.Any(value => AreSameValue(value, attribute.Value)))
+                {
+                    distinctValues.Add(attribute.Value);
+                }
+            }
+
+            if (distinctValues.Count > 1)
+            {
+                return (ObjectiveConditionAssessmentStatus.Conflicting, null, evidence);
+            }
+
+            if (distinctValues[0] is not ObjectiveSumValue sum)
+            {
+                return (ObjectiveConditionAssessmentStatus.Satisfied, distinctValues[0], evidence);
+            }
+
+            if (sum.Attributes.Length is < 2 or > 64 ||
+                sum.Attributes.Any(string.IsNullOrWhiteSpace) ||
+                sum.Attributes.Distinct(StringComparer.OrdinalIgnoreCase).Count() != sum.Attributes.Length)
+            {
+                return (ObjectiveConditionAssessmentStatus.Unknown, null, evidence);
+            }
+
+            var allEvidence = ImmutableArray.CreateBuilder<KnowledgeAttribute>();
+            allEvidence.AddRange(evidence);
+            decimal moneyTotal = 0m;
+            var durationTotal = 0;
+            string? currencySymbol = null;
+            var hasMoney = false;
+            var hasDuration = false;
+
+            foreach (var componentName in sum.Attributes)
+            {
+                var component = ResolveAttributeValue(
+                    candidate,
+                    componentName,
+                    attributes,
+                    resolving,
+                    depth + 1);
+                allEvidence.AddRange(component.Evidence);
+
+                if (component.Status != ObjectiveConditionAssessmentStatus.Satisfied)
+                {
+                    return (component.Status, null, allEvidence.ToImmutable());
+                }
+
+                switch (component.Value)
+                {
+                    case ObjectiveMoneyValue money:
+                        if (hasDuration ||
+                            (currencySymbol is not null &&
+                                !string.Equals(currencySymbol, money.CurrencySymbol, StringComparison.Ordinal)))
+                        {
+                            return (ObjectiveConditionAssessmentStatus.Unknown, null, allEvidence.ToImmutable());
+                        }
+
+                        hasMoney = true;
+                        currencySymbol ??= money.CurrencySymbol;
+
+                        try
+                        {
+                            moneyTotal = checked(moneyTotal + money.Amount);
+                        }
+                        catch (OverflowException)
+                        {
+                            return (ObjectiveConditionAssessmentStatus.Unknown, null, allEvidence.ToImmutable());
+                        }
+
+                        break;
+
+                    case ObjectiveDurationValue duration:
+                        if (hasMoney)
+                        {
+                            return (ObjectiveConditionAssessmentStatus.Unknown, null, allEvidence.ToImmutable());
+                        }
+
+                        hasDuration = true;
+
+                        try
+                        {
+                            durationTotal = checked(durationTotal + duration.Minutes);
+                        }
+                        catch (OverflowException)
+                        {
+                            return (ObjectiveConditionAssessmentStatus.Unknown, null, allEvidence.ToImmutable());
+                        }
+
+                        break;
+
+                    default:
+                        return (ObjectiveConditionAssessmentStatus.Unknown, null, allEvidence.ToImmutable());
+                }
+            }
+
+            ObjectiveConditionValue total = hasMoney
+                ? new ObjectiveMoneyValue(moneyTotal, currencySymbol!)
+                : new ObjectiveDurationValue(durationTotal);
+            return (ObjectiveConditionAssessmentStatus.Satisfied, total, allEvidence.ToImmutable());
+        }
+        finally
+        {
+            resolving.Remove(attributeName);
+        }
     }
 
     private static ObjectiveConditionAssessment EvaluateTemporalSequence(
@@ -167,48 +276,34 @@ public sealed class ObjectiveEvaluator
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        var evidence = attributes
-            .Where(attribute =>
-                attribute.Subject == candidate &&
-                requiredNames.Contains(attribute.Name.Value, StringComparer.OrdinalIgnoreCase))
-            .ToImmutableArray();
-
+        var evidence = ImmutableArray.CreateBuilder<KnowledgeAttribute>();
         var values = new Dictionary<string, ObjectiveConditionValue>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var name in requiredNames)
         {
-            var matching = evidence
-                .Where(attribute => string.Equals(attribute.Name.Value, name, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
+            var resolution = ResolveAttributeValue(
+                candidate,
+                name,
+                attributes,
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+                depth: 0);
+            evidence.AddRange(resolution.Evidence);
 
-            if (matching.Length == 0)
+            if (resolution.Status != ObjectiveConditionAssessmentStatus.Satisfied)
             {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, evidence);
+                return CreateAssessment(condition, resolution.Status, evidence.ToImmutable());
             }
 
-            var distinctValues = new List<ObjectiveConditionValue>();
-
-            foreach (var attribute in matching)
-            {
-                if (!distinctValues.Any(value => AreSameValue(value, attribute.Value)))
-                {
-                    distinctValues.Add(attribute.Value);
-                }
-            }
-
-            if (distinctValues.Count > 1)
-            {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Conflicting, evidence);
-            }
-
-            values.Add(name, distinctValues[0]);
+            values.Add(name, resolution.Value!);
         }
+
+        var resolvedEvidence = evidence.ToImmutable();
 
         foreach (var stage in sequence.Stages)
         {
             if (values[stage.DurationAttribute] is not ObjectiveDurationValue duration || duration.Minutes < 0)
             {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, evidence);
+                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, resolvedEvidence);
             }
 
             if (stage.StartTimesAttribute is not null &&
@@ -229,7 +324,7 @@ public sealed class ObjectiveEvaluator
         return CreateAssessment(
             condition,
             fits ? ObjectiveConditionAssessmentStatus.Satisfied : ObjectiveConditionAssessmentStatus.Violated,
-            evidence);
+            resolvedEvidence);
     }
 
     private static bool CanFitStage(
@@ -447,6 +542,8 @@ public sealed class ObjectiveEvaluator
                 leftSet.Times.SequenceEqual(rightSet.Times),
             (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>
                 leftPlan.Stages.SequenceEqual(rightPlan.Stages),
+            (ObjectiveSumValue leftSum, ObjectiveSumValue rightSum) =>
+                leftSum.Attributes.SequenceEqual(rightSum.Attributes, StringComparer.OrdinalIgnoreCase),
             _ => Equals(left, right)
         };
 
