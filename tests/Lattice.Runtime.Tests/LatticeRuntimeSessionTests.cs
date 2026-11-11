@@ -68,7 +68,7 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var rejected = await session.SubmitAsync(
-            "Fido is a dog. This sentence is not supported.");
+            "Fido is a dog. asdf");
         var followUp = await session.SubmitAsync("Is Fido a dog?");
 
         Assert.Equal(LatticeTurnStatus.Rejected, rejected.Status);
