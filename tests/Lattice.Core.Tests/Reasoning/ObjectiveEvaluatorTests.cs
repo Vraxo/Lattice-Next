@@ -38,6 +38,7 @@ public sealed class ObjectiveEvaluatorTests
             "candidate-fixture",
             GetCondition(fernbank, "spending-limit").Evidence[0].SourceId);
         Assert.False(fernbank.HasHardConstraintViolation);
+        Assert.Equal(CandidateFeasibility.Eligible, fernbank.Feasibility);
 
         var riverside = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Riverside");
         Assert.Equal(
@@ -61,12 +62,15 @@ public sealed class ObjectiveEvaluatorTests
                 Assert.Single(preference.Evidence);
             });
         Assert.False(riverside.HasHardConstraintViolation);
+        Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
+        Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
 
         var hilltop = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Hilltop");
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.Unknown,
             GetCondition(hilltop, "spending-limit").Status);
         Assert.True(hilltop.HasUnresolvedHardConstraint);
+        Assert.Equal(CandidateFeasibility.Unresolved, hilltop.Feasibility);
     }
 
     [Fact]
@@ -222,6 +226,7 @@ public sealed class ObjectiveEvaluatorTests
             GetCondition(candidate, "meal-plan").Status);
         Assert.False(candidate.HasHardConstraintViolation);
         Assert.False(candidate.HasUnresolvedHardConstraint);
+        Assert.Equal(CandidateFeasibility.NotEvaluated, candidate.Feasibility);
     }
 
     [Fact]
@@ -254,6 +259,7 @@ public sealed class ObjectiveEvaluatorTests
             ObjectiveConditionAssessmentStatus.Violated,
             GetCondition(fernbank, "transport-mode").Status);
         Assert.True(fernbank.HasHardConstraintViolation);
+        Assert.Equal(CandidateFeasibility.Excluded, fernbank.Feasibility);
 
         var riverside = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Riverside");
         Assert.Equal(
