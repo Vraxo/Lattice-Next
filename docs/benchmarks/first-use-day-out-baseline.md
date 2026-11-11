@@ -37,8 +37,16 @@ This is a generic session mechanism driven by the condition's expected value kin
 4. **Candidate evaluation and planning remain untested.** No feasibility comparison, recommendation, trade-off analysis, or plan has been performed. These downstream capabilities must not be implied by objective recognition.
 5. **The laptop prompt now verifies cross-domain condition capture.** The same generic path retains its explicit $1,000 spending limit and its screen-quality/reliability/repairability preference. No laptop-specific workflow is used. Longevity and the lack of gaming need remain in preserved source text; no candidate comparison or reliability conclusion has been performed.
 
+## Candidate-data representation boundary
+
+The current knowledge-pack path can store unary categorical claims and binary relations about named individuals. For example, it can store `Fernbank is a reserve.` and `Fernbank costs six-dollars.`, then answer an exact query for that same symbolic relation. The second argument in the cost relation is an `IndividualTerm` identifier—not a decimal or money value.
+
+The current assertion path rejects a money literal such as `Fernbank costs $6.`, and the native parser does not accept a comparative query such as `Does Fernbank cost less than ten-dollars?`. The reasoning engine performs exact ground-predicate lookup and its existing unary derivation; it has no typed numeric comparison or general candidate evaluation.
+
+Consequently, the candidate table cannot yet be represented faithfully enough to compare transport cost, entry price, journey duration, activity duration, and time windows against an objective. Qualitative facts can be stored symbolically, but that is not sufficient to establish feasibility or rank options. No destination recommendation has been produced by Lattice.
+
 ## Next capability
 
-The next increment should test whether the existing knowledge-pack and reasoning paths can faithfully represent the benchmark's candidate data. Record exactly which attributes and relationships can be stored and retrieved, and identify the smallest missing general mechanism for comparing arbitrary options against typed conditions. Do not introduce travel/laptop-specific schemas, numerical scoring, or a planner before the evidence requires them. Candidate evaluation should follow only when the necessary conditions and candidate data can be represented faithfully.
+The next increment should introduce only the smallest reusable representation and reasoning mechanism needed to express candidate attributes with typed values and evaluate them against objective conditions. It should preserve unknown attributes, explain which conditions are supported or unresolved, and be tested on the day-out candidates before attempting any planner or numerical scoring framework. A cross-domain check should follow before the mechanism is considered general.
 
 See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).

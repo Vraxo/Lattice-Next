@@ -195,6 +195,66 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Candidate_attributes_can_be_stored_as_symbolic_relations_and_exactly_retrieved()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "candidate-facts",
+              "name": "Candidate facts",
+              "claims": [
+                "Fernbank is a reserve.",
+                "Fernbank costs six-dollars."
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        var loaded = loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error);
+
+        Assert.True(loaded, error);
+        var cost = Assert.Single(
+            knowledgeBase.Facts,
+            fact => fact.Predicate.Predicate.Value == "costs");
+        Assert.Equal(2, cost.Predicate.Arguments.Length);
+        var costValue = Assert.IsType<IndividualTerm>(cost.Predicate.Arguments[1]);
+        Assert.Equal("six-dollars", costValue.Identifier.Value);
+
+        var query = parser.Parse("Does Fernbank cost six-dollars?");
+        Assert.True(query.IsSuccess, query.Error);
+        var predicate = Assert.IsType<PredicateApplication>(query.Utterance!.Meaning);
+        var answer = engine.Ask(knowledgeBase, predicate);
+
+        Assert.Equal(TruthValue.True, answer.TruthValue);
+    }
+
+    [Fact]
+    public void Candidate_money_literals_and_comparative_queries_are_not_supported_by_the_current_fact_path()
+    {
+        const string moneyPack = """
+            {
+              "formatVersion": 1,
+              "id": "numeric-candidate-fact",
+              "name": "Numeric candidate fact",
+              "claims": [
+                "Fernbank costs $6."
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        var loaded = loader.TryLoadAndAdd(moneyPack, knowledgeBase, out _, out var error);
+
+        Assert.False(loaded);
+        Assert.NotNull(error);
+        Assert.Empty(knowledgeBase.Facts);
+        Assert.Empty(knowledgeBase.Rules);
+
+        var comparison = parser.Parse("Does Fernbank cost less than ten-dollars?");
+        Assert.False(comparison.IsSuccess);
+    }
+
+    [Fact]
     public void Rejects_malformed_json_without_changing_the_knowledge_base()
     {
         var knowledgeBase = new KnowledgeBase();
