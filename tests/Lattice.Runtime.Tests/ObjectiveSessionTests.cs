@@ -109,6 +109,67 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Laptop_comparison_keeps_unsupported_preferences_unknown_individually()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string input = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        var result = await session.SubmitAsync(input, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        var aster = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        var birch = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Birch 15");
+        var cedar = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+
+        var asterPreference = Assert.Single(aster.Conditions, condition => condition.Name == "preference");
+        var birchPreference = Assert.Single(birch.Conditions, condition => condition.Name == "preference");
+        var cedarPreference = Assert.Single(cedar.Conditions, condition => condition.Name == "preference");
+
+        Assert.Equal("Unknown", asterPreference.Status);
+        Assert.Equal("Unknown", birchPreference.Status);
+        Assert.All(asterPreference.Preferences, preference => Assert.Equal("Unknown", preference.Status));
+        Assert.All(birchPreference.Preferences, preference => Assert.Equal("Unknown", preference.Status));
+        Assert.All(asterPreference.Preferences, preference => Assert.Empty(preference.Evidence));
+
+        Assert.Equal("PartiallySatisfied", cedarPreference.Status);
+        Assert.Collection(
+            cedarPreference.Preferences,
+            preference =>
+            {
+                Assert.Equal("screen quality", preference.Name);
+                Assert.Equal("Unknown", preference.Status);
+                Assert.Empty(preference.Evidence);
+            },
+            preference =>
+            {
+                Assert.Equal("reliability", preference.Name);
+                Assert.Equal("Unknown", preference.Status);
+                Assert.Empty(preference.Evidence);
+            },
+            preference =>
+            {
+                Assert.Equal("repairability", preference.Name);
+                Assert.Equal("Satisfied", preference.Status);
+                Assert.Contains(
+                    preference.Evidence,
+                    source => source.SourceText == "Cedar 14 has an upgrade path.");
+            });
+
+        var message = result.Utterances.Single().Message;
+        Assert.Contains("some preferences are evidenced; others remain unknown", message);
+        Assert.Contains("repairability: satisfied", message);
+        Assert.Contains("screen quality: unknown from supplied data", message);
+        Assert.DoesNotContain("reliability: not satisfied", message);
+    }
+
+    [Fact]
     public async Task Applies_a_typed_answer_to_the_pending_condition_without_storing_a_fact()
     {
         var client = new LatticeRuntimeClient();
