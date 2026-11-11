@@ -58,19 +58,22 @@ internal static class ObjectiveEvaluationFormatter
                     .Append(DescribeStatus(condition.Status))
                     .AppendLine(".");
 
-                foreach (var stage in condition.TemporalWitness)
+                if (!candidate.HasHardConstraintViolation && !candidate.HasUnresolvedHardConstraint)
                 {
-                    output.Append("    Stage ")
-                        .Append(stage.Index)
-                        .Append(": ")
-                        .Append(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture))
-                        .Append('–')
-                        .Append(stage.End.ToString("HH:mm", CultureInfo.InvariantCulture))
-                        .Append(" — ")
-                        .Append(FormatAttributeName(stage.DurationAttribute))
-                        .Append(" (")
-                        .Append(stage.DurationMinutes)
-                        .AppendLine(" min).");
+                    foreach (var stage in condition.TemporalWitness)
+                    {
+                        output.Append("    Stage ")
+                            .Append(stage.Index)
+                            .Append(": ")
+                            .Append(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture))
+                            .Append('–')
+                            .Append(stage.End.ToString("HH:mm", CultureInfo.InvariantCulture))
+                            .Append(" — ")
+                            .Append(FormatAttributeName(stage.DurationAttribute))
+                            .Append(" (")
+                            .Append(stage.DurationMinutes)
+                            .AppendLine(" min).");
+                    }
                 }
 
                 var sources = condition.Evidence
