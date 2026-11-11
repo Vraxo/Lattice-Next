@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: choose a bounded but interesting proving-ground task and identify its reusable capability gaps before selecting another implementation increment. Do not automatically continue grammar expansion or pick a deferred technical TODO without connecting it to such a task. Hosted/local translator evaluation remains deferred.
+> Current priority: validate a bounded first-use proving ground (currently, planning a low-cost day out under preferences and transport constraints) and identify its reusable capability gaps before selecting another implementation increment. Do not automatically continue grammar expansion or pick a deferred technical TODO without connecting it to a meaningful end-to-end task. Hosted/local translator evaluation remains deferred.
 
 
 ## Bootstrap

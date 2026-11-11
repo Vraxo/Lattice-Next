@@ -10,6 +10,8 @@ When choosing work, start from a meaningful end-to-end task. Identify the genera
 
 See [docs/vision.md](docs/vision.md) for the fuller development philosophy and a candidate proving ground.
 
+The current candidate first-use task is a constrained day-out plan: given a person's budget, transport limitations, preferences, and a small set of available options, help produce and explain a sensible plan. Treat this as a proving ground, not a product-specific feature request. Use it to expose reusable needs such as goal/constraint representation, missing-information questions, option evaluation, trade-offs, and explanations. Do not add a trip-planning command or domain-specific reasoning branch.
+
 ## Product direction
 
 Lattice is a tool-independent symbolic conversational intelligence. It is not an IDE command palette, a collection of coding workflows, or an LLM wrapper.
