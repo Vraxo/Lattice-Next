@@ -18,4 +18,6 @@ public sealed record LatticeSessionStatus(
     public string? PendingInformationPrompt { get; init; }
 
     public LatticeObjectiveEvaluation? ObjectiveEvaluation { get; init; }
+
+    public LatticeObjectiveEvaluation? ObjectiveEvaluation { get; init; }
 }
