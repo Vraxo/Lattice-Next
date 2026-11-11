@@ -58,6 +58,25 @@ internal static class ObjectiveEvaluationFormatter
                     .Append(DescribeStatus(condition.Status))
                     .AppendLine(".");
 
+                foreach (var preference in condition.Preferences)
+                {
+                    output.Append("    - ")
+                        .Append(preference.Preference)
+                        .Append(": ")
+                        .Append(DescribeStatus(preference.Status))
+                        .AppendLine(".");
+
+                    foreach (var source in preference.Evidence
+                        .SelectMany(attribute => attribute.Sources)
+                        .Select(source => string.IsNullOrWhiteSpace(source.SourceId)
+                            ? source.SourceText
+                            : $"{source.SourceText} [source: {source.SourceId}]")
+                        .Distinct(StringComparer.Ordinal))
+                    {
+                        output.Append("      Evidence: ").AppendLine(source);
+                    }
+                }
+
                 if (!candidate.HasHardConstraintViolation && !candidate.HasUnresolvedHardConstraint)
                 {
                     foreach (var stage in condition.TemporalWitness)
@@ -76,8 +95,10 @@ internal static class ObjectiveEvaluationFormatter
                     }
                 }
 
-                var sources = condition.Evidence
-                    .SelectMany(attribute => attribute.Sources)
+                var sources = condition.Preferences.IsDefaultOrEmpty
+                    ? condition.Evidence
+                        .SelectMany(attribute => attribute.Sources)
+                    : Enumerable.Empty<KnowledgeSource>();
                     .Select(source => string.IsNullOrWhiteSpace(source.SourceId)
                         ? source.SourceText
                         : $"{source.SourceText} [source: {source.SourceId}]")
@@ -108,11 +129,18 @@ internal static class ObjectiveEvaluationFormatter
             return null;
         }
 
-        if (preferences.Any(condition =>
-            condition.Status is ObjectiveConditionAssessmentStatus.Unknown or
+        var individualPreferences = preferences
+            .SelectMany(condition => condition.Preferences)
+            .ToArray();
+
+        if (individualPreferences.Any(preference =>
+            preference.Status is ObjectiveConditionAssessmentStatus.Unknown or
                 ObjectiveConditionAssessmentStatus.Conflicting))
         {
-            return "preference fit is unresolved";
+            return individualPreferences.Any(preference =>
+                preference.Status == ObjectiveConditionAssessmentStatus.Satisfied)
+                ? "some preferences are evidenced; others remain unknown"
+                : "preference fit is unresolved";
         }
 
         if (preferences.All(condition =>
