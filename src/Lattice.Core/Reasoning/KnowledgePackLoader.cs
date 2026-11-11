@@ -378,6 +378,75 @@ public sealed class KnowledgePackLoader
                     .ToImmutableArray());
                 return true;
 
+            case "temporalPlan":
+                if (!HasExactProperties(element, "type", "stages") ||
+                    !element.TryGetProperty("stages", out var stagesElement) ||
+                    stagesElement.ValueKind != JsonValueKind.Array)
+                {
+                    return false;
+                }
+
+                var stageItems = stagesElement.EnumerateArray().ToArray();
+
+                if (stageItems.Length is 0 or > 64)
+                {
+                    return false;
+                }
+
+                var stages = ImmutableArray.CreateBuilder<ObjectiveTemporalStage>(stageItems.Length);
+
+                foreach (var stageElement in stageItems)
+                {
+                    if (stageElement.ValueKind != JsonValueKind.Object)
+                    {
+                        return false;
+                    }
+
+                    var stageProperties = stageElement.EnumerateObject().ToArray();
+                    var stageNames = stageProperties.Select(property => property.Name).ToArray();
+
+                    if (stageNames.Distinct(StringComparer.Ordinal).Count() != stageNames.Length ||
+                        !stageNames.Contains("durationAttribute", StringComparer.Ordinal) ||
+                        stageNames.Any(name => name is not ("durationAttribute" or "startTimesAttribute" or "availabilityWindowAttribute")) ||
+                        !TryGetString(stageElement, "durationAttribute", out var durationAttribute) ||
+                        string.IsNullOrWhiteSpace(durationAttribute))
+                    {
+                        return false;
+                    }
+
+                    string? startTimesAttribute = null;
+                    if (stageElement.TryGetProperty("startTimesAttribute", out _) &&
+                        (!TryGetString(stageElement, "startTimesAttribute", out var startTimes) ||
+                            string.IsNullOrWhiteSpace(startTimes)))
+                    {
+                        return false;
+                    }
+                    else if (stageElement.TryGetProperty("startTimesAttribute", out _))
+                    {
+                        TryGetString(stageElement, "startTimesAttribute", out startTimesAttribute!);
+                    }
+
+                    string? availabilityWindowAttribute = null;
+                    if (stageElement.TryGetProperty("availabilityWindowAttribute", out _) &&
+                        (!TryGetString(stageElement, "availabilityWindowAttribute", out var availabilityWindow) ||
+                            string.IsNullOrWhiteSpace(availabilityWindow)))
+                    {
+                        return false;
+                    }
+                    else if (stageElement.TryGetProperty("availabilityWindowAttribute", out _))
+                    {
+                        TryGetString(stageElement, "availabilityWindowAttribute", out availabilityWindowAttribute!);
+                    }
+
+                    stages.Add(new ObjectiveTemporalStage(
+                        durationAttribute,
+                        startTimesAttribute,
+                        availabilityWindowAttribute));
+                }
+
+                value = new ObjectiveTemporalPlanValue(stages.ToImmutable());
+                return true;
+
             default:
                 return false;
         }
