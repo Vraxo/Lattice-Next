@@ -31,6 +31,9 @@ public sealed class ObjectiveEvaluatorTests
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(fernbank, "preference").Status);
+        Assert.All(
+            GetCondition(fernbank, "preference").Preferences,
+            preference => Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, preference.Status));
         Assert.Equal(
             "candidate-fixture",
             GetCondition(fernbank, "spending-limit").Evidence[0].SourceId);
@@ -43,6 +46,20 @@ public sealed class ObjectiveEvaluatorTests
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.PartiallySatisfied,
             GetCondition(riverside, "preference").Status);
+        Assert.Collection(
+            GetCondition(riverside, "preference").Preferences,
+            preference =>
+            {
+                Assert.Equal("quiet", preference.Preference);
+                Assert.Equal(ObjectiveConditionAssessmentStatus.Unknown, preference.Status);
+                Assert.Empty(preference.Evidence);
+            },
+            preference =>
+            {
+                Assert.Equal("outdoors", preference.Preference);
+                Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, preference.Status);
+                Assert.Single(preference.Evidence);
+            });
         Assert.False(riverside.HasHardConstraintViolation);
 
         var hilltop = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Hilltop");
