@@ -6,4 +6,6 @@ namespace Lattice.Client;
 public sealed record LatticeObjectiveConditionAssessment(string Name, string Role, string Status, ImmutableArray<LatticeObjectiveEvidenceSource> Evidence)
 {
     public ImmutableArray<LatticeObjectiveTemporalStage> TemporalWitness { get; init; } = [];
+
+    public ImmutableArray<LatticeObjectivePreferenceAssessment> Preferences { get; init; } = [];
 }
