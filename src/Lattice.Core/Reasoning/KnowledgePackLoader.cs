@@ -415,27 +415,27 @@ public sealed class KnowledgePackLoader
                     }
 
                     string? startTimesAttribute = null;
-                    if (stageElement.TryGetProperty("startTimesAttribute", out _) &&
-                        (!TryGetString(stageElement, "startTimesAttribute", out var startTimes) ||
-                            string.IsNullOrWhiteSpace(startTimes)))
+                    if (stageElement.TryGetProperty("startTimesAttribute", out var startTimesElement))
                     {
-                        return false;
-                    }
-                    else if (stageElement.TryGetProperty("startTimesAttribute", out _))
-                    {
-                        TryGetString(stageElement, "startTimesAttribute", out startTimesAttribute!);
+                        if (startTimesElement.ValueKind != JsonValueKind.String ||
+                            string.IsNullOrWhiteSpace(startTimesElement.GetString()))
+                        {
+                            return false;
+                        }
+
+                        startTimesAttribute = startTimesElement.GetString();
                     }
 
                     string? availabilityWindowAttribute = null;
-                    if (stageElement.TryGetProperty("availabilityWindowAttribute", out _) &&
-                        (!TryGetString(stageElement, "availabilityWindowAttribute", out var availabilityWindow) ||
-                            string.IsNullOrWhiteSpace(availabilityWindow)))
+                    if (stageElement.TryGetProperty("availabilityWindowAttribute", out var availabilityWindowElement))
                     {
-                        return false;
-                    }
-                    else if (stageElement.TryGetProperty("availabilityWindowAttribute", out _))
-                    {
-                        TryGetString(stageElement, "availabilityWindowAttribute", out availabilityWindowAttribute!);
+                        if (availabilityWindowElement.ValueKind != JsonValueKind.String ||
+                            string.IsNullOrWhiteSpace(availabilityWindowElement.GetString()))
+                        {
+                            return false;
+                        }
+
+                        availabilityWindowAttribute = availabilityWindowElement.GetString();
                     }
 
                     stages.Add(new ObjectiveTemporalStage(
