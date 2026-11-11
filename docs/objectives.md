@@ -90,6 +90,19 @@ Out of scope until a concrete end-to-end increment requires them:
 
 The initial native-language slice can remain deliberately bounded. It must map supported wording faithfully to the contract and reject unsupported or ambiguous wording. The optional translator may later be extended to produce the same validated semantic representation, but it must not become an alternate source of unchecked meaning.
 
+
+## Current implementation checkpoint
+
+The initial native objective slice now retains a distinct goal and extracts a deliberately small set of typed conditions from the original request:
+
+- hard constraints and preferences are represented separately;
+- a stated limited budget without an amount is represented as an unresolved spending limit, not as zero or as a satisfied constraint;
+- an explicit budget amount is represented as a typed money value, retaining its currency symbol rather than guessing a currency code;
+- an explicit lack of a car is retained as a transport exclusion;
+- simple preference clauses retain their source wording as preference values.
+
+This is a bounded language slice, not general natural-language understanding. Unrecognized clauses remain in the preserved original source and are not promoted to conditions. The next increment is to let a capability request a missing typed value, retain that request across turns, and safely associate a user's answer with it.
+
 ## Validation
 
 The motivating benchmark is [the first-use day-out task](benchmarks/first-use-day-out.md). It requires Lattice to retain a user's goal and conditions while asking for a missing spending limit, then accept a follow-up and continue without losing earlier information.

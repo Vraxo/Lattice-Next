@@ -20,7 +20,7 @@ public static class SemanticFormatter
     private static string Format(SemanticFormula formula) =>
         formula switch
         {
-            ObjectiveFormula objective => $"objective({objective.Goal})",
+            ObjectiveFormula objective => FormatObjective(objective),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
@@ -29,6 +29,29 @@ public static class SemanticFormatter
             UniversalQuantification universal => $"forall({Format(universal.Variable)}, {Format(universal.Body)})",
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
         };
+
+    private static string FormatObjective(ObjectiveFormula objective)
+    {
+        if (objective.Conditions.IsDefaultOrEmpty)
+        {
+            return $"objective({objective.Goal})";
+        }
+
+        var conditions = string.Join(", ", objective.Conditions.Select(condition =>
+        {
+            var value = condition.Value switch
+            {
+                ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+                ObjectiveTextValue text => text.Value,
+                null => "unknown",
+                _ => "unsupported"
+            };
+
+            return $"{condition.Role.ToString().ToLowerInvariant()}({condition.Name}, {condition.Operator.ToString().ToLowerInvariant()}, {value})";
+        }));
+
+        return $"objective({objective.Goal}; {conditions})";
+    }
 
     private static string FormatPredicate(PredicateApplication predicate)
     {
