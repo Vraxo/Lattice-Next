@@ -43,7 +43,7 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectivePreferenceAdditionPattern = new(
-        @"^(?:Also,\s*)?(?:I also care about|I also prefer)\s+(?<value>[^.!?]+)[.!?]$|^Add\s+(?<add>.+?)\s+to my preferences[.!?]$",
+        @"^(?:Also,\s*(?:I care about|I prefer)|I also care about|I also prefer)\s+(?<value>[^.!?]+)[.!?]$|^Add\s+(?<add>.+?)\s+to my preferences[.!?]$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectivePreferenceRemovalPattern = new(
