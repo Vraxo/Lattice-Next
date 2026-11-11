@@ -409,16 +409,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 .ToImmutableArray()))
             .ToImmutableArray());
 
-    private static LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
-        new(evaluation.Candidates.Select(candidate => new LatticeCandidateAssessment(
-            candidate.Candidate.Value,
-            candidate.HasHardConstraintViolation,
-            candidate.HasUnresolvedHardConstraint,
-            candidate.Conditions.Select(condition => new LatticeObjectiveConditionAssessment(
-                condition.ConditionName, condition.Role.ToString(), condition.Status.ToString(),
-                condition.Evidence.SelectMany(attribute => attribute.Sources).Distinct().Select(source =>
-                    new LatticeObjectiveEvidenceSource(source.Kind.ToString(), source.SourceText, source.SourceId)).ToImmutableArray()))
-                .ToImmutableArray())).ToImmutableArray());
     private static LatticeEvidence MapEvidence(ProofNode proof)
     {
         var premises = ImmutableArray.CreateBuilder<LatticeEvidence>();
