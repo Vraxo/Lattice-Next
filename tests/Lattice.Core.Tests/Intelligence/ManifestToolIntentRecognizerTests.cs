@@ -94,6 +94,31 @@ public sealed class ManifestToolIntentRecognizerTests
             arguments.RootElement.GetProperty("query").GetString());
     }
 
+    [Theory]
+    [InlineData(
+        "Search the web for the latest .NET 10 release notes.",
+        "the latest .NET 10 release notes")]
+    [InlineData(
+        "Search the web for symbolic reasoning systems and knowledge representation.",
+        "symbolic reasoning systems and knowledge representation")]
+    [InlineData(
+        "Please search the web for current release information.",
+        "current release information")]
+    public void Recognizes_web_search_phrases_declared_by_the_bundled_manifest(
+        string input,
+        string expectedQuery)
+    {
+        var descriptor = BundledToolTestSupport.CreateRegistry().Descriptors.Single(
+            item => item.Id == "web-search");
+        var resolution = CreateResolver([descriptor]).Resolve(input);
+
+        Assert.True(resolution.IsResolved);
+        Assert.Equal("web-search", resolution.Intent!.ToolId);
+
+        using var arguments = JsonDocument.Parse(resolution.Intent.ArgumentsJson);
+        Assert.Equal(expectedQuery, arguments.RootElement.GetProperty("query").GetString());
+    }
+
     [Fact]
     public void Formats_responses_from_manifest_templates_and_tool_observations()
     {

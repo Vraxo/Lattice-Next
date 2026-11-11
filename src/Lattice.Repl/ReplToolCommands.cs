@@ -16,6 +16,12 @@ internal sealed class ReplToolCommands(
         {
             AnsiConsole.MarkupLine("[bold]Available tools[/]");
 
+            if (toolAccess.Registry.Descriptors.Count == 0)
+            {
+                AnsiConsole.MarkupLine(
+                    "[yellow]No tools are registered. Check the configured tools directory and tool.json manifests.[/]");
+            }
+
             foreach (var descriptor in toolAccess.Registry.Descriptors.OrderBy(item => item.Id, StringComparer.Ordinal))
             {
                 AnsiConsole.MarkupLine($"  [cyan]{descriptor.Id}[/] — {descriptor.Name}");
