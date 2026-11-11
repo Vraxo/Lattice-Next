@@ -511,7 +511,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                         .ToImmutableArray()))
                     .ToImmutableArray()
             })
-                .ToImmutableArray()))
+                .ToImmutableArray())
+        {
+            Feasibility = candidate.Feasibility.ToString()
+        }))
             .ToImmutableArray());
 
     private static LatticeEvidence MapEvidence(ProofNode proof)
