@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace Lattice.Client;
 
@@ -17,6 +18,13 @@ public enum LatticeSemanticUtteranceKind
     Question
 }
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(LatticePredicateApplication), "predicate")]
+[JsonDerivedType(typeof(LatticeNegation), "negation")]
+[JsonDerivedType(typeof(LatticeImplication), "implication")]
+[JsonDerivedType(typeof(LatticeConjunction), "conjunction")]
+[JsonDerivedType(typeof(LatticeExistentialQuantification), "exists")]
+[JsonDerivedType(typeof(LatticeUniversalQuantification), "forall")]
 public abstract record LatticeSemanticFormula;
 
 public sealed record LatticePredicateApplication(
@@ -40,6 +48,12 @@ public sealed record LatticeUniversalQuantification(
     string Variable,
     LatticeSemanticFormula Body) : LatticeSemanticFormula;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(LatticeIndividualTerm), "individual")]
+[JsonDerivedType(typeof(LatticeAnonymousIndividualTerm), "anonymous")]
+[JsonDerivedType(typeof(LatticeDescriptiveIndividualTerm), "description")]
+[JsonDerivedType(typeof(LatticeVariableTerm), "variable")]
+[JsonDerivedType(typeof(LatticeUnresolvedReferenceTerm), "reference")]
 public abstract record LatticeSemanticTerm;
 
 public sealed record LatticeIndividualTerm(string Identifier) : LatticeSemanticTerm;
