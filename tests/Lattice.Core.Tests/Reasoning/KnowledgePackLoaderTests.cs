@@ -366,6 +366,56 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Loads_declarative_sums_of_named_attributes()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "derived-cost",
+              "name": "Derived cost",
+              "claims": [],
+              "attributes": [{
+                "subject": "Destination",
+                "name": "total-cost",
+                "value": { "type": "sum", "attributes": ["return-fare", "entry-cost"] },
+                "sourceText": "The total cost is the return fare plus entry."
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.True(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error), error);
+
+        Assert.Equal(
+            new ObjectiveSumValue(ImmutableArray.Create("return-fare", "entry-cost")),
+            Assert.IsType<ObjectiveSumValue>(Assert.Single(knowledgeBase.Attributes).Value));
+    }
+
+    [Fact]
+    public void Rejects_invalid_attribute_sums_without_partially_loading_the_pack()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "invalid-derived-cost",
+              "name": "Invalid derived cost",
+              "claims": [],
+              "attributes": [{
+                "subject": "Destination",
+                "name": "total-cost",
+                "value": { "type": "sum", "attributes": ["fare", "FARE"] },
+                "sourceText": "A sum with a repeated component."
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.False(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error));
+        Assert.NotNull(error);
+        Assert.Empty(knowledgeBase.Attributes);
+    }
+
+    [Fact]
     public void Imported_candidate_attributes_can_be_evaluated_with_pack_provenance()
     {
         const string json = """
