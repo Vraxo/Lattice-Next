@@ -111,6 +111,7 @@ public sealed class DayOutBenchmarkDataTests
             GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Violated,
             GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").Status);
+        Assert.Empty(GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").TemporalWitness);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(GetCandidate(result, "Hilltop Farm Grounds"), "itinerary").Status);
     }
@@ -167,6 +168,7 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(
             ObjectiveConditionAssessmentStatus.Conflicting,
             GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
+        Assert.Empty(GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").TemporalWitness);
     }
 
     [Fact]
