@@ -52,7 +52,7 @@ public sealed class ObjectiveEvaluator
 
         if (string.IsNullOrWhiteSpace(condition.TargetAttribute))
         {
-            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, []);
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.NotApplicable, []);
         }
 
         var resolution = ResolveAttributeValue(
