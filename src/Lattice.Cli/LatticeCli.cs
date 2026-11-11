@@ -115,9 +115,9 @@ public static class LatticeCli
 
             var turn = await session.SubmitAsync(input, cancellationToken);
             var success = turn.IsSuccess && turn.Utterances.All(
-                utterance => utterance.Kind is
-                    LatticeUtteranceResultKind.StatementStored or
-                    LatticeUtteranceResultKind.QuestionAnswered);
+                utterance => utterance.Kind is not (
+                    LatticeUtteranceResultKind.StatementRejected or
+                    LatticeUtteranceResultKind.UnsupportedQuestion));
 
             WriteOutput(
                 options,
