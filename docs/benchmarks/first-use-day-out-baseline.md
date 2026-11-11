@@ -35,11 +35,11 @@ The dataset deliberately omits attributes for facts the benchmark leaves unspeci
 
 ## Remaining benchmark gap
 
-The full dataset is now present, but Lattice has **not** solved the outing task. In particular:
-- departure sets and travel/activity durations are stored but not evaluated together;
-- it does not yet establish whether a selected outbound departure, journey, activity, and return service form a feasible itinerary;
+Lattice now has a reusable temporal-sequence feasibility comparison, but it has **not** solved the complete outing task. In particular:
+- the user-facing parser/session does not yet construct and evaluate this sequence condition from ordinary conversation;
 - the evaluator reports condition assessments, not a recommendation or ranked list;
-- the total-cost attribute is explicitly labelled as a benchmark calculation from return fare plus entry; the evaluator does not yet derive sums from component attributes.
+- the total-cost attribute is explicitly labelled as a benchmark calculation from return fare plus entry; the evaluator does not yet derive sums from component attributes;
+- transport-mode alternatives and their corresponding temporal sequences are not yet combined into one unified candidate assessment.
 
 The next increment should be driven by the exact missing general mechanism exposed by timetable feasibility, rather than by adding a destination-specific planner. Do not add ranking or opaque scoring.
 

@@ -125,4 +125,4 @@ Before implementing new reasoning capabilities:
 5. Run the laptop transfer prompt against the same baseline.
 6. Map each observed failure to the smallest missing general capability. Only then select an implementation increment.
 
-The baseline is not yet recorded. The benchmark's expected behavior is a target for evaluation, not a claim about current Lattice behavior.
+The original pre-objective baseline is recorded in [first-use-day-out-baseline.md](first-use-day-out-baseline.md). Current checkpoints in that file are incremental implementation observations, not claims that the complete benchmark passes.
