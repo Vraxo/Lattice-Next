@@ -434,6 +434,18 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture),
                     stage.End.ToString("HH:mm", CultureInfo.InvariantCulture),
                     stage.DurationMinutes))
+                    .ToImmutableArray(),
+                Preferences = condition.Preferences.Select(preference => new LatticeObjectivePreferenceAssessment(
+                    preference.Preference,
+                    preference.Status.ToString(),
+                    preference.Evidence
+                        .SelectMany(attribute => attribute.Sources)
+                        .Distinct()
+                        .Select(source => new LatticeObjectiveEvidenceSource(
+                            source.Kind.ToString(),
+                            source.SourceText,
+                            source.SourceId))
+                        .ToImmutableArray()))
                     .ToImmutableArray()
             })
                 .ToImmutableArray()))

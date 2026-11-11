@@ -27,8 +27,9 @@ The pack intentionally omits unsupported product claims. The goal is to test whe
 - Retain the goal and original source wording.
 - Evaluate all three candidates through the same candidate-attribute evaluator.
 - Keep the budget Unknown for all candidates because no prices are supplied.
-- Keep preference fit Unknown for Aster 14 and Birch 15 because no matching evidence is supplied.
-- Record Cedar 14's upgrade path as evidence of a repairability-related preference match, while leaving screen quality and reliability unsupported.
+- Report each preference independently: screen quality, reliability, and repairability must not collapse into one opaque status.
+- Keep all three preferences Unknown for Aster 14 and Birch 15 because no matching evidence is supplied.
+- Record Cedar 14's upgrade path as evidence for a repairability-related match, while leaving screen quality and reliability Unknown. The absence of those tags is not evidence that the laptop has a poor screen or is unreliable.
 - Do not infer a reliability ranking, infer that an option is unreliable from missing evidence, or use warranty as a reliability proxy.
 - Do not rank the candidates or invent a winner.
 

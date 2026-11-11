@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: preserve the meaning of incomplete preference evidence across domains. The laptop transfer benchmark confirms that the same objective/evaluator path works with sparse candidate facts, but preference sets collapse to one aggregate status: Cedar's upgrade path partly matches repairability while screen quality and reliability remain individually unknown. Expose per-preference evidence/status without treating absent attributes as negative and without creating a ranking.
+> Current priority: support evidence-backed revisions to preferences and constraints without losing the provenance of earlier objective turns. Preference sets now retain per-item status and evidence, and missing candidate tags remain Unknown. The laptop transfer benchmark verifies the same generic evaluator on sparse cross-domain facts. Next, test replacing one preference or hard constraint in conversation while preserving all unrelated conditions; do not add ranking or a laptop-specific workflow.
 
 
 ## Bootstrap
