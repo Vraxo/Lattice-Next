@@ -21,25 +21,25 @@ The day-out conversation retains the original objective and preferences, asks fo
 
 ## Candidate-data representation and evaluation checkpoint
 
-The knowledge base supports typed candidate attributes with source wording and pack provenance. The version 1 pack at `data/knowledge-packs/day-out-candidates.json` now contains all four benchmark candidates and their supplied cost components, transport modes and durations, character/facilities, activity descriptions and durations, opening windows, and published bus departure sets.
+The knowledge base supports typed candidate attributes with source wording and pack provenance. The version 1 pack at `data/knowledge-packs/day-out-candidates.json` now contains all four benchmark candidates and their supplied cost components, transport modes and durations, character/facilities, activity descriptions and durations, opening windows, published bus departure sets, and a candidate-specific ordered temporal plan.
 
-The native evaluator compares the supplied total outing costs against the $25 budget, car exclusion against stated transport modes, and quiet/outdoors preference tags. It also evaluates a temporal sequence using departure sets, journey durations, activity duration, the activity's opening window, and return travel.
+The native evaluator compares the supplied total outing costs against the $25 budget, car exclusion against stated transport modes, and quiet/outdoors preference tags. The user's 09:00–18:00 update is parsed as a `CanFit` condition. The evaluator combines that window with each candidate's `temporalPlan`, which references the appropriate journey durations, activity duration, opening window, and (where supplied) outbound and return departure sets.
 
 The shared session status now exposes the evaluator's candidate assessments and their supporting source text/pack IDs. The REPL displays those assessments through `:status`, so loading a candidate pack and retaining an objective makes the currently supported comparisons observable through the same session contract. The user's overall 09:00–18:00 boundary is retained separately from destination opening hours; it is not incorrectly compared as though the destination must remain open for the entire day.
 
 The sequence is represented as ordered duration stages. A stage may begin at a supplied set of event times, must fit within an available time window, or begin immediately after the preceding stage. The evaluator checks whether any complete sequence fits between the user's earliest start and latest return, retaining each referenced attribute as evidence.
 
-For 09:00–18:00, Fernbank, Quarry Lake, and Hilltop each have a feasible bus itinerary. Quarry Lake is not rejected merely because it closes at 17:00: its visit can occur during opening hours, and its 15:45 return bus reaches Central Station by 16:30. Riverside's bus-sequence assessment remains Unknown because no bus timetable is supplied; a separate walking sequence is supported by its journey/activity durations and opening window. A tighter 09:00–16:00 test correctly rejects Quarry Lake because its only listed return service arrives at 16:30.
+For 09:00–18:00, Fernbank, Quarry Lake, and Hilltop each have a feasible bus itinerary, and Riverside's candidate-provided walking itinerary also fits. Quarry Lake is not rejected merely because it closes at 17:00: its visit can occur during opening hours, and its 15:45 return bus reaches Central Station by 16:30. A tighter 09:00–16:00 test correctly rejects Quarry Lake because its only listed return service arrives at 16:30. The subsequent walking-only update excludes bus candidates while retaining Riverside's feasible walking plan.
 
 The dataset deliberately omits attributes for facts the benchmark leaves unspecified: Quarry Lake facilities beyond its picnic area, Hilltop food service, and Riverside bus departures. Missing data is not encoded as a negative claim.
 
 ## Remaining benchmark gap
 
 Lattice now has a reusable temporal-sequence feasibility comparison, but it has **not** solved the complete outing task. In particular:
-- the user-facing parser/session does not yet construct and evaluate this sequence condition from ordinary conversation;
+- the session exposes condition assessments and evidence, but does not yet synthesize a natural-language recommendation or explain trade-offs in prose;
 - the evaluator reports condition assessments, not a recommendation or ranked list;
 - the total-cost attribute is explicitly labelled as a benchmark calculation from return fare plus entry; the evaluator does not yet derive sums from component attributes;
-- transport-mode alternatives and their corresponding temporal sequences are not yet combined into one unified candidate assessment.
+- each candidate currently supplies one temporal plan for its represented transport mode; choosing among multiple plans for the same candidate is not implemented.
 
 The next increment should be driven by the exact missing general mechanism exposed by timetable feasibility, rather than by adding a destination-specific planner. Do not add ranking or opaque scoring.
 
