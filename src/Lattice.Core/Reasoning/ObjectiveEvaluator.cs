@@ -62,6 +62,12 @@ public sealed class ObjectiveEvaluator
             new HashSet<string>(StringComparer.OrdinalIgnoreCase),
             depth: 0);
 
+        if (condition.Operator == ObjectiveConditionOperator.Desires &&
+            condition.Value is ObjectiveTextSetValue desiredPreferences)
+        {
+            return EvaluatePreferences(condition, desiredPreferences, resolution);
+        }
+
         if (resolution.Status != ObjectiveConditionAssessmentStatus.Satisfied)
         {
             return CreateAssessment(condition, resolution.Status, resolution.Evidence);
@@ -410,6 +416,68 @@ public sealed class ObjectiveEvaluator
         return false;
     }
 
+    private static ObjectiveConditionAssessment EvaluatePreferences(
+        ObjectiveCondition condition,
+        ObjectiveTextSetValue desiredPreferences,
+        (
+            ObjectiveConditionAssessmentStatus Status,
+            ObjectiveConditionValue? Value,
+            ImmutableArray<KnowledgeAttribute> Evidence) resolution)
+    {
+        var preferences = desiredPreferences.Values
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(preference => new ObjectivePreferenceAssessment(
+                preference,
+                CompareIndividualPreference(preference, resolution),
+                resolution.Evidence))
+            .ToImmutableArray();
+
+        var statuses = preferences.Select(preference => preference.Status).ToArray();
+        var status = statuses.Length == 0
+            ? ObjectiveConditionAssessmentStatus.Unknown
+            : statuses.Contains(ObjectiveConditionAssessmentStatus.Conflicting)
+                ? ObjectiveConditionAssessmentStatus.Conflicting
+                : statuses.All(value => value == ObjectiveConditionAssessmentStatus.Satisfied)
+                    ? ObjectiveConditionAssessmentStatus.Satisfied
+                    : statuses.Any(value => value == ObjectiveConditionAssessmentStatus.Satisfied)
+                        ? ObjectiveConditionAssessmentStatus.PartiallySatisfied
+                        : statuses.All(value => value == ObjectiveConditionAssessmentStatus.Violated)
+                            ? ObjectiveConditionAssessmentStatus.Violated
+                            : ObjectiveConditionAssessmentStatus.Unknown;
+
+        return CreateAssessment(condition, status, resolution.Evidence) with
+        {
+            Preferences = preferences
+        };
+    }
+
+    private static ObjectiveConditionAssessmentStatus CompareIndividualPreference(
+        string preference,
+        (
+            ObjectiveConditionAssessmentStatus Status,
+            ObjectiveConditionValue? Value,
+            ImmutableArray<KnowledgeAttribute> Evidence) resolution)
+    {
+        if (resolution.Status != ObjectiveConditionAssessmentStatus.Satisfied ||
+            resolution.Value is null)
+        {
+            return resolution.Status;
+        }
+
+        return resolution.Value switch
+        {
+            ObjectiveTextSetValue available =>
+                available.Values.Contains(preference, StringComparer.OrdinalIgnoreCase)
+                    ? ObjectiveConditionAssessmentStatus.Satisfied
+                    : ObjectiveConditionAssessmentStatus.Unknown,
+            ObjectiveTextValue available =>
+                string.Equals(available.Value, preference, StringComparison.OrdinalIgnoreCase)
+                    ? ObjectiveConditionAssessmentStatus.Satisfied
+                    : ObjectiveConditionAssessmentStatus.Violated,
+            _ => ObjectiveConditionAssessmentStatus.Unknown
+        };
+    }
+
     private static ObjectiveConditionAssessmentStatus Compare(
         ObjectiveCondition condition,
         ObjectiveConditionValue candidateValue)
@@ -545,7 +613,7 @@ public sealed class ObjectiveEvaluator
             }
 
             return matchedCount == 0
-                ? ObjectiveConditionAssessmentStatus.Violated
+                ? ObjectiveConditionAssessmentStatus.Unknown
                 : ObjectiveConditionAssessmentStatus.PartiallySatisfied;
         }
 
