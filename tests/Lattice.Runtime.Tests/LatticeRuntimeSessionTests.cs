@@ -88,4 +88,41 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeTurnStatus.Rejected, result.Status);
         Assert.Equal("The session has been closed.", result.Error);
     }
+
+    [Fact]
+    public async Task Loads_knowledge_packs_into_the_session_with_imported_provenance()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var loaded = await session.LoadKnowledgePackAsync(
+            """{"formatVersion":1,"id":"animals","name":"Animals","claims":["Fido is a dog."]}""");
+        var result = await session.SubmitAsync("Is Fido a dog?");
+        var status = await session.GetStatusAsync();
+
+        Assert.True(loaded.IsSuccess);
+        Assert.Equal("Animals", loaded.Name);
+        Assert.Equal(1, loaded.ClaimCount);
+        Assert.Equal(LatticeTruthValue.True, result.Utterances[0].TruthValue);
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(
+                source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
+                    source.SourceId == "animals"));
+        Assert.Equal(1, status.FactCount);
+        Assert.Equal(1, status.LoadedKnowledgePackCount);
+    }
+
+    [Fact]
+    public async Task Rejects_knowledge_pack_loading_after_session_disposal()
+    {
+        var client = new LatticeRuntimeClient();
+        var session = await client.CreateSessionAsync();
+
+        await session.DisposeAsync();
+        var result = await session.LoadKnowledgePackAsync("{}");
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("The session has been closed.", result.Error);
+    }
 }

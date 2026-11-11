@@ -14,7 +14,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly LceParser parser = new();
     private readonly ConversationContext conversationContext = new();
     private readonly KnowledgeBase knowledgeBase = new();
+    private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
+    private readonly List<KnowledgePack> loadedPacks = [];
     private bool isDisposed;
 
     public Guid SessionId { get; } = Guid.NewGuid();
@@ -34,6 +36,52 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             }
 
             return ValueTask.FromResult(Process(input));
+        }
+    }
+
+    public ValueTask<LatticeKnowledgePackResult> LoadKnowledgePackAsync(
+        string json,
+        CancellationToken cancellationToken = default)
+    {
+        lock (gate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (isDisposed)
+            {
+                return ValueTask.FromResult(
+                    LatticeKnowledgePackResult.Rejected("The session has been closed."));
+            }
+
+            if (!knowledgePackLoader.TryLoadAndAdd(
+                json,
+                knowledgeBase,
+                out var pack,
+                out var error))
+            {
+                return ValueTask.FromResult(
+                    LatticeKnowledgePackResult.Rejected(
+                        error ?? "The knowledge pack could not be loaded."));
+            }
+
+            loadedPacks.Add(pack!);
+            return ValueTask.FromResult(
+                LatticeKnowledgePackResult.Loaded(pack!.Name, pack.ClaimCount));
+        }
+    }
+
+    public ValueTask<LatticeSessionStatus> GetStatusAsync(
+        CancellationToken cancellationToken = default)
+    {
+        lock (gate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return ValueTask.FromResult(new LatticeSessionStatus(
+                knowledgeBase.Facts.Count,
+                knowledgeBase.Rules.Count,
+                conversationContext.KnownIndividualCount,
+                loadedPacks.Count));
         }
     }
 

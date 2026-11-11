@@ -71,8 +71,7 @@ internal sealed class ReplTranslationCommands
         {
             try
             {
-                var models = await lmStudioRuntime.ListInstalledModelsAsync(
-                    reportStatus);
+                var models = await lmStudioRuntime.ListInstalledModelsAsync(reportStatus);
 
                 if (models.IsEmpty)
                 {
@@ -125,7 +124,6 @@ internal sealed class ReplTranslationCommands
 
                 await configurationStore.SaveAsync(updatedConfiguration);
                 configuration = updatedConfiguration;
-
                 translationService = createTranslationService(selectedConfiguration);
 
                 AnsiConsole.MarkupLine(
@@ -141,7 +139,6 @@ internal sealed class ReplTranslationCommands
             AnsiConsole.WriteLine();
             return true;
         }
-
 
         if (input.Equals(":translate", StringComparison.OrdinalIgnoreCase) ||
             input.StartsWith(":translate ", StringComparison.OrdinalIgnoreCase))
@@ -175,7 +172,7 @@ internal sealed class ReplTranslationCommands
 
                 if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    utteranceProcessor.Process(candidate);
+                    await utteranceProcessor.ProcessAsync(SemanticFormatter.Format(candidate));
                 }
                 else
                 {
@@ -202,7 +199,8 @@ internal sealed class ReplTranslationCommands
                     selectedIndex >= 1 &&
                     selectedIndex <= translation.Candidates.Length)
                 {
-                    utteranceProcessor.Process(translation.Candidates[selectedIndex - 1]);
+                    await utteranceProcessor.ProcessAsync(
+                        SemanticFormatter.Format(translation.Candidates[selectedIndex - 1]));
                 }
                 else
                 {
@@ -219,6 +217,6 @@ internal sealed class ReplTranslationCommands
             return true;
         }
 
-    return false;
-}
+        return false;
+    }
 }
