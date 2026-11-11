@@ -37,10 +37,17 @@ public sealed class ObjectiveEvaluator
         SemanticIdentifier candidate,
         IReadOnlyList<KnowledgeAttribute> attributes)
     {
-        if (condition.Operator == ObjectiveConditionOperator.CanFit &&
-            condition.Value is ObjectiveTemporalSequenceValue sequence)
+        if (condition.Operator == ObjectiveConditionOperator.CanFit)
         {
-            return EvaluateTemporalSequence(condition, candidate, sequence, attributes);
+            if (condition.Value is ObjectiveTemporalSequenceValue sequence)
+            {
+                return EvaluateTemporalSequence(condition, candidate, sequence, attributes);
+            }
+
+            if (condition.Value is ObjectiveTimeWindowValue window)
+            {
+                return EvaluateTemporalPlan(condition, candidate, window, attributes);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(condition.TargetAttribute))
@@ -75,6 +82,64 @@ public sealed class ObjectiveEvaluator
         }
 
         return CreateAssessment(condition, Compare(condition, distinctValues[0]), evidence);
+    }
+
+    private static ObjectiveConditionAssessment EvaluateTemporalPlan(
+        ObjectiveCondition condition,
+        SemanticIdentifier candidate,
+        ObjectiveTimeWindowValue window,
+        IReadOnlyList<KnowledgeAttribute> attributes)
+    {
+        if (string.IsNullOrWhiteSpace(condition.TargetAttribute))
+        {
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, []);
+        }
+
+        var planEvidence = attributes
+            .Where(attribute =>
+                attribute.Subject == candidate &&
+                string.Equals(attribute.Name.Value, condition.TargetAttribute, StringComparison.OrdinalIgnoreCase))
+            .ToImmutableArray();
+
+        if (planEvidence.IsDefaultOrEmpty)
+        {
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
+        }
+
+        var plans = new List<ObjectiveTemporalPlanValue>();
+
+        foreach (var attribute in planEvidence)
+        {
+            if (attribute.Value is not ObjectiveTemporalPlanValue plan)
+            {
+                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
+            }
+
+            if (!plans.Any(existing => existing.Stages.SequenceEqual(plan.Stages)))
+            {
+                plans.Add(plan);
+            }
+        }
+
+        if (plans.Count > 1)
+        {
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Conflicting, planEvidence);
+        }
+
+        var sequence = new ObjectiveTemporalSequenceValue(
+            window.Start,
+            window.End,
+            plans[0].Stages);
+        var assessment = EvaluateTemporalSequence(
+            condition with { Value = sequence },
+            candidate,
+            sequence,
+            attributes);
+
+        return assessment with
+        {
+            Evidence = assessment.Evidence.AddRange(planEvidence)
+        };
     }
 
     private static ObjectiveConditionAssessment EvaluateTemporalSequence(
@@ -379,6 +444,8 @@ public sealed class ObjectiveEvaluator
                 leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
             (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
                 leftSet.Times.SequenceEqual(rightSet.Times),
+            (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>
+                leftPlan.Stages.SequenceEqual(rightPlan.Stages),
             _ => Equals(left, right)
         };
 
