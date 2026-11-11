@@ -63,7 +63,6 @@ public sealed class ObjectiveEvaluatorTests
             });
         Assert.False(riverside.HasHardConstraintViolation);
         Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
-        Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
 
         var hilltop = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Hilltop");
         Assert.Equal(
@@ -269,6 +268,7 @@ public sealed class ObjectiveEvaluatorTests
             ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(riverside, "transport-mode").Status);
         Assert.False(riverside.HasHardConstraintViolation);
+        Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
     }
 
     [Fact]
