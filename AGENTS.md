@@ -12,11 +12,11 @@ Keep these concerns independently understandable and changeable:
 - Context: holds conversation state, current beliefs, observations, and provenance.
 - Knowledge: supplies reusable, declarative knowledge.
 - Tools: provide optional capabilities through generic contracts.
-- CLI: is an interface and composition root, not a home for reasoning.
+- REPL: is an interface and composition root, not a home for reasoning.
 
 ## Architectural constraints
 
-- Keep one cohesive `Lattice.Core` project and one `Lattice.Cli` project until a concrete technical boundary justifies more projects.
+- Keep `Lattice.Core` cohesive. Treat `Lattice.Repl` as an ordinary frontend; introduce shared application/client boundaries only when they have concrete responsibilities, and keep every frontend on the same public contract.
 - Put tool implementations in the Core `Tools/` area. Do not create a project or adapter for every tool, language, or integration.
 - Cognition must not branch on individual tool names or concrete tool classes.
 - A tool declares its contract and effects; generic infrastructure discovers, authorizes, invokes, and records it.

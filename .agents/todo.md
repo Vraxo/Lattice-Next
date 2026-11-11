@@ -16,7 +16,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 - [x] Create a separate clean-slate repository; preserve the legacy repository unchanged.
 - [x] Record the product direction and architectural constraints.
-- [x] Establish the .NET 10 Core + CLI scaffold and CI build.
+- [x] Establish the .NET 10 Core + REPL scaffold and CI build.
 - [x] Verify the initial scaffold with a Release build.
 
 ## 1. Semantic foundation
@@ -43,7 +43,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Answer supported universal class questions from direct universal rules and explicit counterexamples while preserving open-world Unknown.
 - [x] Distinguish a supported conclusion from unknown information.
 - [x] Explain a conclusion using the premises and rules that support it.
-- [x] Demonstrate the slice through the CLI with deterministic tests.
+- [x] Demonstrate the slice through the REPL with deterministic tests.
 - [x] Store ground relational facts and perform exact direct lookup with provenance.
 - [x] Infer fixed-object relational conclusions from unary premises and retain their proofs.
 - [x] Expose facts and rules through live read-only views so callers cannot bypass knowledge-base validation, deduplication, or provenance handling.
@@ -57,7 +57,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## 3. Conversation and context
 
-- [x] Preserve accepted statements across turns in the current CLI session.
+- [x] Preserve accepted statements across turns in the current REPL session.
 - [x] Resolve the supported singular "it" reference when exactly one individual is known.
 - [x] Ask for clarification when the referent is missing or ambiguous.
 - [x] Preserve the original utterance and record the grounded referent separately.
@@ -82,7 +82,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Discover external tools from per-tool manifests and invoke them through a stdio provider outside Core.
 - [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
 - [x] Retain the latest sourced tool observation in conversation context for numeric follow-ups without promoting it to knowledge.
-- [x] Demonstrate provider-independent invocation through a registry and explicit CLI composition; cognition has no provider-specific branches.
+- [x] Demonstrate provider-independent invocation through a registry and explicit REPL composition; cognition has no provider-specific branches.
 - [x] Move bundled calculator and unit-conversion implementations into independently discovered external Python tools; keep their binaries and runtimes out of Core.
 - [x] Add a second independent capability before introducing autonomous tool selection.
 - [x] Select capabilities through generic matchers built from typed, manifest-declared phrase patterns, argument bindings, and response templates.
@@ -104,10 +104,10 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
   - [x] Add the explicit negative universal quantifier `No` with singular/plural agreement, negative class and fixed-object relational conclusions, and end-to-end reasoning tests.
 - [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
 - [x] Add an optional LM Studio adapter outside Core; require generated text to pass the native LCE parser and semantic validator.
-- [x] Expose explicit CLI candidate review; never commit model output without user selection.
+- [x] Expose explicit REPL candidate review; never commit model output without user selection.
 - [x] Add a standalone LM Studio benchmark runner that evaluates canonical translations and safe abstentions through the production parser and validator.
 - [x] Define a natural-language-to-LCE benchmark covering paraphrases, quantification, relations, descriptions, questions, ambiguity, and unsupported constructions.
-- [x] Make LM Studio abstentions explicit with examples and surface invalid model candidates in CLI diagnostics.
+- [x] Make LM Studio abstentions explicit with examples and surface invalid model candidates in REPL diagnostics.
 - [ ] (Deferred) Compare pinned hosted and local LLM configurations against the benchmark; require exact semantic matches on supported cases and zero unsafe conversions on unsupported cases.
 - [x] Resolve the translation contract for parser failures and multi-utterance turns: distinguish unsupported input from invalid LCE output, and keep each request single-utterance.
 - [x] Evaluate web retrieval as a source of temporary, attributable observations.
@@ -117,9 +117,17 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.
 
+## Application interfaces
+
+- [x] Rename the interactive console frontend from `Lattice.Cli` to `Lattice.Repl` without changing its behavior.
+- [ ] Define a shared public client contract and runtime boundary before adding another frontend or server host.
+- [ ] Adapt the REPL to use that contract through an in-process client.
+- [ ] Add a genuinely non-interactive `Lattice.Cli` for scripts and automation.
+- [ ] Add an optional long-running host and remote client over a narrow localhost HTTP API; preserve the same contract for every frontend.
+
 ## Working rules
 
-- Keep the CLI runnable throughout.
+- Keep the REPL runnable throughout.
 - Prefer tiny PRs and complete one observable behavior at a time.
 - Do not mark work complete without tests or a clearly stated reason why tests do not apply.
 - Update this file in the PR that changes the status.
