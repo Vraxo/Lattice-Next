@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: close the gap between typed candidate evaluation and useful end-to-end outcomes. The day-out dataset is in [day-out-candidates.json](../data/knowledge-packs/day-out-candidates.json). The evaluator now composes ordered duration stages with optional event-time sets and availability windows, retaining evidence and preserving Unknown/Conflicting. The user-facing session does not yet construct this condition from ordinary language, and the evaluator still does not derive aggregate costs from component attributes. Continue from the next concrete benchmark failure; do not add a trip planner, ranking, or opaque score.
+> Current priority: connect temporal-sequence feasibility to ordinary objective conversations. Session status now exposes evidence-backed condition assessments for loaded candidates; it does not yet construct the temporal sequence from the user's time window and candidate attributes. Aggregate costs are also still supplied as precomputed attributes. Continue from the next concrete benchmark failure; do not add a trip planner, ranking, or opaque score.
 
 
 ## Bootstrap

@@ -472,7 +472,9 @@ public sealed class LceParser
                 new ObjectiveTimeWindowValue(start, end),
                 sourceText)
             {
-                TargetAttribute = "opening-window"
+                // The user's overall schedule boundary is not a requirement that
+                // the destination remain open for the entire day.
+                TargetAttribute = null
             });
         }
 
