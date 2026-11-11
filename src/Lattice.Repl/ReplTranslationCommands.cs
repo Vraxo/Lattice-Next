@@ -166,13 +166,13 @@ internal sealed class ReplTranslationCommands
             {
                 var candidate = translation.Candidates[0];
                 AnsiConsole.MarkupLine("[bold cyan]Lattice[/] [dim]› Proposed meaning (not yet accepted):[/]");
-                AnsiConsole.WriteLine(SemanticFormatter.Format(candidate));
+                AnsiConsole.WriteLine(candidate.LceText);
                 AnsiConsole.Markup("[yellow]Accept and process this interpretation? [[y/N]] [/]");
                 var acceptance = Console.ReadLine();
 
                 if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    await utteranceProcessor.ProcessAsync(SemanticFormatter.Format(candidate));
+                    await utteranceProcessor.ProcessAsync(candidate.LceText);
                 }
                 else
                 {
@@ -200,7 +200,7 @@ internal sealed class ReplTranslationCommands
                     selectedIndex <= translation.Candidates.Length)
                 {
                     await utteranceProcessor.ProcessAsync(
-                        SemanticFormatter.Format(translation.Candidates[selectedIndex - 1]));
+                        translation.Candidates[selectedIndex - 1].LceText);
                 }
                 else
                 {
