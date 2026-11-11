@@ -437,6 +437,92 @@
         ]
       },
       "sourceText": "Saturday return buses depart at 15:00 and 16:30."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "outbound-bus-departures"
+          },
+          {
+            "durationAttribute": "activity-duration",
+            "availabilityWindowAttribute": "opening-window"
+          },
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "return-bus-departures"
+          }
+        ]
+      },
+      "sourceText": "The outing consists of an outbound scheduled journey, the main activity, and a return scheduled journey."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "outbound-bus-departures"
+          },
+          {
+            "durationAttribute": "activity-duration",
+            "availabilityWindowAttribute": "opening-window"
+          },
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "return-bus-departures"
+          }
+        ]
+      },
+      "sourceText": "The outing consists of an outbound scheduled journey, the main activity, and a return scheduled journey."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "outbound-bus-departures"
+          },
+          {
+            "durationAttribute": "activity-duration",
+            "availabilityWindowAttribute": "opening-window"
+          },
+          {
+            "durationAttribute": "one-way-travel-duration",
+            "startTimesAttribute": "return-bus-departures"
+          }
+        ]
+      },
+      "sourceText": "The outing consists of an outbound scheduled journey, the main activity, and a return scheduled journey."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          {
+            "durationAttribute": "one-way-travel-duration"
+          },
+          {
+            "durationAttribute": "activity-duration",
+            "availabilityWindowAttribute": "opening-window"
+          },
+          {
+            "durationAttribute": "one-way-travel-duration"
+          }
+        ]
+      },
+      "sourceText": "The outing consists of an outbound walk, the main activity, and a return walk."
     }
   ]
 }
