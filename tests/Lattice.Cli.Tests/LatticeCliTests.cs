@@ -90,6 +90,25 @@ public sealed class LatticeCliTests
     }
 
     [Fact]
+    public async Task Writes_objective_responses_in_text_mode()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        const string input = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+
+        var exitCode = await LatticeCli.RunAsync(
+            ["--format", "text", input],
+            new StringReader(string.Empty),
+            output,
+            error,
+            standardInputIsRedirected: false);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("I've retained this objective:", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
+    [Fact]
     public async Task Returns_a_usage_exit_code_for_unknown_options()
     {
         using var output = new StringWriter();
