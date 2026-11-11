@@ -86,6 +86,78 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Applies_the_complete_day_out_follow_up_without_storing_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+        const string followUp = "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(followUp, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(3, result.Utterances.Length);
+        Assert.All(
+            result.Utterances,
+            utterance => Assert.Equal(
+                LatticeUtteranceResultKind.ObjectiveInformationReceived,
+                utterance.Kind));
+
+        var meaning = result.Utterances[^1].Meaning;
+        Assert.Contains("hardconstraint(spending-limit, atmost, $25)", meaning);
+        Assert.Contains("hardconstraint(meal-plan, equals, bring-lunch)", meaning);
+        Assert.Contains("hardconstraint(origin, equals, Central Station)", meaning);
+        Assert.Contains("hardconstraint(time-window, within, 09:00-18:00)", meaning);
+        Assert.Null(status.PendingInformationName);
+        Assert.Null(status.PendingInformationPrompt);
+        Assert.Contains("$25 total.", status.ActiveObjectiveSource);
+        Assert.Contains("Central Station", status.ActiveObjectiveSource);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
+    public async Task Walking_only_revision_replaces_transport_mode_and_preserves_other_conditions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+        await session.SubmitAsync(
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
+            TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(
+            "Actually, I don't want to take a bus. Walking only.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(2, result.Utterances.Length);
+        Assert.All(
+            result.Utterances,
+            utterance => Assert.Equal(
+                LatticeUtteranceResultKind.ObjectiveInformationReceived,
+                utterance.Kind));
+
+        var meaning = result.Utterances[^1].Meaning;
+        Assert.Contains("hardconstraint(transport, excludes, car)", meaning);
+        Assert.Contains("hardconstraint(transport-bus, excludes, bus)", meaning);
+        Assert.Contains("hardconstraint(transport-mode, equals, walking)", meaning);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $25)", meaning);
+        Assert.Contains("hardconstraint(origin, equals, Central Station)", meaning);
+        Assert.Contains("hardconstraint(time-window, within, 09:00-18:00)", meaning);
+        Assert.Contains("bring-lunch", meaning);
+        Assert.Contains("Walking only.", status.ActiveObjectiveSource);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Unrelated_assertions_do_not_consume_a_pending_information_request()
     {
         var client = new LatticeRuntimeClient();

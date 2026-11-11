@@ -4,5 +4,6 @@ public enum ObjectiveConditionValueKind
 {
     None,
     Money,
-    Text
+    Text,
+    TimeWindow
 }
