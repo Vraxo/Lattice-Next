@@ -7,6 +7,7 @@ using Lattice.Core.Tools;
 using Lattice.Tooling.Stdio;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
+using Lattice.Cli;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -29,6 +30,10 @@ var translationService = CreateTranslationService(latticeConfiguration.LmStudio)
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
+var utteranceProcessor = new CliUtteranceProcessor(
+    conversationContext,
+    knowledgeBase,
+    reasoningEngine);
 var knowledgePackLoader = new KnowledgePackLoader();
 var loadedPacks = new List<KnowledgePack>();
 var configuredToolsDirectory = Environment.GetEnvironmentVariable("LATTICE_TOOLS_DIR");
@@ -325,7 +330,7 @@ while (true)
 
             if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
             {
-                ProcessUtterance(candidate);
+                utteranceProcessor.Process(candidate);
             }
             else
             {
@@ -352,7 +357,7 @@ while (true)
                 selectedIndex >= 1 &&
                 selectedIndex <= translation.Candidates.Length)
             {
-                ProcessUtterance(translation.Candidates[selectedIndex - 1]);
+                utteranceProcessor.Process(translation.Candidates[selectedIndex - 1]);
             }
             else
             {
@@ -700,7 +705,7 @@ while (true)
 
     foreach (var parsedUtterance in parseResult.Utterances)
     {
-        ProcessUtterance(parsedUtterance);
+        utteranceProcessor.Process(parsedUtterance);
     }
 
     AnsiConsole.WriteLine();
@@ -905,152 +910,3 @@ SemanticTranslationService? CreateTranslationService(LmStudioConfiguration confi
 
 void ReportLmStudioStatus(string message) =>
     AnsiConsole.MarkupLine($"[dim]{Markup.Escape(message)}[/]");
-
-void ProcessUtterance(SemanticUtterance parsedUtterance)
-{
-    var resolution = conversationContext.Resolve(parsedUtterance);
-
-    if (!resolution.IsSuccess)
-    {
-        AnsiConsole.Markup("[bold yellow]Lattice[/] [dim]›[/] ");
-
-        var clarification = resolution.Status switch
-        {
-            ReferenceResolutionStatus.MissingReferent =>
-                "I don't know who 'it' refers to yet. Please name the individual.",
-            ReferenceResolutionStatus.AmbiguousReferent =>
-                "More than one individual is known. Which one do you mean by 'it'? Please name them.",
-            _ => "I couldn't resolve that reference. Please name the individual."
-        };
-
-        AnsiConsole.WriteLine(clarification);
-        return;
-    }
-
-    var utterance = resolution.Utterance!;
-
-    if (utterance.Kind == UtteranceKind.Assertion)
-    {
-        if (!knowledgeBase.TryAdd(utterance, out var kind, out var error))
-        {
-            AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
-            AnsiConsole.WriteLine(error ?? "The statement could not be stored.");
-            return;
-        }
-
-        conversationContext.Observe(utterance);
-
-        AnsiConsole.MarkupLine(
-            $"[bold cyan]Lattice[/] [dim]› Stored {kind.ToString().ToLowerInvariant()}.[/]");
-        AnsiConsole.Markup("[dim]meaning › [/]");
-        AnsiConsole.WriteLine(SemanticFormatter.Format(utterance));
-        return;
-    }
-
-    var answer = utterance.Meaning switch
-    {
-        PredicateApplication predicateQuery => reasoningEngine.Ask(knowledgeBase, predicateQuery),
-        Negation negatedQuery => reasoningEngine.Ask(knowledgeBase, negatedQuery),
-        ExistentialQuantification existentialQuery => reasoningEngine.Ask(knowledgeBase, existentialQuery),
-        UniversalQuantification universalQuery => reasoningEngine.Ask(knowledgeBase, universalQuery),
-        _ => null
-    };
-
-    if (answer is null)
-    {
-        AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]› Unsupported question form.[/]");
-        return;
-    }
-
-    conversationContext.Observe(utterance);
-
-    switch (answer.TruthValue)
-    {
-        case TruthValue.True:
-            AnsiConsole.MarkupLine("[bold green]Lattice[/] [dim]›[/] Yes.");
-            break;
-        case TruthValue.False:
-            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] No (explicit negative evidence).");
-            break;
-        case TruthValue.Both:
-            AnsiConsole.MarkupLine("[bold red]Lattice[/] [dim]›[/] Contradiction: both the statement and its negation are supported.");
-            break;
-        default:
-            AnsiConsole.MarkupLine("[bold yellow]Lattice[/] [dim]›[/] Unknown.");
-            break;
-    }
-
-    WriteProofGroup("Evidence supporting the answer:", answer.Proofs);
-    WriteProofGroup("Evidence opposing the answer:", answer.ContradictingProofs);
-}
-
-static void WriteProofGroup(string heading, IReadOnlyList<ProofNode> proofs)
-{
-    if (proofs.Count == 0)
-    {
-        return;
-    }
-
-    AnsiConsole.MarkupLine($"[dim]{heading}[/]");
-
-    for (var index = 0; index < proofs.Count; index++)
-    {
-        if (index > 0)
-        {
-            AnsiConsole.MarkupLine("[dim]Another independent proof:[/]");
-        }
-
-        foreach (var statement in GetProofStatements(proofs[index]))
-        {
-            AnsiConsole.Markup("[dim]  • [/]");
-            AnsiConsole.WriteLine(statement);
-        }
-    }
-}
-
-static IEnumerable<string> GetProofStatements(ProofNode proof)
-{
-    var emitted = new HashSet<string>(StringComparer.Ordinal);
-    return Collect(proof, emitted);
-
-    static IEnumerable<string> Collect(ProofNode current, HashSet<string> emitted)
-    {
-        if (current.Premise is not null)
-        {
-            foreach (var statement in Collect(current.Premise, emitted))
-            {
-                yield return statement;
-            }
-        }
-
-        if (!current.AdditionalPremises.IsDefaultOrEmpty)
-        {
-            foreach (var additionalPremise in current.AdditionalPremises)
-            {
-                foreach (var statement in Collect(additionalPremise, emitted))
-                {
-                    yield return statement;
-                }
-            }
-        }
-
-        foreach (var source in current.Sources)
-        {
-            var referent = source.ResolvedReferent is { } resolved
-                ? $" [it resolved to {resolved.Value}]"
-                : string.Empty;
-            var origin = source.Kind == KnowledgeSourceKind.UserAssertion
-                ? string.Empty
-                : $" [source: {source.Kind}]";
-            var pack = string.IsNullOrWhiteSpace(source.SourceId)
-                ? string.Empty
-                : $" [pack: {source.SourceId}]";
-            var statement = $"{source.SourceText}{referent}{origin}{pack}";
-
-            if (emitted.Add(statement))
-            {
-                yield return statement;
-            }
-        }
-    }
-}
