@@ -104,6 +104,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
   - [x] Add the explicit negative universal quantifier `No` with singular/plural agreement, negative class and fixed-object relational conclusions, and end-to-end reasoning tests.
   - [x] Parse coordinated positive properties of named individuals as conjunctions and store each grounded conjunct with shared provenance; verify both through reasoning.
   - [x] Parse coordinated class-membership and adjective predicates of named individuals in either order, with exact semantics, conservative rejection, and end-to-end reasoning tests.
+  - [x] Parse explicitly coordinated positive and negative predicates of named individuals, preserve each conjunct's polarity and shared provenance, and verify both through reasoning.
   - [x] Parse explicitly coordinated negative properties of named individuals, preserve each negative polarity independently, and verify negative reasoning with shared provenance.
 - [x] Define a replaceable semantics-translator contract and strict structural validation for the currently supported semantic forms; preserve original input provenance and keep candidates untrusted until reviewed.
 - [x] Add an optional LM Studio adapter outside Core; require generated text to pass the native LCE parser and semantic validator.

@@ -36,6 +36,7 @@ internal static class NativeEnglishGrammar
         return NativeEnglishQuantifierParser.TryParseExistentialAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishQuantifierParser.TryParseQuantifiedRule(tokens, sourceText, out utterance) ||
             NativeEnglishQuantifierParser.TryParseClassMembershipAssertion(tokens, sourceText, out utterance) ||
+            NativeEnglishPropertyParser.TryParseCoordinatedNamedPredicateAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishPropertyParser.TryParseNegatedNamedPredicateAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParsePassiveSomethingAssertion(tokens, sourceText, out utterance) ||
             NativeEnglishRelationParser.TryParsePassiveRelation(tokens, sourceText, isQuestion: false, out utterance) ||

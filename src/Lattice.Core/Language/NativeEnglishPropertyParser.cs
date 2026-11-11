@@ -4,6 +4,90 @@ namespace Lattice.Core.Language;
 
 internal static class NativeEnglishPropertyParser
 {
+    internal static bool TryParseCoordinatedNamedPredicateAssertion(
+        string[] tokens,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        if (tokens.Length < 6 ||
+            !EnglishGrammarTokens.IsCapitalized(tokens[0]) ||
+            EnglishGrammarTokens.Is(tokens[0], "It") ||
+            !EnglishGrammarTokens.Is(tokens[1], "is") ||
+            !EnglishDescriptionParser.TryCreateIndividual(
+                tokens[0],
+                allowPronoun: false,
+                out var individual))
+        {
+            return false;
+        }
+
+        var conjunctionIndex = Array.FindIndex(
+            tokens,
+            2,
+            tokens.Length - 2,
+            token => EnglishGrammarTokens.Is(token, "and"));
+
+        if (conjunctionIndex < 0 ||
+            Array.FindIndex(
+                tokens,
+                conjunctionIndex + 1,
+                tokens.Length - conjunctionIndex - 1,
+                token => EnglishGrammarTokens.Is(token, "and")) >= 0 ||
+            !TryParseCoordinatedNamedPredicate(
+                tokens,
+                2,
+                conjunctionIndex,
+                individual!,
+                out var firstMeaning) ||
+            !TryParseCoordinatedNamedPredicate(
+                tokens,
+                conjunctionIndex + 1,
+                tokens.Length,
+                individual!,
+                out var secondMeaning))
+        {
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            EnglishSemanticFactory.Combine([firstMeaning!, secondMeaning!]),
+            sourceText);
+        return true;
+    }
+
+    private static bool TryParseCoordinatedNamedPredicate(
+        string[] tokens,
+        int start,
+        int end,
+        SemanticTerm individual,
+        out SemanticFormula? meaning)
+    {
+        meaning = null;
+        var isNegative = EnglishGrammarTokens.Is(tokens[start], "not");
+        var predicateStart = isNegative ? start + 1 : start;
+
+        if (predicateStart >= end)
+        {
+            return false;
+        }
+
+        var parsed = isNegative
+            ? TryParseNegatedPredicate(tokens, predicateStart, end, out var negativePredicate)
+            : TryParseNamedIndividualPredicate(tokens, predicateStart, end, out negativePredicate);
+
+        if (!parsed)
+        {
+            return false;
+        }
+
+        var predicateMeaning = EnglishSemanticFactory.Predicate(negativePredicate!, individual);
+        meaning = isNegative ? new Negation(predicateMeaning) : predicateMeaning;
+        return true;
+    }
+
     internal static bool TryParseNegatedNamedPredicateAssertion(
         string[] tokens,
         string sourceText,
