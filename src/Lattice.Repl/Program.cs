@@ -254,3 +254,5 @@ await using (runtimeSession)
         return Path.GetFullPath(workingDirectoryTools);
     }
 }
+
+return 0;
