@@ -432,7 +432,8 @@ public sealed class LceParser
                 new ObjectiveTextValue("bring-lunch"),
                 sourceText)
             {
-                TargetAttribute = "meal-plan"
+                // The user's meal plan is context for the cost calculation, not a candidate property.
+                TargetAttribute = null
             });
         }
 
