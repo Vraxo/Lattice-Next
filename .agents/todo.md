@@ -124,6 +124,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Adapt the REPL to use that contract through an in-process client.
 - [x] Add a genuinely non-interactive `Lattice.Cli` for scripts and automation.
 - [x] Add an optional long-running host and remote client over a narrow localhost HTTP API; preserve the same contract for every frontend.
+- [x] Allow the non-interactive CLI to select the in-process runtime or HTTP server without changing its input/output contract.
+- [ ] Allow the REPL to select the in-process runtime or HTTP server while retaining its local-only tool and translator composition.
 
 ## Working rules
 

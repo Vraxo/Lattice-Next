@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Lattice.Client;
+using Lattice.Client.Http;
 using Lattice.Runtime;
 
 namespace Lattice.Cli;
@@ -76,7 +77,17 @@ public static class LatticeCli
                 return UsageErrorExitCode;
             }
 
-            var client = new LatticeRuntimeClient();
+            using var httpClient = options.ServerUrl is null
+                ? null
+                : new HttpClient
+                {
+                    BaseAddress = new Uri(options.ServerUrl.TrimEnd('/') + "/")
+                };
+            ILatticeClient client = httpClient is null
+                ? new LatticeRuntimeClient()
+                : new HttpLatticeClient(
+                    httpClient,
+                    Environment.GetEnvironmentVariable("LATTICE_SERVER_API_KEY"));
             await using var session = await client.CreateSessionAsync(cancellationToken);
             sessionId = session.SessionId;
 
@@ -139,6 +150,19 @@ public static class LatticeCli
             return InputOutputErrorExitCode;
         }
         catch (UnauthorizedAccessException exception)
+        {
+            WriteOutput(
+                options,
+                standardOutput,
+                standardError,
+                false,
+                sessionId,
+                loadedPacks,
+                null,
+                exception.Message);
+            return InputOutputErrorExitCode;
+        }
+        catch (HttpRequestException exception)
         {
             WriteOutput(
                 options,
@@ -258,17 +282,20 @@ public static class LatticeCli
         Options:
           --load-pack <path>   Load a version 1 knowledge pack (repeatable).
           --input-file <path>  Read the turn from a file.
+          --server <url>       Use a Lattice HTTP server instead of the local runtime.
           --format <format>    Output format: json (default) or text.
           --help, -h           Show this help.
           --version            Show the assembly version.
           --                   Treat remaining arguments as input text.
+
+        Set LATTICE_SERVER_API_KEY when the server requires bearer-token authentication.
 
         Exit codes:
           0    Turn completed; every utterance was handled.
           2    Input was rejected or an utterance needs clarification.
           3    A knowledge pack failed validation.
           64   Invalid command-line usage.
-          66   An input or knowledge-pack file could not be read.
+          66   An input, knowledge-pack file, or server request failed.
           130  Operation cancelled.
         """;
 }
