@@ -43,6 +43,7 @@ public static class SemanticFormatter
         {
             ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
             ObjectiveTextValue text => text.Value,
+            ObjectiveTextSetValue set => string.Join("+", set.Values),
             ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
             null => "unknown",
             _ => "unsupported"
@@ -56,6 +57,7 @@ public static class SemanticFormatter
         {
             ObjectiveMoneyValue money => $"money({money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)})",
             ObjectiveTextValue text => $"text({text.Value})",
+            ObjectiveTextSetValue set => $"text-set({string.Join("+", set.Values)})",
             _ => "information(unsupported)"
         };
 
@@ -72,6 +74,7 @@ public static class SemanticFormatter
             {
                 ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
                 ObjectiveTextValue text => text.Value,
+                ObjectiveTextSetValue set => string.Join("+", set.Values),
                 ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
                 null => "unknown",
                 _ => "unsupported"

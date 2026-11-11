@@ -7,6 +7,8 @@ public sealed record ObjectiveCondition(
     ObjectiveConditionValue? Value,
     string SourceText)
 {
+    public string? TargetAttribute { get; init; }
+
     public ObjectiveConditionValueKind ExpectedValueKind { get; init; }
 
     public string? MissingValuePrompt { get; init; }

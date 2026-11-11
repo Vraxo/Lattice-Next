@@ -45,7 +45,9 @@ public sealed class ObjectiveRequestTests
 
         var preference = Assert.Single(objective.Conditions, condition => condition.Role == ObjectiveConditionRole.Preference);
         Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
-        Assert.Equal(new ObjectiveTextValue("somewhere quiet and outdoors"), preference.Value);
+        Assert.Equal(
+            new[] { "quiet", "outdoors" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
     }
 
     [Fact]
@@ -77,7 +79,9 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(new ObjectiveMoneyValue(1000m, "$"), budget.Value);
         Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
         Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
-        Assert.Equal(new ObjectiveTextValue("screen quality, reliability, and repairability"), preference.Value);
+        Assert.Equal(
+            new[] { "screen quality", "reliability", "repairability" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
         Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
     }
 

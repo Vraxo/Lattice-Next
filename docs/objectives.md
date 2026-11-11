@@ -105,11 +105,17 @@ This is a bounded language slice, not general natural-language understanding. Un
 
 The session now selects an unresolved hard constraint that declares an expected value type and emits its missing-value prompt. The request is retained in session status. A matching typed response can fill that condition and records its own source wording; it is not added to the general knowledge base. An unrelated assertion does not consume the request. The response parser now also represents a packed-lunch plan, a starting location, and a typed departure/return time window. A later transport revision can add a bus exclusion and a walking-only mode without discarding the original no-car condition or other objective conditions. These are bounded native-language examples mapped into reusable typed condition updates; they do not evaluate candidates, compare options, or produce a plan.
 
+## Candidate attributes and condition assessment
+
+Candidate-like entities can carry named, typed attributes in the knowledge base, with source provenance. The generic objective evaluator compares conditions with matching attributes and reports each result as satisfied, violated, partially satisfied, unknown, or conflicting. A missing attribute is unknown, not a failed condition or evidence of absence. Hard-constraint violations and unresolved hard constraints are exposed separately; preferences remain distinct from hard constraints.
+
+The current evaluator is deliberately not a recommender. It does not rank candidates, assign scores, or produce a plan. Attribute values are currently added through the Core API; importing typed attributes through knowledge packs and representing full timetables remain follow-up work.
+
 ## Validation
 
 The motivating benchmark is [the first-use day-out task](benchmarks/first-use-day-out.md). It requires Lattice to retain a user's goal and conditions while asking for a missing spending limit, then accept a follow-up and continue without losing earlier information.
 
-A second, unrelated task now exercises the same objective and condition representation. The laptop prompt is recognized through the same generic objective path: its explicit budget is a typed money constraint and its `I care about ...` clause is a preference. No laptop-specific workflow is introduced. The longevity and gaming-performance clauses remain preserved source text, and the current implementation still cannot compare the three candidates or infer which is more reliable.
+A second, unrelated task now exercises the same objective and condition representation. The laptop prompt is recognized through the same generic objective path: its explicit budget is a typed money constraint and its `I care about ...` clause becomes a set of preference tags. No laptop-specific workflow is introduced. The longevity and gaming-performance clauses remain preserved source text, and no laptop candidates have yet been evaluated or compared.
 
 The native baseline and its exact current rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
 
