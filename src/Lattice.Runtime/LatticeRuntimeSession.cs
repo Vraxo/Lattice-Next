@@ -17,6 +17,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
     private readonly List<KnowledgePack> loadedPacks = [];
+    private ObjectiveFormula? activeObjective;
+    private string? activeObjectiveSource;
     private bool isDisposed;
 
     public Guid SessionId { get; } = Guid.NewGuid();
@@ -81,7 +83,11 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 knowledgeBase.Facts.Count,
                 knowledgeBase.Rules.Count,
                 conversationContext.KnownIndividualCount,
-                loadedPacks.Count));
+                loadedPacks.Count)
+            {
+                ActiveObjective = activeObjective?.Goal,
+                ActiveObjectiveSource = activeObjectiveSource
+            });
         }
     }
 
@@ -118,6 +124,18 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessUtterance(SemanticUtterance parsedUtterance)
     {
+        if (parsedUtterance.Kind == UtteranceKind.Objective &&
+            parsedUtterance.Meaning is ObjectiveFormula objective)
+        {
+            activeObjective = objective;
+            activeObjectiveSource = parsedUtterance.SourceText;
+
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ObjectiveReceived,
+                $"I've retained this objective: {objective.Goal}. The rest of your request is preserved as context, but its conditions have not been interpreted yet.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
         var resolution = conversationContext.Resolve(parsedUtterance);
 
         if (!resolution.IsSuccess)

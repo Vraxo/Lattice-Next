@@ -7,4 +7,9 @@ public sealed record LatticeSessionStatus(
     int FactCount,
     int RuleCount,
     int KnownIndividualCount,
-    int LoadedKnowledgePackCount);
+    int LoadedKnowledgePackCount)
+{
+    public string? ActiveObjective { get; init; }
+
+    public string? ActiveObjectiveSource { get; init; }
+}

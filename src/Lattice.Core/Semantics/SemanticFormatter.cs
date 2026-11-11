@@ -12,6 +12,7 @@ public static class SemanticFormatter
         {
             UtteranceKind.Assertion => meaning,
             UtteranceKind.Question => $"ask({meaning})",
+            UtteranceKind.Objective => meaning,
             _ => throw new ArgumentOutOfRangeException(nameof(utterance), utterance.Kind, "Unsupported utterance kind.")
         };
     }
@@ -19,6 +20,7 @@ public static class SemanticFormatter
     private static string Format(SemanticFormula formula) =>
         formula switch
         {
+            ObjectiveFormula objective => $"objective({objective.Goal})",
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",

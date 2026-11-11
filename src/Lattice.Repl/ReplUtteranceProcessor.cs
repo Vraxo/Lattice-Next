@@ -38,6 +38,11 @@ internal sealed class ReplUtteranceProcessor(ILatticeSession session)
                     AnsiConsole.WriteLine(utterance.Message ?? "Please clarify the reference.");
                     break;
 
+                case LatticeUtteranceResultKind.ObjectiveReceived:
+                    AnsiConsole.Markup("[bold cyan]Lattice[/] [dim]›[/] ");
+                    AnsiConsole.WriteLine(utterance.Message ?? "Objective retained.");
+                    break;
+
                 case LatticeUtteranceResultKind.QuestionAnswered:
                     WriteAnswer(utterance);
                     break;
