@@ -73,7 +73,7 @@ public sealed class ObjectiveSessionTests
         await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
-            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00. This is complicated.",
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00. Maybe.",
             TestContext.Current.CancellationToken);
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
