@@ -47,8 +47,12 @@ internal static class CliTextFormatter
                     standardOutput.WriteLine(utterance.Message ?? "Objective updated.");
                     break;
 
-                case LatticeUtteranceResultKind.StatementRejected:
                 case LatticeUtteranceResultKind.ClarificationRequired:
+                    standardOutput.WriteLine(
+                        utterance.Message ?? "Please clarify the reference.");
+                    break;
+
+                case LatticeUtteranceResultKind.StatementRejected:
                 case LatticeUtteranceResultKind.UnsupportedQuestion:
                     standardError.WriteLine(
                         utterance.Message ?? "The utterance could not be processed.");
