@@ -220,8 +220,8 @@ public sealed class KnowledgePackLoaderTests
                 {
                   "subject": "Fernbank",
                   "name": "tags",
-                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
-                  "sourceText": "Fernbank is quiet and outdoors."
+                  "value": { "type": "textSet", "values": ["outdoors"], "excludedValues": ["quiet"] },
+                  "sourceText": "Fernbank is outdoors and not quiet."
                 },
                 {
                   "subject": "Fernbank",
@@ -270,11 +270,11 @@ public sealed class KnowledgePackLoaderTests
             Assert.IsType<ObjectiveTextValue>(Assert.Single(
                 knowledgeBase.Attributes,
                 attribute => attribute.Name.Value == "transport-mode").Value));
-        Assert.Equal(
-            new[] { "quiet", "outdoors" },
-            Assert.IsType<ObjectiveTextSetValue>(Assert.Single(
-                knowledgeBase.Attributes,
-                attribute => attribute.Name.Value == "tags").Value).Values);
+        var tags = Assert.IsType<ObjectiveTextSetValue>(Assert.Single(
+            knowledgeBase.Attributes,
+            attribute => attribute.Name.Value == "tags").Value);
+        Assert.Equal(new[] { "outdoors" }, tags.Values);
+        Assert.Equal(new[] { "quiet" }, tags.ExcludedValues);
         Assert.Equal(
             new ObjectiveTimeWindowValue(new TimeOnly(8, 0), new TimeOnly(19, 0)),
             Assert.IsType<ObjectiveTimeWindowValue>(Assert.Single(

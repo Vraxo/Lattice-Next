@@ -185,8 +185,9 @@ public sealed class KnowledgeBase
             ObjectiveTextValue text =>
                 !string.IsNullOrWhiteSpace(text.Value),
             ObjectiveTextSetValue set =>
-                !set.Values.IsDefaultOrEmpty &&
-                set.Values.All(item => !string.IsNullOrWhiteSpace(item)),
+                (!set.Values.IsDefaultOrEmpty || !set.ExcludedValues.IsDefaultOrEmpty) &&
+                set.Values.All(item => !string.IsNullOrWhiteSpace(item)) &&
+                set.ExcludedValues.All(item => !string.IsNullOrWhiteSpace(item)),
             ObjectiveTimeWindowValue time =>
                 time.Start < time.End,
             ObjectiveDurationValue duration =>
@@ -215,7 +216,8 @@ public sealed class KnowledgeBase
         (left, right) switch
         {
             (ObjectiveTextSetValue leftSet, ObjectiveTextSetValue rightSet) =>
-                leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
+                leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase) &&
+                leftSet.ExcludedValues.SequenceEqual(rightSet.ExcludedValues, StringComparer.OrdinalIgnoreCase),
             (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
                 leftSet.Times.SequenceEqual(rightSet.Times),
             (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>

@@ -66,6 +66,20 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "transport").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.PartiallySatisfied, GetCondition(riverside, "preference").Status);
+        Assert.Collection(
+            GetCondition(riverside, "preference").Preferences,
+            quiet =>
+            {
+                Assert.Equal("quiet", quiet.Preference);
+                Assert.Equal(ObjectiveConditionAssessmentStatus.Violated, quiet.Status);
+                Assert.Contains(quiet.Evidence, attribute =>
+                    attribute.SourceText.Contains("usually busy on Saturdays", StringComparison.Ordinal));
+            },
+            outdoors =>
+            {
+                Assert.Equal("outdoors", outdoors.Preference);
+                Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, outdoors.Status);
+            });
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "itinerary").Status);
         Assert.Collection(
             GetCondition(riverside, "itinerary").TemporalWitness,

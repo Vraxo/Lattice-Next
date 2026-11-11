@@ -473,14 +473,27 @@ public sealed class ObjectiveEvaluator
 
         return resolution.Value switch
         {
-            ObjectiveTextSetValue available =>
-                available.Values.Contains(preference, StringComparer.OrdinalIgnoreCase)
-                    ? ObjectiveConditionAssessmentStatus.Satisfied
-                    : ObjectiveConditionAssessmentStatus.Unknown,
+            ObjectiveTextSetValue available => CompareSetPreference(preference, available),
             ObjectiveTextValue available =>
                 string.Equals(available.Value, preference, StringComparison.OrdinalIgnoreCase)
                     ? ObjectiveConditionAssessmentStatus.Satisfied
                     : ObjectiveConditionAssessmentStatus.Violated,
+            _ => ObjectiveConditionAssessmentStatus.Unknown
+        };
+    }
+
+    private static ObjectiveConditionAssessmentStatus CompareSetPreference(
+        string preference,
+        ObjectiveTextSetValue available)
+    {
+        var isIncluded = available.Values.Contains(preference, StringComparer.OrdinalIgnoreCase);
+        var isExcluded = available.ExcludedValues.Contains(preference, StringComparer.OrdinalIgnoreCase);
+
+        return (isIncluded, isExcluded) switch
+        {
+            (true, true) => ObjectiveConditionAssessmentStatus.Conflicting,
+            (true, false) => ObjectiveConditionAssessmentStatus.Satisfied,
+            (false, true) => ObjectiveConditionAssessmentStatus.Violated,
             _ => ObjectiveConditionAssessmentStatus.Unknown
         };
     }
@@ -638,7 +651,8 @@ public sealed class ObjectiveEvaluator
         (left, right) switch
         {
             (ObjectiveTextSetValue leftSet, ObjectiveTextSetValue rightSet) =>
-                leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
+                leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase) &&
+                leftSet.ExcludedValues.SequenceEqual(rightSet.ExcludedValues, StringComparer.OrdinalIgnoreCase),
             (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
                 leftSet.Times.SequenceEqual(rightSet.Times),
             (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>

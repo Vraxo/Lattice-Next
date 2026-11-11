@@ -309,17 +309,26 @@ public sealed class KnowledgePackLoader
                 return true;
 
             case "textSet":
-                if (!HasExactProperties(element, "type", "values") ||
+                var hasExcludedValues = element.TryGetProperty("excludedValues", out var excludedValuesElement);
+
+                if ((!HasExactProperties(element, "type", "values") &&
+                        !HasExactProperties(element, "type", "values", "excludedValues")) ||
                     !element.TryGetProperty("values", out var valuesElement) ||
-                    valuesElement.ValueKind != JsonValueKind.Array)
+                    valuesElement.ValueKind != JsonValueKind.Array ||
+                    (hasExcludedValues && excludedValuesElement.ValueKind != JsonValueKind.Array))
                 {
                     return false;
                 }
 
                 var values = valuesElement.EnumerateArray().ToArray();
+                var excludedValues = hasExcludedValues
+                    ? excludedValuesElement.EnumerateArray().ToArray()
+                    : [];
 
-                if (values.Length == 0 ||
+                if ((values.Length == 0 && excludedValues.Length == 0) ||
                     values.Any(item => item.ValueKind != JsonValueKind.String ||
+                        string.IsNullOrWhiteSpace(item.GetString())) ||
+                    excludedValues.Any(item => item.ValueKind != JsonValueKind.String ||
                         string.IsNullOrWhiteSpace(item.GetString())))
                 {
                     return false;
@@ -327,7 +336,12 @@ public sealed class KnowledgePackLoader
 
                 value = new ObjectiveTextSetValue(values
                     .Select(item => item.GetString()!)
-                    .ToImmutableArray());
+                    .ToImmutableArray())
+                {
+                    ExcludedValues = excludedValues
+                        .Select(item => item.GetString()!)
+                        .ToImmutableArray()
+                };
                 return true;
 
             case "timeWindow":
