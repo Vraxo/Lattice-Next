@@ -321,6 +321,51 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Reuses_objective_evaluation_for_laptops_without_inventing_missing_evidence()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await File.ReadAllTextAsync(
+            Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json"),
+            TestContext.Current.CancellationToken);
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        var result = await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, Assert.Single(result.Utterances).Kind);
+        Assert.Equal(request, status.ActiveObjectiveSource);
+
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Equal(3, evaluation.Candidates.Length);
+        Assert.All(evaluation.Candidates, candidate =>
+        {
+            Assert.False(candidate.HasHardConstraintViolation);
+            Assert.True(candidate.HasUnresolvedHardConstraint);
+            Assert.Contains(candidate.Conditions, condition =>
+                condition.Name == "spending-limit" && condition.Status == "Unknown");
+        });
+
+        var aster = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        var birch = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Birch 15");
+        var cedar = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+        Assert.Contains(aster.Conditions, condition => condition.Name == "preference" && condition.Status == "Unknown");
+        Assert.Contains(birch.Conditions, condition => condition.Name == "preference" && condition.Status == "Unknown");
+        Assert.Contains(cedar.Conditions, condition => condition.Name == "preference" && condition.Status == "PartiallySatisfied");
+        Assert.Contains(
+            cedar.Conditions.SelectMany(condition => condition.Evidence),
+            source => source.SourceText == "Cedar 14 has an upgrade path.");
+        Assert.DoesNotContain(
+            evaluation.Candidates.SelectMany(candidate => candidate.Conditions).SelectMany(condition => condition.Evidence),
+            source => source.SourceText.Contains("reliability", StringComparison.OrdinalIgnoreCase) ||
+                source.SourceText.Contains("warranty", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task Unrelated_assertions_do_not_consume_a_pending_information_request()
     {
         var client = new LatticeRuntimeClient();
