@@ -175,7 +175,7 @@ internal sealed class ReplTranslationCommands
 
                 if (string.Equals(acceptance?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    utteranceProcessor.Process(candidate);
+                    await utteranceProcessor.ProcessAsync(candidate);
                 }
                 else
                 {
@@ -202,7 +202,7 @@ internal sealed class ReplTranslationCommands
                     selectedIndex >= 1 &&
                     selectedIndex <= translation.Candidates.Length)
                 {
-                    utteranceProcessor.Process(translation.Candidates[selectedIndex - 1]);
+                    await utteranceProcessor.ProcessAsync(translation.Candidates[selectedIndex - 1]);
                 }
                 else
                 {

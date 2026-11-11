@@ -77,6 +77,42 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Loads_knowledge_packs_into_the_same_session_used_for_turns()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var loaded = await session.LoadKnowledgePackAsync(
+            """{"formatVersion":1,"id":"animals","name":"Animals","claims":["Fido is a dog."]}""");
+        var result = await session.SubmitAsync("Is Fido a dog?");
+        var snapshot = session.GetSnapshot();
+
+        Assert.True(loaded.IsSuccess);
+        Assert.Equal("Animals", loaded.Name);
+        Assert.Equal(LatticeTruthValue.True, result.Utterances[0].TruthValue);
+        Assert.Equal(1, snapshot.KnowledgePackCount);
+        Assert.Equal(1, snapshot.FactCount);
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(
+                source => source.SourceId == "animals"));
+    }
+
+    [Fact]
+    public async Task Accepts_canonical_semantic_text_through_the_client_contract()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("dog(fido)");
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(
+            LatticeUtteranceResultKind.StatementStored,
+            result.Utterances[0].Kind);
+    }
+
+    [Fact]
     public async Task Rejects_submissions_after_session_disposal()
     {
         var client = new LatticeRuntimeClient();

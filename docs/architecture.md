@@ -60,9 +60,9 @@ Adding, removing, or replacing a provider must not require changes to cognition.
 
 `Lattice.Client` defines the transport-independent public boundary shared by frontends: `ILatticeClient` creates isolated `ILatticeSession` instances, and each session accepts turns and returns structured outcomes, truth values, and provenance-bearing evidence. The contract project has no dependency on Core, providers, transports, or user interfaces.
 
-`Lattice.Runtime` is the first in-process implementation. It composes the parser, conversation context, knowledge base, and reasoning engine behind the client/session contracts. Each session owns isolated state and serializes its own turn processing. This is the runtime boundary future hosts will expose; it is not an HTTP server and does not yet include tool execution, translation, persistence, or knowledge-pack management through the client contract.
+`Lattice.Runtime` is the first in-process implementation. It composes the parser, conversation context, knowledge base, and reasoning engine behind the client/session contracts. Each session owns isolated state and serializes its own turn processing. This is the runtime boundary future hosts will expose; it is not an HTTP server and does not yet include tool execution, translation, or persistence through the client contract. Sessions expose validated knowledge-pack loading and value-only status snapshots.
 
-The REPL, genuine CLI, GUI, and remote clients should consume this same contract. Transport-specific clients and server adapters belong outside both the contract and Core.
+The REPL now consumes this contract through an in-process client for ordinary turns, accepted translation candidates, and knowledge-pack loading. Its existing tool provider remains a host concern for now. The genuine CLI, GUI, and remote clients should consume this same contract. Transport-specific clients and server adapters belong outside both the contract and Core.
 
 ### REPL
 

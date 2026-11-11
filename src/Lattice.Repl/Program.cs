@@ -1,9 +1,7 @@
 using Lattice.Core.Context;
-using Lattice.Core.Language;
 using Lattice.Core.Intelligence;
-using Lattice.Core.Reasoning;
-using Lattice.Core.Semantics;
 using Lattice.Core.Tools;
+using Lattice.Runtime;
 using Lattice.Tooling.Stdio;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
@@ -11,7 +9,6 @@ using Lattice.Repl;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-var parser = new LceParser();
 var configurationStore = new LmStudioConfigurationStore();
 var configurationLoaded = configurationStore.TryLoad(
     out var latticeConfiguration,
@@ -26,15 +23,10 @@ var lmStudioRuntime = new LmStudioRuntime(
     lmStudioHttpClient,
     latticeConfiguration.LmStudio);
 var translationService = CreateTranslationService(latticeConfiguration.LmStudio);
-var knowledgeBase = new KnowledgeBase();
+var runtimeClient = new LatticeRuntimeClient();
+await using var session = await runtimeClient.CreateSessionAsync();
+var utteranceProcessor = new ReplUtteranceProcessor(session);
 var conversationContext = new ConversationContext();
-var reasoningEngine = new ReasoningEngine();
-var utteranceProcessor = new ReplUtteranceProcessor(
-    conversationContext,
-    knowledgeBase,
-    reasoningEngine);
-var knowledgePackLoader = new KnowledgePackLoader();
-var loadedPacks = new List<KnowledgePack>();
 var configuredToolsDirectory = Environment.GetEnvironmentVariable("LATTICE_TOOLS_DIR");
 var toolsDirectory = ResolveToolsDirectory(configuredToolsDirectory);
 var externalToolsDiscovered = StdioToolProvider.TryDiscover(
@@ -84,10 +76,9 @@ var translationCommands = new ReplTranslationCommands(
     utteranceProcessor);
 
 var sessionCommands = new ReplSessionCommands(
-    toolAccess,
+    session,
     conversationContext,
-    knowledgeBase,
-    loadedPacks,
+    toolAccess,
     toolIntentResolver,
     configurationStore,
     configurationLoaded,
@@ -162,11 +153,7 @@ while (true)
         continue;
     }
 
-    if (ReplKnowledgePackCommand.TryHandle(
-        input,
-        knowledgePackLoader,
-        knowledgeBase,
-        loadedPacks))
+    if (await ReplKnowledgePackCommand.TryHandleAsync(input, session))
     {
         continue;
     }
@@ -176,21 +163,7 @@ while (true)
         continue;
     }
 
-    var parseResult = parser.ParseText(input);
-
-    if (!parseResult.IsSuccess)
-    {
-        AnsiConsole.Markup("[bold red]Lattice[/] [dim]›[/] ");
-        AnsiConsole.WriteLine(parseResult.Error ?? "Input could not be parsed.");
-        AnsiConsole.WriteLine();
-        continue;
-    }
-
-    foreach (var parsedUtterance in parseResult.Utterances)
-    {
-        utteranceProcessor.Process(parsedUtterance);
-    }
-
+    await utteranceProcessor.ProcessAsync(input);
     AnsiConsole.WriteLine();
 }
 
@@ -202,7 +175,7 @@ SemanticTranslationService? CreateTranslationService(LmStudioConfiguration confi
                 lmStudioHttpClient,
                 configuration,
                 lmStudioRuntime,
-                parser,
+                new Lattice.Core.Language.LceParser(),
                 ReportLmStudioStatus));
 
 void ReportLmStudioStatus(string message) =>
