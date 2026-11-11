@@ -293,6 +293,79 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Loads_ordered_temporal_plan_templates_with_optional_stage_references()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "temporal-plan",
+              "name": "Temporal plan",
+              "claims": [],
+              "attributes": [{
+                "subject": "Destination",
+                "name": "temporal-plan",
+                "value": {
+                  "type": "temporalPlan",
+                  "stages": [
+                    {
+                      "durationAttribute": "journey-duration",
+                      "startTimesAttribute": "departure-times"
+                    },
+                    {
+                      "durationAttribute": "activity-duration",
+                      "availabilityWindowAttribute": "opening-window"
+                    },
+                    {
+                      "durationAttribute": "journey-duration",
+                      "startTimesAttribute": "return-times"
+                    }
+                  ]
+                },
+                "sourceText": "The plan is an outbound journey, activity, and return journey."
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.True(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error), error);
+
+        var plan = Assert.IsType<ObjectiveTemporalPlanValue>(
+            Assert.Single(knowledgeBase.Attributes).Value);
+        Assert.Equal(
+            new[]
+            {
+                new ObjectiveTemporalStage("journey-duration", "departure-times"),
+                new ObjectiveTemporalStage("activity-duration", AvailabilityWindowAttribute: "opening-window"),
+                new ObjectiveTemporalStage("journey-duration", "return-times")
+            },
+            plan.Stages);
+    }
+
+    [Fact]
+    public void Rejects_empty_temporal_plan_templates_atomically()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "invalid-temporal-plan",
+              "name": "Invalid temporal plan",
+              "claims": [],
+              "attributes": [{
+                "subject": "Destination",
+                "name": "temporal-plan",
+                "value": { "type": "temporalPlan", "stages": [] },
+                "sourceText": "An empty temporal plan."
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.False(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error));
+        Assert.NotNull(error);
+        Assert.Empty(knowledgeBase.Attributes);
+    }
+
+    [Fact]
     public void Imported_candidate_attributes_can_be_evaluated_with_pack_provenance()
     {
         const string json = """

@@ -122,7 +122,8 @@ public sealed class ObjectiveRequestTests
             time =>
             {
                 Assert.Equal("time-window", time.Name);
-                Assert.Equal(ObjectiveConditionOperator.Within, time.Operator);
+                Assert.Equal(ObjectiveConditionOperator.CanFit, time.Operator);
+                Assert.Equal("temporal-plan", time.TargetAttribute);
                 Assert.Equal(
                     new ObjectiveTimeWindowValue(new TimeOnly(9, 0), new TimeOnly(18, 0)),
                     time.Value);

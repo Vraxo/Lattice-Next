@@ -27,6 +27,7 @@ Supported value forms:
 | `timeWindow` | `start`, `end` | Start and end times in 24-hour `HH:mm` form |
 | `duration` | `minutes` | Non-negative duration in minutes |
 | `timeSet` | `times` | Non-empty array of 24-hour `HH:mm` times |
+| `temporalPlan` | `stages` | Ordered non-empty sequence of duration-attribute references, optionally constrained by start-time sets and availability windows |
 
 Example:
 
@@ -64,7 +65,7 @@ The format stores data; it does not execute instructions. Each typed value objec
 
 ## Current boundary
 
-Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, time-window containment, preference tags, and temporal sequences. A temporal sequence composes ordered duration attributes with optional allowed start-time sets and availability windows. It checks whether at least one sequence fits within a requested earliest-start/latest-end window, and retains the attributes used as evidence. Missing attributes remain Unknown; conflicting values remain Conflicting. The current implementation uses same-day `TimeOnly` values and does not model overnight sequences.
+Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, preference tags, and temporal feasibility. A candidate may supply a `temporalPlan` attribute: an ordered list of stages that reference duration attributes and optionally allowed start-time sets and availability windows. The user's `CanFit` time-window condition supplies the earliest start and latest finish; the evaluator combines that window with each candidate's plan and checks whether at least one complete sequence fits. The plan and all referenced attributes are retained as evidence. Missing attributes remain Unknown; conflicting values remain Conflicting. The current implementation uses same-day `TimeOnly` values and does not model overnight sequences.
 
 The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candidates.json`. It includes all four candidates, component and benchmark-calculated costs, access and activity durations, qualitative tags, opening windows, and the supplied bus timetables. Unspecified facilities and services are represented by missing attributes, not invented values. The benchmark's calculated total-cost fields are explicitly identified as calculations from the supplied return fare and entry cost; general arithmetic over attribute components is not implemented.
 

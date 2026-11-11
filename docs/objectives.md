@@ -115,11 +115,11 @@ A second, unrelated task now exercises the same objective and condition represen
 
 Candidate attributes are typed, loaded through versioned knowledge packs, and retain source provenance. The evaluator compares individual conditions such as money limits, exclusions, equality, preferences, and time-window containment.
 
-A separate `CanFit` condition describes a generic ordered sequence of duration stages. Each stage references a duration attribute and may reference an allowed set of start times and/or an availability window. Stages without a start-time set begin immediately after the preceding stage; a stage with a start-time set may wait for one of those events. The evaluator checks whether at least one sequence fits between an earliest start and latest finish, without knowing what the stages represent.
+A `CanFit` condition carries the user's earliest start and latest finish. Candidate knowledge packs can supply a `temporalPlan`: a reusable ordered template whose stages reference duration attributes and may reference allowed start-time sets and/or availability windows. Stages without a start-time set begin immediately after the preceding stage; a stage with a start-time set may wait for one of those events. The evaluator combines the user's time window with each candidate's own template without knowing what the stages represent.
 
-Every attribute used by the sequence is retained as evidence. Missing attributes yield Unknown, conflicting values yield Conflicting, and a known sequence with no valid timing yields Violated. The current representation uses same-day `TimeOnly` values and does not support overnight sequences.
+Every attribute used by the plan is retained as evidence, including the plan template itself. Missing attributes yield Unknown, conflicting values yield Conflicting, and a known plan with no valid timing yields Violated. The current representation uses same-day `TimeOnly` values and does not support overnight sequences.
 
-This capability is exercised with the synthetic day-out data. The user-facing language/session does not yet construct this sequence condition from ordinary conversation.
+The ordinary `I can leave at ... and be back by ...` condition-update path now creates this `CanFit` condition. Session evaluation therefore uses the same candidate-provided templates as direct evaluator tests; no destination-specific planner or timetable parser is introduced.
 
 The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
 

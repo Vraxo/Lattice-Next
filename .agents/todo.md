@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: connect temporal-sequence feasibility to ordinary objective conversations. Session status now exposes evidence-backed condition assessments for loaded candidates; it does not yet construct the temporal sequence from the user's time window and candidate attributes. Aggregate costs are also still supplied as precomputed attributes. Continue from the next concrete benchmark failure; do not add a trip planner, ranking, or opaque score.
+> Current priority: make evidence-backed objective assessments useful in an end-to-end interaction. User time windows now combine with candidate-provided ordered temporal plans, and transport revisions re-evaluate the same candidates. Aggregate costs are still supplied as precomputed attributes, and the session does not yet synthesize a grounded natural-language explanation. Prefer the next general mechanism demonstrated by a benchmark failure; do not add a trip planner, ranking, or opaque score.
 
 
 ## Bootstrap
