@@ -10,7 +10,7 @@ internal sealed class CliUtteranceProcessor(
     KnowledgeBase knowledgeBase,
     ReasoningEngine reasoningEngine)
 {
-    void ProcessUtterance(SemanticUtterance parsedUtterance)
+    public void Process(SemanticUtterance parsedUtterance)
     {
         var resolution = conversationContext.Resolve(parsedUtterance);
     

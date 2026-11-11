@@ -44,6 +44,8 @@ internal sealed class CliToolAccess
 
     public ToolRegistry Registry => toolRegistry;
 
+    public LatticeConfiguration Configuration => latticeConfiguration;
+
     public void UpdateConfiguration(LatticeConfiguration configuration)
     {
         latticeConfiguration = configuration;

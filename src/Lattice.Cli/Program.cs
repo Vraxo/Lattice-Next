@@ -398,6 +398,7 @@ while (true)
             {
                 await configurationStore.SaveAsync(updatedConfiguration);
                 latticeConfiguration = updatedConfiguration;
+                toolAccess.UpdateConfiguration(latticeConfiguration);
             }
             catch (IOException)
             {
@@ -462,6 +463,7 @@ while (true)
         var toolId = invocation[..separator];
         var arguments = invocation[(separator + 1)..].Trim();
         var result = await toolAccess.InvokeAsync(toolId, arguments);
+        latticeConfiguration = toolAccess.Configuration;
 
         if (result is null)
         {
@@ -528,6 +530,7 @@ while (true)
             var result = await toolAccess.InvokeAsync(
                 currentIntent.ToolId,
                 currentIntent.ArgumentsJson);
+            latticeConfiguration = toolAccess.Configuration;
 
             if (result is null)
             {
