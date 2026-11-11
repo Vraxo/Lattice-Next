@@ -54,6 +54,20 @@ A narrow correctness fix is still worthwhile even when it does not unlock a new 
 
 Language remains essential, but it is an interface to meaning and reasoning—not the product goal by itself. Continue improving language when doing so enables a task or faithfully exposes a useful capability.
 
+## A first-use proving ground: plan a day out
+
+A first-time user should be able to try Lattice with a request that feels natural and useful, rather than a tiny factual query. One candidate is:
+
+> I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.
+
+A small initial benchmark can provide a declarative set of possible destinations, activities, costs, travel options, and relevant constraints. Lattice should identify the goal and constraints, notice what important information is missing, ask a focused follow-up when necessary, compare feasible options, explain trade-offs, and produce a plan whose recommendations are supported by the supplied information.
+
+The initial scenario does not need live maps, booking systems, or a real destination database. A small synthetic knowledge pack is enough to test whether Lattice can combine language, knowledge, relations, rules, constraint evaluation, context, and explanation. Live retrieval and tools can be added later as general capabilities, not as hidden requirements of a bespoke travel feature.
+
+**The target is not a trip planner.** The target is a system that can work with goals, constraints, alternatives, and evidence in a domain-neutral way. The same mechanisms should transfer to choosing equipment, organizing an event, comparing project approaches, or making other everyday plans. The travel scenario is simply an approachable first demonstration.
+
+This is a candidate proving ground, not a fixed commitment. Validate its scope and the smallest useful end-to-end behavior before selecting implementation work.
+
 ## A candidate proving ground: investigate a service outage
 
 One promising task to explore—not a fixed product commitment—is:

@@ -12,6 +12,8 @@ The goal is not to accumulate sentence patterns or hardcode a growing list of ta
 
 Development therefore starts from meaningful tasks, then builds the general mechanisms those tasks reveal to be missing. See [the product vision](docs/vision.md).
 
+A useful first-use benchmark should feel like a real request to a general assistant—for example, **"I have a free Saturday, a limited budget, and no car. Help me plan a quiet day outdoors."** Lattice should solve a small, self-contained version by combining general capabilities, not by containing a special-purpose trip-planning feature.
+
 ## Architectural premise
 
 Lattice keeps three concerns independent:
