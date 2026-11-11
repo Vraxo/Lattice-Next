@@ -42,6 +42,11 @@ internal static class CliTextFormatter
                         standardOutput);
                     break;
 
+                case LatticeUtteranceResultKind.ObjectiveReceived:
+                case LatticeUtteranceResultKind.ObjectiveInformationReceived:
+                    standardOutput.WriteLine(utterance.Message ?? "Objective updated.");
+                    break;
+
                 case LatticeUtteranceResultKind.StatementRejected:
                 case LatticeUtteranceResultKind.ClarificationRequired:
                 case LatticeUtteranceResultKind.UnsupportedQuestion:
