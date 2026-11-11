@@ -25,7 +25,7 @@ The knowledge base supports typed candidate attributes with source wording and p
 
 The native evaluator derives each candidate's total outing cost by summing its return transport cost and entry cost, then compares that value against the $25 budget. It also compares car exclusion against stated transport modes and quiet/outdoors preference tags. The user's 09:00–18:00 update is parsed as a `CanFit` condition. The evaluator combines that window with each candidate's `temporalPlan`, which references the appropriate journey durations, activity duration, opening window, and (where supplied) outbound and return departure sets.
 
-The shared session status exposes the evaluator's candidate assessments and their supporting source text/pack IDs. Objective updates also return a concise, explicitly unranked summary of each candidate's hard-constraint disposition, preference fit, condition statuses, and evidence. The REPL displays the detailed assessments through `:status`, and the CLI text mode prints objective responses. The user's overall 09:00–18:00 boundary is retained separately from destination opening hours; it is not incorrectly compared as though the destination must remain open for the entire day.
+The shared session status exposes the evaluator's candidate assessments and their supporting source text/pack IDs. Each candidate also receives a derived feasibility disposition: Eligible when every applicable hard constraint is satisfied, Excluded when any hard constraint is violated, Unresolved when no violation is known but at least one hard constraint is unknown or conflicting, and NotEvaluated when no applicable hard constraint exists. Preference mismatches do not exclude a candidate. Objective updates also return a concise, explicitly unranked summary of each candidate's feasibility disposition, preference fit, condition statuses, and evidence. The REPL displays the detailed assessments through `:status`, and the CLI text mode prints objective responses. The user's overall 09:00–18:00 boundary is retained separately from destination opening hours; it is not incorrectly compared as though the destination must remain open for the entire day.
 
 The sequence is represented as ordered duration stages. A stage may begin at a supplied set of event times, must fit within an available time window, or begin immediately after the preceding stage. The evaluator checks whether any complete sequence fits between the user's earliest start and latest return, retaining each referenced attribute as evidence. For a feasible sequence it also returns the first concrete stage-time witness. For example, Fernbank's earliest bus itinerary is 09:00–09:25 outbound, 09:25–11:25 for the activity, and 14:00–14:25 for the return. Quarry Lake's witness is 09:15–10:00 outbound, 10:00–13:00 at the destination, and 15:45–16:30 on the return. These are feasibility witnesses, not optimized schedules.
 
@@ -35,9 +35,9 @@ The dataset deliberately omits attributes for facts the benchmark leaves unspeci
 
 ## Remaining benchmark gap
 
-Lattice now has a reusable temporal-sequence feasibility comparison, but it has **not** solved the complete outing task. In particular:
+Lattice now has reusable temporal-sequence feasibility and candidate-eligibility classification, but it has **not** solved the complete outing task. In particular:
 - the session exposes condition assessments and evidence, but does not yet synthesize a natural-language recommendation or explain trade-offs in prose;
-- the evaluator reports condition assessments, not a recommendation or ranked list;
+- the evaluator reports eligibility and condition assessments, not a recommendation or ranked list;
 - the summary is an evidence-based assessment, not a ranked recommendation; the first feasible temporal witness is shown, but no optimization or preference-based selection is performed;
 - each candidate currently supplies one temporal plan for its represented transport mode; choosing among multiple plans for the same candidate is not implemented.
 
