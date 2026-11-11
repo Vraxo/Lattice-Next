@@ -3,9 +3,9 @@ using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliUtteranceProcessor(
+internal sealed class ReplUtteranceProcessor(
     ConversationContext conversationContext,
     KnowledgeBase knowledgeBase,
     ReasoningEngine reasoningEngine)
@@ -84,7 +84,7 @@ internal sealed class CliUtteranceProcessor(
                 break;
         }
     
-        CliProofFormatter.WriteProofGroup("Evidence supporting the answer:", answer.Proofs);
-        CliProofFormatter.WriteProofGroup("Evidence opposing the answer:", answer.ContradictingProofs);
+        ReplProofFormatter.WriteProofGroup("Evidence supporting the answer:", answer.Proofs);
+        ReplProofFormatter.WriteProofGroup("Evidence opposing the answer:", answer.ContradictingProofs);
     }
 }

@@ -2,13 +2,13 @@ using Lattice.Core.Context;
 using Lattice.Core.Intelligence;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliToolIntentCommand(
-    CliToolAccess toolAccess,
+internal sealed class ReplToolIntentCommand(
+    ReplToolAccess toolAccess,
     ConversationContext conversationContext,
     ToolIntentResolver toolIntentResolver,
-    CliTranslationCommands translationCommands)
+    ReplTranslationCommands translationCommands)
 {
     private const int MaximumToolIntentSteps = 8;
 

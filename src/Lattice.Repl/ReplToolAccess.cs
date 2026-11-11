@@ -2,9 +2,9 @@ using Lattice.Core.Tools;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliToolAccess
+internal sealed class ReplToolAccess
 {
     private readonly IReadOnlyList<ITool> registeredTools;
     private readonly ToolPermission grantedPermissions;
@@ -13,7 +13,7 @@ internal sealed class CliToolAccess
     private LatticeConfiguration latticeConfiguration;
     private ToolRegistry toolRegistry;
 
-    public CliToolAccess(
+    public ReplToolAccess(
         IReadOnlyList<ITool> registeredTools,
         ToolPermission grantedPermissions,
         LmStudioConfigurationStore configurationStore,

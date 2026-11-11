@@ -3,26 +3,26 @@ using Lattice.Core.Semantics;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliTranslationCommands
+internal sealed class ReplTranslationCommands
 {
     private readonly LmStudioConfigurationStore configurationStore;
     private readonly LmStudioRuntime lmStudioRuntime;
     private readonly Func<LmStudioConfiguration, SemanticTranslationService?> createTranslationService;
     private readonly Action<string> reportStatus;
-    private readonly CliUtteranceProcessor utteranceProcessor;
+    private readonly ReplUtteranceProcessor utteranceProcessor;
     private LatticeConfiguration configuration;
     private SemanticTranslationService? translationService;
 
-    public CliTranslationCommands(
+    public ReplTranslationCommands(
         LatticeConfiguration configuration,
         SemanticTranslationService? translationService,
         LmStudioConfigurationStore configurationStore,
         LmStudioRuntime lmStudioRuntime,
         Func<LmStudioConfiguration, SemanticTranslationService?> createTranslationService,
         Action<string> reportStatus,
-        CliUtteranceProcessor utteranceProcessor)
+        ReplUtteranceProcessor utteranceProcessor)
     {
         this.configuration = configuration;
         this.translationService = translationService;

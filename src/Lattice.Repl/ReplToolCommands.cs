@@ -2,12 +2,12 @@ using Lattice.Core.Context;
 using Lattice.Core.Tools;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliToolCommands(
-    CliToolAccess toolAccess,
+internal sealed class ReplToolCommands(
+    ReplToolAccess toolAccess,
     ConversationContext conversationContext,
-    CliTranslationCommands translationCommands)
+    ReplTranslationCommands translationCommands)
 {
     public async ValueTask<bool> TryHandleAsync(string input)
     {
