@@ -12,7 +12,7 @@ public sealed class DayOutBenchmarkDataTests
     public void Loads_the_complete_day_out_dataset_and_evaluates_objective_conditions()
     {
         var knowledgeBase = LoadCandidates();
-        Assert.Equal(46, knowledgeBase.Attributes.Count);
+        Assert.Equal(50, knowledgeBase.Attributes.Count);
 
         var parser = new LceParser();
         var parsed = parser.ParseText(

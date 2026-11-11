@@ -121,6 +121,8 @@ Every attribute used by the plan is retained as evidence, including the plan tem
 
 The ordinary `I can leave at ... and be back by ...` condition-update path now creates this `CanFit` condition. Session evaluation therefore uses the same candidate-provided templates as direct evaluator tests; no destination-specific planner or timetable parser is introduced.
 
+Conditions that describe the user's own context rather than a candidate property are retained but marked `NotApplicable` during candidate comparison. They do not count as unresolved hard constraints. Candidate-relevant context such as the requested origin is evaluated when the pack supplies a matching origin attribute. After an objective update, the session returns a concise, explicitly unranked assessment of each candidate, its condition statuses, and the source text supporting them. Unknown and conflicting evidence remains visible.
+
 Typed candidate attributes may also define a bounded `sum` over other named attributes. The evaluator resolves money sums only when all components share a currency, and duration sums when all components are durations. Nested sums are bounded and retain the definition plus every component as evidence. Missing components remain Unknown, contradictory values remain Conflicting, and incompatible types or cyclic definitions are not guessed.
 
 The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).

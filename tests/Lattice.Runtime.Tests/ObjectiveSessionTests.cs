@@ -240,6 +240,7 @@ public sealed class ObjectiveSessionTests
               "attributes": [
                 { "subject": "Bus Park", "name": "total-cost", "value": { "type": "money", "amount": 6, "currencySymbol": "$" }, "sourceText": "Bus Park costs $6." },
                 { "subject": "Bus Park", "name": "transport-mode", "value": { "type": "text", "value": "bus" }, "sourceText": "Bus Park is reached by bus." },
+                { "subject": "Bus Park", "name": "origin", "value": { "type": "text", "value": "Central Station" }, "sourceText": "The supplied bus journey is from Central Station." },
                 { "subject": "Bus Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Bus Park is quiet and outdoors." },
                 { "subject": "Bus Park", "name": "one-way-travel-duration", "value": { "type": "duration", "minutes": 25 }, "sourceText": "The bus journey takes 25 minutes each way." },
                 { "subject": "Bus Park", "name": "activity-duration", "value": { "type": "duration", "minutes": 120 }, "sourceText": "The activity takes 2 hours." },
@@ -253,6 +254,7 @@ public sealed class ObjectiveSessionTests
                 ] }, "sourceText": "The outing is an outbound scheduled journey, an activity, and a return scheduled journey." },
                 { "subject": "Walk Park", "name": "total-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Walk Park is free." },
                 { "subject": "Walk Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Walk Park is reachable on foot." },
+                { "subject": "Walk Park", "name": "origin", "value": { "type": "text", "value": "Central Station" }, "sourceText": "The supplied walking route is from Central Station." },
                 { "subject": "Walk Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Walk Park is busy and outdoors." },
                 { "subject": "Walk Park", "name": "one-way-travel-duration", "value": { "type": "duration", "minutes": 15 }, "sourceText": "The walk takes 15 minutes each way." },
                 { "subject": "Walk Park", "name": "activity-duration", "value": { "type": "duration", "minutes": 90 }, "sourceText": "The activity takes 90 minutes." },
@@ -282,6 +284,13 @@ public sealed class ObjectiveSessionTests
         var walkPark = Assert.Single(initialEvaluation.Candidates, candidate => candidate.Candidate == "Walk Park");
         Assert.Contains(busPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
+        Assert.Contains(busPark.Conditions, condition => condition.Name == "origin" && condition.Status == "Satisfied");
+        Assert.Contains(busPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
+        Assert.Contains(
+            "Candidate assessment (not ranked):",
+            followUp.Utterances[^1].Message);
+        Assert.Contains("Bus Park", followUp.Utterances[^1].Message);
+        Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
 
         var walkingOnly = await session.SubmitAsync(
             "Actually, I don't want to take a bus. Walking only.",
@@ -295,6 +304,13 @@ public sealed class ObjectiveSessionTests
         Assert.True(busPark.HasHardConstraintViolation);
         Assert.False(walkPark.HasHardConstraintViolation);
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
+        Assert.Contains(walkPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
+        Assert.Contains(
+            "Bus Park: fails at least one hard constraint",
+            walkingOnly.Utterances[^1].Message);
+        Assert.Contains(
+            "Walk Park: meets all assessed hard constraints",
+            walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 

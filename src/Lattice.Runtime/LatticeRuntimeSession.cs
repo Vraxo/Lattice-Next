@@ -159,9 +159,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
+            var message = $"I've retained this objective: {objective.Goal}.";
+            message = AppendObjectiveEvaluation(message, objective);
+
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ObjectiveReceived,
-                $"I've retained this objective: {objective.Goal}.",
+                message,
                 SemanticFormatter.Format(parsedUtterance));
         }
 
@@ -293,6 +296,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             message = $"{message} {pendingObjectiveCondition.MissingValuePrompt}";
         }
+        else
+        {
+            message = AppendObjectiveEvaluation(message, objective);
+        }
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
@@ -352,14 +359,27 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
 
         var names = string.Join(", ", update.Conditions.Select(condition => condition.Name));
+        var message = AppendObjectiveEvaluation(
+            $"Updated objective conditions: {names}.",
+            objective);
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
-            $"Updated objective conditions: {names}.",
+            message,
             SemanticFormatter.Format(new SemanticUtterance(
                 UtteranceKind.Objective,
                 objective,
                 activeObjectiveSource)));
+    }
+
+    private string AppendObjectiveEvaluation(string message, ObjectiveFormula objective)
+    {
+        var summary = ObjectiveEvaluationFormatter.Format(
+            objectiveEvaluator.Evaluate(objective, knowledgeBase));
+
+        return string.IsNullOrWhiteSpace(summary)
+            ? message
+            : $"{message}{Environment.NewLine}{summary}";
     }
 
     private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
