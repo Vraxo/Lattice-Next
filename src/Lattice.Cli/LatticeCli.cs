@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -188,7 +189,7 @@ public static class LatticeCli
                     Success = success,
                     SessionId = sessionId,
                     LoadedPacks = loadedPacks,
-                    Turn = turn,
+                    Turn = NormalizeTurn(turn),
                     Error = error
                 },
                 JsonOptions));
@@ -209,6 +210,40 @@ public static class LatticeCli
         {
             standardError.WriteLine(error);
         }
+    }
+
+    private static LatticeTurnResult? NormalizeTurn(LatticeTurnResult? turn)
+    {
+        if (turn is null)
+        {
+            return null;
+        }
+
+        return turn with
+        {
+            Utterances = turn.Utterances.Select(utterance => utterance with
+            {
+                SupportingEvidence = NormalizeEvidence(utterance.SupportingEvidence),
+                OpposingEvidence = NormalizeEvidence(utterance.OpposingEvidence)
+            }).ToImmutableArray()
+        };
+    }
+
+    private static ImmutableArray<LatticeEvidence> NormalizeEvidence(
+        ImmutableArray<LatticeEvidence> evidence)
+    {
+        if (evidence.IsDefaultOrEmpty)
+        {
+            return ImmutableArray<LatticeEvidence>.Empty;
+        }
+
+        return evidence.Select(item => item with
+        {
+            Sources = item.Sources.IsDefault
+                ? ImmutableArray<LatticeEvidenceSource>.Empty
+                : item.Sources,
+            Premises = NormalizeEvidence(item.Premises)
+        }).ToImmutableArray();
     }
 
     private static string GetUsage() =>
