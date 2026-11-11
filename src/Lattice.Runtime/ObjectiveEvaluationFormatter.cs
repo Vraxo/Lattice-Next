@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -57,6 +58,21 @@ internal static class ObjectiveEvaluationFormatter
                     .Append(DescribeStatus(condition.Status))
                     .AppendLine(".");
 
+                foreach (var stage in condition.TemporalWitness)
+                {
+                    output.Append("    Stage ")
+                        .Append(stage.Index)
+                        .Append(": ")
+                        .Append(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture))
+                        .Append('–')
+                        .Append(stage.End.ToString("HH:mm", CultureInfo.InvariantCulture))
+                        .Append(" — ")
+                        .Append(FormatAttributeName(stage.DurationAttribute))
+                        .Append(" (")
+                        .Append(stage.DurationMinutes)
+                        .AppendLine(" min).");
+                }
+
                 var sources = condition.Evidence
                     .SelectMany(attribute => attribute.Sources)
                     .Select(source => string.IsNullOrWhiteSpace(source.SourceId)
@@ -115,6 +131,14 @@ internal static class ObjectiveEvaluationFormatter
         }
 
         return "has mixed preference fit";
+    }
+
+    private static string FormatAttributeName(string attributeName)
+    {
+        var words = attributeName
+            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => char.ToUpperInvariant(word[0]) + word[1..]);
+        return string.Join(' ', words);
     }
 
     private static string DescribeStatus(ObjectiveConditionAssessmentStatus status) =>
