@@ -21,9 +21,9 @@ if (!configurationLoaded)
 {
     latticeConfiguration = new LatticeConfiguration();
 }
-using var lmStudioHttpReplent = new HttpReplent { Timeout = Timeout.InfiniteTimeSpan };
+using var lmStudioHttpClient = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
 var lmStudioRuntime = new LmStudioRuntime(
-    lmStudioHttpReplent,
+    lmStudioHttpClient,
     latticeConfiguration.LmStudio);
 var translationService = CreateTranslationService(latticeConfiguration.LmStudio);
 var knowledgeBase = new KnowledgeBase();
@@ -195,7 +195,7 @@ SemanticTranslationService? CreateTranslationService(LmStudioConfiguration confi
         ? null
         : new SemanticTranslationService(
             new LmStudioSemanticsTranslator(
-                lmStudioHttpReplent,
+                lmStudioHttpClient,
                 configuration,
                 lmStudioRuntime,
                 parser,
