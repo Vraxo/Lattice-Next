@@ -72,7 +72,7 @@ internal sealed class CliTranslationCommands
                 try
                 {
                     var models = await lmStudioRuntime.ListInstalledModelsAsync(
-                        ReportLmStudioStatus);
+                        reportStatus);
         
                     if (models.IsEmpty)
                     {
@@ -125,8 +125,8 @@ internal sealed class CliTranslationCommands
         
                     await configurationStore.SaveAsync(updatedConfiguration);
                     configuration = updatedConfiguration;
-                    toolAccess.UpdateConfiguration(configuration);
-                    translationService = CreateTranslationService(selectedConfiguration);
+                    
+                    translationService = createTranslationService(selectedConfiguration);
         
                     AnsiConsole.MarkupLine(
                         $"[bold cyan]Lattice[/] [dim]› Saved '{selectedModel.DisplayName}' to lattice.config.json.[/]");
