@@ -468,13 +468,11 @@ public sealed class LceParser
             conditions.Add(new ObjectiveCondition(
                 "time-window",
                 ObjectiveConditionRole.HardConstraint,
-                ObjectiveConditionOperator.Within,
+                ObjectiveConditionOperator.CanFit,
                 new ObjectiveTimeWindowValue(start, end),
                 sourceText)
             {
-                // The user's overall schedule boundary is not a requirement that
-                // the destination remain open for the entire day.
-                TargetAttribute = null
+                TargetAttribute = "temporal-plan"
             });
         }
 
