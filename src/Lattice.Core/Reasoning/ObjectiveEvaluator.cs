@@ -426,10 +426,17 @@ public sealed class ObjectiveEvaluator
     {
         var preferences = desiredPreferences.Values
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(preference => new ObjectivePreferenceAssessment(
-                preference,
-                CompareIndividualPreference(preference, resolution),
-                resolution.Evidence))
+            .Select(preference =>
+            {
+                var status = CompareIndividualPreference(preference, resolution);
+                var evidence = status is ObjectiveConditionAssessmentStatus.Satisfied or
+                    ObjectiveConditionAssessmentStatus.Violated or
+                    ObjectiveConditionAssessmentStatus.Conflicting
+                    ? resolution.Evidence
+                    : ImmutableArray<KnowledgeAttribute>.Empty;
+
+                return new ObjectivePreferenceAssessment(preference, status, evidence);
+            })
             .ToImmutableArray();
 
         var statuses = preferences.Select(preference => preference.Status).ToArray();
