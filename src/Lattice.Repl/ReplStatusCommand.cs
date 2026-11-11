@@ -53,33 +53,6 @@ internal sealed class ReplStatusCommand(
             }
         }
 
-        if (status.ObjectiveEvaluation is { Candidates.IsDefaultOrEmpty: false } evaluation)
-        {
-            AnsiConsole.MarkupLine("  [bold]Active objective candidates[/]");
-
-            foreach (var candidate in evaluation.Candidates)
-            {
-                var disposition = candidate.HasHardConstraintViolation
-                    ? "excluded by a hard constraint"
-                    : candidate.HasUnresolvedHardConstraint
-                        ? "has unresolved hard constraints"
-                        : "no known hard-constraint violation";
-                AnsiConsole.MarkupLine($"    [cyan]{Markup.Escape(candidate.Candidate)}[/] — {disposition}");
-
-                foreach (var condition in candidate.Conditions)
-                {
-                    var color = condition.Status switch
-                    {
-                        "Satisfied" => "green",
-                        "Violated" => "red",
-                        "Conflicting" => "red",
-                        _ => "yellow"
-                    };
-                    AnsiConsole.MarkupLine(
-                        $"      {Markup.Escape(condition.Name)}: [{color}]{Markup.Escape(condition.Status)}[/] [dim]({Markup.Escape(condition.Role)})[/]");
-                }
-            }
-        }
         AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolAccess.Registry.Descriptors.Count} registered");
         AnsiConsole.MarkupLine($"  [cyan]Translation[/]          {(translationCommands.TranslationService is null ? "disabled" : $"LM Studio · {translationCommands.Configuration.LmStudio.ModelKey}")}");
         AnsiConsole.WriteLine();
