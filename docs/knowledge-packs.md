@@ -38,23 +38,23 @@ Example:
   "claims": [],
   "attributes": [
     {
-      "subject": "Fernbank",
+      "subject": "Fernbank Nature Reserve",
       "name": "total-cost",
       "value": {
         "type": "money",
         "amount": 6,
         "currencySymbol": "$"
       },
-      "sourceText": "Fernbank costs six dollars including entry and fares."
+      "sourceText": "Benchmark calculation: $6 return fare plus $0 entry; the user brings lunch."
     },
     {
-      "subject": "Fernbank",
+      "subject": "Fernbank Nature Reserve",
       "name": "tags",
       "value": {
         "type": "textSet",
         "values": ["quiet", "outdoors"]
       },
-      "sourceText": "Fernbank is quiet and outdoors."
+      "sourceText": "Fernbank is usually quiet and outdoors."
     }
   ]
 }
@@ -64,4 +64,8 @@ The format stores data; it does not execute instructions. Each typed value objec
 
 ## Current boundary
 
-Typed attributes can now be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, time-window containment, and preference tags. Duration and time-set values are preserved as typed data but are not yet used by objective comparisons. Pack unloading, replacement, persistence, and candidate ranking are not implemented.
+Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, time-window containment, and preference tags. Duration and time-set values are stored and retain provenance, but they are not yet compared or composed by the evaluator.
+
+The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candidates.json`. It includes all four candidates, component and benchmark-calculated costs, access and activity durations, qualitative tags, opening windows, and the supplied bus timetables. Unspecified facilities and services are represented by missing attributes, not invented values. The benchmark's calculated total-cost fields are explicitly identified as calculations from the supplied return fare and entry cost; general arithmetic over attribute components is not implemented.
+
+Pack unloading, replacement, persistence, candidate ranking, and planning are not implemented.
