@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Client;
 using Lattice.Core.Semantics;
 using Spectre.Console;
@@ -9,18 +10,16 @@ internal sealed class ReplUtteranceProcessor(ILatticeSession session)
     public ValueTask ProcessAsync(
         string input,
         CancellationToken cancellationToken = default) =>
-        ProcessInputAsync(input, cancellationToken);
+        ProcessInputAsync(session.SubmitAsync(input, cancellationToken));
 
     public ValueTask ProcessAsync(
         SemanticUtterance parsedUtterance,
         CancellationToken cancellationToken = default) =>
-        ProcessInputAsync(SemanticFormatter.Format(parsedUtterance), cancellationToken);
+        ProcessInputAsync(session.SubmitSemanticAsync(Map(parsedUtterance), cancellationToken));
 
-    private async ValueTask ProcessInputAsync(
-        string input,
-        CancellationToken cancellationToken)
+    private static async ValueTask ProcessInputAsync(ValueTask<LatticeTurnResult> pendingResult)
     {
-        var result = await session.SubmitAsync(input, cancellationToken);
+        var result = await pendingResult;
 
         if (!result.IsSuccess)
         {
@@ -53,6 +52,57 @@ internal sealed class ReplUtteranceProcessor(ILatticeSession session)
             }
         }
     }
+
+    private static LatticeSemanticUtterance Map(SemanticUtterance utterance) =>
+        new(
+            utterance.Kind switch
+            {
+                UtteranceKind.Assertion => LatticeSemanticUtteranceKind.Assertion,
+                UtteranceKind.Question => LatticeSemanticUtteranceKind.Question,
+                _ => throw new ArgumentOutOfRangeException(nameof(utterance))
+            },
+            Map(utterance.Meaning),
+            utterance.SourceText,
+            utterance.ResolvedReferent?.Value);
+
+    private static LatticeSemanticFormula Map(SemanticFormula formula) =>
+        formula switch
+        {
+            PredicateApplication predicate => new LatticePredicateApplication(
+                predicate.Predicate.Value,
+                predicate.Arguments.Select(Map).ToImmutableArray()),
+            Negation negation => new LatticeNegation(Map(negation.Formula)),
+            Implication implication => new LatticeImplication(
+                Map(implication.Premise),
+                Map(implication.Conclusion)),
+            Conjunction conjunction => new LatticeConjunction(
+                conjunction.Conjuncts.Select(Map).ToImmutableArray()),
+            ExistentialQuantification existential => new LatticeExistentialQuantification(
+                existential.Variable.Identifier.Value,
+                Map(existential.Body)),
+            UniversalQuantification universal => new LatticeUniversalQuantification(
+                universal.Variable.Identifier.Value,
+                Map(universal.Body)),
+            _ => throw new ArgumentOutOfRangeException(nameof(formula))
+        };
+
+    private static LatticeSemanticTerm Map(SemanticTerm term) =>
+        term switch
+        {
+            IndividualTerm individual =>
+                new LatticeIndividualTerm(individual.Identifier.Value),
+            AnonymousIndividualTerm anonymous =>
+                new LatticeAnonymousIndividualTerm(anonymous.Identity.Value),
+            DescriptiveIndividualTerm description =>
+                new LatticeDescriptiveIndividualTerm(
+                    description.Head.Value,
+                    description.Modifiers.Select(modifier => modifier.Value).ToImmutableArray()),
+            VariableTerm variable =>
+                new LatticeVariableTerm(variable.Identifier.Value),
+            UnresolvedReferenceTerm reference =>
+                new LatticeUnresolvedReferenceTerm(reference.Reference.Value),
+            _ => throw new ArgumentOutOfRangeException(nameof(term))
+        };
 
     private static void WriteAnswer(LatticeUtteranceResult utterance)
     {

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Xunit;
 using Lattice.Client;
 using Lattice.Runtime;
@@ -99,17 +100,30 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
-    public async Task Accepts_canonical_semantic_text_through_the_client_contract()
+    public async Task Accepts_reviewed_semantics_without_reparsing_and_preserves_source_text()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var result = await session.SubmitAsync("dog(fido)");
+        var utterance = new LatticeSemanticUtterance(
+            LatticeSemanticUtteranceKind.Assertion,
+            new LatticePredicateApplication(
+                "dog",
+                ImmutableArray.Create<LatticeSemanticTerm>(
+                    new LatticeIndividualTerm("fido"))),
+            "Fido is a dog.");
+        var stored = await session.SubmitSemanticAsync(utterance);
+        var answer = await session.SubmitAsync("Is Fido a dog?");
 
-        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeTurnStatus.Completed, stored.Status);
         Assert.Equal(
             LatticeUtteranceResultKind.StatementStored,
-            result.Utterances[0].Kind);
+            stored.Utterances[0].Kind);
+        Assert.Equal(LatticeTruthValue.True, answer.Utterances[0].TruthValue);
+        Assert.Contains(
+            answer.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(
+                source => source.SourceText == "Fido is a dog."));
     }
 
     [Fact]

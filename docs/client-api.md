@@ -5,7 +5,7 @@ Lattice frontends communicate through the public contracts in `Lattice.Client`.
 ## Contract
 
 - `ILatticeClient` creates independent conversational sessions.
-- `ILatticeSession` exposes a stable session ID, accepts a text turn, loads a validated knowledge pack, provides a read-only session snapshot, and has an explicit asynchronous lifetime.
+- `ILatticeSession` exposes a stable session ID, accepts text turns and reviewed semantic utterances, loads a validated knowledge pack, provides a read-only session snapshot, and has an explicit asynchronous lifetime.
 - `LatticeTurnResult` distinguishes a completed turn from input rejected before processing.
 - Per-utterance results represent stored statements, rejected statements, answered questions, clarification requests, and unsupported question forms.
 - Answers expose the four-valued truth result and structured supporting/opposing evidence, including provenance and proof premises.
@@ -17,7 +17,7 @@ The contract uses transport-neutral .NET types and has no dependency on Core, a 
 
 `Lattice.Runtime` supplies `LatticeRuntimeClient`, the first implementation of `ILatticeClient`. Each created session owns its own parser, conversation context, knowledge base, reasoning engine, and loaded-pack list. Turns and pack loads are serialized per session so context and knowledge cannot be mutated concurrently.
 
-The runtime exposes the native text-parsing and reasoning path plus validated knowledge-pack loading. Tool discovery/invocation, model-assisted translation, and persistence are not yet part of this first contract slice; those remain host/frontend capabilities until their cross-frontend behavior is defined.
+The runtime exposes the native text-parsing path, direct submission of reviewed transport-neutral semantic utterances, and validated knowledge-pack loading. Tool discovery/invocation, model-assisted translation, and persistence are not yet part of this first contract slice; those remain host/frontend capabilities until their cross-frontend behavior is defined.
 
 ## REPL integration
 

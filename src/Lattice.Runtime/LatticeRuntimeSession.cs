@@ -39,6 +39,28 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
     }
 
+    public ValueTask<LatticeTurnResult> SubmitSemanticAsync(
+        LatticeSemanticUtterance utterance,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(utterance);
+
+        lock (gate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (isDisposed)
+            {
+                return ValueTask.FromResult(
+                    LatticeTurnResult.Rejected("The session has been closed."));
+            }
+
+            var result = ProcessUtterance(Map(utterance));
+            return ValueTask.FromResult(
+                LatticeTurnResult.Completed(ImmutableArray.Create(result)));
+        }
+    }
+
     public ValueTask<LatticeKnowledgePackResult> LoadKnowledgePackAsync(
         string json,
         CancellationToken cancellationToken = default)
@@ -205,6 +227,61 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             ReferenceResolutionStatus.AmbiguousReferent =>
                 "More than one individual is known. Which one do you mean by 'it'? Please name them.",
             _ => "I couldn't resolve that reference. Please name the individual."
+        };
+
+    private static SemanticUtterance Map(LatticeSemanticUtterance utterance) =>
+        new(
+            utterance.Kind switch
+            {
+                LatticeSemanticUtteranceKind.Assertion => UtteranceKind.Assertion,
+                LatticeSemanticUtteranceKind.Question => UtteranceKind.Question,
+                _ => throw new ArgumentOutOfRangeException(nameof(utterance))
+            },
+            Map(utterance.Meaning),
+            utterance.SourceText)
+        {
+            ResolvedReferent = utterance.ResolvedReferent is null
+                ? null
+                : new SemanticIdentifier(utterance.ResolvedReferent)
+        };
+
+    private static SemanticFormula Map(LatticeSemanticFormula formula) =>
+        formula switch
+        {
+            LatticePredicateApplication predicate => new PredicateApplication(
+                new SemanticIdentifier(predicate.Predicate),
+                predicate.Arguments.Select(Map).ToImmutableArray()),
+            LatticeNegation negation => new Negation(Map(negation.Formula)),
+            LatticeImplication implication => new Implication(
+                Map(implication.Premise),
+                Map(implication.Conclusion)),
+            LatticeConjunction conjunction => new Conjunction(
+                conjunction.Conjuncts.Select(Map).ToImmutableArray()),
+            LatticeExistentialQuantification existential => new ExistentialQuantification(
+                new VariableTerm(new SemanticIdentifier(existential.Variable)),
+                Map(existential.Body)),
+            LatticeUniversalQuantification universal => new UniversalQuantification(
+                new VariableTerm(new SemanticIdentifier(universal.Variable)),
+                Map(universal.Body)),
+            _ => throw new ArgumentOutOfRangeException(nameof(formula))
+        };
+
+    private static SemanticTerm Map(LatticeSemanticTerm term) =>
+        term switch
+        {
+            LatticeIndividualTerm individual =>
+                new IndividualTerm(new SemanticIdentifier(individual.Identifier)),
+            LatticeAnonymousIndividualTerm anonymous =>
+                new AnonymousIndividualTerm(new SemanticIdentifier(anonymous.Identity)),
+            LatticeDescriptiveIndividualTerm description =>
+                new DescriptiveIndividualTerm(
+                    new SemanticIdentifier(description.Head),
+                    description.Modifiers.Select(modifier => new SemanticIdentifier(modifier)).ToImmutableArray()),
+            LatticeVariableTerm variable =>
+                new VariableTerm(new SemanticIdentifier(variable.Identifier)),
+            LatticeUnresolvedReferenceTerm reference =>
+                new UnresolvedReferenceTerm(new SemanticIdentifier(reference.Reference)),
+            _ => throw new ArgumentOutOfRangeException(nameof(term))
         };
 
     private static LatticeEvidence MapEvidence(ProofNode proof)

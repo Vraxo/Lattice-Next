@@ -11,6 +11,10 @@ public interface ILatticeSession : IAsyncDisposable
         string input,
         CancellationToken cancellationToken = default);
 
+    ValueTask<LatticeTurnResult> SubmitSemanticAsync(
+        LatticeSemanticUtterance utterance,
+        CancellationToken cancellationToken = default);
+
     ValueTask<LatticeKnowledgePackResult> LoadKnowledgePackAsync(
         string json,
         CancellationToken cancellationToken = default);
