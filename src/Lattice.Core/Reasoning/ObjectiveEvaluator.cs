@@ -315,7 +315,7 @@ public sealed class ObjectiveEvaluator
             if (stage.AvailabilityWindowAttribute is not null &&
                 values[stage.AvailabilityWindowAttribute] is not ObjectiveTimeWindowValue)
             {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, evidence);
+                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, resolvedEvidence);
             }
         }
 
