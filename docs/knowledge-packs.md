@@ -64,7 +64,7 @@ The format stores data; it does not execute instructions. Each typed value objec
 
 ## Current boundary
 
-Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, time-window containment, and preference tags. Duration and time-set values are stored and retain provenance, but they are not yet compared or composed by the evaluator.
+Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, time-window containment, preference tags, and temporal sequences. A temporal sequence composes ordered duration attributes with optional allowed start-time sets and availability windows. It checks whether at least one sequence fits within a requested earliest-start/latest-end window, and retains the attributes used as evidence. Missing attributes remain Unknown; conflicting values remain Conflicting. The current implementation uses same-day `TimeOnly` values and does not model overnight sequences.
 
 The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candidates.json`. It includes all four candidates, component and benchmark-calculated costs, access and activity durations, qualitative tags, opening windows, and the supplied bus timetables. Unspecified facilities and services are represented by missing attributes, not invented values. The benchmark's calculated total-cost fields are explicitly identified as calculations from the supplied return fare and entry cost; general arithmetic over attribute components is not implemented.
 

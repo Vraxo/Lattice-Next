@@ -111,6 +111,16 @@ The motivating benchmark is [the first-use day-out task](benchmarks/first-use-da
 
 A second, unrelated task now exercises the same objective and condition representation. The laptop prompt is recognized through the same generic objective path: its explicit budget is a typed money constraint and its `I care about ...` clause is a preference. No laptop-specific workflow is introduced. The longevity and gaming-performance clauses remain preserved source text, and the current implementation still cannot compare the three candidates or infer which is more reliable.
 
-The native baseline and its exact current rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
+## Candidate evaluation and temporal sequences
+
+Candidate attributes are typed, loaded through versioned knowledge packs, and retain source provenance. The evaluator compares individual conditions such as money limits, exclusions, equality, preferences, and time-window containment.
+
+A separate `CanFit` condition describes a generic ordered sequence of duration stages. Each stage references a duration attribute and may reference an allowed set of start times and/or an availability window. Stages without a start-time set begin immediately after the preceding stage; a stage with a start-time set may wait for one of those events. The evaluator checks whether at least one sequence fits between an earliest start and latest finish, without knowing what the stages represent.
+
+Every attribute used by the sequence is retained as evidence. Missing attributes yield Unknown, conflicting values yield Conflicting, and a known sequence with no valid timing yields Violated. The current representation uses same-day `TimeOnly` values and does not support overnight sequences.
+
+This capability is exercised with the synthetic day-out data. The user-facing language/session does not yet construct this sequence condition from ordinary conversation.
+
+The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
 
 This contract is intentionally smaller than a planner architecture. Implementation should add further structure only when an executable task demonstrates the need.

@@ -6,5 +6,6 @@ public enum ObjectiveConditionOperator
     Excludes,
     Desires,
     Equals,
-    Within
+    Within,
+    CanFit
 }
