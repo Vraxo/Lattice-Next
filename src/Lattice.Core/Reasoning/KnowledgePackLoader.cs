@@ -447,6 +447,35 @@ public sealed class KnowledgePackLoader
                 value = new ObjectiveTemporalPlanValue(stages.ToImmutable());
                 return true;
 
+            case "sum":
+                if (!HasExactProperties(element, "type", "attributes") ||
+                    !element.TryGetProperty("attributes", out var componentElements) ||
+                    componentElements.ValueKind != JsonValueKind.Array)
+                {
+                    return false;
+                }
+
+                var componentNames = componentElements.EnumerateArray().ToArray();
+
+                if (componentNames.Length is < 2 or > 64 ||
+                    componentNames.Any(item => item.ValueKind != JsonValueKind.String ||
+                        string.IsNullOrWhiteSpace(item.GetString())))
+                {
+                    return false;
+                }
+
+                var componentAttributes = componentNames
+                    .Select(item => item.GetString()!)
+                    .ToImmutableArray();
+
+                if (componentAttributes.Distinct(StringComparer.OrdinalIgnoreCase).Count() != componentAttributes.Length)
+                {
+                    return false;
+                }
+
+                value = new ObjectiveSumValue(componentAttributes);
+                return true;
+
             default:
                 return false;
         }

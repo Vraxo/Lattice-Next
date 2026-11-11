@@ -36,6 +36,12 @@ public sealed class DayOutBenchmarkDataTests
 
         var fernbank = GetCandidate(evaluation, "Fernbank Nature Reserve");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "spending-limit").Status);
+        Assert.Contains(
+            GetCondition(fernbank, "spending-limit").Evidence,
+            attribute => attribute.Name.Value == "return-transport-cost");
+        Assert.Contains(
+            GetCondition(fernbank, "spending-limit").Evidence,
+            attribute => attribute.Name.Value == "entry-cost");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "transport").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "itinerary").Status);
