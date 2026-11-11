@@ -6,7 +6,6 @@ internal static class CliHelp
 {
     public static void Write()
     {
-        
         AnsiConsole.MarkupLine("[bold]Commands[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
         AnsiConsole.MarkupLine("  [green]:permissions[/]  [dim]show remembered and session-only tool grants[/]");
