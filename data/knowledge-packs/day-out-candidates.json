@@ -531,6 +531,42 @@
         ]
       },
       "sourceText": "The outing consists of an outbound walk, the main activity, and a return walk."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "origin",
+      "value": {
+        "type": "text",
+        "value": "Central Station"
+      },
+      "sourceText": "The supplied access journey and timetable are from Central Station."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "origin",
+      "value": {
+        "type": "text",
+        "value": "Central Station"
+      },
+      "sourceText": "The supplied access journey and timetable are from Central Station."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "origin",
+      "value": {
+        "type": "text",
+        "value": "Central Station"
+      },
+      "sourceText": "The walking distance is measured from Central Station."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "origin",
+      "value": {
+        "type": "text",
+        "value": "Central Station"
+      },
+      "sourceText": "The supplied access journey and timetable are from Central Station."
     }
   ]
 }
