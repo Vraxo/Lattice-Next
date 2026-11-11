@@ -23,7 +23,7 @@ Supported value forms:
 | --- | --- | --- |
 | `money` | `amount`, `currencySymbol` | Non-negative decimal amount and explicit symbol |
 | `text` | `value` | One non-empty text value |
-| `textSet` | `values` | Non-empty array of text tags |
+| `textSet` | `values`, optional `excludedValues` | Explicit positive and negative text-tag evidence; at least one array must contain a value |
 | `timeWindow` | `start`, `end` | Start and end times in 24-hour `HH:mm` form |
 | `duration` | `minutes` | Non-negative duration in minutes |
 | `timeSet` | `times` | Non-empty array of 24-hour `HH:mm` times |
@@ -78,11 +78,11 @@ A derived value can refer to other attributes on the same subject. For example:
 
 Sums resolve lazily when an objective uses the derived attribute. Money components must use the same currency; duration components produce a duration. Nested sums are supported with a bounded depth. Missing components remain Unknown, conflicting component values remain Conflicting, and incompatible types, currencies, cycles, or arithmetic overflow remain Unknown.
 
-The format stores data; it does not execute instructions. Each typed value object must contain exactly the fields defined for its type. Unsupported types, extra fields, malformed values, and invalid source metadata reject the pack. Repeated identical attribute values merge provenance through the knowledge base; distinct values remain separate so later evaluation can report conflicts.
+For `textSet`, `values` records explicitly supported tags and `excludedValues` records explicitly unsupported tags. An absent tag in either array remains unknown; it is not inferred from omission. If the same tag appears in both arrays, evaluation reports conflicting evidence. The format stores data; it does not execute instructions. Each typed value object must contain exactly the fields defined for its type. Unsupported types, extra fields, malformed values, and invalid source metadata reject the pack. Repeated identical attribute values merge provenance through the knowledge base; distinct values remain separate so later evaluation can report conflicts.
 
 ## Current boundary
 
-Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, preference tags, and temporal feasibility. A candidate may supply a `temporalPlan` attribute: an ordered list of stages that reference duration attributes and optionally allowed start-time sets and availability windows. The user's `CanFit` time-window condition supplies the earliest start and latest finish; the evaluator combines that window with each candidate's plan and checks whether at least one complete sequence fits. The plan and all referenced attributes are retained as evidence. Missing attributes remain Unknown; conflicting values remain Conflicting. The current implementation uses same-day `TimeOnly` values and does not model overnight sequences.
+Typed attributes can be loaded through the same versioned pack path as LCE claims. The objective evaluator can compare money, text exclusions/equality, preference tags with explicit positive/negative evidence, and temporal feasibility. A candidate may supply a `temporalPlan` attribute: an ordered list of stages that reference duration attributes and optionally allowed start-time sets and availability windows. The user's `CanFit` time-window condition supplies the earliest start and latest finish; the evaluator combines that window with each candidate's plan and checks whether at least one complete sequence fits. The plan and all referenced attributes are retained as evidence. Missing attributes remain Unknown; conflicting values remain Conflicting. The current implementation uses same-day `TimeOnly` values and does not model overnight sequences.
 
 The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candidates.json`. It includes all four candidates, cost components and derived total-cost expressions, access and activity durations, qualitative tags, opening windows, and the supplied bus timetables. Unspecified facilities and services are represented by missing attributes, not invented values. The total-cost expressions sum the supplied return fare and entry cost; they are not hardcoded totals.
 

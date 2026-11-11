@@ -51,8 +51,8 @@ public sealed class ObjectiveEvaluatorTests
             preference =>
             {
                 Assert.Equal("quiet", preference.Preference);
-                Assert.Equal(ObjectiveConditionAssessmentStatus.Unknown, preference.Status);
-                Assert.Empty(preference.Evidence);
+                Assert.Equal(ObjectiveConditionAssessmentStatus.Violated, preference.Status);
+                Assert.Single(preference.Evidence);
             },
             preference =>
             {
@@ -382,7 +382,10 @@ public sealed class ObjectiveEvaluatorTests
         AddAttribute(knowledgeBase, "Riverside", "total-cost", new ObjectiveMoneyValue(0m, "$"));
         AddAttribute(knowledgeBase, "Riverside", "transport-mode", new ObjectiveTextValue("walking"));
         AddAttribute(knowledgeBase, "Riverside", "tags", new ObjectiveTextSetValue(
-            ImmutableArray.Create("busy", "outdoors")));
+            ImmutableArray.Create("busy", "outdoors"))
+        {
+            ExcludedValues = ImmutableArray.Create("quiet")
+        });
 
         AddAttribute(knowledgeBase, "Hilltop", "transport-mode", new ObjectiveTextValue("bus"));
         AddAttribute(knowledgeBase, "Hilltop", "tags", new ObjectiveTextSetValue(

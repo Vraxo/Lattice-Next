@@ -298,6 +298,9 @@
           "paved-paths",
           "picnic-tables",
           "toilets"
+        ],
+        "excludedValues": [
+          "quiet"
         ]
       },
       "sourceText": "Riverside Gardens is usually busy on Saturdays and outdoors, with paved riverside paths, picnic tables, and toilets."
