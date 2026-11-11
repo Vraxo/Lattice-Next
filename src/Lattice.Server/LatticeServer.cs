@@ -41,7 +41,7 @@ public static class LatticeServer
                     return;
                 }
             }
-            else if (context.Connection.RemoteIpAddress is { } remoteAddress &&
+            else if (context.Connection.RemoteIpAddress is not { } remoteAddress ||
                      !IPAddress.IsLoopback(remoteAddress))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;

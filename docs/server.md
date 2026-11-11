@@ -11,13 +11,13 @@ dotnet run --project src/Lattice.Server
 The host uses ASP.NET Core URL configuration. For example:
 
 ```sh
-dotnet run --project src/Lattice.Server --urls http://127.0.0.1:5080
+dotnet run --project src/Lattice.Server -- --urls http://127.0.0.1:5080
 ```
 
 By default, requests from loopback addresses are accepted and non-loopback requests are rejected. To permit remote clients, configure `LATTICE_SERVER_API_KEY` with a long random secret and bind the host to the desired interface:
 
 ```sh
-LATTICE_SERVER_API_KEY="<long-random-secret>" dotnet run --project src/Lattice.Server --urls https://0.0.0.0:5080
+LATTICE_SERVER_API_KEY="<long-random-secret>" dotnet run --project src/Lattice.Server -- --urls https://0.0.0.0:5080
 ```
 
 Configure a valid Kestrel HTTPS certificate before exposing the service. Do not send the bearer key over plain HTTP or expose the server directly to an untrusted network. Put it behind a TLS-terminating reverse proxy or configure Kestrel TLS, and apply network-level access controls as appropriate.
