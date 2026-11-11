@@ -106,30 +106,30 @@ public sealed class ObjectiveEvaluator
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
         }
 
-        var plans = new List<ObjectiveTemporalPlanValue>();
+        var distinctValues = new List<ObjectiveConditionValue>();
 
         foreach (var attribute in planEvidence)
         {
-            if (attribute.Value is not ObjectiveTemporalPlanValue plan)
+            if (!distinctValues.Any(value => AreSameValue(value, attribute.Value)))
             {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
-            }
-
-            if (!plans.Any(existing => existing.Stages.SequenceEqual(plan.Stages)))
-            {
-                plans.Add(plan);
+                distinctValues.Add(attribute.Value);
             }
         }
 
-        if (plans.Count > 1)
+        if (distinctValues.Count > 1)
         {
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Conflicting, planEvidence);
+        }
+
+        if (distinctValues[0] is not ObjectiveTemporalPlanValue plan)
+        {
+            return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, planEvidence);
         }
 
         var sequence = new ObjectiveTemporalSequenceValue(
             window.Start,
             window.End,
-            plans[0].Stages);
+            plan.Stages);
         var assessment = EvaluateTemporalSequence(
             condition with { Value = sequence },
             candidate,
