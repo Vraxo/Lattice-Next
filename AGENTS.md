@@ -8,7 +8,7 @@ This is the product direction, not merely an aspiration. Future work should make
 
 When choosing work, start from a meaningful end-to-end task. Identify the general capability that is missing, implement that capability without encoding the target task as a special case, and prove the task works by composing it with existing capabilities. Keep the language and reasoning tracks co-evolving: language must faithfully express useful meaning, and reasoning improvements must be usable through ordinary interaction.
 
-See [docs/vision.md](docs/vision.md) for the fuller development philosophy and a candidate proving ground.
+See [docs/vision.md](docs/vision.md) for the fuller development philosophy and [the first-use benchmark](docs/benchmarks/first-use-day-out.md) for its concrete scenario and evaluation criteria.
 
 The current candidate first-use task is a constrained day-out plan: given a person's budget, transport limitations, preferences, and a small set of available options, help produce and explain a sensible plan. Treat this as a proving ground, not a product-specific feature request. Use it to expose reusable needs such as goal/constraint representation, missing-information questions, option evaluation, trade-offs, and explanations. Do not add a trip-planning command or domain-specific reasoning branch.
 

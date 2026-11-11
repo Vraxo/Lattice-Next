@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: validate a bounded first-use proving ground (currently, planning a low-cost day out under preferences and transport constraints) and identify its reusable capability gaps before selecting another implementation increment. Do not automatically continue grammar expansion or pick a deferred technical TODO without connecting it to a meaningful end-to-end task. Hosted/local translator evaluation remains deferred.
+> Current priority: define and run the first-use day-out benchmark in [docs/benchmarks/first-use-day-out.md](../docs/benchmarks/first-use-day-out.md) against the current native baseline, including its clarification and multi-turn revision cases. Record actual behavior and gaps before selecting an implementation increment. Do not add travel-specific logic or automatically continue grammar expansion. The laptop comparison is a later transfer check, not a parallel implementation target. Hosted/local translator evaluation remains deferred.
 
 
 ## Bootstrap

@@ -66,7 +66,7 @@ The initial scenario does not need live maps, booking systems, or a real destina
 
 **The target is not a trip planner.** The target is a system that can work with goals, constraints, alternatives, and evidence in a domain-neutral way. The same mechanisms should transfer to choosing equipment, organizing an event, comparing project approaches, or making other everyday plans. The travel scenario is simply an approachable first demonstration.
 
-This is a candidate proving ground, not a fixed commitment. Validate its scope and the smallest useful end-to-end behavior before selecting implementation work.
+This is a candidate proving ground, not a fixed commitment. Its bounded scenario, expected behavior, transfer check, and baseline protocol are specified in [the first-use benchmark](benchmarks/first-use-day-out.md). Validate its scope and the smallest useful end-to-end behavior before selecting implementation work.
 
 ## A candidate proving ground: investigate a service outage
 
