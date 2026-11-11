@@ -19,7 +19,8 @@ public sealed class SemanticTranslationServiceTests
                 ImmutableArray.Create(
                     new SemanticTranslationCandidate(
                         UtteranceKind.Question,
-                        Predicate("dog", new IndividualTerm(Id("fido"))))))
+                        Predicate("dog", new IndividualTerm(Id("fido"))),
+                        "Is Fido a dog?")))
             {
                 Outcome = SemanticTranslationOutcome.Translated
             });
@@ -30,6 +31,7 @@ public sealed class SemanticTranslationServiceTests
         Assert.Equal(SemanticTranslationStatus.ReadyForReview, result.Status);
         var candidate = Assert.Single(result.Candidates);
         Assert.Equal(sourceText, candidate.SourceText);
+        Assert.Equal("Is Fido a dog?", candidate.AcceptedLceText);
         Assert.Equal("ask(dog(fido))", SemanticFormatter.Format(candidate));
         Assert.Equal(sourceText, translator.ReceivedSourceText);
     }
