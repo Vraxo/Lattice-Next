@@ -198,6 +198,7 @@ public sealed class KnowledgeBase
                 !plan.Stages.IsDefaultOrEmpty &&
                 plan.Stages.Length <= 64 &&
                 plan.Stages.All(stage =>
+                    stage is not null &&
                     !string.IsNullOrWhiteSpace(stage.DurationAttribute) &&
                     (stage.StartTimesAttribute is null || !string.IsNullOrWhiteSpace(stage.StartTimesAttribute)) &&
                     (stage.AvailabilityWindowAttribute is null || !string.IsNullOrWhiteSpace(stage.AvailabilityWindowAttribute))),
