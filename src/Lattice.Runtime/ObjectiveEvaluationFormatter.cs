@@ -21,19 +21,13 @@ internal static class ObjectiveEvaluationFormatter
 
         foreach (var candidate in evaluation.Candidates)
         {
-            var hardConditions = candidate.Conditions
-                .Where(condition =>
-                    condition.Role == ObjectiveConditionRole.HardConstraint &&
-                    condition.Status != ObjectiveConditionAssessmentStatus.NotApplicable)
-                .ToArray();
-
-            var disposition = hardConditions.Length == 0
-                ? "has no comparable hard constraints"
-                : candidate.HasHardConstraintViolation
-                    ? "fails at least one hard constraint"
-                    : candidate.HasUnresolvedHardConstraint
-                        ? "has unresolved hard constraints"
-                        : "meets all assessed hard constraints";
+            var disposition = candidate.Feasibility switch
+            {
+                CandidateFeasibility.Eligible => "is eligible under the assessed hard constraints",
+                CandidateFeasibility.Excluded => "is excluded by a hard constraint",
+                CandidateFeasibility.Unresolved => "has unresolved hard constraints",
+                _ => "has no applicable hard constraints"
+            };
 
             var preferenceSummary = DescribePreferences(candidate.Conditions);
             output.Append("- ").Append(candidate.Candidate.Value).Append(": ").Append(disposition);

@@ -15,4 +15,28 @@ public sealed record CandidateAssessment(
         condition.Role == ObjectiveConditionRole.HardConstraint &&
         condition.Status is ObjectiveConditionAssessmentStatus.Unknown or
             ObjectiveConditionAssessmentStatus.Conflicting);
+
+    public CandidateFeasibility Feasibility
+    {
+        get
+        {
+            var hasApplicableHardConstraint = Conditions.Any(condition =>
+                condition.Role == ObjectiveConditionRole.HardConstraint &&
+                condition.Status != ObjectiveConditionAssessmentStatus.NotApplicable);
+
+            if (!hasApplicableHardConstraint)
+            {
+                return CandidateFeasibility.NotEvaluated;
+            }
+
+            if (HasHardConstraintViolation)
+            {
+                return CandidateFeasibility.Excluded;
+            }
+
+            return HasUnresolvedHardConstraint
+                ? CandidateFeasibility.Unresolved
+                : CandidateFeasibility.Eligible;
+        }
+    }
 }

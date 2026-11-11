@@ -35,6 +35,7 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(4, evaluation.Candidates.Length);
 
         var fernbank = GetCandidate(evaluation, "Fernbank Nature Reserve");
+        Assert.Equal(CandidateFeasibility.Eligible, fernbank.Feasibility);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "spending-limit").Status);
         Assert.Contains(
             GetCondition(fernbank, "spending-limit").Evidence,
@@ -53,6 +54,7 @@ public sealed class DayOutBenchmarkDataTests
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(14, 0), new TimeOnly(14, 25), 25), stage));
 
         var quarry = GetCandidate(evaluation, "Quarry Lake Trail");
+        Assert.Equal(CandidateFeasibility.Eligible, quarry.Feasibility);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "itinerary").Status);
@@ -63,6 +65,7 @@ public sealed class DayOutBenchmarkDataTests
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(15, 45), new TimeOnly(16, 30), 45), stage));
 
         var riverside = GetCandidate(evaluation, "Riverside Gardens");
+        Assert.Equal(CandidateFeasibility.Eligible, riverside.Feasibility);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "transport").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.PartiallySatisfied, GetCondition(riverside, "preference").Status);
@@ -88,6 +91,7 @@ public sealed class DayOutBenchmarkDataTests
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(10, 45), new TimeOnly(11, 0), 15), stage));
 
         var hilltop = GetCandidate(evaluation, "Hilltop Farm Grounds");
+        Assert.Equal(CandidateFeasibility.Eligible, hilltop.Feasibility);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "itinerary").Status);
@@ -125,6 +129,8 @@ public sealed class DayOutBenchmarkDataTests
             GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Violated,
             GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").Status);
+        Assert.Equal(CandidateFeasibility.Excluded,
+            GetCandidate(result, "Quarry Lake Trail").Feasibility);
         Assert.Empty(GetCondition(GetCandidate(result, "Quarry Lake Trail"), "itinerary").TemporalWitness);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied,
             GetCondition(GetCandidate(result, "Hilltop Farm Grounds"), "itinerary").Status);

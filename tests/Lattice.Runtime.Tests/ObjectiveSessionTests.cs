@@ -31,7 +31,7 @@ public sealed class ObjectiveSessionTests
         var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
         Assert.True(loaded.IsSuccess, loaded.Error);
 
-        await session.SubmitAsync(
+        var result = await session.SubmitAsync(
             "I have a limited budget and no car. I would prefer somewhere quiet and outdoors. Help me choose a place. My budget is $25.",
             TestContext.Current.CancellationToken);
 
@@ -42,6 +42,7 @@ public sealed class ObjectiveSessionTests
         var quiet = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Quiet Park");
         Assert.False(quiet.HasHardConstraintViolation);
         Assert.False(quiet.HasUnresolvedHardConstraint);
+        Assert.Equal("Eligible", quiet.Feasibility);
         Assert.All(quiet.Conditions, condition => Assert.Equal("Satisfied", condition.Status));
         Assert.Contains(
             quiet.Conditions.SelectMany(condition => condition.Evidence),
@@ -49,8 +50,12 @@ public sealed class ObjectiveSessionTests
 
         var busy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Busy Park");
         Assert.True(busy.HasHardConstraintViolation);
+        Assert.Equal("Excluded", busy.Feasibility);
         Assert.False(busy.HasUnresolvedHardConstraint);
         Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "PartiallySatisfied");
+        var message = result.Utterances.Single().Message;
+        Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
+        Assert.Contains("Busy Park: is excluded by a hard constraint", message);
     }
 
     [Theory]
@@ -514,14 +519,16 @@ public sealed class ObjectiveSessionTests
         busPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Bus Park");
         walkPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Walk Park");
         Assert.True(busPark.HasHardConstraintViolation);
+        Assert.Equal("Excluded", busPark.Feasibility);
         Assert.False(walkPark.HasHardConstraintViolation);
+        Assert.Equal("Eligible", walkPark.Feasibility);
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
         Assert.Contains(
-            "Bus Park: fails at least one hard constraint",
+            "Bus Park: is excluded by a hard constraint",
             walkingOnly.Utterances[^1].Message);
         Assert.Contains(
-            "Walk Park: meets all assessed hard constraints",
+            "Walk Park: is eligible under the assessed hard constraints",
             walkingOnly.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("Stage 1: 09:00–09:25", walkingOnly.Utterances[^1].Message);
