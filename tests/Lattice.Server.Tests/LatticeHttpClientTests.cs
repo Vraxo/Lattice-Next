@@ -101,6 +101,8 @@ public sealed class LatticeHttpClientTests
 
         await session.DisposeAsync();
 
+        http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "test-secret");
         using var response = await http.GetAsync($"/api/sessions/{sessionId}/status");
         Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
     }
