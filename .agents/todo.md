@@ -2,15 +2,20 @@
 
 This is the active queue for the clean-slate Lattice repository. Keep it short, ordered, and tied to runnable outcomes.
 
-## Development goal: language–intelligence co-evolution
+## Development goal: compounding capability through meaningful tasks
 
-- Treat language and intelligence as coupled development tracks. Advance them together instead of completing one track before returning to the other.
-- Every supported English construction must map faithfully to semantics that Core can represent and reason over; never weaken or approximate its meaning to fit the current engine.
-- Every meaningful reasoning capability should have a clear, usable expression in the supported native language, so it can be exercised through ordinary interaction.
-- Prefer alternating small language and reasoning increments when each side has a useful next step. This is a direction, not a rigid schedule: concrete correctness defects take priority, and neither side should gain capabilities solely to satisfy alternation.
-- Validate both sides of each boundary with exact semantic tests, rejection tests, and end-to-end reasoning tests or benchmark cases where applicable.
+> Lattice should start out doing a few simple things reliably, but its capabilities should compound. Eventually, we should be able to give it a task it wasn't specifically programmed to perform, and have it solve it by combining things it already knows how to do.
 
-> Current priority: develop native English and deterministic Core reasoning as coordinated, co-evolving tracks. Hosted/local translator evaluation is deferred for now.
+- Start from meaningful end-to-end tasks, not from a desire to increase the number of grammar constructions, commands, or feature checkboxes.
+- For each task, identify the general capability that is missing. Build that reusable capability rather than a task-specific handler, intent, or hardcoded workflow.
+- Prefer increments that make a genuinely useful task possible and also strengthen mechanisms that can be recombined in other domains.
+- Treat example tasks as executable product benchmarks: demonstrate what Lattice can do by composing existing capabilities, not by adding bespoke code for each example.
+- Keep language and intelligence co-evolving. Every supported construction must map faithfully to semantics Core can represent and reason over; meaningful reasoning capabilities must be expressible through ordinary interaction.
+- Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
+- Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
+
+> Current priority: choose a bounded but interesting proving-ground task and identify its reusable capability gaps before selecting another implementation increment. Do not automatically continue grammar expansion or pick a deferred technical TODO without connecting it to such a task. Hosted/local translator evaluation remains deferred.
+
 
 ## Bootstrap
 

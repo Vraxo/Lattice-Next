@@ -1,5 +1,15 @@
 # Repository guidance
 
+## North star: compounding capability
+
+> Lattice should start out doing a few simple things reliably, but its capabilities should compound. Eventually, we should be able to give it a task it wasn't specifically programmed to perform, and have it solve it by combining things it already knows how to do.
+
+This is the product direction, not merely an aspiration. Future work should make Lattice more capable at solving tasks through reusable language, semantic, knowledge, reasoning, context, planning, and tool-use mechanisms. Do not optimize for the number of supported sentence patterns, commands, or individually implemented workflows.
+
+When choosing work, start from a meaningful end-to-end task. Identify the general capability that is missing, implement that capability without encoding the target task as a special case, and prove the task works by composing it with existing capabilities. Keep the language and reasoning tracks co-evolving: language must faithfully express useful meaning, and reasoning improvements must be usable through ordinary interaction.
+
+See [docs/vision.md](docs/vision.md) for the fuller development philosophy and a candidate proving ground.
+
 ## Product direction
 
 Lattice is a tool-independent symbolic conversational intelligence. It is not an IDE command palette, a collection of coding workflows, or an LLM wrapper.

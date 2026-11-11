@@ -4,6 +4,14 @@ Lattice is an experiment in building a **tool-independent symbolic conversationa
 
 Its central purpose is to understand meaning, maintain context, reason over knowledge, form goals, and decide what to do. Programming is intended to be an early area of application—not Lattice's identity.
 
+## North star
+
+> Lattice should start out doing a few simple things reliably, but its capabilities should compound. Eventually, we should be able to give it a task it wasn't specifically programmed to perform, and have it solve it by combining things it already knows how to do.
+
+The goal is not to accumulate sentence patterns or hardcode a growing list of tasks. Lattice should gain reusable capabilities that compose: a new task should become possible because the system can combine language, knowledge, reasoning, context, planning, and optional tools in ways that were not individually scripted for that task.
+
+Development therefore starts from meaningful tasks, then builds the general mechanisms those tasks reveal to be missing. See [the product vision](docs/vision.md).
+
 ## Architectural premise
 
 Lattice keeps three concerns independent:
