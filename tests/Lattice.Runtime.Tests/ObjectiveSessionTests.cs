@@ -295,7 +295,7 @@ public sealed class ObjectiveSessionTests
         Assert.True(busPark.HasHardConstraintViolation);
         Assert.False(walkPark.HasHardConstraintViolation);
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
-        Assert.Contains(afterWalkingOnly.ActiveObjectiveSource, "Walking only.");
+        Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
     [Fact]
