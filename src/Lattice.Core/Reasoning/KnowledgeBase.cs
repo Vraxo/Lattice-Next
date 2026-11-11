@@ -199,6 +199,8 @@ public sealed class KnowledgeBase
         {
             (ObjectiveTextSetValue leftSet, ObjectiveTextSetValue rightSet) =>
                 leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
+            (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
+                leftSet.Times.SequenceEqual(rightSet.Times),
             _ => Equals(left, right)
         };
 

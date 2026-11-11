@@ -4,4 +4,7 @@ public sealed record KnowledgePack(
     int FormatVersion,
     string Id,
     string Name,
-    int ClaimCount);
+    int ClaimCount)
+{
+    public int AttributeCount { get; init; }
+}
