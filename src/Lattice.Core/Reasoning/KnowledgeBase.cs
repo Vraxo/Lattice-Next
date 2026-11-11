@@ -189,6 +189,11 @@ public sealed class KnowledgeBase
                 set.Values.All(item => !string.IsNullOrWhiteSpace(item)),
             ObjectiveTimeWindowValue time =>
                 time.Start < time.End,
+            ObjectiveDurationValue duration =>
+                duration.Minutes >= 0,
+            ObjectiveTimeSetValue times =>
+                !times.Times.IsDefaultOrEmpty &&
+                times.Times.Distinct().Count() == times.Times.Length,
             _ => false
         };
 

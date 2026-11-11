@@ -166,7 +166,7 @@ public sealed class KnowledgePackLoaderTests
             new KnowledgeBase(),
             out _,
             out var fieldError));
-        Assert.Contains("exactly", fieldError);
+        Assert.Contains("optional attributes", fieldError);
     }
 
     [Fact]
