@@ -14,6 +14,7 @@ public static class SemanticFormatter
             UtteranceKind.Question => $"ask({meaning})",
             UtteranceKind.Objective => meaning,
             UtteranceKind.ObjectiveInformation => meaning,
+            UtteranceKind.ObjectiveConditionUpdate => meaning,
             _ => throw new ArgumentOutOfRangeException(nameof(utterance), utterance.Kind, "Unsupported utterance kind.")
         };
     }
@@ -23,6 +24,7 @@ public static class SemanticFormatter
         {
             ObjectiveFormula objective => FormatObjective(objective),
             ObjectiveInformationFormula information => FormatObjectiveInformation(information),
+            ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
@@ -31,6 +33,23 @@ public static class SemanticFormatter
             UniversalQuantification universal => $"forall({Format(universal.Variable)}, {Format(universal.Body)})",
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
         };
+
+    private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update) =>
+        string.Join(", ", update.Conditions.Select(FormatObjectiveCondition));
+
+    private static string FormatObjectiveCondition(ObjectiveCondition condition)
+    {
+        var value = condition.Value switch
+        {
+            ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+            ObjectiveTextValue text => text.Value,
+            ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
+            null => "unknown",
+            _ => "unsupported"
+        };
+
+        return $"{condition.Role.ToString().ToLowerInvariant()}({condition.Name}, {condition.Operator.ToString().ToLowerInvariant()}, {value})";
+    }
 
     private static string FormatObjectiveInformation(ObjectiveInformationFormula information) =>
         information.Value switch
@@ -53,6 +72,7 @@ public static class SemanticFormatter
             {
                 ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
                 ObjectiveTextValue text => text.Value,
+                ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
                 null => "unknown",
                 _ => "unsupported"
             };

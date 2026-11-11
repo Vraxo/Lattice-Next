@@ -133,6 +133,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return ProcessObjectiveInformation(parsedUtterance, information);
         }
 
+        if (parsedUtterance.Kind == UtteranceKind.ObjectiveConditionUpdate &&
+            parsedUtterance.Meaning is ObjectiveConditionUpdateFormula conditionUpdate)
+        {
+            return ProcessObjectiveConditionUpdates(parsedUtterance, conditionUpdate);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.Objective &&
             parsedUtterance.Meaning is ObjectiveFormula objective)
         {
@@ -293,6 +299,65 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 activeObjectiveSource)));
     }
 
+    private LatticeUtteranceResult ProcessObjectiveConditionUpdates(
+        SemanticUtterance parsedUtterance,
+        ObjectiveConditionUpdateFormula update)
+    {
+        var objective = activeObjective;
+
+        if (objective is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no active objective to update.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var conditions = objective.Conditions.ToBuilder();
+
+        foreach (var condition in update.Conditions)
+        {
+            var existingIndex = -1;
+
+            for (var index = 0; index < conditions.Count; index++)
+            {
+                if (conditions[index].Name == condition.Name)
+                {
+                    existingIndex = index;
+                    break;
+                }
+            }
+
+            if (existingIndex >= 0)
+            {
+                conditions[existingIndex] = condition;
+            }
+            else
+            {
+                conditions.Add(condition);
+            }
+        }
+
+        objective = objective with
+        {
+            Conditions = conditions.ToImmutable()
+        };
+        activeObjective = objective;
+        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
+        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+
+        var names = string.Join(", ", update.Conditions.Select(condition => condition.Name));
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            $"Updated objective conditions: {names}.",
+            SemanticFormatter.Format(new SemanticUtterance(
+                UtteranceKind.Objective,
+                objective,
+                activeObjectiveSource)));
+    }
+
     private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
         objective.Conditions.FirstOrDefault(condition =>
             condition.Role == ObjectiveConditionRole.HardConstraint &&
@@ -306,6 +371,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             ObjectiveConditionValueKind.Money => value is ObjectiveMoneyValue,
             ObjectiveConditionValueKind.Text => value is ObjectiveTextValue,
+            ObjectiveConditionValueKind.TimeWindow => value is ObjectiveTimeWindowValue,
             _ => false
         };
 

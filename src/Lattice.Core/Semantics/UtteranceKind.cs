@@ -5,5 +5,6 @@ public enum UtteranceKind
     Assertion,
     Question,
     Objective,
-    ObjectiveInformation
+    ObjectiveInformation,
+    ObjectiveConditionUpdate
 }

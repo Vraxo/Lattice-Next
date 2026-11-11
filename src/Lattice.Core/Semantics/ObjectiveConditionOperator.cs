@@ -4,5 +4,7 @@ public enum ObjectiveConditionOperator
 {
     AtMost,
     Excludes,
-    Desires
+    Desires,
+    Equals,
+    Within
 }

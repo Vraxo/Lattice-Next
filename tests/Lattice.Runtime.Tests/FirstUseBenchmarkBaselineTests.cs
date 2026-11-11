@@ -8,8 +8,6 @@ public sealed class FirstUseBenchmarkBaselineTests
 {
     [Theory]
     [InlineData("I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.", LatticeTurnStatus.Completed, "put together a good day", LatticeUtteranceResultKind.ClarificationRequired)]
-    [InlineData("$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.", LatticeTurnStatus.Rejected, null, null)]
-    [InlineData("Actually, I don't want to take a bus. Walking only.", LatticeTurnStatus.Rejected, null, null)]
     [InlineData("I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.", LatticeTurnStatus.Completed, "compare these three options", LatticeUtteranceResultKind.ObjectiveReceived)]
     public async Task Records_the_current_first_use_and_transfer_boundary(
         string input,

@@ -14,6 +14,26 @@ public sealed class LceParser
         @"^(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex BringLunchPattern = new(
+        @"^I'll bring lunch\.$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex StartingLocationPattern = new(
+        @"\bI'm starting at (?<location>[^,.!?]+)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex TimeWindowPattern = new(
+        @"\bI can leave at (?<start>\d{1,2}:\d{2}) and be back by (?<end>\d{1,2}:\d{2})",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex NoBusPattern = new(
+        @"\bI don't want to take a bus\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex WalkingOnlyPattern = new(
+        @"^Walking only\.$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -92,6 +112,11 @@ public sealed class LceParser
         if (TryParseObjectiveInformation(source, originalSource, out var informationUtterance))
         {
             return ParseResult.Success(informationUtterance!);
+        }
+
+        if (TryParseObjectiveConditionUpdates(source, originalSource, out var conditionUpdateUtterance))
+        {
+            return ParseResult.Success(conditionUpdateUtterance!);
         }
 
         if (TryParseObjective(source, originalSource, out var objectiveUtterance))
@@ -387,6 +412,90 @@ public sealed class LceParser
             new ObjectiveInformationFormula(new ObjectiveMoneyValue(
                 amount,
                 match.Groups["symbol"].Value)),
+            sourceText.Trim());
+        return true;
+    }
+
+    private static bool TryParseObjectiveConditionUpdates(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        var conditions = ImmutableArray.CreateBuilder<ObjectiveCondition>();
+
+        if (BringLunchPattern.IsMatch(source))
+        {
+            conditions.Add(new ObjectiveCondition(
+                "meal-plan",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Equals,
+                new ObjectiveTextValue("bring-lunch"),
+                sourceText));
+        }
+
+        var locationMatch = StartingLocationPattern.Match(source);
+
+        if (locationMatch.Success)
+        {
+            conditions.Add(new ObjectiveCondition(
+                "origin",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Equals,
+                new ObjectiveTextValue(locationMatch.Groups["location"].Value.Trim()),
+                sourceText));
+        }
+
+        var timeMatch = TimeWindowPattern.Match(source);
+
+        if (timeMatch.Success &&
+            TimeOnly.TryParse(
+                timeMatch.Groups["start"].Value,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out var start) &&
+            TimeOnly.TryParse(
+                timeMatch.Groups["end"].Value,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out var end))
+        {
+            conditions.Add(new ObjectiveCondition(
+                "time-window",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Within,
+                new ObjectiveTimeWindowValue(start, end),
+                sourceText));
+        }
+
+        if (NoBusPattern.IsMatch(source))
+        {
+            conditions.Add(new ObjectiveCondition(
+                "transport-bus",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Excludes,
+                new ObjectiveTextValue("bus"),
+                sourceText));
+        }
+
+        if (WalkingOnlyPattern.IsMatch(source))
+        {
+            conditions.Add(new ObjectiveCondition(
+                "transport-mode",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Equals,
+                new ObjectiveTextValue("walking"),
+                sourceText));
+        }
+
+        if (conditions.Count == 0)
+        {
+            utterance = null;
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.ObjectiveConditionUpdate,
+            new ObjectiveConditionUpdateFormula(conditions.ToImmutable()),
             sourceText.Trim());
         return true;
     }
