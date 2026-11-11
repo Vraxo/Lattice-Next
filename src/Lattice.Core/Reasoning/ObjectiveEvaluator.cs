@@ -309,7 +309,7 @@ public sealed class ObjectiveEvaluator
             if (stage.StartTimesAttribute is not null &&
                 values[stage.StartTimesAttribute] is not ObjectiveTimeSetValue)
             {
-                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, evidence);
+                return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, resolvedEvidence);
             }
 
             if (stage.AvailabilityWindowAttribute is not null &&
