@@ -433,7 +433,7 @@ public sealed class LceParser
                 sourceText)
             {
                 TargetAttribute = "meal-plan"
-            }));
+            });
         }
 
         var locationMatch = StartingLocationPattern.Match(source);
@@ -448,7 +448,7 @@ public sealed class LceParser
                 sourceText)
             {
                 TargetAttribute = "origin"
-            }));
+            });
         }
 
         var timeMatch = TimeWindowPattern.Match(source);
@@ -473,7 +473,7 @@ public sealed class LceParser
                 sourceText)
             {
                 TargetAttribute = "opening-window"
-            }));
+            });
         }
 
         if (NoBusPattern.IsMatch(source))
@@ -486,7 +486,7 @@ public sealed class LceParser
                 sourceText)
             {
                 TargetAttribute = "transport-mode"
-            }));
+            });
         }
 
         if (WalkingOnlyPattern.IsMatch(source))
@@ -499,7 +499,7 @@ public sealed class LceParser
                 sourceText)
             {
                 TargetAttribute = "transport-mode"
-            }));
+            });
         }
 
         if (conditions.Count == 0)
