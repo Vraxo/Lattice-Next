@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: populate the complete day-out candidate table as a declarative knowledge pack with provenance. Version 1 packs now accept typed attributes alongside LCE claims, including money, text, tag sets, time windows, durations, and departure-time sets. The evaluator currently compares money, text, time windows, and preference tags; extend it only where the complete benchmark demonstrates a missing general comparison. Preserve unknowns and provenance; do not add ranking/planning yet. See [the knowledge-pack format](../docs/knowledge-packs.md), [the objective contract](../docs/objectives.md), and [the benchmark checkpoint](../docs/benchmarks/first-use-day-out-baseline.md).
+> Current priority: make the stored day-out timetable and duration data useful through a general, evidence-preserving feasibility comparison. The complete four-candidate dataset is now a declarative pack at [day-out-candidates.json](../data/knowledge-packs/day-out-candidates.json). The evaluator already compares budget, transport exclusion, preferences, and opening-window containment. It does not yet compose departure sets with journey/activity durations or derive aggregate costs from component attributes. Identify the smallest reusable mechanism exposed by the benchmark; do not add a trip planner, ranking, or opaque score.
 
 
 ## Bootstrap
@@ -85,7 +85,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Prompt for declared tool permissions on first use; support remembered per-tool approvals, session-only grants, revocation, and environment-variable pre-grants for non-interactive runs.
 - [x] Define a versioned, language-neutral JSON-lines protocol for external tool processes.
 - [x] Discover external tools from per-tool manifests and invoke them through a stdio provider outside Core.
-- [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute tools.
+- [x] Keep process launch, transport, and manifest parsing out of Core; discovery does not execute them.
 - [x] Retain the latest sourced tool observation in conversation context for numeric follow-ups without promoting it to knowledge.
 - [x] Demonstrate provider-independent invocation through a registry and explicit REPL composition; cognition has no provider-specific branches.
 - [x] Move bundled calculator and unit-conversion implementations into independently discovered external Python tools; keep their binaries and runtimes out of Core.
@@ -121,7 +121,6 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Resolve the translation contract for parser failures and multi-utterance turns: distinguish unsupported input from invalid LCE output, and keep each request single-utterance.
 - [x] Evaluate web retrieval as a source of temporary, attributable observations.
   - [x] Add an optional, manifest-discovered DDGS search capability that queries public search providers without requiring an account, API key, or user-hosted service, and returns retrieval timestamps and per-result source URLs, titles, domains, and snippets.
-  - [x] Keep results in the existing temporary observation path; do not add them to the knowledge base or reasoning premises.
   - [ ] Add bounded page fetching as a separate capability only after URL-safety and content-extraction requirements are defined.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.

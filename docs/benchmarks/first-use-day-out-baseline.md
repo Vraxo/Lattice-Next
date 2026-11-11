@@ -17,42 +17,30 @@ At that revision, all four benchmark prompts were rejected before any utterance 
 
 The native interface recognizes the day-out and laptop objectives. It extracts a small set of typed conditions, distinguishing hard constraints from preferences. A limited budget without an amount is represented as an unresolved spending limit; an explicit amount is represented as a typed money value.
 
-For the day-out request, the runtime now:
-- retains the objective and original request;
-- identifies the unresolved spending-limit condition;
-- returns `ClarificationRequired` with the condition's missing-value prompt;
-- retains the pending request in session state;
-- accepts a standalone typed amount such as `$25 total.` on the next turn;
-- attaches the value and answer source to the original condition, clears the pending request, and leaves the general knowledge base unchanged.
-
-An unrelated assertion can be processed while the request remains pending. A currency amount supplied without an outstanding information request is not stored as a fact.
-
-This is a generic session mechanism driven by the condition's expected value kind and prompt metadata. The follow-up now accepts the full benchmark turn: the spending limit is bound to the pending money request, while lunch, origin, and the departure/return window become additional typed objective conditions. The subsequent walking-only revision adds a bus exclusion and a walking transport mode while preserving the original no-car condition and all previously supplied constraints. Each answer remains in objective/session state rather than the general knowledge base. This is still bounded parsing and condition retention—not candidate evaluation or planning.
-
-## What this establishes—and what it does not
-
-1. **The first natural-language boundary has moved.** Lattice can now identify a requested outcome in two unrelated prompts and retain the full source context.
-2. **Condition understanding is partial.** Budget, transport exclusion, and one preference clause are represented; most surrounding details and all laptop requirements remain preserved source text rather than typed conditions.
-3. **Clarification and revision now cover the benchmark conversation.** A missing money value can be requested and supplied, other supplied details are retained as typed conditions, and transport restrictions can be revised without losing unrelated conditions. This does not yet establish a general multi-slot clarification queue or unrestricted natural-language revision.
-4. **Candidate evaluation and planning remain untested.** No feasibility comparison, recommendation, trade-off analysis, or plan has been performed. These downstream capabilities must not be implied by objective recognition.
-5. **The laptop prompt now verifies cross-domain condition capture.** The same generic path retains its explicit $1,000 spending limit and its screen-quality/reliability/repairability preference. No laptop-specific workflow is used. Longevity and the lack of gaming need remain in preserved source text; no candidate comparison or reliability conclusion has been performed.
+The day-out conversation retains the original objective and preferences, asks for the missing budget, and accepts the benchmark's follow-up details. It also accepts a walking-only revision without losing the earlier budget, time window, origin, or preferences. These remain bounded condition-retention mechanisms, not candidate evaluation or planning.
 
 ## Candidate-data representation and evaluation checkpoint
 
-The knowledge base now has a generic typed-attribute collection for named entities. Each attribute carries a typed value and source provenance. The Core objective evaluator matches objective conditions to candidate attributes by the condition's declared target attribute.
+The knowledge base supports typed candidate attributes with source wording and pack provenance. The version 1 pack at `data/knowledge-packs/day-out-candidates.json` now contains all four benchmark candidates and their supplied cost components, transport modes and durations, character/facilities, activity descriptions and durations, opening windows, and published bus departure sets.
 
-The evaluator reports per-condition outcomes:
-- `Satisfied` or `Violated` for supported comparisons;
-- `PartiallySatisfied` when only some requested preference tags match;
-- `Unknown` when the attribute or a compatible typed value is unavailable;
-- `Conflicting` when the same candidate attribute has multiple distinct values.
+The native evaluator is exercised against this complete dataset. It compares:
+- the benchmark's supplied total outing costs against the $25 budget;
+- car exclusion against each candidate's stated transport mode;
+- quiet/outdoors preference tags;
+- opening-hour containment for the 09:00–18:00 requested window.
 
-Hard-constraint violations and unresolved hard constraints are surfaced separately. The first executable proof evaluates budget, transport mode, and quiet/outdoors preference tags for a small synthetic candidate set. A walking-only revision rejects bus candidates and retains walking candidates. Unknown values are not silently treated as satisfied.
+The test demonstrates the expected distinctions: Riverside matches outdoors but conflicts with the quiet preference; Quarry Lake and Hilltop do not cover the full requested opening window; all four stated total costs are within budget. Each assessment retains the imported pack evidence.
 
-This evaluator does not rank options, calculate a score, or recommend a destination. Typed attributes can now be imported through the versioned knowledge-pack format with their source wording and pack provenance. The full benchmark candidate table, detailed timetable facts, and all four candidate records are not yet represented, and duration/time-set values are stored but not yet compared. The initial candidate-data proof therefore does not establish that the day-out benchmark has been solved.
+The dataset deliberately omits attributes for facts the benchmark leaves unspecified: Quarry Lake facilities beyond its picnic area, Hilltop food service, and Riverside bus departures. Missing data is not encoded as a negative claim.
 
-## Next capability
+## Remaining benchmark gap
 
-The next increment should populate the complete day-out candidate table as a declarative knowledge pack, including costs, travel modes, activity durations, opening times, and timetable facts. Extend condition evaluation only where the full benchmark exposes a missing general comparison (including duration and departure-time feasibility where needed). Keep unknowns and provenance explicit; do not add ranking or planning yet.
+The full dataset is now present, but Lattice has **not** solved the outing task. In particular:
+- departure sets and travel/activity durations are stored but not evaluated together;
+- it does not yet establish whether a selected outbound departure, journey, activity, and return service form a feasible itinerary;
+- the evaluator reports condition assessments, not a recommendation or ranked list;
+- the total-cost attribute is explicitly labelled as a benchmark calculation from return fare plus entry; the evaluator does not yet derive sums from component attributes.
 
-See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).
+The next increment should be driven by the exact missing general mechanism exposed by timetable feasibility, rather than by adding a destination-specific planner. Do not add ranking or opaque scoring.
+
+See [the benchmark specification](first-use-day-out.md), [the knowledge-pack format](../knowledge-packs.md), and [the objective contract](../objectives.md).

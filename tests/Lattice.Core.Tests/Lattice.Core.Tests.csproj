@@ -19,4 +19,10 @@
     <ProjectReference Include="..\..\src\Lattice.Tooling.Stdio\Lattice.Tooling.Stdio.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\data\knowledge-packs\day-out-candidates.json"
+          Link="day-out-candidates.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,442 @@
+{
+  "formatVersion": 1,
+  "id": "day-out-candidates",
+  "name": "First-use day-out benchmark candidates",
+  "claims": [],
+  "attributes": [
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "transport-mode",
+      "value": {
+        "type": "text",
+        "value": "bus"
+      },
+      "sourceText": "Access from Central Station is by bus."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "one-way-travel-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 25
+      },
+      "sourceText": "The bus journey is 25 minutes each way."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "return-transport-cost",
+      "value": {
+        "type": "money",
+        "amount": 6,
+        "currencySymbol": "$"
+      },
+      "sourceText": "The return bus fare is $6."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "entry-cost",
+      "value": {
+        "type": "money",
+        "amount": 0,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Entry is free."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "total-cost",
+      "value": {
+        "type": "money",
+        "amount": 6,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Benchmark calculation: $6 return fare plus $0 entry; the user brings lunch."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "tags",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "quiet",
+          "outdoors",
+          "picnic-tables",
+          "toilets"
+        ]
+      },
+      "sourceText": "Fernbank is usually quiet and outdoors, with picnic tables and toilets."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "main-activity",
+      "value": {
+        "type": "text",
+        "value": "Marked 2-hour loop"
+      },
+      "sourceText": "The main activity is a marked 2-hour loop."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "activity-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 120
+      },
+      "sourceText": "The marked loop takes 2 hours."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "opening-window",
+      "value": {
+        "type": "timeWindow",
+        "start": "08:00",
+        "end": "18:00"
+      },
+      "sourceText": "The reserve is open from 08:00 to 18:00."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "outbound-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "09:00",
+          "10:30",
+          "12:00"
+        ]
+      },
+      "sourceText": "Saturday outbound buses depart at 09:00, 10:30, and 12:00."
+    },
+    {
+      "subject": "Fernbank Nature Reserve",
+      "name": "return-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "14:00",
+          "15:30",
+          "17:00"
+        ]
+      },
+      "sourceText": "Saturday return buses depart at 14:00, 15:30, and 17:00."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "transport-mode",
+      "value": {
+        "type": "text",
+        "value": "bus"
+      },
+      "sourceText": "Access from Central Station is by bus."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "one-way-travel-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 45
+      },
+      "sourceText": "The bus journey is 45 minutes each way."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "return-transport-cost",
+      "value": {
+        "type": "money",
+        "amount": 12,
+        "currencySymbol": "$"
+      },
+      "sourceText": "The return bus fare is $12."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "entry-cost",
+      "value": {
+        "type": "money",
+        "amount": 0,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Entry is free."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "total-cost",
+      "value": {
+        "type": "money",
+        "amount": 12,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Benchmark calculation: $12 return fare plus $0 entry; the user brings lunch."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "tags",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "very-quiet",
+          "quiet",
+          "outdoors",
+          "picnic-area"
+        ]
+      },
+      "sourceText": "Quarry Lake is very quiet and outdoors, with a picnic area."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "main-activity",
+      "value": {
+        "type": "text",
+        "value": "Marked 3-hour trail"
+      },
+      "sourceText": "The main activity is a marked 3-hour trail."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "activity-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 180
+      },
+      "sourceText": "The marked trail takes 3 hours."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "opening-window",
+      "value": {
+        "type": "timeWindow",
+        "start": "07:00",
+        "end": "17:00"
+      },
+      "sourceText": "The trail is open from 07:00 to 17:00."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "outbound-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "09:15",
+          "11:15"
+        ]
+      },
+      "sourceText": "Saturday outbound buses depart at 09:15 and 11:15."
+    },
+    {
+      "subject": "Quarry Lake Trail",
+      "name": "return-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "15:45"
+        ]
+      },
+      "sourceText": "The only listed Saturday return bus departs at 15:45."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "transport-mode",
+      "value": {
+        "type": "text",
+        "value": "walking"
+      },
+      "sourceText": "Riverside Gardens is reachable on foot from Central Station."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "one-way-travel-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 15
+      },
+      "sourceText": "The walk is 15 minutes each way."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "return-transport-cost",
+      "value": {
+        "type": "money",
+        "amount": 0,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Walking has no transport fare."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "entry-cost",
+      "value": {
+        "type": "money",
+        "amount": 0,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Entry is free."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "total-cost",
+      "value": {
+        "type": "money",
+        "amount": 0,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Benchmark calculation: $0 walking cost plus $0 entry; the user brings lunch."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "tags",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "busy",
+          "outdoors",
+          "paved-paths",
+          "picnic-tables",
+          "toilets"
+        ]
+      },
+      "sourceText": "Riverside Gardens is usually busy on Saturdays and outdoors, with paved riverside paths, picnic tables, and toilets."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "main-activity",
+      "value": {
+        "type": "text",
+        "value": "Paved riverside paths"
+      },
+      "sourceText": "The main activity is walking paved riverside paths for about 90 minutes."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "activity-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 90
+      },
+      "sourceText": "The riverside paths take about 90 minutes."
+    },
+    {
+      "subject": "Riverside Gardens",
+      "name": "opening-window",
+      "value": {
+        "type": "timeWindow",
+        "start": "06:00",
+        "end": "20:00"
+      },
+      "sourceText": "The gardens are open from 06:00 to 20:00."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "transport-mode",
+      "value": {
+        "type": "text",
+        "value": "bus"
+      },
+      "sourceText": "Access from Central Station is by bus."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "one-way-travel-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 35
+      },
+      "sourceText": "The bus journey is 35 minutes each way."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "return-transport-cost",
+      "value": {
+        "type": "money",
+        "amount": 8,
+        "currencySymbol": "$"
+      },
+      "sourceText": "The return bus fare is $8."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "entry-cost",
+      "value": {
+        "type": "money",
+        "amount": 10,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Entry costs $10."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "total-cost",
+      "value": {
+        "type": "money",
+        "amount": 18,
+        "currencySymbol": "$"
+      },
+      "sourceText": "Benchmark calculation: $8 return fare plus $10 entry; the user brings lunch."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "tags",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "quiet",
+          "outdoors",
+          "picnic-tables"
+        ]
+      },
+      "sourceText": "Hilltop Farm is usually quiet and outdoors, with picnic tables."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "main-activity",
+      "value": {
+        "type": "text",
+        "value": "Grounds walk"
+      },
+      "sourceText": "The main activity is a grounds walk of about 2 hours."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "activity-duration",
+      "value": {
+        "type": "duration",
+        "minutes": 120
+      },
+      "sourceText": "The grounds walk takes about 2 hours."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "opening-window",
+      "value": {
+        "type": "timeWindow",
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "sourceText": "The grounds are open from 09:00 to 17:00."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "outbound-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "09:00",
+          "11:00",
+          "13:00"
+        ]
+      },
+      "sourceText": "Saturday outbound buses depart at 09:00, 11:00, and 13:00."
+    },
+    {
+      "subject": "Hilltop Farm Grounds",
+      "name": "return-bus-departures",
+      "value": {
+        "type": "timeSet",
+        "times": [
+          "15:00",
+          "16:30"
+        ]
+      },
+      "sourceText": "Saturday return buses depart at 15:00 and 16:30."
+    }
+  ]
+}
