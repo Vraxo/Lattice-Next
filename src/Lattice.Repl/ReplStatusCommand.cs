@@ -46,6 +46,7 @@ internal sealed class ReplStatusCommand(
                     {
                         "Satisfied" => "green",
                         "Violated" or "Conflicting" => "red",
+                        "NotApplicable" => "grey",
                         _ => "yellow"
                     };
                     AnsiConsole.MarkupLine($"      {Markup.Escape(condition.Name)}: [{color}]{Markup.Escape(condition.Status)}[/] [dim]({Markup.Escape(condition.Role)})[/]");
