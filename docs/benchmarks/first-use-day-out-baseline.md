@@ -1,40 +1,49 @@
-# First-use benchmark: native baseline
+# First-use benchmark: native baseline and current checkpoint
 
-## Environment
+## Original baseline
 
-- Repository revision: `59be64b7e69109ed42bd0520a5239f13fc64c775` (the `main` revision after the benchmark specification merged)
+The initial native baseline was recorded at repository revision `59be64b7e69109ed42bd0520a5239f13fc64c775`, after the benchmark specification merged and before objective support was implemented.
+
+Environment:
 - Runtime: in-process `LatticeRuntimeClient` and a fresh `ILatticeSession`
 - Translator: disabled; no model-assisted interpretation
 - External tools: not registered or invoked
 - Knowledge: empty session
-- Test surface: the same runtime session contract consumed by the REPL and CLI
+- Test surface: the shared runtime session contract consumed by the REPL and CLI
 
-The automated baseline cases live in `tests/Lattice.Runtime.Tests/FirstUseBenchmarkBaselineTests.cs`. They preserve the exact prompts and assert the current rejection result. The repository CI run for the PR containing this report is the execution record; this document does not claim a local .NET run.
+At that revision, all four benchmark prompts were rejected before any utterance was processed, with `That sentence is outside LCE 0.9`. The original CI-backed observation is retained here as the historical baseline.
 
-## Observed baseline
+## Current checkpoint: first-class objective capture
 
-The initial benchmark request:
+The first objective implementation adds a bounded native construction for a contextual request containing a sentence beginning with **"Help me ..."**. It recognizes the following goals:
 
-> I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.
+- Day out: `put together a good day`
+- Laptop comparison: `compare these three options`
 
-is rejected before any utterance is processed:
+For both, the runtime now:
+- returns `Completed` with an `ObjectiveReceived` utterance result;
+- stores the extracted goal separately from factual assertions and questions;
+- retains the complete original request in session state, exposed through `LatticeSessionStatus`;
+- leaves the knowledge base unchanged.
 
-- Turn status: `Rejected`
-- Utterance results: empty
-- Error: `Sentence 1: That sentence is outside LCE 0.9. Use :help to see the supported forms.`
+The same objective representation is used for both domains. This is only objective capture and retention. Lattice explicitly reports that it has not interpreted the surrounding conditions.
 
-The same first-sentence rejection occurs for the supplied budget/origin/time answer, the walking-only revision, and the laptop transfer prompt. These cases are retained as a theory in the baseline test so future changes can show exactly which natural-language tasks have become supported.
+The other two prompts remain unsupported:
+- the budget/origin/time follow-up is rejected;
+- the walking-only revision is rejected.
 
-## What this establishes
+The current executable checkpoint is covered by `tests/Lattice.Runtime.Tests/FirstUseBenchmarkBaselineTests.cs` and `ObjectiveSessionTests.cs`. The tests run through the in-process runtime with no translator and no external tools.
 
-1. **The current native language interface cannot accept the benchmark's initial request.** This is the first blocking gap; the runtime never reaches destination evaluation.
-2. **The current clarification mechanism is narrower than the benchmark needs.** Existing clarification is for missing or ambiguous `it` references. The benchmark needs a useful question about missing task information, such as the user's spending limit.
-3. **The runtime's turn model is not the blocker.** A session can accept successive submissions and retain its knowledge/context. The limitation is what the parser and intelligence can represent and do with those submissions.
-4. **The current runtime result model has no general goal or information-request outcome.** Its utterance outcomes cover stored/rejected statements, answered/unsupported questions, and reference clarification.
-5. **The full benchmark remains untested beyond this gate.** Candidate feasibility, cost comparison, timetable reasoning, provenance for a recommendation, and multi-turn constraint revision have not yet been evaluated end to end. The baseline must not be described as passing or failing those downstream behaviors; they are currently unreachable through the benchmark's ordinary opening request.
+## What this establishes—and what it does not
 
-## Architectural implication
+1. **The first natural-language boundary has moved.** Lattice can now identify a requested outcome in two unrelated prompts and retain the full source context.
+2. **The surrounding context is not yet understood.** Statements about a free Saturday, budget, transport, preferences, product requirements, and price are preserved as text, not represented as typed constraints.
+3. **Clarification is still missing.** The runtime cannot yet ask for task information, associate an answer with an outstanding request, or revise a condition across turns.
+4. **Candidate evaluation and planning remain untested.** No feasibility comparison, recommendation, trade-off analysis, or plan has been performed. These downstream capabilities must not be implied by objective recognition.
+5. **The laptop prompt is only a transfer check for objective capture.** It does not demonstrate laptop comparison or a general selection capability.
 
-The first implementation increment should investigate a reusable way to interpret and represent a user's objective and identify a relevant missing detail. It should not add a day-out intent, destination type, travel command, or special-case clarification. Before implementation, define the smallest general semantic/runtime contract that can express a goal and ask for missing information, then test it against the day-out prompt and at least one unrelated task.
+## Next capability
 
-This is a baseline observation, not a proposed implementation design. It deliberately does not preselect a goal ontology, planner, scoring system, or natural-language architecture.
+The next increment should add typed hard constraints and preferences, followed by a generic missing-information lifecycle driven by a capability's actual information requirements. It must preserve unknown information, keep the objective across turns, and avoid domain-specific clarification rules. Candidate evaluation should follow only when the necessary conditions and candidate data can be represented faithfully.
+
+See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).

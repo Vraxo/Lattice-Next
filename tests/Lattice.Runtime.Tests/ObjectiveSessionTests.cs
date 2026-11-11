@@ -12,10 +12,10 @@ public sealed class ObjectiveSessionTests
     public async Task Retains_objective_and_original_request_without_adding_it_to_knowledge(string input, string expectedGoal)
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
-        var result = await session.SubmitAsync(input);
-        var status = await session.GetStatusAsync();
+        var result = await session.SubmitAsync(input, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, Assert.Single(result.Utterances).Kind);
@@ -29,11 +29,11 @@ public sealed class ObjectiveSessionTests
     public async Task Retains_objective_when_later_turns_add_knowledge()
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
-        await session.SubmitAsync("I have a free Saturday. Help me put together a good day.");
-        await session.SubmitAsync("Fido is a dog.");
-        var status = await session.GetStatusAsync();
+        await session.SubmitAsync("I have a free Saturday. Help me put together a good day.", TestContext.Current.CancellationToken);
+        await session.SubmitAsync("Fido is a dog.", TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal("put together a good day", status.ActiveObjective);
         Assert.Contains("I have a free Saturday.", status.ActiveObjectiveSource);
