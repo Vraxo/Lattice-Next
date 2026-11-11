@@ -227,6 +227,78 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Evaluates_candidate_temporal_plans_from_the_user_time_window_and_revises_for_walking_only()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "temporal-session-test",
+              "name": "Temporal session test",
+              "claims": [],
+              "attributes": [
+                { "subject": "Bus Park", "name": "total-cost", "value": { "type": "money", "amount": 6, "currencySymbol": "$" }, "sourceText": "Bus Park costs $6." },
+                { "subject": "Bus Park", "name": "transport-mode", "value": { "type": "text", "value": "bus" }, "sourceText": "Bus Park is reached by bus." },
+                { "subject": "Bus Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Bus Park is quiet and outdoors." },
+                { "subject": "Bus Park", "name": "one-way-travel-duration", "value": { "type": "duration", "minutes": 25 }, "sourceText": "The bus journey takes 25 minutes each way." },
+                { "subject": "Bus Park", "name": "activity-duration", "value": { "type": "duration", "minutes": 120 }, "sourceText": "The activity takes 2 hours." },
+                { "subject": "Bus Park", "name": "opening-window", "value": { "type": "timeWindow", "start": "08:00", "end": "18:00" }, "sourceText": "Bus Park is open from 08:00 to 18:00." },
+                { "subject": "Bus Park", "name": "outbound-bus-departures", "value": { "type": "timeSet", "times": ["09:00", "10:30"] }, "sourceText": "Buses depart at 09:00 and 10:30." },
+                { "subject": "Bus Park", "name": "return-bus-departures", "value": { "type": "timeSet", "times": ["14:00", "16:00"] }, "sourceText": "Return buses depart at 14:00 and 16:00." },
+                { "subject": "Bus Park", "name": "temporal-plan", "value": { "type": "temporalPlan", "stages": [
+                  { "durationAttribute": "one-way-travel-duration", "startTimesAttribute": "outbound-bus-departures" },
+                  { "durationAttribute": "activity-duration", "availabilityWindowAttribute": "opening-window" },
+                  { "durationAttribute": "one-way-travel-duration", "startTimesAttribute": "return-bus-departures" }
+                ] }, "sourceText": "The outing is an outbound scheduled journey, an activity, and a return scheduled journey." },
+                { "subject": "Walk Park", "name": "total-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Walk Park is free." },
+                { "subject": "Walk Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Walk Park is reachable on foot." },
+                { "subject": "Walk Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Walk Park is busy and outdoors." },
+                { "subject": "Walk Park", "name": "one-way-travel-duration", "value": { "type": "duration", "minutes": 15 }, "sourceText": "The walk takes 15 minutes each way." },
+                { "subject": "Walk Park", "name": "activity-duration", "value": { "type": "duration", "minutes": 90 }, "sourceText": "The activity takes 90 minutes." },
+                { "subject": "Walk Park", "name": "opening-window", "value": { "type": "timeWindow", "start": "06:00", "end": "20:00" }, "sourceText": "Walk Park is open from 06:00 to 20:00." },
+                { "subject": "Walk Park", "name": "temporal-plan", "value": { "type": "temporalPlan", "stages": [
+                  { "durationAttribute": "one-way-travel-duration" },
+                  { "durationAttribute": "activity-duration", "availabilityWindowAttribute": "opening-window" },
+                  { "durationAttribute": "one-way-travel-duration" }
+                ] }, "sourceText": "The outing is a walk to the park, an activity, and a return walk." }
+              ]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        await session.SubmitAsync(
+            "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.",
+            TestContext.Current.CancellationToken);
+        var followUp = await session.SubmitAsync(
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, followUp.Status);
+
+        var beforeWalkingOnly = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(beforeWalkingOnly.ObjectiveEvaluation);
+        var busPark = Assert.Single(initialEvaluation.Candidates, candidate => candidate.Candidate == "Bus Park");
+        var walkPark = Assert.Single(initialEvaluation.Candidates, candidate => candidate.Candidate == "Walk Park");
+        Assert.Contains(busPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
+        Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
+
+        var walkingOnly = await session.SubmitAsync(
+            "Actually, I don't want to take a bus. Walking only.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, walkingOnly.Status);
+
+        var afterWalkingOnly = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var revisedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterWalkingOnly.ObjectiveEvaluation);
+        busPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Bus Park");
+        walkPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Walk Park");
+        Assert.True(busPark.HasHardConstraintViolation);
+        Assert.False(walkPark.HasHardConstraintViolation);
+        Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
+        Assert.Contains(afterWalkingOnly.ActiveObjectiveSource, "Walking only.");
+    }
+
+    [Fact]
     public async Task Unrelated_assertions_do_not_consume_a_pending_information_request()
     {
         var client = new LatticeRuntimeClient();
