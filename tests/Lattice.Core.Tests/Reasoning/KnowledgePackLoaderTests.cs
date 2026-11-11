@@ -387,8 +387,8 @@ public sealed class KnowledgePackLoaderTests
         Assert.True(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error), error);
 
         Assert.Equal(
-            new ObjectiveSumValue(ImmutableArray.Create("return-fare", "entry-cost")),
-            Assert.IsType<ObjectiveSumValue>(Assert.Single(knowledgeBase.Attributes).Value));
+            new[] { "return-fare", "entry-cost" },
+            Assert.IsType<ObjectiveSumValue>(Assert.Single(knowledgeBase.Attributes).Value).Attributes);
     }
 
     [Fact]
