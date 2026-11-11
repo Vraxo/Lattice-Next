@@ -46,11 +46,13 @@
       "subject": "Fernbank Nature Reserve",
       "name": "total-cost",
       "value": {
-        "type": "money",
-        "amount": 6,
-        "currencySymbol": "$"
+        "type": "sum",
+        "attributes": [
+          "return-transport-cost",
+          "entry-cost"
+        ]
       },
-      "sourceText": "Benchmark calculation: $6 return fare plus $0 entry; the user brings lunch."
+      "sourceText": "The total outing cost is the return transport cost plus the entry cost."
     },
     {
       "subject": "Fernbank Nature Reserve",
@@ -162,11 +164,13 @@
       "subject": "Quarry Lake Trail",
       "name": "total-cost",
       "value": {
-        "type": "money",
-        "amount": 12,
-        "currencySymbol": "$"
+        "type": "sum",
+        "attributes": [
+          "return-transport-cost",
+          "entry-cost"
+        ]
       },
-      "sourceText": "Benchmark calculation: $12 return fare plus $0 entry; the user brings lunch."
+      "sourceText": "The total outing cost is the return transport cost plus the entry cost."
     },
     {
       "subject": "Quarry Lake Trail",
@@ -275,11 +279,13 @@
       "subject": "Riverside Gardens",
       "name": "total-cost",
       "value": {
-        "type": "money",
-        "amount": 0,
-        "currencySymbol": "$"
+        "type": "sum",
+        "attributes": [
+          "return-transport-cost",
+          "entry-cost"
+        ]
       },
-      "sourceText": "Benchmark calculation: $0 walking cost plus $0 entry; the user brings lunch."
+      "sourceText": "The total outing cost is the return transport cost plus the entry cost."
     },
     {
       "subject": "Riverside Gardens",
@@ -366,11 +372,13 @@
       "subject": "Hilltop Farm Grounds",
       "name": "total-cost",
       "value": {
-        "type": "money",
-        "amount": 18,
-        "currencySymbol": "$"
+        "type": "sum",
+        "attributes": [
+          "return-transport-cost",
+          "entry-cost"
+        ]
       },
-      "sourceText": "Benchmark calculation: $8 return fare plus $10 entry; the user brings lunch."
+      "sourceText": "The total outing cost is the return transport cost plus the entry cost."
     },
     {
       "subject": "Hilltop Farm Grounds",
