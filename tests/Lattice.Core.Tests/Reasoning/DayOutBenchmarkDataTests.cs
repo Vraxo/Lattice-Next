@@ -12,7 +12,7 @@ public sealed class DayOutBenchmarkDataTests
     public void Loads_the_complete_day_out_dataset_and_evaluates_objective_conditions()
     {
         var knowledgeBase = LoadCandidates();
-        Assert.Equal(42, knowledgeBase.Attributes.Count);
+        Assert.Equal(46, knowledgeBase.Attributes.Count);
 
         var parser = new LceParser();
         var parsed = parser.ParseText(
@@ -27,7 +27,7 @@ public sealed class DayOutBenchmarkDataTests
                 .Select(condition => condition.Name == "spending-limit"
                     ? condition with { Value = new ObjectiveMoneyValue(25m, "$") }
                     : condition)
-                .Append(CreateBusScheduleCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
+                .Append(CreateTemporalPlanCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
                 .ToImmutableArray()
         };
 
@@ -50,7 +50,7 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "transport").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.PartiallySatisfied, GetCondition(riverside, "preference").Status);
-        Assert.Equal(ObjectiveConditionAssessmentStatus.Unknown, GetCondition(riverside, "itinerary").Status);
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(riverside, "itinerary").Status);
 
         var hilltop = GetCandidate(evaluation, "Hilltop Farm Grounds");
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "spending-limit").Status);
@@ -64,7 +64,7 @@ public sealed class DayOutBenchmarkDataTests
         var objective = new ObjectiveFormula("fit an outing into the available time")
         {
             Conditions = ImmutableArray.Create(
-                CreateBusScheduleCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
+                CreateTemporalPlanCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
         };
 
         var result = new ObjectiveEvaluator().Evaluate(objective, LoadCandidates());
@@ -81,7 +81,7 @@ public sealed class DayOutBenchmarkDataTests
         var objective = new ObjectiveFormula("return by 16:00")
         {
             Conditions = ImmutableArray.Create(
-                CreateBusScheduleCondition(new TimeOnly(9, 0), new TimeOnly(16, 0)))
+                CreateTemporalPlanCondition(new TimeOnly(9, 0), new TimeOnly(16, 0)))
         };
 
         var result = new ObjectiveEvaluator().Evaluate(objective, LoadCandidates());
@@ -138,7 +138,7 @@ public sealed class DayOutBenchmarkDataTests
         var objective = new ObjectiveFormula("fit an outing")
         {
             Conditions = ImmutableArray.Create(
-                CreateBusScheduleCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
+                CreateTemporalPlanCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
         };
 
         var result = new ObjectiveEvaluator().Evaluate(objective, knowledgeBase);
@@ -185,19 +185,16 @@ public sealed class DayOutBenchmarkDataTests
         return knowledgeBase;
     }
 
-    private static ObjectiveCondition CreateBusScheduleCondition(TimeOnly earliest, TimeOnly latest) =>
+    private static ObjectiveCondition CreateTemporalPlanCondition(TimeOnly earliest, TimeOnly latest) =>
         new(
             "itinerary",
             ObjectiveConditionRole.HardConstraint,
             ObjectiveConditionOperator.CanFit,
-            new ObjectiveTemporalSequenceValue(
-                earliest,
-                latest,
-                ImmutableArray.Create(
-                    new ObjectiveTemporalStage("one-way-travel-duration", "outbound-bus-departures"),
-                    new ObjectiveTemporalStage("activity-duration", AvailabilityWindowAttribute: "opening-window"),
-                    new ObjectiveTemporalStage("one-way-travel-duration", "return-bus-departures"))),
-            $"The outing must fit between {earliest} and {latest}.");
+            new ObjectiveTimeWindowValue(earliest, latest),
+            $"The outing must fit between {earliest} and {latest}.")
+        {
+            TargetAttribute = "temporal-plan"
+        };
 
     private static CandidateAssessment GetCandidate(ObjectiveEvaluation evaluation, string name) =>
         Assert.Single(evaluation.Candidates, candidate => candidate.Candidate.Value == name);
