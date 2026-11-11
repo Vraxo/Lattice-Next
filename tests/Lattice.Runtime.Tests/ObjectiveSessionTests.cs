@@ -291,6 +291,10 @@ public sealed class ObjectiveSessionTests
             followUp.Utterances[^1].Message);
         Assert.Contains("Bus Park", followUp.Utterances[^1].Message);
         Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
+        Assert.Contains("Stage 1: 09:00–09:25", followUp.Utterances[^1].Message);
+        Assert.Contains("Stage 1: 09:00–09:15", followUp.Utterances[^1].Message);
+        Assert.Equal(3, Assert.Single(busPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
+        Assert.Equal(3, Assert.Single(walkPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
 
         var walkingOnly = await session.SubmitAsync(
             "Actually, I don't want to take a bus. Walking only.",
@@ -311,6 +315,8 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(
             "Walk Park: meets all assessed hard constraints",
             walkingOnly.Utterances[^1].Message);
+        Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
+        Assert.DoesNotContain("Stage 1: 09:00–09:25", walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
