@@ -34,6 +34,14 @@ public sealed class LceParser
         @"^Walking only\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectivePreferenceRevisionPattern = new(
+        @"^(?:Actually,\s*)?(?:I would prefer|I prefer|I care about)\s+[^.!?]+[.!?]$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ObjectiveBudgetRevisionPattern = new(
+        @"^(?:Actually,\s*)?(?:my\s+)?budget\b[^.!?]*[$€£]\s*\d[\d,]*(?:\.\d{1,2})?[^.!?]*[.!?]$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -422,6 +430,15 @@ public sealed class LceParser
         out SemanticUtterance? utterance)
     {
         var conditions = ImmutableArray.CreateBuilder<ObjectiveCondition>();
+        var isPreferenceRevision = ObjectivePreferenceRevisionPattern.IsMatch(source);
+        var isBudgetRevision = ObjectiveBudgetRevisionPattern.IsMatch(source);
+
+        if (isPreferenceRevision || isBudgetRevision)
+        {
+            conditions.AddRange(ObjectiveConditionParser.Parse(source).Where(condition =>
+                (isPreferenceRevision && condition.Role == ObjectiveConditionRole.Preference) ||
+                (isBudgetRevision && condition.Name == "spending-limit")));
+        }
 
         if (BringLunchPattern.IsMatch(source))
         {
