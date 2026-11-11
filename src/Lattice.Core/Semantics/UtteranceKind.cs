@@ -3,5 +3,6 @@ namespace Lattice.Core.Semantics;
 public enum UtteranceKind
 {
     Assertion,
-    Question
+    Question,
+    Objective
 }

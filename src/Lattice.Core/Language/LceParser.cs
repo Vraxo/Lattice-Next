@@ -6,6 +6,10 @@ namespace Lattice.Core.Language;
 
 public sealed class LceParser
 {
+    private static readonly Regex ObjectiveRequestPattern = new(
+        @"(?:^|[.!?]\s*)Help me\s+(?<goal>[^.!?]+)[.!?]",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -79,6 +83,11 @@ public sealed class LceParser
         if (source.Length == 0)
         {
             return ParseResult.Failure("Input is empty.");
+        }
+
+        if (TryParseObjective(source, originalSource, out var objectiveUtterance))
+        {
+            return ParseResult.Success(objectiveUtterance!);
         }
 
         if (NativeEnglishGrammar.TryParse(source, originalSource, out var nativeUtterance))
@@ -290,6 +299,12 @@ public sealed class LceParser
         }
 
         var source = input.Trim();
+
+        if (TryParseObjective(source, source, out var objectiveUtterance))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(objectiveUtterance!));
+        }
+
         var utterances = ImmutableArray.CreateBuilder<SemanticUtterance>();
         var sentenceStart = 0;
 
@@ -338,6 +353,34 @@ public sealed class LceParser
         }
 
         return TextParseResult.Success(utterances.ToImmutable());
+    }
+
+    private static bool TryParseObjective(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        var match = ObjectiveRequestPattern.Match(source);
+
+        if (!match.Success)
+        {
+            utterance = null;
+            return false;
+        }
+
+        var goal = match.Groups["goal"].Value.Trim();
+
+        if (goal.Length == 0)
+        {
+            utterance = null;
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.Objective,
+            new ObjectiveFormula(goal),
+            sourceText.Trim());
+        return true;
     }
 
     private static ExistentialQuantification CreateExistentialFormula(
