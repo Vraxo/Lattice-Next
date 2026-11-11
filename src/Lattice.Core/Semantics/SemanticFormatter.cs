@@ -45,6 +45,8 @@ public static class SemanticFormatter
             ObjectiveTextValue text => text.Value,
             ObjectiveTextSetValue set => string.Join("+", set.Values),
             ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
+            ObjectiveDurationValue duration => $"{duration.Minutes}m",
+            ObjectiveTimeSetValue times => string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture))),
             null => "unknown",
             _ => "unsupported"
         };
@@ -58,6 +60,9 @@ public static class SemanticFormatter
             ObjectiveMoneyValue money => $"money({money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)})",
             ObjectiveTextValue text => $"text({text.Value})",
             ObjectiveTextSetValue set => $"text-set({string.Join("+", set.Values)})",
+            ObjectiveTimeWindowValue time => $"time-window({time.Start:HH:mm}-{time.End:HH:mm})",
+            ObjectiveDurationValue duration => $"duration({duration.Minutes}m)",
+            ObjectiveTimeSetValue times => $"time-set({string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)))})",
             _ => "information(unsupported)"
         };
 
@@ -76,6 +81,8 @@ public static class SemanticFormatter
                 ObjectiveTextValue text => text.Value,
                 ObjectiveTextSetValue set => string.Join("+", set.Values),
                 ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
+                ObjectiveDurationValue duration => $"{duration.Minutes}m",
+                ObjectiveTimeSetValue times => string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture))),
                 null => "unknown",
                 _ => "unsupported"
             };

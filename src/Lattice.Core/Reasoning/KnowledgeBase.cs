@@ -189,6 +189,11 @@ public sealed class KnowledgeBase
                 set.Values.All(item => !string.IsNullOrWhiteSpace(item)),
             ObjectiveTimeWindowValue time =>
                 time.Start < time.End,
+            ObjectiveDurationValue duration =>
+                duration.Minutes >= 0,
+            ObjectiveTimeSetValue times =>
+                !times.Times.IsDefaultOrEmpty &&
+                times.Times.Distinct().Count() == times.Times.Length,
             _ => false
         };
 
@@ -199,6 +204,8 @@ public sealed class KnowledgeBase
         {
             (ObjectiveTextSetValue leftSet, ObjectiveTextSetValue rightSet) =>
                 leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
+            (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
+                leftSet.Times.SequenceEqual(rightSet.Times),
             _ => Equals(left, right)
         };
 

@@ -49,10 +49,10 @@ The evaluator reports per-condition outcomes:
 
 Hard-constraint violations and unresolved hard constraints are surfaced separately. The first executable proof evaluates budget, transport mode, and quiet/outdoors preference tags for a small synthetic candidate set. A walking-only revision rejects bus candidates and retains walking candidates. Unknown values are not silently treated as satisfied.
 
-This evaluator does not rank options, calculate a score, or recommend a destination. The full benchmark candidate table is not yet imported: typed attributes are currently supplied through the Core API rather than the knowledge-pack format, and detailed bus timetables, facilities, and all four candidate records are not represented. The initial candidate-data proof therefore does not establish that the day-out benchmark has been solved.
+This evaluator does not rank options, calculate a score, or recommend a destination. Typed attributes can now be imported through the versioned knowledge-pack format with their source wording and pack provenance. The full benchmark candidate table, detailed timetable facts, and all four candidate records are not yet represented, and duration/time-set values are stored but not yet compared. The initial candidate-data proof therefore does not establish that the day-out benchmark has been solved.
 
 ## Next capability
 
-The next increment should make typed attributes importable through a versioned knowledge pack, then represent the complete day-out candidate table—including costs, travel modes, activity durations, opening times, and timetable facts. Extend condition evaluation only where the full benchmark exposes a missing general comparison. Keep unknowns and provenance explicit; do not add ranking or planning yet.
+The next increment should populate the complete day-out candidate table as a declarative knowledge pack, including costs, travel modes, activity durations, opening times, and timetable facts. Extend condition evaluation only where the full benchmark exposes a missing general comparison (including duration and departure-time feasibility where needed). Keep unknowns and provenance explicit; do not add ranking or planning yet.
 
 See [the objective and clarification contract](../objectives.md) and [the day-out benchmark specification](first-use-day-out.md).

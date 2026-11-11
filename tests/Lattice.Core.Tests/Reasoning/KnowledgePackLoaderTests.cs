@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Core.Language;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -165,7 +166,7 @@ public sealed class KnowledgePackLoaderTests
             new KnowledgeBase(),
             out _,
             out var fieldError));
-        Assert.Contains("exactly", fieldError);
+        Assert.Contains("optional attributes", fieldError);
     }
 
     [Fact]
@@ -192,6 +193,220 @@ public sealed class KnowledgePackLoaderTests
         Assert.Equal(KnowledgeSourceKind.UserAssertion, fact.Sources[0].Kind);
         Assert.Equal(KnowledgeSourceKind.ImportedClaim, fact.Sources[1].Kind);
         Assert.Equal("canine-facts", fact.Sources[1].SourceId);
+    }
+
+    [Fact]
+    public void Loads_typed_candidate_attributes_with_pack_provenance()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "day-out-candidates",
+              "name": "Day out candidates",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Fernbank",
+                  "name": "total-cost",
+                  "value": { "type": "money", "amount": 6, "currencySymbol": "$" },
+                  "sourceText": "Fernbank costs six dollars including entry and fares."
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "transport-mode",
+                  "value": { "type": "text", "value": "bus" },
+                  "sourceText": "Fernbank requires a bus."
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Fernbank is quiet and outdoors."
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "opening-window",
+                  "value": { "type": "timeWindow", "start": "08:00", "end": "19:00" },
+                  "sourceText": "Fernbank is open from 08:00 to 19:00."
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "activity-duration",
+                  "value": { "type": "duration", "minutes": 180 },
+                  "sourceText": "The visit takes three hours."
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "bus-departures",
+                  "value": { "type": "timeSet", "times": ["09:10", "10:40"] },
+                  "sourceText": "Buses depart at 09:10 and 10:40."
+                }
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        var loaded = loader.TryLoadAndAdd(json, knowledgeBase, out var pack, out var error);
+
+        Assert.True(loaded, error);
+        Assert.Equal(new KnowledgePack(1, "day-out-candidates", "Day out candidates", 0)
+        {
+            AttributeCount = 6
+        }, pack);
+        Assert.Equal(6, knowledgeBase.Attributes.Count);
+        Assert.All(knowledgeBase.Attributes, attribute =>
+        {
+            Assert.Equal(KnowledgeSourceKind.ImportedClaim, attribute.Sources[0].Kind);
+            Assert.Equal("day-out-candidates", attribute.Sources[0].SourceId);
+        });
+
+        Assert.Equal(
+            new ObjectiveMoneyValue(6m, "$"),
+            Assert.IsType<ObjectiveMoneyValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "total-cost").Value));
+        Assert.Equal(
+            new ObjectiveTextValue("bus"),
+            Assert.IsType<ObjectiveTextValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "transport-mode").Value));
+        Assert.Equal(
+            new[] { "quiet", "outdoors" },
+            Assert.IsType<ObjectiveTextSetValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "tags").Value).Values);
+        Assert.Equal(
+            new ObjectiveTimeWindowValue(new TimeOnly(8, 0), new TimeOnly(19, 0)),
+            Assert.IsType<ObjectiveTimeWindowValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "opening-window").Value));
+        Assert.Equal(
+            new ObjectiveDurationValue(180),
+            Assert.IsType<ObjectiveDurationValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "activity-duration").Value));
+        Assert.Equal(
+            new[] { new TimeOnly(9, 10), new TimeOnly(10, 40) },
+            Assert.IsType<ObjectiveTimeSetValue>(Assert.Single(
+                knowledgeBase.Attributes,
+                attribute => attribute.Name.Value == "bus-departures").Value).Times);
+    }
+
+    [Fact]
+    public void Imported_candidate_attributes_can_be_evaluated_with_pack_provenance()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "candidate-costs",
+              "name": "Candidate costs",
+              "claims": [],
+              "attributes": [{
+                "subject": "Fernbank",
+                "name": "total-cost",
+                "value": { "type": "money", "amount": 6, "currencySymbol": "$" },
+                "sourceText": "Fernbank costs six dollars including entry and fares."
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+        Assert.True(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error), error);
+        var objective = new ObjectiveFormula("choose within budget")
+        {
+            Conditions = ImmutableArray.Create(new ObjectiveCondition(
+                "spending-limit",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.AtMost,
+                new ObjectiveMoneyValue(25m, "$"),
+                "My spending limit is $25.")
+            {
+                TargetAttribute = "total-cost"
+            })
+        };
+
+        var evaluation = new ObjectiveEvaluator().Evaluate(objective, knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+
+        Assert.Equal(
+            ObjectiveConditionAssessmentStatus.Satisfied,
+            Assert.Single(candidate.Conditions).Status);
+        Assert.Equal("candidate-costs", Assert.Single(
+            Assert.Single(candidate.Conditions).Evidence).Sources[0].SourceId);
+    }
+
+    [Fact]
+    public void Rejects_invalid_typed_attributes_without_adding_any_part_of_the_pack()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "invalid-attributes",
+              "name": "Invalid attributes",
+              "claims": ["Fernbank is a reserve."],
+              "attributes": [
+                {
+                  "subject": "Fernbank",
+                  "name": "total-cost",
+                  "value": { "type": "money", "amount": -6, "currencySymbol": "$" },
+                  "sourceText": "An invalid negative cost."
+                }
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        var loaded = loader.TryLoadAndAdd(json, knowledgeBase, out var pack, out var error);
+
+        Assert.False(loaded);
+        Assert.Null(pack);
+        Assert.NotNull(error);
+        Assert.Empty(knowledgeBase.Facts);
+        Assert.Empty(knowledgeBase.Rules);
+        Assert.Empty(knowledgeBase.Attributes);
+    }
+
+    [Fact]
+    public void Rejects_unknown_attribute_value_fields_and_types()
+    {
+        const string unknownField = """
+            {
+              "formatVersion": 1,
+              "id": "extra-value-field",
+              "name": "Extra value field",
+              "claims": [],
+              "attributes": [{
+                "subject": "Fernbank",
+                "name": "total-cost",
+                "value": { "type": "money", "amount": 6, "currencySymbol": "$", "guess": true },
+                "sourceText": "Fernbank costs six dollars."
+              }]
+            }
+            """;
+        const string unknownType = """
+            {
+              "formatVersion": 1,
+              "id": "unknown-value-type",
+              "name": "Unknown value type",
+              "claims": [],
+              "attributes": [{
+                "subject": "Fernbank",
+                "name": "mystery",
+                "value": { "type": "unbounded", "value": "unknown" },
+                "sourceText": "An unsupported value."
+              }]
+            }
+            """;
+
+        Assert.False(loader.TryLoadAndAdd(
+            unknownField,
+            new KnowledgeBase(),
+            out _,
+            out _));
+        Assert.False(loader.TryLoadAndAdd(
+            unknownType,
+            new KnowledgeBase(),
+            out _,
+            out _));
     }
 
     [Fact]
