@@ -194,6 +194,13 @@ public sealed class KnowledgeBase
             ObjectiveTimeSetValue times =>
                 !times.Times.IsDefaultOrEmpty &&
                 times.Times.Distinct().Count() == times.Times.Length,
+            ObjectiveTemporalPlanValue plan =>
+                !plan.Stages.IsDefaultOrEmpty &&
+                plan.Stages.Length <= 64 &&
+                plan.Stages.All(stage =>
+                    !string.IsNullOrWhiteSpace(stage.DurationAttribute) &&
+                    (stage.StartTimesAttribute is null || !string.IsNullOrWhiteSpace(stage.StartTimesAttribute)) &&
+                    (stage.AvailabilityWindowAttribute is null || !string.IsNullOrWhiteSpace(stage.AvailabilityWindowAttribute))),
             _ => false
         };
 
@@ -206,6 +213,8 @@ public sealed class KnowledgeBase
                 leftSet.Values.SequenceEqual(rightSet.Values, StringComparer.OrdinalIgnoreCase),
             (ObjectiveTimeSetValue leftSet, ObjectiveTimeSetValue rightSet) =>
                 leftSet.Times.SequenceEqual(rightSet.Times),
+            (ObjectiveTemporalPlanValue leftPlan, ObjectiveTemporalPlanValue rightPlan) =>
+                leftPlan.Stages.SequenceEqual(rightPlan.Stages),
             _ => Equals(left, right)
         };
 
