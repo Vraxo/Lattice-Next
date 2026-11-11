@@ -26,20 +26,20 @@ internal static class KnowledgeFactFactory
 
             foreach (var conjunct in conjunction.Conjuncts)
             {
-                if (conjunct is not PredicateApplication predicate ||
-                    !TryGroundPredicate(predicate, out var groundedPredicate, out var descriptionFacts))
+                if (conjunct is not PredicateApplication conjunctivePredicate ||
+                    !TryGroundPredicate(conjunctivePredicate, out var conjunctiveGroundedPredicate, out var conjunctiveDescriptionFacts))
                 {
                     return false;
                 }
 
                 conjunctiveFacts.Add(new KnowledgeFact(
-                    groundedPredicate,
+                    conjunctiveGroundedPredicate,
                     sourceText,
                     resolvedReferent,
                     sourceKind,
                     SourceId: sourceId));
 
-                foreach (var descriptionFact in descriptionFacts)
+                foreach (var descriptionFact in conjunctiveDescriptionFacts)
                 {
                     conjunctiveFacts.Add(new KnowledgeFact(
                         descriptionFact,
