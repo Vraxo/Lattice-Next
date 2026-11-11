@@ -200,9 +200,12 @@ public sealed class ObjectiveSessionTests
         Assert.Single(revisedPreference.Preferences);
         Assert.Equal("repairability", revisedPreference.Preferences[0].Name);
         Assert.Equal("Satisfied", revisedPreference.Preferences[0].Status);
-        Assert.Contains("screen quality", originalRequest);
-        Assert.Contains("reliability", originalRequest);
-        Assert.Contains("no longer", preferenceRevision.Utterances.Single().Message);
+        Assert.Contains(
+            "hardconstraint(spending-limit, atmost, $1000)",
+            preferenceRevision.Utterances.Single().Meaning);
+        Assert.Contains(
+            "preference(preference, desires, repairability)",
+            preferenceRevision.Utterances.Single().Meaning);
 
         var budgetRevision = await session.SubmitAsync(
             "Actually, my budget is $800.",
