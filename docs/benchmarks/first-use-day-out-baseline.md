@@ -23,13 +23,11 @@ The day-out conversation retains the original objective and preferences, asks fo
 
 The knowledge base supports typed candidate attributes with source wording and pack provenance. The version 1 pack at `data/knowledge-packs/day-out-candidates.json` now contains all four benchmark candidates and their supplied cost components, transport modes and durations, character/facilities, activity descriptions and durations, opening windows, and published bus departure sets.
 
-The native evaluator is exercised against this complete dataset. It compares:
-- the benchmark's supplied total outing costs against the $25 budget;
-- car exclusion against each candidate's stated transport mode;
-- quiet/outdoors preference tags;
-- opening-hour containment for the 09:00–18:00 requested window.
+The native evaluator compares the supplied total outing costs against the $25 budget, car exclusion against stated transport modes, and quiet/outdoors preference tags. It also evaluates a temporal sequence using departure sets, journey durations, activity duration, the activity's opening window, and return travel.
 
-The test demonstrates the expected distinctions: Riverside matches outdoors but conflicts with the quiet preference; Quarry Lake and Hilltop do not cover the full requested opening window; all four stated total costs are within budget. Each assessment retains the imported pack evidence.
+The sequence is represented as ordered duration stages. A stage may begin at a supplied set of event times, must fit within an available time window, or begin immediately after the preceding stage. The evaluator checks whether any complete sequence fits between the user's earliest start and latest return, retaining each referenced attribute as evidence.
+
+For 09:00–18:00, Fernbank, Quarry Lake, and Hilltop each have a feasible bus itinerary. Quarry Lake is not rejected merely because it closes at 17:00: its visit can occur during opening hours, and its 15:45 return bus reaches Central Station by 16:30. Riverside's bus-sequence assessment remains Unknown because no bus timetable is supplied; a separate walking sequence is supported by its journey/activity durations and opening window. A tighter 09:00–16:00 test correctly rejects Quarry Lake because its only listed return service arrives at 16:30.
 
 The dataset deliberately omits attributes for facts the benchmark leaves unspecified: Quarry Lake facilities beyond its picnic area, Hilltop food service, and Riverside bus departures. Missing data is not encoded as a negative claim.
 

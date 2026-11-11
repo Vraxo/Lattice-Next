@@ -123,6 +123,32 @@ public sealed class DayOutBenchmarkDataTests
     }
 
     [Fact]
+    public void Reports_conflicting_temporal_attributes_instead_of_selecting_one()
+    {
+        var knowledgeBase = LoadCandidates();
+        var added = knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                new SemanticIdentifier("Fernbank Nature Reserve"),
+                new SemanticIdentifier("one-way-travel-duration"),
+                new ObjectiveDurationValue(40),
+                "A conflicting observation says the journey takes 40 minutes."),
+            out var error);
+        Assert.True(added, error);
+
+        var objective = new ObjectiveFormula("fit an outing")
+        {
+            Conditions = ImmutableArray.Create(
+                CreateBusScheduleCondition(new TimeOnly(9, 0), new TimeOnly(18, 0)))
+        };
+
+        var result = new ObjectiveEvaluator().Evaluate(objective, knowledgeBase);
+
+        Assert.Equal(
+            ObjectiveConditionAssessmentStatus.Conflicting,
+            GetCondition(GetCandidate(result, "Fernbank Nature Reserve"), "itinerary").Status);
+    }
+
+    [Fact]
     public void Preserves_published_timetables_and_leaves_unspecified_facilities_absent()
     {
         var knowledgeBase = LoadCandidates();

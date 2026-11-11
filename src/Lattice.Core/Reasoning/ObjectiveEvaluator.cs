@@ -84,8 +84,12 @@ public sealed class ObjectiveEvaluator
         IReadOnlyList<KnowledgeAttribute> attributes)
     {
         if (sequence.Stages.IsDefaultOrEmpty ||
+            sequence.Stages.Length > 64 ||
             sequence.EarliestStart >= sequence.LatestEnd ||
-            sequence.Stages.Any(stage => string.IsNullOrWhiteSpace(stage.DurationAttribute)))
+            sequence.Stages.Any(stage =>
+                string.IsNullOrWhiteSpace(stage.DurationAttribute) ||
+                (stage.StartTimesAttribute is not null && string.IsNullOrWhiteSpace(stage.StartTimesAttribute)) ||
+                (stage.AvailabilityWindowAttribute is not null && string.IsNullOrWhiteSpace(stage.AvailabilityWindowAttribute))))
         {
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.Unknown, []);
         }
@@ -181,14 +185,14 @@ public sealed class ObjectiveEvaluator
                 continue;
             }
 
-            var endMinute = start.Hour * 60 + start.Minute + duration.Minutes;
+            var endMinute = (long)start.Hour * 60 + start.Minute + duration.Minutes;
 
             if (endMinute >= 24 * 60)
             {
                 continue;
             }
 
-            var end = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(endMinute));
+            var end = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes((double)endMinute));
 
             if (stage.AvailabilityWindowAttribute is not null)
             {
