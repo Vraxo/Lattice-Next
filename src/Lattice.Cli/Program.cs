@@ -47,7 +47,7 @@ var externalToolsDiscovered = StdioToolProvider.TryDiscover(
 var registeredTools = externalToolsDiscovered
     ? discoveredTools
     : Array.Empty<ITool>();
-var grantedPermissions = ToolPermission.None;
+var toolAccess.GrantedPermissions = ToolPermission.None;
 var configuredPermissions = Environment.GetEnvironmentVariable("LATTICE_TOOL_PERMISSIONS");
 
 if (!string.IsNullOrWhiteSpace(configuredPermissions))
@@ -57,7 +57,7 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
     if (Enum.TryParse<ToolPermission>(configuredPermissions, true, out var parsedPermissions) &&
         (parsedPermissions & ~knownPermissions) == 0)
     {
-        grantedPermissions = parsedPermissions;
+        toolAccess.GrantedPermissions = parsedPermissions;
     }
     else
     {
@@ -65,12 +65,12 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
     }
 }
 
-var rememberedToolPermissions = new Dictionary<string, ToolPermission>(
-    latticeConfiguration.ToolPermissions,
-    StringComparer.OrdinalIgnoreCase);
-var sessionToolPermissions = new Dictionary<string, ToolPermission>(
-    StringComparer.OrdinalIgnoreCase);
-var toolRegistry = CreateToolRegistry();
+var toolAccess = new CliToolAccess(
+    registeredTools,
+    toolAccess.GrantedPermissions,
+    configurationStore,
+    configurationLoaded,
+    latticeConfiguration);
 var intentRecognizers = registeredTools
     .Where(tool => !tool.Descriptor.Intents.IsDefaultOrEmpty)
     .SelectMany(tool => tool.Descriptor.Intents.Select(
@@ -213,6 +213,7 @@ while (true)
 
             await configurationStore.SaveAsync(updatedConfiguration);
             latticeConfiguration = updatedConfiguration;
+            toolAccess.UpdateConfiguration(latticeConfiguration);
             translationService = CreateTranslationService(selectedConfiguration);
 
             AnsiConsole.MarkupLine(
@@ -319,7 +320,7 @@ while (true)
     {
         AnsiConsole.MarkupLine("[bold]Tool permissions[/]");
 
-        if (rememberedToolPermissions.Count == 0)
+        if (toolAccess.RememberedToolPermissions.Count == 0)
         {
             AnsiConsole.MarkupLine("  [dim]No remembered tool approvals.[/]");
         }
@@ -327,7 +328,7 @@ while (true)
         {
             AnsiConsole.MarkupLine("  [cyan]Remembered[/]");
 
-            foreach (var pair in rememberedToolPermissions.OrderBy(
+            foreach (var pair in toolAccess.RememberedToolPermissions.OrderBy(
                 item => item.Key,
                 StringComparer.OrdinalIgnoreCase))
             {
@@ -336,11 +337,11 @@ while (true)
             }
         }
 
-        if (sessionToolPermissions.Count > 0)
+        if (toolAccess.SessionToolPermissions.Count > 0)
         {
             AnsiConsole.MarkupLine("  [cyan]This session only[/]");
 
-            foreach (var pair in sessionToolPermissions.OrderBy(
+            foreach (var pair in toolAccess.SessionToolPermissions.OrderBy(
                 item => item.Key,
                 StringComparer.OrdinalIgnoreCase))
             {
@@ -349,10 +350,10 @@ while (true)
             }
         }
 
-        if (grantedPermissions != ToolPermission.None)
+        if (toolAccess.GrantedPermissions != ToolPermission.None)
         {
             AnsiConsole.MarkupLine(
-                $"  [cyan]Environment pre-grants[/] {Markup.Escape(FormatPermissionNames(grantedPermissions))}");
+                $"  [cyan]Environment pre-grants[/] {Markup.Escape(FormatPermissionNames(toolAccess.GrantedPermissions))}");
         }
 
         AnsiConsole.MarkupLine("  [dim]Use :permissions revoke <tool-id> to forget a remembered approval.[/]");
@@ -371,8 +372,8 @@ while (true)
             continue;
         }
 
-        var removedRemembered = rememberedToolPermissions.Remove(toolId);
-        var removedSession = sessionToolPermissions.Remove(toolId);
+        var removedRemembered = toolAccess.RememberedToolPermissions.Remove(toolId);
+        var removedSession = toolAccess.SessionToolPermissions.Remove(toolId);
 
         if (!removedRemembered && !removedSession)
         {
@@ -389,7 +390,7 @@ while (true)
             var updatedConfiguration = latticeConfiguration with
             {
                 ToolPermissions = new Dictionary<string, ToolPermission>(
-                    rememberedToolPermissions,
+                    toolAccess.RememberedToolPermissions,
                     StringComparer.OrdinalIgnoreCase)
             };
 
@@ -408,7 +409,7 @@ while (true)
             }
         }
 
-        toolRegistry = CreateToolRegistry();
+        toolAccess.RefreshRegistry();
         AnsiConsole.MarkupLine(
             $"[green]Revoked permissions for '{Markup.Escape(toolId)}' in this session.[/]");
 
@@ -430,7 +431,7 @@ while (true)
     {
         AnsiConsole.MarkupLine("[bold]Available tools[/]");
 
-        foreach (var descriptor in toolRegistry.Descriptors.OrderBy(item => item.Id, StringComparer.Ordinal))
+        foreach (var descriptor in toolAccess.Registry.Descriptors.OrderBy(item => item.Id, StringComparer.Ordinal))
         {
             AnsiConsole.MarkupLine($"  [cyan]{descriptor.Id}[/] — {descriptor.Name}");
             AnsiConsole.MarkupLine($"    {descriptor.Description}");
@@ -460,7 +461,7 @@ while (true)
 
         var toolId = invocation[..separator];
         var arguments = invocation[(separator + 1)..].Trim();
-        var result = await InvokeToolWithPermissionPromptAsync(toolId, arguments);
+        var result = await toolAccess.InvokeAsync(toolId, arguments);
 
         if (result is null)
         {
@@ -496,7 +497,7 @@ while (true)
         AnsiConsole.MarkupLine("  [cyan]Pack loading[/]         Version 1 JSON; imported claims retain pack provenance");
         AnsiConsole.MarkupLine("  [cyan]Provenance[/]            Structured sources; duplicate claims retain all sources");
         AnsiConsole.MarkupLine($"  [cyan]Knowledge packs[/]      {loadedPacks.Count} loaded");
-        AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolRegistry.Descriptors.Count} registered");
+        AnsiConsole.MarkupLine($"  [cyan]Tools[/]                {toolAccess.Registry.Descriptors.Count} registered");
         AnsiConsole.MarkupLine($"  [cyan]Translation[/]          {(translationService is null ? "disabled" : $"LM Studio · {latticeConfiguration.LmStudio.ModelKey}")}");
         AnsiConsole.WriteLine();
         continue;
@@ -524,7 +525,7 @@ while (true)
 
         while (currentIntent is not null && invocationCount < maximumToolIntentSteps)
         {
-            var result = await InvokeToolWithPermissionPromptAsync(
+            var result = await toolAccess.InvokeAsync(
                 currentIntent.ToolId,
                 currentIntent.ArgumentsJson);
 
@@ -547,7 +548,7 @@ while (true)
             conversationContext.Observe(observation);
             responses.Add(currentIntent.FormatResponse(observation));
 
-            var descriptor = toolRegistry.Descriptors.FirstOrDefault(
+            var descriptor = toolAccess.Registry.Descriptors.FirstOrDefault(
                 item => string.Equals(item.Id, currentIntent.ToolId, StringComparison.OrdinalIgnoreCase));
             usedTools.Add(descriptor?.Name ?? currentIntent.ToolId);
 
@@ -599,192 +600,6 @@ while (true)
     }
 
     AnsiConsole.WriteLine();
-}
-
-ToolRegistry CreateToolRegistry()
-{
-    var combinedToolPermissions = new Dictionary<string, ToolPermission>(
-        rememberedToolPermissions,
-        StringComparer.OrdinalIgnoreCase);
-
-    foreach (var pair in sessionToolPermissions)
-    {
-        combinedToolPermissions[pair.Key] = combinedToolPermissions.TryGetValue(
-            pair.Key,
-            out var remembered)
-            ? remembered | pair.Value
-            : pair.Value;
-    }
-
-    return new ToolRegistry(
-        registeredTools,
-        grantedPermissions,
-        executionTimeout: TimeSpan.FromSeconds(15),
-        toolPermissions: combinedToolPermissions);
-}
-
-async ValueTask<ToolInvocationResult?> InvokeToolWithPermissionPromptAsync(
-    string requestedToolId,
-    string argumentsJson)
-{
-    var descriptor = toolRegistry.Descriptors.FirstOrDefault(
-        item => string.Equals(item.Id, requestedToolId, StringComparison.OrdinalIgnoreCase));
-
-    if (descriptor is not null)
-    {
-        var toolPermissions = rememberedToolPermissions.TryGetValue(
-            descriptor.Id,
-            out var remembered)
-            ? remembered
-            : ToolPermission.None;
-        toolPermissions |= sessionToolPermissions.TryGetValue(
-            descriptor.Id,
-            out var session)
-            ? session
-            : ToolPermission.None;
-
-        var missingPermissions = descriptor.RequiredPermissions &
-            ~(grantedPermissions | toolPermissions);
-
-        if (missingPermissions != ToolPermission.None)
-        {
-            var permissionNames = FormatPermissionNames(missingPermissions);
-            var descriptions = new List<string>();
-
-            if ((missingPermissions & ToolPermission.Read) != 0)
-            {
-                descriptions.Add("read: access information outside this conversation");
-            }
-
-            if ((missingPermissions & ToolPermission.Write) != 0)
-            {
-                descriptions.Add("write: make changes outside this conversation");
-            }
-
-            AnsiConsole.MarkupLine(
-                $"[yellow]{Markup.Escape(descriptor.Name)} requests {Markup.Escape(permissionNames)}.[/]");
-            AnsiConsole.MarkupLine($"[dim]{Markup.Escape(string.Join("; ", descriptions))}.[/]");
-            AnsiConsole.Markup(
-                "[yellow][[a]] Always allow / [[y]] This session / [[N]] Deny: [/]");
-            var acceptance = Console.ReadLine()?.Trim();
-
-            if (string.Equals(acceptance, "a", StringComparison.OrdinalIgnoreCase))
-            {
-                var updatedPermissions = toolPermissions | missingPermissions;
-                var hadRememberedPermissions = rememberedToolPermissions.TryGetValue(
-                    descriptor.Id,
-                    out var previousRememberedPermissions);
-                rememberedToolPermissions[descriptor.Id] = updatedPermissions;
-
-                if (configurationLoaded)
-                {
-                    var updatedConfiguration = latticeConfiguration with
-                    {
-                        ToolPermissions = new Dictionary<string, ToolPermission>(
-                            rememberedToolPermissions,
-                            StringComparer.OrdinalIgnoreCase)
-                    };
-
-                    try
-                    {
-                        await configurationStore.SaveAsync(updatedConfiguration);
-                        latticeConfiguration = updatedConfiguration;
-                        AnsiConsole.MarkupLine(
-                            $"[dim]Remembered {Markup.Escape(permissionNames)} for {Markup.Escape(descriptor.Name)}.[/]");
-                    }
-                    catch (IOException)
-                    {
-                        RememberSessionPermission(descriptor.Id, missingPermissions);
-                        RestoreRememberedPermissions(
-                            descriptor.Id,
-                            hadRememberedPermissions,
-                            previousRememberedPermissions);
-
-                        AnsiConsole.MarkupLine(
-                            "[yellow]Could not save the approval; allowed for this session only.[/]");
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        RememberSessionPermission(descriptor.Id, missingPermissions);
-                        RestoreRememberedPermissions(
-                            descriptor.Id,
-                            hadRememberedPermissions,
-                            previousRememberedPermissions);
-
-                        AnsiConsole.MarkupLine(
-                            "[yellow]Could not save the approval; allowed for this session only.[/]");
-                    }
-                }
-                else
-                {
-                    RememberSessionPermission(descriptor.Id, missingPermissions);
-                    RestoreRememberedPermissions(
-                        descriptor.Id,
-                        hadRememberedPermissions,
-                        previousRememberedPermissions);
-
-                    AnsiConsole.MarkupLine(
-                        "[yellow]Configuration could not be loaded; allowed for this session only.[/]");
-                }
-            }
-            else if (string.Equals(acceptance, "y", StringComparison.OrdinalIgnoreCase))
-            {
-                RememberSessionPermission(descriptor.Id, missingPermissions);
-                AnsiConsole.MarkupLine(
-                    $"[dim]Allowed {Markup.Escape(permissionNames)} for {Markup.Escape(descriptor.Name)} until this session ends.[/]");
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[dim]Permission was not granted; the tool was not run.[/]");
-                return null;
-            }
-
-            toolRegistry = CreateToolRegistry();
-        }
-    }
-
-    return await toolRegistry.TryInvokeAsync(requestedToolId, argumentsJson);
-}
-
-void RestoreRememberedPermissions(
-    string toolId,
-    bool hadRememberedPermissions,
-    ToolPermission previousPermissions)
-{
-    if (hadRememberedPermissions)
-    {
-        rememberedToolPermissions[toolId] = previousPermissions;
-    }
-    else
-    {
-        rememberedToolPermissions.Remove(toolId);
-    }
-}
-
-void RememberSessionPermission(string toolId, ToolPermission permissions)
-{
-    sessionToolPermissions[toolId] = sessionToolPermissions.TryGetValue(
-        toolId,
-        out var existing)
-        ? existing | permissions
-        : permissions;
-}
-
-static string FormatPermissionNames(ToolPermission permissions)
-{
-    var names = new List<string>(2);
-
-    if ((permissions & ToolPermission.Read) != 0)
-    {
-        names.Add("read");
-    }
-
-    if ((permissions & ToolPermission.Write) != 0)
-    {
-        names.Add("write");
-    }
-
-    return string.Join(" and ", names);
 }
 
 SemanticTranslationService? CreateTranslationService(LmStudioConfiguration configuration) =>
