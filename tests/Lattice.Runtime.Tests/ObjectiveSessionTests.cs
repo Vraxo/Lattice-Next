@@ -519,14 +519,16 @@ public sealed class ObjectiveSessionTests
         busPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Bus Park");
         walkPark = Assert.Single(revisedEvaluation.Candidates, candidate => candidate.Candidate == "Walk Park");
         Assert.True(busPark.HasHardConstraintViolation);
+        Assert.Equal("Excluded", busPark.Feasibility);
         Assert.False(walkPark.HasHardConstraintViolation);
+        Assert.Equal("Eligible", walkPark.Feasibility);
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
         Assert.Contains(
-            "Bus Park: fails at least one hard constraint",
+            "Bus Park: is excluded by a hard constraint",
             walkingOnly.Utterances[^1].Message);
         Assert.Contains(
-            "Walk Park: meets all assessed hard constraints",
+            "Walk Park: is eligible under the assessed hard constraints",
             walkingOnly.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("Stage 1: 09:00–09:25", walkingOnly.Utterances[^1].Message);
