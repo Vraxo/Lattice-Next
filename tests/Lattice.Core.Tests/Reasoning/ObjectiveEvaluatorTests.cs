@@ -161,6 +161,34 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Treats_context_only_conditions_as_not_applicable_to_candidate_comparison()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Park", "total-cost", new ObjectiveMoneyValue(5m, "$"));
+        var objective = new ObjectiveFormula("visit with lunch packed")
+        {
+            Conditions = ImmutableArray.Create(new ObjectiveCondition(
+                "meal-plan",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Equals,
+                new ObjectiveTextValue("bring-lunch"),
+                "I'll bring lunch.")
+            {
+                TargetAttribute = null
+            })
+        };
+
+        var result = evaluator.Evaluate(objective, knowledgeBase);
+        var candidate = Assert.Single(result.Candidates);
+
+        Assert.Equal(
+            ObjectiveConditionAssessmentStatus.NotApplicable,
+            GetCondition(candidate, "meal-plan").Status);
+        Assert.False(candidate.HasHardConstraintViolation);
+        Assert.False(candidate.HasUnresolvedHardConstraint);
+    }
+
+    [Fact]
     public void Walking_only_revision_rejects_bus_candidates_and_keeps_walking_candidates()
     {
         var objective = CreateDayOutObjective();
