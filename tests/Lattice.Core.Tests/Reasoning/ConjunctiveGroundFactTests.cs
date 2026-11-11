@@ -34,4 +34,32 @@ public sealed class ConjunctiveGroundFactTests
         shiny.IsSupported.Should().BeTrue();
         shiny.Proof!.SourceText.Should().Be("Fido is happy and shiny.");
     }
+
+    [Fact]
+    public void Stores_and_reasons_over_each_explicitly_negative_conjunct()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        var utterance = Parse("Fido is not happy and not shiny.");
+
+        var accepted = knowledgeBase.TryAdd(
+            utterance,
+            out var kind,
+            out var error);
+
+        accepted.Should().BeTrue(error);
+        kind.Should().Be(KnowledgeEntryKind.Fact);
+        knowledgeBase.Facts.Should().HaveCount(2);
+        knowledgeBase.Facts.Should().OnlyContain(fact =>
+            fact.Polarity == EvidencePolarity.Negative &&
+            fact.SourceText == "Fido is not happy and not shiny.");
+
+        var engine = new ReasoningEngine();
+        var unhappy = engine.Ask(knowledgeBase, ParseNegatedQuestion("Is Fido not happy?"));
+        var notShiny = engine.Ask(knowledgeBase, ParseNegatedQuestion("Is Fido not shiny?"));
+
+        unhappy.IsSupported.Should().BeTrue();
+        unhappy.Proof!.SourceText.Should().Be("Fido is not happy and not shiny.");
+        notShiny.IsSupported.Should().BeTrue();
+        notShiny.Proof!.SourceText.Should().Be("Fido is not happy and not shiny.");
+    }
 }

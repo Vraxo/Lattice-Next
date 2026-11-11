@@ -26,8 +26,20 @@ internal static class KnowledgeFactFactory
 
             foreach (var conjunct in conjunction.Conjuncts)
             {
-                if (conjunct is not PredicateApplication conjunctivePredicate ||
-                    !TryGroundPredicate(conjunctivePredicate, out var conjunctiveGroundedPredicate, out var conjunctiveDescriptionFacts))
+                var factMeaning = conjunct switch
+                {
+                    PredicateApplication positivePredicate => positivePredicate,
+                    Negation { Formula: PredicateApplication negativePredicate } => negativePredicate,
+                    _ => null
+                };
+                var polarity = conjunct is Negation
+                    ? EvidencePolarity.Negative
+                    : EvidencePolarity.Positive;
+
+                if (factMeaning is null ||
+                    (polarity == EvidencePolarity.Negative &&
+                     (factMeaning.Arguments.IsDefault || factMeaning.Arguments.Length is not (1 or 2))) ||
+                    !TryGroundPredicate(factMeaning, out var conjunctiveGroundedPredicate, out var conjunctiveDescriptionFacts))
                 {
                     return false;
                 }
@@ -37,7 +49,10 @@ internal static class KnowledgeFactFactory
                     sourceText,
                     resolvedReferent,
                     sourceKind,
-                    SourceId: sourceId));
+                    SourceId: sourceId)
+                {
+                    Polarity = polarity
+                });
 
                 foreach (var descriptionFact in conjunctiveDescriptionFacts)
                 {
