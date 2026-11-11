@@ -249,7 +249,7 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         var afterAdd = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var addMeaning = added.Utterances.Single().Meaning;
-        Assert.Contains("add-preference(battery life)", addMeaning);
+        Assert.Contains("preference(preference, desires, screen quality+reliability+repairability+battery life)", addMeaning);
 
         var cedarAfterAdd = Assert.Single(
             Assert.IsType<LatticeObjectiveEvaluation>(afterAdd.ObjectiveEvaluation).Candidates,
@@ -282,7 +282,8 @@ public sealed class ObjectiveSessionTests
             "Remove screen quality from my preferences.",
             TestContext.Current.CancellationToken);
         var afterRemove = await session.GetStatusAsync(TestContext.Current.CancellationToken);
-        Assert.Contains("remove-preference(screen quality)", removed.Utterances.Single().Meaning);
+        Assert.Contains("preference(preference, desires, reliability+repairability+battery life)", removed.Utterances.Single().Meaning);
+        Assert.DoesNotContain("screen quality", removed.Utterances.Single().Meaning);
 
         var cedarAfterRemove = Assert.Single(
             Assert.IsType<LatticeObjectiveEvaluation>(afterRemove.ObjectiveEvaluation).Candidates,
