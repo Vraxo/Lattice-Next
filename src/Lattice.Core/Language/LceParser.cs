@@ -378,7 +378,10 @@ public sealed class LceParser
 
         utterance = new SemanticUtterance(
             UtteranceKind.Objective,
-            new ObjectiveFormula(goal),
+            new ObjectiveFormula(goal)
+            {
+                Conditions = ObjectiveConditionParser.Parse(sourceText)
+            },
             sourceText.Trim());
         return true;
     }
