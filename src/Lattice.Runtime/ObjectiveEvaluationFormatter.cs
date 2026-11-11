@@ -95,10 +95,9 @@ internal static class ObjectiveEvaluationFormatter
                     }
                 }
 
-                var sources = condition.Preferences.IsDefaultOrEmpty
-                    ? condition.Evidence
-                        .SelectMany(attribute => attribute.Sources)
-                    : Enumerable.Empty<KnowledgeSource>();
+                var sources = (condition.Preferences.IsDefaultOrEmpty
+                    ? condition.Evidence.SelectMany(attribute => attribute.Sources)
+                    : Enumerable.Empty<KnowledgeSource>())
                     .Select(source => string.IsNullOrWhiteSpace(source.SourceId)
                         ? source.SourceText
                         : $"{source.SourceText} [source: {source.SourceId}]")
