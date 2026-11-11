@@ -121,6 +121,8 @@ Every attribute used by the plan is retained as evidence, including the plan tem
 
 The ordinary `I can leave at ... and be back by ...` condition-update path now creates this `CanFit` condition. Session evaluation therefore uses the same candidate-provided templates as direct evaluator tests; no destination-specific planner or timetable parser is introduced.
 
+Typed candidate attributes may also define a bounded `sum` over other named attributes. The evaluator resolves money sums only when all components share a currency, and duration sums when all components are durations. Nested sums are bounded and retain the definition plus every component as evidence. Missing components remain Unknown, contradictory values remain Conflicting, and incompatible types or cyclic definitions are not guessed.
+
 The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md).
 
 This contract is intentionally smaller than a planner architecture. Implementation should add further structure only when an executable task demonstrates the need.
