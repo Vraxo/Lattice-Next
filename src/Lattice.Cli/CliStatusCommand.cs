@@ -13,6 +13,7 @@ internal sealed class CliStatusCommand(
 {
     public bool TryHandle(string input)
     {
+
         if (string.Equals(input, ":status", StringComparison.OrdinalIgnoreCase))
                 {
                     AnsiConsole.MarkupLine("[bold]Implementation status[/]");

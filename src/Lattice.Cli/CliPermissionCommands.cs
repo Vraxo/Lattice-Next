@@ -12,10 +12,11 @@ internal sealed class CliPermissionCommands(
 {
     public async ValueTask<bool> TryHandleAsync(string input)
     {
+
         if (string.Equals(input, ":permissions", StringComparison.OrdinalIgnoreCase))
                 {
                     AnsiConsole.MarkupLine("[bold]Tool permissions[/]");
-        
+
                     if (toolAccess.RememberedToolPermissions.Count == 0)
                     {
                         AnsiConsole.MarkupLine("  [dim]No remembered tool approvals.[/]");
@@ -23,7 +24,7 @@ internal sealed class CliPermissionCommands(
                     else
                     {
                         AnsiConsole.MarkupLine("  [cyan]Remembered[/]");
-        
+
                         foreach (var pair in toolAccess.RememberedToolPermissions.OrderBy(
                             item => item.Key,
                             StringComparer.OrdinalIgnoreCase))
@@ -32,11 +33,11 @@ internal sealed class CliPermissionCommands(
                                 $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
                         }
                     }
-        
+
                     if (toolAccess.SessionToolPermissions.Count > 0)
                     {
                         AnsiConsole.MarkupLine("  [cyan]This session only[/]");
-        
+
                         foreach (var pair in toolAccess.SessionToolPermissions.OrderBy(
                             item => item.Key,
                             StringComparer.OrdinalIgnoreCase))
@@ -45,32 +46,32 @@ internal sealed class CliPermissionCommands(
                                 $"    {Markup.Escape(pair.Key)} — {Markup.Escape(CliToolAccess.FormatPermissionNames(pair.Value))}");
                         }
                     }
-        
+
                     if (toolAccess.GrantedPermissions != ToolPermission.None)
                     {
                         AnsiConsole.MarkupLine(
                             $"  [cyan]Environment pre-grants[/] {Markup.Escape(CliToolAccess.FormatPermissionNames(toolAccess.GrantedPermissions))}");
                     }
-        
+
                     AnsiConsole.MarkupLine("  [dim]Use :permissions revoke <tool-id> to forget a remembered approval.[/]");
                     AnsiConsole.WriteLine();
                     return true;
                 }
-        
+
                 if (input.StartsWith(":permissions revoke ", StringComparison.OrdinalIgnoreCase))
                 {
                     var toolId = input[20..].Trim();
-        
+
                     if (toolId.Length == 0)
                     {
                         AnsiConsole.MarkupLine("[yellow]Usage: :permissions revoke <tool-id>[/]");
                         AnsiConsole.WriteLine();
                         return true;
                     }
-        
+
                     var removedRemembered = toolAccess.RememberedToolPermissions.Remove(toolId);
                     var removedSession = toolAccess.SessionToolPermissions.Remove(toolId);
-        
+
                     if (!removedRemembered && !removedSession)
                     {
                         AnsiConsole.MarkupLine(
@@ -78,9 +79,9 @@ internal sealed class CliPermissionCommands(
                         AnsiConsole.WriteLine();
                         return true;
                     }
-        
+
                     var persistenceFailed = false;
-        
+
                     if (removedRemembered && configurationLoaded)
                     {
                         var updatedConfiguration = toolAccess.Configuration with
@@ -89,7 +90,7 @@ internal sealed class CliPermissionCommands(
                                 toolAccess.RememberedToolPermissions,
                                 StringComparer.OrdinalIgnoreCase)
                         };
-        
+
                         try
                         {
                             await configurationStore.SaveAsync(updatedConfiguration);
@@ -105,11 +106,11 @@ internal sealed class CliPermissionCommands(
                             persistenceFailed = true;
                         }
                     }
-        
+
                     toolAccess.RefreshRegistry();
                     AnsiConsole.MarkupLine(
                         $"[green]Revoked permissions for '{Markup.Escape(toolId)}' in this session.[/]");
-        
+
                     if (persistenceFailed)
                     {
                         AnsiConsole.MarkupLine(
@@ -119,7 +120,7 @@ internal sealed class CliPermissionCommands(
                     {
                         AnsiConsole.MarkupLine("[dim]The remembered approval was removed from lattice.config.json.[/]");
                     }
-        
+
                     AnsiConsole.WriteLine();
                     return true;
                 }

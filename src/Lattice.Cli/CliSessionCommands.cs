@@ -27,7 +27,7 @@ internal sealed class CliSessionCommands
             configurationStore,
             configurationLoaded,
             translationCommands);
-        toolCommands = new CliToolCommands(toolAccess, conversationContext);
+        toolCommands = new CliToolCommands(toolAccess, conversationContext, translationCommands);
         statusCommand = new CliStatusCommand(
             knowledgeBase,
             conversationContext,
