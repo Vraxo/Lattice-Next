@@ -14,10 +14,11 @@ public sealed class KnowledgeBaseTests
     public void Facts_are_exposed_through_a_live_read_only_collection()
     {
         var knowledgeBase = new KnowledgeBase();
-        var facts = Assert.IsAssignableFrom<IList<KnowledgeFact>>(knowledgeBase.Facts);
+        var facts = knowledgeBase.Facts.Should().BeAssignableTo<IList<KnowledgeFact>>().Which;
 
         facts.IsReadOnly.Should().BeTrue();
-        Assert.Throws<NotSupportedException>(() => facts.Clear());
+        Action clearFacts = () => facts.Clear();
+        clearFacts.Should().Throw<NotSupportedException>();
 
         Add(knowledgeBase, "Fido is a dog.");
 
@@ -29,10 +30,11 @@ public sealed class KnowledgeBaseTests
     public void Rules_are_exposed_through_a_live_read_only_collection()
     {
         var knowledgeBase = new KnowledgeBase();
-        var rules = Assert.IsAssignableFrom<IList<UniversalRule>>(knowledgeBase.Rules);
+        var rules = knowledgeBase.Rules.Should().BeAssignableTo<IList<UniversalRule>>().Which;
 
         rules.IsReadOnly.Should().BeTrue();
-        Assert.Throws<NotSupportedException>(() => rules.Clear());
+        Action clearRules = () => rules.Clear();
+        clearRules.Should().Throw<NotSupportedException>();
 
         Add(knowledgeBase, "Every dog is an animal.");
 
@@ -72,6 +74,40 @@ public sealed class KnowledgeBaseTests
         knowledgeBase.Rules.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Does_not_accept_questions_or_relations_with_unresolved_arguments_as_facts()
+    {
+        var knowledgeBase = new KnowledgeBase();
+
+        var questionResult = new LceParser().Parse("Is Fido a dog?");
+        questionResult.IsSuccess.Should().BeTrue(questionResult.Error);
+        var questionAccepted = knowledgeBase.TryAdd(
+            questionResult.Utterance.Should().BeOfType<SemanticUtterance>().Which,
+            out _,
+            out var questionError);
+
+        questionAccepted.Should().BeFalse();
+        questionError.Should().NotBeNull();
+
+        var relation = new PredicateApplication(
+            new SemanticIdentifier("likes"),
+            ImmutableArray.Create<SemanticTerm>(
+                new IndividualTerm(new SemanticIdentifier("fido")),
+                new UnresolvedReferenceTerm(new SemanticIdentifier("it"))));
+        var relationUtterance = new SemanticUtterance(
+            UtteranceKind.Assertion,
+            relation,
+            "Fido likes it.");
+
+        var relationAccepted = knowledgeBase.TryAdd(
+            relationUtterance,
+            out _,
+            out var relationError);
+
+        relationAccepted.Should().BeFalse();
+        relationError.Should().NotBeNull();
+    }
+
     private static SemanticUtterance CreateRule(params PredicateApplication[] relationalPremises)
     {
         var variable = new VariableTerm(new SemanticIdentifier("x"));
@@ -109,8 +145,8 @@ public sealed class KnowledgeBaseTests
     private static void Add(KnowledgeBase knowledgeBase, string sentence)
     {
         var parsed = new LceParser().Parse(sentence);
-        Assert.True(parsed.IsSuccess, parsed.Error);
-        Assert.NotNull(parsed.Utterance);
+        parsed.IsSuccess.Should().BeTrue(parsed.Error);
+        parsed.Utterance.Should().NotBeNull();
 
         var accepted = knowledgeBase.TryAdd(
             parsed.Utterance,
