@@ -34,8 +34,14 @@ public static class SemanticFormatter
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
         };
 
-    private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update) =>
-        string.Join(", ", update.Conditions.Select(FormatObjectiveCondition));
+    private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
+    {
+        var conditions = update.Conditions.Select(FormatObjectiveCondition);
+        var edits = update.PreferenceEdits.Select(edit =>
+            $"{(edit.Kind == ObjectivePreferenceEditKind.Add ? "add" : "remove")}-preference({string.Join("+", edit.Values)})");
+
+        return string.Join(", ", conditions.Concat(edits));
+    }
 
     private static string FormatObjectiveCondition(ObjectiveCondition condition)
     {

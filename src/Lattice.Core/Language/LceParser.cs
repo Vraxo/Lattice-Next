@@ -42,6 +42,14 @@ public sealed class LceParser
         @"^(?:Actually,\s*)?(?:my\s+)?budget\b[^.!?]*[$€£]\s*\d[\d,]*(?:\.\d{1,2})?[^.!?]*[.!?]$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectivePreferenceAdditionPattern = new(
+        @"^(?:Also,\s*)?(?:I also care about|I also prefer)\s+(?<value>[^.!?]+)[.!?]$|^Add\s+(?<add>.+?)\s+to my preferences[.!?]$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ObjectivePreferenceRemovalPattern = new(
+        @"^Remove\s+(?<value>.+?)\s+from my preferences[.!?]$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex UniversalRulePattern = new(
         @"^Every\s+(?<description>[a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)\s+is\s+(?:a|an)\s+(?<supertype>[a-z][a-z0-9-]*)\.$",
         RegexOptions.CultureInvariant);
@@ -430,8 +438,38 @@ public sealed class LceParser
         out SemanticUtterance? utterance)
     {
         var conditions = ImmutableArray.CreateBuilder<ObjectiveCondition>();
+        var preferenceEdits = ImmutableArray.CreateBuilder<ObjectivePreferenceEdit>();
         var isPreferenceRevision = ObjectivePreferenceRevisionPattern.IsMatch(source);
         var isBudgetRevision = ObjectiveBudgetRevisionPattern.IsMatch(source);
+        var preferenceAddition = ObjectivePreferenceAdditionPattern.Match(source);
+        var preferenceRemoval = ObjectivePreferenceRemovalPattern.Match(source);
+
+        if (preferenceAddition.Success || preferenceRemoval.Success)
+        {
+            var match = preferenceAddition.Success ? preferenceAddition : preferenceRemoval;
+            var value = match.Groups["value"].Success
+                ? match.Groups["value"].Value
+                : match.Groups["add"].Value;
+            var parsedPreferences = ObjectiveConditionParser.Parse($"I care about {value}.");
+            var values = parsedPreferences
+                .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                .OfType<ObjectiveCondition>()
+                .SelectMany(condition => condition.Value is ObjectiveTextSetValue set
+                    ? set.Values
+                    : ImmutableArray<string>.Empty)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToImmutableArray();
+
+            if (!values.IsDefaultOrEmpty)
+            {
+                preferenceEdits.Add(new ObjectivePreferenceEdit(
+                    preferenceAddition.Success
+                        ? ObjectivePreferenceEditKind.Add
+                        : ObjectivePreferenceEditKind.Remove,
+                    values,
+                    sourceText));
+            }
+        }
 
         if (isPreferenceRevision || isBudgetRevision)
         {
@@ -520,7 +558,7 @@ public sealed class LceParser
             });
         }
 
-        if (conditions.Count == 0)
+        if (conditions.Count == 0 && preferenceEdits.Count == 0)
         {
             utterance = null;
             return false;
@@ -528,7 +566,10 @@ public sealed class LceParser
 
         utterance = new SemanticUtterance(
             UtteranceKind.ObjectiveConditionUpdate,
-            new ObjectiveConditionUpdateFormula(conditions.ToImmutable()),
+            new ObjectiveConditionUpdateFormula(conditions.ToImmutable())
+            {
+                PreferenceEdits = preferenceEdits.ToImmutable()
+            },
             sourceText.Trim());
         return true;
     }

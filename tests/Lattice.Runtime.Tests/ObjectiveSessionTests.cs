@@ -232,6 +232,90 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Adds_and_removes_individual_preferences_without_replacing_the_set()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+
+        var added = await session.SubmitAsync(
+            "Also, I care about battery life.",
+            TestContext.Current.CancellationToken);
+        var afterAdd = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var addMeaning = added.Utterances.Single().Meaning;
+        Assert.Contains("add-preference(battery life)", addMeaning);
+
+        var cedarAfterAdd = Assert.Single(
+            Assert.IsType<LatticeObjectiveEvaluation>(afterAdd.ObjectiveEvaluation).Candidates,
+            candidate => candidate.Candidate == "Cedar 14");
+        var preferencesAfterAdd = Assert.Single(
+            cedarAfterAdd.Conditions,
+            condition => condition.Name == "preference").Preferences;
+        Assert.Equal(
+            ["screen quality", "reliability", "repairability", "battery life"],
+            preferencesAfterAdd.Select(preference => preference.Name));
+        Assert.Equal("Satisfied", Assert.Single(
+            preferencesAfterAdd,
+            preference => preference.Name == "repairability").Status);
+        Assert.Equal("Unknown", Assert.Single(
+            preferencesAfterAdd,
+            preference => preference.Name == "battery life").Status);
+
+        await session.SubmitAsync(
+            "Also, I care about battery life.",
+            TestContext.Current.CancellationToken);
+        var afterDuplicate = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var cedarAfterDuplicate = Assert.Single(
+            Assert.IsType<LatticeObjectiveEvaluation>(afterDuplicate.ObjectiveEvaluation).Candidates,
+            candidate => candidate.Candidate == "Cedar 14");
+        Assert.Equal(4, Assert.Single(
+            cedarAfterDuplicate.Conditions,
+            condition => condition.Name == "preference").Preferences.Length);
+
+        var removed = await session.SubmitAsync(
+            "Remove screen quality from my preferences.",
+            TestContext.Current.CancellationToken);
+        var afterRemove = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("remove-preference(screen quality)", removed.Utterances.Single().Meaning);
+
+        var cedarAfterRemove = Assert.Single(
+            Assert.IsType<LatticeObjectiveEvaluation>(afterRemove.ObjectiveEvaluation).Candidates,
+            candidate => candidate.Candidate == "Cedar 14");
+        var remainingPreferences = Assert.Single(
+            cedarAfterRemove.Conditions,
+            condition => condition.Name == "preference").Preferences;
+        Assert.Equal(
+            ["reliability", "repairability", "battery life"],
+            remainingPreferences.Select(preference => preference.Name));
+        Assert.Equal("Satisfied", Assert.Single(
+            remainingPreferences,
+            preference => preference.Name == "repairability").Status);
+        Assert.Equal("Unknown", Assert.Single(
+            remainingPreferences,
+            preference => preference.Name == "battery life").Status);
+
+        await session.SubmitAsync(
+            "Remove screen quality from my preferences.",
+            TestContext.Current.CancellationToken);
+        var afterAbsentRemoval = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var cedarAfterAbsentRemoval = Assert.Single(
+            Assert.IsType<LatticeObjectiveEvaluation>(afterAbsentRemoval.ObjectiveEvaluation).Candidates,
+            candidate => candidate.Candidate == "Cedar 14");
+        Assert.Equal(3, Assert.Single(
+            cedarAfterAbsentRemoval.Conditions,
+            condition => condition.Name == "preference").Preferences.Length);
+        Assert.Contains(request, afterAbsentRemoval.ActiveObjectiveSource);
+        Assert.Contains("Also, I care about battery life.", afterAbsentRemoval.ActiveObjectiveSource);
+        Assert.Contains("Remove screen quality from my preferences.", afterAbsentRemoval.ActiveObjectiveSource);
+    }
+
+    [Fact]
     public async Task Applies_a_typed_answer_to_the_pending_condition_without_storing_a_fact()
     {
         var client = new LatticeRuntimeClient();

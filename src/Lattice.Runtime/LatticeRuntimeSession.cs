@@ -327,6 +327,69 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         var conditions = objective.Conditions.ToBuilder();
 
+        foreach (var edit in update.PreferenceEdits)
+        {
+            var preferenceIndex = -1;
+
+            for (var index = 0; index < conditions.Count; index++)
+            {
+                if (conditions[index].Name == "preference" &&
+                    conditions[index].Role == ObjectiveConditionRole.Preference &&
+                    conditions[index].Value is ObjectiveTextSetValue)
+                {
+                    preferenceIndex = index;
+                    break;
+                }
+            }
+
+            if (edit.Kind == ObjectivePreferenceEditKind.Add)
+            {
+                if (preferenceIndex < 0)
+                {
+                    conditions.Add(new ObjectiveCondition(
+                        "preference",
+                        ObjectiveConditionRole.Preference,
+                        ObjectiveConditionOperator.Desires,
+                        new ObjectiveTextSetValue(edit.Values),
+                        edit.SourceText)
+                    {
+                        TargetAttribute = "tags"
+                    });
+                }
+                else
+                {
+                    var existing = conditions[preferenceIndex];
+                    var values = ((ObjectiveTextSetValue)existing.Value!).Values
+                        .Concat(edit.Values)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToImmutableArray();
+                    conditions[preferenceIndex] = existing with
+                    {
+                        Value = new ObjectiveTextSetValue(values)
+                    };
+                }
+            }
+            else if (preferenceIndex >= 0)
+            {
+                var existing = conditions[preferenceIndex];
+                var values = ((ObjectiveTextSetValue)existing.Value!).Values
+                    .Where(value => !edit.Values.Contains(value, StringComparer.OrdinalIgnoreCase))
+                    .ToImmutableArray();
+
+                if (values.IsDefaultOrEmpty)
+                {
+                    conditions.RemoveAt(preferenceIndex);
+                }
+                else
+                {
+                    conditions[preferenceIndex] = existing with
+                    {
+                        Value = new ObjectiveTextSetValue(values)
+                    };
+                }
+            }
+        }
+
         foreach (var condition in update.Conditions)
         {
             var existingIndex = -1;
