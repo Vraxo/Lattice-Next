@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: make evidence-backed objective assessments useful in an end-to-end interaction. User time windows combine with candidate-provided ordered temporal plans; transport revisions re-evaluate the same candidates; and typed sums derive money or duration values from component attributes. The session still exposes raw assessments rather than a grounded natural-language explanation. Prefer the next general mechanism demonstrated by a benchmark failure; do not add a trip planner, ranking, or opaque score.
+> Current priority: make objective assessments actionable without inventing a ranking. Candidate plans now produce evidence-backed feasibility results, typed sums derive costs and durations, and session replies summarize condition fit without ranking. The next useful increment is a constructive temporal witness: expose the actual stage times that prove a plan fits, then present those times as an evidence-backed itinerary. Keep the solver generic and do not introduce optimization or opaque scoring.
 
 
 ## Bootstrap
