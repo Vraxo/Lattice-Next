@@ -3,38 +3,38 @@ using Lattice.Core.Intelligence;
 using Lattice.Core.Reasoning;
 using Lattice.Translators.LmStudio;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliSessionCommands
+internal sealed class ReplSessionCommands
 {
-    private readonly CliPermissionCommands permissionCommands;
-    private readonly CliToolCommands toolCommands;
-    private readonly CliStatusCommand statusCommand;
-    private readonly CliToolIntentCommand toolIntentCommand;
+    private readonly ReplPermissionCommands permissionCommands;
+    private readonly ReplToolCommands toolCommands;
+    private readonly ReplStatusCommand statusCommand;
+    private readonly ReplToolIntentCommand toolIntentCommand;
 
-    public CliSessionCommands(
-        CliToolAccess toolAccess,
+    public ReplSessionCommands(
+        ReplToolAccess toolAccess,
         ConversationContext conversationContext,
         KnowledgeBase knowledgeBase,
         List<KnowledgePack> loadedPacks,
         ToolIntentResolver toolIntentResolver,
         LmStudioConfigurationStore configurationStore,
         bool configurationLoaded,
-        CliTranslationCommands translationCommands)
+        ReplTranslationCommands translationCommands)
     {
-        permissionCommands = new CliPermissionCommands(
+        permissionCommands = new ReplPermissionCommands(
             toolAccess,
             configurationStore,
             configurationLoaded,
             translationCommands);
-        toolCommands = new CliToolCommands(toolAccess, conversationContext, translationCommands);
-        statusCommand = new CliStatusCommand(
+        toolCommands = new ReplToolCommands(toolAccess, conversationContext, translationCommands);
+        statusCommand = new ReplStatusCommand(
             knowledgeBase,
             conversationContext,
             loadedPacks,
             toolAccess,
             translationCommands);
-        toolIntentCommand = new CliToolIntentCommand(
+        toolIntentCommand = new ReplToolIntentCommand(
             toolAccess,
             conversationContext,
             toolIntentResolver,

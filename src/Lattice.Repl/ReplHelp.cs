@@ -1,8 +1,8 @@
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal static class CliHelp
+internal static class ReplHelp
 {
     public static void Write()
     {

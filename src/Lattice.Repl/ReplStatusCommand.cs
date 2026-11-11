@@ -2,14 +2,14 @@ using Lattice.Core.Context;
 using Lattice.Core.Reasoning;
 using Spectre.Console;
 
-namespace Lattice.Cli;
+namespace Lattice.Repl;
 
-internal sealed class CliStatusCommand(
+internal sealed class ReplStatusCommand(
     KnowledgeBase knowledgeBase,
     ConversationContext conversationContext,
     List<KnowledgePack> loadedPacks,
-    CliToolAccess toolAccess,
-    CliTranslationCommands translationCommands)
+    ReplToolAccess toolAccess,
+    ReplTranslationCommands translationCommands)
 {
     public bool TryHandle(string input)
     {

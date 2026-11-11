@@ -7,7 +7,7 @@ using Lattice.Core.Tools;
 using Lattice.Tooling.Stdio;
 using Lattice.Translators.LmStudio;
 using Spectre.Console;
-using Lattice.Cli;
+using Lattice.Repl;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -29,7 +29,7 @@ var translationService = CreateTranslationService(latticeConfiguration.LmStudio)
 var knowledgeBase = new KnowledgeBase();
 var conversationContext = new ConversationContext();
 var reasoningEngine = new ReasoningEngine();
-var utteranceProcessor = new CliUtteranceProcessor(
+var utteranceProcessor = new ReplUtteranceProcessor(
     conversationContext,
     knowledgeBase,
     reasoningEngine);
@@ -64,7 +64,7 @@ if (!string.IsNullOrWhiteSpace(configuredPermissions))
     }
 }
 
-var toolAccess = new CliToolAccess(
+var toolAccess = new ReplToolAccess(
     registeredTools,
     grantedPermissions,
     configurationStore,
@@ -76,7 +76,7 @@ var intentRecognizers = registeredTools
         definition => new ManifestToolIntentRecognizer(tool.Descriptor, definition)));
 var toolIntentResolver = new ToolIntentResolver(intentRecognizers);
 
-var translationCommands = new CliTranslationCommands(
+var translationCommands = new ReplTranslationCommands(
     latticeConfiguration,
     translationService,
     configurationStore,
@@ -85,7 +85,7 @@ var translationCommands = new CliTranslationCommands(
     ReportLmStudioStatus,
     utteranceProcessor);
 
-var sessionCommands = new CliSessionCommands(
+var sessionCommands = new ReplSessionCommands(
     toolAccess,
     conversationContext,
     knowledgeBase,
@@ -146,7 +146,7 @@ while (true)
 
     if (string.Equals(input, ":help", StringComparison.OrdinalIgnoreCase))
     {
-        CliHelp.Write();
+        ReplHelp.Write();
         continue;
     }
 
@@ -158,7 +158,7 @@ while (true)
         continue;
     }
 
-    if (CliKnowledgePackCommand.TryHandle(
+    if (ReplKnowledgePackCommand.TryHandle(
         input,
         knowledgePackLoader,
         knowledgeBase,
