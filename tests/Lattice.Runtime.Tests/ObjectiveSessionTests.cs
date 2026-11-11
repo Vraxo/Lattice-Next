@@ -287,10 +287,10 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(busPark.Conditions, condition => condition.Name == "origin" && condition.Status == "Satisfied");
         Assert.Contains(busPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
         Assert.Contains(
-            followUp.Utterances[^1].Message,
-            "Candidate assessment (not ranked):");
-        Assert.Contains(followUp.Utterances[^1].Message, "Bus Park");
-        Assert.Contains(followUp.Utterances[^1].Message, "Walk Park");
+            "Candidate assessment (not ranked):",
+            followUp.Utterances[^1].Message);
+        Assert.Contains("Bus Park", followUp.Utterances[^1].Message);
+        Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
 
         var walkingOnly = await session.SubmitAsync(
             "Actually, I don't want to take a bus. Walking only.",
@@ -306,11 +306,11 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
         Assert.Contains(
-            walkingOnly.Utterances[^1].Message,
-            "Bus Park: fails at least one hard constraint");
+            "Bus Park: fails at least one hard constraint",
+            walkingOnly.Utterances[^1].Message);
         Assert.Contains(
-            walkingOnly.Utterances[^1].Message,
-            "Walk Park: meets all assessed hard constraints");
+            "Walk Park: meets all assessed hard constraints",
+            walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
