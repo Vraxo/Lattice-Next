@@ -179,7 +179,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("hardconstraint(spending-limit, atmost, $25)", meaning);
         Assert.Contains("hardconstraint(meal-plan, equals, bring-lunch)", meaning);
         Assert.Contains("hardconstraint(origin, equals, Central Station)", meaning);
-        Assert.Contains("hardconstraint(time-window, within, 09:00-18:00)", meaning);
+        Assert.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", meaning);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
@@ -219,7 +219,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("hardconstraint(transport-mode, equals, walking)", meaning);
         Assert.Contains("hardconstraint(spending-limit, atmost, $25)", meaning);
         Assert.Contains("hardconstraint(origin, equals, Central Station)", meaning);
-        Assert.Contains("hardconstraint(time-window, within, 09:00-18:00)", meaning);
+        Assert.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", meaning);
         Assert.Contains("bring-lunch", meaning);
         Assert.Contains("Walking only.", status.ActiveObjectiveSource);
         Assert.Equal(0, status.FactCount);
