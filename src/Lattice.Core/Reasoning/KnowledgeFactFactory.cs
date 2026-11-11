@@ -15,6 +15,45 @@ internal static class KnowledgeFactFactory
     {
         facts = ImmutableArray<KnowledgeFact>.Empty;
 
+        if (meaning is Conjunction conjunction)
+        {
+            if (conjunction.Conjuncts.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            var conjunctiveFacts = ImmutableArray.CreateBuilder<KnowledgeFact>();
+
+            foreach (var conjunct in conjunction.Conjuncts)
+            {
+                if (conjunct is not PredicateApplication conjunctivePredicate ||
+                    !TryGroundPredicate(conjunctivePredicate, out var conjunctiveGroundedPredicate, out var conjunctiveDescriptionFacts))
+                {
+                    return false;
+                }
+
+                conjunctiveFacts.Add(new KnowledgeFact(
+                    conjunctiveGroundedPredicate,
+                    sourceText,
+                    resolvedReferent,
+                    sourceKind,
+                    SourceId: sourceId));
+
+                foreach (var descriptionFact in conjunctiveDescriptionFacts)
+                {
+                    conjunctiveFacts.Add(new KnowledgeFact(
+                        descriptionFact,
+                        sourceText,
+                        resolvedReferent,
+                        sourceKind,
+                        SourceId: sourceId));
+                }
+            }
+
+            facts = conjunctiveFacts.ToImmutable();
+            return true;
+        }
+
         var factMeaning = meaning switch
         {
             PredicateApplication positivePredicate => positivePredicate,

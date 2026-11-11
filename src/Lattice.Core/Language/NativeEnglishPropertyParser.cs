@@ -99,7 +99,7 @@ internal static class NativeEnglishPropertyParser
             return true;
         }
 
-        if (tokens.Length == 3 &&
+        if (tokens.Length >= 3 &&
             EnglishGrammarTokens.IsCapitalized(tokens[0]) &&
             !EnglishGrammarTokens.Is(tokens[0], "It") &&
             EnglishGrammarTokens.Is(tokens[1], "is") &&
@@ -107,11 +107,16 @@ internal static class NativeEnglishPropertyParser
                 tokens[0],
                 allowPronoun: false,
                 out var individual) &&
-            TryParseNamedIndividualProperty(tokens, 2, 3, out var namedProperty))
+            TryParseNamedIndividualPropertyMeaning(
+                tokens,
+                2,
+                tokens.Length,
+                individual!,
+                out var meaning))
         {
             utterance = new SemanticUtterance(
                 UtteranceKind.Assertion,
-                EnglishSemanticFactory.Predicate(namedProperty!, individual!),
+                meaning!,
                 sourceText);
             return true;
         }
@@ -165,6 +170,38 @@ internal static class NativeEnglishPropertyParser
             UtteranceKind.Question,
             EnglishSemanticFactory.Predicate(property!, individual!),
             sourceText);
+        return true;
+    }
+
+    private static bool TryParseNamedIndividualPropertyMeaning(
+        string[] tokens,
+        int start,
+        int end,
+        SemanticTerm individual,
+        out SemanticFormula? meaning)
+    {
+        meaning = null;
+
+        if (end - start == 1 &&
+            TryParseNamedIndividualProperty(tokens, start, end, out var property))
+        {
+            meaning = EnglishSemanticFactory.Predicate(property!, individual);
+            return true;
+        }
+
+        if (end - start != 3 ||
+            !EnglishGrammarTokens.Is(tokens[start + 1], "and") ||
+            !TryParseNamedIndividualProperty(tokens, start, start + 1, out var firstProperty) ||
+            !TryParseNamedIndividualProperty(tokens, start + 2, end, out var secondProperty))
+        {
+            return false;
+        }
+
+        meaning = EnglishSemanticFactory.Combine(
+        [
+            EnglishSemanticFactory.Predicate(firstProperty!, individual),
+            EnglishSemanticFactory.Predicate(secondProperty!, individual)
+        ]);
         return true;
     }
 
