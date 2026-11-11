@@ -19,4 +19,10 @@
     <ProjectReference Include="../../src/Lattice.Runtime/Lattice.Runtime.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="../../data/knowledge-packs/laptop-candidates.json"
+          Link="laptop-candidates.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
