@@ -175,6 +175,7 @@ public sealed class ObjectiveSessionTests
         {
             Assert.Equal("spending-limit", request.ConditionName);
             Assert.Equal("total-cost", request.AttributeName);
+            Assert.Equal("Money", request.ExpectedValueKind);
             Assert.StartsWith("What is the total cost for ", request.Prompt);
         });
         Assert.Contains("Missing hard-constraint evidence:", result.Utterances.Single().Message);
@@ -215,6 +216,46 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("repairability: satisfied", message);
         Assert.Contains("screen quality: unknown from supplied data", message);
         Assert.DoesNotContain("reliability: not satisfied", message);
+        var firstPrice = await session.SubmitAsync(
+            "$900.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(firstPrice.Utterances).Kind);
+
+        var afterFirstPrice = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var firstPriceEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterFirstPrice.ObjectiveEvaluation);
+        Assert.Equal(new[] { "Birch 15", "Cedar 14" }, firstPriceEvaluation.EvidenceRequests.Select(request => request.Candidate));
+        var asterAfterPrice = Assert.Single(firstPriceEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        Assert.Equal("Eligible", asterAfterPrice.Feasibility);
+        Assert.Contains(
+            Assert.Single(asterAfterPrice.Conditions, condition => condition.Name == "spending-limit").Evidence,
+            source => source.SourceText == "$900." && source.Kind == "UserAssertion");
+
+        var remainingPrices = await session.SubmitAsync(
+            "$850. $1000.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(2, remainingPrices.Utterances.Length);
+        Assert.All(remainingPrices.Utterances, utterance =>
+            Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, utterance.Kind));
+
+        var afterAllPrices = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var pricedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterAllPrices.ObjectiveEvaluation);
+        Assert.Empty(pricedEvaluation.EvidenceRequests);
+        Assert.Equal("MultipleNonDominatedCandidates", pricedEvaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "Aster 14", "Birch 15", "Cedar 14" },
+            pricedEvaluation.Recommendation.ShortlistedCandidates);
+        Assert.All(pricedEvaluation.Candidates, candidate => Assert.Equal("Eligible", candidate.Feasibility));
+        var birchAfterPrice = Assert.Single(pricedEvaluation.Candidates, candidate => candidate.Candidate == "Birch 15");
+        var cedarAfterPrice = Assert.Single(pricedEvaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+        Assert.Contains(
+            Assert.Single(birchAfterPrice.Conditions, condition => condition.Name == "spending-limit").Evidence,
+            source => source.SourceText == "$850." && source.Kind == "UserAssertion");
+        Assert.Contains(
+            Assert.Single(cedarAfterPrice.Conditions, condition => condition.Name == "spending-limit").Evidence,
+            source => source.SourceText == "$1000." && source.Kind == "UserAssertion");
+        Assert.Contains(
+            Assert.Single(cedarAfterPrice.Conditions, condition => condition.Name == "preference").Preferences,
+            preference => preference.Name == "repairability" && preference.Status == "Satisfied");
     }
 
     [Fact]

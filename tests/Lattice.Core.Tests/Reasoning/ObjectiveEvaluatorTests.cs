@@ -472,6 +472,7 @@ public sealed class ObjectiveEvaluatorTests
         {
             Assert.Equal("spending-limit", request.ConditionName);
             Assert.Equal("total-cost", request.AttributeName);
+            Assert.Equal(ObjectiveConditionValueKind.Money, request.ExpectedValueKind);
             Assert.StartsWith("What is the total cost for ", request.Prompt);
         });
     }

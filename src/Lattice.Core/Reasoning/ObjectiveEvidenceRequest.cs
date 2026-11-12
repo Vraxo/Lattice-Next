@@ -6,4 +6,5 @@ public sealed record ObjectiveEvidenceRequest(
     SemanticIdentifier Candidate,
     string ConditionName,
     string AttributeName,
-    string Prompt);
+    string Prompt,
+    ObjectiveConditionValueKind ExpectedValueKind);

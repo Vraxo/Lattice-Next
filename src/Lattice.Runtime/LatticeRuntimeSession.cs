@@ -255,12 +255,17 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         var objective = activeObjective;
         var pendingCondition = pendingObjectiveCondition;
 
-        if (objective is null || pendingCondition is null)
+        if (objective is null)
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no outstanding objective information request to answer.",
+                "There is no active objective information request to answer.",
                 SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (pendingCondition is null)
+        {
+            return ProcessCandidateEvidenceInformation(parsedUtterance, information, objective);
         }
 
         if (!IsExpectedValue(pendingCondition.ExpectedValueKind, information.Value))
@@ -301,6 +306,53 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             message = AppendObjectiveEvaluation(message, objective);
         }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            message,
+            SemanticFormatter.Format(new SemanticUtterance(
+                UtteranceKind.Objective,
+                objective,
+                activeObjectiveSource)));
+    }
+
+    private LatticeUtteranceResult ProcessCandidateEvidenceInformation(
+        SemanticUtterance parsedUtterance,
+        ObjectiveInformationFormula information,
+        ObjectiveFormula objective)
+    {
+        var request = objectiveEvaluator.Evaluate(objective, knowledgeBase)
+            .EvidenceRequests
+            .FirstOrDefault(item => item.ExpectedValueKind == ObjectiveConditionValueKind.Money);
+
+        if (request is null || information.Value is not ObjectiveMoneyValue money)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no outstanding money-valued candidate evidence request to answer.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (!knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                request.Candidate,
+                new SemanticIdentifier(request.AttributeName),
+                money,
+                parsedUtterance.SourceText,
+                KnowledgeSourceKind.UserAssertion),
+            out var error))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.StatementRejected,
+                error ?? "The candidate evidence could not be stored.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var originalSource = activeObjectiveSource ?? objective.Goal;
+        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        var message = AppendObjectiveEvaluation(
+            $"Recorded {parsedUtterance.SourceText} as {request.AttributeName} for {request.Candidate.Value}.",
+            objective);
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
@@ -540,7 +592,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     request.Candidate.Value,
                     request.ConditionName,
                     request.AttributeName,
-                    request.Prompt))
+                    request.Prompt,
+                    request.ExpectedValueKind.ToString()))
                 .ToImmutableArray()
         };
 

@@ -57,11 +57,18 @@ public sealed class ObjectiveEvaluator
                     condition.TargetAttribute.Split('-', StringSplitOptions.RemoveEmptyEntries));
                 var prompt = $"What is the {attributeName} for {candidate.Candidate.Value}?";
 
+                var expectedValueKind =
+                    condition.Operator == ObjectiveConditionOperator.AtMost &&
+                    condition.Value is ObjectiveMoneyValue
+                        ? ObjectiveConditionValueKind.Money
+                        : ObjectiveConditionValueKind.None;
+
                 result.Add(new ObjectiveEvidenceRequest(
                     candidate.Candidate,
                     condition.Name,
                     condition.TargetAttribute,
-                    prompt));
+                    prompt,
+                    expectedValueKind));
             }
         }
 

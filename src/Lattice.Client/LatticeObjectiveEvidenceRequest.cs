@@ -5,4 +5,5 @@ public sealed record LatticeObjectiveEvidenceRequest(
     string Candidate,
     string ConditionName,
     string AttributeName,
-    string Prompt);
+    string Prompt,
+    string ExpectedValueKind);

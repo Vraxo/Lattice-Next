@@ -191,7 +191,6 @@ internal static class ObjectiveEvaluationFormatter
 
             if (stages.Length == 0)
             {
-                output.AppendLine("  No timetable witness is available from the supplied data.");
                 continue;
             }
 

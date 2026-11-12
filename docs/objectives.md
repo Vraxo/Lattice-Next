@@ -156,3 +156,10 @@ This keeps presentation selection in declarative knowledge data rather than hard
 When a candidate is unresolved because a hard-constraint attribute has no supplied evidence, the evaluator emits a candidate-specific evidence request. Each request identifies the candidate, the condition it blocks, the attribute being requested, and a concise prompt. Requests are exposed through the shared client evaluation and included in objective summaries.
 
 Requests are limited to hard constraints with an explicit user-supplied value, an Unknown assessment, and no evidence for the target attribute. Conflicting evidence is not treated as missing, known violations do not trigger unnecessary requests, and missing user-side condition values continue through the existing clarification path. This increment identifies what must be supplied; accepting and storing candidate-specific answers with provenance is a separate next step.
+
+
+## Candidate-specific money answers
+
+A money-valued candidate evidence request can be answered with a standalone currency amount. The runtime applies the amount to the next outstanding money-valued request in the order shown, stores it as a typed candidate attribute with the original source wording and UserAssertion provenance, and reevaluates the objective. Multiple currency sentences in one turn are applied sequentially. These answers do not become general facts or overwrite the objective's own conditions.
+
+This is the first supported candidate-answer type. Other candidate attribute kinds and explicit candidate-named corrections require their own unambiguous parsing and conflict behavior.
