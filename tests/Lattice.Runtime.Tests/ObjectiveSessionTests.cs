@@ -625,6 +625,8 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("NoEligibleCandidates", evaluation.Recommendation.Status);
         Assert.Empty(evaluation.Recommendation.ShortlistedCandidates);
         Assert.True(evaluation.Recommendation.HasIncompletePreferenceEvidence);
+        Assert.All(evaluation.Candidates, candidate =>
+            Assert.Equal(new[] { "total-cost" }, candidate.MissingHardConstraintAttributes));
         var cedarHighlight = Assert.Single(cedar.Highlights);
         Assert.Equal("tags", cedarHighlight.Name);
         Assert.Contains(cedarHighlight.Evidence, source =>
@@ -632,6 +634,9 @@ public sealed class ObjectiveSessionTests
 
         var message = result.Utterances[^1].Message;
         Assert.Contains("No candidate is currently confirmed eligible under the assessed hard constraints.", message);
+        Assert.Contains("Missing hard-constraint evidence:", message);
+        Assert.Contains("Total Cost is not supplied for Aster 14, Birch 15, Cedar 14.", message);
+        Assert.Contains("Provide the missing candidate values to complete these eligibility checks.", message);
         Assert.Contains("Unresolved candidates still need evidence: Aster 14, Birch 15, Cedar 14", message);
         Assert.Contains("Known candidate details (not recommendations):", message);
         Assert.Contains("Tags: Cedar 14 has an upgrade path.", message);

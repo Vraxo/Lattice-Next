@@ -39,6 +39,7 @@ public sealed class ObjectiveEvaluatorTests
             GetCondition(fernbank, "spending-limit").Evidence[0].SourceId);
         Assert.False(fernbank.HasHardConstraintViolation);
         Assert.Equal(CandidateFeasibility.Eligible, fernbank.Feasibility);
+        Assert.Empty(fernbank.MissingHardConstraintAttributes);
 
         var riverside = Assert.Single(result.Candidates, candidate => candidate.Candidate.Value == "Riverside");
         Assert.Equal(

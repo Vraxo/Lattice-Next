@@ -207,6 +207,19 @@ public sealed class ObjectiveEvaluator
         {
             Highlights = attributes
                 .Where(attribute => attribute.Subject == candidate && attribute.IncludeInSummary)
+                .ToImmutableArray(),
+            MissingHardConstraintAttributes = objective.Conditions
+                .Where(condition =>
+                    condition.Role == ObjectiveConditionRole.HardConstraint &&
+                    !string.IsNullOrWhiteSpace(condition.TargetAttribute))
+                .Where(condition => !attributes.Any(attribute =>
+                    attribute.Subject == candidate &&
+                    string.Equals(
+                        attribute.Name.Value,
+                        condition.TargetAttribute,
+                        StringComparison.OrdinalIgnoreCase)))
+                .Select(condition => condition.TargetAttribute!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToImmutableArray()
         };
     }

@@ -518,7 +518,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 new LatticeObjectiveCandidateHighlight(
                     highlight.Name.Value,
                     MapObjectiveEvidenceSources(new[] { highlight })))
-                .ToImmutableArray()
+                .ToImmutableArray(),
+            MissingHardConstraintAttributes = candidate.MissingHardConstraintAttributes
         })
             .ToImmutableArray())
         {

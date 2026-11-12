@@ -106,9 +106,39 @@ internal static class ObjectiveEvaluationFormatter
             evaluation.Recommendation,
             evaluation.Candidates,
             evaluation.PreferenceTradeOffs);
+        AppendMissingCandidateEvidence(output, evaluation.Candidates);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
 
         return output.ToString().TrimEnd();
+    }
+
+    private static void AppendMissingCandidateEvidence(
+        StringBuilder output,
+        IReadOnlyList<CandidateAssessment> candidates)
+    {
+        var missing = candidates
+            .SelectMany(candidate => candidate.MissingHardConstraintAttributes.Select(attribute =>
+                (Candidate: candidate.Candidate.Value, Attribute: attribute)))
+            .GroupBy(item => item.Attribute, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (missing.Length == 0)
+        {
+            return;
+        }
+
+        output.AppendLine("Missing hard-constraint evidence:");
+
+        foreach (var group in missing)
+        {
+            output.Append("- ")
+                .Append(FormatAttributeName(group.Key))
+                .Append(" is not supplied for ")
+                .Append(string.Join(", ", group.Select(item => item.Candidate).Distinct(StringComparer.Ordinal)))
+                .AppendLine(".");
+        }
+
+        output.AppendLine("Provide the missing candidate values to complete these eligibility checks.");
     }
 
     private static void AppendShortlistedOptions(

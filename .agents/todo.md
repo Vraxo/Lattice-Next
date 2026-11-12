@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: strengthen general evidence acquisition and clarification. The day-out benchmark now completes end-to-end with three unranked itinerary options and a walking-only revision. The laptop benchmark now uses the same runtime evaluator: missing prices keep every candidate unresolved, while Cedar's upgrade-path evidence is surfaced without inventing screen or reliability claims. Next, add a general way to request missing candidate evidence when a hard constraint cannot be assessed.
+> Current priority: make candidate evidence gaps actionable. Candidate assessments now identify which hard-constraint attributes are absent for which candidates and ask for those values before claiming eligibility. Next, accept candidate-specific typed updates from the user with explicit provenance, so a reply can resolve the gap without being stored as an unrelated general fact.
 
 
 ## Bootstrap

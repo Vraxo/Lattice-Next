@@ -13,4 +13,6 @@ public sealed record LatticeCandidateAssessment(
     public string Feasibility { get; init; } = "NotEvaluated";
 
     public ImmutableArray<LatticeObjectiveCandidateHighlight> Highlights { get; init; } = [];
+
+    public ImmutableArray<string> MissingHardConstraintAttributes { get; init; } = [];
 }

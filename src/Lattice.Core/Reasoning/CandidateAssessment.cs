@@ -9,6 +9,8 @@ public sealed record CandidateAssessment(
 {
     public ImmutableArray<KnowledgeAttribute> Highlights { get; init; } = [];
 
+    public ImmutableArray<string> MissingHardConstraintAttributes { get; init; } = [];
+
     public bool HasHardConstraintViolation => Conditions.Any(condition =>
         condition.Role == ObjectiveConditionRole.HardConstraint &&
         condition.Status == ObjectiveConditionAssessmentStatus.Violated);
