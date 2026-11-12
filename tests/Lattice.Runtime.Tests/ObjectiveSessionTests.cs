@@ -1063,6 +1063,44 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Resolves_ambiguous_candidate_pronoun_when_only_one_candidate_remains()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+        await session.SubmitAsync("Aster 14 costs $900.", TestContext.Current.CancellationToken);
+        await session.SubmitAsync("Birch 15 costs $950.", TestContext.Current.CancellationToken);
+
+        var resolved = await session.SubmitAsync(
+            "It costs $850.",
+            TestContext.Current.CancellationToken);
+
+        var result = Assert.Single(resolved.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, result.Kind);
+        Assert.Contains("Recorded Cedar 14's total cost as $850.", result.Message);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Empty(evaluation.EvidenceRequests);
+        var cedar = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+        var cedarBudget = Assert.Single(cedar.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Satisfied", cedarBudget.Status);
+        Assert.Contains(cedarBudget.Evidence, evidence => evidence.SourceText == "It costs $850.");
+        Assert.DoesNotContain(
+            evaluation.Candidates
+                .Where(candidate => candidate.Candidate != "Cedar 14")
+                .SelectMany(candidate => candidate.Conditions)
+                .SelectMany(condition => condition.Evidence),
+            evidence => evidence.SourceText == "It costs $850.");
+    }
+
+    [Fact]
     public async Task Accepts_candidate_cost_answers_only_for_requested_candidates_and_preserves_conflicts()
     {
         var client = new LatticeRuntimeClient();
