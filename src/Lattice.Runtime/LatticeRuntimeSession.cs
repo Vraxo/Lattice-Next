@@ -248,6 +248,17 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     LatticeCandidateEvidenceResult.Rejected("The reviewed candidate attribute evidence contains an invalid value or source."));
             }
 
+            if (!KnowledgePackLoader.TryParseTypedAttributeValue(
+                    evidence.Value,
+                    out var typedValue,
+                    out var typedValueError) ||
+                typedValue is null)
+            {
+                return ValueTask.FromResult(
+                    LatticeCandidateEvidenceResult.Rejected(
+                        typedValueError ?? "The reviewed candidate attribute value is invalid."));
+            }
+
             var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
                 string.Equals(attribute.Subject.Value, evidence.Candidate, StringComparison.OrdinalIgnoreCase));
 
