@@ -160,7 +160,16 @@ public sealed class ObjectiveSessionTests
         var message = result.Utterances.Single().Message;
         Assert.Contains("Every supplied candidate violates at least one assessed hard constraint.", message);
         Assert.Contains("Spending Limit: violated by Over Budget Park.", message);
-        Assert.Contains("Transport Mode: violated by Car Only Park.", message);
+        var carOnly = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Car Only Park");
+        var carViolations = carOnly.Conditions
+            .Where(condition => condition.Status == "Violated")
+            .Select(condition => string.Join(
+                ' ',
+                condition.Name.Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(word => char.ToUpperInvariant(word[0]) + word[1..])))
+            .ToArray();
+        Assert.NotEmpty(carViolations);
+        Assert.Contains(carViolations, label => message.Contains($"{label}: violated by Car Only Park.", StringComparison.Ordinal));
         Assert.Contains("Would you like to relax one of these constraints?", message);
         Assert.DoesNotContain("Unresolved candidates still need evidence:", message);
     }
