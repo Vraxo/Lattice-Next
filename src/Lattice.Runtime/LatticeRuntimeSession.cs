@@ -534,7 +534,14 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 evaluation.Recommendation.Status.ToString(),
                 evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
                 evaluation.Recommendation.DominatedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
-                evaluation.Recommendation.HasIncompletePreferenceEvidence)
+                evaluation.Recommendation.HasIncompletePreferenceEvidence),
+            EvidenceRequests = evaluation.EvidenceRequests.Select(request =>
+                new LatticeObjectiveEvidenceRequest(
+                    request.Candidate.Value,
+                    request.ConditionName,
+                    request.AttributeName,
+                    request.Prompt))
+                .ToImmutableArray()
         };
 
     private static ImmutableArray<LatticeObjectiveEvidenceSource> MapObjectiveEvidenceSources(

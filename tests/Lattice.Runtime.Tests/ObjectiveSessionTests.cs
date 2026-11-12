@@ -168,6 +168,18 @@ public sealed class ObjectiveSessionTests
         var birchPreference = Assert.Single(birch.Conditions, condition => condition.Name == "preference");
         var cedarPreference = Assert.Single(cedar.Conditions, condition => condition.Name == "preference");
 
+        Assert.Equal(
+            new[] { "Aster 14", "Birch 15", "Cedar 14" },
+            evaluation.EvidenceRequests.Select(request => request.Candidate));
+        Assert.All(evaluation.EvidenceRequests, request =>
+        {
+            Assert.Equal("spending-limit", request.ConditionName);
+            Assert.Equal("total-cost", request.AttributeName);
+            Assert.StartsWith("What is the total cost for ", request.Prompt);
+        });
+        Assert.Contains("Missing hard-constraint evidence:", result.Utterances.Single().Message);
+        Assert.Contains("What is the total cost for Aster 14?", result.Utterances.Single().Message);
+
         Assert.Equal("Unknown", asterPreference.Status);
         Assert.Equal("Unknown", birchPreference.Status);
         Assert.All(asterPreference.Preferences, preference => Assert.Equal("Unknown", preference.Status));

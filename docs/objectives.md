@@ -149,3 +149,10 @@ The evaluation exposes a non-dominated shortlist and the candidates dominated by
 Knowledge-pack attributes may opt into candidate summaries with the optional `summary: true` metadata. The evaluator carries those selected attributes and their provenance through the shared client contract. The runtime displays their source wording alongside feasibility, preference evidence, and temporal witnesses.
 
 This keeps presentation selection in declarative knowledge data rather than hardcoding domain-specific attribute names into the reasoning engine. Unmarked attributes remain available to reasoning without cluttering the user-facing summary.
+
+
+## Requesting missing candidate evidence
+
+When a candidate is unresolved because a hard-constraint attribute has no supplied evidence, the evaluator emits a candidate-specific evidence request. Each request identifies the candidate, the condition it blocks, the attribute being requested, and a concise prompt. Requests are exposed through the shared client evaluation and included in objective summaries.
+
+Requests are limited to hard constraints with an explicit user-supplied value, an Unknown assessment, and no evidence for the target attribute. Conflicting evidence is not treated as missing, known violations do not trigger unnecessary requests, and missing user-side condition values continue through the existing clarification path. This increment identifies what must be supplied; accepting and storing candidate-specific answers with provenance is a separate next step.

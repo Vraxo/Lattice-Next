@@ -12,4 +12,6 @@ public sealed record LatticeObjectiveEvaluation(ImmutableArray<LatticeCandidateA
         [],
         [],
         HasIncompletePreferenceEvidence: true);
+
+    public ImmutableArray<LatticeObjectiveEvidenceRequest> EvidenceRequests { get; init; } = [];
 }
