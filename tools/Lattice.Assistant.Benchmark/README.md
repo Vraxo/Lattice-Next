@@ -7,7 +7,7 @@ Run the curated assistant prompt set through Lattice's production CLI without ma
 - .NET 10 SDK.
 - No LM Studio server or external model is required for the symbolic runtime.
 
-## Run
+## Run locally
 
 From the repository root:
 
@@ -19,6 +19,21 @@ By default, this runs all source prompts once, each in a fresh session. It write
 
 - `artifacts/assistant-benchmark-results.json` — complete per-run CLI output, errors, status, utterance kinds, latency, output signatures, and aggregate metrics.
 - `artifacts/assistant-benchmark-results.md` — readable summary, category and evaluation-layer breakdowns, per-prompt stability, and individual output summaries.
+
+## Run automatically in GitHub Actions
+
+The main CI workflow runs the benchmark after the full build, .NET test suite, and external Python tool tests pass. It runs for pull requests targeting `main`, pushes to `main`, and manual workflow dispatches.
+
+Each completed benchmark job:
+
+- Adds the Markdown report to the GitHub Actions run summary.
+- Uploads both JSON and Markdown reports as the `assistant-benchmark-<run-id>-<attempt>` artifact.
+- Retains the artifact for 30 days.
+- Attempts to upload reports even when the benchmark process fails, so partial output remains available for diagnosis.
+
+Open the repository's **Actions** tab, select the relevant CI run, and download the benchmark artifact from its **Artifacts** section. The report is also visible directly in the run summary.
+
+The benchmark job is separate from the build/test job and depends on it succeeding. An unhandled prompt is recorded in the report but does not currently fail CI: this seed has no human-reviewed expected outcomes, so execution status must not be confused with semantic correctness.
 
 ## Options
 

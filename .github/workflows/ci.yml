@@ -41,3 +41,34 @@ jobs:
         run: |
           python -m unittest discover -s tools/web-search -p "test_*.py"
           python -m unittest discover -s tools/web-page-fetch -p "test_*.py"
+
+  assistant-benchmark:
+    name: Assistant benchmark (34 prompts)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run assistant benchmark
+        run: dotnet run --configuration Release --project tools/Lattice.Assistant.Benchmark
+
+      - name: Add benchmark report to workflow summary
+        if: always() && hashFiles('artifacts/assistant-benchmark-results.md') != ''
+        run: cat artifacts/assistant-benchmark-results.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark reports
+        if: always() && hashFiles('artifacts/assistant-benchmark-results.*') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: assistant-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/assistant-benchmark-results.json
+            artifacts/assistant-benchmark-results.md
+          if-no-files-found: warn
+          retention-days: 30
