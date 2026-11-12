@@ -21,6 +21,7 @@ public sealed class ObjectiveSessionTests
                 { "subject": "Quiet Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Quiet Park costs $10." },
                 { "subject": "Quiet Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Quiet Park is reachable by walking." },
                 { "subject": "Quiet Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Quiet Park is quiet and outdoors." },
+                { "subject": "Quiet Park", "name": "main-activity", "value": { "type": "text", "value": "Marked 2-hour loop" }, "sourceText": "The main activity is a marked 2-hour loop.", "summary": true },
                 { "subject": "Busy Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Busy Park costs $10." },
                 { "subject": "Busy Park", "name": "transport-mode", "value": { "type": "text", "value": "car" }, "sourceText": "Busy Park requires a car." },
                 { "subject": "Busy Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Busy Park is busy and outdoors." },
@@ -50,6 +51,10 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(
             quiet.Conditions.SelectMany(condition => condition.Evidence),
             source => source.SourceText == "Quiet Park is quiet and outdoors.");
+        var highlight = Assert.Single(quiet.Highlights);
+        Assert.Equal("main-activity", highlight.Name);
+        Assert.Contains(highlight.Evidence, source =>
+            source.SourceText == "The main activity is a marked 2-hour loop.");
 
         var busy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Busy Park");
         Assert.True(busy.HasHardConstraintViolation);
@@ -76,6 +81,7 @@ public sealed class ObjectiveSessionTests
 
         var message = result.Utterances.Single().Message;
         Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
+        Assert.Contains("Highlight — Main Activity: The main activity is a marked 2-hour loop.", message);
         Assert.Contains("Busy Park: is excluded by a hard constraint", message);
         Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
         Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);

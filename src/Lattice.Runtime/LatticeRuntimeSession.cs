@@ -513,7 +513,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             })
                 .ToImmutableArray())
         {
-            Feasibility = candidate.Feasibility.ToString()
+            Feasibility = candidate.Feasibility.ToString(),
+            Highlights = candidate.Highlights.Select(highlight =>
+                new LatticeObjectiveCandidateHighlight(
+                    highlight.Name.Value,
+                    MapObjectiveEvidenceSources(new[] { highlight })))
+                .ToImmutableArray()
         })
             .ToImmutableArray())
         {
