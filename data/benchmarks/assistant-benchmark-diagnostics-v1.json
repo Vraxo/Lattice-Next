@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "title": "Lattice assistant benchmark v1 — diagnostic variations",
+  "status": "synthetic-diagnostic-not-scored-as-real-prompts",
+  "language": "en",
+  "purpose": "Controlled variations used to identify specific interpretation weaknesses. These are developer-written and must never be counted as real user prompts.",
+  "records": [
+    {
+      "id": "diag-001",
+      "derived_from": "dolly-007",
+      "variation": "paraphrase",
+      "prompt": "I'm new to running. How should I get started?",
+      "tests": [
+        "paraphrase",
+        "intent preservation"
+      ]
+    },
+    {
+      "id": "diag-002",
+      "derived_from": "dolly-007",
+      "variation": "added-constraint",
+      "prompt": "I'm new to running. Give me a beginner plan for the first two weeks, with three sessions per week and rest days between sessions.",
+      "tests": [
+        "constraint extraction",
+        "quantity",
+        "schedule"
+      ]
+    },
+    {
+      "id": "diag-003",
+      "derived_from": "dolly-028",
+      "variation": "negation-and-constraint",
+      "prompt": "Suggest five safe ways to reuse an empty La Croix can, but don't suggest cutting it, heating it, or using it with food.",
+      "tests": [
+        "negation",
+        "count constraint",
+        "safety constraints"
+      ]
+    },
+    {
+      "id": "diag-004",
+      "derived_from": "dolly-021",
+      "variation": "compound-classification",
+      "prompt": "Sort these instruments into string and keyboard groups, and leave an instrument unclassified if it does not clearly fit either group: guitar, violin, piano, harmonium, cello, accordion, banjo.",
+      "tests": [
+        "classification",
+        "grouping",
+        "abstention"
+      ]
+    },
+    {
+      "id": "diag-005",
+      "derived_from": "dolly-026",
+      "variation": "multiple-constraints",
+      "prompt": "Plan a three-day road trip starting in Westfield, New Jersey, for the May long weekend. Keep the driving manageable and include a mix of outdoor activities and relaxed sightseeing.",
+      "tests": [
+        "planning intent",
+        "multiple constraints",
+        "temporal reference"
+      ]
+    },
+    {
+      "id": "diag-006",
+      "derived_from": "oasst1-6ab24d72-0181-4594-a9cd-deaf170242fb",
+      "variation": "paraphrase",
+      "prompt": "Explain why monopsony matters in labour markets. Use examples and point me to relevant research.",
+      "tests": [
+        "paraphrase",
+        "semantic preservation"
+      ]
+    },
+    {
+      "id": "diag-007",
+      "derived_from": "oasst1-c522beae-5a33-48c1-aee3-19f32fc3f0af",
+      "variation": "follow-up-with-context",
+      "context": "The user previously asked for Python packages for simulating chemical unit operations and optimizing outputs.",
+      "prompt": "Which of those packages would you choose if optimization mattered more than detailed process simulation?",
+      "tests": [
+        "reference resolution",
+        "context use",
+        "preference comparison"
+      ]
+    },
+    {
+      "id": "diag-008",
+      "derived_from": "oasst1-6ab24d72-0181-4594-a9cd-deaf170242fb",
+      "variation": "follow-up-with-context",
+      "context": "The user previously asked for an introduction explaining monopsony in labour markets.",
+      "prompt": "Now explain it in terms a high-school student would understand.",
+      "tests": [
+        "pronoun resolution",
+        "context use",
+        "audience constraint"
+      ]
+    },
+    {
+      "id": "diag-009",
+      "derived_from": "dolly-016",
+      "variation": "negation",
+      "prompt": "From this list, identify everything that is not useful for transportation: a glass of wine, a lamp, a train, an ice cube tray, a plane, a bicycle, an apple and a scooter.",
+      "tests": [
+        "negation scope",
+        "classification"
+      ]
+    },
+    {
+      "id": "diag-010",
+      "derived_from": "dolly-011",
+      "variation": "output-format-constraint",
+      "prompt": "Give me five golf equipment company names in a numbered list. Names only; no descriptions.",
+      "tests": [
+        "quantity",
+        "format constraint",
+        "brevity"
+      ]
+    }
+  ]
+}
