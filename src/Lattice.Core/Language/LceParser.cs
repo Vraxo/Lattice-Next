@@ -27,11 +27,11 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex BringLunchPattern = new(
-        @"^I'll bring lunch\.$",
+        @"^(?:I'll bring lunch|Lunch is covered|I have lunch with me|I'll pack my own lunch)\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex StartingLocationPattern = new(
-        @"\b(?:I'm starting at|my starting point is)\s+(?<location>[^,.!?]+)",
+        @"\b(?:I'm starting at|my starting point is|I'm coming from|I'll start from)\s+(?<location>[^,.!?]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TimeWindowPattern = new(

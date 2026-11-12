@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: broaden first-use robustness across packed-lunch phrasing, contradictions, and ambiguous candidate references. The same origin condition now accepts both “I'm starting at Central Station” and “My starting point is Central Station.” Next, test an equivalent way to say lunch is already covered, while preserving the distinction between meal context and candidate cost.
+> Current priority: test contradictions and ambiguous candidate references, then broaden first-use paraphrase coverage without turning the controlled-language parser into an unconstrained guesser. Multiple starting-location phrasings and equivalent packed-lunch statements now normalize to the existing typed conditions. Next, exercise a user changing their mind about a previously supplied origin or meal plan and verify that only the intended condition changes.
 
 
 ## Bootstrap
