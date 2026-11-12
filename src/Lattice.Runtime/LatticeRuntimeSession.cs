@@ -132,6 +132,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessUtterance(SemanticUtterance parsedUtterance)
     {
+        if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
+            parsedUtterance.Meaning is ObjectiveCandidateInformationFormula candidateInformation)
+        {
+            return ProcessObjectiveCandidateInformation(parsedUtterance, candidateInformation);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
             parsedUtterance.Meaning is ObjectiveInformationFormula information)
         {
@@ -246,6 +252,83 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             },
             SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
+    }
+
+    private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
+        SemanticUtterance parsedUtterance,
+        ObjectiveCandidateInformationFormula information)
+    {
+        var objective = activeObjective;
+
+        if (objective is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no active objective requesting candidate information.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var matchingRequests = objectiveEvaluator
+            .Evaluate(objective, knowledgeBase)
+            .EvidenceRequests
+            .Where(request =>
+                string.Equals(request.Candidate.Value, information.Candidate.Value, StringComparison.OrdinalIgnoreCase) &&
+                request.AttributeName == information.Attribute.Value)
+            .ToImmutableArray();
+
+        if (matchingRequests.Length != 1)
+        {
+            var message = matchingRequests.IsDefaultOrEmpty
+                ? $"I don't currently have an outstanding request for the {information.Attribute.Value} of {information.Candidate.Value}. No candidate information was changed."
+                : "I have more than one outstanding request for that candidate attribute. Please clarify which value you mean. No candidate information was changed.";
+
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                message,
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var request = matchingRequests[0];
+        var condition = objective.Conditions.FirstOrDefault(candidate =>
+            candidate.Name == request.ConditionName &&
+            candidate.Role == ObjectiveConditionRole.HardConstraint);
+
+        if (condition?.Value is not ObjectiveMoneyValue ||
+            information.Value is not ObjectiveMoneyValue)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                $"The requested value for {request.Candidate.Value} is not a monetary amount. No candidate information was changed.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (!knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                request.Candidate,
+                new SemanticIdentifier(request.AttributeName),
+                information.Value,
+                parsedUtterance.SourceText,
+                KnowledgeSourceKind.UserAssertion),
+            out var error))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.StatementRejected,
+                error ?? "The candidate information could not be stored.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var originalSource = activeObjectiveSource ?? objective.Goal;
+        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+
+        var money = (ObjectiveMoneyValue)information.Value;
+        var amount = money.Amount.ToString(CultureInfo.InvariantCulture);
+        var message = $"Recorded {request.Candidate.Value}'s total cost as {money.CurrencySymbol}{amount}.";
+        message = AppendObjectiveEvaluation(message, objective);
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            message,
+            SemanticFormatter.Format(parsedUtterance));
     }
 
     private LatticeUtteranceResult ProcessObjectiveInformation(

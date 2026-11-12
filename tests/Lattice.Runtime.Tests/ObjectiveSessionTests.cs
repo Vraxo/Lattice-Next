@@ -774,4 +774,70 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
     }
 
+    [Fact]
+    public async Task Accepts_candidate_cost_answers_only_for_requested_candidates_and_preserves_conflicts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+
+        var initial = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(initial.ObjectiveEvaluation);
+        Assert.Equal(3, initialEvaluation.EvidenceRequests.Length);
+
+        var unrelated = await session.SubmitAsync(
+            "Nimbus 13 costs $900.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, Assert.Single(unrelated.Utterances).Kind);
+        Assert.Contains("No candidate information was changed", unrelated.Utterances.Single().Message);
+        Assert.Equal(3, Assert.IsType<LatticeObjectiveEvaluation>(
+            (await session.GetStatusAsync(TestContext.Current.CancellationToken)).ObjectiveEvaluation)
+            .EvidenceRequests.Length);
+
+        var accepted = await session.SubmitAsync(
+            "Aster 14 costs $900.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
+        Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
+
+        var afterAccepted = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var acceptedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterAccepted.ObjectiveEvaluation);
+        Assert.Equal(new[] { "Birch 15", "Cedar 14" },
+            acceptedEvaluation.EvidenceRequests.Select(evidenceRequest => evidenceRequest.Candidate));
+        var aster = Assert.Single(acceptedEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        var asterBudget = Assert.Single(aster.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Satisfied", asterBudget.Status);
+        var asterEvidence = Assert.Single(asterBudget.Evidence);
+        Assert.Equal("UserAssertion", Assert.Single(asterEvidence.Sources).Kind);
+        Assert.Equal("Aster 14 costs $900.", asterEvidence.Sources[0].SourceText);
+
+        var repeated = await session.SubmitAsync("Aster 14 costs $900.", TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(repeated.Utterances).Kind);
+        var afterRepeated = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var repeatedAster = Assert.Single(
+            Assert.IsType<LatticeObjectiveEvaluation>(afterRepeated.ObjectiveEvaluation).Candidates,
+            candidate => candidate.Candidate == "Aster 14");
+        var repeatedBudget = Assert.Single(repeatedAster.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Single(Assert.Single(repeatedBudget.Evidence).Sources);
+
+        var conflicting = await session.SubmitAsync("Aster 14 costs $950.", TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(conflicting.Utterances).Kind);
+        var afterConflict = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var conflictEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterConflict.ObjectiveEvaluation);
+        var conflictedAster = Assert.Single(conflictEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        var conflictedBudget = Assert.Single(conflictedAster.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Conflicting", conflictedBudget.Status);
+        Assert.Equal(
+            new[] { "Aster 14 costs $900.", "Aster 14 costs $950." },
+            conflictedBudget.Evidence.SelectMany(evidence => evidence.Sources).Select(source => source.SourceText));
+        Assert.DoesNotContain(conflictEvaluation.EvidenceRequests,
+            evidenceRequest => evidenceRequest.Candidate == "Aster 14");
+    }
+
 }

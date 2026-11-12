@@ -10,6 +10,10 @@ public sealed class LceParser
         @"(?:^|[.!?]\s*)Help me\s+(?<goal>[^.!?]+)[.!?]",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectiveCandidateMoneyPattern = new(
+        @"^(?<candidate>[A-Z][A-Za-z0-9-]*(?:\s+[A-Za-z0-9][A-Za-z0-9-]*)*)\s+costs\s+(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)\.$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex ObjectiveMoneyResponsePattern = new(
         @"^(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -123,6 +127,11 @@ public sealed class LceParser
         if (source.Length == 0)
         {
             return ParseResult.Failure("Input is empty.");
+        }
+
+        if (TryParseObjectiveCandidateInformation(source, originalSource, out var candidateInformationUtterance))
+        {
+            return ParseResult.Success(candidateInformationUtterance!);
         }
 
         if (TryParseObjectiveInformation(source, originalSource, out var informationUtterance))
@@ -403,6 +412,34 @@ public sealed class LceParser
         }
 
         return TextParseResult.Success(utterances.ToImmutable());
+    }
+
+    private static bool TryParseObjectiveCandidateInformation(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        var match = ObjectiveCandidateMoneyPattern.Match(source);
+
+        if (!match.Success ||
+            !decimal.TryParse(
+                match.Groups["amount"].Value,
+                System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var amount))
+        {
+            utterance = null;
+            return false;
+        }
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.ObjectiveCandidateInformation,
+            new ObjectiveCandidateInformationFormula(
+                new SemanticIdentifier(match.Groups["candidate"].Value.ToLowerInvariant()),
+                new SemanticIdentifier("total-cost"),
+                new ObjectiveMoneyValue(amount, match.Groups["symbol"].Value)),
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseObjectiveInformation(

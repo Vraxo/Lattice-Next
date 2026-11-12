@@ -35,10 +35,10 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [x] Evaluate ordered activity/transport stages against time windows and actual timetable events.
 - [x] Return concrete feasible timetable witnesses.
 - [x] Identify candidate-specific missing hard-constraint evidence and expose a request for it.
-- [ ] Accept a user's answer to a candidate-specific evidence request and attach it to exactly that candidate and attribute.
-- [ ] Preserve source wording, source kind, and provenance for user-supplied candidate answers.
-- [ ] Re-evaluate all affected candidates and withdraw resolved evidence requests without changing unrelated facts.
-- [ ] Handle conflicting candidate answers explicitly, without silently overwriting earlier evidence.
+- [x] Accept a user's answer to a candidate-specific monetary evidence request and attach it only to the matching candidate and attribute.
+- [x] Preserve source wording, source kind, and provenance for user-supplied candidate answers.
+- [x] Re-evaluate all affected candidates and withdraw resolved evidence requests without changing unrelated facts.
+- [x] Handle conflicting candidate answers explicitly, without silently overwriting earlier evidence.
 - [ ] Ask for the smallest useful missing fact, not a broad or repetitive questionnaire.
 
 ## 3. Complete the day-out task
@@ -73,7 +73,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [x] Keep unsupported price, screen-quality, and reliability claims Unknown.
 - [x] Surface Cedar 14's supplied upgrade-path evidence without inventing a reliability ranking.
 - [x] Request the missing total-cost evidence for each unresolved laptop candidate.
-- [ ] Accept candidate-specific price answers and update the laptop comparison through the same generic path.
+- [x] Accept candidate-specific price answers and update the laptop comparison through the same generic path.
 - [ ] Demonstrate at least one additional, materially different task without adding a domain-specific workflow.
 - [ ] Show that the system can combine existing mechanisms in a task that was not used to implement them.
 
@@ -90,4 +90,4 @@ The first-use task is complete when all of the following are true:
 - [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
 - [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
 
-**Current assessment:** the synthetic day-out flow and the first laptop transfer checkpoint are implemented. The most immediate gap is accepting candidate-specific evidence answers; live information acquisition and broader transfer remain future work. This checklist should be updated in the same PR that changes any item's status.
+**Current assessment:** the synthetic day-out flow and the first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be attached to the requested candidate with provenance, deduplicated, and retained as explicit conflicts when values disagree. The next gaps are broader candidate-value types, live information acquisition, and a full same-session day-out completion test. This checklist should be updated in the same PR that changes any item's status.
