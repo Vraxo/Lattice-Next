@@ -10,6 +10,7 @@ Lattice frontends communicate through the public contracts in `Lattice.Client`.
 - Per-utterance results represent stored statements, rejected statements, answered questions, clarification requests, and unsupported question forms.
 - Answers expose the four-valued truth result and structured supporting/opposing evidence, including provenance and proof premises.
 - Knowledge-pack loading returns a transport-neutral result with the pack name, claim count, and validation error when rejected.
+- A session can accept user-reviewed external monetary candidate evidence while preserving its source URL, retrieval timestamp, and supporting excerpt.
 
 The contract uses transport-neutral .NET types and has no dependency on Core, a UI framework, a process provider, or an HTTP implementation. It is the shared boundary, not a second domain model: Core remains authoritative for parsing, semantics, context, and reasoning.
 
@@ -26,3 +27,8 @@ The runtime exposes the native text-parsing and reasoning path plus validated kn
 ## Future transports and hosts
 
 A future HTTP client can implement the same `ILatticeClient` and `ILatticeSession` contracts, while a server host can expose the in-process runtime over a narrow API. Neither transport needs to change Core or the frontend-facing result model.
+
+
+## Reviewed page evidence
+
+The REPL can turn the latest `web-page-fetch` observation into a reviewable candidate-price claim without treating retrieved text as knowledge automatically. After fetching a page, the user supplies the candidate, amount, currency symbol, and an exact excerpt from the page with `:review-price`. Lattice displays the source URL, retrieval time, and excerpt and requires the user to type `accept` before submitting the claim through the shared session contract. The excerpt must occur verbatim in the fetched text. The runtime still validates the candidate, active monetary constraint, currency, and evidence request before storing the observation.

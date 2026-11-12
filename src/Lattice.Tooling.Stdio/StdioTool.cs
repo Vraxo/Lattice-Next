@@ -255,7 +255,10 @@ public sealed class StdioTool : ITool
                 return ToolExecutionResult.Failure("The external tool response is missing its result.");
             }
 
-            return ToolExecutionResult.Success(result.GetRawText());
+            return ToolExecutionResult.Success(
+                result.ValueKind == JsonValueKind.String
+                    ? result.GetString() ?? string.Empty
+                    : result.GetRawText());
         }
         catch (JsonException)
         {

@@ -60,7 +60,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 
 ## 4. Use real-world information safely
 
-- [ ] Acquire current candidate information through reusable retrieval/tool capabilities rather than benchmark-only data.
+- [x] Acquire public candidate page content through reusable search/fetch tools and submit a user-selected monetary claim only after explicit review.
 - [x] Preserve the URL/source, retrieval time, and reviewed supporting excerpt for accepted external monetary observations.
 - [ ] Distinguish stale, unavailable, conflicting, and unverified information.
 - [ ] Treat live schedules, prices, opening hours, weather, and disruptions as time-sensitive; verify them before relying on them.
@@ -91,4 +91,4 @@ The first-use task is complete when all of the following are true:
 - [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
 - [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
 
-**Current assessment:** the synthetic day-out flow and first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be supplied as user assertions or reviewed external observations; external observations retain their source URL, retrieval timestamp, and reviewed excerpt. Bounded public-page retrieval enforces URL, DNS, redirect, response-size, and content limits, but retrieved text remains untrusted and is not automatically converted into candidate facts. Remaining gaps include integrating retrieval with review and evidence selection, handling stale/unavailable/unverified external data, broader candidate-value types, and a concise final day-out plan that separates confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.
+**Current assessment:** the synthetic day-out flow and first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be supplied as user assertions or reviewed external observations; external observations retain their source URL, retrieval timestamp, and reviewed excerpt. The REPL now connects bounded page retrieval to explicit review: the user selects a candidate, amount, currency, and exact excerpt, inspects the source metadata, and must type `accept` before the shared runtime receives the claim. Retrieved text is never automatically converted into a fact. Remaining gaps include handling stale/unavailable/unverified external data, broadening reviewed evidence beyond monetary values, and a concise final day-out plan that separates confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.
