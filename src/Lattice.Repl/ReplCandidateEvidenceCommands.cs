@@ -214,12 +214,17 @@ internal sealed class ReplCandidateEvidenceCommands(
                 !root.TryGetProperty("attributeName", out var attributeName) ||
                 attributeName.ValueKind != JsonValueKind.String ||
                 !root.TryGetProperty("value", out var valueElement) ||
-                !KnowledgePackLoader.TryParseTypedAttributeValue(valueElement, out var value, out var valueError) ||
-                value is null ||
                 !root.TryGetProperty("excerpt", out var excerpt) ||
                 excerpt.ValueKind != JsonValueKind.String)
             {
-                error = valueError ?? "Review arguments require string candidate and attributeName values, a supported typed value object, and a string excerpt.";
+                error = "Review arguments require string candidate and attributeName values, a supported typed value object, and a string excerpt.";
+                return false;
+            }
+
+            if (!KnowledgePackLoader.TryParseTypedAttributeValue(valueElement, out var value, out error) ||
+                value is null)
+            {
+                error ??= "The review value is not a supported typed attribute.";
                 return false;
             }
 
