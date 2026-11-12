@@ -507,6 +507,66 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Loads_declarative_freshness_requirements_for_time_sensitive_attributes()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "freshness-metadata",
+              "name": "Freshness metadata",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Fernbank",
+                  "name": "opening-hours",
+                  "value": { "type": "timeWindow", "start": "08:00", "end": "18:00" },
+                  "sourceText": "Fernbank is open from 08:00 to 18:00.",
+                  "requiresFreshness": true,
+                  "freshUntil": "2026-11-13T08:00:00Z"
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "weather-summary",
+                  "value": { "type": "text", "value": "Clear" },
+                  "sourceText": "The forecast is clear.",
+                  "requiresFreshness": true
+                }
+              ]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.True(loader.TryLoadAndAdd(json, knowledgeBase, out _, out var error), error);
+
+        var hours = Assert.Single(knowledgeBase.Attributes, attribute => attribute.Name.Value == "opening-hours");
+        Assert.True(hours.RequiresFreshness);
+        Assert.Equal(new DateTimeOffset(2026, 11, 13, 8, 0, 0, TimeSpan.Zero), hours.FreshUntil);
+        Assert.True(Assert.Single(hours.Sources).RequiresFreshness);
+
+        var weather = Assert.Single(knowledgeBase.Attributes, attribute => attribute.Name.Value == "weather-summary");
+        Assert.True(weather.RequiresFreshness);
+        Assert.Null(weather.FreshUntil);
+        Assert.True(Assert.Single(weather.Sources).RequiresFreshness);
+
+        const string invalid = """
+            {
+              "formatVersion": 1,
+              "id": "invalid-freshness",
+              "name": "Invalid freshness",
+              "claims": [],
+              "attributes": [{
+                "subject": "Fernbank",
+                "name": "opening-hours",
+                "value": { "type": "timeWindow", "start": "08:00", "end": "18:00" },
+                "sourceText": "Fernbank is open from 08:00 to 18:00.",
+                "requiresFreshness": "yes"
+              }]
+            }
+            """;
+        Assert.False(loader.TryLoadAndAdd(invalid, new KnowledgeBase(), out _, out _));
+    }
+
+    [Fact]
     public void Rejects_invalid_typed_attributes_without_adding_any_part_of_the_pack()
     {
         const string json = """
