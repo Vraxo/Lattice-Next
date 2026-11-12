@@ -643,7 +643,10 @@ public sealed class LceParser
             UtteranceKind.ObjectiveConditionUpdate,
             new ObjectiveConditionUpdateFormula(conditions.ToImmutable())
             {
-                PreferenceEdits = preferenceEdits.ToImmutable()
+                PreferenceEdits = preferenceEdits.ToImmutable(),
+                IsExplicitCorrection = sourceText.TrimStart().StartsWith(
+                    "Actually,",
+                    StringComparison.OrdinalIgnoreCase)
             },
             sourceText.Trim());
         return true;
