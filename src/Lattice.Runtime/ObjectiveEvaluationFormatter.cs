@@ -312,7 +312,7 @@ internal static class ObjectiveEvaluationFormatter
             .Append(string.Join(", ", options.Select(candidate => candidate.Candidate.Value)))
             .AppendLine("; feasible timetable stages are listed above.");
 
-        output.AppendLine("  Assumptions: no additional assumptions were introduced. The timetable is a first feasible witness from supplied data, not an optimized or live-verified schedule.");
+        output.AppendLine("  Assumptions: no additional assumptions were introduced. The timetable minimizes idle time between stages using supplied data; it is not live-verified.");
 
         var unresolvedCandidates = evaluation.Candidates
             .Where(candidate => candidate.Feasibility == CandidateFeasibility.Unresolved)
@@ -455,7 +455,7 @@ internal static class ObjectiveEvaluationFormatter
 
         if (hasTimetable)
         {
-            output.AppendLine("Timetables are first feasible witnesses, not optimized schedules.");
+            output.AppendLine("Timetables minimize idle time between stages; they are not ranked by other priorities.");
         }
 
         if (hasUnscheduledGap)
