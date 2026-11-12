@@ -259,7 +259,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no active objective information request to answer.",
+                "There is no outstanding objective information request to answer.",
                 SemanticFormatter.Format(parsedUtterance));
         }
 
