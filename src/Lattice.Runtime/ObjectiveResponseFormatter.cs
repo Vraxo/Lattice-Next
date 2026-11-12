@@ -387,7 +387,7 @@ internal static class ObjectiveResponseFormatter
                         var evidence = preference.Evidence.FirstOrDefault()?.SourceText;
                         details.Add(string.IsNullOrWhiteSpace(evidence)
                             ? $"{preference.Preference}: supported"
-                            : $"{preference.Preference}: supported ({evidence})");
+                            : $"{preference.Preference}: supported ({evidence.Trim().TrimEnd('.', '!', '?')})");
                         break;
 
                     case ObjectiveConditionAssessmentStatus.Violated:
