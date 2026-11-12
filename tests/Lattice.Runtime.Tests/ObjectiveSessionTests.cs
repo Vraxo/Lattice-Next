@@ -1054,7 +1054,10 @@ public sealed class ObjectiveSessionTests
             "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeTurnStatus.Completed, followUp.Status);
+        Assert.Contains("Optional additional candidate evidence:", followUp.Utterances[^1].Message);
         Assert.Contains("What is the total cost for Hilltop Farm Grounds?", followUp.Utterances[^1].Message);
+        Assert.Contains("Additional candidate details are optional; the current shortlist is supported without them.", followUp.Utterances[^1].Message);
+        Assert.DoesNotContain("Next step: answer the missing candidate detail above.", followUp.Utterances[^1].Message);
 
         var priceAnswer = await session.SubmitAsync(
             "Hilltop Farm Grounds costs $18.",
