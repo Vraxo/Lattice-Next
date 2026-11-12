@@ -151,7 +151,7 @@ internal static class ObjectiveResponseFormatter
                 StringComparison.OrdinalIgnoreCase))
             ?.Value as ObjectiveTextValue;
 
-        if (activity is not null)
+        if (activity is not null && !string.IsNullOrWhiteSpace(activity.Value))
         {
             details.Add(char.ToLowerInvariant(activity.Value[0]) + activity.Value[1..]);
         }
@@ -179,9 +179,11 @@ internal static class ObjectiveResponseFormatter
                 "transport-mode",
                 StringComparison.OrdinalIgnoreCase))
             ?.Value as ObjectiveTextValue;
-        var transportLabel = string.Equals(mode?.Value, "walking", StringComparison.OrdinalIgnoreCase)
-            ? "Walk"
-            : "Bus";
+        var transportLabel = string.IsNullOrWhiteSpace(mode?.Value)
+            ? "Travel"
+            : string.Equals(mode.Value, "walking", StringComparison.OrdinalIgnoreCase)
+                ? "Walk"
+                : char.ToUpperInvariant(mode.Value[0]) + mode.Value[1..];
 
         if (stages.Length >= 3)
         {
@@ -275,9 +277,9 @@ internal static class ObjectiveResponseFormatter
             }
         }
 
-        foreach (var request in evaluation.EvidenceRequests)
+        if (!evaluation.EvidenceRequests.IsDefaultOrEmpty)
         {
-            output.AppendLine(request.Prompt);
+            output.AppendLine(evaluation.EvidenceRequests[0].Prompt);
         }
     }
 
@@ -296,7 +298,6 @@ internal static class ObjectiveResponseFormatter
             ? []
             : preferences[0]
                 .Where(preference => preferences.Skip(1).All(candidatePreferences => candidatePreferences.Contains(preference)))
-                .OrderBy(preference => preference, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
     }
 
