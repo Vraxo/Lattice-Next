@@ -59,16 +59,28 @@ public sealed class ExternalPageEvidenceReviewTests
         Assert.Contains("source URL", error, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void Rejects_failed_http_responses_and_invalid_retrieval_times()
+    [Theory]
+    [InlineData(401, "inaccessible")]
+    [InlineData(403, "inaccessible")]
+    [InlineData(404, "unavailable")]
+    [InlineData(410, "unavailable")]
+    [InlineData(408, "temporarily unavailable")]
+    [InlineData(429, "temporarily unavailable")]
+    [InlineData(503, "temporarily unavailable")]
+    public void Classifies_unavailable_and_inaccessible_http_responses(int status, string expectedCategory)
     {
         Assert.False(LatticeExternalPageObservationParser.TryParse(
-            CreatePage("https://example.org/page", status: 503), out _, out var statusError));
-        Assert.Contains("successful HTTP", statusError, StringComparison.OrdinalIgnoreCase);
+            CreatePage("https://example.org/page", status: status), out _, out var error));
+        Assert.Contains(expectedCategory, error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains($"HTTP {status}", error);
+    }
 
+    [Fact]
+    public void Rejects_invalid_retrieval_times()
+    {
         Assert.False(LatticeExternalPageObservationParser.TryParse(
-            CreatePage("https://example.org/page", retrievedAt: "not-a-date"), out _, out var timeError));
-        Assert.Contains("timestamp", timeError, StringComparison.OrdinalIgnoreCase);
+            CreatePage("https://example.org/page", retrievedAt: "not-a-date"), out _, out var error));
+        Assert.Contains("timestamp", error, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

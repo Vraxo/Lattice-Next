@@ -65,10 +65,15 @@ public static class LatticeExternalPageObservationParser
             return false;
         }
 
-        if (!int.TryParse(statusText, NumberStyles.None, CultureInfo.InvariantCulture, out var status) ||
-            status is < 200 or >= 300)
+        if (!int.TryParse(statusText, NumberStyles.None, CultureInfo.InvariantCulture, out var status))
         {
-            error = "The page-fetch observation does not represent a successful HTTP response.";
+            error = "The page-fetch observation contains an invalid HTTP status code.";
+            return false;
+        }
+
+        if (status is < 200 or >= 300)
+        {
+            error = GetHttpStatusError(status);
             return false;
         }
 
@@ -107,6 +112,16 @@ public static class LatticeExternalPageObservationParser
             title);
         return true;
     }
+
+    private static string GetHttpStatusError(int status) =>
+        status switch
+        {
+            401 or 403 => $"The requested page is inaccessible (HTTP {status}).",
+            404 or 410 => $"The requested page is unavailable (HTTP {status}).",
+            408 or 425 or 429 or >= 500 =>
+                $"The page source is temporarily unavailable (HTTP {status}).",
+            _ => $"The page fetch did not return a successful HTTP response (HTTP {status})."
+        };
 
     private static bool TryGetValue(string[] lines, string prefix, out string value)
     {
