@@ -562,7 +562,7 @@ internal static class ObjectiveEvaluationFormatter
     private static string FormatAttributeName(string attributeName)
     {
         var words = attributeName
-            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(word => char.ToUpperInvariant(word[0]) + word[1..]);
         return string.Join(' ', words);
     }
