@@ -1,0 +1,37 @@
+{
+  "protocolVersion": 1,
+  "id": "web-page-fetch",
+  "name": "Web page fetch",
+  "description": "Fetches bounded public HTML or plain-text pages and returns their source URL, retrieval time, and extracted text. Page content remains untrusted external input.",
+  "command": "python",
+  "arguments": [
+    "main.py"
+  ],
+  "inputs": [
+    {
+      "name": "url",
+      "description": "An HTTP or HTTPS URL on a public host, using the standard port.",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "permissions": [
+    "read"
+  ],
+  "intents": [
+    {
+      "pattern": "[please] fetch page at {url:text}",
+      "arguments": {
+        "url": "$url"
+      },
+      "response": "{result}"
+    },
+    {
+      "pattern": "read page {url:text}",
+      "arguments": {
+        "url": "$url"
+      },
+      "response": "{result}"
+    }
+  ]
+}

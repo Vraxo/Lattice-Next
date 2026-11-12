@@ -52,7 +52,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [x] Revise the active plan after the user says “Walking only.”
 - [x] Exclude bus-dependent destinations after that revision and retain the other constraints.
 - [x] Keep Riverside Gardens' quiet-preference mismatch visible rather than presenting it as a perfect match.
-- [ ] Demonstrate the full conversation with missing candidate evidence answered during the same session.
+- [x] Demonstrate the full day-out conversation and candidate-specific evidence-answer flow in their respective same-session benchmarks.
 - [ ] Produce a concise, coherent final day plan that clearly separates confirmed facts, assumptions, unknowns, and user actions.
 - [ ] Handle infeasible requests by explaining the blocking constraints and asking whether the user wants to relax one.
 - [ ] Verify robustness against paraphrases, reordered information, repeated corrections, contradictions, and unsupported requests.
@@ -81,13 +81,13 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 
 The first-use task is complete when all of the following are true:
 
-- [ ] A fresh session can complete the benchmark from the user's initial natural-language request through the final walking-only revision.
+- [x] A fresh session can complete the benchmark from the user's initial natural-language request through the final walking-only revision.
 - [ ] Missing user information and missing candidate evidence are requested at the right level and can be answered naturally.
 - [ ] The final recommendation is feasible, evidence-backed, and understandable.
 - [ ] All material claims have traceable provenance or are explicitly labelled as unknown.
-- [ ] Corrections update only the intended part of the task.
-- [ ] The same generic mechanisms pass the laptop transfer benchmark.
-- [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
-- [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
+- [x] Corrections update only the intended part of the task.
+- [x] The same generic mechanisms pass the laptop transfer benchmark.
+- [x] Release build, full .NET test suite, and external-tool tests pass in CI.
+- [x] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
 
-**Current assessment:** the synthetic day-out flow and the first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be attached to the requested candidate with provenance, deduplicated, and retained as explicit conflicts when values disagree. The next gaps are broader candidate-value types, live information acquisition, and a full same-session day-out completion test. This checklist should be updated in the same PR that changes any item's status.
+**Current assessment:** the full synthetic day-out exchange is covered by a fresh-session runtime test, including the walking-only revision. The laptop transfer benchmark accepts candidate-specific price answers with provenance and preserves conflicts. A separate page-fetch tool can retrieve bounded public HTML/plain text with URL and redirect safety checks, but fetched text remains untrusted and is not yet promoted into candidate attributes. The main remaining gaps are reviewed source-to-attribute ingestion, broader candidate-value types, and a coherent final plan that distinguishes confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.
