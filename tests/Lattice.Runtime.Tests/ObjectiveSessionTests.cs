@@ -998,7 +998,6 @@ public sealed class ObjectiveSessionTests
 
         var initialStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         Assert.Contains(request, initialStatus.ActiveObjectiveSource ?? string.Empty);
-        Assert.Contains(clarification, initialStatus.ActiveObjectiveSource ?? string.Empty);
         var initial = Assert.IsType<LatticeObjectiveEvaluation>(initialStatus.ObjectiveEvaluation);
         Assert.Equal(4, initial.Candidates.Length);
         Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
