@@ -273,6 +273,79 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Requests_replacement_for_external_evidence_without_a_freshness_window()
+    {
+        var knowledgeBase = CreateExternalPriceKnowledgeBase(freshUntil: null);
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Unverified, GetCondition(candidate, "spending-limit").Status);
+        Assert.Equal(CandidateFeasibility.Unresolved, candidate.Feasibility);
+        var request = Assert.Single(evaluation.EvidenceRequests);
+        Assert.Equal("Candidate", request.Candidate.Value);
+        Assert.Equal("spending-limit", request.ConditionName);
+    }
+
+    [Fact]
+    public void Requests_replacement_for_external_evidence_after_its_freshness_window_expires()
+    {
+        var knowledgeBase = CreateExternalPriceKnowledgeBase(DateTimeOffset.UtcNow.AddMinutes(-1));
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Stale, GetCondition(candidate, "spending-limit").Status);
+        Assert.Equal(CandidateFeasibility.Unresolved, candidate.Feasibility);
+        var request = Assert.Single(evaluation.EvidenceRequests);
+        Assert.Equal("spending-limit", request.ConditionName);
+    }
+
+    [Fact]
+    public void Uses_external_evidence_while_its_freshness_window_is_valid()
+    {
+        var knowledgeBase = CreateExternalPriceKnowledgeBase(DateTimeOffset.UtcNow.AddMinutes(10));
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(candidate, "spending-limit").Status);
+        Assert.Equal(CandidateFeasibility.Eligible, candidate.Feasibility);
+        Assert.DoesNotContain(evaluation.EvidenceRequests, request => request.ConditionName == "spending-limit");
+    }
+
+    [Fact]
+    public void Keeps_external_preferences_unverified_without_a_freshness_window()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Candidate", "total-cost", new ObjectiveMoneyValue(6m, "$"));
+        AddAttribute(knowledgeBase, "Candidate", "transport-mode", new ObjectiveTextValue("walking"));
+
+        var added = knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                new SemanticIdentifier("Candidate"),
+                new SemanticIdentifier("tags"),
+                new ObjectiveTextSetValue(ImmutableArray.Create("quiet", "outdoors")),
+                "Candidate preferences were read from an external page.",
+                KnowledgeSourceKind.ExternalObservation,
+                SourceId: "https://example.org/candidate")
+            {
+                RetrievedAt = DateTimeOffset.UtcNow.AddMinutes(-5)
+            },
+            out var error);
+        Assert.True(added, error);
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+        var preference = GetCondition(candidate, "preference");
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Unverified, preference.Status);
+        Assert.All(preference.Preferences, item =>
+            Assert.Equal(ObjectiveConditionAssessmentStatus.Unverified, item.Status));
+        Assert.All(preference.Preferences, item => Assert.Single(item.Evidence));
+    }
+
+    [Fact]
     public void Treats_context_only_conditions_as_not_applicable_to_candidate_comparison()
     {
         var knowledgeBase = new KnowledgeBase();
@@ -474,6 +547,30 @@ public sealed class ObjectiveEvaluatorTests
             Assert.Equal("total-cost", request.AttributeName);
             Assert.StartsWith("What is the total cost for ", request.Prompt);
         });
+    }
+
+    private static KnowledgeBase CreateExternalPriceKnowledgeBase(DateTimeOffset? freshUntil)
+    {
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Candidate", "transport-mode", new ObjectiveTextValue("walking"));
+        AddAttribute(knowledgeBase, "Candidate", "tags", new ObjectiveTextSetValue(
+            ImmutableArray.Create("quiet", "outdoors")));
+
+        var added = knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                new SemanticIdentifier("Candidate"),
+                new SemanticIdentifier("total-cost"),
+                new ObjectiveMoneyValue(6m, "$"),
+                "Candidate price was retrieved from an external page.",
+                KnowledgeSourceKind.ExternalObservation,
+                SourceId: "https://example.org/candidate")
+            {
+                RetrievedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+                FreshUntil = freshUntil
+            },
+            out var error);
+        Assert.True(added, error);
+        return knowledgeBase;
     }
 
     private ObjectiveFormula CreateDayOutObjective()

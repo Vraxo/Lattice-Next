@@ -1206,7 +1206,7 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
-        Assert.Contains("Still unknown: Screen Quality (Aster 14); Reliability (Aster 14); Repairability (Aster 14).", accepted.Utterances.Single().Message);
+        Assert.Contains("Still unresolved: Screen Quality (Aster 14); Reliability (Aster 14); Repairability (Aster 14).", accepted.Utterances.Single().Message);
         Assert.Contains("Next step: answer the missing candidate detail above.", accepted.Utterances.Single().Message);
         Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
         Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
@@ -1328,7 +1328,10 @@ public sealed class ObjectiveSessionTests
             "$",
             "Aster 14 is listed at $900.",
             "https://example.org/aster-14",
-            new DateTimeOffset(2026, 11, 12, 7, 0, 0, TimeSpan.Zero));
+            new DateTimeOffset(2026, 11, 12, 7, 0, 0, TimeSpan.Zero))
+        {
+            FreshUntil = DateTimeOffset.UtcNow.AddHours(1)
+        };
         var accepted = await session.AddReviewedCandidateMoneyEvidenceAsync(
             evidence,
             TestContext.Current.CancellationToken);
@@ -1348,6 +1351,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("ExternalObservation", source.Kind);
         Assert.Equal("https://example.org/aster-14", source.SourceId);
         Assert.Equal(evidence.RetrievedAt, source.RetrievedAt);
+        Assert.Equal(evidence.FreshUntil, source.FreshUntil);
         Assert.Equal(evidence.SourceText, source.SourceText);
     }
 

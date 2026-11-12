@@ -127,6 +127,59 @@ public sealed class ExternalPageEvidenceReviewTests
         $"Final URL: {url}\nRetrieved at: {retrievedAt}\nHTTP status: {status}\nContent-Type: text/plain\nExtracted page text:\nAster 14 is listed at $900.";
 
     [Fact]
+    public async Task Requires_user_currentness_confirmation_for_external_price_without_freshness_metadata()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+        await session.SubmitAsync(
+            "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.",
+            TestContext.Current.CancellationToken);
+
+        var page = new LatticeExternalPageObservation(
+            "https://example.org/laptops/aster",
+            DateTimeOffset.UtcNow.AddMinutes(-1),
+            200,
+            "text/html",
+            "Aster 14 is listed at $900.");
+        Assert.True(LatticeReviewedCandidateMoneyEvidenceFactory.TryCreate(
+            page, "Aster 14", 900m, "$", "Aster 14 is listed at $900.",
+            out var evidence, out var factoryError), factoryError);
+        var accepted = await session.AddReviewedCandidateMoneyEvidenceAsync(evidence!);
+        Assert.True(accepted.IsSuccess, accepted.Error);
+
+        var unverifiedStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var unverifiedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(unverifiedStatus.ObjectiveEvaluation);
+        var aster = Assert.Single(unverifiedEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        Assert.Contains(aster.Conditions, condition =>
+            condition.Name == "spending-limit" &&
+            condition.Status == "Unverified");
+        Assert.Contains(unverifiedEvaluation.EvidenceRequests, request =>
+            request.Candidate == "Aster 14" &&
+            request.ConditionName == "spending-limit");
+
+        var userConfirmation = await session.SubmitAsync(
+            "Aster 14 costs $900.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(userConfirmation.Utterances).Kind);
+
+        var confirmedStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var confirmedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(confirmedStatus.ObjectiveEvaluation);
+        var confirmedAster = Assert.Single(confirmedEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        Assert.Contains(confirmedAster.Conditions, condition =>
+            condition.Name == "spending-limit" &&
+            condition.Status == "Satisfied");
+        Assert.DoesNotContain(confirmedEvaluation.EvidenceRequests, request =>
+            request.Candidate == "Aster 14" &&
+            request.ConditionName == "spending-limit");
+    }
+
+    [Fact]
     public async Task Carries_a_reviewed_page_price_into_the_active_laptop_objective()
     {
         var client = new LatticeRuntimeClient();

@@ -16,6 +16,8 @@ public sealed record CandidateAssessment(
     public bool HasUnresolvedHardConstraint => Conditions.Any(condition =>
         condition.Role == ObjectiveConditionRole.HardConstraint &&
         condition.Status is ObjectiveConditionAssessmentStatus.Unknown or
+            ObjectiveConditionAssessmentStatus.Unverified or
+            ObjectiveConditionAssessmentStatus.Stale or
             ObjectiveConditionAssessmentStatus.Conflicting);
 
     public CandidateFeasibility Feasibility
