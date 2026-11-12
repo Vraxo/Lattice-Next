@@ -687,7 +687,10 @@ public sealed class ObjectiveSessionTests
         var request = await session.SubmitAsync(
             "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.",
             TestContext.Current.CancellationToken);
-        Assert.Equal(LatticeTurnStatus.ClarificationRequired, request.Status);
+        Assert.Equal(LatticeTurnStatus.Completed, request.Status);
+        Assert.Equal(
+            LatticeUtteranceResultKind.ClarificationRequired,
+            Assert.Single(request.Utterances).Kind);
 
         var followUp = await session.SubmitAsync(
             "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
@@ -742,7 +745,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("The main activity is walking paved riverside paths for about 90 minutes.", revisedMessage);
         Assert.Contains("Stage 1: 09:00–09:15", revisedMessage);
         Assert.DoesNotContain("The main activity is a marked 2-hour loop.", revisedMessage);
-        Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource);
+        Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
     }
 
 }
