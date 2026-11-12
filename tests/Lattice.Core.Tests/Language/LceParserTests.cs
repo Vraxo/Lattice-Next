@@ -28,6 +28,24 @@ public sealed class LceParserTests
     }
 
     [Fact]
+    public void Parses_candidate_text_attribute_information()
+    {
+        var result = parser.Parse("Quiet Park's transport mode is walking.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.ObjectiveCandidateInformation, utterance.Kind);
+        Assert.Equal(
+            "candidate-information(quiet park, transport-mode, text(walking))",
+            SemanticFormatter.Format(utterance));
+        var information = Assert.IsType<ObjectiveCandidateInformationFormula>(utterance.Meaning);
+        Assert.Equal("quiet park", information.Candidate.Value);
+        Assert.Equal("transport-mode", information.Attribute.Value);
+        Assert.Equal(new ObjectiveTextValue("walking"), information.Value);
+        Assert.Equal("Quiet Park's transport mode is walking.", utterance.SourceText);
+    }
+
+    [Fact]
     public void Parses_universal_class_rule_into_language_independent_formula()
     {
         var result = parser.Parse("Every dog is an animal.");

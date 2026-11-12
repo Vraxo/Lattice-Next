@@ -14,6 +14,10 @@ public sealed class LceParser
         @"^(?<candidate>[A-Z][A-Za-z0-9-]*(?:\s+[A-Za-z0-9][A-Za-z0-9-]*)*)\s+costs\s+(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)\.$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectiveCandidateTextPattern = new(
+        @"^(?<candidate>[A-Z][A-Za-z0-9-]*(?:\s+[A-Za-z0-9][A-Za-z0-9-]*)*)['’]s\s+(?<attribute>[A-Za-z][A-Za-z -]*)\s+is\s+(?<value>[^.!?]+)[.!?]$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ObjectiveMoneyResponsePattern = new(
         @"^(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -419,25 +423,44 @@ public sealed class LceParser
         string sourceText,
         out SemanticUtterance? utterance)
     {
-        var match = ObjectiveCandidateMoneyPattern.Match(source);
+        var moneyMatch = ObjectiveCandidateMoneyPattern.Match(source);
 
-        if (!match.Success ||
-            !decimal.TryParse(
-                match.Groups["amount"].Value,
+        if (moneyMatch.Success &&
+            decimal.TryParse(
+                moneyMatch.Groups["amount"].Value,
                 System.Globalization.NumberStyles.Number,
                 System.Globalization.CultureInfo.InvariantCulture,
                 out var amount))
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.ObjectiveCandidateInformation,
+                new ObjectiveCandidateInformationFormula(
+                    new SemanticIdentifier(moneyMatch.Groups["candidate"].Value.ToLowerInvariant()),
+                    new SemanticIdentifier("total-cost"),
+                    new ObjectiveMoneyValue(amount, moneyMatch.Groups["symbol"].Value)),
+                sourceText.Trim());
+            return true;
+        }
+
+        var textMatch = ObjectiveCandidateTextPattern.Match(source);
+
+        if (!textMatch.Success)
         {
             utterance = null;
             return false;
         }
 
+        var attributeName = Regex.Replace(
+            textMatch.Groups["attribute"].Value.Trim(),
+            @"\s+",
+            "-").ToLowerInvariant();
+
         utterance = new SemanticUtterance(
             UtteranceKind.ObjectiveCandidateInformation,
             new ObjectiveCandidateInformationFormula(
-                new SemanticIdentifier(match.Groups["candidate"].Value.ToLowerInvariant()),
-                new SemanticIdentifier("total-cost"),
-                new ObjectiveMoneyValue(amount, match.Groups["symbol"].Value)),
+                new SemanticIdentifier(textMatch.Groups["candidate"].Value.ToLowerInvariant()),
+                new SemanticIdentifier(attributeName),
+                new ObjectiveTextValue(textMatch.Groups["value"].Value.Trim())),
             sourceText.Trim());
         return true;
     }

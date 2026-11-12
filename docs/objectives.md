@@ -163,3 +163,10 @@ Requests are limited to hard constraints with an explicit user-supplied value, a
 A user can answer an outstanding total-cost evidence request with a statement such as "Aster 14 costs $900." The parser represents the candidate, attribute, and typed monetary value explicitly. The runtime accepts it only when the active objective currently requests that exact candidate attribute, stores it as a user assertion with the original source wording, and reevaluates the objective.
 
 Repeated identical values merge provenance rather than creating duplicate attributes. Different values remain separate evidence and are assessed as a conflict; the runtime does not silently overwrite an earlier price. An unsolicited candidate or attribute is not added to the knowledge base. This first answer form is deliberately limited to monetary total-cost evidence; other candidate attribute types need their own explicit language and validation.
+
+
+## Candidate-specific text evidence
+
+For a missing hard-constraint attribute whose expected candidate value is text, a candidate-named statement such as "Quiet Park's transport mode is walking." can supply the value. The parser converts the attribute phrase to its canonical attribute identifier; the runtime accepts it only when that candidate and attribute are currently requested, or when the candidate already has that attribute and the active objective contains the matching hard constraint.
+
+The text value is stored as a typed candidate attribute with UserAssertion provenance and the original wording. Unsupported operators or value types are rejected without changing the knowledge base. This extends candidate evidence beyond money while keeping the language-to-attribute mapping explicit and auditable.
