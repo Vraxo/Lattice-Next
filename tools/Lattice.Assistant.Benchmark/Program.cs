@@ -14,11 +14,19 @@ if (options!.ShowHelp)
     return 0;
 }
 
+using var cancellation = new CancellationTokenSource();
+Console.CancelKeyPress += (_, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    cancellation.Cancel();
+};
+
 try
 {
     var report = await AssistantBenchmarkRunner.RunAsync(
         options.ToRunOptions(),
-        onRunCompleted: result => Console.WriteLine(
+        cancellation.Token,
+        result => Console.WriteLine(
             $"[{result.RunStatus}] {result.Id} #{result.Repetition} ({result.LatencyMilliseconds:0} ms)"));
     Console.WriteLine(AssistantBenchmarkRunner.FormatSummary(report));
     Console.WriteLine($"JSON report: {Path.GetFullPath(options.JsonOutputPath)}");
@@ -27,7 +35,9 @@ try
 }
 catch (OperationCanceledException)
 {
-    Console.Error.WriteLine("Benchmark cancelled.");
+    Console.Error.WriteLine("Benchmark cancelled. Partial JSON and Markdown reports were written to:");
+    Console.Error.WriteLine(Path.GetFullPath(options.JsonOutputPath));
+    Console.Error.WriteLine(Path.GetFullPath(options.MarkdownOutputPath));
     return 130;
 }
 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException)
