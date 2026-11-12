@@ -206,11 +206,15 @@ internal static class ObjectiveEvaluationFormatter
                 .AppendLine(".");
         }
 
+        if (evaluation.EvidenceRequests.Length > 0)
+        {
+            output.AppendLine("Next step: answer the missing candidate detail above.");
+            return;
+        }
+
         if (options.Length == 0)
         {
-            output.AppendLine(evaluation.EvidenceRequests.Length > 0
-                ? "Next step: answer the missing candidate detail above."
-                : "Next step: review the excluded constraints and decide whether one can be relaxed.");
+            output.AppendLine("Next step: review the excluded constraints and decide whether one can be relaxed.");
             return;
         }
 
