@@ -329,6 +329,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var evaluation = activeObjective is null
+                ? null
+                : objectiveEvaluator.Evaluate(activeObjective, knowledgeBase);
+
             return ValueTask.FromResult(new LatticeSessionStatus(
                 knowledgeBase.Facts.Count,
                 knowledgeBase.Rules.Count,
@@ -339,9 +343,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 ActiveObjectiveSource = activeObjectiveSource,
                 PendingInformationName = pendingObjectiveCondition?.Name,
                 PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
-                ObjectiveEvaluation = activeObjective is null
-                    ? null
-                    : MapObjectiveEvaluation(objectiveEvaluator.Evaluate(activeObjective, knowledgeBase))
+                ObjectiveEvaluation = evaluation is null ? null : MapObjectiveEvaluation(evaluation),
+                ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation)
             });
         }
     }
