@@ -10,6 +10,24 @@ public sealed class LceParserTests
     private readonly LceParser parser = new();
 
     [Fact]
+    public void Parses_candidate_cost_information_without_treating_it_as_a_general_fact()
+    {
+        var result = parser.Parse("Aster 14 costs $900.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.ObjectiveCandidateInformation, utterance.Kind);
+        Assert.Equal(
+            "candidate-information(aster 14, total-cost, money($900))",
+            SemanticFormatter.Format(utterance));
+        var information = Assert.IsType<ObjectiveCandidateInformationFormula>(utterance.Meaning);
+        Assert.Equal("aster 14", information.Candidate.Value);
+        Assert.Equal("total-cost", information.Attribute.Value);
+        Assert.Equal(new ObjectiveMoneyValue(900m, "$"), information.Value);
+        Assert.Equal("Aster 14 costs $900.", utterance.SourceText);
+    }
+
+    [Fact]
     public void Parses_universal_class_rule_into_language_independent_formula()
     {
         var result = parser.Parse("Every dog is an animal.");

@@ -132,6 +132,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessUtterance(SemanticUtterance parsedUtterance)
     {
+        if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
+            parsedUtterance.Meaning is ObjectiveCandidateInformationFormula candidateInformation)
+        {
+            return ProcessObjectiveCandidateInformation(parsedUtterance, candidateInformation);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
             parsedUtterance.Meaning is ObjectiveInformationFormula information)
         {
@@ -246,6 +252,98 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             },
             SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
+    }
+
+    private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
+        SemanticUtterance parsedUtterance,
+        ObjectiveCandidateInformationFormula information)
+    {
+        var objective = activeObjective;
+
+        if (objective is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no active objective requesting candidate information.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var candidate = new SemanticIdentifier(information.Candidate.Value);
+        var attribute = new SemanticIdentifier(information.Attribute.Value);
+        var matchingRequests = objectiveEvaluator
+            .Evaluate(objective, knowledgeBase)
+            .EvidenceRequests
+            .Where(request =>
+                string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(request.AttributeName, attribute.Value, StringComparison.OrdinalIgnoreCase))
+            .ToImmutableArray();
+        var existingAttribute = knowledgeBase.Attributes.FirstOrDefault(existing =>
+            string.Equals(existing.Subject.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
+            existing.Name == attribute);
+
+        if (matchingRequests.Length > 1)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "I have more than one outstanding request for that candidate attribute. Please clarify which value you mean. No candidate information was changed.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (matchingRequests.IsDefaultOrEmpty && existingAttribute is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                $"I don't currently have an outstanding request for the {attribute.Value} of {candidate.Value}. No candidate information was changed.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var storedCandidate = matchingRequests.IsDefaultOrEmpty
+            ? existingAttribute!.Subject
+            : matchingRequests[0].Candidate;
+        var requestedConditionName = matchingRequests.IsDefaultOrEmpty
+            ? null
+            : matchingRequests[0].ConditionName;
+        var condition = objective.Conditions.FirstOrDefault(candidateCondition =>
+            candidateCondition.Role == ObjectiveConditionRole.HardConstraint &&
+            candidateCondition.TargetAttribute == attribute.Value &&
+            (requestedConditionName is null || candidateCondition.Name == requestedConditionName));
+
+        if (condition?.Value is not ObjectiveMoneyValue ||
+            information.Value is not ObjectiveMoneyValue)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                $"The requested value for {candidate.Value} is not a monetary amount. No candidate information was changed.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        if (!knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                storedCandidate,
+                attribute,
+                information.Value,
+                parsedUtterance.SourceText,
+                KnowledgeSourceKind.UserAssertion),
+            out var error))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.StatementRejected,
+                error ?? "The candidate information could not be stored.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var originalSource = activeObjectiveSource ?? objective.Goal;
+        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+
+        var money = (ObjectiveMoneyValue)information.Value;
+        var amount = money.Amount.ToString(CultureInfo.InvariantCulture);
+        var message = $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{amount}.";
+        message = AppendObjectiveEvaluation(message, objective);
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            message,
+            SemanticFormatter.Format(parsedUtterance));
     }
 
     private LatticeUtteranceResult ProcessObjectiveInformation(

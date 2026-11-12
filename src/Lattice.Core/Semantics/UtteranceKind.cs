@@ -6,5 +6,6 @@ public enum UtteranceKind
     Question,
     Objective,
     ObjectiveInformation,
+    ObjectiveCandidateInformation,
     ObjectiveConditionUpdate
 }
