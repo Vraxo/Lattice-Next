@@ -150,7 +150,6 @@ internal static class ObjectiveEvaluationFormatter
             ? options
             : evaluation.Candidates
                 .Where(candidate =>
-                    candidate.Feasibility != CandidateFeasibility.Excluded &&
                     !evaluation.EvidenceRequests.Any(request => request.Candidate == candidate.Candidate))
                 .ToArray();
 
@@ -430,6 +429,11 @@ internal static class ObjectiveEvaluationFormatter
         if (hasTimetable)
         {
             output.AppendLine("Timetables are first feasible witnesses, not optimized schedules.");
+        }
+
+        if (hasUnscheduledGap)
+        {
+            output.AppendLine("Assumptions: unscheduled gaps are left flexible; no additional activity or meal slot is assumed.");
         }
     }
 
