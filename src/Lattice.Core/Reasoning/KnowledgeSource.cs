@@ -9,4 +9,6 @@ public sealed record KnowledgeSource(
     string? SourceId = null)
 {
     public DateTimeOffset? RetrievedAt { get; init; }
+
+    public DateTimeOffset? FreshUntil { get; init; }
 }

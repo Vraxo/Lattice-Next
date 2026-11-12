@@ -101,6 +101,22 @@ public static class LatticeExternalPageObservationParser
             return false;
         }
 
+        DateTimeOffset? freshUntil = null;
+        if (TryGetValue(lines, "Fresh until: ", out var freshUntilText))
+        {
+            if (!DateTimeOffset.TryParse(
+                    freshUntilText,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                    out var parsedFreshUntil))
+            {
+                error = "The page-fetch observation contains an invalid freshness expiry.";
+                return false;
+            }
+
+            freshUntil = parsedFreshUntil;
+        }
+
         var titleLine = lines.FirstOrDefault(line => line.StartsWith("Page title: ", StringComparison.Ordinal));
         var title = titleLine is null ? null : titleLine["Page title: ".Length..];
         observation = new LatticeExternalPageObservation(
@@ -109,7 +125,8 @@ public static class LatticeExternalPageObservationParser
             status,
             contentType,
             text,
-            title);
+            title,
+            freshUntil);
         return true;
     }
 
