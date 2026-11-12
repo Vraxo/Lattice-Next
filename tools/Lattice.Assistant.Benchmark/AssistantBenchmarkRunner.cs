@@ -200,7 +200,7 @@ public static class AssistantBenchmarkRunner
 
             var runStatus = exitCode == 0 && cliSuccess ? "Handled" : "Rejected";
             var signature = turn.ValueKind == JsonValueKind.Object
-                ? Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(turn.GetRawText())))
+                ? Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{exitCode}|{cliSuccess}|{turn.GetRawText()}")))
                 : null;
 
             return new BenchmarkRunResult(
