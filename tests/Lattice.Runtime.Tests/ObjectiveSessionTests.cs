@@ -764,6 +764,12 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Stage 1: 09:00–09:35", message);
         Assert.Contains("Unscheduled time: 11:25–14:00", message);
         Assert.Contains("Timetables are first feasible witnesses, not optimized schedules.", message);
+        Assert.Contains("Assumptions: unscheduled gaps are left flexible; no additional activity or meal slot is assumed.", message);
+        Assert.Contains("Decision summary:", message);
+        Assert.Contains("Confirmed: all shortlisted options satisfy the assessed hard constraints.", message);
+        Assert.Contains("Unknowns: no missing or conflicting evidence for the stated preferences of shortlisted options.", message);
+        Assert.Contains("No preference-based winner is established.", message);
+        Assert.Contains("Next step: choose one of the shortlisted options, or state an additional priority to distinguish them.", message);
 
         var shortlistStart = message.IndexOf("Shortlisted options (not ranked):", StringComparison.Ordinal);
         Assert.DoesNotContain("Riverside Gardens", message[shortlistStart..]);
@@ -782,6 +788,8 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Only currently eligible candidate: Riverside Gardens.", revisedMessage);
         Assert.Contains("The main activity is walking paved riverside paths for about 90 minutes.", revisedMessage);
         Assert.Contains("Stage 1: 09:00–09:15", revisedMessage);
+        Assert.Contains("Known preference mismatches: Quiet (Riverside Gardens).", revisedMessage);
+        Assert.Contains("Next step: decide whether to accept that preference compromise or relax a hard constraint.", revisedMessage);
         Assert.DoesNotContain("The main activity is a marked 2-hour loop.", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
         Assert.Contains("Plan summary (based on supplied evidence):", revisedMessage);
@@ -809,6 +817,8 @@ public sealed class ObjectiveSessionTests
         Assert.DoesNotContain("What is the total cost for Birch 15?", initialMessage);
         Assert.DoesNotContain("What is the total cost for Cedar 14?", initialMessage);
         Assert.Contains("I'll ask for the remaining 2 details after this one.", initialMessage);
+        Assert.Contains("Decision summary:", initialMessage);
+        Assert.Contains("Next step: answer the missing candidate detail above.", initialMessage);
 
         var initial = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(initial.ObjectiveEvaluation);
@@ -828,6 +838,8 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
+        Assert.Contains("Still unknown: Screen Quality (Aster 14); Reliability (Aster 14); Repairability (Aster 14).", accepted.Utterances.Single().Message);
+        Assert.Contains("Next step: answer the missing candidate detail above.", accepted.Utterances.Single().Message);
         Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
         Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
         Assert.Contains("I'll ask for the remaining 1 detail after this one.", accepted.Utterances.Single().Message);
