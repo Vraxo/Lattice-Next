@@ -515,7 +515,21 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             Feasibility = candidate.Feasibility.ToString()
         })
-            .ToImmutableArray());
+            .ToImmutableArray())
+        {
+            PreferenceTradeOffs = evaluation.PreferenceTradeOffs.Select(tradeOff =>
+                new LatticeObjectivePreferenceTradeOff(
+                    tradeOff.Preference,
+                    tradeOff.CandidateWithPositiveEvidence.Value,
+                    tradeOff.CandidateWithContraryEvidence.Value,
+                    tradeOff.PositiveEvidence.SelectMany(attribute => attribute.Sources).Distinct()
+                        .Select(source => new LatticeObjectiveEvidenceSource(source.Kind.ToString(), source.SourceText, source.SourceId))
+                        .ToImmutableArray(),
+                    tradeOff.ContraryEvidence.SelectMany(attribute => attribute.Sources).Distinct()
+                        .Select(source => new LatticeObjectiveEvidenceSource(source.Kind.ToString(), source.SourceText, source.SourceId))
+                        .ToImmutableArray()))
+                .ToImmutableArray()
+        };
 
     private static LatticeEvidence MapEvidence(ProofNode proof)
     {
