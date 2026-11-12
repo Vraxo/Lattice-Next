@@ -147,7 +147,6 @@ public sealed class LatticeRuntimeSessionTests
             - has → boundary
               - is → closed
               - has → line segment
-                - is → line segment
                 - is → straight
             """,
             result.Utterances[0].Message);
