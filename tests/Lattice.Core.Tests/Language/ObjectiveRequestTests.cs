@@ -117,6 +117,12 @@ public sealed class ObjectiveRequestTests
             new[] { "quiet", "outdoors" },
             Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
 
+        var origin = Assert.Single(objective.Conditions, condition => condition.Name == "origin");
+        Assert.Equal(ObjectiveConditionRole.HardConstraint, origin.Role);
+        Assert.Equal(ObjectiveConditionOperator.Equals, origin.Operator);
+        Assert.Equal(new ObjectiveTextValue("Central Station"), origin.Value);
+        Assert.Equal("origin", origin.TargetAttribute);
+
         var time = Assert.Single(objective.Conditions, condition => condition.Name == "time-window");
         Assert.Equal(ObjectiveConditionRole.HardConstraint, time.Role);
         Assert.Equal(ObjectiveConditionOperator.CanFit, time.Operator);

@@ -19,6 +19,10 @@ internal static class ObjectiveConditionParser
         @"\b(?:no car|I don't have (?:access to )?a car|I do not have (?:access to )?a car|I won't have (?:access to )?a car|I will not have (?:access to )?a car|I'm without a car|I am without a car|I'm car-free|I am car-free)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex StartingLocationPattern = new(
+        @"\b(?:I'm starting at|my starting point is|my starting location is|I'm coming from|I'm starting from|I'll start from|I'll be leaving from|I'm setting off from)\s+(?<location>[^,.!?]+)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex PreferencePattern = new(
         @"\b(?:I would prefer|I prefer|I care about|I want(?!\s+to\b)|I would like(?!\s+to\b)|I'd (?:like|prefer)(?!\s+to\b))\s+(?<value>[^.!?]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -83,6 +87,21 @@ internal static class ObjectiveConditionParser
                 noCar.Value)
             {
                 TargetAttribute = "transport-mode"
+            }));
+        }
+
+        var startingLocation = StartingLocationPattern.Match(source);
+
+        if (startingLocation.Success)
+        {
+            conditions.Add((startingLocation.Index, new ObjectiveCondition(
+                "origin",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.Equals,
+                new ObjectiveTextValue(startingLocation.Groups["location"].Value.Trim()),
+                startingLocation.Value)
+            {
+                TargetAttribute = "origin"
             }));
         }
 

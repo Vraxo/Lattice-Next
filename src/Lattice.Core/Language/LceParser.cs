@@ -30,10 +30,6 @@ public sealed class LceParser
         @"^(?:I'll bring lunch|Lunch is covered|I have lunch with me|I'll pack my own lunch|I've got lunch sorted|I already have lunch|I'm bringing lunch|I'm bringing my own lunch|I'll have a packed lunch|I won't need to buy lunch)\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex StartingLocationPattern = new(
-        @"\b(?:I'm starting at|my starting point is|my starting location is|I'm coming from|I'm starting from|I'll start from|I'll be leaving from|I'm setting off from)\s+(?<location>[^,.!?]+)",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static readonly Regex NoBusPattern = new(
         @"\bI don't want to take a bus\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -561,20 +557,8 @@ public sealed class LceParser
             });
         }
 
-        var locationMatch = StartingLocationPattern.Match(source);
-
-        if (locationMatch.Success)
-        {
-            conditions.Add(new ObjectiveCondition(
-                "origin",
-                ObjectiveConditionRole.HardConstraint,
-                ObjectiveConditionOperator.Equals,
-                new ObjectiveTextValue(locationMatch.Groups["location"].Value.Trim()),
-                sourceText)
-            {
-                TargetAttribute = "origin"
-            });
-        }
+        conditions.AddRange(ObjectiveConditionParser.Parse(source).Where(condition =>
+            condition.Name == "origin"));
 
         conditions.AddRange(ObjectiveConditionParser.Parse(source).Where(condition =>
             condition.Name == "time-window"));
