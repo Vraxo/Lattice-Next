@@ -622,6 +622,20 @@ public sealed class ObjectiveSessionTests
             evaluation.Candidates.SelectMany(candidate => candidate.Conditions).SelectMany(condition => condition.Evidence),
             source => source.SourceText.Contains("reliability", StringComparison.OrdinalIgnoreCase) ||
                 source.SourceText.Contains("warranty", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("NoEligibleCandidates", evaluation.Recommendation.Status);
+        Assert.Empty(evaluation.Recommendation.ShortlistedCandidates);
+        Assert.True(evaluation.Recommendation.HasIncompletePreferenceEvidence);
+        var cedarHighlight = Assert.Single(cedar.Highlights);
+        Assert.Equal("tags", cedarHighlight.Name);
+        Assert.Contains(cedarHighlight.Evidence, source =>
+            source.SourceText == "Cedar 14 has an upgrade path.");
+
+        var message = result.Utterances[^1].Message;
+        Assert.Contains("No candidate is currently confirmed eligible under the assessed hard constraints.", message);
+        Assert.Contains("Unresolved candidates still need evidence: Aster 14, Birch 15, Cedar 14", message);
+        Assert.Contains("Known candidate details (not recommendations):", message);
+        Assert.Contains("Tags: Cedar 14 has an upgrade path.", message);
+        Assert.DoesNotContain("Shortlisted options (not ranked):", message);
     }
 
     [Fact]

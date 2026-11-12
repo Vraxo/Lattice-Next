@@ -124,6 +124,29 @@ internal static class ObjectiveEvaluationFormatter
 
         if (options.Length == 0)
         {
+            var knownCandidates = candidates
+                .Where(candidate => !candidate.Highlights.IsDefaultOrEmpty)
+                .ToArray();
+
+            if (knownCandidates.Length > 0)
+            {
+                output.AppendLine("Known candidate details (not recommendations):");
+                foreach (var candidate in knownCandidates)
+                {
+                    output.Append("- ").AppendLine(candidate.Candidate.Value);
+                    foreach (var highlight in candidate.Highlights)
+                    {
+                        foreach (var source in highlight.Sources)
+                        {
+                            output.Append("  ")
+                                .Append(FormatAttributeName(highlight.Name.Value))
+                                .Append(": ")
+                                .AppendLine(source.SourceText);
+                        }
+                    }
+                }
+            }
+
             return;
         }
 
