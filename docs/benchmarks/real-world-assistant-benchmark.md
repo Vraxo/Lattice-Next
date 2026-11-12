@@ -77,3 +77,31 @@ Do not download entire datasets or all Parquet shards for this benchmark. The in
 Continue expanding the real-world layer only when we can obtain more traceable English root prompts from OASST1 and stable single-turn records from WildChat. Aim for roughly 30–40 prompts overall, but do not pad the set with weakly sourced or synthetic items merely to hit the target. The current 34-prompt seed is useful for early development, but its source imbalance means it must not yet be treated as a frozen benchmark.
 
 The long-term objective remains to test general language understanding without a neural translator, not to hardcode the prompts in this file.
+
+
+## Automated execution
+
+The candidate benchmark can be executed against the actual production CLI without manually entering prompts. From the repository root:
+
+```powershell
+dotnet run --project tools/Lattice.Assistant.Benchmark
+```
+
+This runs every source prompt once. Each prompt is submitted through `LatticeCli.RunAsync`, and every repetition receives a fresh in-process session. The runner writes:
+
+- `artifacts/assistant-benchmark-results.json` — full CLI JSON output, standard error, exit status, utterance kinds, response summaries, latency, per-run outcome signatures, benchmark hash, and aggregate metrics.
+- `artifacts/assistant-benchmark-results.md` — readable run summary, category/layer breakdowns, per-prompt handling and stability, and individual output summaries.
+
+Useful options:
+
+```powershell
+dotnet run --project tools/Lattice.Assistant.Benchmark -- --repeat 5
+dotnet run --project tools/Lattice.Assistant.Benchmark -- --category classification
+dotnet run --project tools/Lattice.Assistant.Benchmark -- --layer real-world-instruction
+dotnet run --project tools/Lattice.Assistant.Benchmark -- --id dolly-001 --id dolly-002
+dotnet run --project tools/Lattice.Assistant.Benchmark -- --repeat 5 --fail-on-unhandled
+```
+
+The default repeat count is one. Repetitions are useful for detecting instability, but deterministic identical runs do not add evidence of answer quality. The runner reports **handled** when the CLI completes a turn without rejecting it; this is an execution metric, not a correctness score. There are currently no gold answers or human-reviewed semantic annotations for this prompt set, so the runner deliberately does not claim an accuracy percentage. The separate diagnostics JSON is not silently mixed into this source-prompt run.
+
+The runner itself is included in `Lattice.slnx` and has integration tests verifying fresh-session isolation, report generation, filtering, and invalid benchmark rejection.
