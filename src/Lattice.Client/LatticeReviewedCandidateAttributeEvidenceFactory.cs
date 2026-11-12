@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using System.Text.Json;
-using Lattice.Core.Reasoning;
 
 namespace Lattice.Client;
 
@@ -28,16 +27,11 @@ public static class LatticeReviewedCandidateAttributeEvidenceFactory
             candidate.Length > 256 ||
             string.IsNullOrWhiteSpace(attributeName) ||
             !AttributeNamePattern.IsMatch(attributeName) ||
-            value.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null ||
+            value.ValueKind != JsonValueKind.Object ||
             string.IsNullOrWhiteSpace(excerpt) ||
             excerpt.Length > 4000)
         {
-            error = "A candidate, canonical attribute name, typed value, and supporting excerpt are required.";
-            return false;
-        }
-
-        if (!KnowledgePackLoader.TryParseTypedAttributeValue(value, out _, out error))
-        {
+            error = "A candidate, canonical attribute name, JSON typed-value object, and supporting excerpt are required.";
             return false;
         }
 

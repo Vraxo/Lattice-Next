@@ -122,7 +122,7 @@ public sealed class ExternalPageEvidenceReviewTests
     }
 
     [Fact]
-    public void Rejects_generic_candidate_attribute_review_with_an_unsupported_typed_value()
+    public void Rejects_generic_candidate_attribute_review_with_a_non_object_value()
     {
         var page = new LatticeExternalPageObservation(
             "https://example.org/page",
@@ -131,16 +131,16 @@ public sealed class ExternalPageEvidenceReviewTests
             "text/plain",
             "Quiet Park is open from 08:00 to 18:00.");
 
-        using var value = JsonDocument.Parse("""{"type":"unknown","value":"anything"}""");
+        using var value = JsonDocument.Parse("\"walking\"");
         Assert.False(LatticeReviewedCandidateAttributeEvidenceFactory.TryCreate(
             page,
             "Quiet Park",
-            "opening-hours",
+            "transport-mode",
             value.RootElement,
             "Quiet Park is open from 08:00 to 18:00.",
             out _,
             out var error));
-        Assert.Contains("supported typed attribute", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("JSON typed-value object", error, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string CreatePage(
@@ -281,6 +281,21 @@ public sealed class ExternalPageEvidenceReviewTests
             source.RequiresFreshness);
         Assert.DoesNotContain(afterEvaluation.EvidenceRequests, request =>
             request.Candidate == "Quiet Park" && request.AttributeName == "transport-mode");
+
+        using var invalidValue = JsonDocument.Parse("""{"type":"unknown","value":"walking"}""");
+        var rejected = await session.AddReviewedCandidateAttributeEvidenceAsync(
+            new LatticeCandidateAttributeEvidence(
+                "Quiet Park",
+                "transport-mode",
+                invalidValue.RootElement.Clone(),
+                "Quiet Park has a walking-only route.",
+                "https://example.org/quiet-park",
+                retrievedAt)
+            {
+                FreshUntil = freshUntil
+            });
+        Assert.False(rejected.IsSuccess);
+        Assert.Contains("supported typed attribute", rejected.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
