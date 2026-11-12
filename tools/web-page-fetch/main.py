@@ -214,6 +214,7 @@ def extract_page_text(body: bytes, content_type: str) -> tuple[str, str]:
         parser.close()
         title = " ".join(" ".join(parser.title_parts).split())
         text = " ".join(" ".join(parser.parts).split())
+        text = re.sub(r"\\s+([,.;:!?])", r"\\1", text)
 
     if not text:
         raise ValueError("The page did not contain readable text.")
