@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Lattice.Client;
-using Lattice.Core.Reasoning;
 using Lattice.Runtime;
 using Xunit;
 
@@ -271,7 +270,7 @@ public sealed class ExternalPageEvidenceReviewTests
         var after = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var afterEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(after.ObjectiveEvaluation);
         var afterCandidate = Assert.Single(afterEvaluation.Candidates);
-        Assert.Equal(CandidateFeasibility.Eligible, afterCandidate.Feasibility);
+        Assert.Equal("Eligible", afterCandidate.Feasibility);
         var transport = Assert.Single(afterCandidate.Conditions, condition => condition.Name == "transport");
         Assert.Equal("Satisfied", transport.Status);
         Assert.Contains(transport.Evidence, source =>

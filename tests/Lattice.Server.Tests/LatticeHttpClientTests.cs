@@ -1,5 +1,4 @@
 using Lattice.Client;
-using Lattice.Core.Reasoning;
 using Lattice.Client.Http;
 using Lattice.Server;
 using Microsoft.AspNetCore.Hosting;
@@ -127,7 +126,7 @@ public sealed class LatticeHttpClientTests
         var status = await session.GetStatusAsync();
         var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
         var candidate = Assert.Single(evaluation.Candidates);
-        Assert.Equal(CandidateFeasibility.Eligible, candidate.Feasibility);
+        Assert.Equal("Eligible", candidate.Feasibility);
         var transport = Assert.Single(candidate.Conditions, condition => condition.Name == "transport");
         Assert.Equal("Satisfied", transport.Status);
         Assert.Contains(transport.Evidence, source =>
