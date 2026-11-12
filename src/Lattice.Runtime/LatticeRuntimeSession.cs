@@ -416,8 +416,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
-            var message = $"I've retained this objective: {objective.Goal}.";
-            message = AppendObjectiveEvaluation(message, objective);
+            var message = AppendObjectiveEvaluation(string.Empty, objective, includeMessage: false);
 
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ObjectiveReceived,
@@ -881,14 +880,22 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 activeObjectiveSource)));
     }
 
-    private string AppendObjectiveEvaluation(string message, ObjectiveFormula objective)
+    private string AppendObjectiveEvaluation(
+        string message,
+        ObjectiveFormula objective,
+        bool includeMessage = true)
     {
         var response = ObjectiveResponseFormatter.Format(
             objectiveEvaluator.Evaluate(objective, knowledgeBase));
 
-        return string.IsNullOrWhiteSpace(response)
-            ? message
-            : response;
+        if (string.IsNullOrWhiteSpace(response))
+        {
+            return message;
+        }
+
+        return !includeMessage || string.IsNullOrWhiteSpace(message)
+            ? response
+            : $"{message}{Environment.NewLine}{response}";
     }
 
     private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
