@@ -190,7 +190,7 @@ internal static class ObjectiveEvaluationFormatter
         output.AppendLine("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified by this evaluation.");
 
         output.Append("  Your actions: ");
-        if (evaluation.EvidenceRequests.Count > 0)
+        if (evaluation.EvidenceRequests.Length > 0)
         {
             output.Append("answer the outstanding evidence request above; ");
         }
