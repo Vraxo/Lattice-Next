@@ -988,13 +988,17 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.True(pack.IsSuccess, pack.Error);
 
-        const string request = "Help me choose a Saturday ceramics class. I have a limited budget and no car. I would prefer a small group and beginner-friendly instruction. My budget is $180. I'm starting at Central Station, and I can leave at 9:00 and be back by 13:00.";
+        const string request = "Help me choose a Saturday ceramics class. I have a limited budget and no car. I would prefer a small group and beginner-friendly instruction.";
         var initialTurn = await session.SubmitAsync(request, TestContext.Current.CancellationToken);
-        Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, Assert.Single(initialTurn.Utterances).Kind);
-        Assert.Contains("What is the total cost for Northbank Ceramics?", initialTurn.Utterances.Single().Message);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, Assert.Single(initialTurn.Utterances).Kind);
+        Assert.Contains("What is your spending limit?", initialTurn.Utterances.Single().Message);
+
+        const string clarification = "$180 total. I'm starting at Central Station, and I can leave at 9:00 and be back by 13:00.";
+        await session.SubmitAsync(clarification, TestContext.Current.CancellationToken);
 
         var initialStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(request, initialStatus.ActiveObjectiveSource);
+        Assert.Contains(request, initialStatus.ActiveObjectiveSource ?? string.Empty);
+        Assert.Contains(clarification, initialStatus.ActiveObjectiveSource ?? string.Empty);
         var initial = Assert.IsType<LatticeObjectiveEvaluation>(initialStatus.ObjectiveEvaluation);
         Assert.Equal(4, initial.Candidates.Length);
         Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
