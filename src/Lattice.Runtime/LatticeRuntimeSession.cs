@@ -344,14 +344,14 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         var originalSource = activeObjectiveSource ?? objective.Goal;
         activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
 
-        var valueDescription = information.Value switch
+        var message = information.Value switch
         {
             ObjectiveMoneyValue money =>
-                $"{money.CurrencySymbol}{money.Amount.ToString(CultureInfo.InvariantCulture)}",
-            ObjectiveTextValue text => text.Value,
-            _ => "the supplied value"
+                $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{money.Amount.ToString(CultureInfo.InvariantCulture)}.",
+            ObjectiveTextValue text =>
+                $"Recorded {storedCandidate.Value}'s {attribute.Value} as {text.Value}.",
+            _ => $"Recorded candidate evidence for {storedCandidate.Value}."
         };
-        var message = $"Recorded {storedCandidate.Value}'s {attribute.Value} as {valueDescription}.";
         message = AppendObjectiveEvaluation(message, objective);
 
         return new LatticeUtteranceResult(
