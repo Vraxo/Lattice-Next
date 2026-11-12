@@ -105,6 +105,17 @@ internal static class ObjectiveEvaluationFormatter
             }
         }
 
+        foreach (var tradeOff in evaluation.PreferenceTradeOffs)
+        {
+            output.Append("- ")
+                .Append(tradeOff.CandidateWithPositiveEvidence.Value)
+                .Append(" has evidence for ")
+                .Append(tradeOff.Preference)
+                .Append(", while ")
+                .Append(tradeOff.CandidateWithContraryEvidence.Value)
+                .AppendLine(" has evidence against it.");
+        }
+
         return output.ToString().TrimEnd();
     }
 
