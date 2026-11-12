@@ -299,6 +299,77 @@ public sealed class ExternalPageEvidenceReviewTests
     }
 
     [Fact]
+    public async Task Keeps_reviewed_non_monetary_external_evidence_unverified_without_a_freshness_deadline()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "freshness-required-place",
+              "name": "Freshness-required place",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Quiet Park",
+                  "name": "transport-mode",
+                  "value": { "type": "text", "value": "walking" },
+                  "sourceText": "Quiet Park has a walking route.",
+                  "requiresFreshness": true
+                },
+                {
+                  "subject": "Quiet Park",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Quiet Park is quiet and outdoors."
+                }
+              ]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me find a place.",
+            TestContext.Current.CancellationToken);
+
+        using var valueDocument = JsonDocument.Parse("""{"type":"text","value":"walking"}""");
+        var retrievedAt = DateTimeOffset.UtcNow.AddMinutes(-1);
+        var page = new LatticeExternalPageObservation(
+            "https://example.org/quiet-park",
+            retrievedAt,
+            200,
+            "text/html",
+            "Quiet Park has a walking-only route.");
+        Assert.True(LatticeReviewedCandidateAttributeEvidenceFactory.TryCreate(
+            page,
+            "Quiet Park",
+            "transport-mode",
+            valueDocument.RootElement,
+            "Quiet Park has a walking-only route.",
+            out var evidence,
+            out var factoryError), factoryError);
+
+        var accepted = await session.AddReviewedCandidateAttributeEvidenceAsync(evidence!);
+        Assert.True(accepted.IsSuccess, accepted.Error);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        var candidate = Assert.Single(evaluation.Candidates);
+        Assert.Equal("Unresolved", candidate.Feasibility);
+        var transport = Assert.Single(candidate.Conditions, condition => condition.Name == "transport");
+        Assert.Equal("Unverified", transport.Status);
+        Assert.Contains(transport.Evidence, source =>
+            source.Kind == "ExternalObservation" &&
+            source.SourceId == "https://example.org/quiet-park" &&
+            source.RetrievedAt == retrievedAt &&
+            source.FreshUntil is null &&
+            source.RequiresFreshness);
+        Assert.Contains(evaluation.EvidenceRequests, request =>
+            request.Candidate == "Quiet Park" &&
+            request.AttributeName == "transport-mode");
+    }
+
+    [Fact]
     public async Task Carries_a_reviewed_page_price_into_the_active_laptop_objective()
     {
         var client = new LatticeRuntimeClient();
