@@ -1114,7 +1114,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("You have three good options: Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail.", message);
         Assert.Contains("All options fit your budget, meet your transport requirements, use your chosen starting point, and fit your time window.", message);
         Assert.Contains("They also match your stated preferences for quiet and outdoors.", message);
-        Assert.Contains("If you'd like the lower-cost, shorter outing, I'd lean toward Fernbank Nature Reserve.", message);
+        Assert.Contains("If you'd prefer the lower-cost, shorter option, I'd lean toward Fernbank Nature Reserve.", message);
         Assert.Contains("$6 return transport", message);
         Assert.Contains("$12 return transport", message);
         Assert.Contains("$8 return transport", message);
