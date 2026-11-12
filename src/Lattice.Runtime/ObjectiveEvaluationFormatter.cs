@@ -103,7 +103,7 @@ internal static class ObjectiveEvaluationFormatter
 
         AppendRecommendation(output, evaluation.Recommendation, evaluation.Candidates);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
-        AppendEvidenceRequests(output, evaluation.EvidenceRequests);
+        AppendEvidenceRequests(output, evaluation.EvidenceRequests, CanProceedWithShortlist(evaluation));
         AppendDecisionSummary(output, evaluation);
         AppendPlanSummary(output, evaluation);
 
@@ -112,14 +112,17 @@ internal static class ObjectiveEvaluationFormatter
 
     private static void AppendEvidenceRequests(
         StringBuilder output,
-        IReadOnlyList<ObjectiveEvidenceRequest> requests)
+        IReadOnlyList<ObjectiveEvidenceRequest> requests,
+        bool canProceedWithShortlist)
     {
         if (requests.Count == 0)
         {
             return;
         }
 
-        output.AppendLine("Missing hard-constraint evidence:");
+        output.AppendLine(canProceedWithShortlist
+            ? "Optional additional candidate evidence:"
+            : "Missing hard-constraint evidence:");
         output.Append("- ").AppendLine(requests[0].Prompt);
 
         var remainingCount = requests.Count - 1;
@@ -132,6 +135,10 @@ internal static class ObjectiveEvaluationFormatter
                     : " details after this one.");
         }
     }
+
+    private static bool CanProceedWithShortlist(ObjectiveEvaluation evaluation) =>
+        !evaluation.Recommendation.ShortlistedCandidates.IsDefaultOrEmpty &&
+        !evaluation.Recommendation.HasIncompletePreferenceEvidence;
 
     private static void AppendDecisionSummary(
         StringBuilder output,
@@ -208,8 +215,15 @@ internal static class ObjectiveEvaluationFormatter
 
         if (evaluation.EvidenceRequests.Length > 0)
         {
-            output.AppendLine("Next step: answer the missing candidate detail above.");
-            return;
+            if (CanProceedWithShortlist(evaluation))
+            {
+                output.AppendLine("Additional candidate details are optional; the current shortlist is supported without them.");
+            }
+            else
+            {
+                output.AppendLine("Next step: answer the missing candidate detail above.");
+                return;
+            }
         }
 
         if (options.Length == 0)
@@ -333,7 +347,9 @@ internal static class ObjectiveEvaluationFormatter
         output.Append("  Your actions: ");
         if (evaluation.EvidenceRequests.Length > 0)
         {
-            output.Append("answer the outstanding evidence request above; ");
+            output.Append(CanProceedWithShortlist(evaluation)
+                ? "optionally answer the additional candidate-evidence request; "
+                : "answer the outstanding evidence request above; ");
         }
 
         output.AppendLine("verify live details before acting and complete any required booking yourself. No booking has been made.");
