@@ -1522,13 +1522,15 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("What is your spending limit?", initialTurn.Utterances.Single().Message);
 
         const string clarification = "$180 total. I'm starting at Central Station, and I can leave at 9:00 and be back by 13:00.";
-        await session.SubmitAsync(clarification, TestContext.Current.CancellationToken);
+        var clarificationTurn = await session.SubmitAsync(clarification, TestContext.Current.CancellationToken);
 
         var initialStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         Assert.Contains(request, initialStatus.ActiveObjectiveSource ?? string.Empty);
         var initial = Assert.IsType<LatticeObjectiveEvaluation>(initialStatus.ObjectiveEvaluation);
         Assert.Equal(4, initial.Candidates.Length);
         Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
+        Assert.Contains(clarificationTurn.Utterances,
+            utterance => utterance.Message.Contains(initial.EvidenceRequests[0].Prompt, StringComparison.Ordinal));
 
         var clayHouse = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Clay House Studio");
         Assert.Equal("Eligible", clayHouse.Feasibility);
