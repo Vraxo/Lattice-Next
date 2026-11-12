@@ -82,6 +82,12 @@ The same mechanisms could later support dependency analysis in a project, supply
 
 This is a candidate because it is concrete, understandable, and has a meaningful outcome. It also gives a reason to revisit currently deferred work such as relation joins and traversal. We should validate the exact scenario and scope before committing to it as the next development target.
 
+## Measuring first-use language understanding
+
+Lattice's natural-language development should be evaluated against real prompts written by users of conversational AI, rather than relying primarily on developer-authored examples. The initial target is single-turn instruction understanding, with task usefulness evaluated separately from semantic interpretation. The 2022 InstructGPT request distribution provides a historical reference; WildChat-1M is the primary real-prompt source, with LMSYS-Chat-1M as a supplementary source. The benchmark should use a curated, versioned sample, preserve original wording and provenance, and maintain held-out prompts for generalization testing. This does not change the model-independent architecture goal: the benchmark is intended to drive reusable language and semantic capabilities, not prompt-specific handlers.
+
+See [Real-world assistant benchmark](benchmarks/real-world-assistant-benchmark.md) for source selection, curation rules, evaluation dimensions, and the initial data-exploration workflow.
+
 ## Architectural consequences
 
 - Keep language, semantics, context, knowledge, reasoning, planning, and tool execution distinct but composable.
