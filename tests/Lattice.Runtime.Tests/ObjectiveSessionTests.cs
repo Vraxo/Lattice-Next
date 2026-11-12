@@ -880,13 +880,13 @@ public sealed class ObjectiveSessionTests
             followUp.Utterances[^1].Message);
         Assert.Contains("Bus Park", followUp.Utterances[^1].Message);
         Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
-        Assert.Contains("Stage 1: 09:00–09:25", followUp.Utterances[^1].Message);
+        Assert.Contains("Stage 1: 10:30–10:55", followUp.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", followUp.Utterances[^1].Message);
         Assert.Contains("Shortlisted options (not ranked):", followUp.Utterances[^1].Message);
         Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", followUp.Utterances[^1].Message);
         Assert.Contains("Return Transport Cost: The return bus fare is $6.", followUp.Utterances[^1].Message);
-        Assert.Contains("Unscheduled time: 11:25–14:00", followUp.Utterances[^1].Message);
-        Assert.Contains("Timetables are first feasible witnesses, not optimized schedules.", followUp.Utterances[^1].Message);
+        Assert.Contains("Unscheduled time: 12:55–14:00", followUp.Utterances[^1].Message);
+        Assert.Contains("Timetables minimize idle time between stages; they are not ranked by other priorities.", followUp.Utterances[^1].Message);
         Assert.Equal(3, Assert.Single(busPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
         Assert.Equal(3, Assert.Single(walkPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
 
@@ -912,7 +912,7 @@ public sealed class ObjectiveSessionTests
             "Walk Park: is eligible under the assessed hard constraints",
             walkingOnly.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
-        Assert.DoesNotContain("Stage 1: 09:00–09:25", walkingOnly.Utterances[^1].Message);
+        Assert.DoesNotContain("Stage 1: 10:30–10:55", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("The main activity is a marked 2-hour loop.", walkingOnly.Utterances[^1].Message);
         Assert.Contains("The main activity is walking paved paths.", walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
@@ -1094,11 +1094,11 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("The return bus fare is $12.", message);
         Assert.Contains("The main activity is a grounds walk of about 2 hours.", message);
         Assert.Contains("Entry costs $10.", message);
-        Assert.Contains("Stage 1: 09:00–09:25", message);
-        Assert.Contains("Stage 1: 09:15–10:00", message);
-        Assert.Contains("Stage 1: 09:00–09:35", message);
-        Assert.Contains("Unscheduled time: 11:25–14:00", message);
-        Assert.Contains("Timetables are first feasible witnesses, not optimized schedules.", message);
+        Assert.Contains("Stage 1: 10:30–10:55", message);
+        Assert.Contains("Stage 1: 11:15–12:00", message);
+        Assert.Contains("Stage 1: 13:00–13:35", message);
+        Assert.Contains("Unscheduled time: 12:55–14:00", message);
+        Assert.Contains("Timetables minimize idle time between stages; they are not ranked by other priorities.", message);
         Assert.Contains("Assumptions: unscheduled gaps are left flexible; no additional activity or meal slot is assumed.", message);
         Assert.Contains("Decision summary:", message);
         Assert.Contains("Confirmed: all shortlisted options satisfy the assessed hard constraints.", message);

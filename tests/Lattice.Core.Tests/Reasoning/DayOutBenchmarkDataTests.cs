@@ -55,8 +55,8 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal("day-out-candidates", GetCondition(fernbank, "itinerary").Evidence[0].SourceId);
         Assert.Collection(
             GetCondition(fernbank, "itinerary").TemporalWitness,
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 0), new TimeOnly(9, 25), 25), stage),
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(9, 25), new TimeOnly(11, 25), 120), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(10, 30), new TimeOnly(10, 55), 25), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(10, 55), new TimeOnly(12, 55), 120), stage),
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(14, 0), new TimeOnly(14, 25), 25), stage));
 
         var quarry = GetCandidate(evaluation, "Quarry Lake Trail");
@@ -66,8 +66,8 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "itinerary").Status);
         Assert.Collection(
             GetCondition(quarry, "itinerary").TemporalWitness,
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 15), new TimeOnly(10, 0), 45), stage),
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(10, 0), new TimeOnly(13, 0), 180), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(11, 15), new TimeOnly(12, 0), 45), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(12, 0), new TimeOnly(15, 0), 180), stage),
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(15, 45), new TimeOnly(16, 30), 45), stage));
 
         var riverside = GetCandidate(evaluation, "Riverside Gardens");
