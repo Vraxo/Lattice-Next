@@ -114,6 +114,38 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Keeps_candidates_non_dominated_when_they_trade_off_different_preferences()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        foreach (var candidate in new[] { "Quiet Option", "Outdoor Option" })
+        {
+            AddAttribute(knowledgeBase, candidate, "total-cost", new ObjectiveMoneyValue(10m, "$"));
+            AddAttribute(knowledgeBase, candidate, "transport-mode", new ObjectiveTextValue("walking"));
+        }
+
+        AddAttribute(knowledgeBase, "Quiet Option", "tags", new ObjectiveTextSetValue(
+            ImmutableArray.Create("quiet"))
+        {
+            ExcludedValues = ImmutableArray.Create("outdoors")
+        });
+        AddAttribute(knowledgeBase, "Outdoor Option", "tags", new ObjectiveTextSetValue(
+            ImmutableArray.Create("outdoors"))
+        {
+            ExcludedValues = ImmutableArray.Create("quiet")
+        });
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+
+        Assert.Equal(ObjectiveRecommendationStatus.MultipleNonDominatedCandidates, evaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "Outdoor Option", "Quiet Option" },
+            evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value));
+        Assert.Empty(evaluation.Recommendation.DominatedCandidates);
+        Assert.False(evaluation.Recommendation.HasIncompletePreferenceEvidence);
+        Assert.Equal(2, evaluation.PreferenceTradeOffs.Length);
+    }
+
+    [Fact]
     public void Reports_conflicting_positive_and_negative_evidence_for_the_same_preference()
     {
         var knowledgeBase = new KnowledgeBase();
