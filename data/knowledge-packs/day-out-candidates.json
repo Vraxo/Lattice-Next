@@ -384,18 +384,6 @@
     },
     {
       "subject": "Hilltop Farm Grounds",
-      "name": "total-cost",
-      "value": {
-        "type": "sum",
-        "attributes": [
-          "return-transport-cost",
-          "entry-cost"
-        ]
-      },
-      "sourceText": "The total outing cost is the return transport cost plus the entry cost."
-    },
-    {
-      "subject": "Hilltop Farm Grounds",
       "name": "tags",
       "value": {
         "type": "textSet",

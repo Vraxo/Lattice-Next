@@ -722,6 +722,13 @@ public sealed class ObjectiveSessionTests
             "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeTurnStatus.Completed, followUp.Status);
+        Assert.Contains("What is the total cost for Hilltop Farm Grounds?", followUp.Utterances[^1].Message);
+
+        var priceAnswer = await session.SubmitAsync(
+            "Hilltop Farm Grounds costs $18.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, priceAnswer.Status);
+        Assert.Contains("Recorded Hilltop Farm Grounds's total cost as $18.", priceAnswer.Utterances[^1].Message);
 
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
@@ -732,8 +739,13 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Riverside Gardens", Assert.Single(evaluation.Recommendation.DominatedCandidates));
         Assert.False(evaluation.Recommendation.HasIncompletePreferenceEvidence);
         Assert.Equal(3, evaluation.PreferenceTradeOffs.Length);
+        Assert.Empty(evaluation.EvidenceRequests);
+        var hilltop = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Hilltop Farm Grounds");
+        var hilltopBudget = Assert.Single(hilltop.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Satisfied", hilltopBudget.Status);
+        Assert.Equal("UserAssertion", Assert.Single(hilltopBudget.Evidence).Kind);
 
-        var message = followUp.Utterances[^1].Message;
+        var message = priceAnswer.Utterances[^1].Message;
         Assert.Contains(
             "No unique preference leader; these eligible candidates remain non-dominated: Fernbank Nature Reserve, Hilltop Farm Grounds, Quarry Lake Trail.",
             message);
