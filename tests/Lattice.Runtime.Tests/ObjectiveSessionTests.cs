@@ -526,6 +526,31 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Accepts_origin_and_packed_lunch_paraphrases_in_one_follow_up()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+        const string followUp = "$25 total. Lunch is covered. My starting point is Central Station, and I can leave at 9:00 and be back by 18:00.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+        var result = await session.SubmitAsync(followUp, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(4, result.Utterances.Length);
+        Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
+            meaning => meaning.Contains("hardconstraint(meal-plan, equals, bring-lunch)", StringComparison.Ordinal));
+        Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
+            meaning => meaning.Contains("hardconstraint(origin, equals, Central Station)", StringComparison.Ordinal));
+        Assert.Contains(followUp, status.ActiveObjectiveSource);
+        Assert.Null(status.PendingInformationName);
+        Assert.Null(status.PendingInformationPrompt);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Applies_the_complete_day_out_follow_up_without_storing_facts()
     {
         var client = new LatticeRuntimeClient();
