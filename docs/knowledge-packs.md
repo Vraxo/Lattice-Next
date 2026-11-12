@@ -15,7 +15,7 @@ A pack must contain at least one claim or one typed attribute. Each array is lim
 
 ## Typed attributes
 
-Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. The loader attaches imported-claim provenance and the pack ID to every attribute.
+Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. An optional boolean `summary` marks a curated detail to surface in candidate summaries; it defaults to false. The loader attaches imported-claim provenance and the pack ID to every attribute.
 
 Supported value forms:
 
@@ -78,7 +78,7 @@ A derived value can refer to other attributes on the same subject. For example:
 
 Sums resolve lazily when an objective uses the derived attribute. Money components must use the same currency; duration components produce a duration. Nested sums are supported with a bounded depth. Missing components remain Unknown, conflicting component values remain Conflicting, and incompatible types, currencies, cycles, or arithmetic overflow remain Unknown.
 
-For `textSet`, `values` records explicitly supported tags and `excludedValues` records explicitly unsupported tags. An absent tag in either array remains unknown; it is not inferred from omission. If the same tag appears in both arrays, evaluation reports conflicting evidence. The format stores data; it does not execute instructions. Each typed value object must contain exactly the fields defined for its type. Unsupported types, extra fields, malformed values, and invalid source metadata reject the pack. Repeated identical attribute values merge provenance through the knowledge base; distinct values remain separate so later evaluation can report conflicts.
+For `textSet`, `values` records explicitly supported tags and `excludedValues` records explicitly unsupported tags. An absent tag in either array remains unknown; it is not inferred from omission. If the same tag appears in both arrays, evaluation reports conflicting evidence. The format stores data; it does not execute instructions. Each typed value object must contain exactly the fields defined for its type. Unsupported types, extra fields, malformed values, and invalid source metadata reject the pack. Repeated identical attribute values merge provenance through the knowledge base; distinct values remain separate so later evaluation can report conflicts. If any identical merged declaration marks an attribute for summary display, that selection is retained.
 
 ## Current boundary
 

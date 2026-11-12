@@ -11,4 +11,6 @@ public sealed record LatticeCandidateAssessment(
 {
     /// <summary>Whether the candidate satisfies all applicable hard constraints.</summary>
     public string Feasibility { get; init; } = "NotEvaluated";
+
+    public ImmutableArray<LatticeObjectiveCandidateHighlight> Highlights { get; init; } = [];
 }

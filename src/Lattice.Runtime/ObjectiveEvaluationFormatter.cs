@@ -39,6 +39,19 @@ internal static class ObjectiveEvaluationFormatter
 
             output.AppendLine(".");
 
+            foreach (var highlight in candidate.Highlights)
+            {
+                foreach (var source in highlight.Sources)
+                {
+                    output.Append("  Highlight — ")
+                        .Append(FormatAttributeName(highlight.Name.Value))
+                        .Append(": ")
+                        .AppendLine(string.IsNullOrWhiteSpace(source.SourceId)
+                            ? source.SourceText
+                            : $"{source.SourceText} [source: {source.SourceId}]");
+                }
+            }
+
             foreach (var condition in candidate.Conditions)
             {
                 if (condition.Status == ObjectiveConditionAssessmentStatus.NotApplicable)

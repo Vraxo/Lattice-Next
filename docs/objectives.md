@@ -142,3 +142,10 @@ Unknown or conflicting preference evidence does not establish a trade-off. Exclu
 Eligible candidates are compared across every individually stated preference. A candidate dominates another only when both have explicit, non-conflicting evidence for every preference, the first is never worse, and it is strictly better on at least one. Unknown or conflicting evidence prevents a dominance claim; it is never treated as a tie or a pass.
 
 The evaluation exposes a non-dominated shortlist and the candidates dominated by it. This is a Pareto-style comparison, not a score or weighted ranking. When several candidates remain non-dominated, Lattice reports that there is no unique preference leader. Candidates with unresolved hard constraints are not included in the shortlist and remain explicitly unresolved.
+
+
+## Curated candidate highlights
+
+Knowledge-pack attributes may opt into candidate summaries with the optional `summary: true` metadata. The evaluator carries those selected attributes and their provenance through the shared client contract. The runtime displays their source wording alongside feasibility, preference evidence, and temporal witnesses.
+
+This keeps presentation selection in declarative knowledge data rather than hardcoding domain-specific attribute names into the reasoning engine. Unmarked attributes remain available to reasoning without cluttering the user-facing summary.
