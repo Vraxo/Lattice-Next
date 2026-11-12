@@ -186,7 +186,7 @@ def create_connection(
 
 def decode_body(body: bytes, content_type: str) -> str:
     charset_match = re.search(
-        r"charset\s*=\s*[\"']?([^;\"'\s]+)",
+        r"charset\\s*=\\s*[\"']?([^;\"'\\s]+)",
         content_type,
         re.IGNORECASE | re.ASCII,
     )
@@ -241,7 +241,7 @@ def format_observation(
     if title:
         lines.append(f"Page title: {title}")
     lines.extend(["Extracted page text:", text])
-    return "\n".join(lines)
+    return "\\n".join(lines)
 
 
 def fetch(
@@ -351,7 +351,7 @@ def write_success(request_id: Any, result: str) -> None:
         "success": True,
         "result": result,
     }
-    sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
+    sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\\n")
 
 
 def write_failure(request_id: Any, message: str) -> None:
