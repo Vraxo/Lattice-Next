@@ -2,14 +2,14 @@
 
 **Target:** ordinary objective requests should receive a concise, actionable answer by default, while detailed assessments remain available on demand through `:why`.
 
-**Current progress:** 3 of 6 acceptance milestones complete (50%). Update this checklist in the same pull request as implementation changes.
+**Current progress:** 4 of 6 acceptance milestones complete (67%). Update this checklist in the same pull request as implementation changes.
 
 ## Acceptance milestones
 
 - [x] Inspect the current objective evaluation and session flow.
 - [x] Build a concise response formatter from the existing generic evaluation model.
 - [x] Preserve the full evidence assessment in session status and expose it through the REPL `:why` command.
-- [ ] Cover unique winners, non-dominated ties, preference trade-offs, unresolved evidence, and infeasible candidate sets with regression tests.
+- [x] Cover unique winners, non-dominated ties, preference trade-offs, unresolved evidence, and infeasible candidate sets with regression tests.
 - [ ] Pass the complete GitHub Actions test suite and merge the pull request.
 - [ ] Run the original first-use day-out request in the REPL and compare the result with the approved response shape.
 
