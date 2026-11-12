@@ -8,7 +8,7 @@ Use the ordinary session/runtime path and the declarative pack at `data/knowledg
 
 ## User request
 
-> Help me choose a Saturday ceramics class. I have a limited budget and no car. I would prefer a small group and beginner-friendly instruction. My budget is $180. I can leave at 9:00 and be back by 13:00.
+> Help me choose a Saturday ceramics class. I have a limited budget and no car. I would prefer a small group and beginner-friendly instruction. My budget is $180. I'm starting at Central Station, and I can leave at 9:00 and be back by 13:00.
 
 The objective has a $180 total-cost hard constraint, no-car transport constraint, 09:00–13:00 availability window, and two independent preferences: small group and beginner-friendly instruction.
 
