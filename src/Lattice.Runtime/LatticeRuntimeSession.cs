@@ -115,6 +115,17 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     LatticeCandidateEvidenceResult.Rejected("The reviewed candidate evidence contains an invalid value or source."));
             }
 
+            if (!KnowledgePackLoader.TryParseTypedAttributeValue(
+                    evidence.Value,
+                    out var typedValue,
+                    out var typedValueError) ||
+                typedValue is null)
+            {
+                return ValueTask.FromResult(
+                    LatticeCandidateEvidenceResult.Rejected(
+                        typedValueError ?? "The reviewed candidate attribute value is invalid."));
+            }
+
             var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
                 string.Equals(attribute.Subject.Value, evidence.Candidate, StringComparison.OrdinalIgnoreCase));
 
@@ -211,8 +222,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 string.IsNullOrWhiteSpace(evidence.AttributeName) ||
                 evidence.AttributeName.Length > 64 ||
                 evidence.Value.ValueKind is System.Text.Json.JsonValueKind.Undefined or System.Text.Json.JsonValueKind.Null ||
-                !KnowledgePackLoader.TryParseTypedAttributeValue(evidence.Value, out var typedValue, out var typedValueError) ||
-                typedValue is null ||
                 string.IsNullOrWhiteSpace(evidence.SourceText) ||
                 evidence.SourceText.Length > 4000 ||
                 evidence.RetrievedAt == default ||

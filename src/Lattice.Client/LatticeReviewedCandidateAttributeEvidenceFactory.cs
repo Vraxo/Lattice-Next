@@ -29,11 +29,15 @@ public static class LatticeReviewedCandidateAttributeEvidenceFactory
             string.IsNullOrWhiteSpace(attributeName) ||
             !AttributeNamePattern.IsMatch(attributeName) ||
             value.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null ||
-            !KnowledgePackLoader.TryParseTypedAttributeValue(value, out _, out var valueError) ||
             string.IsNullOrWhiteSpace(excerpt) ||
             excerpt.Length > 4000)
         {
-            error = valueError ?? "A candidate, canonical attribute name, typed value, and supporting excerpt are required.";
+            error = "A candidate, canonical attribute name, typed value, and supporting excerpt are required.";
+            return false;
+        }
+
+        if (!KnowledgePackLoader.TryParseTypedAttributeValue(value, out _, out error))
+        {
             return false;
         }
 
