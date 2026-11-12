@@ -241,8 +241,9 @@ public sealed class KnowledgePackLoader
 
         foreach (var item in items)
         {
+            JsonElement summaryElement = default;
             var hasSummary = item.ValueKind == JsonValueKind.Object &&
-                item.TryGetProperty("summary", out var summaryElement);
+                item.TryGetProperty("summary", out summaryElement);
 
             if (item.ValueKind != JsonValueKind.Object ||
                 (!HasExactProperties(item, "subject", "name", "value", "sourceText") &&
@@ -257,7 +258,7 @@ public sealed class KnowledgePackLoader
                 !item.TryGetProperty("value", out var valueElement) ||
                 !TryParseAttributeValue(valueElement, out var value))
             {
-                error = "Every typed attribute must contain non-empty subject, name, and sourceText strings plus a supported typed value.";
+                error = "Every typed attribute must contain non-empty subject, name, and sourceText strings plus a supported typed value; optional summary metadata must be boolean.";
                 return false;
             }
 
