@@ -487,6 +487,45 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Chooses_feasible_temporal_witness_with_least_idle_time()
+    {
+        var objective = new ObjectiveFormula("fit the scheduled outing")
+        {
+            Conditions = ImmutableArray.Create(new ObjectiveCondition(
+                "itinerary",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.CanFit,
+                new ObjectiveTemporalSequenceValue(
+                    new TimeOnly(9, 0),
+                    new TimeOnly(18, 0),
+                    ImmutableArray.Create(
+                        new ObjectiveTemporalStage("outbound-duration", "outbound-departures"),
+                        new ObjectiveTemporalStage("activity-duration"),
+                        new ObjectiveTemporalStage("return-duration", "return-departures"))),
+                "The outing must fit between 09:00 and 18:00."))
+        };
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Fernbank", "outbound-duration", new ObjectiveDurationValue(25));
+        AddAttribute(knowledgeBase, "Fernbank", "outbound-departures", new ObjectiveTimeSetValue(
+            ImmutableArray.Create(new TimeOnly(9, 0), new TimeOnly(10, 30), new TimeOnly(12, 0))));
+        AddAttribute(knowledgeBase, "Fernbank", "activity-duration", new ObjectiveDurationValue(120));
+        AddAttribute(knowledgeBase, "Fernbank", "return-duration", new ObjectiveDurationValue(25));
+        AddAttribute(knowledgeBase, "Fernbank", "return-departures", new ObjectiveTimeSetValue(
+            ImmutableArray.Create(new TimeOnly(14, 0), new TimeOnly(15, 30), new TimeOnly(17, 0))));
+
+        var result = evaluator.Evaluate(objective, knowledgeBase);
+        var candidate = Assert.Single(result.Candidates);
+        var itinerary = GetCondition(candidate, "itinerary");
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, itinerary.Status);
+        Assert.Collection(
+            itinerary.TemporalWitness,
+            outbound => Assert.Equal(new TimeOnly(10, 30), outbound.Start),
+            activity => Assert.Equal(new TimeOnly(10, 55), activity.Start),
+            returning => Assert.Equal(new TimeOnly(14, 0), returning.Start));
+    }
+
+    [Fact]
     public void Conflicting_attribute_values_are_reported_as_conflicting()
     {
         var objective = CreateDayOutObjective();

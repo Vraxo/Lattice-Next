@@ -600,75 +600,116 @@ public sealed class ObjectiveEvaluator
     private static bool TryFindTemporalWitness(
         ObjectiveTemporalSequenceValue sequence,
         IReadOnlyDictionary<string, ObjectiveConditionValue> values,
-        int stageIndex,
-        TimeOnly? previousEnd,
-        ImmutableArray<ObjectiveTemporalStageResult> priorStages,
         out ImmutableArray<ObjectiveTemporalStageResult> witness)
     {
-        var stage = sequence.Stages[stageIndex];
-        var duration = (ObjectiveDurationValue)values[stage.DurationAttribute];
-        var possibleStarts = stage.StartTimesAttribute is null
-            ? new[] { previousEnd ?? sequence.EarliestStart }
-            : ((ObjectiveTimeSetValue)values[stage.StartTimesAttribute]).Times.Order().ToArray();
+        var memo = new Dictionary<
+            (int StageIndex, int PreviousEndMinute),
+            (int IdleMinutes, ImmutableArray<ObjectiveTemporalStageResult> Stages)?>();
 
-        foreach (var start in possibleStarts)
+        var best = FindBestWitness(stageIndex: 0, previousEndMinute: -1);
+        witness = best?.Stages ?? [];
+        return best.HasValue;
+
+        (int IdleMinutes, ImmutableArray<ObjectiveTemporalStageResult> Stages)? FindBestWitness(
+            int stageIndex,
+            int previousEndMinute)
         {
-            if (start < sequence.EarliestStart || (previousEnd.HasValue && start < previousEnd.Value))
+            var key = (stageIndex, previousEndMinute);
+            if (memo.TryGetValue(key, out var cached))
             {
-                continue;
+                return cached;
             }
 
-            var endMinute = (long)start.Hour * 60 + start.Minute + duration.Minutes;
+            var stage = sequence.Stages[stageIndex];
+            var duration = (ObjectiveDurationValue)values[stage.DurationAttribute];
+            var earliestStartMinute = (int)sequence.EarliestStart.ToTimeSpan().TotalMinutes;
+            var possibleStarts = stage.StartTimesAttribute is null
+                ? new[] { previousEndMinute >= 0 ? previousEndMinute : earliestStartMinute }
+                : ((ObjectiveTimeSetValue)values[stage.StartTimesAttribute])
+                    .Times
+                    .Select(time => (int)time.ToTimeSpan().TotalMinutes)
+                    .Distinct()
+                    .Order()
+                    .ToArray();
 
-            if (endMinute >= 24 * 60)
+            (int IdleMinutes, ImmutableArray<ObjectiveTemporalStageResult> Stages)? bestForState = null;
+
+            foreach (var startMinute in possibleStarts)
             {
-                continue;
-            }
-
-            var end = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes((double)endMinute));
-
-            if (stage.AvailabilityWindowAttribute is not null)
-            {
-                var window = (ObjectiveTimeWindowValue)values[stage.AvailabilityWindowAttribute];
-
-                if (start < window.Start || end > window.End)
+                if (startMinute < earliestStartMinute ||
+                    (previousEndMinute >= 0 && startMinute < previousEndMinute))
                 {
                     continue;
                 }
-            }
 
-            var currentStages = priorStages.Add(new ObjectiveTemporalStageResult(
-                stageIndex + 1,
-                stage.DurationAttribute,
-                start,
-                end,
-                duration.Minutes));
-
-            if (stageIndex == sequence.Stages.Length - 1)
-            {
-                if (end <= sequence.LatestEnd)
+                var endMinute = (long)startMinute + duration.Minutes;
+                if (endMinute >= 24 * 60)
                 {
-                    witness = currentStages;
-                    return true;
+                    continue;
                 }
 
-                continue;
+                var start = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(startMinute));
+                var end = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes((double)endMinute));
+
+                if (stage.AvailabilityWindowAttribute is not null)
+                {
+                    var window = (ObjectiveTimeWindowValue)values[stage.AvailabilityWindowAttribute];
+                    if (start < window.Start || end > window.End)
+                    {
+                        continue;
+                    }
+                }
+
+                ImmutableArray<ObjectiveTemporalStageResult> remainingStages;
+                var remainingIdleMinutes = 0;
+
+                if (stageIndex == sequence.Stages.Length - 1)
+                {
+                    if (end > sequence.LatestEnd)
+                    {
+                        continue;
+                    }
+
+                    remainingStages = [];
+                }
+                else
+                {
+                    var remaining = FindBestWitness(stageIndex + 1, (int)endMinute);
+                    if (!remaining.HasValue)
+                    {
+                        continue;
+                    }
+
+                    remainingIdleMinutes = remaining.Value.IdleMinutes;
+                    remainingStages = remaining.Value.Stages;
+                }
+
+                var idleMinutes = previousEndMinute >= 0
+                    ? startMinute - previousEndMinute
+                    : 0;
+                var totalIdleMinutes = idleMinutes + remainingIdleMinutes;
+
+                if (bestForState.HasValue &&
+                    totalIdleMinutes >= bestForState.Value.IdleMinutes)
+                {
+                    continue;
+                }
+
+                var currentStage = new ObjectiveTemporalStageResult(
+                    stageIndex + 1,
+                    stage.DurationAttribute,
+                    start,
+                    end,
+                    duration.Minutes);
+
+                bestForState = (
+                    totalIdleMinutes,
+                    ImmutableArray.Create(currentStage).AddRange(remainingStages));
             }
 
-            if (TryFindTemporalWitness(
-                sequence,
-                values,
-                stageIndex + 1,
-                end,
-                currentStages,
-                out witness))
-            {
-                return true;
-            }
+            memo.Add(key, bestForState);
+            return bestForState;
         }
-
-        witness = [];
-        return false;
     }
 
     private static ObjectiveConditionAssessment EvaluatePreferences(
