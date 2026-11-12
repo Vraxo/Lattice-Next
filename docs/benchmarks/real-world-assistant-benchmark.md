@@ -10,7 +10,7 @@ The benchmark has three distinct layers:
 2. **2022-era capability** — human-authored instruction examples organized around task categories also represented in the InstructGPT evaluation. Dolly 15k is a useful public proxy, not a copy of InstructGPT's private prompt set.
 3. **Diagnostics** — developer-written paraphrases and controlled changes to constraints, negation, ambiguity, references, and follow-ups. These are never counted as real prompts.
 
-The initial seed file is [assistant-benchmark-v1.json](../../data/benchmarks/assistant-benchmark-v1.json). Its status is **candidate seed, not frozen**. It currently contains 33 source prompts: 2 OASST1 prompts, 1 WildChat prompt, and 30 Dolly prompts. This mix is intentionally disclosed rather than presented as balanced: the public viewer material available during this curation pass was insufficient to build the originally proposed 15/15/10 split without inventing or rewriting source examples. The current set is therefore a practical starting point, not the final held-out evaluation set.
+The initial seed file is [assistant-benchmark-v1.json](../../data/benchmarks/assistant-benchmark-v1.json). Its status is **candidate seed, not frozen**. It currently contains 34 source prompts: 4 OASST1 prompts and 30 Dolly prompts. The earlier WildChat sample was removed because its conversation hash was not retained, leaving its source locator too weak for a reproducible benchmark. The source mix remains intentionally disclosed rather than presented as balanced: the public viewer material available during this curation pass was insufficient to build the originally proposed 15/15/10 split without inventing or rewriting source examples. The current set is therefore a practical starting point, not the final held-out evaluation set.
 
 Controlled diagnostic cases live in [assistant-benchmark-diagnostics-v1.json](../../data/benchmarks/assistant-benchmark-diagnostics-v1.json). They are synthetic and must be scored separately.
 
@@ -26,7 +26,7 @@ OASST1 is community-contributed and self-selected; it is not a representative sa
 
 [allenai/WildChat-1M](https://huggingface.co/datasets/allenai/WildChat-1M) contains real user conversations with ChatGPT, but its population is self-selected and its collection period is 2023–2024, not 2022. It is a useful source of actual ChatGPT usage, not a reproduction of the early ChatGPT user population.
 
-The one WildChat seed record was supplied from a small viewer sample. Its conversation hash was not retained, so its provenance is weaker than the OASST1 records and should be replaced with a fully traceable record when a stable identifier is available. Check the dataset card for the current license and release details before redistributing data.
+WildChat was investigated as a source, but no record is currently retained in the seed: the sample available during initial curation lacked its conversation hash, so it could not be traced reproducibly. Add WildChat examples only when stable record identifiers and source metadata are captured. Check the dataset card for the current license and release details before redistributing data.
 
 ### Dolly 15k — 2022-era task-category proxy
 
@@ -74,6 +74,6 @@ Do not download entire datasets or all Parquet shards for this benchmark. The in
 
 ## Next curation step
 
-Expand the real-world layer only when we can obtain more traceable English root prompts from OASST1 and stable single-turn records from WildChat. Aim for roughly 30–40 prompts overall, but do not pad the set with weakly sourced or synthetic items merely to hit the target. The current 33-prompt seed is useful for early development, but its source imbalance and weak WildChat locator mean it must not yet be treated as a frozen benchmark.
+Continue expanding the real-world layer only when we can obtain more traceable English root prompts from OASST1 and stable single-turn records from WildChat. Aim for roughly 30–40 prompts overall, but do not pad the set with weakly sourced or synthetic items merely to hit the target. The current 34-prompt seed is useful for early development, but its source imbalance means it must not yet be treated as a frozen benchmark.
 
 The long-term objective remains to test general language understanding without a neural translator, not to hardcode the prompts in this file.
