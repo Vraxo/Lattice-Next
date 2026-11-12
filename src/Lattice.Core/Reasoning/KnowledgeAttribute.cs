@@ -12,6 +12,8 @@ public sealed record KnowledgeAttribute(
     ImmutableArray<KnowledgeSource> AdditionalSources = default,
     string? SourceId = null)
 {
+    public bool IncludeInSummary { get; init; }
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
             .AddRange(AdditionalSources.IsDefault

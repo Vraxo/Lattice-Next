@@ -203,7 +203,12 @@ public sealed class ObjectiveEvaluator
             .Select(condition => EvaluateCondition(condition, candidate, attributes))
             .ToImmutableArray();
 
-        return new CandidateAssessment(candidate, conditions);
+        return new CandidateAssessment(candidate, conditions)
+        {
+            Highlights = attributes
+                .Where(attribute => attribute.Subject == candidate && attribute.IncludeInSummary)
+                .ToImmutableArray()
+        };
     }
 
     private static ObjectiveConditionAssessment EvaluateCondition(

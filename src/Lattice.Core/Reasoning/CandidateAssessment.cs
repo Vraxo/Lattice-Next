@@ -7,6 +7,8 @@ public sealed record CandidateAssessment(
     SemanticIdentifier Candidate,
     ImmutableArray<ObjectiveConditionAssessment> Conditions)
 {
+    public ImmutableArray<KnowledgeAttribute> Highlights { get; init; } = [];
+
     public bool HasHardConstraintViolation => Conditions.Any(condition =>
         condition.Role == ObjectiveConditionRole.HardConstraint &&
         condition.Status == ObjectiveConditionAssessmentStatus.Violated);

@@ -241,8 +241,13 @@ public sealed class KnowledgePackLoader
 
         foreach (var item in items)
         {
+            var hasSummary = item.ValueKind == JsonValueKind.Object &&
+                item.TryGetProperty("summary", out var summaryElement);
+
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasExactProperties(item, "subject", "name", "value", "sourceText") ||
+                (!HasExactProperties(item, "subject", "name", "value", "sourceText") &&
+                    !HasExactProperties(item, "subject", "name", "value", "sourceText", "summary")) ||
+                (hasSummary && summaryElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
                 !TryGetString(item, "subject", out var subject) ||
                 !TryGetString(item, "name", out var name) ||
                 !TryGetString(item, "sourceText", out var sourceText) ||
@@ -262,7 +267,10 @@ public sealed class KnowledgePackLoader
                 value!,
                 sourceText,
                 KnowledgeSourceKind.ImportedClaim,
-                SourceId: packId));
+                SourceId: packId)
+            {
+                IncludeInSummary = hasSummary && summaryElement.GetBoolean()
+            });
         }
 
         attributes = parsed.ToImmutable();
