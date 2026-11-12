@@ -537,13 +537,14 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance utterance,
         DefinitionQuestionFormula definition)
     {
+        var modifiers = definition.Modifiers.IsDefaultOrEmpty
+            ? ImmutableArray<SemanticIdentifier>.Empty
+            : definition.Modifiers;
         var requestedConcept = string.Join(
             " ",
-            (definition.Modifiers.IsDefaultOrEmpty
-                ? Enumerable.Empty<SemanticIdentifier>()
-                : definition.Modifiers)
-            .Append(definition.Concept)
-            .Select(identifier => identifier.Value));
+            modifiers
+                .Append(definition.Concept)
+                .Select(identifier => identifier.Value));
 
         var definitions = knowledgeBase.Attributes
             .Where(attribute =>
