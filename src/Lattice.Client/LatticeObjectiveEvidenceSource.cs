@@ -6,4 +6,5 @@ public sealed record LatticeObjectiveEvidenceSource(
     string SourceText,
     string? SourceId,
     DateTimeOffset? RetrievedAt = null,
-    DateTimeOffset? FreshUntil = null);
+    DateTimeOffset? FreshUntil = null,
+    bool RequiresFreshness = false);

@@ -11,4 +11,6 @@ public sealed record KnowledgeSource(
     public DateTimeOffset? RetrievedAt { get; init; }
 
     public DateTimeOffset? FreshUntil { get; init; }
+
+    public bool RequiresFreshness { get; init; }
 }

@@ -18,11 +18,14 @@ public sealed record KnowledgeAttribute(
 
     public DateTimeOffset? FreshUntil { get; init; }
 
+    public bool RequiresFreshness { get; init; }
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId)
             {
                 RetrievedAt = RetrievedAt,
-                FreshUntil = FreshUntil
+                FreshUntil = FreshUntil,
+                RequiresFreshness = RequiresFreshness || SourceKind == KnowledgeSourceKind.ExternalObservation
             })
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty
