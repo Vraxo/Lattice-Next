@@ -23,6 +23,54 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Preserves_the_same_day_out_conditions_when_request_information_is_reordered()
+    {
+        const string baseline = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+        var variants = new[]
+        {
+            "Help me put together a good day. I have a limited budget and no car. I prefer somewhere quiet and outdoors. I have a free Saturday.",
+            "I have no car, a free Saturday, and a limited budget. Help me put together a good day. I would prefer somewhere quiet and outdoors.",
+            "I would prefer somewhere quiet and outdoors. Help me put together a good day. I have a free Saturday, no car, and a limited budget."
+        };
+
+        static ObjectiveFormula ParseObjective(LceParser parser, string input)
+        {
+            var result = parser.ParseText(input);
+            Assert.True(result.IsSuccess, result.Error);
+            return Assert.IsType<ObjectiveFormula>(Assert.Single(result.Utterances).Meaning);
+        }
+
+        static void AssertDayOutConditions(ObjectiveFormula objective)
+        {
+            var budget = Assert.Single(objective.Conditions, condition => condition.Name == "spending-limit");
+            Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
+            Assert.Equal(ObjectiveConditionOperator.AtMost, budget.Operator);
+            Assert.Null(budget.Value);
+            Assert.Equal(ObjectiveConditionValueKind.Money, budget.ExpectedValueKind);
+            Assert.Equal("total-cost", budget.TargetAttribute);
+
+            var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
+            Assert.Equal(ObjectiveConditionRole.HardConstraint, transport.Role);
+            Assert.Equal(ObjectiveConditionOperator.Excludes, transport.Operator);
+            Assert.Equal(new ObjectiveTextValue("car"), transport.Value);
+            Assert.Equal("transport-mode", transport.TargetAttribute);
+
+            var preference = Assert.Single(objective.Conditions, condition => condition.Name == "preference");
+            Assert.Equal(ObjectiveConditionOperator.Desires, preference.Operator);
+            Assert.Equal("tags", preference.TargetAttribute);
+            Assert.Equal(
+                new[] { "quiet", "outdoors" },
+                Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
+        }
+
+        AssertDayOutConditions(ParseObjective(parser, baseline));
+        foreach (var variant in variants)
+        {
+            AssertDayOutConditions(ParseObjective(parser, variant));
+        }
+    }
+
+    [Fact]
     public void Represents_day_out_budget_transport_and_preference_without_collapsing_their_roles()
     {
         const string input = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
