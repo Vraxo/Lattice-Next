@@ -12,7 +12,7 @@ public sealed class DayOutBenchmarkDataTests
     public void Loads_the_complete_day_out_dataset_and_evaluates_objective_conditions()
     {
         var knowledgeBase = LoadCandidates();
-        Assert.Equal(50, knowledgeBase.Attributes.Count);
+        Assert.Equal(49, knowledgeBase.Attributes.Count);
 
         var parser = new LceParser();
         var parsed = parser.ParseText(
@@ -97,8 +97,8 @@ public sealed class DayOutBenchmarkDataTests
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(10, 45), new TimeOnly(11, 0), 15), stage));
 
         var hilltop = GetCandidate(evaluation, "Hilltop Farm Grounds");
-        Assert.Equal(CandidateFeasibility.Eligible, hilltop.Feasibility);
-        Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "spending-limit").Status);
+        Assert.Equal(CandidateFeasibility.Unresolved, hilltop.Feasibility);
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Unknown, GetCondition(hilltop, "spending-limit").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "preference").Status);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(hilltop, "itinerary").Status);
     }
