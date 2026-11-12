@@ -34,6 +34,7 @@ internal static class ObjectiveResponseFormatter
         AppendPreferenceTradeOff(output, evaluation, options);
         AppendPreferenceMismatches(output, evaluation, options);
         AppendOptionalCandidates(output, evaluation, options);
+        AppendSinglePendingEvidenceRequest(output, evaluation);
 
         if (evaluation.Recommendation.HasIncompletePreferenceEvidence)
         {
@@ -304,6 +305,16 @@ internal static class ObjectiveResponseFormatter
                 .Append(" might also be an option, but its ")
                 .Append(FormatAttributeName(request.AttributeName))
                 .AppendLine(" is still unknown.");
+        }
+    }
+
+    private static void AppendSinglePendingEvidenceRequest(
+        StringBuilder output,
+        ObjectiveEvaluation evaluation)
+    {
+        if (evaluation.EvidenceRequests.Length == 1)
+        {
+            output.AppendLine(evaluation.EvidenceRequests[0].Prompt);
         }
     }
 
