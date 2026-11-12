@@ -175,7 +175,7 @@ internal static class ObjectiveEvaluationFormatter
             .ToArray();
 
         var unknownPreferences = preferenceEvidence
-            .Where(item => item.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+            .Where(item => item.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Unverified or ObjectiveConditionAssessmentStatus.Stale or ObjectiveConditionAssessmentStatus.Conflicting)
             .GroupBy(item => item.Preference, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
                 $"{FormatAttributeName(group.Key)} ({string.Join(", ", group.Select(item => item.Candidate).Distinct(StringComparer.Ordinal))})")
@@ -183,7 +183,7 @@ internal static class ObjectiveEvaluationFormatter
 
         if (unknownPreferences.Length > 0)
         {
-            output.Append("Still unknown: ")
+            output.Append("Still unresolved: ")
                 .Append(string.Join("; ", unknownPreferences))
                 .AppendLine(".");
         }
@@ -305,12 +305,12 @@ internal static class ObjectiveEvaluationFormatter
             .Select(candidate => $"{candidate.Candidate.Value}: hard-constraint evidence is unresolved");
         var unresolvedConditions = options
             .SelectMany(candidate => candidate.Conditions
-                .Where(condition => condition.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+                .Where(condition => condition.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Unverified or ObjectiveConditionAssessmentStatus.Stale or ObjectiveConditionAssessmentStatus.Conflicting)
                 .Select(condition => $"{candidate.Candidate.Value}: {condition.ConditionName} is {DescribeStatus(condition.Status)}"));
         var unresolvedPreferences = options
             .SelectMany(candidate => candidate.Conditions
                 .SelectMany(condition => condition.Preferences
-                    .Where(preference => preference.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+                    .Where(preference => preference.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Unverified or ObjectiveConditionAssessmentStatus.Stale or ObjectiveConditionAssessmentStatus.Conflicting)
                     .Select(preference => $"{candidate.Candidate.Value}: {preference.Preference} is {DescribeStatus(preference.Status)}")));
         var unknowns = unresolvedCandidates
             .Concat(unresolvedConditions)
@@ -587,6 +587,8 @@ internal static class ObjectiveEvaluationFormatter
 
         if (individualPreferences.Any(preference =>
             preference.Status is ObjectiveConditionAssessmentStatus.Unknown or
+                ObjectiveConditionAssessmentStatus.Unverified or
+                ObjectiveConditionAssessmentStatus.Stale or
                 ObjectiveConditionAssessmentStatus.Conflicting))
         {
             return individualPreferences.Any(preference =>
@@ -631,6 +633,8 @@ internal static class ObjectiveEvaluationFormatter
             ObjectiveConditionAssessmentStatus.Violated => "not satisfied",
             ObjectiveConditionAssessmentStatus.PartiallySatisfied => "partly satisfied",
             ObjectiveConditionAssessmentStatus.Unknown => "unknown from supplied data",
+            ObjectiveConditionAssessmentStatus.Unverified => "unverified external evidence; currentness is not established",
+            ObjectiveConditionAssessmentStatus.Stale => "stale external evidence; refresh required",
             ObjectiveConditionAssessmentStatus.Conflicting => "conflicting evidence",
             ObjectiveConditionAssessmentStatus.NotApplicable => "not applicable",
             _ => "unrecognized status"

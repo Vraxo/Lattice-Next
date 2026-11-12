@@ -6,6 +6,8 @@ public enum ObjectiveConditionAssessmentStatus
     Violated,
     PartiallySatisfied,
     Unknown,
+    Unverified,
+    Stale,
     Conflicting,
     NotApplicable
 }

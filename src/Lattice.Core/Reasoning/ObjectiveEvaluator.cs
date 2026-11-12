@@ -43,10 +43,16 @@ public sealed class ObjectiveEvaluator
                 var condition = objective.Conditions[index];
                 var assessment = candidate.Conditions[index];
 
+                var needsEvidence = assessment.Status is
+                    ObjectiveConditionAssessmentStatus.Unknown or
+                    ObjectiveConditionAssessmentStatus.Unverified or
+                    ObjectiveConditionAssessmentStatus.Stale;
+
                 if (condition.Role != ObjectiveConditionRole.HardConstraint ||
                     condition.Value is null ||
-                    assessment.Status != ObjectiveConditionAssessmentStatus.Unknown ||
-                    !assessment.Evidence.IsDefaultOrEmpty ||
+                    !needsEvidence ||
+                    (assessment.Status == ObjectiveConditionAssessmentStatus.Unknown &&
+                        !assessment.Evidence.IsDefaultOrEmpty) ||
                     string.IsNullOrWhiteSpace(condition.TargetAttribute))
                 {
                     continue;
@@ -371,6 +377,32 @@ public sealed class ObjectiveEvaluator
                 return (ObjectiveConditionAssessmentStatus.Unknown, null, evidence);
             }
 
+            var now = DateTimeOffset.UtcNow;
+            var usableEvidence = evidence
+                .Where(attribute => attribute.Sources.Any(source =>
+                    source.Kind != KnowledgeSourceKind.ExternalObservation ||
+                    (source.FreshUntil is { } freshUntil && freshUntil > now)))
+                .ToImmutableArray();
+
+            if (usableEvidence.IsDefaultOrEmpty)
+            {
+                var sources = evidence.SelectMany(attribute => attribute.Sources).ToArray();
+                var hasUnverifiedSource = sources.Any(source =>
+                    source.Kind == KnowledgeSourceKind.ExternalObservation &&
+                    source.FreshUntil is null);
+                var hasStaleSource = sources.Any(source =>
+                    source.Kind == KnowledgeSourceKind.ExternalObservation &&
+                    source.FreshUntil is { } freshUntil &&
+                    freshUntil <= now);
+                var status = hasUnverifiedSource
+                    ? ObjectiveConditionAssessmentStatus.Unverified
+                    : hasStaleSource
+                        ? ObjectiveConditionAssessmentStatus.Stale
+                        : ObjectiveConditionAssessmentStatus.Unknown;
+                return (status, null, evidence);
+            }
+
+            evidence = usableEvidence;
             var distinctValues = new List<ObjectiveConditionValue>();
 
             foreach (var attribute in evidence)
