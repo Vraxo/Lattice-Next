@@ -7,7 +7,7 @@ namespace Lattice.Core.Language;
 public sealed class LceParser
 {
     private static readonly Regex ObjectiveRequestPattern = new(
-        @"(?:^|[.!?]\s*)Help me\s+(?<goal>[^.!?]+)[.!?]",
+        @"(?:^|[.!?]\s*)(?:Help me\s+|Can you help me\s+|Please\s+|Let's\s+|I'd like to\s+|I would like to\s+)(?<goal>[^.!?]+)[.!?]",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectiveCandidateMoneyPattern = new(
