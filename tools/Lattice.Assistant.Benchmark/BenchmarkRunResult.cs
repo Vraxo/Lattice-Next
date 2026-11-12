@@ -2,6 +2,7 @@ namespace Lattice.Assistant.Benchmark;
 
 public sealed record BenchmarkRunResult(
     string Id,
+    string Prompt,
     string Category,
     string EvaluationLayer,
     int Repetition,
