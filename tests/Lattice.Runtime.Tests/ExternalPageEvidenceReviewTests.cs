@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Lattice.Client;
 using Lattice.Runtime;
 using Xunit;
@@ -118,6 +119,28 @@ public sealed class ExternalPageEvidenceReviewTests
             page, "Aster 14", 900m, "$", "Aster 14 is listed at $800.",
             out _, out var error));
         Assert.Contains("appear exactly", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Rejects_generic_candidate_attribute_review_with_an_unsupported_typed_value()
+    {
+        var page = new LatticeExternalPageObservation(
+            "https://example.org/page",
+            DateTimeOffset.UtcNow,
+            200,
+            "text/plain",
+            "Quiet Park is open from 08:00 to 18:00.");
+
+        using var value = JsonDocument.Parse("""{"type":"unknown","value":"anything"}""");
+        Assert.False(LatticeReviewedCandidateAttributeEvidenceFactory.TryCreate(
+            page,
+            "Quiet Park",
+            "opening-hours",
+            value.RootElement,
+            "Quiet Park is open from 08:00 to 18:00.",
+            out _,
+            out var error));
+        Assert.Contains("supported typed attribute", error, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string CreatePage(
