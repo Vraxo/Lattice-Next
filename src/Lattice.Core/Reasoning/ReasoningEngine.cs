@@ -68,6 +68,53 @@ public sealed class ReasoningEngine
         return ProofOperations.CreateResult(positiveProofs, negativeProofs);
     }
 
+    public ReasoningResult AskRelated(
+        KnowledgeBase knowledgeBase,
+        SemanticIdentifier relation,
+        SemanticTerm subject)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+
+        if (string.IsNullOrWhiteSpace(relation.Value) ||
+            subject is not (IndividualTerm or AnonymousIndividualTerm))
+        {
+            return new ReasoningResult(null);
+        }
+
+        var positiveProofs = knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Positive &&
+                IsRelationForSubject(fact.Predicate, relation, subject))
+            .Select(ProofOperations.CreateAssertedProof)
+            .Concat(FactDeriver.DeriveRelationalFacts(
+                knowledgeBase,
+                EvidencePolarity.Positive)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)))
+            .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)));
+
+        var negativeProofs = knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Negative &&
+                IsRelationForSubject(fact.Predicate, relation, subject))
+            .Select(ProofOperations.CreateAssertedProof)
+            .Concat(FactDeriver.DeriveRelationalFacts(
+                knowledgeBase,
+                EvidencePolarity.Negative)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)));
+
+        return ProofOperations.CreateResult(positiveProofs, negativeProofs);
+    }
+
+    private static bool IsRelationForSubject(
+        PredicateApplication predicate,
+        SemanticIdentifier relation,
+        SemanticTerm subject) =>
+        predicate.Predicate == relation &&
+        !predicate.Arguments.IsDefault &&
+        predicate.Arguments.Length == 2 &&
+        predicate.Arguments[0] == subject;
+
     public ReasoningResult Ask(
         KnowledgeBase knowledgeBase,
         UniversalQuantification query)
