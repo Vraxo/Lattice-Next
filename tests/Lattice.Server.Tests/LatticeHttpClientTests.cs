@@ -130,7 +130,7 @@ public sealed class LatticeHttpClientTests
               "name": "Laptop candidates",
               "claims": [],
               "attributes": [
-                { "subject": "Aster 14", "name": "candidate-type", "value": { "type": "text", "value": "laptop" } }
+                { "subject": "Aster 14", "name": "candidate-type", "value": { "type": "text", "value": "laptop" }, "sourceText": "Aster 14 is a laptop." }
               ]
             }
             """);
