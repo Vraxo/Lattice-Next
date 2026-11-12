@@ -123,6 +123,49 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Explains_when_every_candidate_violates_known_hard_constraints_and_asks_what_to_relax()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "infeasible-objective-test",
+              "name": "Infeasible objective test",
+              "claims": [],
+              "attributes": [
+                { "subject": "Over Budget Park", "name": "total-cost", "value": { "type": "money", "amount": 40, "currencySymbol": "$" }, "sourceText": "Over Budget Park costs $40." },
+                { "subject": "Over Budget Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Over Budget Park is reachable by walking." },
+                { "subject": "Over Budget Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Over Budget Park is quiet and outdoors." },
+                { "subject": "Car Only Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Car Only Park costs $10." },
+                { "subject": "Car Only Park", "name": "transport-mode", "value": { "type": "text", "value": "car" }, "sourceText": "Car Only Park requires a car." },
+                { "subject": "Car Only Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Car Only Park is quiet and outdoors." }
+              ]
+            }
+            """;
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        var result = await session.SubmitAsync(
+            "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day. My budget is $25.",
+            TestContext.Current.CancellationToken);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Equal("NoEligibleCandidates", evaluation.Recommendation.Status);
+        Assert.All(evaluation.Candidates, candidate => Assert.Equal("Excluded", candidate.Feasibility));
+        Assert.Empty(evaluation.EvidenceRequests);
+
+        var message = result.Utterances.Single().Message;
+        Assert.Contains("Every supplied candidate violates at least one assessed hard constraint.", message);
+        Assert.Contains("Spending Limit: violated by Over Budget Park.", message);
+        Assert.Contains("Transport Mode: violated by Car Only Park.", message);
+        Assert.Contains("Would you like to relax one of these constraints?", message);
+        Assert.DoesNotContain("Unresolved candidates still need evidence:", message);
+    }
+
+    [Fact]
     public async Task Laptop_objective_uses_the_same_generic_condition_model_without_a_special_workflow()
     {
         var client = new LatticeRuntimeClient();
@@ -179,6 +222,7 @@ public sealed class ObjectiveSessionTests
         });
         Assert.Contains("Missing hard-constraint evidence:", result.Utterances.Single().Message);
         Assert.Contains("What is the total cost for Aster 14?", result.Utterances.Single().Message);
+        Assert.DoesNotContain("Would you like to relax one of these constraints?", result.Utterances.Single().Message);
 
         Assert.Equal("Unknown", asterPreference.Status);
         Assert.Equal("Unknown", birchPreference.Status);
