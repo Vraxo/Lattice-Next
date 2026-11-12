@@ -1531,6 +1531,10 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
         Assert.Contains(clarificationTurn.Utterances,
             utterance => utterance.Message.Contains(initial.EvidenceRequests[0].Prompt, StringComparison.Ordinal));
+        Assert.Single(
+            clarificationTurn.Utterances,
+            utterance => utterance.Message.Contains(initial.EvidenceRequests[0].Prompt, StringComparison.Ordinal));
+        Assert.DoesNotContain("I'd recommend", clarificationTurn.Utterances[0].Message);
 
         var clayHouse = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Clay House Studio");
         Assert.Equal("Eligible", clayHouse.Feasibility);
