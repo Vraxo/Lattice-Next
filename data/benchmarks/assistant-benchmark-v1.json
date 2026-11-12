@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "title": "Lattice assistant benchmark v1 — seed set",
+  "status": "candidate-seed-not-frozen",
+  "language": "en",
+  "purpose": "A small development benchmark for inspecting natural-language instruction understanding and task coverage. It is not a statistically representative estimate of general assistant capability.",
+  "scoring_guidance": {
+    "primary": "Assess whether the system correctly interprets the request, its entities, relations, constraints, requested output, and uncertainty.",
+    "secondary": "Assess task usefulness separately from interpretation correctness.",
+    "note": "Do not treat a plausible answer as proof that the request was understood. Human review is required for open-ended quality judgments."
+  },
+  "counts": {
+    "total": 33,
+    "dolly": 30,
+    "oasst1": 2,
+    "wildchat": 1
+  },
+  "records": [
+    {
+      "id": "oasst1-6ab24d72-0181-4594-a9cd-deaf170242fb",
+      "prompt": "Can you write a short introduction about the relevance of the term \"monopsony\" in economics? Please use examples related to potential monopsonies in the labour market and cite relevant research.",
+      "context": null,
+      "category": "writing / open-ended question",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "6ab24d72-0181-4594-a9cd-deaf170242fb",
+        "message_tree_id": "6ab24d72-0181-4594-a9cd-deaf170242fb",
+        "created_at": "2023-02-05T14:23:50.983374+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "oasst1-c522beae-5a33-48c1-aee3-19f32fc3f0af",
+      "prompt": "I would like to implement simulations of chemical unit operations using Python and use them to optimize certain outputs.\nWhich open-source packages do you recommend for this purpose?",
+      "context": null,
+      "category": "recommendation / open-ended question",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "c522beae-5a33-48c1-aee3-19f32fc3f0af",
+        "message_tree_id": "c522beae-5a33-48c1-aee3-19f32fc3f0af",
+        "created_at": "2023-02-07T22:03:03.084615+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "wildchat-2023-05-16-072656-gpt35",
+      "prompt": "_____ I am with you, I can't stop smiling.\n\nWherever\n\nHowever\n\nWhatever\n\nWhenever",
+      "context": null,
+      "category": "classification / language exercise",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "allenai/WildChat-1M",
+        "url": "https://huggingface.co/datasets/allenai/WildChat-1M",
+        "model": "gpt-3.5-turbo-0301",
+        "timestamp": "2023-05-16T07:26:56Z",
+        "turn": 1,
+        "language": "English",
+        "source_kind": "real ChatGPT user prompt",
+        "record_locator_note": "The prompt was supplied in the conversation's small viewer sample; conversation_hash was not retained, so this record has weaker-than-ideal stable provenance.",
+        "license": "ODC-BY"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-001",
+      "prompt": "Which is a species of fish? Tope or Rope",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-002",
+      "prompt": "Why can camels survive for long without water?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-003",
+      "prompt": "Alice's parents have three daughters: Amy, Jessy, and what’s the name of the third daughter?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-004",
+      "prompt": "Who gave the UN the land in NY to build their HQ",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-005",
+      "prompt": "Why mobile is bad for human",
+      "context": null,
+      "category": "brainstorming",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-006",
+      "prompt": "What is a polygon?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-007",
+      "prompt": "How do I start running?",
+      "context": null,
+      "category": "general_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-008",
+      "prompt": "Which episodes of season four of Game of Thrones did Michelle MacLaren direct?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-009",
+      "prompt": "What are some unique curtain tie backs that you can make yourself?",
+      "context": null,
+      "category": "brainstorming",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-010",
+      "prompt": "Identify which instrument is string or percussion: Cantaro, Gudok",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-011",
+      "prompt": "Give me the top 5 golf equipment company names.",
+      "context": null,
+      "category": "brainstorming",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-012",
+      "prompt": "What individual has won the most Olympic gold medals in the history of the games?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-013",
+      "prompt": "Which Dutch artist painted “Girl with a Pearl Earring”?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-014",
+      "prompt": "What happens when the sun goes down?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-015",
+      "prompt": "What is a verb?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-016",
+      "prompt": "Which of the following is useful for transportation: a glass of wine, a lamp, a train, an iced cube tray, a plane, a bicycle, an apple and a scooter.",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-017",
+      "prompt": "Identify which instrument is string or woodwind: Panduri, Zurna",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-018",
+      "prompt": "I started a new company named Greystone Inc. What do we do?",
+      "context": null,
+      "category": "brainstorming",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-019",
+      "prompt": "Tell me whether or not these foods are on EWG's dirty dozen list",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-020",
+      "prompt": "How much music theory knowledge is required to compose music?",
+      "context": null,
+      "category": "general_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-021",
+      "prompt": "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, piano, harmonium, cello, accordion, banjo",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-022",
+      "prompt": "What is the tallest mountain in the continental US?",
+      "context": null,
+      "category": "general_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-023",
+      "prompt": "What are some of the best comedy movies of the 1980's?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-024",
+      "prompt": "In golf what do the Americans call an albatross",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-025",
+      "prompt": "What are common ingredients of a full english breakfast?",
+      "context": null,
+      "category": "classification",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-026",
+      "prompt": "Plan for a three day road trip for May long weekend from Westfield, New Jersey",
+      "context": null,
+      "category": "creative_writing",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-027",
+      "prompt": "How do you operate a car with a manual transmission?",
+      "context": null,
+      "category": "general_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-028",
+      "prompt": "What are 5 potential uses for an empty La Croix can?",
+      "context": null,
+      "category": "brainstorming",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-029",
+      "prompt": "What is the name of the Winslow's nerdy next-door neighbor on the TV show \"Family Matters\"?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "dolly-030",
+      "prompt": "Why are so many US Hollywood films made in the state of Georgia?",
+      "context": null,
+      "category": "open_qa",
+      "evaluation_layer": "2022-era-capability",
+      "source": {
+        "dataset": "databricks/databricks-dolly-15k",
+        "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+        "record_locator": "Exact instruction text; selected from the public dataset viewer sample",
+        "source_kind": "human-authored elicited instruction",
+        "license": "CC-BY-SA-3.0"
+      },
+      "reference_response": null
+    }
+  ]
+}
