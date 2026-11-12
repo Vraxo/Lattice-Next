@@ -118,7 +118,7 @@ internal static class ObjectiveResponseFormatter
             var cheaperAndShorter = FindCheaperAndShorterOption(options);
             if (cheaperAndShorter is not null)
             {
-                output.Append("If you'd like the lower-cost, shorter outing, I'd lean toward ")
+                output.Append("If you'd prefer the lower-cost, shorter option, I'd lean toward ")
                     .Append(cheaperAndShorter.Candidate.Value)
                     .AppendLine(".");
             }
@@ -158,6 +158,7 @@ internal static class ObjectiveResponseFormatter
 
         var transportCost = FindMoneyHighlight(candidate, "return-transport-cost");
         var entryCost = FindMoneyHighlight(candidate, "entry-cost");
+        var totalCost = FindMoneyHighlight(candidate, "total-cost");
         if (transportCost is not null)
         {
             details.Add($"{FormatMoney(transportCost)} return transport");
@@ -166,6 +167,11 @@ internal static class ObjectiveResponseFormatter
         if (entryCost is not null)
         {
             details.Add(entryCost.Amount == 0m ? "free entry" : $"{FormatMoney(entryCost)} entry");
+        }
+
+        if (totalCost is not null && transportCost is null && entryCost is null)
+        {
+            details.Add($"total cost {FormatMoney(totalCost)}");
         }
 
         var activity = candidate.Highlights
@@ -514,13 +520,27 @@ internal static class ObjectiveResponseFormatter
         return (int)(stages[^1].End - stages[0].Start).TotalMinutes;
     }
 
-    private static ObjectiveMoneyValue? FindMoneyHighlight(CandidateAssessment candidate, string name) =>
-        candidate.Highlights
-            .FirstOrDefault(highlight => string.Equals(
-                highlight.Name.Value,
+    private static ObjectiveMoneyValue? FindMoneyHighlight(CandidateAssessment candidate, string name)
+    {
+        var highlight = candidate.Highlights
+            .FirstOrDefault(attribute => string.Equals(
+                attribute.Name.Value,
+                name,
+                StringComparison.OrdinalIgnoreCase));
+
+        if (highlight?.Value is ObjectiveMoneyValue highlightedMoney)
+        {
+            return highlightedMoney;
+        }
+
+        return candidate.Conditions
+            .SelectMany(condition => condition.Evidence)
+            .FirstOrDefault(attribute => string.Equals(
+                attribute.Name.Value,
                 name,
                 StringComparison.OrdinalIgnoreCase))
             ?.Value as ObjectiveMoneyValue;
+    }
 
     private static string FormatMoney(ObjectiveMoneyValue money) =>
         $"{money.CurrencySymbol}{money.Amount.ToString("0.##", CultureInfo.InvariantCulture)}";

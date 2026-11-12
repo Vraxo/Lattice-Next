@@ -1114,7 +1114,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("You have three good options: Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail.", message);
         Assert.Contains("All options fit your budget, meet your transport requirements, use your chosen starting point, and fit your time window.", message);
         Assert.Contains("They also match your stated preferences for quiet and outdoors.", message);
-        Assert.Contains("If you'd like the lower-cost, shorter outing, I'd lean toward Fernbank Nature Reserve.", message);
+        Assert.Contains("If you'd prefer the lower-cost, shorter option, I'd lean toward Fernbank Nature Reserve.", message);
         Assert.Contains("$6 return transport", message);
         Assert.Contains("$12 return transport", message);
         Assert.Contains("$8 return transport", message);
@@ -1578,6 +1578,17 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(
             new[] { "Clay House Studio", "Northbank Ceramics" },
             final.Recommendation.ShortlistedCandidates.OrderBy(name => name, StringComparer.Ordinal));
+
+        var response = revised.Utterances.Single().Message;
+        Assert.Contains("You have two good options: Clay House Studio and Northbank Ceramics.", response);
+        Assert.Contains("total cost $160", response);
+        Assert.Contains("total cost $150", response);
+        Assert.Contains("beginner wheel-throwing class", response);
+        Assert.Contains("beginner glazing and shaping class", response);
+        Assert.Contains("Walk", response);
+        Assert.DoesNotContain("outing", response, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Candidate assessment", response);
+        Assert.DoesNotContain("Evidence:", response);
     }
     [Theory]
     [InlineData("Actually, my budget is $800.")]
