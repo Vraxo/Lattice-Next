@@ -31,7 +31,7 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TimeWindowPattern = new(
-        @"\bI can leave at (?<start>\d{1,2}:\d{2}) and be back by (?<end>\d{1,2}:\d{2})",
+        @"\bI can (?:(?:leave at (?<start>\d{1,2}:\d{2}) and be back by (?<end>\d{1,2}:\d{2}))|(?:be back by (?<reverseEnd>\d{1,2}:\d{2}) and leave at (?<reverseStart>\d{1,2}:\d{2})))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex NoBusPattern = new(
@@ -568,15 +568,21 @@ public sealed class LceParser
         }
 
         var timeMatch = TimeWindowPattern.Match(source);
+        var startText = timeMatch.Groups["start"].Success
+            ? timeMatch.Groups["start"].Value
+            : timeMatch.Groups["reverseStart"].Value;
+        var endText = timeMatch.Groups["end"].Success
+            ? timeMatch.Groups["end"].Value
+            : timeMatch.Groups["reverseEnd"].Value;
 
         if (timeMatch.Success &&
             TimeOnly.TryParse(
-                timeMatch.Groups["start"].Value,
+                startText,
                 System.Globalization.CultureInfo.InvariantCulture,
                 System.Globalization.DateTimeStyles.None,
                 out var start) &&
             TimeOnly.TryParse(
-                timeMatch.Groups["end"].Value,
+                endText,
                 System.Globalization.CultureInfo.InvariantCulture,
                 System.Globalization.DateTimeStyles.None,
                 out var end))

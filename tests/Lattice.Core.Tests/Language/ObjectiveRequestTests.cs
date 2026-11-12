@@ -131,6 +131,25 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Parses_time_window_when_the_return_time_is_stated_before_departure()
+    {
+        const string input = "I can be back by 18:00 and leave at 9:00.";
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.ObjectiveConditionUpdate, utterance.Kind);
+        var update = Assert.IsType<ObjectiveConditionUpdateFormula>(utterance.Meaning);
+        var time = Assert.Single(update.Conditions);
+        Assert.Equal("time-window", time.Name);
+        Assert.Equal(ObjectiveConditionOperator.CanFit, time.Operator);
+        Assert.Equal("temporal-plan", time.TargetAttribute);
+        Assert.Equal(
+            new ObjectiveTimeWindowValue(new TimeOnly(9, 0), new TimeOnly(18, 0)),
+            time.Value);
+    }
+
+    [Fact]
     public void Parses_packed_lunch_as_a_typed_objective_condition()
     {
         var result = parser.ParseText("I'll bring lunch.");

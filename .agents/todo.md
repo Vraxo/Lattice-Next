@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: verify robustness against paraphrases, reordered information, repeated corrections, contradictions, and unsupported requests. Fully excluded candidate sets now identify evidenced hard-constraint blockers and ask whether the user wants to relax one, while unresolved candidates remain on the evidence-request path. Next, broaden the end-to-end robustness benchmark without adding domain-specific rules.
+> Current priority: broaden the first-use robustness benchmark across paraphrases, reordered details, repeated corrections, contradictions, and unsupported requests. The day-out availability parser now accepts departure-first and return-first clause order with the same typed time window. Next, test alternative ordinary phrasings for origin, budget, and packed lunch, then exercise repeated revisions without losing unrelated constraints.
 
 
 ## Bootstrap
