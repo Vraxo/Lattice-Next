@@ -416,7 +416,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
-            var message = AppendObjectiveEvaluation(string.Empty, objective, includeMessage: false);
+            var message = AppendObjectiveEvaluation(
+                $"I've retained this objective: {objective.Goal}.",
+                objective,
+                includeMessage: false);
 
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ObjectiveReceived,
@@ -893,7 +896,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return message;
         }
 
-        return !includeMessage || string.IsNullOrWhiteSpace(message)
+        return string.IsNullOrWhiteSpace(message) || !includeMessage
             ? response
             : $"{message}{Environment.NewLine}{response}";
     }
