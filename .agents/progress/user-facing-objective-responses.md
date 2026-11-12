@@ -2,7 +2,7 @@
 
 **Target:** ordinary objective requests should receive a concise, actionable answer by default, while detailed assessments remain available on demand through `:why`.
 
-**Current progress:** 5 of 6 acceptance milestones complete (83%). Update this checklist in the same pull request as implementation changes.
+**Current progress:** 6 of 6 acceptance milestones complete (100%). The original first-use day-out request was run in the REPL and the output was confirmed against the approved response shape.
 
 ## Acceptance milestones
 
@@ -11,7 +11,7 @@
 - [x] Preserve the full evidence assessment in session status and expose it through the REPL `:why` command.
 - [x] Cover unique winners, non-dominated ties, preference trade-offs, unresolved evidence, and infeasible candidate sets with regression tests.
 - [x] Pass the complete GitHub Actions test suite and merge the pull request.
-- [ ] Run the original first-use day-out request in the REPL and compare the result with the approved response shape.
+- [x] Run the original first-use day-out request in the REPL and compare the result with the approved response shape.
 
 ## Response contract
 
@@ -30,3 +30,7 @@ The `:why` view retains the detailed assessment, condition statuses, evidence ex
 ## Approved day-out response shape
 
 The intended experience is the concise two-option answer agreed in the implementation discussion: explain that Fernbank and Quarry both fit, conditionally lean toward Fernbank for a cheaper and shorter outing, show each option's cost/activity/timetable, mention Hilltop's unresolved cost, and state that transport details have not been live-verified.
+
+## REPL confirmation
+
+The original first-use request was run against the merged implementation. The observed output presented Fernbank and Quarry as the two good options, gave the conditional Fernbank tie-break, included costs, activities and feasible schedules, mentioned Hilltop's unknown total cost, and disclosed that the supplied times and costs were not live-verified. This satisfies the final acceptance milestone.
