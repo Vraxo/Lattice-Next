@@ -146,11 +146,13 @@ internal static class ObjectiveEvaluationFormatter
 
         output.AppendLine("Decision summary:");
 
+        var candidatesWithPendingRequests = evaluation.EvidenceRequests
+            .Select(request => request.Candidate.Value)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var preferenceCandidates = options.Length > 0
             ? options
             : evaluation.Candidates
-                .Where(candidate =>
-                    !evaluation.EvidenceRequests.Any(request => request.Candidate == candidate.Candidate))
+                .Where(candidate => !candidatesWithPendingRequests.Contains(candidate.Candidate.Value))
                 .ToArray();
 
         if (options.Length > 0)
