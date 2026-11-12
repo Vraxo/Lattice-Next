@@ -563,7 +563,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
                 $"I don't have a definition for {requestedConcept} in the available knowledge.",
-                meaning);
+                meaning,
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
 
         var distinctDefinitions = definitions
@@ -593,7 +594,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             attribute.SourceKind == KnowledgeSourceKind.ExternalObservation;
 
         return !requiresFreshness ||
-            attribute.FreshUntil is { } freshUntil && freshUntil > DateTimeOffset.UtcNow;
+            attribute.RetrievedAt is not null &&
+            attribute.FreshUntil is { } freshUntil &&
+            freshUntil > DateTimeOffset.UtcNow;
     }
 
     private static LatticeEvidence MapDefinitionEvidence(KnowledgeAttribute attribute) =>
