@@ -909,4 +909,72 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(0, finalStatus.FactCount);
     }
 
+
+    [Fact]
+    public async Task Accepts_reviewed_external_candidate_price_with_source_and_retrieval_time()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        await session.SubmitAsync(
+            "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.",
+            TestContext.Current.CancellationToken);
+
+        var evidence = new LatticeCandidateMoneyEvidence(
+            "Aster 14",
+            900m,
+            "$",
+            "Aster 14 is listed at $900.",
+            "https://example.org/aster-14",
+            new DateTimeOffset(2026, 11, 12, 7, 0, 0, TimeSpan.Zero));
+        var accepted = await session.AddReviewedCandidateMoneyEvidenceAsync(
+            evidence,
+            TestContext.Current.CancellationToken);
+
+        Assert.True(accepted.IsSuccess, accepted.Error);
+        Assert.Equal("Aster 14", accepted.Candidate);
+        Assert.Equal("total-cost", accepted.AttributeName);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Contains(evaluation.EvidenceRequests, request => request.Candidate == "Birch 15");
+        Assert.Contains(evaluation.EvidenceRequests, request => request.Candidate == "Cedar 14");
+        var aster = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
+        var budget = Assert.Single(aster.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Satisfied", budget.Status);
+        var source = Assert.Single(budget.Evidence);
+        Assert.Equal("ExternalObservation", source.Kind);
+        Assert.Equal("https://example.org/aster-14", source.SourceId);
+        Assert.Equal(evidence.RetrievedAt, source.RetrievedAt);
+        Assert.Equal(evidence.SourceText, source.SourceText);
+    }
+
+    [Fact]
+    public async Task Rejects_reviewed_candidate_price_when_currency_differs_from_objective_budget()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+        await session.SubmitAsync(
+            "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.",
+            TestContext.Current.CancellationToken);
+
+        var result = await session.AddReviewedCandidateMoneyEvidenceAsync(
+            new LatticeCandidateMoneyEvidence(
+                "Aster 14", 900m, "€", "Aster 14 is listed at €900.",
+                "https://example.org/aster-14", DateTimeOffset.UtcNow));
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("currency", result.Error, StringComparison.OrdinalIgnoreCase);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Contains(Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation).EvidenceRequests,
+            request => request.Candidate == "Aster 14");
+    }
 }

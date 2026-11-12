@@ -94,6 +94,23 @@ public sealed class HttpLatticeClient(HttpClient httpClient, string? bearerToken
                 ?? throw new HttpRequestException("The Lattice server returned an empty knowledge-pack response.");
         }
 
+        public async ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateMoneyEvidenceAsync(
+            LatticeCandidateMoneyEvidence evidence,
+            CancellationToken cancellationToken = default)
+        {
+            using var request = CreateRequest(
+                HttpMethod.Post,
+                $"api/sessions/{SessionId}/candidate-evidence",
+                evidence);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<LatticeCandidateEvidenceResult>(
+                JsonOptions,
+                cancellationToken)
+                ?? throw new HttpRequestException("The Lattice server returned an empty candidate-evidence response.");
+        }
+
         public async ValueTask<LatticeSessionStatus> GetStatusAsync(
             CancellationToken cancellationToken = default)
         {

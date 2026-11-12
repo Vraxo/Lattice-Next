@@ -61,10 +61,10 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 ## 4. Use real-world information safely
 
 - [ ] Acquire current candidate information through reusable retrieval/tool capabilities rather than benchmark-only data.
-- [ ] Preserve the URL/source, retrieval time, and relevant quoted or summarized evidence for each observation.
+- [x] Preserve the URL/source, retrieval time, and reviewed supporting excerpt for accepted external monetary observations.
 - [ ] Distinguish stale, unavailable, conflicting, and unverified information.
 - [ ] Treat live schedules, prices, opening hours, weather, and disruptions as time-sensitive; verify them before relying on them.
-- [ ] Apply URL and tool safety boundaries before fetching or acting on external content.
+- [x] Apply URL and tool safety boundaries before fetching or acting on external content.
 - [ ] Never turn missing data into a positive or negative claim.
 - [ ] Make clear which parts of a plan require user confirmation or booking.
 
@@ -91,4 +91,4 @@ The first-use task is complete when all of the following are true:
 - [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
 - [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
 
-**Current assessment:** the synthetic day-out flow and the first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be attached to the requested candidate with provenance, deduplicated, and retained as explicit conflicts when values disagree. The next gaps are text-set and temporal candidate values, live information acquisition, and a concise final day-out plan that separates confirmed details from unscheduled user choices. This checklist should be updated in the same PR that changes any item's status.
+**Current assessment:** the synthetic day-out flow and first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be supplied as user assertions or reviewed external observations; external observations retain their source URL, retrieval timestamp, and reviewed excerpt. Bounded public-page retrieval enforces URL, DNS, redirect, response-size, and content limits, but retrieved text remains untrusted and is not automatically converted into candidate facts. Remaining gaps include integrating retrieval with review and evidence selection, handling stale/unavailable/unverified external data, broader candidate-value types, and a concise final day-out plan that separates confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.

@@ -6,4 +6,7 @@ public sealed record KnowledgeSource(
     KnowledgeSourceKind Kind,
     string SourceText,
     SemanticIdentifier? ResolvedReferent = null,
-    string? SourceId = null);
+    string? SourceId = null)
+{
+    public DateTimeOffset? RetrievedAt { get; init; }
+}
