@@ -330,6 +330,40 @@ public sealed class ObjectiveSessionTests
         Assert.Single(Assert.Single(cedarFinal.Conditions, condition => condition.Name == "preference").Preferences);
         Assert.Equal("Unknown",
             Assert.Single(cedarFinal.Conditions, condition => condition.Name == "spending-limit").Status);
+
+        var secondBudgetRevision = await session.SubmitAsync(
+            "Actually, my budget is $700.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(secondBudgetRevision.Utterances).Kind);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $700)",
+            secondBudgetRevision.Utterances.Single().Meaning);
+        Assert.DoesNotContain("hardconstraint(spending-limit, atmost, $800)",
+            secondBudgetRevision.Utterances.Single().Meaning);
+        Assert.Contains("preference(preference, desires, repairability)",
+            secondBudgetRevision.Utterances.Single().Meaning);
+
+        var secondPreferenceRevision = await session.SubmitAsync(
+            "Actually, I prefer screen quality and reliability.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(secondPreferenceRevision.Utterances).Kind);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $700)",
+            secondPreferenceRevision.Utterances.Single().Meaning);
+        Assert.Contains("preference(preference, desires, screen quality+reliability)",
+            secondPreferenceRevision.Utterances.Single().Meaning);
+        Assert.DoesNotContain("preference(preference, desires, repairability)",
+            secondPreferenceRevision.Utterances.Single().Meaning);
+
+        var afterRepeatedRevisions = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("Actually, my budget is $700.", afterRepeatedRevisions.ActiveObjectiveSource);
+        Assert.Contains("Actually, I prefer screen quality and reliability.", afterRepeatedRevisions.ActiveObjectiveSource);
+        var repeatedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterRepeatedRevisions.ObjectiveEvaluation);
+        var repeatedCedar = Assert.Single(repeatedEvaluation.Candidates, candidate => candidate.Candidate == "Cedar 14");
+        Assert.Equal(
+            ["screen quality", "reliability"],
+            Assert.Single(repeatedCedar.Conditions, condition => condition.Name == "preference")
+                .Preferences.Select(preference => preference.Name));
     }
 
     [Fact]
