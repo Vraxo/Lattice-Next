@@ -110,6 +110,9 @@ public sealed class ExternalPageEvidenceReviewTests
         var timestamp = retrievedAt.UtcDateTime.ToString(
             "yyyy-MM-dd'T'HH:mm:ss'Z'",
             System.Globalization.CultureInfo.InvariantCulture);
+        var recordedAt = DateTimeOffset.Parse(
+            timestamp,
+            System.Globalization.CultureInfo.InvariantCulture);
         var pageText = string.Join(
             Environment.NewLine,
             new[]
@@ -140,7 +143,7 @@ public sealed class ExternalPageEvidenceReviewTests
         Assert.Equal("Satisfied", budget.Status);
         var source = Assert.Single(budget.Evidence);
         Assert.Equal("https://example.org/laptops/aster", source.SourceId);
-        Assert.Equal(retrievedAt.UtcDateTime, source.RetrievedAt?.UtcDateTime);
+        Assert.Equal(recordedAt.UtcDateTime, source.RetrievedAt?.UtcDateTime);
         Assert.Equal("Aster 14 is listed at $900.", source.SourceText);
     }
 }
