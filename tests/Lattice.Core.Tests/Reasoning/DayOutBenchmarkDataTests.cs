@@ -66,8 +66,8 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(quarry, "itinerary").Status);
         Assert.Collection(
             GetCondition(quarry, "itinerary").TemporalWitness,
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(9, 15), new TimeOnly(10, 0), 45), stage),
-            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(10, 0), new TimeOnly(13, 0), 180), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(1, "one-way-travel-duration", new TimeOnly(11, 15), new TimeOnly(12, 0), 45), stage),
+            stage => Assert.Equal(new ObjectiveTemporalStageResult(2, "activity-duration", new TimeOnly(12, 0), new TimeOnly(15, 0), 180), stage),
             stage => Assert.Equal(new ObjectiveTemporalStageResult(3, "one-way-travel-duration", new TimeOnly(15, 45), new TimeOnly(16, 30), 45), stage));
 
         var riverside = GetCandidate(evaluation, "Riverside Gardens");
