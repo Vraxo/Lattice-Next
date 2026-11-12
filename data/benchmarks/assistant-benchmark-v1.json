@@ -10,10 +10,10 @@
     "note": "Do not treat a plausible answer as proof that the request was understood. Human review is required for open-ended quality judgments."
   },
   "counts": {
-    "total": 33,
+    "total": 34,
     "dolly": 30,
-    "oasst1": 2,
-    "wildchat": 1
+    "oasst1": 4,
+    "wildchat": 0
   },
   "records": [
     {
@@ -53,21 +53,39 @@
       "reference_response": null
     },
     {
-      "id": "wildchat-2023-05-16-072656-gpt35",
-      "prompt": "_____ I am with you, I can't stop smiling.\n\nWherever\n\nHowever\n\nWhatever\n\nWhenever",
+      "id": "oasst1-3b863a2e-f80a-4520-b305-e7836636f2bf",
+      "prompt": "What is the difference between open assistant and ChatGPT? Why should i use Open Assistant? And can you give me some examples of advanced chatbots that are similar to Open Assistant?",
       "context": null,
-      "category": "classification / language exercise",
+      "category": "comparison / open-ended questions",
       "evaluation_layer": "real-world-instruction",
       "source": {
-        "dataset": "allenai/WildChat-1M",
-        "url": "https://huggingface.co/datasets/allenai/WildChat-1M",
-        "model": "gpt-3.5-turbo-0301",
-        "timestamp": "2023-05-16T07:26:56Z",
-        "turn": 1,
-        "language": "English",
-        "source_kind": "real ChatGPT user prompt",
-        "record_locator_note": "The prompt was supplied in the conversation's small viewer sample; conversation_hash was not retained, so this record has weaker-than-ideal stable provenance.",
-        "license": "ODC-BY"
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "3b863a2e-f80a-4520-b305-e7836636f2bf",
+        "message_tree_id": "3b863a2e-f80a-4520-b305-e7836636f2bf",
+        "created_at": "2023-02-07T14:34:47.774378+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null
+    },
+    {
+      "id": "oasst1-c8262e6c-978f-4ad7-a849-39a741fb5ae7",
+      "prompt": "How can L’Hopital’s Rule be used in day to day life?",
+      "context": null,
+      "category": "open-ended question / explanation",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "c8262e6c-978f-4ad7-a849-39a741fb5ae7",
+        "message_tree_id": "c8262e6c-978f-4ad7-a849-39a741fb5ae7",
+        "created_at": "2023-02-08T05:01:06.589964+00:00",
+        "language": "en",
+        "split": "validation",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
       },
       "reference_response": null
     },
