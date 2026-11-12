@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: produce a concise, coherent final day-out plan from the existing shortlist and timetable witnesses. The runtime now asks for the smallest missing hard-constraint detail one at a time, accepts candidate-specific money and text answers with provenance, and reevaluates without changing unrelated facts. Next, separate confirmed facts, remaining unknowns, assumptions, and user actions in a final response without inventing lunch timing or selecting an arbitrary winner.
+> Current priority: capture the user's selection among non-dominated options and turn the selected candidate's evidence and timetable witness into one committed plan. The runtime now separates confirmed hard-constraint facts, preference mismatches and unknowns, timetable limitations, and the next user action; it leaves unscheduled gaps flexible. Next, add an explicit candidate-selection update that cannot silently select an excluded or unresolved option.
 
 
 ## Bootstrap

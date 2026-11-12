@@ -101,13 +101,10 @@ internal static class ObjectiveEvaluationFormatter
             AppendTradeOffEvidence(output, "  Contrary evidence: ", tradeOff.ContraryEvidence);
         }
 
-        AppendRecommendation(
-            output,
-            evaluation.Recommendation,
-            evaluation.Candidates,
-            evaluation.PreferenceTradeOffs);
+        AppendRecommendation(output, evaluation.Recommendation, evaluation.Candidates);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
         AppendEvidenceRequests(output, evaluation.EvidenceRequests);
+        AppendDecisionSummary(output, evaluation);
         AppendPlanSummary(output, evaluation);
 
         return output.ToString().TrimEnd();
@@ -133,6 +130,145 @@ internal static class ObjectiveEvaluationFormatter
                 .AppendLine(remainingCount == 1
                     ? " detail after this one."
                     : " details after this one.");
+        }
+    }
+
+    private static void AppendDecisionSummary(
+        StringBuilder output,
+        ObjectiveEvaluation evaluation)
+    {
+        var recommendation = evaluation.Recommendation;
+        var options = recommendation.ShortlistedCandidates
+            .Select(name => evaluation.Candidates.FirstOrDefault(candidate => candidate.Candidate == name))
+            .Where(candidate => candidate is not null)
+            .Cast<CandidateAssessment>()
+            .ToArray();
+
+        output.AppendLine("Decision summary:");
+
+        var candidatesWithPendingRequests = evaluation.EvidenceRequests
+            .Select(request => request.Candidate.Value)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var preferenceCandidates = options.Length > 0
+            ? options
+            : evaluation.Candidates
+                .Where(candidate => !candidatesWithPendingRequests.Contains(candidate.Candidate.Value))
+                .ToArray();
+
+        if (options.Length > 0)
+        {
+            if (options.All(candidate => candidate.Feasibility == CandidateFeasibility.Eligible))
+            {
+                output.AppendLine("Confirmed: all shortlisted options satisfy the assessed hard constraints.");
+            }
+            else
+            {
+                output.AppendLine("Confirmed: the shortlist contains options with no known hard-constraint violation.");
+            }
+        }
+
+        var preferenceEvidence = preferenceCandidates
+            .SelectMany(candidate => candidate.Conditions
+                .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                .SelectMany(condition => condition.Preferences.Select(preference =>
+                    (Candidate: candidate.Candidate.Value, preference.Preference, preference.Status))))
+            .ToArray();
+
+        var unknownPreferences = preferenceEvidence
+            .Where(item => item.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+            .GroupBy(item => item.Preference, StringComparer.OrdinalIgnoreCase)
+            .Select(group =>
+                $"{FormatAttributeName(group.Key)} ({string.Join(", ", group.Select(item => item.Candidate).Distinct(StringComparer.Ordinal))})")
+            .ToArray();
+
+        if (unknownPreferences.Length > 0)
+        {
+            output.Append("Still unknown: ")
+                .Append(string.Join("; ", unknownPreferences))
+                .AppendLine(".");
+        }
+        else if (preferenceEvidence.Length > 0)
+        {
+            output.AppendLine("Unknowns: no missing or conflicting evidence for the stated preferences of shortlisted options.");
+        }
+
+        var violatedPreferences = preferenceEvidence
+            .Where(item => item.Status == ObjectiveConditionAssessmentStatus.Violated)
+            .GroupBy(item => item.Preference, StringComparer.OrdinalIgnoreCase)
+            .Select(group =>
+                $"{FormatAttributeName(group.Key)} ({string.Join(", ", group.Select(item => item.Candidate).Distinct(StringComparer.Ordinal))})")
+            .ToArray();
+
+        if (violatedPreferences.Length > 0)
+        {
+            output.Append("Known preference mismatches: ")
+                .Append(string.Join("; ", violatedPreferences))
+                .AppendLine(".");
+        }
+
+        if (evaluation.EvidenceRequests.Length > 0)
+        {
+            output.AppendLine("Next step: answer the missing candidate detail above.");
+            return;
+        }
+
+        if (options.Length == 0)
+        {
+            output.AppendLine("Next step: review the excluded constraints and decide whether one can be relaxed.");
+            return;
+        }
+
+        var allPreferencesSatisfied = preferenceEvidence.Length > 0 &&
+            preferenceEvidence.All(item => item.Status == ObjectiveConditionAssessmentStatus.Satisfied);
+        var shortlistedNames = recommendation.ShortlistedCandidates.ToHashSet();
+        var hasTradeOff = evaluation.PreferenceTradeOffs.Any(tradeOff =>
+            shortlistedNames.Contains(tradeOff.CandidateWithPositiveEvidence) &&
+            shortlistedNames.Contains(tradeOff.CandidateWithContraryEvidence));
+
+        if (allPreferencesSatisfied && options.Length > 1)
+        {
+            output.AppendLine("All shortlisted candidates satisfy the stated preferences. Cost and travel time are shown, but neither is used to rank options because no such priority was stated.");
+            output.AppendLine("No preference-based winner is established.");
+        }
+        else if (hasTradeOff)
+        {
+            output.AppendLine("Different options have evidence-backed advantages on different preferences; no weights are assumed.");
+        }
+        else if (recommendation.HasIncompletePreferenceEvidence)
+        {
+            output.AppendLine("Preference evidence is incomplete, so the shortlist is provisional.");
+        }
+
+        switch (recommendation.Status)
+        {
+            case ObjectiveRecommendationStatus.MultipleNonDominatedCandidates:
+                if (allPreferencesSatisfied)
+                {
+                    output.AppendLine("Next step: choose one of the shortlisted options, or state an additional priority to distinguish them.");
+                }
+                else if (hasTradeOff)
+                {
+                    output.AppendLine("Next step: tell me which preference should take priority.");
+                }
+                else
+                {
+                    output.AppendLine("Next step: provide more preference evidence or choose based on the information currently available.");
+                }
+
+                break;
+
+            case ObjectiveRecommendationStatus.OnlyEligibleCandidate:
+                output.AppendLine(violatedPreferences.Length > 0
+                    ? "Next step: decide whether to accept that preference compromise or relax a hard constraint."
+                    : recommendation.HasIncompletePreferenceEvidence
+                        ? "Next step: provide evidence for the remaining preferences or confirm whether the current option is acceptable."
+                        : "Next step: confirm whether this option is acceptable.");
+                break;
+
+            case ObjectiveRecommendationStatus.UniquePreferenceLeader:
+                output.AppendLine("Next step: review the leading option and confirm whether it is acceptable.");
+                break;
+
         }
     }
 
@@ -239,6 +375,7 @@ internal static class ObjectiveEvaluationFormatter
 
         output.AppendLine("Shortlisted options (not ranked):");
         var hasTimetable = false;
+        var hasUnscheduledGap = false;
 
         foreach (var candidate in options)
         {
@@ -261,7 +398,6 @@ internal static class ObjectiveEvaluationFormatter
 
             if (stages.Length == 0)
             {
-                output.AppendLine("  No timetable witness is available from the supplied data.");
                 continue;
             }
 
@@ -273,6 +409,7 @@ internal static class ObjectiveEvaluationFormatter
             {
                 if (previousEnd.HasValue && stage.Start > previousEnd.Value)
                 {
+                    hasUnscheduledGap = true;
                     output.Append("    Unscheduled time: ")
                         .Append(previousEnd.Value.ToString("HH:mm", CultureInfo.InvariantCulture))
                         .Append('–')
@@ -299,13 +436,17 @@ internal static class ObjectiveEvaluationFormatter
         {
             output.AppendLine("Timetables are first feasible witnesses, not optimized schedules.");
         }
+
+        if (hasUnscheduledGap)
+        {
+            output.AppendLine("Assumptions: unscheduled gaps are left flexible; no additional activity or meal slot is assumed.");
+        }
     }
 
     private static void AppendRecommendation(
         StringBuilder output,
         ObjectiveRecommendation recommendation,
-        IReadOnlyList<CandidateAssessment> candidates,
-        IReadOnlyList<ObjectivePreferenceTradeOff> tradeOffs)
+        IReadOnlyList<CandidateAssessment> candidates)
     {
         var unresolvedCandidates = candidates
             .Where(candidate => candidate.Feasibility == CandidateFeasibility.Unresolved)
@@ -340,33 +481,6 @@ internal static class ObjectiveEvaluationFormatter
                 output.Append("No unique preference leader; these eligible candidates remain non-dominated: ")
                     .Append(string.Join(", ", recommendation.ShortlistedCandidates.Select(candidate => candidate.Value)))
                     .AppendLine(".");
-
-                var shortlistedCandidates = candidates
-                    .Where(candidate => recommendation.ShortlistedCandidates.Contains(candidate.Candidate))
-                    .ToArray();
-                var preferenceAssessments = shortlistedCandidates
-                    .SelectMany(candidate => candidate.Conditions)
-                    .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
-                    .SelectMany(condition => condition.Preferences)
-                    .ToArray();
-                var shortlistedNames = recommendation.ShortlistedCandidates.ToHashSet();
-
-                if (preferenceAssessments.Length > 0 &&
-                    preferenceAssessments.All(preference =>
-                        preference.Status == ObjectiveConditionAssessmentStatus.Satisfied))
-                {
-                    output.AppendLine("  All shortlisted candidates satisfy the stated preferences. Cost and travel time are shown, but neither is used to rank options because no such priority was stated.");
-                }
-                else if (tradeOffs.Any(tradeOff =>
-                    shortlistedNames.Contains(tradeOff.CandidateWithPositiveEvidence) &&
-                    shortlistedNames.Contains(tradeOff.CandidateWithContraryEvidence)))
-                {
-                    output.AppendLine("  Their preference advantages differ; no weighting is assumed to choose between them.");
-                }
-                else if (!recommendation.HasIncompletePreferenceEvidence)
-                {
-                    output.AppendLine("  The supplied preferences do not distinguish these options; no additional priority was stated.");
-                }
 
                 break;
         }
@@ -452,7 +566,7 @@ internal static class ObjectiveEvaluationFormatter
     private static string FormatAttributeName(string attributeName)
     {
         var words = attributeName
-            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(word => char.ToUpperInvariant(word[0]) + word[1..]);
         return string.Join(' ', words);
     }
