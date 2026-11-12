@@ -101,7 +101,11 @@ internal static class ObjectiveEvaluationFormatter
             AppendTradeOffEvidence(output, "  Contrary evidence: ", tradeOff.ContraryEvidence);
         }
 
-        AppendRecommendation(output, evaluation.Recommendation, evaluation.Candidates);
+        AppendRecommendation(
+            output,
+            evaluation.Recommendation,
+            evaluation.Candidates,
+            evaluation.PreferenceTradeOffs);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
 
         return output.ToString().TrimEnd();
@@ -190,7 +194,8 @@ internal static class ObjectiveEvaluationFormatter
     private static void AppendRecommendation(
         StringBuilder output,
         ObjectiveRecommendation recommendation,
-        IReadOnlyList<CandidateAssessment> candidates)
+        IReadOnlyList<CandidateAssessment> candidates,
+        IReadOnlyList<ObjectivePreferenceTradeOff> tradeOffs)
     {
         var unresolvedCandidates = candidates
             .Where(candidate => candidate.Feasibility == CandidateFeasibility.Unresolved)
@@ -225,6 +230,34 @@ internal static class ObjectiveEvaluationFormatter
                 output.Append("No unique preference leader; these eligible candidates remain non-dominated: ")
                     .Append(string.Join(", ", recommendation.ShortlistedCandidates.Select(candidate => candidate.Value)))
                     .AppendLine(".");
+
+                var shortlistedCandidates = candidates
+                    .Where(candidate => recommendation.ShortlistedCandidates.Contains(candidate.Candidate))
+                    .ToArray();
+                var preferenceAssessments = shortlistedCandidates
+                    .SelectMany(candidate => candidate.Conditions)
+                    .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                    .SelectMany(condition => condition.Preferences)
+                    .ToArray();
+                var shortlistedNames = recommendation.ShortlistedCandidates.ToHashSet();
+
+                if (preferenceAssessments.Length > 0 &&
+                    preferenceAssessments.All(preference =>
+                        preference.Status == ObjectiveConditionAssessmentStatus.Satisfied))
+                {
+                    output.AppendLine("  All shortlisted candidates satisfy the stated preferences. Cost and travel time are shown, but neither is used to rank options because no such priority was stated.");
+                }
+                else if (tradeOffs.Any(tradeOff =>
+                    shortlistedNames.Contains(tradeOff.CandidateWithPositiveEvidence) &&
+                    shortlistedNames.Contains(tradeOff.CandidateWithContraryEvidence)))
+                {
+                    output.AppendLine("  Their preference advantages differ; no weighting is assumed to choose between them.");
+                }
+                else if (!recommendation.HasIncompletePreferenceEvidence)
+                {
+                    output.AppendLine("  The supplied preferences do not distinguish these options; no additional priority was stated.");
+                }
+
                 break;
         }
 
