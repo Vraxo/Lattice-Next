@@ -29,14 +29,18 @@ public sealed class ReasoningEngine
                     ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
                 .Select(ProofOperations.CreateAssertedProof)
                 .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
+                    ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)))
+                .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase).Where(candidate =>
                     ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
         }
         else if (query.Arguments.Length == 1 &&
             ProofOperations.TryGetFactKey(query, out var queryKey))
         {
-            positiveProofs = FactDeriver.DeriveUnaryFacts(knowledgeBase).Where(candidate =>
-                ProofOperations.TryGetFactKey(candidate.Predicate, out var key) &&
-                key == queryKey);
+            positiveProofs = FactDeriver.DeriveUnaryFacts(knowledgeBase)
+                .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase))
+                .Where(candidate =>
+                    ProofOperations.TryGetFactKey(candidate.Predicate, out var key) &&
+                    key == queryKey);
         }
         else
         {
