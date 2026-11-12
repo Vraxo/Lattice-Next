@@ -181,6 +181,105 @@ internal static class FactDeriver
         return relationalProofs;
     }
 
+    internal static List<ProofNode> DeriveExistentialFacts(KnowledgeBase knowledgeBase)
+    {
+        var (positiveFacts, negativeFacts) = DeriveUnaryEvidence(knowledgeBase);
+        var positiveRelationalFacts = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Positive &&
+                !fact.Predicate.Arguments.IsDefault &&
+                fact.Predicate.Arguments.Length == 2)
+            .Select(ProofOperations.CreateAssertedProof)
+            .ToArray();
+        var negativeRelationalFacts = knowledgeBase.Facts
+            .Where(fact => fact.Polarity == EvidencePolarity.Negative &&
+                !fact.Predicate.Arguments.IsDefault &&
+                fact.Predicate.Arguments.Length == 2)
+            .Select(ProofOperations.CreateAssertedProof)
+            .ToArray();
+        var derivedFacts = new List<ProofNode>();
+        var candidateIndividuals = GetCandidateIndividuals(positiveFacts, negativeFacts);
+
+        for (var ruleIndex = 0; ruleIndex < knowledgeBase.Rules.Count; ruleIndex++)
+        {
+            var rule = knowledgeBase.Rules[ruleIndex];
+            var existential = rule.ExistentialConclusion;
+
+            if (existential is null ||
+                rule.ConclusionPolarity != EvidencePolarity.Positive)
+            {
+                continue;
+            }
+
+            foreach (var individual in candidateIndividuals)
+            {
+                var combinations = RulePremiseMatcher.GetRulePremiseCombinations(
+                    rule,
+                    individual,
+                    positiveFacts,
+                    negativeFacts,
+                    positiveRelationalFacts,
+                    negativeRelationalFacts);
+
+                foreach (var premises in combinations)
+                {
+                    var witness = CreateRuleWitness(ruleIndex, individual);
+
+                    foreach (var condition in existential.Conditions)
+                    {
+                        var conclusion = condition with
+                        {
+                            Arguments = ImmutableArray.Create<SemanticTerm>(witness)
+                        };
+
+                        ProofOperations.AddUniqueProof(
+                            derivedFacts,
+                            CreateExistentialProof(rule, conclusion, premises));
+                    }
+
+                    var relation = existential.Relation with
+                    {
+                        Arguments = ImmutableArray.Create(individual, witness)
+                    };
+
+                    ProofOperations.AddUniqueProof(
+                        derivedFacts,
+                        CreateExistentialProof(rule, relation, premises));
+                }
+            }
+        }
+
+        return derivedFacts;
+    }
+
+    private static AnonymousIndividualTerm CreateRuleWitness(
+        int ruleIndex,
+        SemanticTerm subject)
+    {
+        var identity = subject switch
+        {
+            IndividualTerm individual => $"named-{individual.Identifier.Value}",
+            AnonymousIndividualTerm anonymous => $"anonymous-{anonymous.Identity.Value}",
+            _ => throw new ArgumentOutOfRangeException(nameof(subject), subject, "Unsupported existential rule subject.")
+        };
+
+        return new AnonymousIndividualTerm(
+            new SemanticIdentifier($"rule-witness-{ruleIndex}-{identity}"));
+    }
+
+    private static ProofNode CreateExistentialProof(
+        UniversalRule rule,
+        PredicateApplication conclusion,
+        ImmutableArray<ProofNode> premises) =>
+        new(
+            conclusion,
+            rule.SourceText,
+            premises[0],
+            AdditionalPremises: premises.Skip(1).ToImmutableArray(),
+            SourceKind: rule.SourceKind,
+            AdditionalSources: rule.AdditionalSources,
+            Kind: ProofNodeKind.Derived,
+            SourceId: rule.SourceId);
+
     private static SemanticTerm[] GetCandidateIndividuals(
         IReadOnlyList<ProofNode> positiveFacts,
         IReadOnlyList<ProofNode> negativeFacts) =>
