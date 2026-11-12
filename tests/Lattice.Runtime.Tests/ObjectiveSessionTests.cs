@@ -1578,6 +1578,17 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(
             new[] { "Clay House Studio", "Northbank Ceramics" },
             final.Recommendation.ShortlistedCandidates.OrderBy(name => name, StringComparer.Ordinal));
+
+        var response = revised.Utterances.Single().Message;
+        Assert.Contains("You have two good options: Clay House Studio and Northbank Ceramics.", response);
+        Assert.Contains("total cost $160", response);
+        Assert.Contains("total cost $150", response);
+        Assert.Contains("beginner wheel-throwing class", response);
+        Assert.Contains("beginner glazing and shaping class", response);
+        Assert.Contains("Walk", response);
+        Assert.DoesNotContain("outing", response, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Candidate assessment", response);
+        Assert.DoesNotContain("Evidence:", response);
     }
     [Theory]
     [InlineData("Actually, my budget is $800.")]
