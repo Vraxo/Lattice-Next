@@ -144,6 +144,21 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Parses_starting_location_when_phrased_as_my_starting_point()
+    {
+        var result = parser.ParseText("My starting point is Central Station.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.ObjectiveConditionUpdate, utterance.Kind);
+        var update = Assert.IsType<ObjectiveConditionUpdateFormula>(utterance.Meaning);
+        var origin = Assert.Single(update.Conditions);
+        Assert.Equal("origin", origin.Name);
+        Assert.Equal(ObjectiveConditionOperator.Equals, origin.Operator);
+        Assert.Equal(new ObjectiveTextValue("Central Station"), origin.Value);
+    }
+
+    [Fact]
     public void Parses_time_window_when_the_return_time_is_stated_before_departure()
     {
         const string input = "I can be back by 18:00 and leave at 9:00.";
