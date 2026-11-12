@@ -46,3 +46,9 @@ Each manifest may include an `intents` array declaring supported phrases, typed 
 External tools communicate through protocol version 1, a language-neutral JSON-lines protocol over standard input and output. The manifest's `command` may name any executable available on the host; Python is used by the bundled examples, not required by the protocol. See [the full manifest and protocol specification](../src/Lattice.Core/Tools/README.md).
 
 Tools requiring permissions are denied by default. Before first use, the CLI asks whether to always allow a tool, allow it for the current session, or deny it. Remembered approvals are stored per tool ID in `lattice.config.json`; use `:permissions` to inspect them and `:permissions revoke <tool-id>` to remove one. `LATTICE_TOOL_PERMISSIONS` remains available as a global pre-grant for non-interactive runs. These checks are not an OS sandbox. External tools run with the current user's OS permissions, so only load and invoke tools you trust.
+
+
+## Repository evaluation tools
+
+- [Lattice assistant benchmark](Lattice.Assistant.Benchmark/README.md): runs the curated source-prompt benchmark through the production CLI and writes JSON and Markdown reports.
+- [Lattice translator evaluation](Lattice.Translator.Evaluation/README.md): evaluates the separate LM Studio natural-language-to-LCE translation boundary.
