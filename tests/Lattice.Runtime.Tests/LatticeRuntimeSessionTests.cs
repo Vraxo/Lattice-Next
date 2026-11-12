@@ -152,7 +152,7 @@ public sealed class LatticeRuntimeSessionTests
             """,
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
-        Assert.Equal(6, result.Utterances[0].SupportingEvidence.Length);
+        Assert.Equal(5, result.Utterances[0].SupportingEvidence.Length);
         Assert.All(
             result.Utterances[0].SupportingEvidence,
             evidence => Assert.Contains(
