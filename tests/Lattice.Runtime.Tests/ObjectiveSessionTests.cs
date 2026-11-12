@@ -65,6 +65,10 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("quiet", tradeOff.Preference);
         Assert.Equal("Quiet Park", tradeOff.CandidateWithPositiveEvidence);
         Assert.Equal("Noisy Park", tradeOff.CandidateWithContraryEvidence);
+        Assert.Equal("UniquePreferenceLeader", evaluation.Recommendation.Status);
+        Assert.Equal("Quiet Park", Assert.Single(evaluation.Recommendation.ShortlistedCandidates));
+        Assert.Equal("Noisy Park", Assert.Single(evaluation.Recommendation.DominatedCandidates));
+        Assert.False(evaluation.Recommendation.HasIncompletePreferenceEvidence);
         Assert.Contains(tradeOff.PositiveEvidence, source =>
             source.SourceText == "Quiet Park is quiet and outdoors.");
         Assert.Contains(tradeOff.ContraryEvidence, source =>
@@ -76,6 +80,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
         Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);
         Assert.Contains("Contrary evidence: Noisy Park is outdoors and is not quiet.", message);
+        Assert.Contains("Only non-dominated eligible candidate on the stated preferences: Quiet Park.", message);
     }
 
     [Theory]

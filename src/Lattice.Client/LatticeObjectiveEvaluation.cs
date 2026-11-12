@@ -6,4 +6,10 @@ namespace Lattice.Client;
 public sealed record LatticeObjectiveEvaluation(ImmutableArray<LatticeCandidateAssessment> Candidates)
 {
     public ImmutableArray<LatticeObjectivePreferenceTradeOff> PreferenceTradeOffs { get; init; } = [];
+
+    public LatticeObjectiveRecommendation Recommendation { get; init; } = new(
+        "NoEligibleCandidates",
+        [],
+        [],
+        HasIncompletePreferenceEvidence: true);
 }
