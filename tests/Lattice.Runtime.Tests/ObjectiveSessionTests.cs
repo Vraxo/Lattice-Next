@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using System.Collections.Immutable;
 using System.Reflection;
 using Lattice.Client;
@@ -1112,9 +1113,8 @@ public sealed class ObjectiveSessionTests
 
         var message = priceAnswer.Utterances[^1].Message;
         Assert.Contains("You have three good options: Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail.", message);
-        Assert.Contains(
-            "All options meet your requirements and match your stated preferences for quiet and outdoors.",
-            message);
+        message.Should().Contain(
+            "All options meet your requirements and match your stated preferences for quiet and outdoors.");
         Assert.Contains("If you'd prefer the lower-cost, shorter option, I'd lean toward Fernbank Nature Reserve.", message);
         Assert.Contains("$6 return transport", message);
         Assert.Contains("$12 return transport", message);
@@ -1147,7 +1147,7 @@ public sealed class ObjectiveSessionTests
         Assert.DoesNotContain("marked 2-hour loop", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
         Assert.Contains("not live checks", revisedMessage);
-        Assert.Contains("No booking has been made.", revisedMessage);
+        revisedMessage.Should().Contain("No booking has been made.");
     }
 
     [Fact]
@@ -1593,13 +1593,11 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("beginner wheel-throwing class", response);
         Assert.Contains("beginner glazing and shaping class", response);
         Assert.Contains("Walk", response);
-        Assert.Contains(
-            "Both meet your requirements and match your stated preferences for a small group and beginner-friendly instruction.",
-            response);
-        Assert.Contains(
-            $"{Environment.NewLine}{Environment.NewLine}Note: These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving. No booking has been made.",
-            response);
-        Assert.DoesNotContain("Both fit your budget", response);
+        response.Should().Contain(
+            "Both meet your requirements and match your stated preferences for a small group and beginner-friendly instruction.");
+        response.Should().Contain(
+            $"{Environment.NewLine}{Environment.NewLine}Note: These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving. No booking has been made.");
+        response.Should().NotContain("Both fit your budget");
         Assert.DoesNotContain("outing", response, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Candidate assessment", response);
         Assert.DoesNotContain("Evidence:", response);
