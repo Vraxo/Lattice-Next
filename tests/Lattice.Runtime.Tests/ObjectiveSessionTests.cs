@@ -1024,6 +1024,69 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("No booking has been made.", revisedMessage);
     }
 
+    [Fact]
+    public async Task Clarifies_ambiguous_demonstrative_candidate_reference_for_text_evidence()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "ambiguous-park-candidates",
+              "name": "Ambiguous park candidates",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Quiet Park",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Quiet Park is quiet and outdoors."
+                },
+                {
+                  "subject": "Riverside Park",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Riverside Park is quiet and outdoors."
+                }
+              ]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me find a place.",
+            TestContext.Current.CancellationToken);
+
+        var ambiguous = await session.SubmitAsync(
+            "That one's transport mode is walking.",
+            TestContext.Current.CancellationToken);
+        var clarification = Assert.Single(ambiguous.Utterances);
+
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, clarification.Kind);
+        Assert.Contains("Which candidate do you mean?", clarification.Message);
+        Assert.Contains("Quiet Park", clarification.Message);
+        Assert.Contains("Riverside Park", clarification.Message);
+        Assert.Contains("No candidate information was changed", clarification.Message);
+
+        var unchanged = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(unchanged.ObjectiveEvaluation);
+        Assert.Equal(2, evaluation.EvidenceRequests.Length);
+        Assert.All(evaluation.Candidates, candidate =>
+            Assert.Contains(candidate.Conditions, condition =>
+                condition.Name == "transport" &&
+                condition.Status == "Unknown" &&
+                condition.Evidence.IsDefaultOrEmpty));
+
+        var explicitAnswer = await session.SubmitAsync(
+            "Quiet Park's transport mode is walking.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(explicitAnswer.Utterances).Kind);
+        Assert.Contains("Recorded Quiet Park's transport-mode as walking.", explicitAnswer.Utterances.Single().Message);
+    }
+
     [Theory]
     [InlineData("It costs $900.")]
     [InlineData("That one costs $900.")]
