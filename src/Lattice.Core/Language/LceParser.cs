@@ -46,12 +46,16 @@ public sealed class LceParser
         @"^Walking only\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ExplicitCorrectionPattern = new(
+        @"^(?:Actually,|Correction:|To clarify,|I meant\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ObjectivePreferenceRevisionPattern = new(
-        @"^(?:Actually,\s*)?(?:I would prefer|I prefer|I care about)\s+[^.!?]+[.!?]$",
+        @"^(?:(?:Actually,|Correction:|To clarify,)\s*)?(?:I would prefer|I prefer|I care about)\s+[^.!?]+[.!?]$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectiveBudgetRevisionPattern = new(
-        @"^(?:Actually,\s*)?(?:my\s+)?budget\b[^.!?]*[$€£]\s*\d[\d,]*(?:\.\d{1,2})?[^.!?]*[.!?]$",
+        @"^(?:(?:Actually,|Correction:|To clarify,)\s*|I meant\s+)?(?:(?:my|the)\s+)?budget\b[^.!?]*[$€£]\s*\d[\d,]*(?:\.\d{1,2})?[^.!?]*[.!?]$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectivePreferenceAdditionPattern = new(
@@ -644,9 +648,7 @@ public sealed class LceParser
             new ObjectiveConditionUpdateFormula(conditions.ToImmutable())
             {
                 PreferenceEdits = preferenceEdits.ToImmutable(),
-                IsExplicitCorrection = sourceText.TrimStart().StartsWith(
-                    "Actually,",
-                    StringComparison.OrdinalIgnoreCase)
+                IsExplicitCorrection = ExplicitCorrectionPattern.IsMatch(source)
             },
             sourceText.Trim());
         return true;
