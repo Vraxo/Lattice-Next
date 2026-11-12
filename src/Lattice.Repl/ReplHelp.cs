@@ -7,6 +7,7 @@ internal static class ReplHelp
     public static void Write()
     {
         AnsiConsole.MarkupLine("[bold]Commands[/]");
+        AnsiConsole.MarkupLine("  [green]:why[/]  [dim]show the detailed evidence and assessment behind the latest objective response[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
         AnsiConsole.MarkupLine("  [green]:review-price {json}[/]  [dim]review an exact excerpt from the latest fetched page before adding a candidate price[/]");
         AnsiConsole.MarkupLine("  [green]:review-attribute {json}[/]  [dim]review an exact excerpt as a typed candidate attribute (text, time window, timetable, etc.)[/]");

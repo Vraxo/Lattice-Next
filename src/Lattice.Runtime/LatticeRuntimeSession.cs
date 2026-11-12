@@ -329,6 +329,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var evaluation = activeObjective is null
+                ? null
+                : objectiveEvaluator.Evaluate(activeObjective, knowledgeBase);
+
             return ValueTask.FromResult(new LatticeSessionStatus(
                 knowledgeBase.Facts.Count,
                 knowledgeBase.Rules.Count,
@@ -339,9 +343,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 ActiveObjectiveSource = activeObjectiveSource,
                 PendingInformationName = pendingObjectiveCondition?.Name,
                 PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
-                ObjectiveEvaluation = activeObjective is null
-                    ? null
-                    : MapObjectiveEvaluation(objectiveEvaluator.Evaluate(activeObjective, knowledgeBase))
+                ObjectiveEvaluation = evaluation is null ? null : MapObjectiveEvaluation(evaluation),
+                ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation)
             });
         }
     }
@@ -413,8 +416,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
-            var message = $"I've retained this objective: {objective.Goal}.";
-            message = AppendObjectiveEvaluation(message, objective);
+            var message = AppendObjectiveEvaluation(
+                $"I've retained this objective: {objective.Goal}.",
+                objective,
+                includeMessage: false);
 
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ObjectiveReceived,
@@ -878,14 +883,22 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 activeObjectiveSource)));
     }
 
-    private string AppendObjectiveEvaluation(string message, ObjectiveFormula objective)
+    private string AppendObjectiveEvaluation(
+        string message,
+        ObjectiveFormula objective,
+        bool includeMessage = true)
     {
-        var summary = ObjectiveEvaluationFormatter.Format(
+        var response = ObjectiveResponseFormatter.Format(
             objectiveEvaluator.Evaluate(objective, knowledgeBase));
 
-        return string.IsNullOrWhiteSpace(summary)
-            ? message
-            : $"{message}{Environment.NewLine}{summary}";
+        if (string.IsNullOrWhiteSpace(response))
+        {
+            return message;
+        }
+
+        return string.IsNullOrWhiteSpace(message) || !includeMessage
+            ? response
+            : $"{message}{Environment.NewLine}{response}";
     }
 
     private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>

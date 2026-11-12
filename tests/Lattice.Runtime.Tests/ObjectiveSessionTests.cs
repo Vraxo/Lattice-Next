@@ -83,13 +83,55 @@ public sealed class ObjectiveSessionTests
             source.SourceText == "Noisy Park is outdoors and is not quiet.");
 
         var message = result.Utterances.Single().Message;
-        Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
-        Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", message);
-        Assert.Contains("Busy Park: is excluded by a hard constraint", message);
-        Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
-        Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);
-        Assert.Contains("Contrary evidence: Noisy Park is outdoors and is not quiet.", message);
-        Assert.Contains("Only non-dominated eligible candidate on the stated preferences: Quiet Park.", message);
+        Assert.Contains("I'd recommend Quiet Park", message);
+        Assert.Contains("marked 2-hour loop", message);
+        Assert.DoesNotContain("Candidate assessment", message);
+        Assert.Contains("Quiet Park is quiet and outdoors.", status.ObjectiveExplanation);
+        Assert.Contains("Noisy Park is outdoors and is not quiet.", status.ObjectiveExplanation);
+    }
+
+    [Fact]
+    public async Task Presents_preference_tradeoffs_as_a_concise_choice_and_keeps_the_evidence_for_why()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "objective-preference-tradeoff",
+              "name": "Objective preference trade-off",
+              "claims": [],
+              "attributes": [
+                { "subject": "Quiet Grove", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Quiet Grove is reachable on foot." },
+                { "subject": "Quiet Grove", "name": "tags", "value": { "type": "textSet", "values": ["quiet"], "excludedValues": ["outdoors"] }, "sourceText": "Quiet Grove is quiet but not outdoors." },
+                { "subject": "Open Meadow", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Open Meadow is reachable on foot." },
+                { "subject": "Open Meadow", "name": "tags", "value": { "type": "textSet", "values": ["outdoors"], "excludedValues": ["quiet"] }, "sourceText": "Open Meadow is outdoors but not quiet." }
+              ]
+            }
+            """;
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        var result = await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me choose a place.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+
+        Assert.Equal("MultipleNonDominatedCandidates", evaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "Open Meadow", "Quiet Grove" },
+            evaluation.Recommendation.ShortlistedCandidates);
+        Assert.Equal(2, evaluation.PreferenceTradeOffs.Length);
+
+        var message = result.Utterances.Single().Message;
+        Assert.Contains("You have two good options: Open Meadow and Quiet Grove.", message);
+        Assert.Contains("Quiet Grove has stronger evidence for quiet than Open Meadow.", message);
+        Assert.Contains("Open Meadow has stronger evidence for outdoors than Quiet Grove.", message);
+        Assert.DoesNotContain("Evidence:", message);
+        Assert.Contains("Quiet Grove is quiet but not outdoors.", status.ObjectiveExplanation);
+        Assert.Contains("Open Meadow is outdoors but not quiet.", status.ObjectiveExplanation);
     }
 
     [Theory]
@@ -161,8 +203,10 @@ public sealed class ObjectiveSessionTests
         Assert.Empty(evaluation.EvidenceRequests);
 
         var message = result.Utterances.Single().Message;
-        Assert.Contains("Every supplied candidate violates at least one assessed hard constraint.", message);
-        Assert.Contains("Spending Limit: violated by Over Budget Park.", message);
+        Assert.Contains("None of the supplied options currently meet all your requirements.", message);
+        Assert.Contains("spending limit", message);
+        Assert.Contains("transport", message);
+        Assert.DoesNotContain("Candidate assessment", message);
         var carOnly = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Car Only Park");
         var carViolations = carOnly.Conditions
             .Where(condition => condition.Status == "Violated")
@@ -172,8 +216,8 @@ public sealed class ObjectiveSessionTests
                     .Select(word => char.ToUpperInvariant(word[0]) + word[1..])))
             .ToArray();
         Assert.NotEmpty(carViolations);
-        Assert.Contains(carViolations, label => message.Contains($"{label}: violated by Car Only Park.", StringComparison.Ordinal));
-        Assert.Contains("Would you like to relax one of these constraints?", message);
+        Assert.Contains("Transport: violated by Car Only Park.", status.ObjectiveExplanation);
+        Assert.Contains("Would you like to relax one of these constraints?", status.ObjectiveExplanation);
         Assert.DoesNotContain("Unresolved candidates still need evidence:", message);
     }
 
@@ -232,9 +276,9 @@ public sealed class ObjectiveSessionTests
             Assert.Equal("total-cost", request.AttributeName);
             Assert.StartsWith("What is the total cost for ", request.Prompt);
         });
-        Assert.Contains("Missing hard-constraint evidence:", result.Utterances.Single().Message);
+        Assert.Contains("I can't recommend an option yet.", result.Utterances.Single().Message);
         Assert.Contains("What is the total cost for Aster 14?", result.Utterances.Single().Message);
-        Assert.DoesNotContain("Would you like to relax one of these constraints?", result.Utterances.Single().Message);
+        Assert.DoesNotContain("Candidate assessment", result.Utterances.Single().Message);
 
         Assert.Equal("Unknown", asterPreference.Status);
         Assert.Equal("Unknown", birchPreference.Status);
@@ -267,10 +311,8 @@ public sealed class ObjectiveSessionTests
             });
 
         var message = result.Utterances.Single().Message;
-        Assert.Contains("some preferences are evidenced; others remain unknown", message);
-        Assert.Contains("repairability: satisfied", message);
-        Assert.Contains("screen quality: unknown from supplied data", message);
-        Assert.DoesNotContain("reliability: not satisfied", message);
+        Assert.Contains("I can't recommend an option yet.", message);
+        Assert.DoesNotContain("repairability: satisfied", message);
     }
 
     [Fact]
@@ -875,18 +917,14 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(busPark.Conditions, condition => condition.Name == "origin" && condition.Status == "Satisfied");
         Assert.Contains(busPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
-        Assert.Contains(
-            "Candidate assessment (not ranked):",
-            followUp.Utterances[^1].Message);
-        Assert.Contains("Bus Park", followUp.Utterances[^1].Message);
-        Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
-        Assert.Contains("Stage 1: 10:30–10:55", followUp.Utterances[^1].Message);
-        Assert.Contains("Stage 1: 09:00–09:15", followUp.Utterances[^1].Message);
-        Assert.Contains("Shortlisted options (not ranked):", followUp.Utterances[^1].Message);
-        Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", followUp.Utterances[^1].Message);
-        Assert.Contains("Return Transport Cost: The return bus fare is $6.", followUp.Utterances[^1].Message);
-        Assert.Contains("Unscheduled time: 12:55–14:00", followUp.Utterances[^1].Message);
-        Assert.Contains("Timetables minimize idle time between stages; they are not ranked by other priorities.", followUp.Utterances[^1].Message);
+        var response = followUp.Utterances[^1].Message;
+        Assert.Contains("You have two good options: Bus Park and Walk Park.", response);
+        Assert.Contains("Bus 10:30–10:55", response);
+        Assert.Contains("Walk 09:00–09:15", response);
+        Assert.Contains("$6 return transport", response);
+        Assert.Contains("marked 2-hour loop", response);
+        Assert.DoesNotContain("Candidate assessment", response);
+        Assert.DoesNotContain("Evidence:", response);
         Assert.Equal(3, Assert.Single(busPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
         Assert.Equal(3, Assert.Single(walkPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
 
@@ -905,16 +943,11 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Eligible", walkPark.Feasibility);
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "time-window" && condition.Status == "Satisfied");
         Assert.Contains(walkPark.Conditions, condition => condition.Name == "meal-plan" && condition.Status == "NotApplicable");
-        Assert.Contains(
-            "Bus Park: is excluded by a hard constraint",
-            walkingOnly.Utterances[^1].Message);
-        Assert.Contains(
-            "Walk Park: is eligible under the assessed hard constraints",
-            walkingOnly.Utterances[^1].Message);
-        Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
-        Assert.DoesNotContain("Stage 1: 10:30–10:55", walkingOnly.Utterances[^1].Message);
-        Assert.DoesNotContain("The main activity is a marked 2-hour loop.", walkingOnly.Utterances[^1].Message);
-        Assert.Contains("The main activity is walking paved paths.", walkingOnly.Utterances[^1].Message);
+        Assert.Contains("Walk Park is the only option currently confirmed to meet your requirements.", walkingOnly.Utterances[^1].Message);
+        Assert.Contains("Walk 09:00–09:15", walkingOnly.Utterances[^1].Message);
+        Assert.DoesNotContain("Bus 10:30–10:55", walkingOnly.Utterances[^1].Message);
+        Assert.DoesNotContain("marked 2-hour loop", walkingOnly.Utterances[^1].Message);
+        Assert.Contains("paved paths", walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
@@ -975,11 +1008,10 @@ public sealed class ObjectiveSessionTests
             source.SourceText == "Cedar 14 has an upgrade path.");
 
         var message = result.Utterances[^1].Message;
-        Assert.Contains("No candidate is currently confirmed eligible under the assessed hard constraints.", message);
-        Assert.Contains("Unresolved candidates still need evidence: Aster 14, Birch 15, Cedar 14", message);
-        Assert.Contains("Known candidate details (not recommendations):", message);
-        Assert.Contains("Tags: Cedar 14 has an upgrade path.", message);
-        Assert.DoesNotContain("Shortlisted options (not ranked):", message);
+        Assert.Contains("I can't recommend an option yet.", message);
+        Assert.Contains("Aster 14, Birch 15, and Cedar 14", message);
+        Assert.DoesNotContain("Candidate assessment", message);
+        Assert.DoesNotContain("Shortlisted options", message);
     }
 
     [Fact]
@@ -1054,10 +1086,8 @@ public sealed class ObjectiveSessionTests
             "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeTurnStatus.Completed, followUp.Status);
-        Assert.Contains("Optional additional candidate evidence:", followUp.Utterances[^1].Message);
-        Assert.Contains("What is the total cost for Hilltop Farm Grounds?", followUp.Utterances[^1].Message);
-        Assert.Contains("Additional candidate details are optional; the current shortlist is supported without them.", followUp.Utterances[^1].Message);
-        Assert.DoesNotContain("Next step: answer the missing candidate detail above.", followUp.Utterances[^1].Message);
+        Assert.Contains("Hilltop Farm Grounds might also be an option, but its total cost is still unknown.", followUp.Utterances[^1].Message);
+        Assert.DoesNotContain("Candidate assessment", followUp.Utterances[^1].Message);
 
         var priceAnswer = await session.SubmitAsync(
             "Hilltop Farm Grounds costs $18.",
@@ -1081,33 +1111,22 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("UserAssertion", Assert.Single(hilltopBudget.Evidence).Kind);
 
         var message = priceAnswer.Utterances[^1].Message;
-        Assert.Contains(
-            "No unique preference leader; these eligible candidates remain non-dominated: Fernbank Nature Reserve, Hilltop Farm Grounds, Quarry Lake Trail.",
-            message);
-        Assert.Contains(
-            "All shortlisted candidates satisfy the stated preferences. Cost and travel time are shown, but neither is used to rank options because no such priority was stated.",
-            message);
-        Assert.Contains("Shortlisted options (not ranked):", message);
-        Assert.Contains("The main activity is a marked 2-hour loop.", message);
-        Assert.Contains("The return bus fare is $6.", message);
-        Assert.Contains("The main activity is a marked 3-hour trail.", message);
-        Assert.Contains("The return bus fare is $12.", message);
-        Assert.Contains("The main activity is a grounds walk of about 2 hours.", message);
-        Assert.Contains("Entry costs $10.", message);
-        Assert.Contains("Stage 1: 10:30–10:55", message);
-        Assert.Contains("Stage 1: 11:15–12:00", message);
-        Assert.Contains("Stage 1: 13:00–13:35", message);
-        Assert.Contains("Unscheduled time: 12:55–14:00", message);
-        Assert.Contains("Timetables minimize idle time between stages; they are not ranked by other priorities.", message);
-        Assert.Contains("Assumptions: unscheduled gaps are left flexible; no additional activity or meal slot is assumed.", message);
-        Assert.Contains("Decision summary:", message);
-        Assert.Contains("Confirmed: all shortlisted options satisfy the assessed hard constraints.", message);
-        Assert.Contains("Unknowns: no missing or conflicting evidence for the stated preferences of shortlisted options.", message);
-        Assert.Contains("No preference-based winner is established.", message);
-        Assert.Contains("Next step: choose one of the shortlisted options, or state an additional priority to distinguish them.", message);
-
-        var shortlistStart = message.IndexOf("Shortlisted options (not ranked):", StringComparison.Ordinal);
-        Assert.DoesNotContain("Riverside Gardens", message[shortlistStart..]);
+        Assert.Contains("You have three good options: Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail.", message);
+        Assert.Contains("All options fit your budget, meet your transport requirements, use your chosen starting point, and fit your time window.", message);
+        Assert.Contains("They also match your stated preferences for quiet and outdoors.", message);
+        Assert.Contains("If you'd like the lower-cost, shorter outing, I'd lean toward Fernbank Nature Reserve.", message);
+        Assert.Contains("$6 return transport", message);
+        Assert.Contains("$12 return transport", message);
+        Assert.Contains("$8 return transport", message);
+        Assert.Contains("marked 2-hour loop", message);
+        Assert.Contains("marked 3-hour trail", message);
+        Assert.Contains("grounds walk", message);
+        Assert.Contains("Bus 10:30–10:55", message);
+        Assert.Contains("Bus 11:15–12:00", message);
+        Assert.Contains("Bus 13:00–13:35", message);
+        Assert.DoesNotContain("Riverside Gardens", message);
+        Assert.DoesNotContain("Candidate assessment", message);
+        Assert.DoesNotContain("Evidence:", message);
 
         var walkingOnly = await session.SubmitAsync(
             "Actually, I don't want to take a bus. Walking only.",
@@ -1120,19 +1139,14 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Riverside Gardens", Assert.Single(revisedEvaluation.Recommendation.ShortlistedCandidates));
 
         var revisedMessage = walkingOnly.Utterances[^1].Message;
-        Assert.Contains("Only currently eligible candidate: Riverside Gardens.", revisedMessage);
-        Assert.Contains("The main activity is walking paved riverside paths for about 90 minutes.", revisedMessage);
-        Assert.Contains("Stage 1: 09:00–09:15", revisedMessage);
-        Assert.Contains("Known preference mismatches: Quiet (Riverside Gardens).", revisedMessage);
-        Assert.Contains("Next step: decide whether to accept that preference compromise or relax a hard constraint.", revisedMessage);
-        Assert.DoesNotContain("The main activity is a marked 2-hour loop.", revisedMessage);
+        Assert.Contains("Riverside Gardens is the only option currently confirmed to meet your requirements.", revisedMessage);
+        Assert.Contains("paved riverside paths", revisedMessage);
+        Assert.Contains("Walk 09:00–09:15", revisedMessage);
+        Assert.Contains("Riverside Gardens doesn't match your preference for quiet.", revisedMessage);
+        Assert.DoesNotContain("marked 2-hour loop", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
-        Assert.Contains("Plan summary (based on supplied evidence):", revisedMessage);
-        Assert.Contains("Supported details: Riverside Gardens", revisedMessage);
-        Assert.Contains("Assumptions: no additional assumptions were introduced.", revisedMessage);
-        Assert.Contains("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified", revisedMessage);
-        Assert.Contains("Your actions: verify live details before acting", revisedMessage);
-        Assert.Contains("No booking has been made.", revisedMessage);
+        Assert.Contains("not live checks", revisedMessage);
+        Assert.Contains("no booking has been made", revisedMessage);
     }
 
     [Fact]
@@ -1295,9 +1309,9 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("What is the total cost for Aster 14?", initialMessage);
         Assert.DoesNotContain("What is the total cost for Birch 15?", initialMessage);
         Assert.DoesNotContain("What is the total cost for Cedar 14?", initialMessage);
-        Assert.Contains("I'll ask for the remaining 2 details after this one.", initialMessage);
-        Assert.Contains("Decision summary:", initialMessage);
-        Assert.Contains("Next step: answer the missing candidate detail above.", initialMessage);
+        Assert.Contains("I can't recommend an option yet.", initialMessage);
+        Assert.DoesNotContain("Decision summary:", initialMessage);
+        Assert.DoesNotContain("What is the total cost for Birch 15?", initialMessage);
 
         var initial = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(initial.ObjectiveEvaluation);
@@ -1317,11 +1331,12 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
-        Assert.Contains("Still unresolved: Screen Quality (Aster 14); Reliability (Aster 14); Repairability (Aster 14).", accepted.Utterances.Single().Message);
-        Assert.Contains("Next step: answer the missing candidate detail above.", accepted.Utterances.Single().Message);
-        Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
-        Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
-        Assert.Contains("I'll ask for the remaining 1 detail after this one.", accepted.Utterances.Single().Message);
+        Assert.Contains("Aster 14 is the only option currently confirmed to meet your requirements.", accepted.Utterances.Single().Message);
+        Assert.Contains("The comparison is provisional because some preference details are still unknown.", accepted.Utterances.Single().Message);
+        Assert.Contains("Birch 15 might also be an option, but its total cost is still unknown.", accepted.Utterances.Single().Message);
+        Assert.Contains("Cedar 14 might also be an option, but its total cost is still unknown.", accepted.Utterances.Single().Message);
+        Assert.DoesNotContain("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
+        Assert.DoesNotContain("Still unresolved:", accepted.Utterances.Single().Message);
 
         var afterAccepted = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var acceptedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterAccepted.ObjectiveEvaluation);

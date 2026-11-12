@@ -19,5 +19,7 @@ public sealed record LatticeSessionStatus(
 
     public LatticeObjectiveEvaluation? ObjectiveEvaluation { get; init; }
 
+    public string? ObjectiveExplanation { get; init; }
+
 
 }
