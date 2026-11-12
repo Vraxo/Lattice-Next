@@ -73,12 +73,25 @@ internal static class ObjectiveResponseFormatter
                     .Append(JoinNames(names))
                     .Append(". ");
 
+                var sharedRequirements = GetSharedSatisfiedRequirements(options);
                 var sharedPreferences = GetSharedSatisfiedPreferences(options);
+                var openingParts = new List<string>();
+
+                if (sharedRequirements.Length > 0)
+                {
+                    openingParts.Add(JoinNames(sharedRequirements));
+                }
+
                 if (sharedPreferences.Length > 0)
                 {
-                    output.Append(options.Count == 2 ? "Both options match your stated preferences for " : "All options match your stated preferences for ")
-                    .Append(JoinNames(sharedPreferences))
-                    .Append('.');
+                    openingParts.Add($"match your stated preferences for {JoinNames(sharedPreferences)}");
+                }
+
+                if (openingParts.Count > 0)
+                {
+                    output.Append(options.Count == 2 ? "Both " : "All options ")
+                        .Append(string.Join(", and ", openingParts))
+                        .Append('.');
                 }
                 else
                 {
@@ -281,6 +294,31 @@ internal static class ObjectiveResponseFormatter
         {
             output.AppendLine(evaluation.EvidenceRequests[0].Prompt);
         }
+    }
+
+    private static string[] GetSharedSatisfiedRequirements(IReadOnlyList<CandidateAssessment> options)
+    {
+        var first = options[0].Conditions
+            .Where(condition =>
+                condition.Role == ObjectiveConditionRole.HardConstraint &&
+                condition.Status == ObjectiveConditionAssessmentStatus.Satisfied)
+            .Select(condition => condition.ConditionName)
+            .ToArray();
+
+        return first
+            .Where(name => options.Skip(1).All(candidate => candidate.Conditions.Any(condition =>
+                condition.Role == ObjectiveConditionRole.HardConstraint &&
+                condition.ConditionName.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                condition.Status == ObjectiveConditionAssessmentStatus.Satisfied)))
+            .Select(name => name.ToLowerInvariant() switch
+            {
+                "spending-limit" => "fit your budget",
+                "transport" => "meet your transport requirements",
+                "origin" => "use your chosen starting point",
+                "time-window" => "fit your time window",
+                _ => $"meet your {FormatAttributeName(name)} requirement"
+            })
+            .ToArray();
     }
 
     private static string[] GetSharedSatisfiedPreferences(IReadOnlyList<CandidateAssessment> options)
