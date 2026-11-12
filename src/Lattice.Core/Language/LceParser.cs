@@ -27,15 +27,15 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex BringLunchPattern = new(
-        @"^(?:I'll bring lunch|Lunch is covered|I have lunch with me|I'll pack my own lunch)\.$",
+        @"^(?:I'll bring lunch|Lunch is covered|I have lunch with me|I'll pack my own lunch|I've got lunch sorted|I already have lunch|I'm bringing lunch|I'm bringing my own lunch|I'll have a packed lunch|I won't need to buy lunch)\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex StartingLocationPattern = new(
-        @"\b(?:I'm starting at|my starting point is|I'm coming from|I'll start from)\s+(?<location>[^,.!?]+)",
+        @"\b(?:I'm starting at|my starting point is|my starting location is|I'm coming from|I'm starting from|I'll start from|I'll be leaving from|I'm setting off from)\s+(?<location>[^,.!?]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TimeWindowPattern = new(
-        @"\bI can (?:(?:leave at (?<start>\d{1,2}:\d{2}) and be back by (?<end>\d{1,2}:\d{2}))|(?:be back by (?<reverseEnd>\d{1,2}:\d{2}) and leave at (?<reverseStart>\d{1,2}:\d{2})))",
+        @"\b(?:(?:I can )?(?:leave at|head out at|set off at) (?<start>\d{1,2}:\d{2}) and (?:be back|return) by (?<end>\d{1,2}:\d{2})|(?:(?:I can )?(?:be back|return) by|I need to be back by|I need to return by) (?<reverseEnd>\d{1,2}:\d{2}) and (?:I can )?(?:leave at|head out at|set off at) (?<reverseStart>\d{1,2}:\d{2}))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex NoBusPattern = new(
