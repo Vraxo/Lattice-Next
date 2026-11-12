@@ -672,4 +672,77 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("I have a free Saturday.", status.ActiveObjectiveSource);
         Assert.Equal(1, status.FactCount);
     }
+    [Fact]
+    public async Task Completes_day_out_benchmark_with_real_candidate_pack_and_walking_only_revision()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await File.ReadAllTextAsync(
+            Path.Combine(AppContext.BaseDirectory, "day-out-candidates.json"),
+            TestContext.Current.CancellationToken);
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        var request = await session.SubmitAsync(
+            "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.ClarificationRequired, request.Status);
+
+        var followUp = await session.SubmitAsync(
+            "$25 total. I'll bring lunch. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, followUp.Status);
+
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        Assert.Equal("MultipleNonDominatedCandidates", evaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "Fernbank Nature Reserve", "Hilltop Farm Grounds", "Quarry Lake Trail" },
+            evaluation.Recommendation.ShortlistedCandidates);
+        Assert.Equal("Riverside Gardens", Assert.Single(evaluation.Recommendation.DominatedCandidates));
+        Assert.False(evaluation.Recommendation.HasIncompletePreferenceEvidence);
+        Assert.Equal(3, evaluation.PreferenceTradeOffs.Length);
+
+        var message = followUp.Utterances[^1].Message;
+        Assert.Contains(
+            "No unique preference leader; these eligible candidates remain non-dominated: Fernbank Nature Reserve, Hilltop Farm Grounds, Quarry Lake Trail.",
+            message);
+        Assert.Contains(
+            "All shortlisted candidates satisfy the stated preferences. Cost and travel time are shown, but neither is used to rank options because no such priority was stated.",
+            message);
+        Assert.Contains("Shortlisted options (not ranked):", message);
+        Assert.Contains("The main activity is a marked 2-hour loop.", message);
+        Assert.Contains("The return bus fare is $6.", message);
+        Assert.Contains("The main activity is a marked 3-hour trail.", message);
+        Assert.Contains("The return bus fare is $12.", message);
+        Assert.Contains("The main activity is a grounds walk of about 2 hours.", message);
+        Assert.Contains("Entry costs $10.", message);
+        Assert.Contains("Stage 1: 09:00–09:25", message);
+        Assert.Contains("Stage 1: 09:15–10:00", message);
+        Assert.Contains("Stage 1: 09:00–09:35", message);
+        Assert.Contains("Unscheduled time: 11:25–14:00", message);
+        Assert.Contains("Timetables are first feasible witnesses, not optimized schedules.", message);
+
+        var shortlistStart = message.IndexOf("Shortlisted options (not ranked):", StringComparison.Ordinal);
+        Assert.DoesNotContain("Riverside Gardens", message[shortlistStart..]);
+
+        var walkingOnly = await session.SubmitAsync(
+            "Actually, I don't want to take a bus. Walking only.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, walkingOnly.Status);
+
+        var revisedStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var revisedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(revisedStatus.ObjectiveEvaluation);
+        Assert.Equal("OnlyEligibleCandidate", revisedEvaluation.Recommendation.Status);
+        Assert.Equal("Riverside Gardens", Assert.Single(revisedEvaluation.Recommendation.ShortlistedCandidates));
+
+        var revisedMessage = walkingOnly.Utterances[^1].Message;
+        Assert.Contains("Only currently eligible candidate: Riverside Gardens.", revisedMessage);
+        Assert.Contains("The main activity is walking paved riverside paths for about 90 minutes.", revisedMessage);
+        Assert.Contains("Stage 1: 09:00–09:15", revisedMessage);
+        Assert.DoesNotContain("The main activity is a marked 2-hour loop.", revisedMessage);
+        Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource);
+    }
+
 }

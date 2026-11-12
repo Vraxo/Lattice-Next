@@ -39,7 +39,7 @@ The dataset deliberately omits attributes for facts the benchmark leaves unspeci
 
 For pairs of candidates that are both Eligible under their applicable hard constraints, the evaluator identifies individual preferences where one candidate has supplied evidence satisfying the preference and the other has explicit evidence violating it. The result retains supporting and contrary provenance and is available through the shared client evaluation and objective response summary.
 
-For the benchmark data, Fernbank has evidence for the quiet preference while Riverside has explicit evidence against quiet. Both have evidence for outdoors, so that preference creates no distinction. Hilltop is Unresolved under the budget constraint and is not compared as an eligible option. This is a specific trade-off, not a conclusion that Fernbank is the overall best choice.
+For the complete benchmark request ($25 total, packed lunch, Central Station, 09:00–18:00), Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail are all Eligible and form the non-dominated shortlist. Riverside Gardens is Eligible under the hard constraints but is dominated on the stated preferences because it has explicit evidence against quiet. All three shortlisted candidates have evidence satisfying both quiet and outdoors. Their costs and travel times differ, but the user did not state a preference for lower cost or shorter travel, so Lattice does not use those differences to rank them.
 
 Unknown or conflicting evidence never creates a directional distinction. A conservative Pareto-style shortlist now identifies eligible candidates that are not demonstrably worse across all stated preferences. Dominance requires complete, explicit evidence for every preference; unknown or conflicting evidence prevents dominance. No weights or scores are assigned.
 
@@ -51,6 +51,8 @@ Lattice now has reusable temporal-sequence feasibility and candidate-eligibility
 - the summary is an evidence-based assessment, not a ranked recommendation; the first feasible temporal witness is shown, but no optimization or preference-based selection is performed;
 - each candidate currently supplies one temporal plan for its represented transport mode; choosing among multiple plans for the same candidate is not implemented.
 
-The next increment should be driven by the exact missing general mechanism exposed by timetable feasibility, rather than by adding a destination-specific planner. Do not add ranking or opaque scoring.
+The runtime now exercises the actual day-out candidate pack through the full clarification and revision sequence. It returns three unranked outing options with their activity, cost components, first feasible timetable witnesses, and unscheduled gaps. A walking-only revision excludes the bus destinations and leaves Riverside Gardens as the only currently eligible option, while retaining its quiet-preference mismatch.
+
+Remaining limitations are explicit: the candidate data is a synthetic benchmark pack, not live local information; timetable witnesses are first feasible schedules rather than optimized plans; the system does not choose between equally preference-matched options based on unstated cost/time priorities; and packed lunch is retained as user context rather than assigned an invented time slot. The next step should validate the same compositional behavior on the laptop benchmark and continue strengthening native-language task expression.
 
 See [the benchmark specification](first-use-day-out.md), [the knowledge-pack format](../knowledge-packs.md), and [the objective contract](../objectives.md).

@@ -23,6 +23,9 @@
     <None Include="../../data/knowledge-packs/laptop-candidates.json"
           Link="laptop-candidates.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../data/knowledge-packs/day-out-candidates.json"
+          Link="day-out-candidates.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
