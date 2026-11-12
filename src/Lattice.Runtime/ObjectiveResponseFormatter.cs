@@ -76,11 +76,9 @@ internal static class ObjectiveResponseFormatter
                 var sharedPreferences = GetSharedSatisfiedPreferences(options);
                 if (sharedPreferences.Length > 0)
                 {
-                    output.Append("Both ")
-                        .Append(options.Count == 2 ? "match" : "match")
-                        .Append(" your stated preferences for ")
-                        .Append(JoinNames(sharedPreferences))
-                        .Append('.');
+                    output.Append(options.Count == 2 ? "Both options match your stated preferences for " : "All options match your stated preferences for ")
+                    .Append(JoinNames(sharedPreferences))
+                    .Append('.');
                 }
                 else
                 {
@@ -195,11 +193,11 @@ internal static class ObjectiveResponseFormatter
                 ?.Value as ObjectiveTextValue;
             var activityLabel = activity?.Value ?? "Activity";
 
-            return $"{transportLabel} {stages[0].Start:HH\\:mm}–{stages[0].End:HH\\:mm}; {activityLabel} {stages[1].Start:HH\\:mm}–{stages[1].End:HH\\:mm}; return {transportLabel.ToLowerInvariant()} {stages[2].Start:HH\\:mm}–{stages[2].End:HH\\:mm}.";
+            return $"{transportLabel} {stages[0].Start:HH:mm}–{stages[0].End:HH:mm}; {activityLabel} {stages[1].Start:HH:mm}–{stages[1].End:HH:mm}; return {transportLabel.ToLowerInvariant()} {stages[2].Start:HH:mm}–{stages[2].End:HH:mm}.";
         }
 
         return string.Join("; ", stages.Select(stage =>
-            $"{stage.Start:HH\\:mm}–{stage.End:HH\\:mm}"));
+            $"{stage.Start:HH:mm}–{stage.End:HH:mm}"));
     }
 
     private static void AppendPreferenceTradeOff(
@@ -298,6 +296,7 @@ internal static class ObjectiveResponseFormatter
             ? []
             : preferences[0]
                 .Where(preference => preferences.Skip(1).All(candidatePreferences => candidatePreferences.Contains(preference)))
+                .OrderBy(preference => preference, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
     }
 
@@ -317,10 +316,11 @@ internal static class ObjectiveResponseFormatter
 
         var cheapest = comparisons.Min(item => item.Cost!.Value);
         var shortest = comparisons.Min(item => item.Duration!.Value);
-        var best = comparisons.SingleOrDefault(item =>
-            item.Cost == cheapest && item.Duration == shortest);
+        var best = comparisons
+            .Where(item => item.Cost == cheapest && item.Duration == shortest)
+            .ToArray();
 
-        return best.Candidate;
+        return best.Length == 1 ? best[0].Candidate : null;
     }
 
     private static decimal? GetComparableCost(CandidateAssessment candidate)
@@ -345,14 +345,12 @@ internal static class ObjectiveResponseFormatter
             .OrderBy(stage => stage.Index)
             .ToArray();
 
-        if (stages.Length == 0 ||
-            !TimeOnly.TryParse(stages[0].Start.ToString(), CultureInfo.InvariantCulture, out var start) ||
-            !TimeOnly.TryParse(stages[^1].End.ToString(), CultureInfo.InvariantCulture, out var end))
+        if (stages.Length == 0)
         {
             return null;
         }
 
-        return (int)(end - start).TotalMinutes;
+        return (int)(stages[^1].End - stages[0].Start).TotalMinutes;
     }
 
     private static ObjectiveMoneyValue? FindMoneyHighlight(CandidateAssessment candidate, string name) =>
