@@ -611,6 +611,24 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         foreach (var condition in update.Conditions)
         {
+            if (condition.Name == "spending-limit" &&
+                condition.Role == ObjectiveConditionRole.HardConstraint &&
+                !update.IsExplicitCorrection)
+            {
+                var currentBudget = conditions.FirstOrDefault(existing =>
+                    existing.Name == condition.Name &&
+                    existing.Role == ObjectiveConditionRole.HardConstraint);
+
+                if (currentBudget is not null &&
+                    !Equals(currentBudget.Value, condition.Value))
+                {
+                    return new LatticeUtteranceResult(
+                        LatticeUtteranceResultKind.ClarificationRequired,
+                        "That conflicts with the spending limit already in this plan. Do you mean to change the budget? If so, state it as an explicit correction beginning with 'Actually,'. No objective conditions were changed.",
+                        SemanticFormatter.Format(parsedUtterance));
+                }
+            }
+
             var existingIndex = -1;
 
             for (var index = 0; index < conditions.Count; index++)

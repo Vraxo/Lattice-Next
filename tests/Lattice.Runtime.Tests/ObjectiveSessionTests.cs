@@ -1300,4 +1300,37 @@ public sealed class ObjectiveSessionTests
             new[] { "Clay House Studio", "Northbank Ceramics" },
             final.Recommendation.ShortlistedCandidates.OrderBy(name => name, StringComparer.Ordinal));
     }
+    [Fact]
+    public async Task Clarifies_conflicting_budget_assertions_but_accepts_an_explicit_correction()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+
+        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+
+        var conflict = await session.SubmitAsync(
+            "My budget is $900.",
+            TestContext.Current.CancellationToken);
+        var afterConflict = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        var conflictUtterance = Assert.Single(conflict.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, conflictUtterance.Kind);
+        Assert.Contains("conflicts with the spending limit", conflictUtterance.Message);
+        Assert.Contains("No objective conditions were changed", conflictUtterance.Message);
+        Assert.DoesNotContain("My budget is $900.", afterConflict.ActiveObjectiveSource);
+
+        var correction = await session.SubmitAsync(
+            "Actually, my budget is $800.",
+            TestContext.Current.CancellationToken);
+        var afterCorrection = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(correction.Utterances).Kind);
+        Assert.Contains("Actually, my budget is $800.", afterCorrection.ActiveObjectiveSource);
+        Assert.DoesNotContain("My budget is $900.", afterCorrection.ActiveObjectiveSource);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $800)", correction.Utterances.Single().Meaning);
+    }
+
 }

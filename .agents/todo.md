@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: exercise contradictions and ambiguous candidate references, then broaden the first-use acceptance gate. A corrected starting location now replaces only the `origin` condition while preserving budget, meal plan, and availability window in the same session. Next, test a genuine contradiction between two user-supplied hard-constraint values and ensure the runtime does not silently treat both as simultaneously current.
+> Current priority: broaden the first-use acceptance gate, starting with ambiguous candidate references and targeted clarification. Conflicting budget assertions now have a distinct clarification path, while an explicitly signalled `Actually, ...` correction replaces the prior value. Continue testing contradictions across other hard constraints and broaden ambiguity handling without turning the controlled-language parser into an unconstrained guesser.
 
 
 ## Bootstrap
