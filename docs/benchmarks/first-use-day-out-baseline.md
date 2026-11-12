@@ -33,10 +33,18 @@ For 09:00–18:00, Fernbank, Quarry Lake, and Hilltop each have a feasible bus i
 
 The dataset deliberately omits attributes for facts the benchmark leaves unspecified: Quarry Lake facilities beyond its picnic area, Hilltop food service, and Riverside bus departures. Missing data is not encoded as a negative claim. The user's packed-lunch plan is retained as context rather than incorrectly treated as a candidate attribute. The `total-cost` attributes are declarative sums of `return-transport-cost` and `entry-cost`; the evaluator derives the money values at assessment time and retains both components as evidence.
 
+## Evidence-backed trade-off checkpoint
+
+For pairs of candidates that are both Eligible under their applicable hard constraints, the evaluator identifies individual preferences where one candidate has supplied evidence satisfying the preference and the other has explicit evidence violating it. The result retains supporting and contrary provenance and is available through the shared client evaluation and objective response summary.
+
+For the benchmark data, Fernbank has evidence for the quiet preference while Riverside has explicit evidence against quiet. Both have evidence for outdoors, so that preference creates no distinction. Hilltop is Unresolved under the budget constraint and is not compared as an eligible option. This is a specific trade-off, not a conclusion that Fernbank is the overall best choice.
+
+Unknown or conflicting evidence never creates a directional distinction. No aggregate score, ranking, or automatic winner is produced.
+
 ## Remaining benchmark gap
 
 Lattice now has reusable temporal-sequence feasibility and candidate-eligibility classification, but it has **not** solved the complete outing task. In particular:
-- the session exposes condition assessments and evidence, but does not yet synthesize a natural-language recommendation or explain trade-offs in prose;
+- the session exposes condition assessments, evidence, and specific evidence-backed preference trade-offs, but does not yet synthesize a complete natural-language recommendation;
 - the evaluator reports eligibility and condition assessments, not a recommendation or ranked list;
 - the summary is an evidence-based assessment, not a ranked recommendation; the first feasible temporal witness is shown, but no optimization or preference-based selection is performed;
 - each candidate currently supplies one temporal plan for its represented transport mode; choosing among multiple plans for the same candidate is not implemented.
