@@ -380,8 +380,9 @@ public sealed class ObjectiveEvaluator
             var now = DateTimeOffset.UtcNow;
             var usableEvidence = evidence
                 .Where(attribute => attribute.Sources.Any(source =>
-                    source.Kind != KnowledgeSourceKind.ExternalObservation ||
-                    (source.FreshUntil is { } freshUntil && freshUntil > now)))
+                    source.FreshUntil is { } freshUntil
+                        ? freshUntil > now
+                        : source.Kind != KnowledgeSourceKind.ExternalObservation))
                 .ToImmutableArray();
 
             if (usableEvidence.IsDefaultOrEmpty)
@@ -391,7 +392,6 @@ public sealed class ObjectiveEvaluator
                     source.Kind == KnowledgeSourceKind.ExternalObservation &&
                     source.FreshUntil is null);
                 var hasStaleSource = sources.Any(source =>
-                    source.Kind == KnowledgeSourceKind.ExternalObservation &&
                     source.FreshUntil is { } freshUntil &&
                     freshUntil <= now);
                 var status = hasUnverifiedSource
@@ -686,7 +686,9 @@ public sealed class ObjectiveEvaluator
                 var status = CompareIndividualPreference(preference, resolution);
                 var evidence = status is ObjectiveConditionAssessmentStatus.Satisfied or
                     ObjectiveConditionAssessmentStatus.Violated or
-                    ObjectiveConditionAssessmentStatus.Conflicting
+                    ObjectiveConditionAssessmentStatus.Conflicting or
+                    ObjectiveConditionAssessmentStatus.Unverified or
+                    ObjectiveConditionAssessmentStatus.Stale
                     ? resolution.Evidence
                     : ImmutableArray<KnowledgeAttribute>.Empty;
 
@@ -703,9 +705,13 @@ public sealed class ObjectiveEvaluator
                     ? ObjectiveConditionAssessmentStatus.Satisfied
                     : statuses.Any(value => value == ObjectiveConditionAssessmentStatus.Satisfied)
                         ? ObjectiveConditionAssessmentStatus.PartiallySatisfied
-                        : statuses.All(value => value == ObjectiveConditionAssessmentStatus.Violated)
-                            ? ObjectiveConditionAssessmentStatus.Violated
-                            : ObjectiveConditionAssessmentStatus.Unknown;
+                        : statuses.Contains(ObjectiveConditionAssessmentStatus.Unverified)
+                            ? ObjectiveConditionAssessmentStatus.Unverified
+                            : statuses.Contains(ObjectiveConditionAssessmentStatus.Stale)
+                                ? ObjectiveConditionAssessmentStatus.Stale
+                                : statuses.All(value => value == ObjectiveConditionAssessmentStatus.Violated)
+                                    ? ObjectiveConditionAssessmentStatus.Violated
+                                    : ObjectiveConditionAssessmentStatus.Unknown;
 
         return CreateAssessment(condition, status, resolution.Evidence) with
         {
