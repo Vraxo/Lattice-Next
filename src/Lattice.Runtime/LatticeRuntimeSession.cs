@@ -384,7 +384,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 string.Equals(request.AttributeName, attribute.Value, StringComparison.OrdinalIgnoreCase))
             .ToImmutableArray();
 
-        if (string.Equals(candidate.Value, "it", StringComparison.OrdinalIgnoreCase))
+        if (candidate.Value.Equals("it", StringComparison.OrdinalIgnoreCase) ||
+            candidate.Value.Equals("that one", StringComparison.OrdinalIgnoreCase) ||
+            candidate.Value.Equals("this one", StringComparison.OrdinalIgnoreCase))
         {
             var possibleCandidates = candidateEvidenceRequests
                 .Select(request => request.Candidate)

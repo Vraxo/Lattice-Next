@@ -1019,8 +1019,11 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("No booking has been made.", revisedMessage);
     }
 
-    [Fact]
-    public async Task Clarifies_ambiguous_candidate_pronoun_without_storing_evidence()
+    [Theory]
+    [InlineData("It costs $900.")]
+    [InlineData("That one costs $900.")]
+    [InlineData("This one costs $900.")]
+    public async Task Clarifies_ambiguous_candidate_reference_without_storing_evidence(string answer)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
@@ -1032,9 +1035,7 @@ public sealed class ObjectiveSessionTests
         const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
         await session.SubmitAsync(request, TestContext.Current.CancellationToken);
 
-        var ambiguous = await session.SubmitAsync(
-            "It costs $900.",
-            TestContext.Current.CancellationToken);
+        var ambiguous = await session.SubmitAsync(answer, TestContext.Current.CancellationToken);
 
         var clarification = Assert.Single(ambiguous.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, clarification.Kind);
@@ -1050,7 +1051,7 @@ public sealed class ObjectiveSessionTests
         Assert.All(unchangedEvaluation.Candidates, candidate =>
             Assert.DoesNotContain(
                 candidate.Conditions.SelectMany(condition => condition.Evidence),
-                evidence => evidence.SourceText == "It costs $900."));
+                evidence => evidence.SourceText == answer));
 
         var explicitAnswer = await session.SubmitAsync(
             "Aster 14 costs $900.",
