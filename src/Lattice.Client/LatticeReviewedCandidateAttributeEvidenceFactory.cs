@@ -74,7 +74,7 @@ public static class LatticeReviewedCandidateAttributeEvidenceFactory
         evidence = new LatticeCandidateAttributeEvidence(
             candidate.Trim(),
             attributeName,
-            value,
+            value.Clone(),
             excerpt,
             sourceUri.AbsoluteUri,
             page.RetrievedAt)
