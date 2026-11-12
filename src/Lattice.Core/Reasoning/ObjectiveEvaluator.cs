@@ -17,7 +17,11 @@ public sealed class ObjectiveEvaluator
             .Select(candidate => EvaluateCandidate(objective, candidate, knowledgeBase.Attributes))
             .ToImmutableArray();
 
-        return new ObjectiveEvaluation(candidates) { PreferenceTradeOffs = BuildPreferenceTradeOffs(candidates) };
+        return new ObjectiveEvaluation(candidates)
+        {
+            PreferenceTradeOffs = BuildPreferenceTradeOffs(candidates),
+            Recommendation = BuildRecommendation(candidates)
+        };
     }
 
     private static ImmutableArray<ObjectivePreferenceTradeOff> BuildPreferenceTradeOffs(
@@ -52,6 +56,144 @@ public sealed class ObjectiveEvaluator
         }
         return result.ToImmutable();
     }
+    private static ObjectiveRecommendation BuildRecommendation(
+        ImmutableArray<CandidateAssessment> candidates)
+    {
+        var eligible = candidates
+            .Where(candidate => candidate.Feasibility == CandidateFeasibility.Eligible)
+            .ToImmutableArray();
+
+        if (eligible.IsDefaultOrEmpty)
+        {
+            return new ObjectiveRecommendation(
+                ObjectiveRecommendationStatus.NoEligibleCandidates,
+                [],
+                [],
+                HasIncompletePreferenceEvidence: true);
+        }
+
+        if (eligible.Length == 1)
+        {
+            return new ObjectiveRecommendation(
+                ObjectiveRecommendationStatus.OnlyEligibleCandidate,
+                [eligible[0].Candidate],
+                [],
+                HasIncompletePreferenceEvidence: HasIncompletePreferences(eligible));
+        }
+
+        var preferences = eligible
+            .SelectMany(candidate => candidate.Conditions)
+            .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+            .SelectMany(condition => condition.Preferences)
+            .Select(preference => preference.Preference)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var dominated = eligible
+            .Where(candidate => eligible.Any(other =>
+                other.Candidate != candidate.Candidate &&
+                Dominates(other, candidate, preferences)))
+            .Select(candidate => candidate.Candidate)
+            .ToImmutableArray();
+
+        var frontier = eligible
+            .Where(candidate => !dominated.Contains(candidate.Candidate))
+            .Select(candidate => candidate.Candidate)
+            .ToImmutableArray();
+
+        return new ObjectiveRecommendation(
+            frontier.Length == 1
+                ? ObjectiveRecommendationStatus.UniquePreferenceLeader
+                : ObjectiveRecommendationStatus.MultipleNonDominatedCandidates,
+            frontier,
+            dominated,
+            HasIncompletePreferenceEvidence: preferences.Length == 0 ||
+                HasIncompletePreferences(eligible, preferences));
+    }
+
+    private static bool Dominates(
+        CandidateAssessment candidate,
+        CandidateAssessment other,
+        IReadOnlyList<string> preferences)
+    {
+        if (preferences.Count == 0)
+        {
+            return false;
+        }
+
+        var candidatePreferences = GetPreferenceMap(candidate);
+        var otherPreferences = GetPreferenceMap(other);
+        var isStrictlyBetter = false;
+
+        foreach (var preference in preferences)
+        {
+            if (!candidatePreferences.TryGetValue(preference, out var candidateAssessment) ||
+                !otherPreferences.TryGetValue(preference, out var otherAssessment))
+            {
+                return false;
+            }
+
+            if (candidateAssessment.Status is not (
+                ObjectiveConditionAssessmentStatus.Satisfied or ObjectiveConditionAssessmentStatus.Violated) ||
+                otherAssessment.Status is not (
+                ObjectiveConditionAssessmentStatus.Satisfied or ObjectiveConditionAssessmentStatus.Violated))
+            {
+                return false;
+            }
+
+            if (candidateAssessment.Status == ObjectiveConditionAssessmentStatus.Violated &&
+                otherAssessment.Status == ObjectiveConditionAssessmentStatus.Satisfied)
+            {
+                return false;
+            }
+
+            if (candidateAssessment.Status == ObjectiveConditionAssessmentStatus.Satisfied &&
+                otherAssessment.Status == ObjectiveConditionAssessmentStatus.Violated)
+            {
+                isStrictlyBetter = true;
+            }
+        }
+
+        return isStrictlyBetter;
+    }
+
+    private static Dictionary<string, ObjectivePreferenceAssessment> GetPreferenceMap(
+        CandidateAssessment candidate) =>
+        candidate.Conditions
+            .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+            .SelectMany(condition => condition.Preferences)
+            .GroupBy(preference => preference.Preference, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Last(), StringComparer.OrdinalIgnoreCase);
+
+    private static bool HasIncompletePreferences(ImmutableArray<CandidateAssessment> candidates) =>
+        HasIncompletePreferences(
+            candidates,
+            candidates.SelectMany(candidate => candidate.Conditions)
+                .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                .SelectMany(condition => condition.Preferences)
+                .Select(preference => preference.Preference)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray());
+
+    private static bool HasIncompletePreferences(
+        ImmutableArray<CandidateAssessment> candidates,
+        IReadOnlyList<string> preferences)
+    {
+        if (preferences.Count == 0)
+        {
+            return true;
+        }
+
+        return candidates.Any(candidate =>
+        {
+            var assessments = GetPreferenceMap(candidate);
+            return preferences.Any(preference =>
+                !assessments.TryGetValue(preference, out var assessment) ||
+                assessment.Status is not (
+                    ObjectiveConditionAssessmentStatus.Satisfied or ObjectiveConditionAssessmentStatus.Violated));
+        });
+    }
+
     private static CandidateAssessment EvaluateCandidate(
         ObjectiveFormula objective,
         SemanticIdentifier candidate,

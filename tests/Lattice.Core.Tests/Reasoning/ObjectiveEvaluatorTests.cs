@@ -70,6 +70,10 @@ public sealed class ObjectiveEvaluatorTests
             GetCondition(hilltop, "spending-limit").Status);
         Assert.True(hilltop.HasUnresolvedHardConstraint);
         Assert.Equal(CandidateFeasibility.Unresolved, hilltop.Feasibility);
+        Assert.Equal(ObjectiveRecommendationStatus.UniquePreferenceLeader, result.Recommendation.Status);
+        Assert.Equal("Fernbank", Assert.Single(result.Recommendation.ShortlistedCandidates).Value);
+        Assert.Equal("Riverside", Assert.Single(result.Recommendation.DominatedCandidates).Value);
+        Assert.DoesNotContain("Hilltop", result.Recommendation.DominatedCandidates.Select(candidate => candidate.Value));
     }
 
     [Fact]
@@ -87,6 +91,26 @@ public sealed class ObjectiveEvaluatorTests
         Assert.DoesNotContain(evaluation.PreferenceTradeOffs, item =>
             item.CandidateWithPositiveEvidence.Value == "Hilltop" ||
             item.CandidateWithContraryEvidence.Value == "Hilltop");
+    }
+
+    [Fact]
+    public void Does_not_dominate_candidates_when_preference_evidence_is_unknown()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        foreach (var candidate in new[] { "First", "Second" })
+        {
+            AddAttribute(knowledgeBase, candidate, "total-cost", new ObjectiveMoneyValue(10m, "$"));
+            AddAttribute(knowledgeBase, candidate, "transport-mode", new ObjectiveTextValue("walking"));
+        }
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+
+        Assert.Equal(ObjectiveRecommendationStatus.MultipleNonDominatedCandidates, evaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "First", "Second" },
+            evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value));
+        Assert.Empty(evaluation.Recommendation.DominatedCandidates);
+        Assert.True(evaluation.Recommendation.HasIncompletePreferenceEvidence);
     }
 
     [Fact]
