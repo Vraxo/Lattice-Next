@@ -20,7 +20,11 @@ internal static class ObjectiveConditionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex PreferencePattern = new(
-        @"\b(?:I would prefer|I prefer|I care about|I want(?!\s+to\b)|I would like(?!\s+to\b)|I'd like(?!\s+to\b))\s+(?<value>[^.!?]+)",
+        @"\b(?:I would prefer|I prefer|I care about|I want(?!\s+to\b)|I would like(?!\s+to\b)|I'd (?:like|prefer)(?!\s+to\b))\s+(?<value>[^.!?]+)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex TimeWindowPattern = new(
+        @"\b(?:(?:I can )?(?:leave at|head out at|set off at) (?<start>\d{1,2}:\d{2}) and (?:be back|return) by (?<end>\d{1,2}:\d{2})|(?:(?:I can )?(?:be back|return) by|I need to be back by|I need to return by) (?<reverseEnd>\d{1,2}:\d{2}) and (?:(?:I )?can )?(?:leave at|head out at|set off at) (?<reverseStart>\d{1,2}:\d{2}))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public static ImmutableArray<ObjectiveCondition> Parse(string source)
@@ -79,6 +83,29 @@ internal static class ObjectiveConditionParser
                 noCar.Value)
             {
                 TargetAttribute = "transport-mode"
+            }));
+        }
+
+        var timeWindow = TimeWindowPattern.Match(source);
+        var startText = timeWindow.Groups["start"].Success
+            ? timeWindow.Groups["start"].Value
+            : timeWindow.Groups["reverseStart"].Value;
+        var endText = timeWindow.Groups["end"].Success
+            ? timeWindow.Groups["end"].Value
+            : timeWindow.Groups["reverseEnd"].Value;
+
+        if (timeWindow.Success &&
+            TimeOnly.TryParse(startText, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start) &&
+            TimeOnly.TryParse(endText, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+        {
+            conditions.Add((timeWindow.Index, new ObjectiveCondition(
+                "time-window",
+                ObjectiveConditionRole.HardConstraint,
+                ObjectiveConditionOperator.CanFit,
+                new ObjectiveTimeWindowValue(start, end),
+                timeWindow.Value)
+            {
+                TargetAttribute = "temporal-plan"
             }));
         }
 
