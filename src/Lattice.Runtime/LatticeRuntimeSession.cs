@@ -643,9 +643,43 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         ObjectiveInformationFormula information)
     {
         var objective = activeObjective;
-        var pendingCondition = pendingObjectiveCondition;
 
-        if (objective is null || pendingCondition is null)
+        if (objective is null)
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                "There is no outstanding objective information request to answer.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var pendingConditions = objective.Conditions
+            .Where(condition =>
+                condition.Role == ObjectiveConditionRole.HardConstraint &&
+                condition.Value is null &&
+                condition.ExpectedValueKind != ObjectiveConditionValueKind.None)
+            .ToImmutableArray();
+        var compatibleConditions = pendingConditions
+            .Where(condition => IsExpectedValue(condition.ExpectedValueKind, information.Value))
+            .ToImmutableArray();
+
+        if (compatibleConditions.Length > 1)
+        {
+            var alternatives = string.Join(
+                "; ",
+                compatibleConditions.Select(condition =>
+                    $"{condition.Name}: {condition.MissingValuePrompt ?? $"provide {condition.Name}"}"));
+
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.ClarificationRequired,
+                $"That value could answer more than one outstanding condition: {alternatives}. Please name the condition you are answering. No objective conditions were changed.",
+                SemanticFormatter.Format(parsedUtterance));
+        }
+
+        var pendingCondition = compatibleConditions.Length == 1
+            ? compatibleConditions[0]
+            : pendingObjectiveCondition;
+
+        if (pendingCondition is null)
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
