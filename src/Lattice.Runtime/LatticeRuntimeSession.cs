@@ -372,32 +372,53 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         var results = ImmutableArray.CreateBuilder<LatticeUtteranceResult>(
             parseResult.Utterances.Length);
 
-        foreach (var parsedUtterance in parseResult.Utterances)
+        for (var index = 0; index < parseResult.Utterances.Length; index++)
         {
-            results.Add(ProcessUtterance(parsedUtterance));
+            var parsedUtterance = parseResult.Utterances[index];
+            var deferObjectiveEvaluation = parseResult.Utterances
+                .Skip(index + 1)
+                .Any(IsObjectiveUpdate);
+
+            results.Add(ProcessUtterance(parsedUtterance, deferObjectiveEvaluation));
         }
 
         return LatticeTurnResult.Completed(results.ToImmutable());
     }
 
-    private LatticeUtteranceResult ProcessUtterance(SemanticUtterance parsedUtterance)
+    private static bool IsObjectiveUpdate(SemanticUtterance utterance) =>
+        utterance.Kind is UtteranceKind.ObjectiveCandidateInformation
+            or UtteranceKind.ObjectiveInformation
+            or UtteranceKind.ObjectiveConditionUpdate;
+
+    private LatticeUtteranceResult ProcessUtterance(
+        SemanticUtterance parsedUtterance,
+        bool deferObjectiveEvaluation)
     {
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
             parsedUtterance.Meaning is ObjectiveCandidateInformationFormula candidateInformation)
         {
-            return ProcessObjectiveCandidateInformation(parsedUtterance, candidateInformation);
+            return ProcessObjectiveCandidateInformation(
+                parsedUtterance,
+                candidateInformation,
+                deferObjectiveEvaluation);
         }
 
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
             parsedUtterance.Meaning is ObjectiveInformationFormula information)
         {
-            return ProcessObjectiveInformation(parsedUtterance, information);
+            return ProcessObjectiveInformation(
+                parsedUtterance,
+                information,
+                deferObjectiveEvaluation);
         }
 
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveConditionUpdate &&
             parsedUtterance.Meaning is ObjectiveConditionUpdateFormula conditionUpdate)
         {
-            return ProcessObjectiveConditionUpdates(parsedUtterance, conditionUpdate);
+            return ProcessObjectiveConditionUpdates(
+                parsedUtterance,
+                conditionUpdate,
+                deferObjectiveEvaluation);
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Objective &&
@@ -508,7 +529,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
         SemanticUtterance parsedUtterance,
-        ObjectiveCandidateInformationFormula information)
+        ObjectiveCandidateInformationFormula information,
+        bool deferObjectiveEvaluation)
     {
         var objective = activeObjective;
 
@@ -635,7 +657,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 $"Recorded {storedCandidate.Value}'s {attribute.Value} as {text.Value}.",
             _ => $"Recorded candidate evidence for {storedCandidate.Value}."
         };
-        message = AppendObjectiveEvaluation(message, objective);
+        if (!deferObjectiveEvaluation)
+        {
+            message = AppendObjectiveEvaluation(message, objective);
+        }
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
@@ -645,7 +670,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessObjectiveInformation(
         SemanticUtterance parsedUtterance,
-        ObjectiveInformationFormula information)
+        ObjectiveInformationFormula information,
+        bool deferObjectiveEvaluation)
     {
         var objective = activeObjective;
 
@@ -726,7 +752,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             message = $"{message} {pendingObjectiveCondition.MissingValuePrompt}";
         }
-        else
+        else if (!deferObjectiveEvaluation)
         {
             message = AppendObjectiveEvaluation(message, objective);
         }
@@ -742,7 +768,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeUtteranceResult ProcessObjectiveConditionUpdates(
         SemanticUtterance parsedUtterance,
-        ObjectiveConditionUpdateFormula update)
+        ObjectiveConditionUpdateFormula update,
+        bool deferObjectiveEvaluation)
     {
         var objective = activeObjective;
 
@@ -870,9 +897,11 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
 
         var names = string.Join(", ", update.Conditions.Select(condition => condition.Name));
-        var message = AppendObjectiveEvaluation(
-            $"Updated objective conditions: {names}.",
-            objective);
+        var message = $"Updated objective conditions: {names}.";
+        if (!deferObjectiveEvaluation)
+        {
+            message = AppendObjectiveEvaluation(message, objective);
+        }
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
