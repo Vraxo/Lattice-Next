@@ -40,7 +40,8 @@
           "repairability"
         ]
       },
-      "sourceText": "Cedar 14 has an upgrade path."
+      "sourceText": "Cedar 14 has an upgrade path.",
+      "summary": true
     }
   ]
 }

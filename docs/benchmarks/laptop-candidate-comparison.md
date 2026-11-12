@@ -34,3 +34,8 @@ The pack intentionally omits unsupported product claims. The goal is to test whe
 - Do not rank the candidates or invent a winner.
 
 This benchmark is intentionally a test of evidence discipline and cross-domain reuse, not a product recommendation.
+
+
+## Runtime transfer checkpoint
+
+The same native runtime path now loads this pack, retains the objective, evaluates the candidates, and exposes the evidence without a laptop-specific evaluator. Since no prices are supplied, the $1,000 hard budget remains Unknown for all three candidates and the runtime produces no eligible shortlist. Cedar 14's upgrade-path evidence is surfaced as a known detail, while screen quality, reliability, and warranty remain unsupported. This is an intentional no-recommendation result, not a failed ranking.
