@@ -12,6 +12,54 @@ public sealed class ExistentialReasoningTests
     private readonly ReasoningEngine engine = new();
 
     [Fact]
+    public void Each_subject_gets_its_own_existential_relation_witness()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every polygon has a boundary.");
+        Add(knowledgeBase, "PolygonOne is a polygon.");
+        Add(knowledgeBase, "PolygonTwo is a polygon.");
+
+        var firstSubject = new IndividualTerm(new SemanticIdentifier("polygonone"));
+        var secondSubject = new IndividualTerm(new SemanticIdentifier("polygontwo"));
+
+        var firstBoundaries = engine.AskRelated(
+            knowledgeBase,
+            new SemanticIdentifier("has"),
+            firstSubject);
+        var secondBoundaries = engine.AskRelated(
+            knowledgeBase,
+            new SemanticIdentifier("has"),
+            secondSubject);
+
+        firstBoundaries.Proofs.Should().ContainSingle();
+        secondBoundaries.Proofs.Should().ContainSingle();
+
+        var firstWitness = firstBoundaries.Proof!.Predicate.Arguments[1]
+            .Should().BeOfType<AnonymousIndividualTerm>().Which;
+        var secondWitness = secondBoundaries.Proof!.Predicate.Arguments[1]
+            .Should().BeOfType<AnonymousIndividualTerm>().Which;
+
+        firstWitness.Should().NotBe(secondWitness);
+
+        var firstIsBoundary = engine.Ask(
+            knowledgeBase,
+            new PredicateApplication(
+                new SemanticIdentifier("boundary"),
+                System.Collections.Immutable.ImmutableArray.Create<SemanticTerm>(firstWitness)));
+        var secondIsBoundary = engine.Ask(
+            knowledgeBase,
+            new PredicateApplication(
+                new SemanticIdentifier("boundary"),
+                System.Collections.Immutable.ImmutableArray.Create<SemanticTerm>(secondWitness)));
+
+        firstIsBoundary.IsSupported.Should().BeTrue();
+        secondIsBoundary.IsSupported.Should().BeTrue();
+        firstIsBoundary.Proof!.Kind.Should().Be(ProofNodeKind.Derived);
+        firstIsBoundary.Proof.Sources.Should().Contain(source =>
+            source.SourceText == "Every polygon has a boundary.");
+    }
+
+    [Fact]
     public void Answers_existence_from_one_anonymous_witness_without_naming_it()
     {
         var knowledgeBase = new KnowledgeBase();
