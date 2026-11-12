@@ -35,6 +35,12 @@ public sealed class DayOutBenchmarkDataTests
         Assert.Equal(4, evaluation.Candidates.Length);
 
         var fernbank = GetCandidate(evaluation, "Fernbank Nature Reserve");
+        Assert.Equal(
+            new[] { "entry-cost", "main-activity", "return-transport-cost" },
+            fernbank.Highlights.Select(attribute => attribute.Name.Value).Order(StringComparer.Ordinal));
+        Assert.Contains(
+            fernbank.Highlights.SelectMany(attribute => attribute.Sources),
+            source => source.SourceText == "The main activity is a marked 2-hour loop.");
         Assert.Equal(CandidateFeasibility.Eligible, fernbank.Feasibility);
         Assert.Equal(ObjectiveConditionAssessmentStatus.Satisfied, GetCondition(fernbank, "spending-limit").Status);
         Assert.Contains(

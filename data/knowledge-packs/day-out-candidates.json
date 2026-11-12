@@ -30,7 +30,8 @@
         "amount": 6,
         "currencySymbol": "$"
       },
-      "sourceText": "The return bus fare is $6."
+      "sourceText": "The return bus fare is $6.",
+      "summary": true
     },
     {
       "subject": "Fernbank Nature Reserve",
@@ -40,7 +41,8 @@
         "amount": 0,
         "currencySymbol": "$"
       },
-      "sourceText": "Entry is free."
+      "sourceText": "Entry is free.",
+      "summary": true
     },
     {
       "subject": "Fernbank Nature Reserve",
@@ -75,7 +77,8 @@
         "type": "text",
         "value": "Marked 2-hour loop"
       },
-      "sourceText": "The main activity is a marked 2-hour loop."
+      "sourceText": "The main activity is a marked 2-hour loop.",
+      "summary": true
     },
     {
       "subject": "Fernbank Nature Reserve",
@@ -148,7 +151,8 @@
         "amount": 12,
         "currencySymbol": "$"
       },
-      "sourceText": "The return bus fare is $12."
+      "sourceText": "The return bus fare is $12.",
+      "summary": true
     },
     {
       "subject": "Quarry Lake Trail",
@@ -158,7 +162,8 @@
         "amount": 0,
         "currencySymbol": "$"
       },
-      "sourceText": "Entry is free."
+      "sourceText": "Entry is free.",
+      "summary": true
     },
     {
       "subject": "Quarry Lake Trail",
@@ -193,7 +198,8 @@
         "type": "text",
         "value": "Marked 3-hour trail"
       },
-      "sourceText": "The main activity is a marked 3-hour trail."
+      "sourceText": "The main activity is a marked 3-hour trail.",
+      "summary": true
     },
     {
       "subject": "Quarry Lake Trail",
@@ -263,7 +269,8 @@
         "amount": 0,
         "currencySymbol": "$"
       },
-      "sourceText": "Walking has no transport fare."
+      "sourceText": "Walking has no transport fare.",
+      "summary": true
     },
     {
       "subject": "Riverside Gardens",
@@ -273,7 +280,8 @@
         "amount": 0,
         "currencySymbol": "$"
       },
-      "sourceText": "Entry is free."
+      "sourceText": "Entry is free.",
+      "summary": true
     },
     {
       "subject": "Riverside Gardens",
@@ -312,7 +320,8 @@
         "type": "text",
         "value": "Paved riverside paths"
       },
-      "sourceText": "The main activity is walking paved riverside paths for about 90 minutes."
+      "sourceText": "The main activity is walking paved riverside paths for about 90 minutes.",
+      "summary": true
     },
     {
       "subject": "Riverside Gardens",
@@ -359,7 +368,8 @@
         "amount": 8,
         "currencySymbol": "$"
       },
-      "sourceText": "The return bus fare is $8."
+      "sourceText": "The return bus fare is $8.",
+      "summary": true
     },
     {
       "subject": "Hilltop Farm Grounds",
@@ -369,7 +379,8 @@
         "amount": 10,
         "currencySymbol": "$"
       },
-      "sourceText": "Entry costs $10."
+      "sourceText": "Entry costs $10.",
+      "summary": true
     },
     {
       "subject": "Hilltop Farm Grounds",
@@ -403,7 +414,8 @@
         "type": "text",
         "value": "Grounds walk"
       },
-      "sourceText": "The main activity is a grounds walk of about 2 hours."
+      "sourceText": "The main activity is a grounds walk of about 2 hours.",
+      "summary": true
     },
     {
       "subject": "Hilltop Farm Grounds",

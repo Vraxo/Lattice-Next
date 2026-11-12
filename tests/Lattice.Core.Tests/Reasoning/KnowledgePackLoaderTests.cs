@@ -458,6 +458,55 @@ public sealed class KnowledgePackLoaderTests
     }
 
     [Fact]
+    public void Loads_optional_summary_metadata_and_rejects_non_boolean_values()
+    {
+        const string valid = """
+            {
+              "formatVersion": 1,
+              "id": "summary-metadata",
+              "name": "Summary metadata",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Fernbank",
+                  "name": "main-activity",
+                  "value": { "type": "text", "value": "Marked loop" },
+                  "sourceText": "The main activity is a marked loop.",
+                  "summary": true
+                },
+                {
+                  "subject": "Fernbank",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet"] },
+                  "sourceText": "Fernbank is quiet."
+                }
+              ]
+            }
+            """;
+        const string invalid = """
+            {
+              "formatVersion": 1,
+              "id": "invalid-summary-metadata",
+              "name": "Invalid summary metadata",
+              "claims": [],
+              "attributes": [{
+                "subject": "Fernbank",
+                "name": "main-activity",
+                "value": { "type": "text", "value": "Marked loop" },
+                "sourceText": "The main activity is a marked loop.",
+                "summary": "yes"
+              }]
+            }
+            """;
+        var knowledgeBase = new KnowledgeBase();
+
+        Assert.True(loader.TryLoadAndAdd(valid, knowledgeBase, out _, out var error), error);
+        Assert.True(Assert.Single(knowledgeBase.Attributes, attribute => attribute.Name.Value == "main-activity").IncludeInSummary);
+        Assert.False(Assert.Single(knowledgeBase.Attributes, attribute => attribute.Name.Value == "tags").IncludeInSummary);
+        Assert.False(loader.TryLoadAndAdd(invalid, new KnowledgeBase(), out _, out _));
+    }
+
+    [Fact]
     public void Rejects_invalid_typed_attributes_without_adding_any_part_of_the_pack()
     {
         const string json = """
