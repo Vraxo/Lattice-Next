@@ -832,6 +832,11 @@ public sealed class ObjectiveSessionTests
 
         var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
         Assert.Equal(3, evaluation.Candidates.Length);
+        Assert.All(
+            evaluation.Candidates.SelectMany(candidate => candidate.Conditions)
+                .SelectMany(condition => condition.Preferences)
+                .Where(preference => preference.Evidence.IsDefaultOrEmpty),
+            preference => Assert.Equal("Unknown", preference.Status));
         Assert.All(evaluation.Candidates, candidate =>
         {
             Assert.False(candidate.HasHardConstraintViolation);
