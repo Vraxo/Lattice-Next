@@ -1142,6 +1142,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Riverside Gardens is the only option currently confirmed to meet your requirements.", revisedMessage);
         Assert.Contains("paved riverside paths", revisedMessage);
         Assert.Contains("Walk 09:00–09:15", revisedMessage);
+        Assert.Contains("Riverside Gardens doesn't match your preference for quiet.", revisedMessage);
         Assert.DoesNotContain("marked 2-hour loop", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
         Assert.Contains("not live checks", revisedMessage);
