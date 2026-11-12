@@ -17,9 +17,37 @@ public sealed class ObjectiveEvaluator
             .Select(candidate => EvaluateCandidate(objective, candidate, knowledgeBase.Attributes))
             .ToImmutableArray();
 
-        return new ObjectiveEvaluation(candidates);
+        return new ObjectiveEvaluation(candidates) { PreferenceTradeOffs = BuildPreferenceTradeOffs(candidates) };
     }
 
+    private static ImmutableArray<ObjectivePreferenceTradeOff> BuildPreferenceTradeOffs(
+        ImmutableArray<CandidateAssessment> candidates)
+    {
+        var result = ImmutableArray.CreateBuilder<ObjectivePreferenceTradeOff>();
+        for (var i = 0; i < candidates.Length; i++)
+        {
+            var left = candidates[i];
+            if (left.Feasibility != CandidateFeasibility.Eligible) continue;
+            var leftItems = left.Conditions.Where(x => x.Role == ObjectiveConditionRole.Preference)
+                .SelectMany(x => x.Preferences).ToDictionary(x => x.Preference, StringComparer.OrdinalIgnoreCase);
+            for (var j = i + 1; j < candidates.Length; j++)
+            {
+                var right = candidates[j];
+                if (right.Feasibility != CandidateFeasibility.Eligible) continue;
+                var rightItems = right.Conditions.Where(x => x.Role == ObjectiveConditionRole.Preference)
+                    .SelectMany(x => x.Preferences).ToDictionary(x => x.Preference, StringComparer.OrdinalIgnoreCase);
+                foreach (var item in leftItems)
+                {
+                    if (!rightItems.TryGetValue(item.Key, out var other)) continue;
+                    if (item.Value.Status == ObjectiveConditionAssessmentStatus.Satisfied && other.Status == ObjectiveConditionAssessmentStatus.Violated)
+                        result.Add(new ObjectivePreferenceTradeOff(item.Key, left.Candidate, right.Candidate, item.Value.Evidence, other.Evidence));
+                    else if (other.Status == ObjectiveConditionAssessmentStatus.Satisfied && item.Value.Status == ObjectiveConditionAssessmentStatus.Violated)
+                        result.Add(new ObjectivePreferenceTradeOff(item.Key, right.Candidate, left.Candidate, other.Evidence, item.Value.Evidence));
+                }
+            }
+        }
+        return result.ToImmutable();
+    }
     private static CandidateAssessment EvaluateCandidate(
         ObjectiveFormula objective,
         SemanticIdentifier candidate,

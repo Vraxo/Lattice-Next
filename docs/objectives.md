@@ -128,3 +128,10 @@ Typed candidate attributes may also define a bounded `sum` over other named attr
 The native baseline and its exact original rejection behavior are recorded in [first-use-day-out-baseline.md](benchmarks/first-use-day-out-baseline.md). A sparse adjacent-domain transfer benchmark is recorded in [laptop-candidate-comparison.md](benchmarks/laptop-candidate-comparison.md). It reuses the same objective/evaluation path while deliberately leaving prices, screen quality, and reliability unsupported; Cedar 14's upgrade path is the only supplied product-specific comparison fact.
 
 This contract is intentionally smaller than a planner architecture. Implementation should add further structure only when an executable task demonstrates the need.
+
+
+## Evidence-backed preference trade-offs
+
+The evaluator compares individual preference evidence between pairs of candidates that are both Eligible under their applicable hard constraints. It reports a distinction only when one candidate has evidence satisfying a stated preference and the other has explicit evidence violating that same preference. Both evidence sets are retained and exposed through the shared client evaluation.
+
+Unknown or conflicting preference evidence does not establish a trade-off. Excluded, Unresolved, and NotEvaluated candidates are not included. Equal outcomes are not reported. These distinctions are not a ranking, aggregate score, or winner selection: candidates may each have advantages on different preferences, and the system does not invent weights to resolve that tension.

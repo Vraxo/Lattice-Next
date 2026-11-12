@@ -73,6 +73,23 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Reports_only_evidence_backed_preference_trade_offs_between_eligible_candidates()
+    {
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), CreateCandidateKnowledgeBase());
+
+        var tradeOff = Assert.Single(evaluation.PreferenceTradeOffs);
+        Assert.Equal("quiet", tradeOff.Preference);
+        Assert.Equal("Fernbank", tradeOff.CandidateWithPositiveEvidence.Value);
+        Assert.Equal("Riverside", tradeOff.CandidateWithContraryEvidence.Value);
+        Assert.Single(tradeOff.PositiveEvidence);
+        Assert.Single(tradeOff.ContraryEvidence);
+        Assert.DoesNotContain(evaluation.PreferenceTradeOffs, item => item.Preference == "outdoors");
+        Assert.DoesNotContain(evaluation.PreferenceTradeOffs, item =>
+            item.CandidateWithPositiveEvidence.Value == "Hilltop" ||
+            item.CandidateWithContraryEvidence.Value == "Hilltop");
+    }
+
+    [Fact]
     public void Reports_conflicting_positive_and_negative_evidence_for_the_same_preference()
     {
         var knowledgeBase = new KnowledgeBase();
