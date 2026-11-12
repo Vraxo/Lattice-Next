@@ -16,6 +16,11 @@ tools/
     main.py
     requirements.txt
     test_main.py
+  web-page-fetch/
+    tool.json
+    main.py
+    test_main.py
+    README.md
   example-tool/
     tool.json
     main.py
@@ -30,10 +35,11 @@ The calculator and unit converter are ordinary external tools, not C# implementa
 - `calculator`: exact decimal addition, subtraction, multiplication, and division.
 - `unit-converter`: length (mm, cm, m, km), mass (mg, g, kg), volume (ml, l), and time (s, min, h).
 - `web-search`: timestamped result titles, source URLs, domains, and snippets from public search providers through DDGS, with no account, API key, or user-hosted service.
+- `web-page-fetch`: bounded extraction of public HTML/plain-text pages with URL, retrieval time, DNS/IP, redirect, content-type, and size checks.
 
-To use these bundled examples, install Python 3 and make its `python` command available on `PATH`. The calculator and unit converter have no pip dependencies. Install the web-search dependency once from the repository root with `python -m pip install -r tools/web-search/requirements.txt`. Web search uses public search pages and may be rate-limited or temporarily unavailable; it does not require an API key or a separate search server. On first use, the CLI lets you remember approval for web search or allow it only for the current session. Lattice itself still builds without Python; other external tools can use any executable and implementation language.
+To use these bundled examples, install Python 3 and make its `python` command available on `PATH`. The calculator, unit converter, and page fetcher have no pip dependencies. Install the web-search dependency once from the repository root with `python -m pip install -r tools/web-search/requirements.txt`. Web search uses public search pages and may be rate-limited or temporarily unavailable; it does not require an API key or a separate search server.
 
-Each manifest may include an `intents` array declaring supported phrases, typed slots, argument bindings, and response templates. Lattice loads these declarations into a generic matcher; there are no calculator- or unit-converter-specific recognizer classes. A newly added tool can declare its own supported phrases in its manifest without changing C# code. Patterns are deliberately constrained exact token sequences: `number` and `word` capture one token, `text` captures a phrase, and square-bracketed literal phrases are optional. They are not arbitrary code or unrestricted English. The bundled calculator's follow-up and chained arithmetic phrases are also declared there.
+Each manifest may include an `intents` array declaring supported phrases, typed slots, argument bindings, and response templates. Lattice loads these declarations into a generic matcher; there are no calculator-, unit-converter-, or page-fetch-specific recognizer classes. A newly added tool can declare its own supported phrases in its manifest without changing C# code. Patterns are deliberately constrained exact token sequences: `number` and `word` capture one token, `text` captures a phrase, and square-bracketed literal phrases are optional. They are not arbitrary code or unrestricted English. The bundled calculator's follow-up and chained arithmetic phrases are also declared there.
 
 ## Protocol
 
