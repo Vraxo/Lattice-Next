@@ -114,9 +114,28 @@ internal static class ObjectiveEvaluationFormatter
                 .Append(", while ")
                 .Append(tradeOff.CandidateWithContraryEvidence.Value)
                 .AppendLine(" has evidence against it.");
+
+            AppendTradeOffEvidence(output, "  Supporting evidence: ", tradeOff.PositiveEvidence);
+            AppendTradeOffEvidence(output, "  Contrary evidence: ", tradeOff.ContraryEvidence);
         }
 
         return output.ToString().TrimEnd();
+    }
+
+    private static void AppendTradeOffEvidence(
+        StringBuilder output,
+        string prefix,
+        IReadOnlyList<KnowledgeAttribute> attributes)
+    {
+        foreach (var source in attributes
+            .SelectMany(attribute => attribute.Sources)
+            .Select(source => string.IsNullOrWhiteSpace(source.SourceId)
+                ? source.SourceText
+                : $"{source.SourceText} [source: {source.SourceId}]")
+            .Distinct(StringComparer.Ordinal))
+        {
+            output.Append(prefix).AppendLine(source);
+        }
     }
 
     private static string? DescribePreferences(
