@@ -20,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../data/knowledge-packs/ceramics-course-candidates.json"
+          Link="ceramics-course-candidates.json"
+          CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../data/knowledge-packs/laptop-candidates.json"
           Link="laptop-candidates.json"
           CopyToOutputDirectory="PreserveNewest" />

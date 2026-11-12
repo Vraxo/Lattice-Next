@@ -1,0 +1,290 @@
+{
+  "formatVersion": 1,
+  "id": "ceramics-course-candidates",
+  "name": "Saturday ceramics course candidates",
+  "claims": [],
+  "attributes": [
+    {
+      "subject": "Clay House Studio",
+      "name": "candidate-type",
+      "value": { "type": "text", "value": "course" },
+      "sourceText": "Clay House Studio is a Saturday ceramics course option."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "total-cost",
+      "value": { "type": "money", "amount": 160, "currencySymbol": "$" },
+      "sourceText": "The all-in cost for tuition and return travel is $160."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "transport-mode",
+      "value": { "type": "text", "value": "walking" },
+      "sourceText": "Clay House Studio is reachable on foot."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "one-way-travel-duration",
+      "value": { "type": "duration", "minutes": 15 },
+      "sourceText": "The walk to Clay House Studio takes 15 minutes each way."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "tags",
+      "value": { "type": "textSet", "values": ["small-group", "beginner-friendly"] },
+      "sourceText": "Clay House Studio has eight places and welcomes beginners."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "main-activity",
+      "value": { "type": "text", "value": "Beginner wheel-throwing class" },
+      "sourceText": "The class is a beginner wheel-throwing session.",
+      "summary": true
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "activity-duration",
+      "value": { "type": "duration", "minutes": 120 },
+      "sourceText": "The Clay House class lasts two hours."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "class-start-times",
+      "value": { "type": "timeSet", "times": ["10:00"] },
+      "sourceText": "The Saturday class starts at 10:00."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "class-availability-window",
+      "value": { "type": "timeWindow", "start": "08:00", "end": "13:00" },
+      "sourceText": "The studio's Saturday morning class window is 08:00–13:00."
+    },
+    {
+      "subject": "Clay House Studio",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          { "durationAttribute": "one-way-travel-duration" },
+          {
+            "durationAttribute": "activity-duration",
+            "startTimesAttribute": "class-start-times",
+            "availabilityWindowAttribute": "class-availability-window"
+          },
+          { "durationAttribute": "one-way-travel-duration" }
+        ]
+      },
+      "sourceText": "The outing consists of travel to the studio, the scheduled class, and the return journey."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "candidate-type",
+      "value": { "type": "text", "value": "course" },
+      "sourceText": "Community Kiln is a Saturday ceramics course option."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "total-cost",
+      "value": { "type": "money", "amount": 120, "currencySymbol": "$" },
+      "sourceText": "The all-in cost for tuition and return travel is $120."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "transport-mode",
+      "value": { "type": "text", "value": "bus" },
+      "sourceText": "Community Kiln is reachable by bus."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "one-way-travel-duration",
+      "value": { "type": "duration", "minutes": 25 },
+      "sourceText": "The bus journey to Community Kiln takes 25 minutes each way."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "tags",
+      "value": { "type": "textSet", "values": ["beginner-friendly"], "excludedValues": ["small-group"] },
+      "sourceText": "Community Kiln welcomes beginners, but its 14-person class is not a small group."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "main-activity",
+      "value": { "type": "text", "value": "Beginner hand-building class" },
+      "sourceText": "The class is a beginner hand-building session.",
+      "summary": true
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "activity-duration",
+      "value": { "type": "duration", "minutes": 150 },
+      "sourceText": "The Community Kiln class lasts two and a half hours."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "class-start-times",
+      "value": { "type": "timeSet", "times": ["09:30"] },
+      "sourceText": "The Saturday class starts at 09:30."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "class-availability-window",
+      "value": { "type": "timeWindow", "start": "08:00", "end": "13:00" },
+      "sourceText": "The Saturday class window is 08:00–13:00."
+    },
+    {
+      "subject": "Community Kiln",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          { "durationAttribute": "one-way-travel-duration" },
+          {
+            "durationAttribute": "activity-duration",
+            "startTimesAttribute": "class-start-times",
+            "availabilityWindowAttribute": "class-availability-window"
+          },
+          { "durationAttribute": "one-way-travel-duration" }
+        ]
+      },
+      "sourceText": "The outing consists of travel to the studio, the scheduled class, and the return journey."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "candidate-type",
+      "value": { "type": "text", "value": "course" },
+      "sourceText": "Northbank Ceramics is a Saturday ceramics course option."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "transport-mode",
+      "value": { "type": "text", "value": "walking" },
+      "sourceText": "Northbank Ceramics is reachable on foot."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "one-way-travel-duration",
+      "value": { "type": "duration", "minutes": 15 },
+      "sourceText": "The walk to Northbank Ceramics takes 15 minutes each way."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "tags",
+      "value": { "type": "textSet", "values": ["small-group", "beginner-friendly"] },
+      "sourceText": "Northbank Ceramics has six places and welcomes beginners."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "main-activity",
+      "value": { "type": "text", "value": "Beginner glazing and shaping class" },
+      "sourceText": "The class is a beginner glazing and shaping session.",
+      "summary": true
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "activity-duration",
+      "value": { "type": "duration", "minutes": 90 },
+      "sourceText": "The Northbank class lasts 90 minutes."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "class-start-times",
+      "value": { "type": "timeSet", "times": ["11:00"] },
+      "sourceText": "The Saturday class starts at 11:00."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "class-availability-window",
+      "value": { "type": "timeWindow", "start": "08:00", "end": "13:00" },
+      "sourceText": "The Saturday class window is 08:00–13:00."
+    },
+    {
+      "subject": "Northbank Ceramics",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          { "durationAttribute": "one-way-travel-duration" },
+          {
+            "durationAttribute": "activity-duration",
+            "startTimesAttribute": "class-start-times",
+            "availabilityWindowAttribute": "class-availability-window"
+          },
+          { "durationAttribute": "one-way-travel-duration" }
+        ]
+      },
+      "sourceText": "The outing consists of travel to the studio, the scheduled class, and the return journey."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "candidate-type",
+      "value": { "type": "text", "value": "course" },
+      "sourceText": "Foundry Workshop is a Saturday ceramics course option."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "total-cost",
+      "value": { "type": "money", "amount": 100, "currencySymbol": "$" },
+      "sourceText": "The all-in cost for tuition and return travel is $100."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "transport-mode",
+      "value": { "type": "text", "value": "car" },
+      "sourceText": "Foundry Workshop requires a car."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "one-way-travel-duration",
+      "value": { "type": "duration", "minutes": 20 },
+      "sourceText": "The drive to Foundry Workshop takes 20 minutes each way."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "tags",
+      "value": { "type": "textSet", "values": ["small-group", "beginner-friendly"] },
+      "sourceText": "Foundry Workshop has six places and welcomes beginners."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "main-activity",
+      "value": { "type": "text", "value": "Beginner pottery class" },
+      "sourceText": "The class is a beginner pottery session.",
+      "summary": true
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "activity-duration",
+      "value": { "type": "duration", "minutes": 90 },
+      "sourceText": "The Foundry class lasts 90 minutes."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "class-start-times",
+      "value": { "type": "timeSet", "times": ["10:30"] },
+      "sourceText": "The Saturday class starts at 10:30."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "class-availability-window",
+      "value": { "type": "timeWindow", "start": "08:00", "end": "13:00" },
+      "sourceText": "The Saturday class window is 08:00–13:00."
+    },
+    {
+      "subject": "Foundry Workshop",
+      "name": "temporal-plan",
+      "value": {
+        "type": "temporalPlan",
+        "stages": [
+          { "durationAttribute": "one-way-travel-duration" },
+          {
+            "durationAttribute": "activity-duration",
+            "startTimesAttribute": "class-start-times",
+            "availabilityWindowAttribute": "class-availability-window"
+          },
+          { "durationAttribute": "one-way-travel-duration" }
+        ]
+      },
+      "sourceText": "The outing consists of travel to the studio, the scheduled class, and the return journey."
+    }
+  ]
+}
