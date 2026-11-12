@@ -538,11 +538,13 @@ public sealed class ObjectiveSessionTests
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(4, result.Utterances.Length);
+        Assert.Equal(3, result.Utterances.Length);
         Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
             meaning => meaning.Contains("hardconstraint(meal-plan, equals, bring-lunch)", StringComparison.Ordinal));
         Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
             meaning => meaning.Contains("hardconstraint(origin, equals, Central Station)", StringComparison.Ordinal));
+        Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
+            meaning => meaning.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", StringComparison.Ordinal));
         Assert.Contains(followUp, status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
