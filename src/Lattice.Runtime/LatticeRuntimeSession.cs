@@ -278,13 +278,13 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         if (matchingRequests.Length != 1)
         {
-            var message = matchingRequests.IsDefaultOrEmpty
+            var clarificationMessage = matchingRequests.IsDefaultOrEmpty
                 ? $"I don't currently have an outstanding request for the {information.Attribute.Value} of {information.Candidate.Value}. No candidate information was changed."
                 : "I have more than one outstanding request for that candidate attribute. Please clarify which value you mean. No candidate information was changed.";
 
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
-                message,
+                clarificationMessage,
                 SemanticFormatter.Format(parsedUtterance));
         }
 

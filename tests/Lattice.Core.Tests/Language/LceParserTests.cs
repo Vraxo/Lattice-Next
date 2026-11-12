@@ -10,7 +10,6 @@ public sealed class LceParserTests
     private readonly LceParser parser = new();
 
     [Fact]
-    [Fact]
     public void Parses_candidate_cost_information_without_treating_it_as_a_general_fact()
     {
         var result = parser.Parse("Aster 14 costs $900.");
@@ -28,6 +27,7 @@ public sealed class LceParserTests
         Assert.Equal("Aster 14 costs $900.", utterance.SourceText);
     }
 
+    [Fact]
     public void Parses_universal_class_rule_into_language_independent_formula()
     {
         var result = parser.Parse("Every dog is an animal.");
