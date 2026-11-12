@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: broaden the first-use robustness benchmark across alternative origin, budget, and packed-lunch phrasings, then test contradictions and ambiguous candidate references. Reordered availability windows and repeated budget/preference corrections now preserve the same typed conditions and unrelated context. Next, add a small set of ordinary-language variants and verify they map to identical semantics without widening the parser unsafely.
+> Current priority: broaden first-use robustness across alternative origin and packed-lunch phrasings, then test contradictions and ambiguous candidate references. The budget clarification now accepts both a direct amount and the ordinary phrase “I can spend up to $25” as the same typed money value. Next, cover equivalent ways to state a starting location and that lunch is already covered, without broadening unrelated sentence parsing.
 
 
 ## Bootstrap

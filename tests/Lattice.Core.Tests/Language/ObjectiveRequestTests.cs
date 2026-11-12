@@ -102,6 +102,19 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Parses_a_natural_language_spending_limit_answer_as_typed_money()
+    {
+        var result = parser.ParseText("I can spend up to $25.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.ObjectiveInformation, utterance.Kind);
+        Assert.Equal(
+            new ObjectiveInformationFormula(new ObjectiveMoneyValue(25m, "$")),
+            utterance.Meaning);
+    }
+
+    [Fact]
     public void Parses_lunch_origin_and_time_window_as_objective_condition_updates()
     {
         const string input = "I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.";

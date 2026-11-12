@@ -498,6 +498,34 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Accepts_a_natural_language_spending_limit_answer_in_the_active_objective()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+
+        var initial = await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+        Assert.Equal(
+            LatticeUtteranceResultKind.ClarificationRequired,
+            Assert.Single(initial.Utterances).Kind);
+
+        var answer = await session.SubmitAsync(
+            "I can spend up to $25.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, answer.Status);
+        var utterance = Assert.Single(answer.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, utterance.Kind);
+        Assert.Contains("hardconstraint(spending-limit, atmost, $25)", utterance.Meaning);
+        Assert.Contains("I can spend up to $25.", status.ActiveObjectiveSource);
+        Assert.Null(status.PendingInformationName);
+        Assert.Null(status.PendingInformationPrompt);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Applies_the_complete_day_out_follow_up_without_storing_facts()
     {
         var client = new LatticeRuntimeClient();
