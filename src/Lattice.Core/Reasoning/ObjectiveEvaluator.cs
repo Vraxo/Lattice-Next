@@ -583,9 +583,6 @@ public sealed class ObjectiveEvaluator
         var fits = TryFindTemporalWitness(
             sequence,
             values,
-            stageIndex: 0,
-            previousEnd: null,
-            priorStages: [],
             out var witness);
 
         return CreateAssessment(
