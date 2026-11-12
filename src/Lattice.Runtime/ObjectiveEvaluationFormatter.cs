@@ -122,9 +122,16 @@ internal static class ObjectiveEvaluationFormatter
         }
 
         output.AppendLine("Missing hard-constraint evidence:");
-        foreach (var request in requests)
+        output.Append("- ").AppendLine(requests[0].Prompt);
+
+        var remainingCount = requests.Count - 1;
+        if (remainingCount > 0)
         {
-            output.Append("- ").AppendLine(request.Prompt);
+            output.Append("I'll ask for the remaining ")
+                .Append(remainingCount)
+                .AppendLine(remainingCount == 1
+                    ? " detail after this one."
+                    : " details after this one.");
         }
     }
 
