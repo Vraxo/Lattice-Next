@@ -284,7 +284,7 @@ public sealed class ObjectiveSessionTests
         await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
 
         var preferenceRevision = await session.SubmitAsync(
-            "Actually, I prefer repairability.",
+            "Correction: I prefer repairability.",
             TestContext.Current.CancellationToken);
         var afterPreferenceRevision = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var preferenceEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(
@@ -321,7 +321,7 @@ public sealed class ObjectiveSessionTests
             budgetRevision.Utterances.Single().Meaning);
         Assert.Equal("compare these three options", afterBudgetRevision.ActiveObjective);
         Assert.Contains(originalRequest, afterBudgetRevision.ActiveObjectiveSource);
-        Assert.Contains("Actually, I prefer repairability.", afterBudgetRevision.ActiveObjectiveSource);
+        Assert.Contains("Correction: I prefer repairability.", afterBudgetRevision.ActiveObjectiveSource);
         Assert.Contains("Actually, my budget is $800.", afterBudgetRevision.ActiveObjectiveSource);
 
         var finalEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(
