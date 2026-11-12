@@ -480,13 +480,6 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Walking only.", status.ActiveObjectiveSource);
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
-        var finalMessage = result.Utterances[^1].Message;
-        Assert.Contains("Plan summary (based on supplied evidence):", finalMessage);
-        Assert.Contains("Supported details: Riverside Gardens", finalMessage);
-        Assert.Contains("Assumptions: no additional assumptions were introduced.", finalMessage);
-        Assert.Contains("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified", finalMessage);
-        Assert.Contains("Your actions: verify live details before acting", finalMessage);
-        Assert.Contains("No booking has been made.", finalMessage);
     }
 
     [Fact]
@@ -779,6 +772,12 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Stage 1: 09:00–09:15", revisedMessage);
         Assert.DoesNotContain("The main activity is a marked 2-hour loop.", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
+        Assert.Contains("Plan summary (based on supplied evidence):", revisedMessage);
+        Assert.Contains("Supported details: Riverside Gardens", revisedMessage);
+        Assert.Contains("Assumptions: no additional assumptions were introduced.", revisedMessage);
+        Assert.Contains("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified", revisedMessage);
+        Assert.Contains("Your actions: verify live details before acting", revisedMessage);
+        Assert.Contains("No booking has been made.", revisedMessage);
     }
 
     [Fact]
