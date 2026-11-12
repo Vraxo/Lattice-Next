@@ -39,7 +39,7 @@ For pairs of candidates that are both Eligible under their applicable hard const
 
 For the benchmark data, Fernbank has evidence for the quiet preference while Riverside has explicit evidence against quiet. Both have evidence for outdoors, so that preference creates no distinction. Hilltop is Unresolved under the budget constraint and is not compared as an eligible option. This is a specific trade-off, not a conclusion that Fernbank is the overall best choice.
 
-Unknown or conflicting evidence never creates a directional distinction. No aggregate score, ranking, or automatic winner is produced.
+Unknown or conflicting evidence never creates a directional distinction. A conservative Pareto-style shortlist now identifies eligible candidates that are not demonstrably worse across all stated preferences. Dominance requires complete, explicit evidence for every preference; unknown or conflicting evidence prevents dominance. No weights or scores are assigned.
 
 ## Remaining benchmark gap
 

@@ -524,7 +524,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     tradeOff.CandidateWithContraryEvidence.Value,
                     MapObjectiveEvidenceSources(tradeOff.PositiveEvidence),
                     MapObjectiveEvidenceSources(tradeOff.ContraryEvidence)))
-                .ToImmutableArray()
+                .ToImmutableArray(),
+            Recommendation = new LatticeObjectiveRecommendation(
+                evaluation.Recommendation.Status.ToString(),
+                evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
+                evaluation.Recommendation.DominatedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
+                evaluation.Recommendation.HasIncompletePreferenceEvidence)
         };
 
     private static ImmutableArray<LatticeObjectiveEvidenceSource> MapObjectiveEvidenceSources(

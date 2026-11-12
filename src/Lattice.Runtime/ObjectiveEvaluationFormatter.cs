@@ -119,7 +119,63 @@ internal static class ObjectiveEvaluationFormatter
             AppendTradeOffEvidence(output, "  Contrary evidence: ", tradeOff.ContraryEvidence);
         }
 
+        AppendRecommendation(output, evaluation.Recommendation, evaluation.Candidates);
+
         return output.ToString().TrimEnd();
+    }
+
+    private static void AppendRecommendation(
+        StringBuilder output,
+        ObjectiveRecommendation recommendation,
+        IReadOnlyList<CandidateAssessment> candidates)
+    {
+        var unresolvedCandidates = candidates
+            .Where(candidate => candidate.Feasibility == CandidateFeasibility.Unresolved)
+            .Select(candidate => candidate.Candidate.Value)
+            .ToArray();
+
+        switch (recommendation.Status)
+        {
+            case ObjectiveRecommendationStatus.NoEligibleCandidates:
+                output.AppendLine("No candidate is currently confirmed eligible under the assessed hard constraints.");
+                if (unresolvedCandidates.Length > 0)
+                {
+                    output.Append("  Unresolved candidates still need evidence: ")
+                        .AppendLine(string.Join(", ", unresolvedCandidates));
+                }
+
+                break;
+
+            case ObjectiveRecommendationStatus.OnlyEligibleCandidate:
+                output.Append("Only currently eligible candidate: ")
+                    .Append(recommendation.ShortlistedCandidates[0].Value)
+                    .AppendLine(".");
+                break;
+
+            case ObjectiveRecommendationStatus.UniquePreferenceLeader:
+                output.Append("Only non-dominated eligible candidate on the stated preferences: ")
+                    .Append(recommendation.ShortlistedCandidates[0].Value)
+                    .AppendLine(".");
+                break;
+
+            case ObjectiveRecommendationStatus.MultipleNonDominatedCandidates:
+                output.Append("No unique preference leader; these eligible candidates remain non-dominated: ")
+                    .Append(string.Join(", ", recommendation.ShortlistedCandidates.Select(candidate => candidate.Value)))
+                    .AppendLine(".");
+                break;
+        }
+
+        if (recommendation.HasIncompletePreferenceEvidence)
+        {
+            output.AppendLine("  Preference evidence is incomplete, so this shortlist is not a complete comparison.");
+        }
+
+        if (unresolvedCandidates.Length > 0 &&
+            recommendation.Status != ObjectiveRecommendationStatus.NoEligibleCandidates)
+        {
+            output.Append("  Other candidates remain unresolved and were not included: ")
+                .AppendLine(string.Join(", ", unresolvedCandidates));
+        }
     }
 
     private static void AppendTradeOffEvidence(
