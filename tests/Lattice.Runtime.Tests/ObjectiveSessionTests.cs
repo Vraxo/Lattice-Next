@@ -1011,8 +1011,8 @@ public sealed class ObjectiveSessionTests
         var community = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Community Kiln");
         Assert.Equal("Eligible", community.Feasibility);
         var communityPreferences = community.Conditions.SelectMany(condition => condition.Preferences).ToArray();
-        Assert.Contains(communityPreferences, preference => preference.Name == "small-group" && preference.Status == "Violated");
-        Assert.Contains(communityPreferences, preference => preference.Name == "beginner-friendly" && preference.Status == "Satisfied");
+        Assert.Contains(communityPreferences, preference => preference.Name == "a small group" && preference.Status == "Violated");
+        Assert.Contains(communityPreferences, preference => preference.Name == "beginner-friendly instruction" && preference.Status == "Satisfied");
         Assert.Equal(3, community.Conditions.SelectMany(condition => condition.TemporalWitness).Count());
 
         var northbank = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Northbank Ceramics");

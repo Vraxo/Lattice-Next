@@ -56,8 +56,8 @@
       "value": {
         "type": "textSet",
         "values": [
-          "small-group",
-          "beginner-friendly"
+          "a small group",
+          "beginner-friendly instruction"
         ]
       },
       "sourceText": "Clay House Studio has eight places and welcomes beginners."
@@ -175,10 +175,10 @@
       "value": {
         "type": "textSet",
         "values": [
-          "beginner-friendly"
+          "beginner-friendly instruction"
         ],
         "excludedValues": [
-          "small-group"
+          "a small group"
         ]
       },
       "sourceText": "Community Kiln welcomes beginners, but its 14-person class is not a small group."
@@ -286,8 +286,8 @@
       "value": {
         "type": "textSet",
         "values": [
-          "small-group",
-          "beginner-friendly"
+          "a small group",
+          "beginner-friendly instruction"
         ]
       },
       "sourceText": "Northbank Ceramics has six places and welcomes beginners."
@@ -405,8 +405,8 @@
       "value": {
         "type": "textSet",
         "values": [
-          "small-group",
-          "beginner-friendly"
+          "a small group",
+          "beginner-friendly instruction"
         ]
       },
       "sourceText": "Foundry Workshop has six places and welcomes beginners."
