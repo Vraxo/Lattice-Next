@@ -29,13 +29,17 @@ public sealed class ObjectiveEvaluator
             var left = candidates[i];
             if (left.Feasibility != CandidateFeasibility.Eligible) continue;
             var leftItems = left.Conditions.Where(x => x.Role == ObjectiveConditionRole.Preference)
-                .SelectMany(x => x.Preferences).ToDictionary(x => x.Preference, StringComparer.OrdinalIgnoreCase);
+                .SelectMany(x => x.Preferences)
+                .GroupBy(x => x.Preference, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.Last(), StringComparer.OrdinalIgnoreCase);
             for (var j = i + 1; j < candidates.Length; j++)
             {
                 var right = candidates[j];
                 if (right.Feasibility != CandidateFeasibility.Eligible) continue;
                 var rightItems = right.Conditions.Where(x => x.Role == ObjectiveConditionRole.Preference)
-                    .SelectMany(x => x.Preferences).ToDictionary(x => x.Preference, StringComparer.OrdinalIgnoreCase);
+                    .SelectMany(x => x.Preferences)
+                .GroupBy(x => x.Preference, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.Last(), StringComparer.OrdinalIgnoreCase);
                 foreach (var item in leftItems)
                 {
                     if (!rightItems.TryGetValue(item.Key, out var other)) continue;

@@ -23,7 +23,10 @@ public sealed class ObjectiveSessionTests
                 { "subject": "Quiet Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Quiet Park is quiet and outdoors." },
                 { "subject": "Busy Park", "name": "total-cost", "value": { "type": "money", "amount": 10, "currencySymbol": "$" }, "sourceText": "Busy Park costs $10." },
                 { "subject": "Busy Park", "name": "transport-mode", "value": { "type": "text", "value": "car" }, "sourceText": "Busy Park requires a car." },
-                { "subject": "Busy Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Busy Park is busy and outdoors." }
+                { "subject": "Busy Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Busy Park is busy and outdoors." },
+                { "subject": "Noisy Park", "name": "total-cost", "value": { "type": "money", "amount": 12, "currencySymbol": "$" }, "sourceText": "Noisy Park costs $12." },
+                { "subject": "Noisy Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Noisy Park is reachable by walking." },
+                { "subject": "Noisy Park", "name": "tags", "value": { "type": "textSet", "values": ["outdoors"], "excludedValues": ["quiet"] }, "sourceText": "Noisy Park is outdoors and is not quiet." }
               ]
             }
             """;
@@ -37,7 +40,7 @@ public sealed class ObjectiveSessionTests
 
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
-        Assert.Equal(2, evaluation.Candidates.Length);
+        Assert.Equal(3, evaluation.Candidates.Length);
 
         var quiet = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Quiet Park");
         Assert.False(quiet.HasHardConstraintViolation);
@@ -53,9 +56,26 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Excluded", busy.Feasibility);
         Assert.False(busy.HasUnresolvedHardConstraint);
         Assert.Contains(busy.Conditions, condition => condition.Name == "preference" && condition.Status == "PartiallySatisfied");
+        var noisy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Noisy Park");
+        Assert.Equal("Eligible", noisy.Feasibility);
+        Assert.Contains(noisy.Conditions.SelectMany(condition => condition.Preferences),
+            preference => preference.Name == "quiet" && preference.Status == "Violated");
+
+        var tradeOff = Assert.Single(evaluation.PreferenceTradeOffs);
+        Assert.Equal("quiet", tradeOff.Preference);
+        Assert.Equal("Quiet Park", tradeOff.CandidateWithPositiveEvidence);
+        Assert.Equal("Noisy Park", tradeOff.CandidateWithContraryEvidence);
+        Assert.Contains(tradeOff.PositiveEvidence, source =>
+            source.SourceText == "Quiet Park is quiet and outdoors.");
+        Assert.Contains(tradeOff.ContraryEvidence, source =>
+            source.SourceText == "Noisy Park is outdoors and is not quiet.");
+
         var message = result.Utterances.Single().Message;
         Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
         Assert.Contains("Busy Park: is excluded by a hard constraint", message);
+        Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
+        Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);
+        Assert.Contains("Contrary evidence: Noisy Park is outdoors and is not quiet.", message);
     }
 
     [Theory]
