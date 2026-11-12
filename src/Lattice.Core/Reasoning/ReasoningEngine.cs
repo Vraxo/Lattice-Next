@@ -378,6 +378,11 @@ public sealed class ReasoningEngine
                     arguments.Add(individual);
                     break;
 
+                case AnonymousIndividualTerm anonymous when
+                    !string.IsNullOrWhiteSpace(anonymous.Identity.Value):
+                    arguments.Add(anonymous);
+                    break;
+
                 case DescriptiveIndividualTerm description
                     when !string.IsNullOrWhiteSpace(description.Head.Value) &&
                          !description.Modifiers.IsDefault &&
