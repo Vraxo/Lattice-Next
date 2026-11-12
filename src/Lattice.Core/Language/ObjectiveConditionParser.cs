@@ -8,7 +8,7 @@ namespace Lattice.Core.Language;
 internal static class ObjectiveConditionParser
 {
     private static readonly Regex BudgetAmountPattern = new(
-        @"\bbudget\b[^.!?]*?(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)",
+        @"(?:\bbudget\b[^.!?]*?|\b(?:I can spend up to|I have|I can afford up to|I don't want to spend more than|my maximum spend is)\s*)(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex LimitedBudgetPattern = new(
@@ -16,11 +16,11 @@ internal static class ObjectiveConditionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex NoCarPattern = new(
-        @"\bno car\b",
+        @"\b(?:no car|I don't have (?:access to )?a car|I do not have (?:access to )?a car|I won't have (?:access to )?a car|I will not have (?:access to )?a car|I'm without a car|I am without a car|I'm car-free|I am car-free)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex PreferencePattern = new(
-        @"\b(?:I would prefer|I prefer|I care about)\s+(?<value>[^.!?]+)",
+        @"\b(?:I would prefer|I prefer|I care about|I want(?!\s+to\b)|I would like(?!\s+to\b)|I'd like(?!\s+to\b))\s+(?<value>[^.!?]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public static ImmutableArray<ObjectiveCondition> Parse(string source)

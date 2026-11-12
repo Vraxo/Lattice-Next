@@ -70,6 +70,33 @@ public sealed class ObjectiveRequestTests
         }
     }
 
+    [Theory]
+    [InlineData("Can you help me put together a good day? I can spend up to $25. I don't have a car. I'd like somewhere quiet and outdoors.")]
+    [InlineData("Please put together a good day for me. I have $25 to spend. I won't have access to a car. I want somewhere quiet and outdoors.")]
+    [InlineData("Let's put together a good day. My maximum spend is $25. I'm without a car. I would like somewhere quiet and outdoors.")]
+    [InlineData("I would like to put together a good day. I don't want to spend more than $25. I'm car-free. I would prefer somewhere quiet and outdoors.")]
+    public void Parses_common_objective_request_paraphrases_into_the_same_typed_conditions(string input)
+    {
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var objective = Assert.IsType<ObjectiveFormula>(Assert.Single(result.Utterances).Meaning);
+        Assert.Equal(UtteranceKind.Objective, Assert.Single(result.Utterances).Kind);
+
+        var budget = Assert.Single(objective.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal(ObjectiveConditionRole.HardConstraint, budget.Role);
+        Assert.Equal(new ObjectiveMoneyValue(25m, "$"), budget.Value);
+
+        var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
+        Assert.Equal(ObjectiveConditionOperator.Excludes, transport.Operator);
+        Assert.Equal(new ObjectiveTextValue("car"), transport.Value);
+
+        var preference = Assert.Single(objective.Conditions, condition => condition.Name == "preference");
+        Assert.Equal(
+            new[] { "quiet", "outdoors" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
+    }
+
     [Fact]
     public void Represents_day_out_budget_transport_and_preference_without_collapsing_their_roles()
     {
