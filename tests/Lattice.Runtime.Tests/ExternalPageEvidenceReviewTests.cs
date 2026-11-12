@@ -155,7 +155,7 @@ public sealed class ExternalPageEvidenceReviewTests
         var unverifiedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(unverifiedStatus.ObjectiveEvaluation);
         var aster = Assert.Single(unverifiedEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
         Assert.Contains(aster.Conditions, condition =>
-            condition.ConditionName == "spending-limit" &&
+            condition.Name == "spending-limit" &&
             condition.Status == "Unverified");
         Assert.Contains(unverifiedEvaluation.EvidenceRequests, request =>
             request.Candidate == "Aster 14" &&
@@ -172,7 +172,7 @@ public sealed class ExternalPageEvidenceReviewTests
         var confirmedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(confirmedStatus.ObjectiveEvaluation);
         var confirmedAster = Assert.Single(confirmedEvaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
         Assert.Contains(confirmedAster.Conditions, condition =>
-            condition.ConditionName == "spending-limit" &&
+            condition.Name == "spending-limit" &&
             condition.Status == "Satisfied");
         Assert.DoesNotContain(confirmedEvaluation.EvidenceRequests, request =>
             request.Candidate == "Aster 14" &&
