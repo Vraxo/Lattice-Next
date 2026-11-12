@@ -1,0 +1,93 @@
+# First-use task completion checklist
+
+This checklist tracks the work required for Lattice to complete the first-use day-out task reliably, then checks that the same mechanisms transfer to a different domain. It is a product acceptance checklist, not a count of features or PRs.
+
+## Status key
+
+- [x] **Complete** — implemented and verified by automated tests or the recorded runtime benchmark.
+- [ ] **In progress** — a partial mechanism exists, but the acceptance criterion is not yet met.
+- [ ] **Not started** — no sufficient implementation exists yet.
+
+A checked item must have a repeatable test or benchmark. Passing a synthetic fixture does not establish live-world accuracy.
+
+## 1. Understand and retain the request
+
+- [x] Retain the user's goal and original wording as an objective.
+- [x] Distinguish hard constraints from preferences.
+- [x] Ask for a missing user-side hard-constraint value, such as the spending limit.
+- [x] Accept a typed answer to the outstanding budget clarification.
+- [x] Retain origin, availability window, and packed-lunch context from the benchmark exchange.
+- [x] Revise a hard constraint without discarding unrelated objective conditions.
+- [x] Add and remove individual preference items without replacing unrelated preferences.
+- [x] Preserve the objective across multiple turns in one session.
+- [ ] Reliably understand the full range of ordinary phrasings for the same intent, including corrections and ambiguous statements.
+- [ ] Ask targeted clarification when a user's answer could refer to more than one condition or candidate.
+
+## 2. Evaluate candidates honestly
+
+- [x] Load candidate facts and typed attributes from declarative knowledge packs.
+- [x] Evaluate hard constraints and distinguish Eligible, Excluded, Unresolved, and Not evaluated.
+- [x] Keep preferences separate from hard constraints.
+- [x] Assess each preference independently and preserve supporting/contrary evidence.
+- [x] Keep missing preference evidence Unknown rather than treating it as a mismatch.
+- [x] Explain evidence-backed preference trade-offs.
+- [x] Produce a conservative non-dominated shortlist without arbitrary weights or scores.
+- [x] Evaluate ordered activity/transport stages against time windows and actual timetable events.
+- [x] Return concrete feasible timetable witnesses.
+- [x] Identify candidate-specific missing hard-constraint evidence and expose a request for it.
+- [ ] Accept a user's answer to a candidate-specific evidence request and attach it to exactly that candidate and attribute.
+- [ ] Preserve source wording, source kind, and provenance for user-supplied candidate answers.
+- [ ] Re-evaluate all affected candidates and withdraw resolved evidence requests without changing unrelated facts.
+- [ ] Handle conflicting candidate answers explicitly, without silently overwriting earlier evidence.
+- [ ] Ask for the smallest useful missing fact, not a broad or repetitive questionnaire.
+
+## 3. Complete the day-out task
+
+- [x] Run the initial day-out request through the native runtime using the benchmark knowledge pack.
+- [x] Ask for the missing total budget before assessing affordability.
+- [x] Accept the $25 total budget and retain lunch, origin, and time-window details.
+- [x] Compare all four supplied destinations against the same constraints and preferences.
+- [x] Distinguish the feasible options and explain evidence-backed trade-offs.
+- [x] Produce unranked feasible outing options and concrete timetable witnesses where the evidence supports them.
+- [x] Revise the active plan after the user says “Walking only.”
+- [x] Exclude bus-dependent destinations after that revision and retain the other constraints.
+- [x] Keep Riverside Gardens' quiet-preference mismatch visible rather than presenting it as a perfect match.
+- [ ] Demonstrate the full conversation with missing candidate evidence answered during the same session.
+- [ ] Produce a concise, coherent final day plan that clearly separates confirmed facts, assumptions, unknowns, and user actions.
+- [ ] Handle infeasible requests by explaining the blocking constraints and asking whether the user wants to relax one.
+- [ ] Verify robustness against paraphrases, reordered information, repeated corrections, contradictions, and unsupported requests.
+
+## 4. Use real-world information safely
+
+- [ ] Acquire current candidate information through reusable retrieval/tool capabilities rather than benchmark-only data.
+- [ ] Preserve the URL/source, retrieval time, and relevant quoted or summarized evidence for each observation.
+- [ ] Distinguish stale, unavailable, conflicting, and unverified information.
+- [ ] Treat live schedules, prices, opening hours, weather, and disruptions as time-sensitive; verify them before relying on them.
+- [ ] Apply URL and tool safety boundaries before fetching or acting on external content.
+- [ ] Never turn missing data into a positive or negative claim.
+- [ ] Make clear which parts of a plan require user confirmation or booking.
+
+## 5. Prove the mechanisms transfer
+
+- [x] Run the same objective/evaluator mechanisms against the sparse laptop comparison benchmark.
+- [x] Keep unsupported price, screen-quality, and reliability claims Unknown.
+- [x] Surface Cedar 14's supplied upgrade-path evidence without inventing a reliability ranking.
+- [x] Request the missing total-cost evidence for each unresolved laptop candidate.
+- [ ] Accept candidate-specific price answers and update the laptop comparison through the same generic path.
+- [ ] Demonstrate at least one additional, materially different task without adding a domain-specific workflow.
+- [ ] Show that the system can combine existing mechanisms in a task that was not used to implement them.
+
+## 6. Acceptance gate: first-use task
+
+The first-use task is complete when all of the following are true:
+
+- [ ] A fresh session can complete the benchmark from the user's initial natural-language request through the final walking-only revision.
+- [ ] Missing user information and missing candidate evidence are requested at the right level and can be answered naturally.
+- [ ] The final recommendation is feasible, evidence-backed, and understandable.
+- [ ] All material claims have traceable provenance or are explicitly labelled as unknown.
+- [ ] Corrections update only the intended part of the task.
+- [ ] The same generic mechanisms pass the laptop transfer benchmark.
+- [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
+- [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
+
+**Current assessment:** the synthetic day-out flow and the first laptop transfer checkpoint are implemented. The most immediate gap is accepting candidate-specific evidence answers; live information acquisition and broader transfer remain future work. This checklist should be updated in the same PR that changes any item's status.
