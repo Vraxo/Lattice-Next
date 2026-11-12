@@ -209,16 +209,18 @@ public sealed class ObjectiveEvaluator
                 .Where(attribute => attribute.Subject == candidate && attribute.IncludeInSummary)
                 .ToImmutableArray(),
             MissingHardConstraintAttributes = objective.Conditions
-                .Where(condition =>
-                    condition.Role == ObjectiveConditionRole.HardConstraint &&
-                    !string.IsNullOrWhiteSpace(condition.TargetAttribute))
-                .Where(condition => !attributes.Any(attribute =>
+                .Select((condition, index) => (Condition: condition, Assessment: conditions[index]))
+                .Where(item =>
+                    item.Condition.Role == ObjectiveConditionRole.HardConstraint &&
+                    item.Assessment.Status == ObjectiveConditionAssessmentStatus.Unknown &&
+                    !string.IsNullOrWhiteSpace(item.Condition.TargetAttribute))
+                .Where(item => !attributes.Any(attribute =>
                     attribute.Subject == candidate &&
                     string.Equals(
                         attribute.Name.Value,
-                        condition.TargetAttribute,
+                        item.Condition.TargetAttribute,
                         StringComparison.OrdinalIgnoreCase)))
-                .Select(condition => condition.TargetAttribute!)
+                .Select(item => item.Condition.TargetAttribute!)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToImmutableArray()
         };
