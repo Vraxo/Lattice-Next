@@ -73,7 +73,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [ ] Treat live schedules, prices, opening hours, weather, and disruptions as time-sensitive; verify them before relying on them.
 - [x] Apply URL and tool safety boundaries before fetching or acting on external content.
 - [ ] Never turn missing data into a positive or negative claim.
-- [ ] Make clear which parts of a plan require user confirmation or booking.
+- [x] Make clear which parts of a plan require user confirmation or booking.
 
 ## 5. Prove the mechanisms transfer
 
