@@ -22,6 +22,10 @@ public sealed class LceParser
         @"^(?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ObjectiveMoneySpendResponsePattern = new(
+        @"^I can spend up to (?<symbol>[$€£])\s*(?<amount>\d[\d,]*(?:\.\d{1,2})?)(?:\s+total)?\.$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex BringLunchPattern = new(
         @"^I'll bring lunch\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -471,6 +475,11 @@ public sealed class LceParser
         out SemanticUtterance? utterance)
     {
         var match = ObjectiveMoneyResponsePattern.Match(source);
+
+        if (!match.Success)
+        {
+            match = ObjectiveMoneySpendResponsePattern.Match(source);
+        }
 
         if (!match.Success ||
             !decimal.TryParse(
