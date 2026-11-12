@@ -170,3 +170,10 @@ Repeated identical values merge provenance rather than creating duplicate attrib
 For a missing hard-constraint attribute whose expected candidate value is text, a candidate-named statement such as "Quiet Park's transport mode is walking." can supply the value. The parser converts the attribute phrase to its canonical attribute identifier; the runtime accepts it only when that candidate and attribute are currently requested, or when the candidate already has that attribute and the active objective contains the matching hard constraint.
 
 The text value is stored as a typed candidate attribute with UserAssertion provenance and the original wording. Unsupported operators or value types are rejected without changing the knowledge base. This extends candidate evidence beyond money while keeping the language-to-attribute mapping explicit and auditable.
+
+
+## Reviewed external candidate evidence
+
+The shared session contract supports user-reviewed monetary evidence for a candidate's total cost. The caller supplies the candidate, amount and currency, supporting excerpt, source URL, and retrieval timestamp. The runtime accepts it only when the active objective contains exactly one monetary total-cost constraint, the candidate is known, the currency matches the objective budget, and the candidate either has an outstanding total-cost evidence request or an existing total-cost attribute.
+
+Accepted evidence is stored as an `ExternalObservation` with its URL and retrieval time retained in source provenance and exposed through objective evidence. Repeated identical values merge source records; different values remain separate evidence and are assessed as a conflict. The operation does not fetch a page or extract a claim: callers must retrieve the page, select the value and supporting excerpt, and obtain user review before submitting it.

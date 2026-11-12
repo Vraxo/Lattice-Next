@@ -14,8 +14,13 @@ public sealed record KnowledgeAttribute(
 {
     public bool IncludeInSummary { get; init; }
 
+    public DateTimeOffset? RetrievedAt { get; init; }
+
     public ImmutableArray<KnowledgeSource> Sources =>
-        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId))
+        ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId)
+            {
+                RetrievedAt = RetrievedAt
+            })
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty
                 : AdditionalSources);

@@ -61,7 +61,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 ## 4. Use real-world information safely
 
 - [ ] Acquire current candidate information through reusable retrieval/tool capabilities rather than benchmark-only data.
-- [ ] Preserve the URL/source, retrieval time, and relevant quoted or summarized evidence for each observation.
+- [x] Preserve the URL/source, retrieval time, and reviewed supporting excerpt for accepted external monetary observations.
 - [ ] Distinguish stale, unavailable, conflicting, and unverified information.
 - [ ] Treat live schedules, prices, opening hours, weather, and disruptions as time-sensitive; verify them before relying on them.
 - [ ] Apply URL and tool safety boundaries before fetching or acting on external content.
