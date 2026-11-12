@@ -242,13 +242,36 @@ public sealed class KnowledgePackLoader
         foreach (var item in items)
         {
             JsonElement summaryElement = default;
+            JsonElement requiresFreshnessElement = default;
+            JsonElement freshUntilElement = default;
             var hasSummary = item.ValueKind == JsonValueKind.Object &&
                 item.TryGetProperty("summary", out summaryElement);
+            var hasRequiresFreshness = item.ValueKind == JsonValueKind.Object &&
+                item.TryGetProperty("requiresFreshness", out requiresFreshnessElement);
+            var hasFreshUntil = item.ValueKind == JsonValueKind.Object &&
+                item.TryGetProperty("freshUntil", out freshUntilElement);
+            DateTimeOffset? freshUntil = null;
+
+            if (hasFreshUntil)
+            {
+                if (freshUntilElement.ValueKind != JsonValueKind.String ||
+                    !DateTimeOffset.TryParse(
+                        freshUntilElement.GetString(),
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                        out var parsedFreshUntil))
+                {
+                    error = "A typed attribute freshUntil value must be a valid timestamp.";
+                    return false;
+                }
+
+                freshUntil = parsedFreshUntil;
+            }
 
             if (item.ValueKind != JsonValueKind.Object ||
-                (!HasExactProperties(item, "subject", "name", "value", "sourceText") &&
-                    !HasExactProperties(item, "subject", "name", "value", "sourceText", "summary")) ||
+                !HasOnlyProperties(item, "subject", "name", "value", "sourceText", "summary", "requiresFreshness", "freshUntil") ||
                 (hasSummary && summaryElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
+                (hasRequiresFreshness && requiresFreshnessElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
                 !TryGetString(item, "subject", out var subject) ||
                 !TryGetString(item, "name", out var name) ||
                 !TryGetString(item, "sourceText", out var sourceText) ||
@@ -258,7 +281,7 @@ public sealed class KnowledgePackLoader
                 !item.TryGetProperty("value", out var valueElement) ||
                 !TryParseAttributeValue(valueElement, out var value))
             {
-                error = "Every typed attribute must contain non-empty subject, name, and sourceText strings plus a supported typed value; optional summary metadata must be boolean.";
+                error = "Every typed attribute must contain non-empty subject, name, and sourceText strings plus a supported typed value; optional summary, requiresFreshness, and freshUntil metadata must be valid.";
                 return false;
             }
 
@@ -270,7 +293,9 @@ public sealed class KnowledgePackLoader
                 KnowledgeSourceKind.ImportedClaim,
                 SourceId: packId)
             {
-                IncludeInSummary = hasSummary && summaryElement.GetBoolean()
+                IncludeInSummary = hasSummary && summaryElement.GetBoolean(),
+                RequiresFreshness = (hasRequiresFreshness && requiresFreshnessElement.GetBoolean()) || hasFreshUntil,
+                FreshUntil = freshUntil
             });
         }
 
@@ -519,6 +544,18 @@ public sealed class KnowledgePackLoader
 
         value = property.GetString() ?? string.Empty;
         return true;
+    }
+
+    private static bool HasOnlyProperties(JsonElement element, params string[] allowed)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        var names = element.EnumerateObject().Select(property => property.Name).ToArray();
+        return names.Distinct(StringComparer.Ordinal).Count() == names.Length &&
+            names.All(name => allowed.Contains(name, StringComparer.Ordinal));
     }
 
     private static bool HasExactProperties(JsonElement element, params string[] expected)

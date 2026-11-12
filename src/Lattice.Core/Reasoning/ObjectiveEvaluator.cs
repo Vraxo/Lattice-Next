@@ -382,14 +382,14 @@ public sealed class ObjectiveEvaluator
                 .Where(attribute => attribute.Sources.Any(source =>
                     source.FreshUntil is { } freshUntil
                         ? freshUntil > now
-                        : source.Kind != KnowledgeSourceKind.ExternalObservation))
+                        : !source.RequiresFreshness))
                 .ToImmutableArray();
 
             if (usableEvidence.IsDefaultOrEmpty)
             {
                 var sources = evidence.SelectMany(attribute => attribute.Sources).ToArray();
                 var hasUnverifiedSource = sources.Any(source =>
-                    source.Kind == KnowledgeSourceKind.ExternalObservation &&
+                    source.RequiresFreshness &&
                     source.FreshUntil is null);
                 var hasStaleSource = sources.Any(source =>
                     source.FreshUntil is { } freshUntil &&

@@ -760,7 +760,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                         source.SourceText,
                         source.SourceId,
                         source.RetrievedAt,
-                        source.FreshUntil))
+                        source.FreshUntil,
+                        source.RequiresFreshness))
                     .ToImmutableArray())
             {
                 TemporalWitness = condition.TemporalWitness.Select(stage => new LatticeObjectiveTemporalStage(
@@ -781,7 +782,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                             source.SourceText,
                             source.SourceId,
                             source.RetrievedAt,
-                            source.FreshUntil))
+                            source.FreshUntil,
+                            source.RequiresFreshness))
                         .ToImmutableArray()))
                     .ToImmutableArray()
             })
@@ -828,7 +830,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 source.SourceText,
                 source.SourceId,
                 source.RetrievedAt,
-                source.FreshUntil))
+                source.FreshUntil,
+                source.RequiresFreshness))
             .ToImmutableArray();
 
     private static LatticeEvidence MapEvidence(ProofNode proof)

@@ -315,6 +315,36 @@ public sealed class ObjectiveEvaluatorTests
     }
 
     [Fact]
+    public void Treats_imported_attributes_marked_as_freshness_required_as_unverified_without_expiry()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        AddAttribute(knowledgeBase, "Candidate", "transport-mode", new ObjectiveTextValue("walking"));
+        AddAttribute(knowledgeBase, "Candidate", "tags", new ObjectiveTextSetValue(
+            ImmutableArray.Create("quiet", "outdoors")));
+
+        var added = knowledgeBase.TryAddAttribute(
+            new KnowledgeAttribute(
+                new SemanticIdentifier("Candidate"),
+                new SemanticIdentifier("total-cost"),
+                new ObjectiveMoneyValue(6m, "$"),
+                "The current price must be checked before use.",
+                KnowledgeSourceKind.ImportedClaim,
+                SourceId: "time-sensitive-pack")
+            {
+                RequiresFreshness = true
+            },
+            out var error);
+        Assert.True(added, error);
+
+        var evaluation = evaluator.Evaluate(CreateDayOutObjective(), knowledgeBase);
+        var candidate = Assert.Single(evaluation.Candidates);
+
+        Assert.Equal(ObjectiveConditionAssessmentStatus.Unverified, GetCondition(candidate, "spending-limit").Status);
+        Assert.Equal(CandidateFeasibility.Unresolved, candidate.Feasibility);
+        Assert.Contains(evaluation.EvidenceRequests, request => request.ConditionName == "spending-limit");
+    }
+
+    [Fact]
     public void Keeps_external_preferences_unverified_without_a_freshness_window()
     {
         var knowledgeBase = new KnowledgeBase();
