@@ -87,3 +87,30 @@ Typed attributes can be loaded through the same versioned pack path as LCE claim
 The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candidates.json`. It includes all four candidates, cost components and derived total-cost expressions, access and activity durations, qualitative tags, opening windows, and the supplied bus timetables. Unspecified facilities and services are represented by missing attributes, not invented values. The total-cost expressions sum the supplied return fare and entry cost; they are not hardcoded totals.
 
 Pack unloading, replacement, persistence, candidate ranking, and planning are not implemented.
+
+
+## Concept definitions
+
+A knowledge pack can provide a definition using an ordinary typed text attribute whose subject is the exact concept identifier and whose name is `definition`. For example:
+
+```json
+{
+  "formatVersion": 1,
+  "id": "geometry-definitions",
+  "name": "Geometry definitions",
+  "claims": [],
+  "attributes": [
+    {
+      "subject": "polygon",
+      "name": "definition",
+      "value": {
+        "type": "text",
+        "value": "A polygon is a closed plane figure made of straight line segments."
+      },
+      "sourceText": "A polygon is a closed plane figure made of straight line segments."
+    }
+  ]
+}
+```
+
+The request `What is a polygon?` retrieves this text and returns the imported pack ID and source text as evidence. A modified request such as `What is a regular polygon?` requires a definition whose subject is exactly `regular polygon`; it does not silently substitute the broader `polygon` definition. Missing or conflicting definitions are reported as unavailable. Definitions that require freshness are not used after their freshness deadline or when no valid deadline is supplied.
