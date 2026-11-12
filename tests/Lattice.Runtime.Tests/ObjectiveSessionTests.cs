@@ -90,6 +90,50 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Noisy Park is outdoors and is not quiet.", status.ObjectiveExplanation);
     }
 
+    [Fact]
+    public async Task Presents_preference_tradeoffs_as_a_concise_choice_and_keeps_the_evidence_for_why()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "objective-preference-tradeoff",
+              "name": "Objective preference trade-off",
+              "claims": [],
+              "attributes": [
+                { "subject": "Quiet Grove", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Quiet Grove is reachable on foot." },
+                { "subject": "Quiet Grove", "name": "tags", "value": { "type": "textSet", "values": ["quiet"], "excludedValues": ["outdoors"] }, "sourceText": "Quiet Grove is quiet but not outdoors." },
+                { "subject": "Open Meadow", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Open Meadow is reachable on foot." },
+                { "subject": "Open Meadow", "name": "tags", "value": { "type": "textSet", "values": ["outdoors"], "excludedValues": ["quiet"] }, "sourceText": "Open Meadow is outdoors but not quiet." }
+              ]
+            }
+            """;
+
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        var result = await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me choose a place.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+
+        Assert.Equal("MultipleNonDominatedCandidates", evaluation.Recommendation.Status);
+        Assert.Equal(
+            new[] { "Quiet Grove", "Open Meadow" },
+            evaluation.Recommendation.ShortlistedCandidates);
+        Assert.Equal(2, evaluation.PreferenceTradeOffs.Length);
+
+        var message = result.Utterances.Single().Message;
+        Assert.Contains("You have two good options: Quiet Grove and Open Meadow.", message);
+        Assert.Contains("Quiet Grove has stronger evidence for quiet than Open Meadow.", message);
+        Assert.Contains("Open Meadow has stronger evidence for outdoors than Quiet Grove.", message);
+        Assert.DoesNotContain("Evidence:", message);
+        Assert.Contains("Quiet Grove is quiet but not outdoors.", status.ObjectiveExplanation);
+        Assert.Contains("Open Meadow is outdoors but not quiet.", status.ObjectiveExplanation);
+    }
+
     [Theory]
     [InlineData("I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.", "put together a good day", LatticeUtteranceResultKind.ClarificationRequired)]
     [InlineData("I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.", "compare these three options", LatticeUtteranceResultKind.ObjectiveReceived)]
