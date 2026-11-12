@@ -23,6 +23,40 @@ internal static class UniversalRuleFactory
             return false;
         }
 
+        if (implication.Conclusion is ExistentialQuantification existentialConclusion)
+        {
+            if (!TryGetBoundRulePremises(
+                    implication.Premise,
+                    variable,
+                    out var existentialPremises,
+                    out var existentialNegativePremises,
+                    out var existentialRelationalPremises,
+                    out var existentialNegativeRelationalPremises) ||
+                !TryCreateExistentialConclusion(
+                    existentialConclusion,
+                    variable,
+                    out var existentialRuleConclusion))
+            {
+                return false;
+            }
+
+            rule = new UniversalRule(
+                existentialPremises,
+                existentialRuleConclusion!.Relation,
+                sourceText,
+                sourceKind,
+                SourceId: sourceId)
+            {
+                ConclusionPolarity = EvidencePolarity.Positive,
+                NegativePremises = existentialNegativePremises,
+                RelationalPremises = existentialRelationalPremises,
+                NegativeRelationalPremises = existentialNegativeRelationalPremises,
+                ExistentialConclusion = existentialRuleConclusion
+            };
+
+            return true;
+        }
+
         var ruleConclusion = implication.Conclusion switch
         {
             PredicateApplication predicate => predicate,
@@ -70,6 +104,79 @@ internal static class UniversalRuleFactory
                 SourceKind: sourceKind,
                 SourceId: sourceId))
             .ToImmutableArray();
+
+        return true;
+    }
+
+    private static bool TryCreateExistentialConclusion(
+        ExistentialQuantification existential,
+        VariableTerm subject,
+        out ExistentialRuleConclusion? conclusion)
+    {
+        conclusion = null;
+
+        var conjuncts = existential.Body switch
+        {
+            PredicateApplication predicate => ImmutableArray.Create<SemanticFormula>(predicate),
+            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
+                conjunction.Conjuncts,
+            _ => ImmutableArray<SemanticFormula>.Empty
+        };
+
+        if (conjuncts.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        PredicateApplication? relation = null;
+        var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
+
+        foreach (var conjunct in conjuncts)
+        {
+            if (conjunct is not PredicateApplication predicate ||
+                string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
+                predicate.Arguments.IsDefault)
+            {
+                return false;
+            }
+
+            if (predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm relationSubject &&
+                relationSubject.Identifier == subject.Identifier &&
+                predicate.Arguments[1] is VariableTerm relationWitness &&
+                relationWitness.Identifier == existential.Variable.Identifier)
+            {
+                if (relation is not null)
+                {
+                    return false;
+                }
+
+                relation = predicate;
+                continue;
+            }
+
+            if (predicate.Arguments.Length == 1 &&
+                predicate.Arguments[0] is VariableTerm conditionWitness &&
+                conditionWitness.Identifier == existential.Variable.Identifier)
+            {
+                conditions.Add(predicate);
+                continue;
+            }
+
+            return false;
+        }
+
+        if (relation is null || conditions.Count == 0 ||
+            string.IsNullOrWhiteSpace(subject.Identifier.Value) ||
+            string.IsNullOrWhiteSpace(existential.Variable.Identifier.Value))
+        {
+            return false;
+        }
+
+        conclusion = new ExistentialRuleConclusion(
+            existential.Variable,
+            conditions.ToImmutable(),
+            relation);
 
         return true;
     }
