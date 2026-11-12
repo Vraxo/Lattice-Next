@@ -308,12 +308,21 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             candidateCondition.TargetAttribute == attribute.Value &&
             (requestedConditionName is null || candidateCondition.Name == requestedConditionName));
 
-        if (condition?.Value is not ObjectiveMoneyValue ||
-            information.Value is not ObjectiveMoneyValue)
+        var hasCompatibleValue = condition is not null &&
+            (condition.Operator switch
+            {
+                ObjectiveConditionOperator.AtMost =>
+                    condition.Value is ObjectiveMoneyValue && information.Value is ObjectiveMoneyValue,
+                ObjectiveConditionOperator.Excludes or ObjectiveConditionOperator.Equals =>
+                    condition.Value is ObjectiveTextValue && information.Value is ObjectiveTextValue,
+                _ => false
+            });
+
+        if (!hasCompatibleValue)
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
-                $"The requested value for {candidate.Value} is not a monetary amount. No candidate information was changed.",
+                $"The supplied value type does not match the requested attribute for {candidate.Value}. No candidate information was changed.",
                 SemanticFormatter.Format(parsedUtterance));
         }
 
@@ -335,9 +344,14 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         var originalSource = activeObjectiveSource ?? objective.Goal;
         activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
 
-        var money = (ObjectiveMoneyValue)information.Value;
-        var amount = money.Amount.ToString(CultureInfo.InvariantCulture);
-        var message = $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{amount}.";
+        var message = information.Value switch
+        {
+            ObjectiveMoneyValue money =>
+                $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{money.Amount.ToString(CultureInfo.InvariantCulture)}.",
+            ObjectiveTextValue text =>
+                $"Recorded {storedCandidate.Value}'s {attribute.Value} as {text.Value}.",
+            _ => $"Recorded candidate evidence for {storedCandidate.Value}."
+        };
         message = AppendObjectiveEvaluation(message, objective);
 
         return new LatticeUtteranceResult(

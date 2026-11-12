@@ -840,4 +840,65 @@ public sealed class ObjectiveSessionTests
             evidenceRequest => evidenceRequest.Candidate == "Aster 14");
     }
 
+    [Fact]
+    public async Task Accepts_requested_text_candidate_attributes_with_candidate_and_attribute_validation()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "candidate-text-evidence",
+              "name": "Candidate text evidence",
+              "claims": [],
+              "attributes": [{
+                "subject": "Quiet Park",
+                "name": "tags",
+                "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                "sourceText": "Quiet Park is quiet and outdoors."
+              }]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+
+        var request = await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me find a place.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeTurnStatus.Completed, request.Status);
+
+        var initial = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(initial.ObjectiveEvaluation);
+        var evidenceRequest = Assert.Single(initialEvaluation.EvidenceRequests);
+        Assert.Equal("Quiet Park", evidenceRequest.Candidate);
+        Assert.Equal("transport-mode", evidenceRequest.AttributeName);
+
+        var unrelated = await session.SubmitAsync(
+            "Other Park's transport mode is walking.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, Assert.Single(unrelated.Utterances).Kind);
+        Assert.Contains("No candidate information was changed", unrelated.Utterances.Single().Message);
+        Assert.Single(Assert.IsType<LatticeObjectiveEvaluation>(
+            (await session.GetStatusAsync(TestContext.Current.CancellationToken)).ObjectiveEvaluation)
+            .EvidenceRequests);
+
+        var answer = await session.SubmitAsync(
+            "Quiet Park's transport mode is walking.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(answer.Utterances).Kind);
+        Assert.Contains("Recorded Quiet Park's transport-mode as walking.", answer.Utterances.Single().Message);
+
+        var finalStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var finalEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(finalStatus.ObjectiveEvaluation);
+        Assert.Empty(finalEvaluation.EvidenceRequests);
+        var candidate = Assert.Single(finalEvaluation.Candidates, item => item.Candidate == "Quiet Park");
+        Assert.Equal("Eligible", candidate.Feasibility);
+        var transport = Assert.Single(candidate.Conditions, condition => condition.Name == "transport");
+        Assert.Equal("Satisfied", transport.Status);
+        var evidence = Assert.Single(transport.Evidence);
+        Assert.Equal("UserAssertion", evidence.Kind);
+        Assert.Equal("Quiet Park's transport mode is walking.", evidence.SourceText);
+        Assert.Equal(0, finalStatus.FactCount);
+    }
+
 }
