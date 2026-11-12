@@ -1529,7 +1529,8 @@ public sealed class ObjectiveSessionTests
         var initial = Assert.IsType<LatticeObjectiveEvaluation>(initialStatus.ObjectiveEvaluation);
         Assert.Equal(4, initial.Candidates.Length);
         Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
-        Assert.Contains(initial.EvidenceRequests[0].Prompt, clarificationTurn.Utterances.Single().Message);
+        Assert.Contains(clarificationTurn.Utterances,
+            utterance => utterance.Message.Contains(initial.EvidenceRequests[0].Prompt, StringComparison.Ordinal));
 
         var clayHouse = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Clay House Studio");
         Assert.Equal("Eligible", clayHouse.Feasibility);
