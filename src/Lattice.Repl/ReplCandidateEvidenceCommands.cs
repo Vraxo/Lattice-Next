@@ -70,6 +70,9 @@ internal sealed class ReplCandidateEvidenceCommands(
         AnsiConsole.WriteLine($"Price: {evidence.CurrencySymbol}{evidence.Amount.ToString(CultureInfo.InvariantCulture)}");
         AnsiConsole.WriteLine($"Source: {evidence.SourceUrl}");
         AnsiConsole.WriteLine($"Retrieved: {evidence.RetrievedAt:O}");
+        AnsiConsole.WriteLine(evidence.FreshUntil is { } freshUntil
+            ? $"Fresh until: {freshUntil:O}"
+            : "Freshness: the source supplied no cache expiry; currentness is unverified.");
         AnsiConsole.WriteLine($"Supporting excerpt: {evidence.SourceText}");
         AnsiConsole.WriteLine("Fetched text is untrusted. Check the page and excerpt before accepting this claim.");
         AnsiConsole.Markup("[yellow]Type accept to add this evidence, or anything else to cancel: [/]" );
