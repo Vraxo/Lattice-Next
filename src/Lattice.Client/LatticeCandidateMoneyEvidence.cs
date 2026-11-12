@@ -7,4 +7,7 @@ public sealed record LatticeCandidateMoneyEvidence(
     string CurrencySymbol,
     string SourceText,
     string SourceUrl,
-    DateTimeOffset RetrievedAt);
+    DateTimeOffset RetrievedAt)
+{
+    public DateTimeOffset? FreshUntil { get; init; }
+}

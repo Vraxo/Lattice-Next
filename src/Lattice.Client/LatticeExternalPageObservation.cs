@@ -7,4 +7,5 @@ public sealed record LatticeExternalPageObservation(
     int HttpStatus,
     string ContentType,
     string Text,
-    string? Title = null);
+    string? Title = null,
+    DateTimeOffset? FreshUntil = null);

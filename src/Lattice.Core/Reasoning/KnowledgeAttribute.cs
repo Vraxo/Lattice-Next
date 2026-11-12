@@ -16,10 +16,13 @@ public sealed record KnowledgeAttribute(
 
     public DateTimeOffset? RetrievedAt { get; init; }
 
+    public DateTimeOffset? FreshUntil { get; init; }
+
     public ImmutableArray<KnowledgeSource> Sources =>
         ImmutableArray.Create(new KnowledgeSource(SourceKind, SourceText, SourceId: SourceId)
             {
-                RetrievedAt = RetrievedAt
+                RetrievedAt = RetrievedAt,
+                FreshUntil = FreshUntil
             })
             .AddRange(AdditionalSources.IsDefault
                 ? ImmutableArray<KnowledgeSource>.Empty

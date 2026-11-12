@@ -104,6 +104,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 evidence.SourceText.Length > 4000 ||
                 evidence.RetrievedAt == default ||
                 evidence.RetrievedAt > DateTimeOffset.UtcNow.AddMinutes(5) ||
+                (evidence.FreshUntil is { } freshUntil && freshUntil <= DateTimeOffset.UtcNow) ||
                 !Uri.TryCreate(evidence.SourceUrl, UriKind.Absolute, out var sourceUri) ||
                 sourceUri.Scheme is not ("http" or "https") ||
                 string.IsNullOrWhiteSpace(sourceUri.Host) ||
@@ -168,7 +169,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 KnowledgeSourceKind.ExternalObservation,
                 SourceId: sourceUri.AbsoluteUri)
             {
-                RetrievedAt = evidence.RetrievedAt
+                RetrievedAt = evidence.RetrievedAt,
+                FreshUntil = evidence.FreshUntil
             };
 
             if (!knowledgeBase.TryAddAttribute(attribute, out var error))
@@ -757,7 +759,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                         source.Kind.ToString(),
                         source.SourceText,
                         source.SourceId,
-                        source.RetrievedAt))
+                        source.RetrievedAt,
+                        source.FreshUntil))
                     .ToImmutableArray())
             {
                 TemporalWitness = condition.TemporalWitness.Select(stage => new LatticeObjectiveTemporalStage(
@@ -777,7 +780,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                             source.Kind.ToString(),
                             source.SourceText,
                             source.SourceId,
-                        source.RetrievedAt))
+                            source.RetrievedAt,
+                            source.FreshUntil))
                         .ToImmutableArray()))
                     .ToImmutableArray()
             })
@@ -822,7 +826,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             .Select(source => new LatticeObjectiveEvidenceSource(
                 source.Kind.ToString(),
                 source.SourceText,
-                source.SourceId))
+                source.SourceId,
+                source.RetrievedAt,
+                source.FreshUntil))
             .ToImmutableArray();
 
     private static LatticeEvidence MapEvidence(ProofNode proof)

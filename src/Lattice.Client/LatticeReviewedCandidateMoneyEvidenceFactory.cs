@@ -25,6 +25,12 @@ public static class LatticeReviewedCandidateMoneyEvidenceFactory
             return false;
         }
 
+        if (page.FreshUntil is { } freshUntil && freshUntil <= DateTimeOffset.UtcNow)
+        {
+            error = $"The fetched page is stale; its freshness expired at {freshUntil:O}. Fetch it again before reviewing this claim.";
+            return false;
+        }
+
         if (!page.Text.Contains(excerpt, StringComparison.Ordinal))
         {
             error = "The supporting excerpt must appear exactly in the fetched page text.";
@@ -37,7 +43,10 @@ public static class LatticeReviewedCandidateMoneyEvidenceFactory
             currencySymbol.Trim(),
             excerpt,
             page.SourceUrl,
-            page.RetrievedAt);
+            page.RetrievedAt)
+        {
+            FreshUntil = page.FreshUntil
+        };
         return true;
     }
 }
