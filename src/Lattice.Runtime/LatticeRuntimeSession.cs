@@ -126,6 +126,17 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                         typedValueError ?? "The reviewed candidate attribute value is invalid."));
             }
 
+            if (!KnowledgePackLoader.TryParseTypedAttributeValue(
+                    evidence.Value,
+                    out var typedValue,
+                    out var typedValueError) ||
+                typedValue is null)
+            {
+                return ValueTask.FromResult(
+                    LatticeCandidateEvidenceResult.Rejected(
+                        typedValueError ?? "The reviewed candidate attribute value is invalid."));
+            }
+
             var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
                 string.Equals(attribute.Subject.Value, evidence.Candidate, StringComparison.OrdinalIgnoreCase));
 
@@ -234,7 +245,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 !sourceUri.IsDefaultPort)
             {
                 return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected(typedValueError ?? "The reviewed candidate attribute evidence contains an invalid value or source."));
+                    LatticeCandidateEvidenceResult.Rejected("The reviewed candidate attribute evidence contains an invalid value or source."));
             }
 
             var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
@@ -270,7 +281,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     LatticeCandidateEvidenceResult.Rejected("The reviewed value type does not match the active objective's candidate attribute."));
             }
 
-            if (evidence.Value is ObjectiveMoneyValue money &&
+            if (typedValue is ObjectiveMoneyValue money &&
                 matchingConditions
                     .Select(condition => condition.Value)
                     .OfType<ObjectiveMoneyValue>()
