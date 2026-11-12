@@ -1592,6 +1592,13 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("beginner wheel-throwing class", response);
         Assert.Contains("beginner glazing and shaping class", response);
         Assert.Contains("Walk", response);
+        Assert.Contains(
+            "Both meet your requirements and match your stated preferences for a small group and beginner-friendly instruction.",
+            response);
+        Assert.Contains(
+            $"{Environment.NewLine}{Environment.NewLine}Note: These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving. No booking has been made.",
+            response);
+        Assert.DoesNotContain("Both fit your budget", response);
         Assert.DoesNotContain("outing", response, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Candidate assessment", response);
         Assert.DoesNotContain("Evidence:", response);
