@@ -35,7 +35,7 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TimeWindowPattern = new(
-        @"\b(?:(?:I can )?(?:leave at|head out at|set off at) (?<start>\d{1,2}:\d{2}) and (?:be back|return) by (?<end>\d{1,2}:\d{2})|(?:(?:I can )?(?:be back|return) by|I need to be back by|I need to return by) (?<reverseEnd>\d{1,2}:\d{2}) and (?:I can )?(?:leave at|head out at|set off at) (?<reverseStart>\d{1,2}:\d{2}))",
+        @"\b(?:(?:I can )?(?:leave at|head out at|set off at) (?<start>\d{1,2}:\d{2}) and (?:be back|return) by (?<end>\d{1,2}:\d{2})|(?:(?:I can )?(?:be back|return) by|I need to be back by|I need to return by) (?<reverseEnd>\d{1,2}:\d{2}) and (?:(?:I )?can )?(?:leave at|head out at|set off at) (?<reverseStart>\d{1,2}:\d{2}))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex NoBusPattern = new(
