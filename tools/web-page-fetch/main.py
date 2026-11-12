@@ -361,7 +361,7 @@ def write_failure(request_id: Any, message: str) -> None:
         "success": False,
         "error": message,
     }
-    sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\\n")
+    sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
 
 
 def main() -> None:
