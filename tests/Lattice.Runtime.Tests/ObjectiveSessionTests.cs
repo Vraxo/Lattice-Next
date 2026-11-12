@@ -1,4 +1,7 @@
+using System.Collections.Immutable;
+using System.Reflection;
 using Lattice.Client;
+using Lattice.Core.Semantics;
 using Lattice.Runtime;
 using Xunit;
 
@@ -473,6 +476,111 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
+    public async Task Clarifies_when_a_typed_answer_matches_multiple_pending_conditions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+
+        var spendingLimit = new ObjectiveCondition(
+            "spending-limit",
+            ObjectiveConditionRole.HardConstraint,
+            ObjectiveConditionOperator.AtMost,
+            null,
+            "limited budget")
+        {
+            TargetAttribute = "total-cost",
+            ExpectedValueKind = ObjectiveConditionValueKind.Money,
+            MissingValuePrompt = "What is your spending limit?"
+        };
+        var activityLimit = new ObjectiveCondition(
+            "activity-limit",
+            ObjectiveConditionRole.HardConstraint,
+            ObjectiveConditionOperator.AtMost,
+            null,
+            "limited activity budget")
+        {
+            TargetAttribute = "activity-cost",
+            ExpectedValueKind = ObjectiveConditionValueKind.Money,
+            MissingValuePrompt = "What is your activity budget?"
+        };
+        var objective = new ObjectiveFormula("plan an outing")
+        {
+            Conditions = ImmutableArray.Create(spendingLimit, activityLimit)
+        };
+
+        var runtimeType = session.GetType();
+        const BindingFlags privateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
+        runtimeType.GetField("activeObjective", privateInstance)!.SetValue(session, objective);
+        runtimeType.GetField("pendingObjectiveCondition", privateInstance)!.SetValue(session, spendingLimit);
+
+        var result = await session.SubmitAsync("$25 total.", TestContext.Current.CancellationToken);
+        var utterance = Assert.Single(result.Utterances);
+
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, utterance.Kind);
+        Assert.Contains("spending-limit", utterance.Message);
+        Assert.Contains("activity-limit", utterance.Message);
+        Assert.Contains("What is your spending limit?", utterance.Message);
+        Assert.Contains("What is your activity budget?", utterance.Message);
+        Assert.Contains("No objective conditions were changed.", utterance.Message);
+
+        var retainedObjective = Assert.IsType<ObjectiveFormula>(
+            runtimeType.GetField("activeObjective", privateInstance)!.GetValue(session));
+        Assert.All(retainedObjective.Conditions, condition => Assert.Null(condition.Value));
+    }
+
+    [Fact]
+    public async Task Applies_a_typed_answer_to_the_only_compatible_pending_condition()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+
+        var origin = new ObjectiveCondition(
+            "origin",
+            ObjectiveConditionRole.HardConstraint,
+            ObjectiveConditionOperator.Equals,
+            null,
+            "starting point")
+        {
+            TargetAttribute = "origin",
+            ExpectedValueKind = ObjectiveConditionValueKind.Text,
+            MissingValuePrompt = "Where are you starting?"
+        };
+        var spendingLimit = new ObjectiveCondition(
+            "spending-limit",
+            ObjectiveConditionRole.HardConstraint,
+            ObjectiveConditionOperator.AtMost,
+            null,
+            "limited budget")
+        {
+            TargetAttribute = "total-cost",
+            ExpectedValueKind = ObjectiveConditionValueKind.Money,
+            MissingValuePrompt = "What is your spending limit?"
+        };
+        var objective = new ObjectiveFormula("plan an outing")
+        {
+            Conditions = ImmutableArray.Create(origin, spendingLimit)
+        };
+
+        var runtimeType = session.GetType();
+        const BindingFlags privateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
+        runtimeType.GetField("activeObjective", privateInstance)!.SetValue(session, objective);
+        runtimeType.GetField("pendingObjectiveCondition", privateInstance)!.SetValue(session, origin);
+
+        var result = await session.SubmitAsync("$25 total.", TestContext.Current.CancellationToken);
+        var utterance = Assert.Single(result.Utterances);
+
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, utterance.Kind);
+        Assert.Contains("for spending-limit", utterance.Message);
+
+        var updatedObjective = Assert.IsType<ObjectiveFormula>(
+            runtimeType.GetField("activeObjective", privateInstance)!.GetValue(session));
+        Assert.Null(updatedObjective.Conditions.Single(condition => condition.Name == "origin").Value);
+        Assert.Equal(
+            new ObjectiveMoneyValue(25m, "$"),
+            updatedObjective.Conditions.Single(condition => condition.Name == "spending-limit").Value);
     }
 
     [Fact]
