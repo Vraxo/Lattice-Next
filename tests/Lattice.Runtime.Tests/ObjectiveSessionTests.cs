@@ -158,6 +158,7 @@ public sealed class ObjectiveSessionTests
         var result = await session.SubmitAsync(input, TestContext.Current.CancellationToken);
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        var originalFactCount = status.FactCount;
 
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         var aster = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Aster 14");
@@ -240,6 +241,7 @@ public sealed class ObjectiveSessionTests
         var afterAllPrices = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var pricedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterAllPrices.ObjectiveEvaluation);
         Assert.Empty(pricedEvaluation.EvidenceRequests);
+        Assert.Equal(originalFactCount, afterAllPrices.FactCount);
         Assert.Equal("MultipleNonDominatedCandidates", pricedEvaluation.Recommendation.Status);
         Assert.Equal(
             new[] { "Aster 14", "Birch 15", "Cedar 14" },
