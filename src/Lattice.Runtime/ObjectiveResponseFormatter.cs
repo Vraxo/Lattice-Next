@@ -68,7 +68,12 @@ internal static class ObjectiveResponseFormatter
 
             case ObjectiveRecommendationStatus.MultipleNonDominatedCandidates:
                 output.Append("You have ")
-                    .Append(options.Count == 2 ? "two" : options.Count.ToString(CultureInfo.InvariantCulture))
+                    .Append(options.Count switch
+                    {
+                        2 => "two",
+                        3 => "three",
+                        _ => options.Count.ToString(CultureInfo.InvariantCulture)
+                    })
                     .Append(" good options: ")
                     .Append(JoinNames(names))
                     .Append(". ");
