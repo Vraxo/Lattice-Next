@@ -110,3 +110,8 @@ The runner itself is included in `Lattice.slnx` and has integration tests verify
 ## Conversational question semantics follow-up
 
 The initial benchmark run accepted 2 of 34 prompts, but neither accepted prompt received a substantive answer. A first language-layer increment now represents simple definition questions such as “What is a polygon?” as a typed `DefinitionQuestionFormula`, preserving the concept and any descriptive modifiers. This is only a parsing result: it does not claim that Lattice can retrieve, formulate, or verify a definition. The benchmark runner's handled count must not be interpreted as answer quality.
+
+
+## Definition-question retrieval increment
+
+The first definition-question parser recognizes a typed request but does not itself provide an answer. The runtime now looks for an exact `definition` text attribute in the loaded knowledge packs and returns its source provenance. If no exact definition exists, or multiple distinct definitions conflict, the runtime reports that information as unavailable rather than inventing an answer. The source benchmark still contains no supplied knowledge packs, so its definition prompts correctly remain unanswered there; the runtime behavior is covered separately by knowledge-pack integration tests.

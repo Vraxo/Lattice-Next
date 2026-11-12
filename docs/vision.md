@@ -105,3 +105,6 @@ The roadmap should evolve as Lattice demonstrates new abilities. This document d
 ## Information-seeking language
 
 Information questions must retain the kind of answer being requested instead of being forced into a yes/no predicate. The first typed form is a definition request, represented independently from assertions and yes/no questions. Parsing such a request establishes its meaning only; it does not imply that the knowledge base contains a definition or that the reasoning system can answer it. The next stages must connect information-request semantics to retrieval, evidence, uncertainty, and response generation without fabricating missing knowledge.
+
+
+Definition requests can be answered from an explicitly supplied typed knowledge attribute named `definition`. The requested concept (including descriptive modifiers) must match the attribute subject exactly. The runtime returns the definition with its imported source provenance, reports missing definitions as unavailable, and refuses to choose between conflicting values. This is a narrow, reusable retrieval path—not a built-in encyclopedia or a claim of general open-domain knowledge.

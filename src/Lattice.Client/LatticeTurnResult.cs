@@ -31,6 +31,7 @@ public enum LatticeUtteranceResultKind
     ClarificationRequired,
     ObjectiveReceived,
     ObjectiveInformationReceived,
+    InformationUnavailable,
     UnsupportedQuestion
 }
 
