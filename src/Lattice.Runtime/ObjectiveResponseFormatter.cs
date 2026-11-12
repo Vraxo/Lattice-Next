@@ -336,9 +336,85 @@ internal static class ObjectiveResponseFormatter
             }
         }
 
+        AppendCandidateEvidenceSummary(output, evaluation);
+
         if (!evaluation.EvidenceRequests.IsDefaultOrEmpty)
         {
             output.AppendLine(evaluation.EvidenceRequests[0].Prompt);
+        }
+    }
+
+    private static void AppendCandidateEvidenceSummary(
+        StringBuilder output,
+        ObjectiveEvaluation evaluation)
+    {
+        if (evaluation.Candidates.Length < 2 ||
+            !evaluation.Candidates.Any(candidate => candidate.Conditions
+                .Any(condition => condition.Preferences.Length > 0)))
+        {
+            return;
+        }
+
+        output.AppendLine();
+        output.AppendLine("Current comparison:");
+
+        foreach (var candidate in evaluation.Candidates)
+        {
+            var details = new List<string>();
+            var totalCost = FindMoneyHighlight(candidate, "total-cost");
+            var hasCostRequest = evaluation.EvidenceRequests.Any(request =>
+                request.Candidate == candidate.Candidate &&
+                string.Equals(request.AttributeName, "total-cost", StringComparison.OrdinalIgnoreCase));
+
+            if (totalCost is not null)
+            {
+                details.Add($"total cost {FormatMoney(totalCost)}");
+            }
+            else if (hasCostRequest)
+            {
+                details.Add("total cost unknown");
+            }
+
+            var preferences = candidate.Conditions
+                .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                .SelectMany(condition => condition.Preferences);
+
+            foreach (var preference in preferences)
+            {
+                switch (preference.Status)
+                {
+                    case ObjectiveConditionAssessmentStatus.Satisfied:
+                        var evidence = preference.Evidence.FirstOrDefault()?.SourceText;
+                        details.Add(string.IsNullOrWhiteSpace(evidence)
+                            ? $"{preference.Preference}: supported"
+                            : $"{preference.Preference}: supported ({evidence})");
+                        break;
+
+                    case ObjectiveConditionAssessmentStatus.Violated:
+                        details.Add($"{preference.Preference}: contrary evidence");
+                        break;
+
+                    case ObjectiveConditionAssessmentStatus.PartiallySatisfied:
+                        details.Add($"{preference.Preference}: partial evidence");
+                        break;
+
+                    case ObjectiveConditionAssessmentStatus.Unknown:
+                    case ObjectiveConditionAssessmentStatus.Unverified:
+                    case ObjectiveConditionAssessmentStatus.Stale:
+                    case ObjectiveConditionAssessmentStatus.Conflicting:
+                        details.Add($"{preference.Preference}: unknown");
+                        break;
+                }
+            }
+
+            if (details.Count > 0)
+            {
+                output.Append("- ")
+                    .Append(candidate.Candidate.Value)
+                    .Append(" — ")
+                    .Append(string.Join("; ", details))
+                    .AppendLine(".");
+            }
         }
     }
 
