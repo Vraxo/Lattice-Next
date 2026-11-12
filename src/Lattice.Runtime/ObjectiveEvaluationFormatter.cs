@@ -39,19 +39,6 @@ internal static class ObjectiveEvaluationFormatter
 
             output.AppendLine(".");
 
-            foreach (var highlight in candidate.Highlights)
-            {
-                foreach (var source in highlight.Sources)
-                {
-                    output.Append("  Highlight — ")
-                        .Append(FormatAttributeName(highlight.Name.Value))
-                        .Append(": ")
-                        .AppendLine(string.IsNullOrWhiteSpace(source.SourceId)
-                            ? source.SourceText
-                            : $"{source.SourceText} [source: {source.SourceId}]");
-                }
-            }
-
             foreach (var condition in candidate.Conditions)
             {
                 if (condition.Status == ObjectiveConditionAssessmentStatus.NotApplicable)
@@ -81,24 +68,6 @@ internal static class ObjectiveEvaluationFormatter
                         .Distinct(StringComparer.Ordinal))
                     {
                         output.Append("      Evidence: ").AppendLine(source);
-                    }
-                }
-
-                if (!candidate.HasHardConstraintViolation && !candidate.HasUnresolvedHardConstraint)
-                {
-                    foreach (var stage in condition.TemporalWitness)
-                    {
-                        output.Append("    Stage ")
-                            .Append(stage.Index)
-                            .Append(": ")
-                            .Append(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture))
-                            .Append('–')
-                            .Append(stage.End.ToString("HH:mm", CultureInfo.InvariantCulture))
-                            .Append(" — ")
-                            .Append(FormatAttributeName(stage.DurationAttribute))
-                            .Append(" (")
-                            .Append(stage.DurationMinutes)
-                            .AppendLine(" min).");
                     }
                 }
 
@@ -133,8 +102,89 @@ internal static class ObjectiveEvaluationFormatter
         }
 
         AppendRecommendation(output, evaluation.Recommendation, evaluation.Candidates);
+        AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
 
         return output.ToString().TrimEnd();
+    }
+
+    private static void AppendShortlistedOptions(
+        StringBuilder output,
+        ObjectiveRecommendation recommendation,
+        IReadOnlyList<CandidateAssessment> candidates)
+    {
+        var options = recommendation.ShortlistedCandidates
+            .Select(name => candidates.FirstOrDefault(candidate => candidate.Candidate == name))
+            .Where(candidate => candidate is not null)
+            .Cast<CandidateAssessment>()
+            .ToArray();
+
+        if (options.Length == 0)
+        {
+            return;
+        }
+
+        output.AppendLine("Shortlisted options (not ranked):");
+        var hasTimetable = false;
+
+        foreach (var candidate in options)
+        {
+            output.Append("- ").AppendLine(candidate.Candidate.Value);
+
+            foreach (var highlight in candidate.Highlights)
+            {
+                foreach (var source in highlight.Sources)
+                {
+                    output.Append("  ")
+                        .Append(FormatAttributeName(highlight.Name.Value))
+                        .Append(": ")
+                        .AppendLine(source.SourceText);
+                }
+            }
+
+            var stages = candidate.Conditions
+                .SelectMany(condition => condition.TemporalWitness)
+                .ToArray();
+
+            if (stages.Length == 0)
+            {
+                output.AppendLine("  No timetable witness is available from the supplied data.");
+                continue;
+            }
+
+            hasTimetable = true;
+            output.AppendLine("  Feasible timetable:");
+            TimeOnly? previousEnd = null;
+
+            foreach (var stage in stages)
+            {
+                if (previousEnd.HasValue && stage.Start > previousEnd.Value)
+                {
+                    output.Append("    Unscheduled time: ")
+                        .Append(previousEnd.Value.ToString("HH:mm", CultureInfo.InvariantCulture))
+                        .Append('–')
+                        .AppendLine(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture));
+                }
+
+                output.Append("    Stage ")
+                    .Append(stage.Index)
+                    .Append(": ")
+                    .Append(stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture))
+                    .Append('–')
+                    .Append(stage.End.ToString("HH:mm", CultureInfo.InvariantCulture))
+                    .Append(" — ")
+                    .Append(FormatAttributeName(stage.DurationAttribute))
+                    .Append(" (")
+                    .Append(stage.DurationMinutes)
+                    .AppendLine(" min).");
+
+                previousEnd = stage.End;
+            }
+        }
+
+        if (hasTimetable)
+        {
+            output.AppendLine("Timetables are first feasible witnesses, not optimized schedules.");
+        }
     }
 
     private static void AppendRecommendation(
