@@ -154,7 +154,7 @@ class PageFetchTests(unittest.TestCase):
                     main.resolve_public_address(address, 443)
 
     def test_revalidates_redirect_targets_and_rejects_private_destinations(self) -> None:
-        connection = FakeConnection(FakeResponse(302, {"Location": "http://127.0.0.1/admin"}))
+        connection = FakeConnection(FakeResponse(302, {"Location": "https://127.0.0.1/admin"}))
         factory_calls = []
 
         def factory(*arguments):

@@ -65,9 +65,10 @@ class VisibleTextParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self.skip_depth:
             return
-        self.parts.append(data)
         if self.in_title:
             self.title_parts.append(data)
+            return
+        self.parts.append(data)
 
 
 class PinnedHTTPConnection(http.client.HTTPConnection):
@@ -241,7 +242,7 @@ def format_observation(
     if title:
         lines.append(f"Page title: {title}")
     lines.extend(["Extracted page text:", text])
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def fetch(
