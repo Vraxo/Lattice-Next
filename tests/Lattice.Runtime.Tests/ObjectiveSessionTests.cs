@@ -814,8 +814,8 @@ public sealed class ObjectiveSessionTests
         var asterBudget = Assert.Single(aster.Conditions, condition => condition.Name == "spending-limit");
         Assert.Equal("Satisfied", asterBudget.Status);
         var asterEvidence = Assert.Single(asterBudget.Evidence);
-        Assert.Equal("UserAssertion", Assert.Single(asterEvidence.Sources).Kind);
-        Assert.Equal("Aster 14 costs $900.", asterEvidence.Sources[0].SourceText);
+        Assert.Equal("UserAssertion", asterEvidence.Kind);
+        Assert.Equal("Aster 14 costs $900.", asterEvidence.SourceText);
 
         var repeated = await session.SubmitAsync("Aster 14 costs $900.", TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(repeated.Utterances).Kind);
@@ -824,7 +824,7 @@ public sealed class ObjectiveSessionTests
             Assert.IsType<LatticeObjectiveEvaluation>(afterRepeated.ObjectiveEvaluation).Candidates,
             candidate => candidate.Candidate == "Aster 14");
         var repeatedBudget = Assert.Single(repeatedAster.Conditions, condition => condition.Name == "spending-limit");
-        Assert.Single(Assert.Single(repeatedBudget.Evidence).Sources);
+        Assert.Single(repeatedBudget.Evidence);
 
         var conflicting = await session.SubmitAsync("Aster 14 costs $950.", TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(conflicting.Utterances).Kind);
@@ -835,7 +835,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("Conflicting", conflictedBudget.Status);
         Assert.Equal(
             new[] { "Aster 14 costs $900.", "Aster 14 costs $950." },
-            conflictedBudget.Evidence.SelectMany(evidence => evidence.Sources).Select(source => source.SourceText));
+            conflictedBudget.Evidence.Select(source => source.SourceText));
         Assert.DoesNotContain(conflictEvaluation.EvidenceRequests,
             evidenceRequest => evidenceRequest.Candidate == "Aster 14");
     }
