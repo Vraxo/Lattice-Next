@@ -98,6 +98,41 @@ public sealed class ObjectiveRequestTests
     }
 
     [Fact]
+    public void Parses_initial_objective_time_window_and_id_prefer_into_typed_conditions()
+    {
+        const string input = "Help me plan a Saturday day out. I can spend up to $25. I don't have a car. I'd prefer somewhere quiet and outdoors. I'm starting at Central Station, and I can leave at 9:00 and be back by 18:00.";
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var objective = Assert.IsType<ObjectiveFormula>(Assert.Single(result.Utterances).Meaning);
+
+        var budget = Assert.Single(objective.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal(new ObjectiveMoneyValue(25m, "$"), budget.Value);
+
+        var transport = Assert.Single(objective.Conditions, condition => condition.Name == "transport");
+        Assert.Equal(new ObjectiveTextValue("car"), transport.Value);
+
+        var preference = Assert.Single(objective.Conditions, condition => condition.Name == "preference");
+        Assert.Equal(
+            new[] { "quiet", "outdoors" },
+            Assert.IsType<ObjectiveTextSetValue>(preference.Value).Values);
+
+        var origin = Assert.Single(objective.Conditions, condition => condition.Name == "origin");
+        Assert.Equal(ObjectiveConditionRole.HardConstraint, origin.Role);
+        Assert.Equal(ObjectiveConditionOperator.Equals, origin.Operator);
+        Assert.Equal(new ObjectiveTextValue("Central Station"), origin.Value);
+        Assert.Equal("origin", origin.TargetAttribute);
+
+        var time = Assert.Single(objective.Conditions, condition => condition.Name == "time-window");
+        Assert.Equal(ObjectiveConditionRole.HardConstraint, time.Role);
+        Assert.Equal(ObjectiveConditionOperator.CanFit, time.Operator);
+        Assert.Equal("temporal-plan", time.TargetAttribute);
+        Assert.Equal(
+            new ObjectiveTimeWindowValue(new TimeOnly(9, 0), new TimeOnly(18, 0)),
+            time.Value);
+    }
+
+    [Fact]
     public void Represents_day_out_budget_transport_and_preference_without_collapsing_their_roles()
     {
         const string input = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";

@@ -30,14 +30,6 @@ public sealed class LceParser
         @"^(?:I'll bring lunch|Lunch is covered|I have lunch with me|I'll pack my own lunch|I've got lunch sorted|I already have lunch|I'm bringing lunch|I'm bringing my own lunch|I'll have a packed lunch|I won't need to buy lunch)\.$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex StartingLocationPattern = new(
-        @"\b(?:I'm starting at|my starting point is|my starting location is|I'm coming from|I'm starting from|I'll start from|I'll be leaving from|I'm setting off from)\s+(?<location>[^,.!?]+)",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex TimeWindowPattern = new(
-        @"\b(?:(?:I can )?(?:leave at|head out at|set off at) (?<start>\d{1,2}:\d{2}) and (?:be back|return) by (?<end>\d{1,2}:\d{2})|(?:(?:I can )?(?:be back|return) by|I need to be back by|I need to return by) (?<reverseEnd>\d{1,2}:\d{2}) and (?:(?:I )?can )?(?:leave at|head out at|set off at) (?<reverseStart>\d{1,2}:\d{2}))",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static readonly Regex NoBusPattern = new(
         @"\bI don't want to take a bus\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -51,7 +43,7 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectivePreferenceRevisionPattern = new(
-        @"^(?:(?:Actually,|Correction:|To clarify,)\s*)?(?:I would prefer|I prefer|I care about)\s+[^.!?]+[.!?]$",
+        @"^(?:(?:Actually,|Correction:|To clarify,)\s*)?(?:I would prefer|I prefer|I care about|I'd prefer)\s+[^.!?]+[.!?]$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ObjectiveBudgetRevisionPattern = new(
@@ -565,51 +557,11 @@ public sealed class LceParser
             });
         }
 
-        var locationMatch = StartingLocationPattern.Match(source);
+        conditions.AddRange(ObjectiveConditionParser.Parse(source).Where(condition =>
+            condition.Name == "origin"));
 
-        if (locationMatch.Success)
-        {
-            conditions.Add(new ObjectiveCondition(
-                "origin",
-                ObjectiveConditionRole.HardConstraint,
-                ObjectiveConditionOperator.Equals,
-                new ObjectiveTextValue(locationMatch.Groups["location"].Value.Trim()),
-                sourceText)
-            {
-                TargetAttribute = "origin"
-            });
-        }
-
-        var timeMatch = TimeWindowPattern.Match(source);
-        var startText = timeMatch.Groups["start"].Success
-            ? timeMatch.Groups["start"].Value
-            : timeMatch.Groups["reverseStart"].Value;
-        var endText = timeMatch.Groups["end"].Success
-            ? timeMatch.Groups["end"].Value
-            : timeMatch.Groups["reverseEnd"].Value;
-
-        if (timeMatch.Success &&
-            TimeOnly.TryParse(
-                startText,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out var start) &&
-            TimeOnly.TryParse(
-                endText,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out var end))
-        {
-            conditions.Add(new ObjectiveCondition(
-                "time-window",
-                ObjectiveConditionRole.HardConstraint,
-                ObjectiveConditionOperator.CanFit,
-                new ObjectiveTimeWindowValue(start, end),
-                sourceText)
-            {
-                TargetAttribute = "temporal-plan"
-            });
-        }
+        conditions.AddRange(ObjectiveConditionParser.Parse(source).Where(condition =>
+            condition.Name == "time-window"));
 
         if (NoBusPattern.IsMatch(source))
         {
