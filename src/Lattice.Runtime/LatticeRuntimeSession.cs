@@ -274,11 +274,11 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             .Evaluate(objective, knowledgeBase)
             .EvidenceRequests
             .Where(request =>
-                request.Candidate == candidate &&
-                request.AttributeName == attribute.Value)
+                string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(request.AttributeName, attribute.Value, StringComparison.OrdinalIgnoreCase))
             .ToImmutableArray();
-        var existingAttribute = knowledgeBase.Attributes.Any(existing =>
-            existing.Subject == candidate &&
+        var existingAttribute = knowledgeBase.Attributes.FirstOrDefault(existing =>
+            string.Equals(existing.Subject.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
             existing.Name == attribute);
 
         if (matchingRequests.Length > 1)
@@ -289,7 +289,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 SemanticFormatter.Format(parsedUtterance));
         }
 
-        if (matchingRequests.IsDefaultOrEmpty && !existingAttribute)
+        if (matchingRequests.IsDefaultOrEmpty && existingAttribute is null)
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
@@ -297,6 +297,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 SemanticFormatter.Format(parsedUtterance));
         }
 
+        var storedCandidate = matchingRequests.IsDefaultOrEmpty
+            ? existingAttribute!.Subject
+            : matchingRequests[0].Candidate;
         var requestedConditionName = matchingRequests.IsDefaultOrEmpty
             ? null
             : matchingRequests[0].ConditionName;
@@ -316,7 +319,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         if (!knowledgeBase.TryAddAttribute(
             new KnowledgeAttribute(
-                candidate,
+                storedCandidate,
                 attribute,
                 information.Value,
                 parsedUtterance.SourceText,
@@ -334,7 +337,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         var money = (ObjectiveMoneyValue)information.Value;
         var amount = money.Amount.ToString(CultureInfo.InvariantCulture);
-        var message = $"Recorded {candidate.Value}'s total cost as {money.CurrencySymbol}{amount}.";
+        var message = $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{amount}.";
         message = AppendObjectiveEvaluation(message, objective);
 
         return new LatticeUtteranceResult(
