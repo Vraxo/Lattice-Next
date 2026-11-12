@@ -32,6 +32,7 @@ internal static class ObjectiveResponseFormatter
         AppendOpening(output, evaluation, options);
         AppendOptions(output, options);
         AppendPreferenceTradeOff(output, evaluation, options);
+        AppendPreferenceMismatches(output, evaluation, options);
         AppendOptionalCandidates(output, evaluation, options);
 
         if (evaluation.Recommendation.HasIncompletePreferenceEvidence)
@@ -39,9 +40,16 @@ internal static class ObjectiveResponseFormatter
             output.AppendLine("The comparison is provisional because some preference details are still unknown.");
         }
 
-        if (options.Any(candidate => candidate.Conditions.Any(condition => !condition.TemporalWitness.IsDefaultOrEmpty)))
+        var hasTimetable = options.Any(candidate => candidate.Conditions.Any(condition => !condition.TemporalWitness.IsDefaultOrEmpty));
+        var hasPrices = options.Any(candidate => candidate.Highlights.Any(highlight => highlight.Value is ObjectiveMoneyValue));
+
+        if (hasTimetable)
         {
             output.AppendLine("These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving; no booking has been made.");
+        }
+        else if (hasPrices)
+        {
+            output.AppendLine("Prices are based on supplied information, not live checks. Verify current prices and availability before deciding.");
         }
 
         return output.ToString().TrimEnd();
@@ -234,6 +242,41 @@ internal static class ObjectiveResponseFormatter
                 .Append(" than ")
                 .Append(tradeOff.CandidateWithContraryEvidence.Value)
                 .AppendLine(".");
+        }
+    }
+
+    private static void AppendPreferenceMismatches(
+        StringBuilder output,
+        ObjectiveEvaluation evaluation,
+        IReadOnlyList<CandidateAssessment> options)
+    {
+        var tradeOffs = evaluation.PreferenceTradeOffs
+            .SelectMany(tradeOff => new[]
+            {
+                (tradeOff.CandidateWithPositiveEvidence, tradeOff.Preference),
+                (tradeOff.CandidateWithContraryEvidence, tradeOff.Preference)
+            })
+            .ToHashSet();
+
+        foreach (var candidate in options)
+        {
+            var mismatches = candidate.Conditions
+                .Where(condition => condition.Role == ObjectiveConditionRole.Preference)
+                .SelectMany(condition => condition.Preferences)
+                .Where(preference =>
+                    preference.Status is ObjectiveConditionAssessmentStatus.Violated or ObjectiveConditionAssessmentStatus.PartiallySatisfied)
+                .Where(preference => !tradeOffs.Contains((candidate.Candidate, preference.Preference)))
+                .Select(preference => preference.Preference)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            foreach (var mismatch in mismatches)
+            {
+                output.Append(candidate.Candidate.Value)
+                    .Append(" doesn't match your preference for ")
+                    .Append(mismatch)
+                    .AppendLine(".");
+            }
         }
     }
 
