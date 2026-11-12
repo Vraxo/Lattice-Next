@@ -81,7 +81,7 @@ public sealed class ObjectiveSessionTests
 
         var message = result.Utterances.Single().Message;
         Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
-        Assert.Contains("Highlight — Main Activity: The main activity is a marked 2-hour loop.", message);
+        Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", message);
         Assert.Contains("Busy Park: is excluded by a hard constraint", message);
         Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
         Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);
