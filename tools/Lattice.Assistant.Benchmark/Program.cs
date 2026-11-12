@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Lattice.Assistant.Benchmark;
 
 if (!BenchmarkOptions.TryParse(args, out var options, out var error))
