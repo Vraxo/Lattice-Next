@@ -100,3 +100,8 @@ See [Real-world assistant benchmark](benchmarks/real-world-assistant-benchmark.m
 - Keep increments small and runnable, but evaluate progress by the tasks that their combined capabilities make possible.
 
 The roadmap should evolve as Lattice demonstrates new abilities. This document defines the direction, not a rigid feature sequence.
+
+
+## Information-seeking language
+
+Information questions must retain the kind of answer being requested instead of being forced into a yes/no predicate. The first typed form is a definition request, represented independently from assertions and yes/no questions. Parsing such a request establishes its meaning only; it does not imply that the knowledge base contains a definition or that the reasoning system can answer it. The next stages must connect information-request semantics to retrieval, evidence, uncertainty, and response generation without fabricating missing knowledge.

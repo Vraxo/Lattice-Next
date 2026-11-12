@@ -27,6 +27,7 @@ public static class SemanticFormatter
             ObjectiveInformationFormula information => FormatObjectiveInformation(information),
             ObjectiveCandidateInformationFormula information => FormatObjectiveCandidateInformation(information),
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
+            DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
@@ -35,6 +36,12 @@ public static class SemanticFormatter
             UniversalQuantification universal => $"forall({Format(universal.Variable)}, {Format(universal.Body)})",
             _ => throw new ArgumentOutOfRangeException(nameof(formula), formula, "Unsupported semantic formula.")
         };
+
+    private static string FormatDefinitionQuestion(DefinitionQuestionFormula definition)
+    {
+        var concept = string.Join("+", definition.Modifiers.Append(definition.Concept).Select(identifier => identifier.Value));
+        return $"definition({concept})";
+    }
 
     private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
     {

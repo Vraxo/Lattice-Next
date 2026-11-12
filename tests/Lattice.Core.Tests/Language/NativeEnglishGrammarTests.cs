@@ -388,6 +388,44 @@ public sealed class NativeEnglishGrammarTests
         Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance!));
     }
 
+    [Theory]
+    [InlineData("What is a polygon?", "polygon")]
+    [InlineData("What is a verb?", "verb")]
+    [InlineData("What are polygons?", "polygon")]
+    public void Parses_definition_questions_as_typed_information_requests(
+        string sentence,
+        string expectedConcept)
+    {
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        var definition = Assert.IsType<DefinitionQuestionFormula>(utterance.Meaning);
+        Assert.Equal(expectedConcept, definition.Concept.Value);
+        Assert.Empty(definition.Modifiers);
+        Assert.Equal($"ask(definition({expectedConcept}))", SemanticFormatter.Format(utterance));
+        Assert.Equal(sentence, utterance.SourceText);
+    }
+
+    [Fact]
+    public void Preserves_modifiers_in_a_definition_question()
+    {
+        var result = parser.Parse("What is a regular polygon?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var definition = Assert.IsType<DefinitionQuestionFormula>(result.Utterance!.Meaning);
+        Assert.Equal("polygon", definition.Concept.Value);
+        Assert.Equal("regular", Assert.Single(definition.Modifiers).Value);
+        Assert.Equal("ask(definition(regular+polygon))", SemanticFormatter.Format(result.Utterance));
+    }
+
+    [Fact]
+    public void Rejects_definition_questions_with_incompatible_number()
+    {
+        Assert.False(parser.Parse("What are a polygon?").IsSuccess);
+    }
+
     [Fact]
     public void Parses_mixed_native_english_and_lce_sentences_in_order()
     {
