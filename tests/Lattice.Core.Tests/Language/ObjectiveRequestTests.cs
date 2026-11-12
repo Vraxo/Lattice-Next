@@ -114,6 +114,40 @@ public sealed class ObjectiveRequestTests
             utterance.Meaning);
     }
 
+    [Theory]
+    [InlineData("Lunch is covered.")]
+    [InlineData("I have lunch with me.")]
+    [InlineData("I'll pack my own lunch.")]
+    public void Parses_equivalent_packed_lunch_phrasings(string input)
+    {
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var update = Assert.IsType<ObjectiveConditionUpdateFormula>(utterance.Meaning);
+        var meal = Assert.Single(update.Conditions);
+        Assert.Equal("meal-plan", meal.Name);
+        Assert.Equal(ObjectiveConditionOperator.Equals, meal.Operator);
+        Assert.Equal(new ObjectiveTextValue("bring-lunch"), meal.Value);
+    }
+
+    [Theory]
+    [InlineData("I'm coming from Central Station.")]
+    [InlineData("I'll start from Central Station.")]
+    public void Parses_additional_origin_phrasings(string input)
+    {
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var update = Assert.IsType<ObjectiveConditionUpdateFormula>(utterance.Meaning);
+        var origin = Assert.Single(update.Conditions);
+        Assert.Equal("origin", origin.Name);
+        Assert.Equal(ObjectiveConditionOperator.Equals, origin.Operator);
+        Assert.Equal(new ObjectiveTextValue("Central Station"), origin.Value);
+        Assert.Equal("origin", origin.TargetAttribute);
+    }
+
     [Fact]
     public void Parses_lunch_origin_and_time_window_as_objective_condition_updates()
     {
