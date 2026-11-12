@@ -118,6 +118,11 @@ public sealed class ObjectiveRequestTests
     [InlineData("Lunch is covered.")]
     [InlineData("I have lunch with me.")]
     [InlineData("I'll pack my own lunch.")]
+    [InlineData("I've got lunch sorted.")]
+    [InlineData("I already have lunch.")]
+    [InlineData("I'm bringing my own lunch.")]
+    [InlineData("I'll have a packed lunch.")]
+    [InlineData("I won't need to buy lunch.")]
     public void Parses_equivalent_packed_lunch_phrasings(string input)
     {
         var result = parser.ParseText(input);
@@ -134,6 +139,10 @@ public sealed class ObjectiveRequestTests
     [Theory]
     [InlineData("I'm coming from Central Station.")]
     [InlineData("I'll start from Central Station.")]
+    [InlineData("My starting location is Central Station.")]
+    [InlineData("I'm starting from Central Station.")]
+    [InlineData("I'll be leaving from Central Station.")]
+    [InlineData("I'm setting off from Central Station.")]
     public void Parses_additional_origin_phrasings(string input)
     {
         var result = parser.ParseText(input);
@@ -192,10 +201,14 @@ public sealed class ObjectiveRequestTests
         Assert.Equal(new ObjectiveTextValue("Central Station"), origin.Value);
     }
 
-    [Fact]
-    public void Parses_time_window_when_the_return_time_is_stated_before_departure()
+    [Theory]
+    [InlineData("I can be back by 18:00 and leave at 9:00.")]
+    [InlineData("I need to be back by 18:00 and can leave at 9:00.")]
+    [InlineData("I need to return by 18:00 and leave at 9:00.")]
+    [InlineData("I can head out at 9:00 and return by 18:00.")]
+    [InlineData("I can set off at 9:00 and be back by 18:00.")]
+    public void Parses_time_window_when_departure_and_return_are_phrased_differently(string input)
     {
-        const string input = "I can be back by 18:00 and leave at 9:00.";
         var result = parser.ParseText(input);
 
         Assert.True(result.IsSuccess, result.Error);
