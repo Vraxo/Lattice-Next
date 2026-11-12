@@ -46,11 +46,13 @@ internal static class ObjectiveResponseFormatter
 
         if (hasTimetable)
         {
-            output.AppendLine("These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving; no booking has been made.");
+            output.AppendLine();
+            output.AppendLine("Note: These times and costs come from the supplied information, not live checks. Verify transport departures and opening hours before leaving. No booking has been made.");
         }
         else if (hasPrices)
         {
-            output.AppendLine("Prices are based on supplied information, not live checks. Verify current prices and availability before deciding.");
+            output.AppendLine();
+            output.AppendLine("Note: Prices are based on supplied information, not live checks. Verify current prices and availability before deciding.");
         }
 
         return output.ToString().TrimEnd();
@@ -87,25 +89,28 @@ internal static class ObjectiveResponseFormatter
                     .Append(JoinNames(names))
                     .Append(". ");
 
-                var sharedRequirements = GetSharedSatisfiedRequirements(options);
+                var hasSharedRequirements = GetSharedSatisfiedRequirements(options).Length > 0;
                 var sharedPreferences = GetSharedSatisfiedPreferences(options);
 
-                if (sharedRequirements.Length > 0)
+                if (hasSharedRequirements)
                 {
-                    output.Append(options.Count == 2 ? "Both " : "All options ")
-                        .Append(JoinNames(sharedRequirements))
-                        .Append('.');
-                }
+                    output.Append(options.Count == 2 ? "Both meet your requirements" : "All options meet your requirements");
 
-                if (sharedPreferences.Length > 0)
+                    if (sharedPreferences.Length > 0)
+                    {
+                        output.Append(" and match your stated preferences for ")
+                            .Append(JoinNames(sharedPreferences));
+                    }
+
+                    output.Append('.');
+                }
+                else if (sharedPreferences.Length > 0)
                 {
-                    output.Append(' ')
-                        .Append(options.Count == 2 ? "They also match your stated preferences for " : "They also match your stated preferences for ")
+                    output.Append(options.Count == 2 ? "Both match your stated preferences for " : "All options match your stated preferences for ")
                         .Append(JoinNames(sharedPreferences))
                         .Append('.');
                 }
-
-                if (sharedRequirements.Length == 0 && sharedPreferences.Length == 0)
+                else
                 {
                     output.Append("They meet the assessed hard requirements, but have different strengths.");
                 }
