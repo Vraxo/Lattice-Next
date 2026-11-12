@@ -11,6 +11,7 @@ internal sealed class ReplSessionCommands
     private readonly ReplToolCommands toolCommands;
     private readonly ReplCandidateEvidenceCommands candidateEvidenceCommands;
     private readonly ReplStatusCommand statusCommand;
+    private readonly ReplObjectiveExplanationCommand objectiveExplanationCommand;
     private readonly ReplToolIntentCommand toolIntentCommand;
 
     public ReplSessionCommands(
@@ -33,6 +34,7 @@ internal sealed class ReplSessionCommands
             session,
             toolAccess,
             translationCommands);
+        objectiveExplanationCommand = new ReplObjectiveExplanationCommand(session);
         toolIntentCommand = new ReplToolIntentCommand(
             toolAccess,
             conversationContext,
@@ -58,6 +60,11 @@ internal sealed class ReplSessionCommands
         }
 
         if (await statusCommand.TryHandleAsync(input))
+        {
+            return true;
+        }
+
+        if (await objectiveExplanationCommand.TryHandleAsync(input))
         {
             return true;
         }
