@@ -320,6 +320,40 @@ public sealed class StdioToolProviderTests
         }
     }
 
+
+    [Fact]
+    public async Task Invokes_external_process_and_decodes_string_results_as_content()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var root = CreateTemporaryDirectory();
+        try
+        {
+            var toolDirectory = Directory.CreateDirectory(Path.Combine(root, "text")).FullName;
+            var script = """
+                IFS= read -r request
+                request_id=$(printf '%s' "$request" | cut -d '"' -f 6)
+                printf '{"protocolVersion":1,"requestId":"%s","success":true,"result":"Page text"}\n' "$request_id"
+                """;
+            WriteManifest(toolDirectory, CreateManifest("text", "/bin/sh", ["-c", script]));
+            Assert.True(StdioToolProvider.TryDiscover(root, out var tools, out var error), error);
+            var registry = new ToolRegistry(tools);
+
+            var result = await registry.TryInvokeAsync(
+                "text", "{}", TestContext.Current.CancellationToken);
+
+            Assert.True(result.IsSuccess, result.Error);
+            Assert.Equal("Page text", result.Observation!.Content);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static string CreateTemporaryDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), $"lattice-stdio-{Guid.NewGuid():N}");

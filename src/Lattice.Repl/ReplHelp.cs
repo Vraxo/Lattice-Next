@@ -8,6 +8,7 @@ internal static class ReplHelp
     {
         AnsiConsole.MarkupLine("[bold]Commands[/]");
         AnsiConsole.MarkupLine("  [green]:tools[/]  [dim]list registered capabilities[/]");
+        AnsiConsole.MarkupLine("  [green]:review-price {json}[/]  [dim]review an exact excerpt from the latest fetched page before adding a candidate price[/]");
         AnsiConsole.MarkupLine("  [green]:permissions[/]  [dim]show remembered and session-only tool grants[/]");
         AnsiConsole.MarkupLine("  [green]:permissions revoke <tool-id>[/]  [dim]forget a tool's saved approval[/]");
         AnsiConsole.MarkupLine("  [green]:translator[/]  [dim]show local LM Studio configuration[/]");
@@ -23,7 +24,8 @@ internal static class ReplHelp
         AnsiConsole.MarkupLine("  [dim]Patterns support single-token numbers and words, multiword text captures, and optional literal phrases; they are not unrestricted English.[/]");
         AnsiConsole.MarkupLine("  [dim]The calculator and unit converter use Python's standard library. Web search also needs the pinned 'ddgs' package.[/]");
         AnsiConsole.MarkupLine("  [dim]Install it once with: python -m pip install -r tools/web-search/requirements.txt.[/]");
-        AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge.[/]");
+        AnsiConsole.MarkupLine("  [dim]Tool results remain sourced observations; they are not added to session knowledge automatically.[/]");
+        AnsiConsole.MarkupLine("  [dim]:review-price requires a candidate, amount, currencySymbol, and exact excerpt; it shows the source and asks you to type accept.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools are discovered from ./tools or LATTICE_TOOLS_DIR and start only when invoked.[/]");
         AnsiConsole.MarkupLine("  [dim]Tools ask before first use. Choose always to remember approval for that tool, or session-only.[/]");
         AnsiConsole.MarkupLine("  [dim]LATTICE_TOOL_PERMISSIONS can pre-grant read, write, or read,write for non-interactive runs.[/]");
