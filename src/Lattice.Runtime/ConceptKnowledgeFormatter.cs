@@ -107,7 +107,9 @@ internal static class ConceptKnowledgeFormatter
             lines.Add($"{indent}- {polarity}{DisplayIdentifier(fact.Predicate.Predicate.Value)} → {DisplayIdentifier(target.Identifier.Value)}");
             evidence.Add(MapEvidence(fact));
 
-            if (depth < MaximumDepth && visited.Count < MaximumNodes)
+            if (fact.Polarity == EvidencePolarity.Positive &&
+                depth < MaximumDepth &&
+                visited.Count < MaximumNodes)
             {
                 AppendConcept(
                     knowledgeBase,
