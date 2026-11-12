@@ -59,7 +59,7 @@ public sealed class ObjectiveSessionTests
         var noisy = Assert.Single(evaluation.Candidates, candidate => candidate.Candidate == "Noisy Park");
         Assert.Equal("Eligible", noisy.Feasibility);
         Assert.Contains(noisy.Conditions.SelectMany(condition => condition.Preferences),
-            preference => preference.Preference == "quiet" && preference.Status == "Violated");
+            preference => preference.Name == "quiet" && preference.Status == "Violated");
 
         var tradeOff = Assert.Single(evaluation.PreferenceTradeOffs);
         Assert.Equal("quiet", tradeOff.Preference);
