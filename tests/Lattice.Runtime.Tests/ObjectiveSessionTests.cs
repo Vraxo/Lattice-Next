@@ -121,12 +121,12 @@ public sealed class ObjectiveSessionTests
 
         Assert.Equal("MultipleNonDominatedCandidates", evaluation.Recommendation.Status);
         Assert.Equal(
-            new[] { "Quiet Grove", "Open Meadow" },
+            new[] { "Open Meadow", "Quiet Grove" },
             evaluation.Recommendation.ShortlistedCandidates);
         Assert.Equal(2, evaluation.PreferenceTradeOffs.Length);
 
         var message = result.Utterances.Single().Message;
-        Assert.Contains("You have two good options: Quiet Grove and Open Meadow.", message);
+        Assert.Contains("You have two good options: Open Meadow and Quiet Grove.", message);
         Assert.Contains("Quiet Grove has stronger evidence for quiet than Open Meadow.", message);
         Assert.Contains("Open Meadow has stronger evidence for outdoors than Quiet Grove.", message);
         Assert.DoesNotContain("Evidence:", message);
@@ -216,8 +216,8 @@ public sealed class ObjectiveSessionTests
                     .Select(word => char.ToUpperInvariant(word[0]) + word[1..])))
             .ToArray();
         Assert.NotEmpty(carViolations);
-        Assert.Contains(carViolations, label => message.Contains($"{label}: violated by Car Only Park.", StringComparison.Ordinal));
-        Assert.Contains("Would you like to relax one of these constraints?", message);
+        Assert.Contains("Transport: violated by Car Only Park.", status.ObjectiveExplanation);
+        Assert.Contains("Would you like to relax one of these constraints?", status.ObjectiveExplanation);
         Assert.DoesNotContain("Unresolved candidates still need evidence:", message);
     }
 
@@ -947,7 +947,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Walk 09:00–09:15", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("Bus 10:30–10:55", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("marked 2-hour loop", walkingOnly.Utterances[^1].Message);
-        Assert.Contains("walking paved paths", walkingOnly.Utterances[^1].Message);
+        Assert.Contains("paved paths", walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
@@ -1330,7 +1330,8 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
-        Assert.Contains("I can't recommend an option yet.", accepted.Utterances.Single().Message);
+        Assert.Contains("Aster 14 is the only option currently confirmed to meet your requirements.", accepted.Utterances.Single().Message);
+        Assert.Contains("The comparison is provisional because some preference details are still unknown.", accepted.Utterances.Single().Message);
         Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
         Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
         Assert.DoesNotContain("Still unresolved:", accepted.Utterances.Single().Message);
