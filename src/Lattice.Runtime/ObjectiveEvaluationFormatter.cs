@@ -108,6 +108,7 @@ internal static class ObjectiveEvaluationFormatter
             evaluation.PreferenceTradeOffs);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
         AppendEvidenceRequests(output, evaluation.EvidenceRequests);
+        AppendPlanSummary(output, evaluation);
 
         return output.ToString().TrimEnd();
     }
@@ -133,6 +134,68 @@ internal static class ObjectiveEvaluationFormatter
                     ? " detail after this one."
                     : " details after this one.");
         }
+    }
+
+    private static void AppendPlanSummary(StringBuilder output, ObjectiveEvaluation evaluation)
+    {
+        var options = evaluation.Recommendation.ShortlistedCandidates
+            .Select(name => evaluation.Candidates.FirstOrDefault(candidate => candidate.Candidate == name))
+            .Where(candidate => candidate is not null)
+            .Cast<CandidateAssessment>()
+            .ToArray();
+
+        if (options.Length == 0 ||
+            !options.Any(candidate => candidate.Conditions
+                .SelectMany(condition => condition.TemporalWitness)
+                .Any()))
+        {
+            return;
+        }
+
+        output.AppendLine("Plan summary (based on supplied evidence):");
+        output.Append("  Supported details: ")
+            .Append(string.Join(", ", options.Select(candidate => candidate.Candidate.Value)))
+            .AppendLine("; feasible timetable stages are listed above.");
+
+        output.AppendLine("  Assumptions: no additional assumptions were introduced. The timetable is a first feasible witness from supplied data, not an optimized or live-verified schedule.");
+
+        var unresolvedCandidates = evaluation.Candidates
+            .Where(candidate => candidate.Feasibility == CandidateFeasibility.Unresolved)
+            .Select(candidate => $"{candidate.Candidate.Value}: hard-constraint evidence is unresolved");
+        var unresolvedConditions = options
+            .SelectMany(candidate => candidate.Conditions
+                .Where(condition => condition.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+                .Select(condition => $"{candidate.Candidate.Value}: {condition.ConditionName} is {DescribeStatus(condition.Status)}"));
+        var unresolvedPreferences = options
+            .SelectMany(candidate => candidate.Conditions
+                .SelectMany(condition => condition.Preferences
+                    .Where(preference => preference.Status is ObjectiveConditionAssessmentStatus.Unknown or ObjectiveConditionAssessmentStatus.Conflicting)
+                    .Select(preference => $"{candidate.Candidate.Value}: {preference.Preference} is {DescribeStatus(preference.Status)}")));
+        var unknowns = unresolvedCandidates
+            .Concat(unresolvedConditions)
+            .Concat(unresolvedPreferences)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        output.Append("  Unknowns: ");
+        if (unknowns.Length > 0)
+        {
+            output.Append(string.Join("; ", unknowns)).Append(". ");
+        }
+        else
+        {
+            output.Append("no assessed candidate constraint or preference remains unresolved. ");
+        }
+
+        output.AppendLine("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified by this evaluation.");
+
+        output.Append("  Your actions: ");
+        if (evaluation.EvidenceRequests.Count > 0)
+        {
+            output.Append("answer the outstanding evidence request above; ");
+        }
+
+        output.AppendLine("verify live details before acting and complete any required booking yourself. No booking has been made.");
     }
 
     private static void AppendShortlistedOptions(

@@ -480,6 +480,13 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Walking only.", status.ActiveObjectiveSource);
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
+        var finalMessage = result.Utterances[^1].Message;
+        Assert.Contains("Plan summary (based on supplied evidence):", finalMessage);
+        Assert.Contains("Supported details: Riverside Gardens", finalMessage);
+        Assert.Contains("Assumptions: no additional assumptions were introduced.", finalMessage);
+        Assert.Contains("Live availability, current opening hours, transport departures, weather, and booking requirements are not verified", finalMessage);
+        Assert.Contains("Your actions: verify live details before acting", finalMessage);
+        Assert.Contains("No booking has been made.", finalMessage);
     }
 
     [Fact]
