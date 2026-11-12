@@ -138,7 +138,7 @@ internal sealed class ReplCandidateEvidenceCommands(
                 page!,
                 request!.Value.Candidate,
                 request.Value.AttributeName,
-                request.Value.Value,
+                request.Value.ValueJson,
                 request.Value.Excerpt,
                 out var evidence,
                 out var evidenceError))
@@ -150,7 +150,7 @@ internal sealed class ReplCandidateEvidenceCommands(
         AnsiConsole.MarkupLine("[bold yellow]Review this external candidate attribute[/]");
         AnsiConsole.WriteLine($"Candidate: {evidence!.Candidate}");
         AnsiConsole.WriteLine($"Attribute: {evidence.AttributeName}");
-        AnsiConsole.WriteLine($"Typed value: {FormatValue(evidence.Value)}");
+        AnsiConsole.WriteLine($"Typed value: {FormatValue(request.Value.Value)}");
         AnsiConsole.WriteLine($"Source: {evidence.SourceUrl}");
         AnsiConsole.WriteLine($"Retrieved: {evidence.RetrievedAt:O}");
         AnsiConsole.WriteLine(evidence.FreshUntil is { } freshUntil
@@ -182,7 +182,7 @@ internal sealed class ReplCandidateEvidenceCommands(
 
     private static bool TryParseAttributeRequest(
         string json,
-        out (string Candidate, string AttributeName, ObjectiveConditionValue Value, string Excerpt)? request,
+        out (string Candidate, string AttributeName, JsonElement ValueJson, ObjectiveConditionValue Value, string Excerpt)? request,
         out string? error)
     {
         request = null;
@@ -231,6 +231,7 @@ internal sealed class ReplCandidateEvidenceCommands(
             request = (
                 candidate.GetString() ?? string.Empty,
                 attributeName.GetString() ?? string.Empty,
+                valueElement.Clone(),
                 value,
                 excerpt.GetString() ?? string.Empty);
             return true;

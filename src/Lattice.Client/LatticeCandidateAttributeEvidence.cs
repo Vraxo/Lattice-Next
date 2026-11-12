@@ -1,11 +1,11 @@
-using Lattice.Core.Semantics;
+using System.Text.Json;
 
 namespace Lattice.Client;
 
 public sealed record LatticeCandidateAttributeEvidence(
     string Candidate,
     string AttributeName,
-    ObjectiveConditionValue Value,
+    JsonElement Value,
     string SourceText,
     string SourceUrl,
     DateTimeOffset RetrievedAt)

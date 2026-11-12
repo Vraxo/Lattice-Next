@@ -210,7 +210,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 evidence.Candidate.Length > 256 ||
                 string.IsNullOrWhiteSpace(evidence.AttributeName) ||
                 evidence.AttributeName.Length > 64 ||
-                evidence.Value is null ||
+                evidence.Value.ValueKind is System.Text.Json.JsonValueKind.Undefined or System.Text.Json.JsonValueKind.Null ||
+                !KnowledgePackLoader.TryParseTypedAttributeValue(evidence.Value, out var typedValue, out var typedValueError) ||
+                typedValue is null ||
                 string.IsNullOrWhiteSpace(evidence.SourceText) ||
                 evidence.SourceText.Length > 4000 ||
                 evidence.RetrievedAt == default ||
@@ -223,7 +225,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 !sourceUri.IsDefaultPort)
             {
                 return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The reviewed candidate attribute evidence contains an invalid value or source."));
+                    LatticeCandidateEvidenceResult.Rejected(typedValueError ?? "The reviewed candidate attribute evidence contains an invalid value or source."));
             }
 
             var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
@@ -253,7 +255,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 .Distinct()
                 .ToArray();
 
-            if (expectedTypes.Length != 1 || expectedTypes[0] != evidence.Value.GetType())
+            if (expectedTypes.Length != 1 || expectedTypes[0] != typedValue!.GetType())
             {
                 return ValueTask.FromResult(
                     LatticeCandidateEvidenceResult.Rejected("The reviewed value type does not match the active objective's candidate attribute."));
@@ -290,7 +292,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             var attribute = new KnowledgeAttribute(
                 candidate,
                 new SemanticIdentifier(evidence.AttributeName),
-                evidence.Value,
+                typedValue!,
                 evidence.SourceText,
                 KnowledgeSourceKind.ExternalObservation,
                 SourceId: sourceUri.AbsoluteUri)
