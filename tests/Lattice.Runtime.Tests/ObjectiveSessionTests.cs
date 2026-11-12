@@ -498,6 +498,31 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Accepts_reordered_departure_and_return_times_in_a_day_out_follow_up()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+        const string followUp = "$25 total. I can be back by 18:00 and leave at 9:00. I'm starting at Central Station. I'll bring lunch.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(followUp, TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(4, result.Utterances.Length);
+        Assert.Contains(
+            result.Utterances.Select(utterance => utterance.Meaning),
+            meaning => meaning.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", StringComparison.Ordinal));
+        Assert.Contains("I can be back by 18:00 and leave at 9:00.", status.ActiveObjectiveSource);
+        Assert.Null(status.PendingInformationName);
+        Assert.Null(status.PendingInformationPrompt);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Walking_only_revision_replaces_transport_mode_and_preserves_other_conditions()
     {
         var client = new LatticeRuntimeClient();
