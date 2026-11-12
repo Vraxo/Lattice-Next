@@ -214,7 +214,12 @@ internal static class ObjectiveEvaluationFormatter
 
         if (options.Length == 0)
         {
-            output.AppendLine("Next step: review the excluded constraints and decide whether one can be relaxed.");
+            if (evaluation.Candidates.All(candidate => candidate.Feasibility == CandidateFeasibility.Excluded))
+            {
+                return;
+            }
+
+            output.AppendLine("Next step: resolve missing or conflicting hard-constraint evidence before choosing an option.");
             return;
         }
 
@@ -462,6 +467,10 @@ internal static class ObjectiveEvaluationFormatter
                     output.Append("  Unresolved candidates still need evidence: ")
                         .AppendLine(string.Join(", ", unresolvedCandidates));
                 }
+                else
+                {
+                    AppendInfeasibilityDetails(output, candidates);
+                }
 
                 break;
 
@@ -496,6 +505,50 @@ internal static class ObjectiveEvaluationFormatter
             output.Append("  Other candidates remain unresolved and were not included: ")
                 .AppendLine(string.Join(", ", unresolvedCandidates));
         }
+    }
+
+    private static void AppendInfeasibilityDetails(
+        StringBuilder output,
+        IReadOnlyList<CandidateAssessment> candidates)
+    {
+        if (candidates.Count == 0 ||
+            candidates.Any(candidate => candidate.Feasibility != CandidateFeasibility.Excluded))
+        {
+            return;
+        }
+
+        var blockers = candidates
+            .SelectMany(candidate => candidate.Conditions
+                .Where(condition =>
+                    condition.Role == ObjectiveConditionRole.HardConstraint &&
+                    condition.Status == ObjectiveConditionAssessmentStatus.Violated)
+                .Select(condition => (
+                    Candidate: candidate.Candidate.Value,
+                    ConditionName: condition.ConditionName)))
+            .GroupBy(blocker => blocker.ConditionName, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (blockers.Length == 0)
+        {
+            return;
+        }
+
+        output.AppendLine("Every supplied candidate violates at least one assessed hard constraint.");
+
+        foreach (var blocker in blockers)
+        {
+            var candidateNames = blocker
+                .Select(item => item.Candidate)
+                .Distinct(StringComparer.Ordinal);
+
+            output.Append("  - ")
+                .Append(FormatAttributeName(blocker.Key))
+                .Append(": violated by ")
+                .Append(string.Join(", ", candidateNames))
+                .AppendLine(".");
+        }
+
+        output.AppendLine("Would you like to relax one of these constraints?");
     }
 
     private static void AppendTradeOffEvidence(
