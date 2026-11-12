@@ -205,6 +205,7 @@ public static class AssistantBenchmarkRunner
 
             return new BenchmarkRunResult(
                 item.Id,
+                item.Prompt,
                 item.Category,
                 item.EvaluationLayer,
                 repetition,
@@ -229,6 +230,7 @@ public static class AssistantBenchmarkRunner
             timer.Stop();
             return new BenchmarkRunResult(
                 item.Id,
+                item.Prompt,
                 item.Category,
                 item.EvaluationLayer,
                 repetition,
@@ -338,6 +340,8 @@ public static class AssistantBenchmarkRunner
         {
             builder.AppendLine();
             builder.AppendLine($"### {Escape(result.Id)} · repetition {result.Repetition}");
+            builder.AppendLine();
+            builder.AppendLine($"**Prompt:** {Escape(result.Prompt)}");
             builder.AppendLine();
             builder.AppendLine($"- Category: {Escape(result.Category)}");
             builder.AppendLine($"- Layer: {Escape(result.EvaluationLayer)}");
