@@ -880,12 +880,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private string AppendObjectiveEvaluation(string message, ObjectiveFormula objective)
     {
-        var summary = ObjectiveEvaluationFormatter.Format(
+        var response = ObjectiveResponseFormatter.Format(
             objectiveEvaluator.Evaluate(objective, knowledgeBase));
 
-        return string.IsNullOrWhiteSpace(summary)
+        return string.IsNullOrWhiteSpace(response)
             ? message
-            : $"{message}{Environment.NewLine}{summary}";
+            : response;
     }
 
     private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
