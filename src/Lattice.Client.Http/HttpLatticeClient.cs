@@ -111,6 +111,23 @@ public sealed class HttpLatticeClient(HttpClient httpClient, string? bearerToken
                 ?? throw new HttpRequestException("The Lattice server returned an empty candidate-evidence response.");
         }
 
+        public async ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateAttributeEvidenceAsync(
+            LatticeCandidateAttributeEvidence evidence,
+            CancellationToken cancellationToken = default)
+        {
+            using var request = CreateRequest(
+                HttpMethod.Post,
+                $"api/sessions/{SessionId}/candidate-attribute-evidence",
+                evidence);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<LatticeCandidateEvidenceResult>(
+                JsonOptions,
+                cancellationToken)
+                ?? throw new HttpRequestException("The Lattice server returned an empty candidate-attribute-evidence response.");
+        }
+
         public async ValueTask<LatticeSessionStatus> GetStatusAsync(
             CancellationToken cancellationToken = default)
         {

@@ -65,6 +65,79 @@ public sealed class LatticeHttpClientTests
     }
 
     [Fact]
+    public async Task Http_client_adds_reviewed_non_monetary_candidate_attribute_with_provenance()
+    {
+        await using var app = LatticeServer.Build(
+            [],
+            builder =>
+            {
+                builder.WebHost.UseTestServer();
+                builder.Configuration["LATTICE_SERVER_API_KEY"] = "test-secret";
+            });
+        await app.StartAsync();
+
+        using var http = app.GetTestClient();
+        var client = new HttpLatticeClient(http, "test-secret");
+        await using var session = await client.CreateSessionAsync();
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "walking-place",
+              "name": "Walking place",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Quiet Park",
+                  "name": "transport-mode",
+                  "value": { "type": "text", "value": "walking" },
+                  "sourceText": "Quiet Park has a walking route.",
+                  "requiresFreshness": true
+                },
+                {
+                  "subject": "Quiet Park",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Quiet Park is quiet and outdoors."
+                }
+              ]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me find a place.");
+
+        using var valueDocument = System.Text.Json.JsonDocument.Parse("""{"type":"text","value":"walking"}""");
+        var retrievedAt = DateTimeOffset.UtcNow.AddMinutes(-1);
+        var freshUntil = DateTimeOffset.UtcNow.AddHours(1);
+        var result = await session.AddReviewedCandidateAttributeEvidenceAsync(
+            new LatticeCandidateAttributeEvidence(
+                "Quiet Park",
+                "transport-mode",
+                valueDocument.RootElement.Clone(),
+                "Quiet Park has a walking-only route.",
+                "https://example.org/quiet-park",
+                retrievedAt)
+            {
+                FreshUntil = freshUntil
+            });
+
+        Assert.True(result.IsSuccess, result.Error);
+        var status = await session.GetStatusAsync();
+        var evaluation = Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation);
+        var candidate = Assert.Single(evaluation.Candidates);
+        Assert.Equal("Eligible", candidate.Feasibility);
+        var transport = Assert.Single(candidate.Conditions, condition => condition.Name == "transport");
+        Assert.Equal("Satisfied", transport.Status);
+        Assert.Contains(transport.Evidence, source =>
+            source.Kind == "ExternalObservation" &&
+            source.SourceId == "https://example.org/quiet-park" &&
+            source.RetrievedAt == retrievedAt &&
+            source.FreshUntil == freshUntil &&
+            source.RequiresFreshness);
+    }
+
+    [Fact]
     public async Task Server_requires_the_configured_bearer_token()
     {
         await using var app = LatticeServer.Build(

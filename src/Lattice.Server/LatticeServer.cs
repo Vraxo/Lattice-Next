@@ -109,6 +109,24 @@ public static class LatticeServer
                 return Results.Ok(result);
             });
 
+        app.MapPost(
+            "/api/sessions/{sessionId:guid}/candidate-attribute-evidence",
+            async (
+                Guid sessionId,
+                LatticeCandidateAttributeEvidence evidence,
+                LatticeSessionRegistry sessions,
+                CancellationToken token) =>
+            {
+                var session = sessions.Get(sessionId);
+                if (session is null)
+                {
+                    return (IResult)Results.NotFound();
+                }
+
+                var result = await session.AddReviewedCandidateAttributeEvidenceAsync(evidence, token);
+                return Results.Ok(result);
+            });
+
         app.MapGet(
             "/api/sessions/{sessionId:guid}/status",
             async (Guid sessionId, LatticeSessionRegistry sessions, CancellationToken token) =>

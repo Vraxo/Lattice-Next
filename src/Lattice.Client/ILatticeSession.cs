@@ -19,6 +19,10 @@ public interface ILatticeSession : IAsyncDisposable
         LatticeCandidateMoneyEvidence evidence,
         CancellationToken cancellationToken = default);
 
+    ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateAttributeEvidenceAsync(
+        LatticeCandidateAttributeEvidence evidence,
+        CancellationToken cancellationToken = default);
+
     ValueTask<LatticeSessionStatus> GetStatusAsync(
         CancellationToken cancellationToken = default);
 }

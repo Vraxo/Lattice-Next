@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Lattice.Client;
 using Lattice.Runtime;
 using Xunit;
@@ -120,6 +121,28 @@ public sealed class ExternalPageEvidenceReviewTests
         Assert.Contains("appear exactly", error, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public void Rejects_generic_candidate_attribute_review_with_a_non_object_value()
+    {
+        var page = new LatticeExternalPageObservation(
+            "https://example.org/page",
+            DateTimeOffset.UtcNow,
+            200,
+            "text/plain",
+            "Quiet Park is open from 08:00 to 18:00.");
+
+        using var value = JsonDocument.Parse("\"walking\"");
+        Assert.False(LatticeReviewedCandidateAttributeEvidenceFactory.TryCreate(
+            page,
+            "Quiet Park",
+            "transport-mode",
+            value.RootElement,
+            "Quiet Park is open from 08:00 to 18:00.",
+            out _,
+            out var error));
+        Assert.Contains("JSON typed-value object", error, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string CreatePage(
         string url,
         int status = 200,
@@ -177,6 +200,102 @@ public sealed class ExternalPageEvidenceReviewTests
         Assert.DoesNotContain(confirmedEvaluation.EvidenceRequests, request =>
             request.Candidate == "Aster 14" &&
             request.ConditionName == "spending-limit");
+    }
+
+    [Fact]
+    public async Task Adds_reviewed_non_monetary_candidate_attribute_with_freshness_and_provenance()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string pack = """
+            {
+              "formatVersion": 1,
+              "id": "walking-place",
+              "name": "Walking place",
+              "claims": [],
+              "attributes": [
+                {
+                  "subject": "Quiet Park",
+                  "name": "transport-mode",
+                  "value": { "type": "text", "value": "walking" },
+                  "sourceText": "Quiet Park has a walking route.",
+                  "requiresFreshness": true
+                },
+                {
+                  "subject": "Quiet Park",
+                  "name": "tags",
+                  "value": { "type": "textSet", "values": ["quiet", "outdoors"] },
+                  "sourceText": "Quiet Park is quiet and outdoors."
+                }
+              ]
+            }
+            """;
+        var loaded = await session.LoadKnowledgePackAsync(pack, TestContext.Current.CancellationToken);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        await session.SubmitAsync(
+            "I have no car. I would prefer somewhere quiet and outdoors. Help me find a place.",
+            TestContext.Current.CancellationToken);
+
+        var before = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var beforeEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(before.ObjectiveEvaluation);
+        var beforeCandidate = Assert.Single(beforeEvaluation.Candidates);
+        Assert.Contains(beforeCandidate.Conditions, condition =>
+            condition.Name == "transport" && condition.Status == "Unverified");
+        Assert.Contains(beforeEvaluation.EvidenceRequests, request =>
+            request.Candidate == "Quiet Park" && request.AttributeName == "transport-mode");
+
+        using var valueDocument = JsonDocument.Parse("""{"type":"text","value":"walking"}""");
+        var retrievedAt = DateTimeOffset.UtcNow.AddMinutes(-1);
+        var freshUntil = DateTimeOffset.UtcNow.AddHours(1);
+        var page = new LatticeExternalPageObservation(
+            "https://example.org/quiet-park",
+            retrievedAt,
+            200,
+            "text/html",
+            "Quiet Park has a walking-only route.",
+            FreshUntil: freshUntil);
+        Assert.True(LatticeReviewedCandidateAttributeEvidenceFactory.TryCreate(
+            page,
+            "Quiet Park",
+            "transport-mode",
+            valueDocument.RootElement,
+            "Quiet Park has a walking-only route.",
+            out var evidence,
+            out var factoryError), factoryError);
+
+        var accepted = await session.AddReviewedCandidateAttributeEvidenceAsync(evidence!);
+        Assert.True(accepted.IsSuccess, accepted.Error);
+        Assert.Equal("transport-mode", accepted.AttributeName);
+
+        var after = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var afterEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(after.ObjectiveEvaluation);
+        var afterCandidate = Assert.Single(afterEvaluation.Candidates);
+        Assert.Equal("Eligible", afterCandidate.Feasibility);
+        var transport = Assert.Single(afterCandidate.Conditions, condition => condition.Name == "transport");
+        Assert.Equal("Satisfied", transport.Status);
+        Assert.Contains(transport.Evidence, source =>
+            source.Kind == "ExternalObservation" &&
+            source.SourceId == "https://example.org/quiet-park" &&
+            source.RetrievedAt == retrievedAt &&
+            source.FreshUntil == freshUntil &&
+            source.RequiresFreshness);
+        Assert.DoesNotContain(afterEvaluation.EvidenceRequests, request =>
+            request.Candidate == "Quiet Park" && request.AttributeName == "transport-mode");
+
+        using var invalidValue = JsonDocument.Parse("""{"type":"unknown","value":"walking"}""");
+        var rejected = await session.AddReviewedCandidateAttributeEvidenceAsync(
+            new LatticeCandidateAttributeEvidence(
+                "Quiet Park",
+                "transport-mode",
+                invalidValue.RootElement.Clone(),
+                "Quiet Park has a walking-only route.",
+                "https://example.org/quiet-park",
+                retrievedAt)
+            {
+                FreshUntil = freshUntil
+            });
+        Assert.False(rejected.IsSuccess);
+        Assert.Contains("supported typed attribute", rejected.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

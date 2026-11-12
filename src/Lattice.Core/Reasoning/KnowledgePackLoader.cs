@@ -303,6 +303,21 @@ public sealed class KnowledgePackLoader
         return true;
     }
 
+    public static bool TryParseTypedAttributeValue(
+        JsonElement element,
+        out ObjectiveConditionValue? value,
+        out string? error)
+    {
+        if (TryParseAttributeValue(element, out value))
+        {
+            error = null;
+            return true;
+        }
+
+        error = "The value must use a supported typed attribute format.";
+        return false;
+    }
+
     private static bool TryParseAttributeValue(
         JsonElement element,
         out ObjectiveConditionValue? value)
