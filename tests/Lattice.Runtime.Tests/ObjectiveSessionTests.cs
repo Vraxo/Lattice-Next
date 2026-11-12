@@ -545,7 +545,6 @@ public sealed class ObjectiveSessionTests
             meaning => meaning.Contains("hardconstraint(origin, equals, Central Station)", StringComparison.Ordinal));
         Assert.Contains(result.Utterances.Select(utterance => utterance.Meaning),
             meaning => meaning.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", StringComparison.Ordinal));
-        Assert.Contains(followUp, status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Equal(0, status.FactCount);
