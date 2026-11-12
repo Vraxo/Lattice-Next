@@ -29,14 +29,18 @@ public sealed class ReasoningEngine
                     ProofOperations.IsSameGroundPredicate(fact.Predicate, query))
                 .Select(ProofOperations.CreateAssertedProof)
                 .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive).Where(candidate =>
+                    ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)))
+                .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase).Where(candidate =>
                     ProofOperations.IsSameGroundPredicate(candidate.Predicate, query)));
         }
         else if (query.Arguments.Length == 1 &&
             ProofOperations.TryGetFactKey(query, out var queryKey))
         {
-            positiveProofs = FactDeriver.DeriveUnaryFacts(knowledgeBase).Where(candidate =>
-                ProofOperations.TryGetFactKey(candidate.Predicate, out var key) &&
-                key == queryKey);
+            positiveProofs = FactDeriver.DeriveUnaryFacts(knowledgeBase)
+                .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase))
+                .Where(candidate =>
+                    ProofOperations.TryGetFactKey(candidate.Predicate, out var key) &&
+                    key == queryKey);
         }
         else
         {
@@ -63,6 +67,53 @@ public sealed class ReasoningEngine
 
         return ProofOperations.CreateResult(positiveProofs, negativeProofs);
     }
+
+    public ReasoningResult AskRelated(
+        KnowledgeBase knowledgeBase,
+        SemanticIdentifier relation,
+        SemanticTerm subject)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+
+        if (string.IsNullOrWhiteSpace(relation.Value) ||
+            subject is not (IndividualTerm or AnonymousIndividualTerm))
+        {
+            return new ReasoningResult(null);
+        }
+
+        var positiveProofs = knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Positive &&
+                IsRelationForSubject(fact.Predicate, relation, subject))
+            .Select(ProofOperations.CreateAssertedProof)
+            .Concat(FactDeriver.DeriveRelationalFacts(
+                knowledgeBase,
+                EvidencePolarity.Positive)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)))
+            .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)));
+
+        var negativeProofs = knowledgeBase.Facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Negative &&
+                IsRelationForSubject(fact.Predicate, relation, subject))
+            .Select(ProofOperations.CreateAssertedProof)
+            .Concat(FactDeriver.DeriveRelationalFacts(
+                knowledgeBase,
+                EvidencePolarity.Negative)
+                .Where(proof => IsRelationForSubject(proof.Predicate, relation, subject)));
+
+        return ProofOperations.CreateResult(positiveProofs, negativeProofs);
+    }
+
+    private static bool IsRelationForSubject(
+        PredicateApplication predicate,
+        SemanticIdentifier relation,
+        SemanticTerm subject) =>
+        predicate.Predicate == relation &&
+        !predicate.Arguments.IsDefault &&
+        predicate.Arguments.Length == 2 &&
+        predicate.Arguments[0] == subject;
 
     public ReasoningResult Ask(
         KnowledgeBase knowledgeBase,
@@ -325,6 +376,11 @@ public sealed class ReasoningEngine
                 case IndividualTerm individual when
                     !string.IsNullOrWhiteSpace(individual.Identifier.Value):
                     arguments.Add(individual);
+                    break;
+
+                case AnonymousIndividualTerm anonymous when
+                    !string.IsNullOrWhiteSpace(anonymous.Identity.Value):
+                    arguments.Add(anonymous);
                     break;
 
                 case DescriptiveIndividualTerm description

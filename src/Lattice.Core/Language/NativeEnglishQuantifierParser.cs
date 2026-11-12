@@ -211,6 +211,23 @@ internal static class NativeEnglishQuantifierParser
                 return true;
             }
 
+            if (!isNo &&
+                TryParseExistentialRelationConclusion(
+                    tokens,
+                    separator,
+                    tokens.Length,
+                    expectsPluralHead,
+                    out var existentialRelation))
+            {
+                var subject = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
+                utterance = EnglishSemanticFactory.CreateUniversalUtterance(
+                    subject,
+                    description!.ToUniversalConditions(subject),
+                    existentialRelation!,
+                    sourceText);
+                return true;
+            }
+
             if (isExistential || isOnly)
             {
                 continue;
@@ -251,6 +268,55 @@ internal static class NativeEnglishQuantifierParser
         }
 
         return false;
+    }
+
+    private static bool TryParseExistentialRelationConclusion(
+        string[] tokens,
+        int verbIndex,
+        int end,
+        bool pluralSubject,
+        out SemanticFormula? conclusion)
+    {
+        conclusion = null;
+
+        if (verbIndex + 2 >= end)
+        {
+            return false;
+        }
+
+        var verb = tokens[verbIndex];
+        var predicate = pluralSubject
+            ? EnglishRelationLexicon.IsBaseRelationVerb(verb)
+                ? EnglishMorphology.InflectThirdPersonSingular(verb)
+                : null
+            : EnglishMorphology.IsThirdPersonVerb(verb)
+                ? verb.ToLowerInvariant()
+                : null;
+
+        if (predicate is null ||
+            !(EnglishGrammarTokens.Is(tokens[verbIndex + 1], "a") ||
+              EnglishGrammarTokens.Is(tokens[verbIndex + 1], "an")) ||
+            !EnglishDescriptionParser.TryParseDescription(
+                tokens,
+                verbIndex + 2,
+                end,
+                expectPluralHead: false,
+                out var objectDescription))
+        {
+            return false;
+        }
+
+        var subject = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x"));
+        var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
+        var conditions = EnglishSemanticFactory.GetConjuncts(
+            objectDescription!.ToExistentialConditions(witness));
+        var relation = EnglishSemanticFactory.Predicate(predicate, subject, witness);
+
+        conclusion = new ExistentialQuantification(
+            witness,
+            EnglishSemanticFactory.Combine(conditions.Add(relation)));
+
+        return true;
     }
 
     private static bool IsCopulaForQuantifier(

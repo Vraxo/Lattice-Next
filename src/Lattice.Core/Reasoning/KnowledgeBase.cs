@@ -145,6 +145,7 @@ public sealed class KnowledgeBase
                 AreSamePremises(rule.NegativePremises, candidateRule.NegativePremises) &&
                 AreSameRelationalPremises(rule.RelationalPremises, candidateRule.RelationalPremises) &&
                 AreSameRelationalPremises(rule.NegativeRelationalPremises, candidateRule.NegativeRelationalPremises) &&
+                AreSameExistentialConclusion(rule.ExistentialConclusion, candidateRule.ExistentialConclusion) &&
                 IsSamePredicate(rule.Conclusion, candidateRule.Conclusion));
 
             if (existingRuleIndex < 0)
@@ -174,7 +175,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts, existential assertions with unary conditions, and universal rules with one or more unary premises, optionally one positive or explicitly negative fixed-object relational premise, and either one unary conclusion or one binary relation to a concrete individual are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and supported universal rules with unary premises, optionally one fixed-object relational premise, and either a unary conclusion, a fixed-object relation, or one existential relational conclusion are supported by the current reasoning engine.";
         return false;
     }
 
@@ -250,6 +251,20 @@ public sealed class KnowledgeBase
         {
             AdditionalSources = sources.Skip(1).ToImmutableArray()
         };
+    }
+
+    private static bool AreSameExistentialConclusion(
+        ExistentialRuleConclusion? left,
+        ExistentialRuleConclusion? right)
+    {
+        if (left is null || right is null)
+        {
+            return left is null && right is null;
+        }
+
+        return left.Witness.Identifier == right.Witness.Identifier &&
+            AreSamePremises(left.Conditions, right.Conditions) &&
+            IsSamePredicate(left.Relation, right.Relation);
     }
 
     private static bool AreSamePremises(

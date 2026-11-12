@@ -8,6 +8,8 @@ public sealed class NativeEnglishGrammarTests
 {
     private readonly LceParser parser = new();
 
+    [InlineData("Every polygon has a boundary.", UtteranceKind.Assertion, "forall(x, implies(polygon(x), exists(y, and(boundary(y), has(x, y)))))")]
+    [InlineData("All polygons have a closed boundary.", UtteranceKind.Assertion, "forall(x, implies(polygon(x), exists(y, and(closed(y), boundary(y), has(x, y)))))")]
     [Theory]
     [InlineData("Fido belongs to the class of dogs.", UtteranceKind.Assertion, "dog(fido)")]
     [InlineData("Fido is happy.", UtteranceKind.Assertion, "happy(fido)")]
