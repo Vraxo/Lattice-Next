@@ -70,6 +70,12 @@ internal static class ConceptKnowledgeFormatter
 
         var facts = knowledgeBase.Facts
             .Where(fact => HasSubject(fact, concept))
+            .Where(fact =>
+                fact.Predicate.Arguments.Length != 1 ||
+                !string.Equals(
+                    fact.Predicate.Predicate.Value,
+                    concept,
+                    StringComparison.OrdinalIgnoreCase))
             .OrderBy(fact => fact.Predicate.Arguments.Length == 1 ? 0 : 1)
             .ThenBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
             .ThenBy(fact => fact.Polarity)
