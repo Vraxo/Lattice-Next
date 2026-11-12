@@ -43,7 +43,7 @@ def public_resolver(host, port, type):
 class PageFetchTests(unittest.TestCase):
     def test_fetches_html_with_a_pinned_public_address_and_extracts_visible_text(self) -> None:
         response = FakeResponse(
-            headers={"Content-Type": "text/html; charset=utf-8"},
+            headers={"Content-Type": "text/html; charset=utf-8", "Cache-Control": "max-age=3600"},
             body=(
                 b"<html><head><title>Example page</title>"
                 b"<script>ignore this secret</script><style>.x{}</style></head>"
@@ -86,11 +86,29 @@ class PageFetchTests(unittest.TestCase):
         self.assertTrue(connection.closed)
         self.assertIn("Final URL: https://Example.org/path?q=1", observation)
         self.assertIn("Retrieved at: 2026-11-12T07:00:00Z", observation)
+        self.assertIn("Fresh until: 2026-11-12T08:00:00Z", observation)
         self.assertIn("Page title: Example page", observation)
         self.assertIn("Welcome A useful summary.", observation)
         self.assertIn("untrusted external text", observation)
         self.assertNotIn("ignore this secret", observation)
         self.assertNotIn("hidden vector text", observation)
+
+    def test_uses_age_and_expires_headers_to_bound_freshness(self) -> None:
+        retrieved_at = datetime(2026, 11, 12, 7, 0, tzinfo=timezone.utc)
+        max_age = FakeResponse(headers={"Cache-Control": "public, max-age=3600", "Age": "600"})
+        expires = FakeResponse(headers={"Expires": "Thu, 12 Nov 2026 08:30:00 GMT"})
+        no_cache = FakeResponse(headers={"Cache-Control": "no-cache"})
+
+        self.assertEqual(
+            datetime(2026, 11, 12, 7, 50, tzinfo=timezone.utc),
+            main.get_fresh_until(max_age, retrieved_at),
+        )
+        self.assertEqual(
+            datetime(2026, 11, 12, 8, 30, tzinfo=timezone.utc),
+            main.get_fresh_until(expires, retrieved_at),
+        )
+        self.assertEqual(retrieved_at, main.get_fresh_until(no_cache, retrieved_at))
+        self.assertIsNone(main.get_fresh_until(FakeResponse(), retrieved_at))
 
     def test_fetches_plain_text_and_reports_the_final_url(self) -> None:
         responses = [
