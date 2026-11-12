@@ -120,4 +120,15 @@ The resulting explanation is composed from the graph:
 
 The runtime returns the exact imported claims as evidence. It does not use their source sentences as the answer. Relationship traversal is bounded and cycle-safe. A missing specific concept remains unavailable; it does not silently inherit a broader concept's explanation.
 
-This is an initial graph-backed concept explanation, not yet a complete ontology or natural-language realizer. The current graph uses named individuals and unary/binary predicates. It does not yet model quantified part structures such as a different boundary object for every polygon, cardinality, or arbitrary variable-to-variable relational rules. Those require a richer relational rule model and must not be approximated by treating a shared concept label as one universal physical object.
+Universal rules can now introduce an existentially quantified related individual. For example, the claim `Every polygon has a boundary.` is represented as:
+
+```
+forall(x, implies(
+  polygon(x),
+  exists(y, and(boundary(y), has(x, y)))
+))
+```
+
+The witness is scoped to the subject that satisfied the rule. If two distinct polygons are known, the rule derives two distinct anonymous boundary witnesses; it does not connect both polygons to one globally shared `boundary` individual. Each witness property and relation carries the rule's provenance. The current increment supports one witness variable, one subject-to-witness binary relation, and one or more positive unary witness conditions. Arbitrary multi-variable joins, nested existential structures, and unrestricted first-order logic remain unsupported and are rejected.
+
+This is an initial graph-backed concept explanation, not yet a complete ontology or natural-language realizer. The graph still uses unary and binary predicates, with a deliberately bounded quantified-rule subset.
