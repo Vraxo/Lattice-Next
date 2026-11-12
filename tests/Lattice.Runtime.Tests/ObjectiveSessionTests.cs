@@ -1333,8 +1333,9 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
         Assert.Contains("Aster 14 is the only option currently confirmed to meet your requirements.", accepted.Utterances.Single().Message);
         Assert.Contains("The comparison is provisional because some preference details are still unknown.", accepted.Utterances.Single().Message);
-        Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
-        Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
+        Assert.Contains("Birch 15 might also be an option, but its total cost is still unknown.", accepted.Utterances.Single().Message);
+        Assert.Contains("Cedar 14 might also be an option, but its total cost is still unknown.", accepted.Utterances.Single().Message);
+        Assert.DoesNotContain("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
         Assert.DoesNotContain("Still unresolved:", accepted.Utterances.Single().Message);
 
         var afterAccepted = await session.GetStatusAsync(TestContext.Current.CancellationToken);
