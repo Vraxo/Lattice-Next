@@ -75,8 +75,8 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [x] Surface Cedar 14's supplied upgrade-path evidence without inventing a reliability ranking.
 - [x] Request the missing total-cost evidence for each unresolved laptop candidate.
 - [x] Accept candidate-specific price answers and update the laptop comparison through the same generic path.
-- [ ] Demonstrate at least one additional, materially different task without adding a domain-specific workflow.
-- [ ] Show that the system can combine existing mechanisms in a task that was not used to implement them.
+- [x] Demonstrate a materially different ceramics-course selection task without adding a domain-specific workflow.
+- [x] Show that the system combines objective capture, constraints, preferences, evidence requests, same-session answers, temporal witnesses, and corrections in a task that was not used to implement them.
 
 ## 6. Acceptance gate: first-use task
 
@@ -91,4 +91,4 @@ The first-use task is complete when all of the following are true:
 - [ ] Release build, full .NET test suite, and external-tool tests pass in CI.
 - [ ] No benchmark-specific command, hardcoded candidate rule, or opaque recommendation score is required.
 
-**Current assessment:** the synthetic day-out flow and first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be supplied as user assertions or reviewed external observations; external observations retain their source URL, retrieval timestamp, and reviewed excerpt. The REPL now connects bounded page retrieval to explicit review: the user selects a candidate, amount, currency, and exact excerpt, inspects the source metadata, and must type `accept` before the shared runtime receives the claim. Retrieved text is never automatically converted into a fact. Remaining gaps include handling stale/unavailable/unverified external data, broadening reviewed evidence beyond monetary values, and a concise final day-out plan that separates confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.
+**Current assessment:** the synthetic day-out flow and first laptop transfer checkpoint are implemented. Candidate-specific monetary answers can be supplied as user assertions or reviewed external observations; external observations retain their source URL, retrieval timestamp, and reviewed excerpt. The REPL now connects bounded page retrieval to explicit review: the user selects a candidate, amount, currency, and exact excerpt, inspects the source metadata, and must type `accept` before the shared runtime receives the claim. A third synthetic transfer benchmark now exercises the same mechanisms for ceramics-course selection, including a same-session missing-price answer, temporal feasibility, preferences, and a walking-only correction. Retrieved text is never automatically converted into a fact. Remaining gaps include handling stale/unavailable/unverified external data, broadening reviewed evidence beyond monetary values, and a concise final day-out plan that separates confirmed details, assumptions, unknowns, and user actions. This checklist should be updated in the same PR that changes any item's status.

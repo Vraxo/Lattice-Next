@@ -977,4 +977,78 @@ public sealed class ObjectiveSessionTests
         Assert.Contains(Assert.IsType<LatticeObjectiveEvaluation>(status.ObjectiveEvaluation).EvidenceRequests,
             request => request.Candidate == "Aster 14");
     }
+
+    [Fact]
+    public async Task Ceramics_course_selection_transfers_generic_objective_evidence_preferences_and_temporal_planning()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "ceramics-course-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string request = "Help me choose a Saturday ceramics class. I have a limited budget and no car. I would prefer a small group and beginner-friendly instruction.";
+        var initialTurn = await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, Assert.Single(initialTurn.Utterances).Kind);
+        Assert.Contains("What is your spending limit?", initialTurn.Utterances.Single().Message);
+
+        const string clarification = "$180 total. I'm starting at Central Station, and I can leave at 9:00 and be back by 13:00.";
+        await session.SubmitAsync(clarification, TestContext.Current.CancellationToken);
+
+        var initialStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Contains(request, initialStatus.ActiveObjectiveSource ?? string.Empty);
+        var initial = Assert.IsType<LatticeObjectiveEvaluation>(initialStatus.ObjectiveEvaluation);
+        Assert.Equal(4, initial.Candidates.Length);
+        Assert.Equal("Northbank Ceramics", Assert.Single(initial.EvidenceRequests).Candidate);
+
+        var clayHouse = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Clay House Studio");
+        Assert.Equal("Eligible", clayHouse.Feasibility);
+        Assert.Equal(3, clayHouse.Conditions.SelectMany(condition => condition.TemporalWitness).Count());
+        Assert.All(clayHouse.Conditions.SelectMany(condition => condition.Preferences),
+            preference => Assert.Equal("Satisfied", preference.Status));
+
+        var community = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Community Kiln");
+        Assert.Equal("Eligible", community.Feasibility);
+        var communityPreferences = community.Conditions.SelectMany(condition => condition.Preferences).ToArray();
+        Assert.Contains(communityPreferences, preference => preference.Name == "a small group" && preference.Status == "Violated");
+        Assert.Contains(communityPreferences, preference => preference.Name == "beginner-friendly instruction" && preference.Status == "Satisfied");
+        Assert.Equal(3, community.Conditions.SelectMany(condition => condition.TemporalWitness).Count());
+
+        var northbank = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Northbank Ceramics");
+        Assert.Equal("Unresolved", northbank.Feasibility);
+        Assert.Equal(3, northbank.Conditions.SelectMany(condition => condition.TemporalWitness).Count());
+        var foundry = Assert.Single(initial.Candidates, candidate => candidate.Candidate == "Foundry Workshop");
+        Assert.Equal("Excluded", foundry.Feasibility);
+        Assert.True(foundry.HasHardConstraintViolation);
+
+        var answer = await session.SubmitAsync(
+            "Northbank Ceramics costs $150.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(answer.Utterances).Kind);
+        Assert.Contains("Recorded Northbank Ceramics's total cost as $150.", answer.Utterances.Single().Message);
+
+        var afterAnswer = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var answered = Assert.IsType<LatticeObjectiveEvaluation>(afterAnswer.ObjectiveEvaluation);
+        Assert.Empty(answered.EvidenceRequests);
+        var answeredNorthbank = Assert.Single(answered.Candidates, candidate => candidate.Candidate == "Northbank Ceramics");
+        Assert.Equal("Eligible", answeredNorthbank.Feasibility);
+        var northbankBudget = Assert.Single(answeredNorthbank.Conditions, condition => condition.Name == "spending-limit");
+        Assert.Equal("Satisfied", northbankBudget.Status);
+        Assert.Equal("UserAssertion", Assert.Single(northbankBudget.Evidence).Kind);
+
+        var revised = await session.SubmitAsync("Walking only.", TestContext.Current.CancellationToken);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(revised.Utterances).Kind);
+        var revisedStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
+        var final = Assert.IsType<LatticeObjectiveEvaluation>(revisedStatus.ObjectiveEvaluation);
+        Assert.Empty(final.EvidenceRequests);
+        Assert.Equal("Eligible", Assert.Single(final.Candidates, candidate => candidate.Candidate == "Clay House Studio").Feasibility);
+        Assert.Equal("Excluded", Assert.Single(final.Candidates, candidate => candidate.Candidate == "Community Kiln").Feasibility);
+        Assert.Equal("Eligible", Assert.Single(final.Candidates, candidate => candidate.Candidate == "Northbank Ceramics").Feasibility);
+        Assert.Equal("Excluded", Assert.Single(final.Candidates, candidate => candidate.Candidate == "Foundry Workshop").Feasibility);
+        Assert.Equal(
+            new[] { "Clay House Studio", "Northbank Ceramics" },
+            final.Recommendation.ShortlistedCandidates.OrderBy(name => name, StringComparer.Ordinal));
+    }
 }
