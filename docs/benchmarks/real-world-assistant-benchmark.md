@@ -105,3 +105,8 @@ dotnet run --project tools/Lattice.Assistant.Benchmark -- --repeat 5 --fail-on-u
 The default repeat count is one. Repetitions are useful for detecting instability, but deterministic identical runs do not add evidence of answer quality. The runner reports **handled** when the CLI completes a turn without rejecting it; this is an execution metric, not a correctness score. There are currently no gold answers or human-reviewed semantic annotations for this prompt set, so the runner deliberately does not claim an accuracy percentage. The separate diagnostics JSON is not silently mixed into this source-prompt run.
 
 The runner itself is included in `Lattice.slnx` and has integration tests verifying fresh-session isolation, report generation, filtering, and invalid benchmark rejection.
+
+
+## Conversational question semantics follow-up
+
+The initial benchmark run accepted 2 of 34 prompts, but neither accepted prompt received a substantive answer. A first language-layer increment now represents simple definition questions such as “What is a polygon?” as a typed `DefinitionQuestionFormula`, preserving the concept and any descriptive modifiers. This is only a parsing result: it does not claim that Lattice can retrieve, formulate, or verify a definition. The benchmark runner's handled count must not be interpreted as answer quality.
