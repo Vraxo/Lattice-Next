@@ -14,4 +14,6 @@
   <Project Path="tests\Lattice.Server.Tests\Lattice.Server.Tests.csproj" />
   <Project Path="tests\Lattice.Translators.LmStudio.Tests\Lattice.Translators.LmStudio.Tests.csproj" />
   <Project Path="tools\Lattice.Translator.Evaluation\Lattice.Translator.Evaluation.csproj" />
+  <Project Path="tools\Lattice.Assistant.Benchmark\Lattice.Assistant.Benchmark.csproj" />
+  <Project Path="tests\Lattice.Benchmark.Tests\Lattice.Benchmark.Tests.csproj" />
 </Solution>
