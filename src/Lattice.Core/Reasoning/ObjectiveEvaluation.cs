@@ -7,6 +7,8 @@ public sealed record ObjectiveEvaluation(ImmutableArray<CandidateAssessment> Can
 {
     public ImmutableArray<ObjectivePreferenceTradeOff> PreferenceTradeOffs { get; init; } = [];
 
+    public ImmutableArray<ObjectiveEvidenceRequest> EvidenceRequests { get; init; } = [];
+
     public ObjectiveRecommendation Recommendation { get; init; } = new(
         ObjectiveRecommendationStatus.NoEligibleCandidates,
         [],

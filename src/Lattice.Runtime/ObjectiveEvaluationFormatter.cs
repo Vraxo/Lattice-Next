@@ -107,8 +107,25 @@ internal static class ObjectiveEvaluationFormatter
             evaluation.Candidates,
             evaluation.PreferenceTradeOffs);
         AppendShortlistedOptions(output, evaluation.Recommendation, evaluation.Candidates);
+        AppendEvidenceRequests(output, evaluation.EvidenceRequests);
 
         return output.ToString().TrimEnd();
+    }
+
+    private static void AppendEvidenceRequests(
+        StringBuilder output,
+        IReadOnlyList<ObjectiveEvidenceRequest> requests)
+    {
+        if (requests.Count == 0)
+        {
+            return;
+        }
+
+        output.AppendLine("Missing hard-constraint evidence:");
+        foreach (var request in requests)
+        {
+            output.Append("- ").AppendLine(request.Prompt);
+        }
     }
 
     private static void AppendShortlistedOptions(

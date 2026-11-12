@@ -451,6 +451,31 @@ public sealed class ObjectiveEvaluatorTests
         Assert.Empty(knowledgeBase.Attributes);
     }
 
+    [Fact]
+    public void Requests_missing_candidate_evidence_for_unknown_hard_constraints()
+    {
+        var objective = CreateDayOutObjective();
+        var knowledgeBase = new KnowledgeBase();
+
+        foreach (var candidate in new[] { "Aster 14", "Birch 15" })
+        {
+            AddAttribute(knowledgeBase, candidate, "candidate-type", new ObjectiveTextValue("laptop"));
+            AddAttribute(knowledgeBase, candidate, "transport-mode", new ObjectiveTextValue("walking"));
+        }
+
+        var evaluation = evaluator.Evaluate(objective, knowledgeBase);
+
+        Assert.Equal(
+            new[] { "Aster 14", "Birch 15" },
+            evaluation.EvidenceRequests.Select(request => request.Candidate.Value));
+        Assert.All(evaluation.EvidenceRequests, request =>
+        {
+            Assert.Equal("spending-limit", request.ConditionName);
+            Assert.Equal("total-cost", request.AttributeName);
+            Assert.StartsWith("What is the total cost for ", request.Prompt);
+        });
+    }
+
     private ObjectiveFormula CreateDayOutObjective()
     {
         const string input = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";

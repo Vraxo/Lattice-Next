@@ -20,8 +20,52 @@ public sealed class ObjectiveEvaluator
         return new ObjectiveEvaluation(candidates)
         {
             PreferenceTradeOffs = BuildPreferenceTradeOffs(candidates),
-            Recommendation = BuildRecommendation(candidates)
+            Recommendation = BuildRecommendation(candidates),
+            EvidenceRequests = BuildEvidenceRequests(objective, candidates)
         };
+    }
+
+    private static ImmutableArray<ObjectiveEvidenceRequest> BuildEvidenceRequests(
+        ObjectiveFormula objective,
+        ImmutableArray<CandidateAssessment> candidates)
+    {
+        var result = ImmutableArray.CreateBuilder<ObjectiveEvidenceRequest>();
+
+        foreach (var candidate in candidates)
+        {
+            if (candidate.Feasibility != CandidateFeasibility.Unresolved)
+            {
+                continue;
+            }
+
+            for (var index = 0; index < objective.Conditions.Length; index++)
+            {
+                var condition = objective.Conditions[index];
+                var assessment = candidate.Conditions[index];
+
+                if (condition.Role != ObjectiveConditionRole.HardConstraint ||
+                    condition.Value is null ||
+                    assessment.Status != ObjectiveConditionAssessmentStatus.Unknown ||
+                    !assessment.Evidence.IsDefaultOrEmpty ||
+                    string.IsNullOrWhiteSpace(condition.TargetAttribute))
+                {
+                    continue;
+                }
+
+                var attributeName = string.Join(
+                    ' ',
+                    condition.TargetAttribute.Split('-', StringSplitOptions.RemoveEmptyEntries));
+                var prompt = $"What is the {attributeName} for {candidate.Candidate.Value}?";
+
+                result.Add(new ObjectiveEvidenceRequest(
+                    candidate.Candidate,
+                    condition.Name,
+                    condition.TargetAttribute,
+                    prompt));
+            }
+        }
+
+        return result.ToImmutable();
     }
 
     private static ImmutableArray<ObjectivePreferenceTradeOff> BuildPreferenceTradeOffs(
