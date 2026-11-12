@@ -537,86 +537,31 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance utterance,
         DefinitionQuestionFormula definition)
     {
-        var modifiers = definition.Modifiers.IsDefaultOrEmpty
-            ? ImmutableArray<SemanticIdentifier>.Empty
-            : definition.Modifiers;
         var requestedConcept = string.Join(
             " ",
-            modifiers
+            (definition.Modifiers.IsDefaultOrEmpty
+                ? ImmutableArray<SemanticIdentifier>.Empty
+                : definition.Modifiers)
                 .Append(definition.Concept)
                 .Select(identifier => identifier.Value));
 
-        var definitions = knowledgeBase.Attributes
-            .Where(attribute =>
-                string.Equals(attribute.Subject.Value, requestedConcept, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(attribute.Name.Value, "definition", StringComparison.OrdinalIgnoreCase) &&
-                attribute.Value is ObjectiveTextValue)
-            .Where(IsAvailableDefinition)
-            .ToArray();
-
         var meaning = SemanticFormatter.Format(utterance);
-        var evidence = definitions
-            .Select(MapDefinitionEvidence)
-            .ToImmutableArray();
 
-        if (definitions.Length == 0)
+        if (!ConceptKnowledgeFormatter.TryCreate(knowledgeBase, requestedConcept, out var explanation))
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
-                $"I don't have a definition for {requestedConcept} in the available knowledge.",
+                $"I don't have structured knowledge about {requestedConcept} in the available knowledge.",
                 meaning,
                 SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
 
-        var distinctDefinitions = definitions
-            .Select(attribute => ((ObjectiveTextValue)attribute.Value).Value)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-
-        if (distinctDefinitions.Length != 1)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.InformationUnavailable,
-                $"The available knowledge contains conflicting definitions for {requestedConcept}; I can't choose between them.",
-                meaning,
-                SupportingEvidence: evidence);
-        }
-
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.QuestionAnswered,
-            distinctDefinitions[0],
+            explanation!.Message,
             meaning,
-            SupportingEvidence: evidence);
+            SupportingEvidence: explanation.Evidence);
     }
-
-    private static bool IsAvailableDefinition(KnowledgeAttribute attribute)
-    {
-        var requiresFreshness = attribute.RequiresFreshness ||
-            attribute.SourceKind == KnowledgeSourceKind.ExternalObservation;
-
-        return !requiresFreshness ||
-            attribute.FreshUntil is { } freshUntil &&
-            freshUntil > DateTimeOffset.UtcNow;
-    }
-
-    private static LatticeEvidence MapDefinitionEvidence(KnowledgeAttribute attribute) =>
-        new(
-            LatticeEvidenceKind.Asserted,
-            LatticeEvidencePolarity.Positive,
-            attribute.Sources
-                .Select(source => new LatticeEvidenceSource(
-                    source.Kind switch
-                    {
-                        KnowledgeSourceKind.UserAssertion => LatticeKnowledgeSourceKind.UserAssertion,
-                        KnowledgeSourceKind.ImportedClaim => LatticeKnowledgeSourceKind.ImportedClaim,
-                        KnowledgeSourceKind.ExternalObservation => LatticeKnowledgeSourceKind.ExternalObservation,
-                        _ => throw new ArgumentOutOfRangeException(nameof(source), source.Kind, "Unsupported knowledge source kind.")
-                    },
-                    source.SourceText,
-                    source.SourceId,
-                    source.ResolvedReferent?.Value))
-                .ToImmutableArray(),
-            ImmutableArray<LatticeEvidence>.Empty);
 
     private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
         SemanticUtterance parsedUtterance,

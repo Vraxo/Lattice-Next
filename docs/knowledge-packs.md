@@ -89,28 +89,35 @@ The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candi
 Pack unloading, replacement, persistence, candidate ranking, and planning are not implemented.
 
 
-## Concept definitions
+## Concept knowledge
 
-A knowledge pack can provide a definition using an ordinary typed text attribute whose subject is the exact concept identifier and whose name is `definition`. For example:
+Concept explanations are composed from ordinary LCE claims, not stored definition strings. A concept is represented as a named node in the knowledge graph. Unary predicates describe its classifications or properties; binary predicates connect it to other concept nodes. When asked "What is a polygon?", the runtime traverses the connected facts and presents the resulting structure with the provenance of each claim.
+
+Example:
 
 ```json
 {
   "formatVersion": 1,
-  "id": "geometry-definitions",
-  "name": "Geometry definitions",
-  "claims": [],
-  "attributes": [
-    {
-      "subject": "polygon",
-      "name": "definition",
-      "value": {
-        "type": "text",
-        "value": "A polygon is a closed plane figure made of straight line segments."
-      },
-      "sourceText": "A polygon is a closed plane figure made of straight line segments."
-    }
+  "id": "geometry-concepts",
+  "name": "Geometry concepts",
+  "claims": [
+    "Polygon is a geometric-shape.",
+    "Polygon has Boundary.",
+    "The boundary is closed.",
+    "The boundary has Line-segment.",
+    "Line-segment is a line-segment.",
+    "The line-segment is straight."
   ]
 }
 ```
 
-The request `What is a polygon?` retrieves this text and returns the imported pack ID and source text as evidence. A modified request such as `What is a regular polygon?` requires a definition whose subject is exactly `regular polygon`; it does not silently substitute the broader `polygon` definition. Missing or conflicting definitions are reported as unavailable. Definitions that require freshness are not used after their freshness deadline or when no valid deadline is supplied.
+The resulting explanation is composed from the graph:
+
+- polygon is classified as geometric-shape;
+- polygon has a boundary;
+- the boundary is closed and has a line-segment;
+- the line-segment is straight.
+
+The runtime returns the exact imported claims as evidence. It does not use their source sentences as the answer. Relationship traversal is bounded and cycle-safe. A missing specific concept remains unavailable; it does not silently inherit a broader concept's explanation.
+
+This is an initial graph-backed concept explanation, not yet a complete ontology or natural-language realizer. The current graph uses named individuals and unary/binary predicates. It does not yet model quantified part structures such as a different boundary object for every polygon, cardinality, or arbitrary variable-to-variable relational rules. Those require a richer relational rule model and must not be approximated by treating a shared concept label as one universal physical object.
