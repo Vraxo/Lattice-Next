@@ -1,4 +1,5 @@
 using Lattice.Client;
+using Lattice.Core.Reasoning;
 using Lattice.Client.Http;
 using Lattice.Server;
 using Microsoft.AspNetCore.Hosting;

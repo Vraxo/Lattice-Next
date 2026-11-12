@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Lattice.Client;
+using Lattice.Core.Reasoning;
 using Lattice.Runtime;
 using Xunit;
 
