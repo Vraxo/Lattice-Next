@@ -15,7 +15,8 @@ public static class AssistantBenchmarkRunner
 
     public static async Task<BenchmarkRunReport> RunAsync(
         BenchmarkRunOptions options,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Action<BenchmarkRunResult>? onRunCompleted = null)
     {
         ArgumentNullException.ThrowIfNull(options);
 
@@ -64,13 +65,24 @@ public static class AssistantBenchmarkRunner
         var timer = Stopwatch.StartNew();
         var results = new List<BenchmarkRunResult>(selectedRecords.Length * options.Repeat);
 
-        for (var repetition = 1; repetition <= options.Repeat; repetition++)
+        var wasCancelled = false;
+
+        try
         {
-            foreach (var item in selectedRecords)
+            for (var repetition = 1; repetition <= options.Repeat; repetition++)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                results.Add(await RunPromptAsync(item, repetition, cancellationToken));
+                foreach (var item in selectedRecords)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var result = await RunPromptAsync(item, repetition, cancellationToken);
+                    results.Add(result);
+                    onRunCompleted?.Invoke(result);
+                }
             }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            wasCancelled = true;
         }
 
         timer.Stop();
@@ -107,7 +119,13 @@ public static class AssistantBenchmarkRunner
             layers,
             results);
 
-        await WriteReportAsync(report, options, cancellationToken);
+        await WriteReportAsync(report, options, CancellationToken.None);
+
+        if (wasCancelled)
+        {
+            throw new OperationCanceledException(cancellationToken);
+        }
+
         return report;
     }
 
@@ -141,6 +159,7 @@ public static class AssistantBenchmarkRunner
                 error,
                 standardInputIsRedirected: false,
                 cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             timer.Stop();
 
             using var document = JsonDocument.Parse(output.ToString());
@@ -302,7 +321,13 @@ public static class AssistantBenchmarkRunner
             var first = group.First();
             var handled = group.Count(item => item.RunStatus == "Handled");
             var signatures = group.Select(item => item.OutcomeSignature).Distinct(StringComparer.Ordinal).Count();
-            var stability = report.RepeatCount < 2 ? "not measured" : signatures == 1 && group.All(item => item.OutcomeSignature is not null) ? "stable" : "varied";
+            var stability = report.RepeatCount < 2
+                ? "not measured"
+                : group.Count() < report.RepeatCount
+                    ? "incomplete"
+                    : signatures == 1 && group.All(item => item.OutcomeSignature is not null)
+                        ? "stable"
+                        : "varied";
             builder.AppendLine(
                 $"| `{Escape(first.Id)}` | {Escape(first.Category)} | {Escape(first.EvaluationLayer)} | {group.Count()} | {handled}/{group.Count()} handled | {stability} |");
         }
