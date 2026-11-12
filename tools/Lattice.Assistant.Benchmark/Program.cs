@@ -1,0 +1,33 @@
+using Lattice.Assistant.Benchmark;
+
+if (!BenchmarkOptions.TryParse(args, out var options, out var error))
+{
+    Console.Error.WriteLine(error);
+    Console.Error.WriteLine(BenchmarkOptions.Usage);
+    return 64;
+}
+
+if (options!.ShowHelp)
+{
+    Console.WriteLine(BenchmarkOptions.Usage);
+    return 0;
+}
+
+try
+{
+    var report = await AssistantBenchmarkRunner.RunAsync(options.ToRunOptions());
+    Console.WriteLine(AssistantBenchmarkRunner.FormatSummary(report));
+    Console.WriteLine($"JSON report: {Path.GetFullPath(options.JsonOutputPath)}");
+    Console.WriteLine($"Markdown report: {Path.GetFullPath(options.MarkdownOutputPath)}");
+    return options.FailOnUnhandled && report.UnhandledRuns > 0 ? 1 : 0;
+}
+catch (OperationCanceledException)
+{
+    Console.Error.WriteLine("Benchmark cancelled.");
+    return 130;
+}
+catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException)
+{
+    Console.Error.WriteLine($"Benchmark failed: {exception.Message}");
+    return 2;
+}
