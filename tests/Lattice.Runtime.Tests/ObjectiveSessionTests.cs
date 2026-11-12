@@ -1020,6 +1020,48 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Clarifies_ambiguous_candidate_pronoun_without_storing_evidence()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        var pack = await session.LoadKnowledgePackAsync(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "laptop-candidates.json")),
+            TestContext.Current.CancellationToken);
+        Assert.True(pack.IsSuccess, pack.Error);
+
+        const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
+        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+
+        var ambiguous = await session.SubmitAsync(
+            "It costs $900.",
+            TestContext.Current.CancellationToken);
+
+        var clarification = Assert.Single(ambiguous.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, clarification.Kind);
+        Assert.Contains("Which candidate do you mean?", clarification.Message);
+        Assert.Contains("Aster 14", clarification.Message);
+        Assert.Contains("Birch 15", clarification.Message);
+        Assert.Contains("Cedar 14", clarification.Message);
+        Assert.Contains("No candidate information was changed", clarification.Message);
+
+        var unchanged = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        var unchangedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(unchanged.ObjectiveEvaluation);
+        Assert.Equal(3, unchangedEvaluation.EvidenceRequests.Length);
+        Assert.All(unchangedEvaluation.Candidates, candidate =>
+            Assert.DoesNotContain(
+                candidate.Conditions.SelectMany(condition => condition.Evidence),
+                evidence => evidence.SourceText == "It costs $900."));
+
+        var explicitAnswer = await session.SubmitAsync(
+            "Aster 14 costs $900.",
+            TestContext.Current.CancellationToken);
+        Assert.Equal(
+            LatticeUtteranceResultKind.ObjectiveInformationReceived,
+            Assert.Single(explicitAnswer.Utterances).Kind);
+        Assert.Contains("Recorded Aster 14's total cost as $900.", explicitAnswer.Utterances.Single().Message);
+    }
+
+    [Fact]
     public async Task Accepts_candidate_cost_answers_only_for_requested_candidates_and_preserves_conflicts()
     {
         var client = new LatticeRuntimeClient();

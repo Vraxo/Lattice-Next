@@ -377,12 +377,41 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         var candidate = new SemanticIdentifier(information.Candidate.Value);
         var attribute = new SemanticIdentifier(information.Attribute.Value);
-        var matchingRequests = objectiveEvaluator
+        var candidateEvidenceRequests = objectiveEvaluator
             .Evaluate(objective, knowledgeBase)
             .EvidenceRequests
             .Where(request =>
-                string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(request.AttributeName, attribute.Value, StringComparison.OrdinalIgnoreCase))
+            .ToImmutableArray();
+
+        if (string.Equals(candidate.Value, "it", StringComparison.OrdinalIgnoreCase))
+        {
+            var possibleCandidates = candidateEvidenceRequests
+                .Select(request => request.Candidate)
+                .Distinct()
+                .ToImmutableArray();
+
+            if (possibleCandidates.Length > 1)
+            {
+                var candidateNames = string.Join(
+                    ", ",
+                    possibleCandidates.Select(possibleCandidate => possibleCandidate.Value));
+
+                return new LatticeUtteranceResult(
+                    LatticeUtteranceResultKind.ClarificationRequired,
+                    $"Which candidate do you mean? I still need the {attribute.Value} for {candidateNames}. No candidate information was changed.",
+                    SemanticFormatter.Format(parsedUtterance));
+            }
+
+            if (possibleCandidates.Length == 1)
+            {
+                candidate = possibleCandidates[0];
+            }
+        }
+
+        var matchingRequests = candidateEvidenceRequests
+            .Where(request =>
+                string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase))
             .ToImmutableArray();
         var existingAttribute = knowledgeBase.Attributes.FirstOrDefault(existing =>
             string.Equals(existing.Subject.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
