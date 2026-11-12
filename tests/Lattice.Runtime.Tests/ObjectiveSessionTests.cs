@@ -1112,8 +1112,9 @@ public sealed class ObjectiveSessionTests
 
         var message = priceAnswer.Utterances[^1].Message;
         Assert.Contains("You have three good options: Fernbank Nature Reserve, Hilltop Farm Grounds, and Quarry Lake Trail.", message);
-        Assert.Contains("All options fit your budget, meet your transport requirements, use your chosen starting point, and fit your time window.", message);
-        Assert.Contains("They also match your stated preferences for quiet and outdoors.", message);
+        Assert.Contains(
+            "All options meet your requirements and match your stated preferences for quiet and outdoors.",
+            message);
         Assert.Contains("If you'd prefer the lower-cost, shorter option, I'd lean toward Fernbank Nature Reserve.", message);
         Assert.Contains("$6 return transport", message);
         Assert.Contains("$12 return transport", message);
@@ -1146,7 +1147,7 @@ public sealed class ObjectiveSessionTests
         Assert.DoesNotContain("marked 2-hour loop", revisedMessage);
         Assert.Contains("Walking only.", revisedStatus.ActiveObjectiveSource ?? string.Empty);
         Assert.Contains("not live checks", revisedMessage);
-        Assert.Contains("no booking has been made", revisedMessage);
+        Assert.Contains("No booking has been made.", revisedMessage);
     }
 
     [Fact]
