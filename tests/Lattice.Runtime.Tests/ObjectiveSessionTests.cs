@@ -1386,8 +1386,12 @@ public sealed class ObjectiveSessionTests
             new[] { "Clay House Studio", "Northbank Ceramics" },
             final.Recommendation.ShortlistedCandidates.OrderBy(name => name, StringComparer.Ordinal));
     }
-    [Fact]
-    public async Task Clarifies_conflicting_budget_assertions_but_accepts_an_explicit_correction()
+    [Theory]
+    [InlineData("Actually, my budget is $800.")]
+    [InlineData("Correction: my budget is $800.")]
+    [InlineData("To clarify, my budget is $800.")]
+    [InlineData("I meant my budget is $800.")]
+    public async Task Clarifies_conflicting_budget_assertions_but_accepts_an_explicit_correction(string correctionText)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
@@ -1407,14 +1411,14 @@ public sealed class ObjectiveSessionTests
         Assert.DoesNotContain("My budget is $900.", afterConflict.ActiveObjectiveSource);
 
         var correction = await session.SubmitAsync(
-            "Actually, my budget is $800.",
+            correctionText,
             TestContext.Current.CancellationToken);
         var afterCorrection = await session.GetStatusAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(
             LatticeUtteranceResultKind.ObjectiveInformationReceived,
             Assert.Single(correction.Utterances).Kind);
-        Assert.Contains("Actually, my budget is $800.", afterCorrection.ActiveObjectiveSource);
+        Assert.Contains(correctionText, afterCorrection.ActiveObjectiveSource);
         Assert.DoesNotContain("My budget is $900.", afterCorrection.ActiveObjectiveSource);
         Assert.Contains("hardconstraint(spending-limit, atmost, $800)", correction.Utterances.Single().Meaning);
     }

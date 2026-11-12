@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: broaden the first-use acceptance gate, starting with ambiguous candidate references and targeted clarification. A bare `It costs ...`, `That one costs ...`, or `This one costs ...` answer now requests a candidate choice when multiple candidates still need a cost, without storing the value; it resolves to the sole remaining candidate when only one still needs a cost. Continue broadening ambiguous references and ordinary-language corrections. Conflicting budget assertions also have a distinct clarification path, while an explicitly signalled `Actually, ...` correction replaces the prior value.
+> Current priority: broaden the first-use acceptance gate, starting with ambiguous candidate references and targeted clarification. A bare `It costs ...`, `That one costs ...`, or `This one costs ...` answer now requests a candidate choice when multiple candidates still need a cost, without storing the value; it resolves to the sole remaining candidate when only one still needs a cost. Budget corrections now recognize `Actually, ...`, `Correction: ...`, `To clarify, ...`, and `I meant ...` while plain conflicting assertions still require clarification. Continue broadening ambiguous references and ordinary-language corrections.
 
 
 ## Bootstrap
