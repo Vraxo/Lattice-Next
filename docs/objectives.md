@@ -135,3 +135,10 @@ This contract is intentionally smaller than a planner architecture. Implementati
 The evaluator compares individual preference evidence between pairs of candidates that are both Eligible under their applicable hard constraints. It reports a distinction only when one candidate has evidence satisfying a stated preference and the other has explicit evidence violating that same preference. Both evidence sets are retained and exposed through the shared client evaluation.
 
 Unknown or conflicting preference evidence does not establish a trade-off. Excluded, Unresolved, and NotEvaluated candidates are not included. Equal outcomes are not reported. These distinctions are not a ranking, aggregate score, or winner selection: candidates may each have advantages on different preferences, and the system does not invent weights to resolve that tension.
+
+
+## Evidence-conservative preference shortlist
+
+Eligible candidates are compared across every individually stated preference. A candidate dominates another only when both have explicit, non-conflicting evidence for every preference, the first is never worse, and it is strictly better on at least one. Unknown or conflicting evidence prevents a dominance claim; it is never treated as a tie or a pass.
+
+The evaluation exposes a non-dominated shortlist and the candidates dominated by it. This is a Pareto-style comparison, not a score or weighted ranking. When several candidates remain non-dominated, Lattice reports that there is no unique preference leader. Candidates with unresolved hard constraints are not included in the shortlist and remain explicitly unresolved.

@@ -14,7 +14,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - Alternate language and reasoning work when each side has a useful next step, but do not follow an artificial schedule. Correctness defects and concrete task requirements take priority.
 - Validate exact semantics, safe rejection, unknown/contradictory cases, provenance, and end-to-end task behavior as applicable.
 
-> Current priority: complete the motivating day-out task end-to-end. Candidate assessments now derive an explicit feasibility disposition from applicable hard constraints, separating eligible, excluded, unresolved, and unevaluated candidates without scoring them. The evaluator now exposes evidence-backed, per-preference trade-offs between eligible candidates. The next increment should compose these distinctions with hard-constraint feasibility and temporal witnesses into a coherent, evidence-grounded recommendation, while preserving unresolved evidence and refusing to invent a unique winner when preferences conflict.
+> Current priority: complete the motivating day-out task end-to-end. Candidate assessments now derive an explicit feasibility disposition from applicable hard constraints, separating eligible, excluded, unresolved, and unevaluated candidates without scoring them. The evaluator now exposes evidence-backed, per-preference trade-offs between eligible candidates. The evaluator now derives a conservative non-dominated shortlist from explicit preference evidence, without weights or treating unknowns as ties. The next increment should compose this shortlist with temporal witnesses and candidate activity/cost evidence into a usable day-out proposal, while retaining unresolved caveats and avoiding a fabricated unique winner.
 
 
 ## Bootstrap
