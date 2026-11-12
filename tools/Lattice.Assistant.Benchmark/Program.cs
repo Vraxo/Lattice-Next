@@ -16,7 +16,10 @@ if (options!.ShowHelp)
 
 try
 {
-    var report = await AssistantBenchmarkRunner.RunAsync(options.ToRunOptions());
+    var report = await AssistantBenchmarkRunner.RunAsync(
+        options.ToRunOptions(),
+        onRunCompleted: result => Console.WriteLine(
+            $"[{result.RunStatus}] {result.Id} #{result.Repetition} ({result.LatencyMilliseconds:0} ms)"));
     Console.WriteLine(AssistantBenchmarkRunner.FormatSummary(report));
     Console.WriteLine($"JSON report: {Path.GetFullPath(options.JsonOutputPath)}");
     Console.WriteLine($"Markdown report: {Path.GetFullPath(options.MarkdownOutputPath)}");
