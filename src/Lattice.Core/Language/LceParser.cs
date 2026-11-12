@@ -31,7 +31,7 @@ public sealed class LceParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex StartingLocationPattern = new(
-        @"\bI'm starting at (?<location>[^,.!?]+)",
+        @"\b(?:I'm starting at|my starting point is)\s+(?<location>[^,.!?]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TimeWindowPattern = new(

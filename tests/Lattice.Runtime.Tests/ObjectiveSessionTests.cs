@@ -560,6 +560,30 @@ public sealed class ObjectiveSessionTests
     }
 
     [Fact]
+    public async Task Accepts_an_alternative_starting_point_phrase_in_a_day_out_follow_up()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+        const string originalRequest = "I have a free Saturday, a limited budget, and no car. I would prefer somewhere quiet and outdoors. Help me put together a good day.";
+
+        await session.SubmitAsync(originalRequest, TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(
+            "$25 total. I'll bring lunch. My starting point is Central Station. I can leave at 9:00 and be back by 18:00.",
+            TestContext.Current.CancellationToken);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Contains(
+            result.Utterances.Select(utterance => utterance.Meaning),
+            meaning => meaning.Contains("hardconstraint(origin, equals, Central Station)", StringComparison.Ordinal));
+        Assert.Contains("My starting point is Central Station.", status.ActiveObjectiveSource);
+        Assert.Null(status.PendingInformationName);
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+    }
+
+    [Fact]
     public async Task Accepts_reordered_departure_and_return_times_in_a_day_out_follow_up()
     {
         var client = new LatticeRuntimeClient();
