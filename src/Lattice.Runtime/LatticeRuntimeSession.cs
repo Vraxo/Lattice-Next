@@ -595,7 +595,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             attribute.SourceKind == KnowledgeSourceKind.ExternalObservation;
 
         return !requiresFreshness ||
-            attribute.RetrievedAt is not null &&
             attribute.FreshUntil is { } freshUntil &&
             freshUntil > DateTimeOffset.UtcNow;
     }
