@@ -81,7 +81,7 @@ public sealed class ObjectiveSessionTests
 
         var message = result.Utterances.Single().Message;
         Assert.Contains("Quiet Park: is eligible under the assessed hard constraints", message);
-        Assert.Contains("Highlight — Main Activity: The main activity is a marked 2-hour loop.", message);
+        Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", message);
         Assert.Contains("Busy Park: is excluded by a hard constraint", message);
         Assert.Contains("Quiet Park has evidence for quiet, while Noisy Park has evidence against it.", message);
         Assert.Contains("Supporting evidence: Quiet Park is quiet and outdoors.", message);
@@ -483,6 +483,9 @@ public sealed class ObjectiveSessionTests
               "claims": [],
               "attributes": [
                 { "subject": "Bus Park", "name": "total-cost", "value": { "type": "money", "amount": 6, "currencySymbol": "$" }, "sourceText": "Bus Park costs $6." },
+                { "subject": "Bus Park", "name": "return-transport-cost", "value": { "type": "money", "amount": 6, "currencySymbol": "$" }, "sourceText": "The return bus fare is $6.", "summary": true },
+                { "subject": "Bus Park", "name": "entry-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Entry is free.", "summary": true },
+                { "subject": "Bus Park", "name": "main-activity", "value": { "type": "text", "value": "Marked 2-hour loop" }, "sourceText": "The main activity is a marked 2-hour loop.", "summary": true },
                 { "subject": "Bus Park", "name": "transport-mode", "value": { "type": "text", "value": "bus" }, "sourceText": "Bus Park is reached by bus." },
                 { "subject": "Bus Park", "name": "origin", "value": { "type": "text", "value": "Central Station" }, "sourceText": "The supplied bus journey is from Central Station." },
                 { "subject": "Bus Park", "name": "tags", "value": { "type": "textSet", "values": ["quiet", "outdoors"] }, "sourceText": "Bus Park is quiet and outdoors." },
@@ -497,6 +500,9 @@ public sealed class ObjectiveSessionTests
                   { "durationAttribute": "one-way-travel-duration", "startTimesAttribute": "return-bus-departures" }
                 ] }, "sourceText": "The outing is an outbound scheduled journey, an activity, and a return scheduled journey." },
                 { "subject": "Walk Park", "name": "total-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Walk Park is free." },
+                { "subject": "Walk Park", "name": "return-transport-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Walking has no transport fare.", "summary": true },
+                { "subject": "Walk Park", "name": "entry-cost", "value": { "type": "money", "amount": 0, "currencySymbol": "$" }, "sourceText": "Entry is free.", "summary": true },
+                { "subject": "Walk Park", "name": "main-activity", "value": { "type": "text", "value": "Paved paths" }, "sourceText": "The main activity is walking paved paths.", "summary": true },
                 { "subject": "Walk Park", "name": "transport-mode", "value": { "type": "text", "value": "walking" }, "sourceText": "Walk Park is reachable on foot." },
                 { "subject": "Walk Park", "name": "origin", "value": { "type": "text", "value": "Central Station" }, "sourceText": "The supplied walking route is from Central Station." },
                 { "subject": "Walk Park", "name": "tags", "value": { "type": "textSet", "values": ["busy", "outdoors"] }, "sourceText": "Walk Park is busy and outdoors." },
@@ -537,6 +543,11 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("Walk Park", followUp.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:25", followUp.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", followUp.Utterances[^1].Message);
+        Assert.Contains("Shortlisted options (not ranked):", followUp.Utterances[^1].Message);
+        Assert.Contains("Main Activity: The main activity is a marked 2-hour loop.", followUp.Utterances[^1].Message);
+        Assert.Contains("Return Transport Cost: The return bus fare is $6.", followUp.Utterances[^1].Message);
+        Assert.Contains("Unscheduled time: 11:25–14:00", followUp.Utterances[^1].Message);
+        Assert.Contains("Timetables are first feasible witnesses, not optimized schedules.", followUp.Utterances[^1].Message);
         Assert.Equal(3, Assert.Single(busPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
         Assert.Equal(3, Assert.Single(walkPark.Conditions, condition => condition.Name == "time-window").TemporalWitness.Length);
 
@@ -563,6 +574,8 @@ public sealed class ObjectiveSessionTests
             walkingOnly.Utterances[^1].Message);
         Assert.Contains("Stage 1: 09:00–09:15", walkingOnly.Utterances[^1].Message);
         Assert.DoesNotContain("Stage 1: 09:00–09:25", walkingOnly.Utterances[^1].Message);
+        Assert.DoesNotContain("The main activity is a marked 2-hour loop.", walkingOnly.Utterances[^1].Message);
+        Assert.Contains("The main activity is walking paved paths.", walkingOnly.Utterances[^1].Message);
         Assert.Contains("Walking only.", afterWalkingOnly.ActiveObjectiveSource);
     }
 
