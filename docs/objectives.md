@@ -155,7 +155,7 @@ This keeps presentation selection in declarative knowledge data rather than hard
 
 When a candidate is unresolved because a hard-constraint attribute has no supplied evidence, the evaluator emits a candidate-specific evidence request. Each request identifies the candidate, the condition it blocks, the attribute being requested, and a concise prompt. Requests are exposed through the shared client evaluation and included in objective summaries.
 
-Requests are limited to hard constraints with an explicit user-supplied value, an Unknown assessment, and no evidence for the target attribute. Conflicting evidence is not treated as missing, known violations do not trigger unnecessary requests, and missing user-side condition values continue through the existing clarification path. This increment identifies what must be supplied; accepting and storing candidate-specific answers with provenance is a separate next step.
+Requests are limited to hard constraints with an explicit user-supplied value, an Unknown assessment, and no evidence for the target attribute. Conflicting evidence is not treated as missing, known violations do not trigger unnecessary requests, and missing user-side condition values continue through the existing clarification path. The runtime presents the first outstanding request at a time, then reevaluates and presents the next one after a valid answer; the shared API retains the full structured request list so frontends can support batch or candidate-named replies.
 
 
 ## Accepting candidate-specific monetary evidence

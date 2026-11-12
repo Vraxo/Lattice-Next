@@ -40,7 +40,7 @@ A checked item must have a repeatable test or benchmark. Passing a synthetic fix
 - [x] Preserve source wording, source kind, and provenance for user-supplied candidate answers.
 - [x] Re-evaluate all affected candidates and withdraw resolved evidence requests without changing unrelated facts.
 - [x] Handle conflicting candidate answers explicitly, without silently overwriting earlier evidence.
-- [ ] Ask for the smallest useful missing fact, not a broad or repetitive questionnaire.
+- [x] Ask for the smallest useful missing fact, not a broad or repetitive questionnaire.
 
 ## 3. Complete the day-out task
 

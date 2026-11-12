@@ -785,7 +785,12 @@ public sealed class ObjectiveSessionTests
         Assert.True(pack.IsSuccess, pack.Error);
 
         const string request = "I'm looking for a laptop that will last a long time. I don't need gaming performance, but I care about screen quality, reliability, and repairability. Help me compare these three options. My budget is $1,000.";
-        await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+        var initialTurn = await session.SubmitAsync(request, TestContext.Current.CancellationToken);
+        var initialMessage = initialTurn.Utterances.Single().Message;
+        Assert.Contains("What is the total cost for Aster 14?", initialMessage);
+        Assert.DoesNotContain("What is the total cost for Birch 15?", initialMessage);
+        Assert.DoesNotContain("What is the total cost for Cedar 14?", initialMessage);
+        Assert.Contains("I'll ask for the remaining 2 details after this one.", initialMessage);
 
         var initial = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var initialEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(initial.ObjectiveEvaluation);
@@ -805,6 +810,9 @@ public sealed class ObjectiveSessionTests
             TestContext.Current.CancellationToken);
         Assert.Equal(LatticeUtteranceResultKind.ObjectiveInformationReceived, Assert.Single(accepted.Utterances).Kind);
         Assert.Contains("Recorded Aster 14's total cost as $900.", accepted.Utterances.Single().Message);
+        Assert.Contains("What is the total cost for Birch 15?", accepted.Utterances.Single().Message);
+        Assert.DoesNotContain("What is the total cost for Cedar 14?", accepted.Utterances.Single().Message);
+        Assert.Contains("I'll ask for the remaining 1 detail after this one.", accepted.Utterances.Single().Message);
 
         var afterAccepted = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var acceptedEvaluation = Assert.IsType<LatticeObjectiveEvaluation>(afterAccepted.ObjectiveEvaluation);
