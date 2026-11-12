@@ -75,25 +75,23 @@ internal static class ObjectiveResponseFormatter
 
                 var sharedRequirements = GetSharedSatisfiedRequirements(options);
                 var sharedPreferences = GetSharedSatisfiedPreferences(options);
-                var openingParts = new List<string>();
 
                 if (sharedRequirements.Length > 0)
                 {
-                    openingParts.Add(JoinNames(sharedRequirements));
+                    output.Append(options.Count == 2 ? "Both " : "All options ")
+                        .Append(JoinNames(sharedRequirements))
+                        .Append('.');
                 }
 
                 if (sharedPreferences.Length > 0)
                 {
-                    openingParts.Add($"match your stated preferences for {JoinNames(sharedPreferences)}");
-                }
-
-                if (openingParts.Count > 0)
-                {
-                    output.Append(options.Count == 2 ? "Both " : "All options ")
-                        .Append(string.Join(", and ", openingParts))
+                    output.Append(' ')
+                        .Append(options.Count == 2 ? "They also match your stated preferences for " : "They also match your stated preferences for ")
+                        .Append(JoinNames(sharedPreferences))
                         .Append('.');
                 }
-                else
+
+                if (sharedRequirements.Length == 0 && sharedPreferences.Length == 0)
                 {
                     output.Append("They meet the assessed hard requirements, but have different strengths.");
                 }
