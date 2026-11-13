@@ -4382,16 +4382,6 @@
       "valueType": "uri"
     },
     {
-      "id": "doi-url",
-      "domainType": "research-publication",
-      "valueType": "uri"
-    },
-    {
-      "id": "doi-url",
-      "domainType": "research-publication",
-      "valueType": "uri"
-    },
-    {
       "id": "documentation-url",
       "domainType": "software",
       "valueType": "uri"
