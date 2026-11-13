@@ -73,7 +73,7 @@ public sealed class AssistantBenchmarkRunnerTests
             Assert.True(File.Exists(markdownPath));
             var markdown = await File.ReadAllTextAsync(markdownPath);
             Assert.Contains("Answered counts prompts that produced a", markdown);
-            Assert.Contains("2 answered", markdown);
+            Assert.Contains("2/2 answered", markdown);
         }
         finally
         {
