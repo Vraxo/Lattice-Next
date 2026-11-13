@@ -313,32 +313,21 @@ internal static class SemanticWorldModelResponder
                 continue;
             }
 
-            var firstTypes = reasoner.GetTypes(firstObject.Id).ToHashSet(StringComparer.Ordinal);
-            var secondTypes = reasoner.GetTypes(secondObject.Id).ToHashSet(StringComparer.Ordinal);
-            var sharedTypes = firstTypes.Intersect(secondTypes, StringComparer.Ordinal).ToArray();
-            var sharedType = sharedTypes
-                .Where(candidate => !sharedTypes.Any(other =>
-                    other != candidate && IsSubtype(other, candidate, model)))
-                .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
-                .Where(type => type is not null)
-                .OrderBy(type => type!.Label, StringComparer.Ordinal)
-                .FirstOrDefault();
+            var firstType = GetMostSpecificType(firstObject.Id, model, reasoner);
+            var secondType = GetMostSpecificType(secondObject.Id, model, reasoner);
+            if (firstType is null || secondType is null)
+            {
+                continue;
+            }
 
-            if (sharedType is not null)
+            if (firstType.Id == secondType.Id)
             {
                 var verb = relation.Verb == "has" ? "have" : relation.Verb;
                 var role = relation.ObjectRole?.Replace("its", "their", StringComparison.Ordinal) ?? string.Empty;
-                clauses.Add($"Both {verb} {Indefinite(sharedType.Label)} {sharedType.Label} {role}".TrimEnd());
+                clauses.Add($"Both {verb} {Indefinite(firstType.Label)} {firstType.Label} {role}".TrimEnd());
             }
             else
             {
-                var firstType = GetMostSpecificType(firstObject.Id, model, reasoner);
-                var secondType = GetMostSpecificType(secondObject.Id, model, reasoner);
-                if (firstType is null || secondType is null)
-                {
-                    continue;
-                }
-
                 clauses.Add($"{Capitalize(first.Label)} {relation.Verb} {Indefinite(firstType.Label)} {firstType.Label}, while {second.Label} {relation.Verb} {Indefinite(secondType.Label)} {secondType.Label}");
             }
 
