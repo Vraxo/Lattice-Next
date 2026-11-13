@@ -62,9 +62,17 @@ internal static class SemanticWorldModelResponder
             var parentLabel = definition.ParentTypes
                 .Select(parentId => model.FindConcept(parentId, SemanticConceptKind.Type)?.Label)
                 .FirstOrDefault(label => label is not null);
+            var necessaryPhrases = definition.NecessaryConditions
+                .Select(condition => FormatCondition(condition, model))
+                .Where(phrase => phrase is not null)
+                .Select(phrase => phrase!)
+                .ToArray();
+            var necessaryClause = necessaryPhrases.Length == 0
+                ? string.Empty
+                : $" Its instances must {JoinConditions(necessaryPhrases)}.";
             message = parentLabel is null
-                ? $"{Capitalize(type.Label)} is a primitive root type in the current model; it has no further structural definition."
-                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parentLabel)}; the model does not claim a sufficient structural definition for it.";
+                ? $"{Capitalize(type.Label)} is a primitive root type in the current model; it has no further structural definition.{necessaryClause}"
+                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parentLabel)}; the model does not claim a sufficient structural definition for it.{necessaryClause}";
             evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
             return true;
         }

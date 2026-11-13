@@ -27,7 +27,9 @@ public sealed class SemanticClassExpressionTests
                 { "id": "string", "label": "string", "kind": "individual" },
                 { "id": "board", "label": "soundboard", "kind": "individual" },
                 { "id": "sound", "label": "sound", "kind": "individual" },
-                { "id": "tension", "label": "tension", "kind": "individual" }
+                { "id": "tension", "label": "tension", "kind": "individual" },
+                { "id": "unclassified-component", "label": "unclassified component", "kind": "individual" },
+                { "id": "unclassified-state", "label": "unclassified state", "kind": "individual" }
               ],
               "lexemes": [],
               "relations": [
@@ -53,14 +55,18 @@ public sealed class SemanticClassExpressionTests
                 { "individual": "string", "type": "string-component", "sourceText": "String is a string component." },
                 { "individual": "board", "type": "physical-component", "sourceText": "Board is a physical component." },
                 { "individual": "sound", "type": "sound-event", "sourceText": "Sound is a sound event." },
-                { "individual": "tension", "type": "tensioned-state", "sourceText": "The string is under tension." }
+                { "individual": "tension", "type": "tensioned-state", "sourceText": "The string is under tension." },
+                { "individual": "unclassified-component", "type": "physical-component", "sourceText": "An unclassified component." },
+                { "individual": "unclassified-state", "type": "tensioned-state", "sourceText": "An unclassified tensioned state." }
               ],
               "relationAssertions": [
                 { "subject": "hammer", "relation": "strikes", "object": "string", "sourceText": "Hammer strikes string." },
                 { "subject": "board", "relation": "receives-vibration-from", "object": "string", "sourceText": "Board receives vibration from string." },
                 { "subject": "board", "relation": "radiates", "object": "sound", "sourceText": "Board radiates sound." },
                 { "subject": "string", "relation": "has-mechanical-state", "object": "tension", "sourceText": "String is tensioned." },
-                { "subject": "string", "relation": "vibrates-to-produce", "object": "sound", "sourceText": "String vibrates to produce sound." }
+                { "subject": "string", "relation": "vibrates-to-produce", "object": "sound", "sourceText": "String vibrates to produce sound." },
+                { "subject": "unclassified-component", "relation": "has-mechanical-state", "object": "unclassified-state", "sourceText": "The component is tensioned." },
+                { "subject": "unclassified-component", "relation": "vibrates-to-produce", "object": "sound", "sourceText": "The component vibrates." }
               ],
               "dataProperties": [],
               "dataAssertions": []
@@ -76,6 +82,7 @@ public sealed class SemanticClassExpressionTests
         Assert.True(reasoner.IsInstanceOf("string", "sound-producing-component"));
         Assert.False(reasoner.IsInstanceOf("string", "striking-component"));
         Assert.True(reasoner.IsInstanceOf("string", "string-component"));
+        Assert.False(reasoner.IsInstanceOf("unclassified-component", "string-component"));
     }
 
     [Fact]
