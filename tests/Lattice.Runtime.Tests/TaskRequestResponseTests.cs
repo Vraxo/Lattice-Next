@@ -20,6 +20,7 @@ public sealed class TaskRequestResponseTests
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Contains("buyer market structure", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("wage-setting power", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("wage markdown", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("outside options", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("rural town", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Manning (2021)", utterance.Message, StringComparison.Ordinal);
@@ -30,7 +31,7 @@ public sealed class TaskRequestResponseTests
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model" &&
-                source.SourceText == "Monopsony is a buyer-market-structure."));
+                source.SourceText == "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy."));
     }
 
     [Fact]
@@ -72,6 +73,6 @@ public sealed class TaskRequestResponseTests
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model" &&
-                source.SourceText.Contains("IDAES official documentation", StringComparison.Ordinal)));
+                source.SourceText.Contains("IDAES official overview", StringComparison.Ordinal)));
     }
 }
