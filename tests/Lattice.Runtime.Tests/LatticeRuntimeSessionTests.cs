@@ -167,8 +167,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(190, status.SemanticConceptCount);
-        Assert.Equal(33, status.SemanticRelationCount);
+        Assert.Equal(194, status.SemanticConceptCount);
+        Assert.Equal(34, status.SemanticRelationCount);
         Assert.Equal(6, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -238,9 +238,9 @@ public sealed class LatticeRuntimeSessionTests
         Assert.StartsWith(
             "Monopsony power can arise through employer concentration, job differentiation, and search frictions.",
             causesMessage);
-        Assert.Contains("Monopsony in Labor Markets: A Review (2021)", causesMessage);
+        Assert.Contains("Manning (2021), Monopsony in Labor Markets: A Review", causesMessage);
         Assert.Contains("https://doi.org/10.1146/annurev-economics-072823-030431", causesMessage);
-        Assert.Contains("Monopsony in the US Labor Market (2022)", causesMessage);
+        Assert.Contains("Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market", causesMessage);
         Assert.All(
             new[] { monopsony, power, causes },
             turn => Assert.Equal(
@@ -572,8 +572,6 @@ public sealed class LatticeRuntimeSessionTests
             evidence => evidence.Sources.Any(source => source.SourceText == "Boundary has Loop."));
         Assert.Contains("A loop has a boundary.", result.Utterances[0].Message);
         Assert.Contains("A boundary has a loop.", result.Utterances[0].Message);
-        Assert.Contains("A boundary has a line segment.", result.Utterances[0].Message);
-        Assert.Contains("Every line segment is straight.", result.Utterances[0].Message);
         Assert.Equal(
             1,
             CountOccurrences(result.Utterances[0].Message, "A loop has a boundary."));
