@@ -178,6 +178,7 @@ public sealed class SemanticWorldModelReasoner
 
             if (matched)
             {
+                evidence.Add(definition.Source);
                 evidence.AddRange(matchedSources);
             }
         }
