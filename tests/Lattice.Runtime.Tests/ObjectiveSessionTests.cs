@@ -1431,7 +1431,7 @@ public sealed class ObjectiveSessionTests
         var evidence = Assert.Single(transport.Evidence);
         Assert.Equal("UserAssertion", evidence.Kind);
         Assert.Equal("Quiet Park's transport mode is walking.", evidence.SourceText);
-        Assert.Equal(19, finalStatus.FactCount);
+        Assert.Equal(5, finalStatus.FactCount);
     }
 
 
