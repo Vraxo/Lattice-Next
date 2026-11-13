@@ -11,7 +11,8 @@ internal static class MultiItemClassificationParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CategorizePattern = new(
-        @"^Categorize\s+each\s+of\s+the\s+following\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+as\s+either\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$"
+        @"^Categorize\s+each\s+of\s+the\s+following\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+as\s+either\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     internal static bool TryParse(
         string source,
