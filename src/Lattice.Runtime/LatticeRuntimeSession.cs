@@ -414,6 +414,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance parsedUtterance,
         bool deferObjectiveEvaluation)
     {
+        if (parsedUtterance.Kind == UtteranceKind.TaskRequest &&
+            parsedUtterance.Meaning is TaskRequestFormula taskRequest)
+        {
+            return ProcessTaskRequest(parsedUtterance, taskRequest);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is DefinitionQuestionFormula definition)
         {
@@ -551,6 +557,30 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             },
             SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
+    }
+
+    private LatticeUtteranceResult ProcessTaskRequest(
+        SemanticUtterance utterance,
+        TaskRequestFormula request)
+    {
+        if (!TaskRequestResponder.TryRespond(
+            request,
+            knowledgeBase,
+            reasoningEngine,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough structured knowledge to complete this request.",
+                SemanticFormatter.Format(utterance));
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
     }
 
     private LatticeUtteranceResult ProcessDefinitionQuestion(
