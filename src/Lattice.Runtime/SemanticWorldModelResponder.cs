@@ -26,6 +26,8 @@ internal static class SemanticWorldModelResponder
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
                 TryExplainMechanism(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Causes =>
+                TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -35,11 +37,19 @@ internal static class SemanticWorldModelResponder
     internal static bool TryDefinition(
         string concept,
         SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var individual = model.FindConcept(concept, SemanticConceptKind.Individual);
+        if (individual is not null)
+        {
+            return TryDescribeIndividual(individual, model, reasoner, out message, out evidence);
+        }
+
         var type = model.FindConcept(concept, SemanticConceptKind.Type);
         var definition = type is null ? null : model.FindDefinition(type.Id);
         if (type is null || definition is null || definition.ParentTypes.IsDefaultOrEmpty)
@@ -64,6 +74,127 @@ internal static class SemanticWorldModelResponder
 
         message = $"A {type.Label} is {Indefinite(parent.Label)} {parent.Label} that {JoinConditions(conditionPhrases)}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
+        return true;
+    }
+
+    private static bool TryDescribeIndividual(
+        SemanticConcept individual,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var types = reasoner.GetTypes(individual.Id);
+        var specificTypes = types
+            .Where(candidate => !types.Any(other =>
+                other != candidate && IsSubtype(other, candidate, model)))
+            .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
+            .Where(type => type is not null && type.Id is not (
+                "entity" or "software" or "capability" or "research-publication"))
+            .ToArray();
+
+        if (specificTypes.Length == 0)
+        {
+            return false;
+        }
+
+        var clauses = new List<string>
+        {
+            $"{individual.Label} is {JoinConditions(specificTypes.Select(DescribeTypeMembership).ToArray())}."
+        };
+        var sources = specificTypes
+            .SelectMany(type => reasoner.GetMembershipEvidence(individual.Id, type!.Id))
+            .ToList();
+
+        var capabilityAssertions = reasoner.GetRelations(individual.Id, "supports-capability");
+        var capabilities = capabilityAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .Select(target => target!)
+            .DistinctBy(target => target.Id)
+            .ToArray();
+
+        if (capabilities.Length > 0)
+        {
+            clauses.Add($"It supports {JoinConditions(capabilities.Select(target => target.Label).ToArray())}.");
+            sources.AddRange(capabilityAssertions.Select(assertion => assertion.Source));
+            foreach (var capability in capabilities)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(capability.Id, "capability"));
+            }
+        }
+
+        var documentation = model.GetDataAssertions(individual.Id, "documentation-url");
+        if (documentation.Length > 0)
+        {
+            clauses.Add($"Its documentation is available at {documentation[0].Value}.");
+            sources.AddRange(documentation.Select(assertion => assertion.Source));
+        }
+
+        message = string.Join(" ", clauses);
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static string DescribeTypeMembership(SemanticConcept type)
+    {
+        if (type.Id == "open-source-software")
+        {
+            return type.Label;
+        }
+
+        return Indefinite(type.Label);
+    }
+
+    private static bool TryExplainCauses(
+        string requestedConcept,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var type = model.FindConcept(requestedConcept, SemanticConceptKind.Type);
+        if (type is null)
+        {
+            return false;
+        }
+
+        var instances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, type.Id))
+            .ToArray();
+        var mechanisms = instances
+            .SelectMany(instance => reasoner.GetRelations(instance.Id, "has-mechanism"))
+            .ToArray();
+        if (mechanisms.Length == 0)
+        {
+            return false;
+        }
+
+        var labels = mechanisms
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (labels.Length == 0)
+        {
+            return false;
+        }
+
+        message = $"{Capitalize(type.Label)} can arise through {JoinConditions(labels)}.";
+        var sources = mechanisms.Select(assertion => assertion.Source)
+            .Concat(instances.SelectMany(instance =>
+                reasoner.GetMembershipEvidence(instance.Id, type.Id)))
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
 
