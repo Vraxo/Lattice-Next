@@ -21,7 +21,7 @@ internal static class SemanticWorldModelResponder
         return request.Kind switch
         {
             SemanticWorldModelQuestionKind.Definition =>
-                TryDefinition(request.Concept ?? request.Subject, model, out message, out evidence),
+                TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
