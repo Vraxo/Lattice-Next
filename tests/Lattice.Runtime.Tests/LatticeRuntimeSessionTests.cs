@@ -160,6 +160,50 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Classifies_multiple_items_into_categories_using_default_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Identify which instrument is string or percussion: Cantaro, Gudok");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(
+            "Cantaro is a percussion instrument. Gudok is a string instrument.",
+            utterance.Message);
+        Assert.Equal(
+            "ask(classify(instrument, categories(string, percussion), items(cantaro, gudok)))",
+            utterance.Meaning);
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Cantaro is a percussion-instrument."));
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Gudok is a string-instrument."));
+    }
+
+    [Fact]
+    public async Task Does_not_classify_an_item_without_exactly_one_supported_category()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Identify which instrument is string or percussion: Zurna, Panduri");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
+    }
+
+    [Fact]
     public async Task Selects_the_only_choice_supported_by_default_category_knowledge()
     {
         var client = new LatticeRuntimeClient();
