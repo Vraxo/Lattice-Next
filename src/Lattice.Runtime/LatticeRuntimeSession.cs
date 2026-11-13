@@ -606,8 +606,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     {
         if (!TaskRequestResponder.TryRespond(
             request,
-            knowledgeBase,
-            reasoningEngine,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
             out var message,
             out var evidence))
         {
