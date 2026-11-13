@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="../../knowledge/core-world-model.json" LogicalName="Lattice.Runtime.CoreWorldModel.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../Lattice.Client/Lattice.Client.csproj" />
     <ProjectReference Include="../Lattice.Core/Lattice.Core.csproj" />
   </ItemGroup>

@@ -18,6 +18,7 @@ public sealed class FirstUseBenchmarkBaselineTests
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
+        var initialStatus = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         var result = await session.SubmitAsync(input, TestContext.Current.CancellationToken);
 
         Assert.Equal(expectedStatus, result.Status);
@@ -33,7 +34,7 @@ public sealed class FirstUseBenchmarkBaselineTests
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
         Assert.Equal(expectedGoal, status.ActiveObjective);
         Assert.Equal(input, status.ActiveObjectiveSource);
-        Assert.Equal(0, status.FactCount);
-        Assert.Equal(0, status.RuleCount);
+        Assert.Equal(initialStatus.FactCount, status.FactCount);
+        Assert.Equal(initialStatus.RuleCount, status.RuleCount);
     }
 }
