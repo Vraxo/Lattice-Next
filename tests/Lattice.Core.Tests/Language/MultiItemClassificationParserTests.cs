@@ -29,6 +29,30 @@ public sealed class MultiItemClassificationParserTests
             SemanticFormatter.Format(utterance));
     }
 
+
+    [Fact]
+    public void Parses_each_of_the_following_categorization_as_a_classification_request()
+    {
+        const string input = "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, piano, harmonium, cello, accordion, banjo";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var classification = Assert.IsType<MultiItemClassificationFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        Assert.Equal("instrument", classification.ItemType.Value);
+        Assert.Equal(new[] { "string", "keyboard" }, classification.Categories.Select(category => category.Value));
+        Assert.Equal(
+            new[] { "guitar", "violin", "piano", "harmonium", "cello", "accordion", "banjo" },
+            classification.Items.Select(item => item.Value));
+        Assert.Equal(input, utterance.SourceText);
+        Assert.Equal(
+            "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
+            SemanticFormatter.Format(utterance));
+    }
+
     [Theory]
     [InlineData("Identify which instrument is string or string: Cantaro, Gudok")]
     [InlineData("Identify which instrument is string or percussion: Cantaro")]
