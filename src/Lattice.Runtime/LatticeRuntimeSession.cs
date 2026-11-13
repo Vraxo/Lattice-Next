@@ -667,6 +667,20 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance utterance,
         ChoiceQuestionFormula question)
     {
+        if (SemanticWorldModelResponder.TryChoice(
+            question,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var semanticMessage,
+            out var semanticEvidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                semanticMessage,
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: semanticEvidence);
+        }
+
         if (!ChoiceQuestionResponder.TryRespond(
             question,
             knowledgeBase,
