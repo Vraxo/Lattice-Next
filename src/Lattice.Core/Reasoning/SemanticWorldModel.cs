@@ -53,6 +53,22 @@ public sealed record SemanticRelationAssertion(
     string Object,
     SemanticWorldModelSource Source);
 
+public enum SemanticDataValueKind
+{
+    Uri
+}
+
+public sealed record SemanticDataPropertyDefinition(
+    string Id,
+    string DomainType,
+    SemanticDataValueKind ValueKind);
+
+public sealed record SemanticDataAssertion(
+    string Subject,
+    string Property,
+    string Value,
+    SemanticWorldModelSource Source);
+
 public sealed record SemanticWorldModel(
     int FormatVersion,
     string Id,
@@ -62,7 +78,9 @@ public sealed record SemanticWorldModel(
     ImmutableArray<SemanticRelationDefinition> Relations,
     ImmutableArray<SemanticTypeDefinition> Definitions,
     ImmutableArray<SemanticTypeAssertion> TypeAssertions,
-    ImmutableArray<SemanticRelationAssertion> RelationAssertions)
+    ImmutableArray<SemanticRelationAssertion> RelationAssertions,
+    ImmutableArray<SemanticDataPropertyDefinition> DataProperties,
+    ImmutableArray<SemanticDataAssertion> DataAssertions)
 {
     public SemanticConcept? FindConcept(string value, SemanticConceptKind? kind = null)
     {
@@ -93,6 +111,23 @@ public sealed record SemanticWorldModel(
 
     public SemanticTypeDefinition? FindDefinition(string type) =>
         Definitions.FirstOrDefault(definition => definition.Concept == Normalize(type));
+
+    public SemanticDataPropertyDefinition? FindDataProperty(string id) =>
+        DataProperties.FirstOrDefault(property => property.Id == Normalize(id));
+
+    public ImmutableArray<SemanticDataAssertion> GetDataAssertions(
+        string subject,
+        string? property = null)
+    {
+        var normalizedSubject = Normalize(subject);
+        var normalizedProperty = property is null ? null : Normalize(property);
+
+        return DataAssertions
+            .Where(assertion =>
+                assertion.Subject == normalizedSubject &&
+                (normalizedProperty is null || assertion.Property == normalizedProperty))
+            .ToImmutableArray();
+    }
 
     public static string Normalize(string value) =>
         string.Join(
