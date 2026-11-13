@@ -72,7 +72,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(Indefinite(type.Label))} is {Indefinite(parent.Label)} that {JoinConditions(conditionPhrases)}.";
+        message = $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {JoinConditions(conditionPhrases)}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
         return true;
     }
@@ -147,7 +147,7 @@ internal static class SemanticWorldModelResponder
             return type.Label;
         }
 
-        return Indefinite(type.Label);
+        return IndefinitePhrase(type.Label);
     }
 
     private static bool TryExplainCauses(
@@ -602,17 +602,21 @@ internal static class SemanticWorldModelResponder
             _ => $"{string.Join(", ", names.Take(names.Count - 1))}, and {names[^1]}"
         };
 
-    private static string Indefinite(string phrase)
-    {
-        if (phrase is "monopsony power" or "buyer market power" or "market power" or "software" or "straightness")
-        {
-            return phrase;
-        }
+    private static string Indefinite(string phrase) =>
+        IsMassNoun(phrase)
+            ? string.Empty
+            : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
+                ? "an"
+                : "a";
 
-        return phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
-            ? $"an {phrase}"
-            : $"a {phrase}";
+    private static string IndefinitePhrase(string phrase)
+    {
+        var article = Indefinite(phrase);
+        return article.Length == 0 ? phrase : $"{article} {phrase}";
     }
+
+    private static bool IsMassNoun(string phrase) =>
+        phrase is "monopsony power" or "buyer market power" or "market power" or "software" or "straightness";
 
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
