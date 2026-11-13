@@ -3,6 +3,7 @@
   "id": "geometry-concepts",
   "name": "Geometry concepts",
   "claims": [
+    "Polygon is a polygon.",
     "Polygon is a geometric-shape.",
     "Every polygon has a boundary."
   ]
