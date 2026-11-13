@@ -239,6 +239,7 @@ public static class AssistantBenchmarkRunner
                 item.Prompt,
                 item.Category,
                 item.EvaluationLayer,
+                item.SubstantiveAnswerReviewed,
                 repetition,
                 -1,
                 false,
