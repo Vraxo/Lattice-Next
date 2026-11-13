@@ -218,6 +218,7 @@ public sealed class SemanticWorldModelLoader
                 item.Conditions is null ||
                 item.Parents.Any(parent => !IsType(concepts, parent)) ||
                 item.Parents.Distinct(StringComparer.Ordinal).Count() != item.Parents.Count ||
+                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var definitionSource) ||
                 !identifiers.Add(item.Concept))
             {
                 error = "Every type definition must reference one unique type concept and valid parent types.";
@@ -247,7 +248,8 @@ public sealed class SemanticWorldModelLoader
             builder.Add(new SemanticTypeDefinition(
                 item.Concept,
                 item.Parents.ToImmutableArray(),
-                conditions.ToImmutable()));
+                conditions.ToImmutable(),
+                definitionSource!));
         }
 
         definitions = builder.ToImmutable();
@@ -527,6 +529,8 @@ public sealed class SemanticWorldModelLoader
         public string Concept { get; set; } = string.Empty;
         public List<string> Parents { get; set; } = [];
         public List<RestrictionDocument> Conditions { get; set; } = [];
+        public string SourceText { get; set; } = string.Empty;
+        public string? SourceUrl { get; set; }
     }
 
     private sealed class RestrictionDocument
