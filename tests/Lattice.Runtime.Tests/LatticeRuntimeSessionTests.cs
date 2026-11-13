@@ -297,7 +297,7 @@ public sealed class LatticeRuntimeSessionTests
 
         var soundMechanism = await session.SubmitAsync("How does a piano produce sound?");
         Assert.Equal(
-            "A piano uses the piano action. The piano action strikes the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
+            "A piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
             Assert.Single(soundMechanism.Utterances).Message);
 
         var comparison = await session.SubmitAsync("What distinguishes a piano from a harmonium?");
