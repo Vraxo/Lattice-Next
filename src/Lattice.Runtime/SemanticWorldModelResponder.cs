@@ -215,24 +215,20 @@ internal static class SemanticWorldModelResponder
             .SelectMany(instance => reasoner.GetRelations(instance.Id, "has-research-reference"))
             .ToArray();
         var referenceDetails = references
-            .Select(assertion =>
-            {
-                var publication = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
-                var doi = model.GetDataAssertions(assertion.Object, "doi-url").FirstOrDefault();
-                return publication is null
-                    ? null
-                    : doi is null
-                        ? publication.Label
-                        : $"{publication.Label} ({doi.Value})";
-            })
+            .Select(assertion => FormatResearchReference(assertion.Object, model, reasoner))
             .OfType<string>()
             .ToArray();
         if (referenceDetails.Length > 0)
         {
             clauses.Add($"Research references include {JoinConditions(referenceDetails)}.");
             sources.AddRange(references.Select(assertion => assertion.Source));
-            sources.AddRange(references.SelectMany(assertion =>
-                model.GetDataAssertions(assertion.Object, "doi-url").Select(item => item.Source)));
+            foreach (var reference in references)
+            {
+                sources.AddRange(reasoner.GetRelations(reference.Object)
+                    .Select(assertion => assertion.Source));
+                sources.AddRange(model.GetDataAssertions(reference.Object, "doi-url")
+                    .Select(assertion => assertion.Source));
+            }
         }
 
         message = string.Join(" ", clauses);
@@ -602,6 +598,48 @@ internal static class SemanticWorldModelResponder
         }
 
         return false;
+    }
+
+    private static string? FormatResearchReference(
+        string publicationId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner)
+    {
+        var publication = model.FindConcept(publicationId, SemanticConceptKind.Individual);
+        if (publication is null)
+        {
+            return null;
+        }
+
+        var authors = reasoner.GetRelations(publicationId, "authored-by")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(author => author is not null)
+            .Select(author => author!.Label.Split(' ', StringSplitOptions.RemoveEmptyEntries)[^1])
+            .ToArray();
+        var year = reasoner.GetRelations(publicationId, "published-in-year")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(concept => concept is not null);
+        var journal = reasoner.GetRelations(publicationId, "published-in")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(concept => concept is not null);
+        var doi = model.GetDataAssertions(publicationId, "doi-url").FirstOrDefault();
+
+        var citation = authors.Length == 0
+            ? publication.Label
+            : year is null
+                ? $"{JoinNames(authors)}, {publication.Label}"
+                : $"{JoinNames(authors)} ({year.Label}), {publication.Label}";
+        if (journal is not null)
+        {
+            citation += $", {journal.Label}";
+        }
+
+        if (doi is not null)
+        {
+            citation += $" ({doi.Value})";
+        }
+
+        return citation;
     }
 
     private static ImmutableArray<SemanticWorldModelSource> GetTypeEvidence(
