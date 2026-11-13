@@ -33,7 +33,7 @@ public sealed class LatticeHttpClientTests
         Assert.Equal(LatticeUtteranceResultKind.StatementStored, firstTurn.Utterances[0].Kind);
         Assert.True(secondTurn.IsSuccess);
         Assert.Equal(LatticeTruthValue.True, secondTurn.Utterances[0].TruthValue);
-        Assert.Equal(8, status.FactCount);
+        Assert.Equal(10, status.FactCount);
     }
 
     [Fact]

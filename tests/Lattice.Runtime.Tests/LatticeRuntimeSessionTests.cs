@@ -190,6 +190,36 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Classifies_Panduri_and_Zurna_using_default_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Identify which instrument is string or woodwind: Panduri, Zurna");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(
+            "Panduri is a string instrument. Zurna is a woodwind instrument.",
+            utterance.Message);
+        Assert.Equal(
+            "ask(classify(instrument, categories(string, woodwind), items(panduri, zurna)))",
+            utterance.Meaning);
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Panduri is a string-instrument."));
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Zurna is a woodwind-instrument."));
+    }
+
+    [Fact]
     public async Task Does_not_classify_an_item_without_exactly_one_supported_category()
     {
         var client = new LatticeRuntimeClient();

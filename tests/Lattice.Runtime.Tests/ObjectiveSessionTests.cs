@@ -153,7 +153,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(expectedKind, Assert.Single(result.Utterances).Kind);
         Assert.Equal(expectedGoal, status.ActiveObjective);
         Assert.Equal(input, status.ActiveObjectiveSource);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
 
         if (expectedKind == LatticeUtteranceResultKind.ClarificationRequired)
@@ -240,7 +240,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("compare these three options", status.ActiveObjective);
         Assert.Equal(input, status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -517,7 +517,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -645,7 +645,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal("put together a good day", status.ActiveObjective);
         Assert.Equal(originalRequest, status.ActiveObjectiveSource);
         Assert.Equal("spending-limit", status.PendingInformationName);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
     }
 
     [Fact]
@@ -672,7 +672,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("I can spend up to $25.", status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -698,7 +698,7 @@ public sealed class ObjectiveSessionTests
             meaning => meaning.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", StringComparison.Ordinal));
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -727,7 +727,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("I'm coming from North Station.", status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -761,7 +761,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationPrompt);
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
         Assert.Contains("Central Station", status.ActiveObjectiveSource);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -785,7 +785,7 @@ public sealed class ObjectiveSessionTests
             meaning => meaning.Contains("hardconstraint(origin, equals, Central Station)", StringComparison.Ordinal));
         Assert.Contains("My starting point is Central Station.", status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -810,7 +810,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("I can be back by 18:00 and leave at 9:00.", status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -848,7 +848,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("hardconstraint(time-window, canfit, 09:00-18:00)", meaning);
         Assert.Contains("bring-lunch", meaning);
         Assert.Contains("Walking only.", status.ActiveObjectiveSource);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Equal(4, status.RuleCount);
     }
 
@@ -1031,7 +1031,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(LatticeUtteranceResultKind.StatementStored, Assert.Single(result.Utterances).Kind);
         Assert.Equal("spending-limit", status.PendingInformationName);
         Assert.Equal("What is your spending limit?", status.PendingInformationPrompt);
-        Assert.Equal(8, status.FactCount);
+        Assert.Equal(10, status.FactCount);
     }
 
     [Fact]
@@ -1045,7 +1045,7 @@ public sealed class ObjectiveSessionTests
 
         Assert.Equal(LatticeUtteranceResultKind.ClarificationRequired, Assert.Single(result.Utterances).Kind);
         Assert.Contains("no outstanding objective information request", result.Utterances[0].Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(7, status.FactCount);
+        Assert.Equal(9, status.FactCount);
         Assert.Null(status.ActiveObjective);
     }
 
@@ -1061,7 +1061,7 @@ public sealed class ObjectiveSessionTests
 
         Assert.Equal("put together a good day", status.ActiveObjective);
         Assert.Contains("I have a free Saturday.", status.ActiveObjectiveSource);
-        Assert.Equal(8, status.FactCount);
+        Assert.Equal(10, status.FactCount);
     }
     [Fact]
     public async Task Completes_day_out_benchmark_with_real_candidate_pack_and_walking_only_revision()
@@ -1431,7 +1431,7 @@ public sealed class ObjectiveSessionTests
         var evidence = Assert.Single(transport.Evidence);
         Assert.Equal("UserAssertion", evidence.Kind);
         Assert.Equal("Quiet Park's transport mode is walking.", evidence.SourceText);
-        Assert.Equal(7, finalStatus.FactCount);
+        Assert.Equal(9, finalStatus.FactCount);
     }
 
 
