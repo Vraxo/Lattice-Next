@@ -24,6 +24,26 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private ObjectiveCondition? pendingObjectiveCondition;
     private bool isDisposed;
 
+    public LatticeRuntimeSession()
+    {
+        using var stream = typeof(LatticeRuntimeSession).Assembly.GetManifestResourceStream(
+            "Lattice.Runtime.CoreWorldModel.json")
+            ?? throw new InvalidOperationException("The embedded core world model is missing.");
+        using var reader = new StreamReader(stream);
+
+        if (!knowledgePackLoader.TryLoadAndAdd(
+            reader.ReadToEnd(),
+            knowledgeBase,
+            out var pack,
+            out var error))
+        {
+            throw new InvalidOperationException(
+                error ?? "The embedded core world model could not be loaded.");
+        }
+
+        loadedPacks.Add(pack!);
+    }
+
     public Guid SessionId { get; } = Guid.NewGuid();
 
     public ValueTask<LatticeTurnResult> SubmitAsync(
