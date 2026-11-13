@@ -258,6 +258,17 @@ public sealed class LatticeRuntimeSessionTests
         }
     }
 
+        var pianoSoundProduction = await session.SubmitAsync(
+            "Is Piano a struck-string-instrument?");
+        var pianoSoundProductionAnswer = Assert.Single(pianoSoundProduction.Utterances);
+        Assert.Equal(LatticeTruthValue.True, pianoSoundProductionAnswer.TruthValue);
+        Assert.Contains(
+            pianoSoundProductionAnswer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Piano is a struck-string-instrument."));
+    }
+
     [Fact]
     public async Task Does_not_classify_an_item_without_exactly_one_supported_category()
     {
