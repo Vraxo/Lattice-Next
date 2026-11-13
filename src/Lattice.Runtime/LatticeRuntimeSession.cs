@@ -28,13 +28,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     public LatticeRuntimeSession()
     {
-        using var semanticStream = typeof(LatticeRuntimeSession).Assembly.GetManifestResourceStream(
-            "Lattice.Runtime.CoreSemanticWorldModel.json")
-            ?? throw new InvalidOperationException("The embedded semantic world model is missing.");
-        using var semanticReader = new StreamReader(semanticStream);
-
+        var semanticJson = LoadEmbeddedSemanticWorldModel();
         if (!new SemanticWorldModelLoader().TryLoad(
-            semanticReader.ReadToEnd(),
+            semanticJson,
             out var loadedSemanticWorldModel,
             out var error))
         {
@@ -44,6 +40,67 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         semanticWorldModel = loadedSemanticWorldModel!;
         semanticWorldModelReasoner = new SemanticWorldModelReasoner(semanticWorldModel);
+    }
+
+    private static string LoadEmbeddedSemanticWorldModel()
+    {
+        const string resourcePrefix = "Lattice.Runtime.SemanticWorldModel.";
+        var assembly = typeof(LatticeRuntimeSession).Assembly;
+        var resources = assembly.GetManifestResourceNames()
+            .Where(name => name.StartsWith(resourcePrefix, StringComparison.Ordinal) &&
+                name.EndsWith(".json", StringComparison.Ordinal))
+            .OrderBy(name => name.EndsWith(".core.json", StringComparison.Ordinal) ? 0 : 1)
+            .ThenBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        if (resources.Length == 0)
+        {
+            throw new InvalidOperationException("No embedded semantic world model modules were found.");
+        }
+
+        System.Text.Json.Nodes.JsonObject? combined = null;
+        var collectionNames = new[]
+        {
+            "concepts", "lexemes", "relations", "definitions", "typeAssertions",
+            "relationAssertions", "dataProperties", "dataAssertions"
+        };
+
+        foreach (var resource in resources)
+        {
+            using var stream = assembly.GetManifestResourceStream(resource)
+                ?? throw new InvalidOperationException($"The semantic world model module '{resource}' is missing.");
+            using var reader = new StreamReader(stream);
+            var module = System.Text.Json.Nodes.JsonNode.Parse(reader.ReadToEnd()) as System.Text.Json.Nodes.JsonObject
+                ?? throw new InvalidOperationException($"The semantic world model module '{resource}' is invalid.");
+
+            if (combined is null)
+            {
+                combined = (System.Text.Json.Nodes.JsonObject)module.DeepClone();
+                foreach (var collectionName in collectionNames)
+                {
+                    combined[collectionName] = new System.Text.Json.Nodes.JsonArray();
+                }
+                continue;
+            }
+
+            foreach (var collectionName in collectionNames)
+            {
+                if (module[collectionName] is not System.Text.Json.Nodes.JsonArray source ||
+                    combined[collectionName] is not System.Text.Json.Nodes.JsonArray target)
+                {
+                    throw new InvalidOperationException(
+                        $"The semantic world model module '{resource}' is missing '{collectionName}'.");
+                }
+
+                foreach (var item in source)
+                {
+                    target.Add(item?.DeepClone());
+                }
+            }
+        }
+
+        return combined?.ToJsonString()
+            ?? throw new InvalidOperationException("The embedded semantic world model is empty.");
     }
 
     public Guid SessionId { get; } = Guid.NewGuid();

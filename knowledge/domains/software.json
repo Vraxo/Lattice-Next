@@ -1,0 +1,735 @@
+{
+  "formatVersion": 1,
+  "id": "core-software",
+  "name": "Scientific software",
+  "concepts": [
+    {
+      "id": "american-economic-review",
+      "label": "American Economic Review",
+      "kind": "Individual"
+    },
+    {
+      "id": "manning-2021-publication",
+      "label": "Monopsony in Labor Markets: A Review",
+      "kind": "Individual"
+    },
+    {
+      "id": "azar-marinescu-2024-publication",
+      "label": "Monopsony Power in the Labor Market: From Theory to Policy",
+      "kind": "Individual"
+    },
+    {
+      "id": "yeh-macaluso-hershbein-2022-publication",
+      "label": "Monopsony in the US Labor Market",
+      "kind": "Individual"
+    },
+    {
+      "id": "software",
+      "label": "software",
+      "kind": "Type"
+    },
+    {
+      "id": "open-source-software",
+      "label": "open-source software",
+      "kind": "Type"
+    },
+    {
+      "id": "python-package",
+      "label": "Python package",
+      "kind": "Type"
+    },
+    {
+      "id": "process-simulation-framework",
+      "label": "process simulation framework",
+      "kind": "Type"
+    },
+    {
+      "id": "process-modeling-framework",
+      "label": "process modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "optimization-framework",
+      "label": "optimization framework",
+      "kind": "Type"
+    },
+    {
+      "id": "process-optimizer",
+      "label": "process optimizer",
+      "kind": "Type"
+    },
+    {
+      "id": "process-systems-engineering-framework",
+      "label": "process systems engineering framework",
+      "kind": "Type"
+    },
+    {
+      "id": "biorefinery-modeling-framework",
+      "label": "biorefinery modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "optimization-modeling-framework",
+      "label": "optimization modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "capability",
+      "label": "software capability",
+      "kind": "Type"
+    },
+    {
+      "id": "application-domain",
+      "label": "application domain",
+      "kind": "Type"
+    },
+    {
+      "id": "idaes",
+      "label": "IDAES",
+      "kind": "Individual"
+    },
+    {
+      "id": "biosteam",
+      "label": "BioSTEAM",
+      "kind": "Individual"
+    },
+    {
+      "id": "pyomo",
+      "label": "Pyomo",
+      "kind": "Individual"
+    },
+    {
+      "id": "equation-oriented-process-modeling",
+      "label": "equation-oriented process modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "process-modeling",
+      "label": "process modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "flowsheet-optimization",
+      "label": "flowsheet optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "unit-operation-modeling",
+      "label": "unit-operation modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "techno-economic-analysis",
+      "label": "techno-economic analysis",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "American Economic Review",
+      "concept": "american-economic-review",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony in Labor Markets: A Review",
+      "concept": "manning-2021-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony Power in the Labor Market: From Theory to Policy",
+      "concept": "azar-marinescu-2024-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony in the US Labor Market",
+      "concept": "yeh-macaluso-hershbein-2022-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "software",
+      "concept": "software",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "open-source software",
+      "concept": "open-source-software",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Python package",
+      "concept": "python-package",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process simulation framework",
+      "concept": "process-simulation-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process modeling framework",
+      "concept": "process-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "optimization framework",
+      "concept": "optimization-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process optimizer",
+      "concept": "process-optimizer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process systems engineering framework",
+      "concept": "process-systems-engineering-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "biorefinery modeling framework",
+      "concept": "biorefinery-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "optimization modeling framework",
+      "concept": "optimization-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "software capability",
+      "concept": "capability",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "application domain",
+      "concept": "application-domain",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "IDAES",
+      "concept": "idaes",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "BioSTEAM",
+      "concept": "biosteam",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Pyomo",
+      "concept": "pyomo",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "equation-oriented process modeling",
+      "concept": "equation-oriented-process-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "process modeling",
+      "concept": "process-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "flowsheet optimization",
+      "concept": "flowsheet-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "unit-operation modeling",
+      "concept": "unit-operation-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "techno-economic analysis",
+      "concept": "techno-economic-analysis",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "supports-capability",
+      "domain": "software",
+      "range": "capability",
+      "verb": "supports",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "used-for-domain",
+      "domain": "software",
+      "range": "application-domain",
+      "verb": "is used for",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "software",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Official software documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "open-source-software",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official project documentation describing open-source distribution.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "python-package",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official project documentation describing Python-based distribution.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-simulation-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-simulation project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-modeling-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-modeling project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "optimization-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official optimization project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-optimizer",
+      "parents": [
+        "optimization-framework"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-optimization project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-systems-engineering-framework",
+      "parents": [
+        "process-modeling-framework",
+        "process-optimizer"
+      ],
+      "conditions": [],
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "concept": "biorefinery-modeling-framework",
+      "parents": [
+        "process-simulation-framework",
+        "process-modeling-framework"
+      ],
+      "conditions": [],
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "concept": "optimization-modeling-framework",
+      "parents": [
+        "optimization-framework",
+        "process-modeling-framework"
+      ],
+      "conditions": [],
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "concept": "capability",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Curated software capability vocabulary.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "application-domain",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Curated software application-domain vocabulary.",
+      "sourceUrl": null
+    }
+  ],
+  "typeAssertions": [
+    {
+      "individual": "american-economic-review",
+      "type": "journal",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "manning-2021-publication",
+      "type": "research-publication",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "individual": "azar-marinescu-2024-publication",
+      "type": "research-publication",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "yeh-macaluso-hershbein-2022-publication",
+      "type": "research-publication",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "idaes",
+      "type": "software",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "open-source-software",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "python-package",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "process-systems-engineering-framework",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "software",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "open-source-software",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "python-package",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "biorefinery-modeling-framework",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "pyomo",
+      "type": "software",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "open-source-software",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "python-package",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "optimization-modeling-framework",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "equation-oriented-process-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "process-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "flowsheet-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "unit-operation-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "techno-economic-analysis",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "manning-2021-publication",
+      "relation": "authored-by",
+      "object": "alan-manning",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "published-in",
+      "object": "ilr-review",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "authored-by",
+      "object": "jose-azar",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "authored-by",
+      "object": "ioana-marinescu",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "published-in",
+      "object": "annual-review-economics",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "yeh-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "macaluso-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "hershbein-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "published-in",
+      "object": "american-economic-review",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "equation-oriented-process-modeling",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "process-modeling",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "flowsheet-optimization",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "used-for-domain",
+      "object": "process-systems-engineering-domain",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "unit-operation-modeling",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "techno-economic-analysis",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "life-cycle-assessment",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "used-for-domain",
+      "object": "biorefinery-domain",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "algebraic-optimization-modeling",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "linear-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "nonlinear-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "mixed-integer-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "used-for-domain",
+      "object": "optimization-domain",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "published-in-year",
+      "object": "year-2021",
+      "sourceText": "Publication year metadata for Monopsony in Labor Markets: A Review."
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "published-in-year",
+      "object": "year-2024",
+      "sourceText": "Publication year metadata for Monopsony Power in the Labor Market: From Theory to Policy."
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "published-in-year",
+      "object": "year-2022",
+      "sourceText": "Publication year metadata for Monopsony in the US Labor Market."
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "documentation-url",
+      "domainType": "software",
+      "valueType": "uri"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "manning-2021-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1177/0019793920922499",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1146/annurev-economics-072823-030431",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1257/aer.20200025",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "idaes",
+      "property": "documentation-url",
+      "value": "https://idaes-pse.readthedocs.io/en/stable/",
+      "sourceText": "IDAES official documentation home page.",
+      "sourceUrl": "https://idaes-pse.readthedocs.io/en/stable/"
+    },
+    {
+      "subject": "biosteam",
+      "property": "documentation-url",
+      "value": "https://biosteam.readthedocs.io/en/latest/",
+      "sourceText": "BioSTEAM official documentation home page.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "pyomo",
+      "property": "documentation-url",
+      "value": "https://pyomo.readthedocs.io/en/stable/",
+      "sourceText": "Pyomo official documentation home page.",
+      "sourceUrl": "https://pyomo.readthedocs.io/en/stable/"
+    }
+  ]
+}

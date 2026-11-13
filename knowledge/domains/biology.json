@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "id": "core-biology",
+  "name": "Biology",
+  "concepts": [
+    {
+      "id": "life-cycle-assessment",
+      "label": "life-cycle assessment",
+      "kind": "Individual"
+    },
+    {
+      "id": "algebraic-optimization-modeling",
+      "label": "algebraic optimization modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "linear-optimization",
+      "label": "linear optimization",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "life-cycle assessment",
+      "concept": "life-cycle-assessment",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "algebraic optimization modeling",
+      "concept": "algebraic-optimization-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "linear optimization",
+      "concept": "linear-optimization",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [],
+  "definitions": [],
+  "typeAssertions": [
+    {
+      "individual": "life-cycle-assessment",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "algebraic-optimization-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "linear-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    }
+  ],
+  "relationAssertions": [],
+  "dataProperties": [],
+  "dataAssertions": []
+}
