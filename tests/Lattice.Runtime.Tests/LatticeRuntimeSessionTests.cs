@@ -89,7 +89,6 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal("The session has been closed.", result.Error);
     }
 
-
     [Fact]
     public async Task Loads_knowledge_packs_into_the_session_with_imported_provenance()
     {
@@ -137,6 +136,29 @@ public sealed class LatticeRuntimeSessionTests
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
                     source.SourceId == "core-world-model"));
     }
+
+    [Fact]
+    public async Task Answers_verb_definition_from_compositional_default_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What is a verb?");
+
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
+        Assert.Equal(
+            "A verb is a part of speech that expresses an action or state.",
+            result.Utterances[0].Message);
+        Assert.Equal("ask(definition(verb))", result.Utterances[0].Meaning);
+        Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
+        Assert.All(
+            result.Utterances[0].SupportingEvidence,
+            evidence => Assert.Contains(
+                evidence.Sources,
+                source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
+                    source.SourceId == "core-world-model"));
+    }
+
     [Fact]
     public async Task Realizes_a_different_concept_from_its_own_knowledge()
     {
@@ -153,22 +175,6 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             result.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(source => source.SourceId == "circles"));
-    }
-
-    [Fact]
-    public async Task Reports_missing_concept_knowledge_as_unavailable()
-    {
-        var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
-
-        var result = await session.SubmitAsync("What is a verb?");
-
-        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, result.Utterances[0].Kind);
-        Assert.Equal(
-            "I don't have structured knowledge about verb in the available knowledge.",
-            result.Utterances[0].Message);
-        Assert.Empty(result.Utterances[0].SupportingEvidence);
     }
 
     [Fact]
@@ -198,7 +204,6 @@ public sealed class LatticeRuntimeSessionTests
             result.Utterances[0].Message);
         Assert.Empty(result.Utterances[0].SupportingEvidence);
     }
-
 
     [Fact]
     public async Task Stops_concept_traversal_when_a_relationship_forms_a_cycle()
@@ -240,6 +245,7 @@ public sealed class LatticeRuntimeSessionTests
             1,
             CountOccurrences(result.Utterances[0].Message, "A boundary has a loop."));
     }
+
     private static int CountOccurrences(string value, string fragment)
     {
         var count = 0;
