@@ -1,0 +1,244 @@
+{
+  "formatVersion": 1,
+  "id": "core-language",
+  "name": "Lexical semantics",
+  "concepts": [
+    {
+      "id": "lexical-item",
+      "label": "lexical item",
+      "kind": "Type"
+    },
+    {
+      "id": "semantic-content",
+      "label": "semantic content",
+      "kind": "Type"
+    },
+    {
+      "id": "action-or-state",
+      "label": "action or state",
+      "kind": "Type"
+    },
+    {
+      "id": "action",
+      "label": "action",
+      "kind": "Type"
+    },
+    {
+      "id": "state",
+      "label": "state",
+      "kind": "Type"
+    },
+    {
+      "id": "verb",
+      "label": "verb",
+      "kind": "Type"
+    },
+    {
+      "id": "run-lexeme",
+      "label": "run",
+      "kind": "Individual"
+    },
+    {
+      "id": "running-action",
+      "label": "running action",
+      "kind": "Individual"
+    },
+    {
+      "id": "economic-concept",
+      "label": "economic concept",
+      "kind": "Type"
+    },
+    {
+      "id": "market-structure",
+      "label": "market structure",
+      "kind": "Type"
+    },
+    {
+      "id": "economic-market-structure",
+      "label": "economic market structure",
+      "kind": "Type"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "lexical item",
+      "concept": "lexical-item",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "semantic content",
+      "concept": "semantic-content",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "action or state",
+      "concept": "action-or-state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "action",
+      "concept": "action",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "state",
+      "concept": "state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "verb",
+      "concept": "verb",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "run",
+      "concept": "run-lexeme",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "running action",
+      "concept": "running-action",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "economic concept",
+      "concept": "economic-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market structure",
+      "concept": "market-structure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "economic market structure",
+      "concept": "economic-market-structure",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "expresses-content",
+      "domain": "lexical-item",
+      "range": "semantic-content",
+      "verb": "expresses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "lexical-item",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "semantic-content",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "action-or-state",
+      "parents": [
+        "semantic-content"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "action",
+      "parents": [
+        "action-or-state"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "state",
+      "parents": [
+        "action-or-state"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "verb",
+      "parents": [
+        "part-of-speech",
+        "lexical-item"
+      ],
+      "conditions": [
+        {
+          "relation": "expresses-content",
+          "targetType": "action-or-state"
+        }
+      ],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "economic-concept",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-structure",
+      "parents": [
+        "economic-concept"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "economic-market-structure",
+      "parents": [
+        "market-structure"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    }
+  ],
+  "typeAssertions": [
+    {
+      "individual": "run-lexeme",
+      "type": "lexical-item",
+      "sourceText": "Curated lexical-semantic example: the lexeme run expresses a running action.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "running-action",
+      "type": "action",
+      "sourceText": "Curated lexical-semantic example: running is an action.",
+      "sourceUrl": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "run-lexeme",
+      "relation": "expresses-content",
+      "object": "running-action",
+      "sourceText": "Curated lexical-semantic example: run expresses a running action.",
+      "sourceUrl": null
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

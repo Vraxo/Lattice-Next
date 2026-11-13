@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="../../knowledge/core-semantic-world-model.json" LogicalName="Lattice.Runtime.CoreSemanticWorldModel.json" />
+    <EmbeddedResource Include="../../knowledge/domains/**/*.json" LogicalName="Lattice.Runtime.SemanticWorldModel.%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

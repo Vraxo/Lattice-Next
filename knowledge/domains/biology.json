@@ -1,0 +1,71 @@
+{
+  "formatVersion": 1,
+  "id": "core-biology",
+  "name": "Biology",
+  "concepts": [
+    {
+      "id": "animal",
+      "label": "animal",
+      "kind": "Type"
+    },
+    {
+      "id": "fish",
+      "label": "fish",
+      "kind": "Type"
+    },
+    {
+      "id": "tope",
+      "label": "Tope",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "animal",
+      "concept": "animal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fish",
+      "concept": "fish",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Tope",
+      "concept": "tope",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [],
+  "definitions": [
+    {
+      "concept": "animal",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "fish",
+      "parents": [
+        "animal"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
+    }
+  ],
+  "typeAssertions": [
+    {
+      "individual": "tope",
+      "type": "fish",
+      "sourceText": "Tope is a fish.",
+      "sourceUrl": null
+    }
+  ],
+  "relationAssertions": [],
+  "dataProperties": [],
+  "dataAssertions": []
+}
