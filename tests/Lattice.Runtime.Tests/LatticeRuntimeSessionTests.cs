@@ -268,6 +268,57 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceText == "Piano is a struck-string-instrument."));
     }
 
+
+    [Fact]
+    public async Task Answers_instrument_questions_by_composing_typed_concept_definitions_and_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var musicalInstrument = await session.SubmitAsync("What is a musical instrument?");
+        Assert.Equal(
+            "A musical instrument is a physical object that uses a sound-production mechanism.",
+            Assert.Single(musicalInstrument.Utterances).Message);
+
+        var keyboardDefinition = await session.SubmitAsync("What makes something a keyboard instrument?");
+        Assert.Equal(
+            "A keyboard instrument is a musical instrument that has a keyboard as its playing interface.",
+            Assert.Single(keyboardDefinition.Utterances).Message);
+
+        var keyboardReason = await session.SubmitAsync("Why is a piano a keyboard instrument?");
+        Assert.Equal(
+            "A piano is a keyboard instrument because it has a keyboard as its playing interface.",
+            Assert.Single(keyboardReason.Utterances).Message);
+
+        var stringReason = await session.SubmitAsync("Why is a piano a struck-string instrument?");
+        Assert.Equal(
+            "A piano is a struck-string instrument because it uses a struck-string mechanism.",
+            Assert.Single(stringReason.Utterances).Message);
+
+        var soundMechanism = await session.SubmitAsync("How does a piano produce sound?");
+        Assert.Equal(
+            "A piano uses the piano action. The piano action strikes the piano strings. The piano strings transmits vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
+            Assert.Single(soundMechanism.Utterances).Message);
+
+        var comparison = await session.SubmitAsync("What distinguishes a piano from a harmonium?");
+        Assert.Equal(
+            "Both have a keyboard as their playing interface. Piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
+            Assert.Single(comparison.Utterances).Message);
+
+        Assert.All(
+            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, comparison },
+            turn => Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, Assert.Single(turn.Utterances).Kind));
+        Assert.Contains(
+            keyboardReason.Utterances[0].SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceText == "Piano is a keyboard-instrument." &&
+                source.SourceId == "core-world-model"));
+        Assert.Contains(
+            soundMechanism.Utterances[0].SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceUrl == "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"));
+    }
+
     [Fact]
     public async Task Does_not_classify_an_item_without_exactly_one_supported_category()
     {
