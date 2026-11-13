@@ -34,8 +34,13 @@ public sealed record SemanticRestriction(
 public sealed record SemanticTypeDefinition(
     string Concept,
     ImmutableArray<string> ParentTypes,
-    ImmutableArray<SemanticRestriction> EquivalentConditions,
-    SemanticWorldModelSource Source);
+    ImmutableArray<SemanticRestriction> SufficientConditions,
+    SemanticWorldModelSource Source)
+{
+    public SemanticDefinitionKind DefinitionKind { get; init; } = SemanticDefinitionKind.Primitive;
+    public ImmutableArray<SemanticRestriction> NecessaryConditions { get; init; } = [];
+    public SemanticClassExpression? SufficientExpression { get; init; }
+}
 
 public sealed record SemanticWorldModelSource(
     string SourceText,

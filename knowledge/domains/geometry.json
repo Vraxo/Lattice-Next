@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "core-geometry",
   "name": "Geometry",
   "concepts": [
@@ -338,172 +338,207 @@
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-shape",
       "parents": [
         "geometric-object"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "plane-figure",
       "parents": [
         "geometric-shape"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-structure",
       "parents": [
         "geometric-object"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-element",
       "parents": [
         "geometric-object"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-point",
       "parents": [
         "geometric-element"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-property",
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "straightness",
       "parents": [
         "geometric-property"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "topological-configuration",
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "closed-cycle",
       "parents": [
         "topological-configuration"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "boundary",
       "parents": [
         "geometric-structure"
       ],
-      "conditions": [
-        {
-          "relation": "has-boundary-element",
-          "targetType": "line-segment"
-        }
-      ],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "has-boundary-element",
+        "targetType": "line-segment"
+      }
     },
     {
       "concept": "closed-boundary",
       "parents": [
         "boundary"
       ],
-      "conditions": [
-        {
-          "relation": "has-topology",
-          "targetType": "closed-cycle"
-        }
-      ],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "has-topology",
+        "targetType": "closed-cycle"
+      }
     },
     {
       "concept": "line-segment",
       "parents": [
         "geometric-element"
       ],
-      "conditions": [
-        {
-          "relation": "has-start-point",
-          "targetType": "geometric-point"
-        },
-        {
-          "relation": "has-end-point",
-          "targetType": "geometric-point"
-        },
-        {
-          "relation": "has-geometric-property",
-          "targetType": "straightness"
-        }
-      ],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-start-point",
+            "targetType": "geometric-point"
+          },
+          {
+            "kind": "some",
+            "relation": "has-end-point",
+            "targetType": "geometric-point"
+          },
+          {
+            "kind": "some",
+            "relation": "has-geometric-property",
+            "targetType": "straightness"
+          }
+        ]
+      }
     },
     {
       "concept": "polygon",
       "parents": [
         "plane-figure"
       ],
-      "conditions": [
-        {
-          "relation": "has-boundary",
-          "targetType": "closed-boundary"
-        }
-      ],
       "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "has-boundary",
+        "targetType": "closed-boundary"
+      }
     },
     {
       "concept": "linguistic-category",
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     },
     {
       "concept": "part-of-speech",
       "parents": [
         "linguistic-category"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [

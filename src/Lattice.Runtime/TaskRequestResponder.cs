@@ -69,7 +69,7 @@ internal static class TaskRequestResponder
             wageMarkdown is null ||
             powerDefinition is null ||
             !powerDefinition.ParentTypes.Contains(wageSettingPower.Id, StringComparer.Ordinal) ||
-            !powerDefinition.EquivalentConditions.Any(condition =>
+            !powerDefinition.SufficientConditions.Any(condition =>
                 condition.Relation == "has-market-power-effect" &&
                 condition.TargetType == wageMarkdown.Id))
         {

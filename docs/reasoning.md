@@ -194,7 +194,7 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 - persistent storage or unloading/replacing already-loaded knowledge packs;
 - automatic extraction of knowledge from observations or external tools.
 
-The semantic model can represent some structures beyond this engine's current reasoning boundary. Such structures are not silently accepted as reasoning rules.
+The foundational semantic model has a separate, deliberately small class-expression language: positive existential restrictions combined with conjunction and disjunction. Primitive types are explicitly marked as primitive and may carry necessary restrictions; defined types require a sufficient expression. The class-expression reasoner evaluates these expressions over asserted relations and derived type memberships. It does not currently support universal restrictions, negation, cardinality, equality/inequality, inverse roles, or unrestricted first-order logic.
 
 ## Lifetime and boundaries
 

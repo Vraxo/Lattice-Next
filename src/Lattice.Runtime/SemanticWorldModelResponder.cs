@@ -52,7 +52,32 @@ internal static class SemanticWorldModelResponder
 
         var type = model.FindConcept(concept, SemanticConceptKind.Type);
         var definition = type is null ? null : model.FindDefinition(type.Id);
-        if (type is null || definition is null || definition.ParentTypes.IsDefaultOrEmpty)
+        if (type is null || definition is null)
+        {
+            return false;
+        }
+
+        if (definition.DefinitionKind == SemanticDefinitionKind.Primitive)
+        {
+            var parentLabel = definition.ParentTypes
+                .Select(parentId => model.FindConcept(parentId, SemanticConceptKind.Type)?.Label)
+                .FirstOrDefault(label => label is not null);
+            var necessaryPhrases = definition.NecessaryConditions
+                .Select(condition => FormatCondition(condition, model))
+                .Where(phrase => phrase is not null)
+                .Select(phrase => phrase!)
+                .ToArray();
+            var necessaryClause = necessaryPhrases.Length == 0
+                ? string.Empty
+                : $" Its instances must {JoinConditions(necessaryPhrases)}.";
+            message = parentLabel is null
+                ? $"{Capitalize(type.Label)} is a primitive root type in the current model; it has no further structural definition.{necessaryClause}"
+                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parentLabel)}; the model does not claim a sufficient structural definition for it.{necessaryClause}";
+            evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
+            return true;
+        }
+
+        if (definition.ParentTypes.IsDefaultOrEmpty)
         {
             return false;
         }
@@ -63,16 +88,13 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        var conditionPhrases = definition.EquivalentConditions
-            .Select(condition => FormatCondition(condition, model))
-            .Where(phrase => phrase is not null)
-            .ToArray();
-        if (conditionPhrases.Length == 0)
+        var expressionPhrase = FormatExpression(definition.SufficientExpression, model);
+        if (expressionPhrase is null)
         {
             return false;
         }
 
-        message = $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {JoinConditions(conditionPhrases)}.";
+        message = $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {expressionPhrase}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
         return true;
     }
@@ -378,31 +400,82 @@ internal static class SemanticWorldModelResponder
         var individual = model.FindConcept(individualId, SemanticConceptKind.Individual);
         var type = model.FindConcept(typeId, SemanticConceptKind.Type);
         var definition = type is null ? null : model.FindDefinition(type.Id);
-        if (individual is null || type is null || definition is null)
+        if (individual is null ||
+            type is null ||
+            definition?.SufficientExpression is null ||
+            !TryExplainExpression(
+                individual.Id,
+                definition.SufficientExpression,
+                model,
+                reasoner,
+                out var phrases,
+                out var sources))
         {
             return false;
         }
 
-        var matchedCondition = definition.EquivalentConditions.FirstOrDefault(condition =>
-            reasoner.GetRelations(individual.Id, condition.Relation).Any(assertion =>
-                reasoner.IsInstanceOf(assertion.Object, condition.TargetType)));
-        if (matchedCondition is null)
-        {
-            return false;
-        }
-
-        var relationAssertion = reasoner.GetRelations(individual.Id, matchedCondition.Relation)
-            .First(assertion => reasoner.IsInstanceOf(assertion.Object, matchedCondition.TargetType));
-        var phrase = FormatCondition(matchedCondition, model);
-        if (phrase is null)
-        {
-            return false;
-        }
-
-        message = $"{Capitalize(IndefinitePhrase(individual.Label))} is {IndefinitePhrase(type.Label)} because it {phrase}.";
-        var sources = ImmutableArray.Create(definition.Source, relationAssertion.Source)
-            .AddRange(GetTypeEvidence(relationAssertion.Object, matchedCondition.TargetType, model));
+        message = $"{Capitalize(IndefinitePhrase(individual.Label))} is {IndefinitePhrase(type.Label)} because it {JoinConditions(phrases)}.";
+        sources = ImmutableArray.Create(definition.Source).AddRange(sources);
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainExpression(
+        string individual,
+        SemanticClassExpression expression,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out ImmutableArray<string> phrases,
+        out ImmutableArray<SemanticWorldModelSource> sources)
+    {
+        phrases = [];
+        sources = [];
+        if (expression.Kind == SemanticClassExpressionKind.Some)
+        {
+            var assertion = reasoner.GetRelations(individual, expression.Relation)
+                .FirstOrDefault(candidate => reasoner.IsInstanceOf(candidate.Object, expression.TargetType!));
+            var phrase = FormatCondition(
+                new SemanticRestriction(expression.Relation!, expression.TargetType!),
+                model);
+            if (assertion is null || phrase is null)
+            {
+                return false;
+            }
+
+            phrases = [phrase];
+            sources = ImmutableArray.Create(assertion.Source)
+                .AddRange(GetTypeEvidence(assertion.Object, expression.TargetType!, model));
+            return true;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Or)
+        {
+            foreach (var operand in expression.Operands)
+            {
+                if (TryExplainExpression(individual, operand, model, reasoner, out phrases, out sources))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        var phraseBuilder = ImmutableArray.CreateBuilder<string>();
+        var sourceBuilder = ImmutableArray.CreateBuilder<SemanticWorldModelSource>();
+        foreach (var operand in expression.Operands)
+        {
+            if (!TryExplainExpression(individual, operand, model, reasoner, out var childPhrases, out var childSources))
+            {
+                return false;
+            }
+
+            phraseBuilder.AddRange(childPhrases);
+            sourceBuilder.AddRange(childSources);
+        }
+
+        phrases = phraseBuilder.ToImmutable();
+        sources = sourceBuilder.ToImmutable();
         return true;
     }
 
@@ -469,7 +542,8 @@ internal static class SemanticWorldModelResponder
             return;
         }
 
-        foreach (var assertion in reasoner.GetRelations(subjectId))
+        foreach (var assertion in reasoner.GetRelations(subjectId)
+            .Where(assertion => (model.FindRelation(assertion.Relation)?.Order ?? 0) > 0))
         {
             var relation = model.FindRelation(assertion.Relation);
             var subject = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
@@ -652,6 +726,44 @@ internal static class SemanticWorldModelResponder
                 IsSubtype(assertion.Type, type, model))
             .Select(assertion => assertion.Source)
             .ToImmutableArray();
+
+    private static string? FormatExpression(
+        SemanticClassExpression? expression,
+        SemanticWorldModel model)
+    {
+        if (expression is null)
+        {
+            return null;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Some)
+        {
+            return FormatCondition(
+                new SemanticRestriction(expression.Relation!, expression.TargetType!),
+                model);
+        }
+
+        var phrases = expression.Operands
+            .Select(operand => FormatExpression(operand, model))
+            .ToArray();
+        if (phrases.Any(phrase => phrase is null))
+        {
+            return null;
+        }
+
+        var validPhrases = phrases.Select(phrase => phrase!).ToArray();
+        return expression.Kind == SemanticClassExpressionKind.And
+            ? JoinConditions(validPhrases)
+            : JoinAlternatives(validPhrases);
+    }
+
+    private static string JoinAlternatives(IReadOnlyList<string> phrases) =>
+        phrases.Count switch
+        {
+            1 => phrases[0],
+            2 => $"{phrases[0]} or {phrases[1]}",
+            _ => $"{string.Join(", ", phrases.Take(phrases.Count - 1))}, or {phrases[^1]}"
+        };
 
     private static string? FormatCondition(SemanticRestriction condition, SemanticWorldModel model)
     {
