@@ -89,78 +89,64 @@ The complete synthetic day-out dataset is in `data/knowledge-packs/day-out-candi
 Pack unloading, replacement, persistence, candidate ranking, and planning are not implemented.
 
 
-## Concept knowledge
+## Foundational semantic world model
 
-Concept explanations are composed from ordinary LCE claims, not stored definition strings. A concept is represented as a named node in the knowledge graph. Unary predicates describe its classifications or properties; binary predicates connect it to other concept nodes. When asked "What is a polygon?", the runtime traverses the connected facts and presents the resulting structure with the provenance of each claim.
+The runtime embeds `knowledge/core-semantic-world-model.json`. This is the **only** default store for foundational concepts and world knowledge. It is separate from the version 1 task/candidate pack loader described above.
 
-Example:
+The semantic model format currently contains:
+
+- **Concepts:** uniquely identified `type` and `individual` nodes. Labels identify nodes for language realization; labels alone do not define them.
+- **Lexemes:** word forms associated with declared concept identities and parts of speech.
+- **Relations:** named relations with declared domain and range types.
+- **Type definitions:** parent types plus conjunctive existential restrictions. Every restriction requires a relation from the candidate individual to a filler of the declared target type.
+- **Type assertions:** explicit individual/type memberships.
+- **Relation assertions:** explicit subject/relation/object connections.
+- **Data properties and assertions:** currently only typed URI values, used for documentation and DOI links.
+
+Example type definition:
 
 ```json
 {
-  "formatVersion": 1,
-  "id": "geometry-concepts",
-  "name": "Geometry concepts",
-  "claims": [
-    "Polygon is a geometric-shape.",
-    "Polygon has Boundary.",
-    "The boundary is closed.",
-    "The boundary has Line-segment.",
-    "Line-segment is a line-segment.",
-    "The line-segment is straight."
-  ]
+  "concept": "keyboard-instrument",
+  "parents": ["musical-instrument"],
+  "conditions": [
+    { "relation": "has-playing-interface", "targetType": "keyboard-interface" }
+  ],
+  "sourceText": "Evidence supporting this curated definition."
 }
 ```
 
-The resulting explanation is composed from the graph:
+The text in `sourceText` is provenance only. The meaning is the declared parent and relation condition; no explanatory paragraph is stored or retrieved as the definition.
 
-- polygon is classified as geometric-shape;
-- polygon has a boundary;
-- the boundary is closed and has a line-segment;
-- the line-segment is straight.
+A relation assertion records structure independently of its wording:
 
-The runtime returns the exact imported claims as evidence. It does not use their source sentences as the answer. Relationship traversal is bounded and cycle-safe. A missing specific concept remains unavailable; it does not silently inherit a broader concept's explanation.
-
-Universal rules can now introduce an existentially quantified related individual. For example, the claim `Every polygon has a boundary.` is represented as:
-
-```
-forall(x, implies(
-  polygon(x),
-  exists(y, and(boundary(y), has(x, y)))
-))
+```json
+{
+  "subject": "piano",
+  "relation": "has-playing-interface",
+  "object": "piano-keyboard",
+  "sourceText": "Yamaha instrument documentation supports this assertion.",
+  "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
+}
 ```
 
-The witness is scoped to the subject that satisfied the rule. If two distinct polygons are known, the rule derives two distinct anonymous boundary witnesses; it does not connect both polygons to one globally shared `boundary` individual. Each witness property and relation carries the rule's provenance. The current increment supports one witness variable, one subject-to-witness binary relation, and one or more positive unary witness conditions. Arbitrary multi-variable joins, nested existential structures, and unrestricted first-order logic remain unsupported and are rejected.
+An individual may satisfy several definitions at once. A piano qualifies as a keyboard instrument through its playing interface and as a struck-string instrument through its sound-production mechanism. Those are independent semantic dimensions, not mutually exclusive labels.
 
-This is an initial graph-backed concept explanation, not yet a complete ontology or natural-language realizer. The graph still uses unary and binary predicates, with a deliberately bounded quantified-rule subset.
+### Migrated default domains
 
+- **Instruments:** interfaces, mechanisms, components, sound production and overlapping classifications.
+- **Geometry:** polygons, boundaries, closed cycles, line segments, endpoints and straightness.
+- **Language:** parts of speech, lexical items, semantic content, actions and states.
+- **Economics:** monopsony as a buyer-market structure, monopsony power as a separate market-power concept, and structural mechanisms such as employer concentration, job differentiation and search frictions. Illustrative labour markets are modeled as linked entities rather than stored explanatory examples.
+- **Software references:** IDAES, BioSTEAM and Pyomo as software individuals, with classifications, capability nodes, application-domain relations and URI-valued documentation links.
+- **Research references:** publications, authors and journals as linked concepts, with typed DOI URIs.
 
-## Default world model
+### Expressive limits
 
-Every runtime session starts with the embedded `core-world-model`. It is a
-versioned declarative knowledge pack stored at
-`knowledge/core-world-model.json`, embedded into the runtime assembly, and
-loaded through the normal pack validator. It is available to the CLI, server,
-and in-process clients without per-prompt configuration or filesystem access.
+The current reasoner supports type inheritance and conjunctive existential restrictions. It does not yet support disjunction, universal restrictions, cardinality/inequality constraints, arbitrary recursive expressions, or unrestricted first-order logic. In particular, the polygon slice models the existence of typed boundary elements and endpoints, but does not yet prove arbitrary polygon topology or distinguish all geometric cases.
 
-Foundational knowledge belongs here. Optional knowledge packs extend this
-shared model for specialized domains; they should not be needed for ordinary
-concepts that a general assistant is expected to know. The default model is
-session-local in the current implementation: it is loaded into each new
-session, and user assertions and optional packs enrich that same knowledge
-base for the life of the session.
+### Boundary with version 1 task packs
 
-The initial core seed includes basic geometry, a compositional verb concept, and foundational economics knowledge. It also contains a small, sourced reference catalogue for monopsony research and open-source Python process-simulation and optimization tools. Reference attributes are not objective candidates. The geometry and concept claims include:
+The existing version 1 knowledge-pack format remains supported for candidate/objective data, including money, durations, text and text-set fields. Such values describe a task candidate or user-supplied preference; they are not foundational definitions or world-model facts. Foundational concepts, causal mechanisms, classifications, examples, and reference-catalogue meaning belong in the typed semantic model.
 
-- a polygon is a geometric shape;
-- every polygon has a closed boundary;
-- every boundary has a line segment;
-- every line segment is straight;
-- a verb is a part of speech that expresses an action or state;
-- a monopsony is an economic buyer-market structure.
-
-These are stored as assertions and rules, not as a prewritten polygon answer.
-Concept explanations inspect direct facts and applicable universal rules,
-follow the related concept structure within bounded limits, and retain the
-original source claims as evidence. This is an initial seed, not a claim that
-the world model is already comprehensive.
-undefined
+The semantic model loader rejects unknown fields and unsupported data-property value kinds. In particular, it does not accept free-text definition/description fields or text-valued semantic properties. Source text and source URLs remain allowed only as provenance metadata for assertions and definitions.
