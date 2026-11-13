@@ -39,7 +39,22 @@ internal static class NativeEnglishInformationQuestionParser
                 expectsPluralHead,
                 out var description))
         {
-            return false;
+            if (expectsPluralHead ||
+                tokens.Length - descriptionStart != 1 ||
+                !EnglishGrammarTokens.IsCapitalized(tokens[descriptionStart]) ||
+                EnglishGrammarTokens.IsReservedIndividualTerm(tokens[descriptionStart]))
+            {
+                return false;
+            }
+
+            var individualMeaning = new DefinitionQuestionFormula(
+                EnglishGrammarTokens.CreateIdentifier(tokens[descriptionStart]),
+                ImmutableArray<SemanticIdentifier>.Empty);
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                individualMeaning,
+                sourceText);
+            return true;
         }
 
         var meaning = new DefinitionQuestionFormula(
