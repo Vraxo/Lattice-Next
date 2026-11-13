@@ -8,6 +8,285 @@
     "Every boundary has a line-segment.",
     "Every line-segment is straight.",
     "Verb is a part-of-speech.",
-    "Every verb expresses an action-or-state."
+    "Every verb expresses an action-or-state.",
+    "Monopsony is an economic-market-structure.",
+    "Monopsony is a buyer-market-structure."
+  ],
+  "attributes": [
+    {
+      "subject": "monopsony",
+      "name": "mechanism",
+      "value": {
+        "type": "text",
+        "value": "In labour markets, employers can have wage-setting power when workers have limited outside options."
+      },
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review; Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "mechanism",
+      "value": {
+        "type": "text",
+        "value": "This power can arise from employer concentration, job differentiation, and search frictions that make switching jobs costly."
+      },
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review; Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "example",
+      "value": {
+        "type": "text",
+        "value": "A rural town dominated by one hospital may leave nurses with few realistic alternative employers."
+      },
+      "sourceText": "Illustrative example based on labour-market mechanisms reviewed by Manning (2021) and Azar and Marinescu (2024).",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "example",
+      "value": {
+        "type": "text",
+        "value": "A worker facing costly relocation or a restrictive non-compete may have limited ability to switch employers even when several employers exist."
+      },
+      "sourceText": "Illustrative example based on labour-market mechanisms reviewed by Manning (2021) and Azar and Marinescu (2024).",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "research-reference",
+      "value": {
+        "type": "text",
+        "value": "[Manning (2021), “Monopsony in Labor Markets: A Review,” ILR Review 74(1), 3–26](https://doi.org/10.1177/0019793920922499)"
+      },
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review. https://doi.org/10.1177/0019793920922499",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "research-reference",
+      "value": {
+        "type": "text",
+        "value": "[Azar and Marinescu (2024), “Monopsony Power in the Labor Market: From Theory to Policy,” Annual Review of Economics 16, 491–518](https://doi.org/10.1146/annurev-economics-072823-030431)"
+      },
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy. https://doi.org/10.1146/annurev-economics-072823-030431",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "research-reference",
+      "value": {
+        "type": "text",
+        "value": "[Yeh, Macaluso, and Hershbein (2022), “Monopsony in the US Labor Market,” American Economic Review 112(7), 2099–2138](https://doi.org/10.1257/aer.20200025)"
+      },
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market. https://doi.org/10.1257/aer.20200025",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "display-name",
+      "value": {
+        "type": "text",
+        "value": "IDAES"
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "category",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "open-source",
+          "python",
+          "process-simulation",
+          "optimization"
+        ]
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "role",
+      "value": {
+        "type": "text",
+        "value": "process-simulator-and-optimizer"
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "primary-use",
+      "value": {
+        "type": "text",
+        "value": "equation-oriented process modeling and optimization of process systems"
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "capabilities",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "equation-oriented modeling",
+          "process modeling",
+          "flowsheet optimization"
+        ]
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "idaes",
+      "name": "documentation-url",
+      "value": {
+        "type": "text",
+        "value": "https://idaes-pse.readthedocs.io/en/stable/"
+      },
+      "sourceText": "IDAES official documentation: https://idaes-pse.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "display-name",
+      "value": {
+        "type": "text",
+        "value": "BioSTEAM"
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "category",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "open-source",
+          "python",
+          "process-simulation"
+        ]
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "role",
+      "value": {
+        "type": "text",
+        "value": "process-simulator"
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "primary-use",
+      "value": {
+        "type": "text",
+        "value": "simulation of biorefineries and other bioprocesses"
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "capabilities",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "unit-operation modeling",
+          "techno-economic analysis",
+          "life-cycle assessment"
+        ]
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "biosteam",
+      "name": "documentation-url",
+      "value": {
+        "type": "text",
+        "value": "https://biosteam.readthedocs.io/en/latest/"
+      },
+      "sourceText": "BioSTEAM official documentation: https://biosteam.readthedocs.io/en/latest/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "display-name",
+      "value": {
+        "type": "text",
+        "value": "Pyomo"
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "category",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "open-source",
+          "python",
+          "optimization"
+        ]
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "role",
+      "value": {
+        "type": "text",
+        "value": "optimization-framework"
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "primary-use",
+      "value": {
+        "type": "text",
+        "value": "algebraic optimization modeling and solving"
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "capabilities",
+      "value": {
+        "type": "textSet",
+        "values": [
+          "linear optimization",
+          "nonlinear optimization",
+          "mixed-integer optimization"
+        ]
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "pyomo",
+      "name": "documentation-url",
+      "value": {
+        "type": "text",
+        "value": "https://pyomo.readthedocs.io/en/stable/"
+      },
+      "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    }
   ]
 }
