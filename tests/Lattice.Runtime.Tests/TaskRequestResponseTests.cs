@@ -34,6 +34,20 @@ public sealed class TaskRequestResponseTests
     }
 
     [Fact]
+    public async Task Default_reference_metadata_does_not_become_objective_candidates()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Help me compare these options.");
+        var status = await session.GetStatusAsync();
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.ObjectiveReceived, Assert.Single(result.Utterances).Kind);
+        Assert.Empty(status.ObjectiveEvaluation!.Candidates);
+    }
+
+    [Fact]
     public async Task Recommends_matching_open_source_python_process_and_optimization_tools()
     {
         const string input = "I would like to implement simulations of chemical unit operations using Python and use them to optimize certain outputs. Which open-source packages do you recommend for this purpose?";
