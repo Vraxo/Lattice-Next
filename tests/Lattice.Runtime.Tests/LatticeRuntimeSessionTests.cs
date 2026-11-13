@@ -233,7 +233,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal(
-            "Guitar is a string instrument. Violin is a string instrument. Piano is a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
+            "Guitar is a string instrument. Violin is a string instrument. Piano is both a string and a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
             utterance.Message);
         Assert.Equal(
             "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
