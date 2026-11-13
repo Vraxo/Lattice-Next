@@ -38,7 +38,7 @@
       "name": "example",
       "value": {
         "type": "text",
-        "value": "A rural town dominated by one hospital may leave nurses with few realistic alternative employers."
+        "value": "a rural town dominated by one hospital may leave nurses with few realistic alternative employers."
       },
       "sourceText": "Illustrative example based on labour-market mechanisms reviewed by Manning (2021) and Azar and Marinescu (2024).",
       "summary": true
@@ -48,7 +48,7 @@
       "name": "example",
       "value": {
         "type": "text",
-        "value": "A worker facing costly relocation or a restrictive non-compete may have limited ability to switch employers even when several employers exist."
+        "value": "a worker facing costly relocation or a restrictive non-compete may have limited ability to switch employers even when several employers exist."
       },
       "sourceText": "Illustrative example based on labour-market mechanisms reviewed by Manning (2021) and Azar and Marinescu (2024).",
       "summary": true
@@ -286,6 +286,16 @@
         "value": "https://pyomo.readthedocs.io/en/stable/"
       },
       "sourceText": "Pyomo official documentation: https://pyomo.readthedocs.io/en/stable/",
+      "summary": true
+    },
+    {
+      "subject": "monopsony",
+      "name": "mechanism",
+      "value": {
+        "type": "text",
+        "value": "Monopsony power can persist even where several employers operate, because labour markets are local and jobs are differentiated."
+      },
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
       "summary": true
     }
   ]
