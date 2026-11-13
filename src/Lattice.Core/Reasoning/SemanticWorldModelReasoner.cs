@@ -171,36 +171,17 @@ public sealed class SemanticWorldModelReasoner
             definition.Concept == type ||
             IsSubtype(definition.Concept, type)))
         {
-            if (definition.EquivalentConditions.IsDefaultOrEmpty)
+            if (definition.EquivalentExpression is null)
             {
                 continue;
             }
 
             var matchedSources = new List<SemanticWorldModelSource>();
-            var matched = true;
-
-            foreach (var condition in definition.EquivalentConditions)
-            {
-                var relationAssertion = model.RelationAssertions.FirstOrDefault(assertion =>
-                    assertion.Subject == individual &&
-                    assertion.Relation == condition.Relation &&
-                    IsInstanceOf(assertion.Object, condition.TargetType));
-
-                if (relationAssertion is null)
-                {
-                    matched = false;
-                    break;
-                }
-
-                matchedSources.Add(relationAssertion.Source);
-                AppendMembershipEvidence(
-                    relationAssertion.Object,
-                    condition.TargetType,
-                    visited,
-                    matchedSources);
-            }
-
-            if (matched)
+            if (TryAppendExpressionEvidence(
+                individual,
+                definition.EquivalentExpression,
+                visited,
+                matchedSources))
             {
                 evidence.Add(definition.Source);
                 evidence.AddRange(matchedSources);
@@ -217,6 +198,56 @@ public sealed class SemanticWorldModelReasoner
                 AppendMembershipEvidence(individual, definition.Concept, visited, evidence);
             }
         }
+    }
+
+    private bool TryAppendExpressionEvidence(
+        string individual,
+        SemanticClassExpression expression,
+        HashSet<string> visited,
+        List<SemanticWorldModelSource> evidence)
+    {
+        if (expression.Kind == SemanticClassExpressionKind.Some)
+        {
+            var assertion = model.RelationAssertions.FirstOrDefault(candidate =>
+                candidate.Subject == individual &&
+                candidate.Relation == expression.Relation &&
+                IsInstanceOf(candidate.Object, expression.TargetType!));
+            if (assertion is null)
+            {
+                return false;
+            }
+
+            evidence.Add(assertion.Source);
+            AppendMembershipEvidence(assertion.Object, expression.TargetType!, visited, evidence);
+            return true;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Or)
+        {
+            foreach (var operand in expression.Operands)
+            {
+                var branchEvidence = new List<SemanticWorldModelSource>();
+                if (TryAppendExpressionEvidence(individual, operand, visited, branchEvidence))
+                {
+                    evidence.AddRange(branchEvidence);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        var conjunctiveEvidence = new List<SemanticWorldModelSource>();
+        foreach (var operand in expression.Operands)
+        {
+            if (!TryAppendExpressionEvidence(individual, operand, visited, conjunctiveEvidence))
+            {
+                return false;
+            }
+        }
+
+        evidence.AddRange(conjunctiveEvidence);
+        return true;
     }
 
     private void AddTypeHierarchySources(

@@ -407,7 +407,7 @@ internal static class SemanticWorldModelResponder
         }
 
         message = $"{Capitalize(IndefinitePhrase(individual.Label))} is {IndefinitePhrase(type.Label)} because it {JoinConditions(phrases)}.";
-        sources = sources.Insert(0, definition.Source);
+        sources = ImmutableArray.Create(definition.Source).AddRange(sources);
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
