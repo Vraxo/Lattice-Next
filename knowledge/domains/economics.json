@@ -755,7 +755,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "buyer",
@@ -766,7 +766,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "seller",
@@ -777,7 +777,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "dominant-buyer",
@@ -788,7 +788,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "buyer-market-structure",
@@ -799,7 +799,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "monopsony",
@@ -810,7 +810,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-dominant-buyer",
         "targetType": "dominant-buyer"
@@ -825,7 +825,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "buyer-market-power",
@@ -836,7 +836,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "market-power-effect",
@@ -847,7 +847,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "wage-markdown",
@@ -858,7 +858,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "monopsony-power",
@@ -869,7 +869,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-market-power-effect",
         "targetType": "wage-markdown"
@@ -885,7 +885,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "employer",
@@ -896,7 +896,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "worker",
@@ -907,7 +907,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "worker-group",
@@ -918,7 +918,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "labor-market-feature",
@@ -929,7 +929,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "employer-concentration",
@@ -940,7 +940,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "job-differentiation",
@@ -951,7 +951,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "search-frictions",
@@ -962,7 +962,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "limited-outside-options",
@@ -973,7 +973,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "switching-friction",
@@ -984,7 +984,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "relocation-cost",
@@ -995,7 +995,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "non-compete-restriction",
@@ -1006,7 +1006,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geographic-area",
@@ -1017,7 +1017,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "employment-opportunity",
@@ -1028,7 +1028,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "market-power-mechanism",
@@ -1039,7 +1039,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "research-publication",
@@ -1050,7 +1050,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "person",
@@ -1061,7 +1061,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "journal",
@@ -1072,7 +1072,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "wage-setting-power",
@@ -1083,7 +1083,7 @@
       "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-market-power-effect",
         "targetType": "wage-markdown"
@@ -1097,7 +1097,7 @@
       "sourceText": "A calendar year is a temporal interval identified by its year number.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [

@@ -316,7 +316,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "open-source-software",
@@ -327,7 +327,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "python-package",
@@ -338,7 +338,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "process-simulation-framework",
@@ -349,7 +349,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "process-modeling-framework",
@@ -360,7 +360,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "optimization-framework",
@@ -371,7 +371,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "process-optimizer",
@@ -382,7 +382,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "process-systems-engineering-framework",
@@ -394,7 +394,7 @@
       "sourceUrl": "https://idaes.org/overview/",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "biorefinery-modeling-framework",
@@ -406,7 +406,7 @@
       "sourceUrl": "https://biosteam.readthedocs.io/en/latest/",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "optimization-modeling-framework",
@@ -418,7 +418,7 @@
       "sourceUrl": "https://www.pyomo.org/about",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "capability",
@@ -429,7 +429,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "application-domain",
@@ -440,7 +440,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [

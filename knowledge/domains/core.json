@@ -23,8 +23,8 @@
       "parents": [],
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null,
-      "sourceText": "Foundational semantic root."
+      "sourceText": "Foundational semantic root.",
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [],

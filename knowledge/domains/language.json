@@ -137,7 +137,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "semantic-content",
@@ -148,7 +148,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "action-or-state",
@@ -159,7 +159,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "action",
@@ -170,7 +170,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "state",
@@ -181,7 +181,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "verb",
@@ -193,7 +193,7 @@
       "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "expresses-content",
         "targetType": "action-or-state"
@@ -208,7 +208,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "market-structure",
@@ -219,7 +219,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "economic-market-structure",
@@ -230,7 +230,7 @@
       "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [

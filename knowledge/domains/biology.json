@@ -47,7 +47,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "fish",
@@ -58,7 +58,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [

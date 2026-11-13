@@ -342,7 +342,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-shape",
@@ -353,7 +353,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "plane-figure",
@@ -364,7 +364,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-structure",
@@ -375,7 +375,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-element",
@@ -386,7 +386,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-point",
@@ -397,7 +397,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "geometric-property",
@@ -408,7 +408,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "straightness",
@@ -419,7 +419,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "topological-configuration",
@@ -430,7 +430,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "closed-cycle",
@@ -441,7 +441,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "boundary",
@@ -452,7 +452,7 @@
       "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-boundary-element",
         "targetType": "line-segment"
@@ -467,7 +467,7 @@
       "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-topology",
         "targetType": "closed-cycle"
@@ -482,7 +482,7 @@
       "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "and",
         "operands": [
           {
@@ -512,7 +512,7 @@
       "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
-      "equivalentTo": {
+      "sufficientExpression": {
         "kind": "some",
         "relation": "has-boundary",
         "targetType": "closed-boundary"
@@ -527,7 +527,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     },
     {
       "concept": "part-of-speech",
@@ -538,7 +538,7 @@
       "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "equivalentTo": null
+      "sufficientExpression": null
     }
   ],
   "typeAssertions": [
