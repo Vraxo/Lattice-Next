@@ -34,7 +34,6 @@ public sealed class SemanticWorldModelReasoner
             .Where(assertion => assertion.Subject == normalized && assertion.Relation == IsA)
             .Select(assertion => assertion.Object)
             .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal)
             .ToImmutableArray();
     }
 
@@ -45,7 +44,6 @@ public sealed class SemanticWorldModelReasoner
             .Where(assertion => assertion.Object == normalized && assertion.Relation == IsA)
             .Select(assertion => assertion.Subject)
             .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal)
             .ToImmutableArray();
     }
 
