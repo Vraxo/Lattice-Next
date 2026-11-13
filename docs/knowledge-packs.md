@@ -132,3 +132,33 @@ forall(x, implies(
 The witness is scoped to the subject that satisfied the rule. If two distinct polygons are known, the rule derives two distinct anonymous boundary witnesses; it does not connect both polygons to one globally shared `boundary` individual. Each witness property and relation carries the rule's provenance. The current increment supports one witness variable, one subject-to-witness binary relation, and one or more positive unary witness conditions. Arbitrary multi-variable joins, nested existential structures, and unrestricted first-order logic remain unsupported and are rejected.
 
 This is an initial graph-backed concept explanation, not yet a complete ontology or natural-language realizer. The graph still uses unary and binary predicates, with a deliberately bounded quantified-rule subset.
+
+
+## Default world model
+
+Every runtime session starts with the embedded `core-world-model`. It is a
+versioned declarative knowledge pack stored at
+`knowledge/core-world-model.json`, embedded into the runtime assembly, and
+loaded through the normal pack validator. It is available to the CLI, server,
+and in-process clients without per-prompt configuration or filesystem access.
+
+Foundational knowledge belongs here. Optional knowledge packs extend this
+shared model for specialized domains; they should not be needed for ordinary
+concepts that a general assistant is expected to know. The default model is
+session-local in the current implementation: it is loaded into each new
+session, and user assertions and optional packs enrich that same knowledge
+base for the life of the session.
+
+The initial core seed includes basic geometry expressed as a classification
+and general quantified rules:
+
+- a polygon is a geometric shape;
+- every polygon has a closed boundary;
+- every boundary has a line segment;
+- every line segment is straight.
+
+These are stored as assertions and rules, not as a prewritten polygon answer.
+Concept explanations inspect direct facts and applicable universal rules,
+follow the related concept structure within bounded limits, and retain the
+original source claims as evidence. This is an initial seed, not a claim that
+the world model is already comprehensive.
