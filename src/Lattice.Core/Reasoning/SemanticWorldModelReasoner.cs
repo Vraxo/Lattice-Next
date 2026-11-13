@@ -39,19 +39,19 @@ public sealed class SemanticWorldModelReasoner
         while (changed && passes++ < model.Definitions.Length + model.Concepts.Length)
         {
             changed = false;
-            foreach (var individual in allTypes.Keys)
+            foreach (var individualId in allTypes.Keys)
             {
-                foreach (var currentType in allTypes[individual].ToArray())
+                foreach (var currentType in allTypes[individualId].ToArray())
                 {
                     foreach (var parent in model.FindDefinition(currentType)?.ParentTypes ?? [])
                     {
-                        changed |= allTypes[individual].Add(parent);
+                        changed |= allTypes[individualId].Add(parent);
                     }
                 }
 
                 foreach (var definition in model.Definitions)
                 {
-                    if (allTypes[individual].Contains(definition.Concept) ||
+                    if (allTypes[individualId].Contains(definition.Concept) ||
                         definition.EquivalentConditions.IsDefaultOrEmpty)
                     {
                         continue;
@@ -59,14 +59,14 @@ public sealed class SemanticWorldModelReasoner
 
                     var conditionsSatisfied = definition.EquivalentConditions.All(condition =>
                         model.RelationAssertions.Any(assertion =>
-                            assertion.Subject == individual &&
+                            assertion.Subject == individualId &&
                             assertion.Relation == condition.Relation &&
                             allTypes.TryGetValue(assertion.Object, out var objectTypes) &&
                             objectTypes.Contains(condition.TargetType)));
 
                     if (conditionsSatisfied)
                     {
-                        changed |= allTypes[individual].Add(definition.Concept);
+                        changed |= allTypes[individualId].Add(definition.Concept);
                     }
                 }
             }
