@@ -1,7 +1,14 @@
-# Knowledge packs
+# Knowledge
 
-This directory is reserved for versioned, declarative knowledge packs.
+The runtime starts every session with the versioned core world model in
+`core-world-model.json`. It is embedded in the runtime assembly, validated
+through the same knowledge-pack loader as external packs, and available without
+a user import or a working-directory dependency.
 
-The pack format is intentionally not defined yet. It must be based on the semantic representation proven by the first reasoning slices. Knowledge packs will contain data, not executable code, and should preserve provenance for imported claims.
+The core model is intentionally small and foundational. It is not a catalogue
+of prewritten answers: it stores structured assertions and general rules that
+the reasoning and explanation layers can inspect and compose.
 
-Do not add domain-specific compiled projects here.
+Additional domain packs remain useful for specialized or changing information.
+They extend the same session knowledge base and retain their own provenance.
+They are not required for concepts that belong in the default world model.
