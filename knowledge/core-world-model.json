@@ -6,6 +6,8 @@
     "Polygon is a geometric-shape.",
     "Every polygon has a closed boundary.",
     "Every boundary has a line-segment.",
-    "Every line-segment is straight."
+    "Every line-segment is straight.",
+    "Verb is a part-of-speech.",
+    "Every verb expresses an action-or-state."
   ]
 }
