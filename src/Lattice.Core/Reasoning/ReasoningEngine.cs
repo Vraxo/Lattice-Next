@@ -5,6 +5,27 @@ namespace Lattice.Core.Reasoning;
 
 public sealed class ReasoningEngine
 {
+    public ImmutableArray<ProofNode> GetKnownFacts(KnowledgeBase knowledgeBase)
+    {
+        ArgumentNullException.ThrowIfNull(knowledgeBase);
+
+        var proofs = new List<ProofNode>();
+
+        foreach (var proof in FactDeriver.DeriveUnaryFacts(knowledgeBase)
+            .Concat(FactDeriver.DeriveNegativeUnaryFacts(knowledgeBase))
+            .Concat(knowledgeBase.Facts
+                .Where(fact => fact.Predicate.Arguments.Length == 2)
+                .Select(ProofOperations.CreateAssertedProof))
+            .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Positive))
+            .Concat(FactDeriver.DeriveRelationalFacts(knowledgeBase, EvidencePolarity.Negative))
+            .Concat(FactDeriver.DeriveExistentialFacts(knowledgeBase)))
+        {
+            ProofOperations.AddUniqueProof(proofs, proof);
+        }
+
+        return proofs.ToImmutableArray();
+    }
+
     public ReasoningResult Ask(
         KnowledgeBase knowledgeBase,
         PredicateApplication query)
