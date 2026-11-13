@@ -60,7 +60,7 @@ public sealed class BenchmarkKnowledgePackTests
             Assert.Equal("Handled", result.RunStatus);
             Assert.Contains("QuestionAnswered", result.UtteranceKinds);
             Assert.Contains("geometric shape", result.ResponseSummary, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("boundary", result.ResponseSummary, StringComparison.OrdinalIgnoreCase);
+            Assert.True(result.ResponseSummary.Contains("boundary", StringComparison.OrdinalIgnoreCase), result.ResponseSummary);
         }
         finally
         {
