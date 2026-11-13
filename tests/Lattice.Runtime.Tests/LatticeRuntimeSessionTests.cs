@@ -303,11 +303,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:cantaro:instance-of:percussion-instrument"));
+                source.SourceId == "core-world-model:relation:cantaro:has-sound-production-mechanism:cantaro-mechanism"));
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:gudok:instance-of:string-instrument"));
+                source.SourceId == "core-world-model:relation:gudok:has-sound-production-mechanism:gudok-mechanism"));
     }
 
     [Fact]
@@ -331,11 +331,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:panduri:instance-of:string-instrument"));
+                source.SourceId == "core-world-model:relation:panduri:has-sound-production-mechanism:panduri-mechanism"));
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:zurna:instance-of:woodwind-instrument"));
+                source.SourceId == "core-world-model:relation:zurna:has-sound-production-mechanism:zurna-mechanism"));
     }
 
 
@@ -360,13 +360,13 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(7, utterance.SupportingEvidence.Length);
         foreach (var assertionId in new[]
         {
-            "core-world-model:relation:guitar:instance-of:string-instrument",
-            "core-world-model:relation:violin:instance-of:string-instrument",
-            "core-world-model:relation:piano:instance-of:keyboard-instrument",
-            "core-world-model:relation:harmonium:instance-of:keyboard-instrument",
-            "core-world-model:relation:cello:instance-of:string-instrument",
-            "core-world-model:relation:accordion:instance-of:keyboard-instrument",
-            "core-world-model:relation:banjo:instance-of:string-instrument"
+            "core-world-model:relation:guitar:has-sound-production-mechanism:guitar-mechanism",
+            "core-world-model:relation:violin:has-sound-production-mechanism:violin-mechanism",
+            "core-world-model:relation:piano:has-playing-interface:piano-keyboard",
+            "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
+            "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
+            "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
+            "core-world-model:relation:banjo:has-sound-production-mechanism:banjo-mechanism"
         })
         {
             Assert.Contains(
