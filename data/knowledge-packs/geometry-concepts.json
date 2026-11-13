@@ -4,10 +4,6 @@
   "name": "Geometry concepts",
   "claims": [
     "Polygon is a geometric-shape.",
-    "Polygon has Boundary.",
-    "The boundary is closed.",
-    "The boundary has Line-segment.",
-    "Line-segment is a line-segment.",
-    "The line-segment is straight."
+    "Every polygon has a closed boundary."
   ]
 }
