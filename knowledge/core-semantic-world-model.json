@@ -2037,7 +2037,7 @@
       "domain": "geometric-element",
       "range": "geometric-point",
       "verb": "has",
-      "objectRole": null,
+      "objectRole": "as its start point",
       "order": 0,
       "comparisonPriority": 0
     },
@@ -2046,7 +2046,7 @@
       "domain": "geometric-element",
       "range": "geometric-point",
       "verb": "has",
-      "objectRole": null,
+      "objectRole": "as its end point",
       "order": 1,
       "comparisonPriority": 0
     },
