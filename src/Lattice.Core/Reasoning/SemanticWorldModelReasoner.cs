@@ -141,6 +141,7 @@ public sealed class SemanticWorldModelReasoner
             IsSubtype(assertion.Type, type)))
         {
             evidence.Add(assertion.Source);
+            AddTypeHierarchySources(assertion.Type, type, evidence);
         }
 
         foreach (var definition in model.Definitions.Where(definition =>
@@ -191,6 +192,36 @@ public sealed class SemanticWorldModelReasoner
             if (IsInstanceOf(individual, definition.Concept))
             {
                 AppendMembershipEvidence(individual, definition.Concept, visited, evidence);
+            }
+        }
+    }
+
+    private void AddTypeHierarchySources(
+        string candidate,
+        string expected,
+        List<SemanticWorldModelSource> evidence)
+    {
+        var pending = new Stack<string>();
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        pending.Push(candidate);
+
+        while (pending.TryPop(out var current))
+        {
+            if (!visited.Add(current) || current == expected)
+            {
+                continue;
+            }
+
+            var definition = model.FindDefinition(current);
+            if (definition is null)
+            {
+                continue;
+            }
+
+            evidence.Add(definition.Source);
+            foreach (var parent in definition.ParentTypes)
+            {
+                pending.Push(parent);
             }
         }
     }
