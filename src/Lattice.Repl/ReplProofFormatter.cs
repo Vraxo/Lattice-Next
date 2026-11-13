@@ -56,10 +56,16 @@ internal static class ReplProofFormatter
                 var origin = source.Kind == LatticeKnowledgeSourceKind.UserAssertion
                     ? string.Empty
                     : $" [source: {source.Kind}]";
-                var pack = string.IsNullOrWhiteSpace(source.SourceId)
+                var reference = string.IsNullOrWhiteSpace(source.SourceId)
                     ? string.Empty
-                    : $" [pack: {source.SourceId}]";
-                var statement = $"{source.SourceText}{referent}{origin}{pack}";
+                    : source.Kind switch
+                    {
+                        LatticeKnowledgeSourceKind.FoundationalKnowledge => $" [fact: {source.SourceId}]",
+                        LatticeKnowledgeSourceKind.ImportedClaim => $" [pack: {source.SourceId}]",
+                        LatticeKnowledgeSourceKind.ExternalObservation => $" [observation: {source.SourceId}]",
+                        _ => string.Empty
+                    };
+                var statement = $"{source.SourceText}{referent}{origin}{reference}";
 
                 if (emitted.Add(statement))
                 {

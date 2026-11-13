@@ -54,7 +54,6 @@ public sealed class SemanticTaxonomyRelationTests
     public void Uses_one_relation_graph_for_taxonomy_and_individual_membership()
     {
         var loader = new SemanticWorldModelLoader();
-
         Assert.True(loader.TryLoad(ValidModel, out var model, out var error), error);
 
         Assert.Equal(3, model!.RelationAssertions.Length);
@@ -64,13 +63,8 @@ public sealed class SemanticTaxonomyRelationTests
         Assert.True(reasoner.IsInstanceOf("tope", "animal"));
         Assert.True(reasoner.IsInstanceOf("tope", "entity"));
         Assert.True(reasoner.IsSubtypeOf("fish", "entity"));
-
-        Assert.Equal(
-            new[] { "animal" },
-            reasoner.GetDirectSupertypes("fish"));
-        Assert.Equal(
-            new[] { "fish" },
-            reasoner.GetDirectSubtypes("animal"));
+        Assert.Equal(new[] { "animal" }, reasoner.GetDirectSupertypes("fish"));
+        Assert.Equal(new[] { "fish" }, reasoner.GetDirectSubtypes("animal"));
 
         var evidence = reasoner.GetMembershipEvidence("tope", "entity");
         Assert.Contains(evidence, source =>
@@ -85,8 +79,8 @@ public sealed class SemanticTaxonomyRelationTests
     public void Rejects_type_assertions_with_the_wrong_relation_argument_kinds()
     {
         var json = ValidModel.Replace(
-            """{ "subject": "tope", "relation": "instance-of", "object": "fish" }""",
-            """{ "subject": "tope", "relation": "is-a", "object": "animal" }""",
+            "{ \"subject\": \"tope\", \"relation\": \"instance-of\", \"object\": \"fish\" }",
+            "{ \"subject\": \"tope\", \"relation\": \"is-a\", \"object\": \"animal\" }",
             StringComparison.Ordinal);
         var loader = new SemanticWorldModelLoader();
 
@@ -98,16 +92,8 @@ public sealed class SemanticTaxonomyRelationTests
     public void Rejects_cyclic_is_a_relations()
     {
         var json = ValidModel.Replace(
-            """
-                { "subject": "fish", "relation": "is-a", "object": "animal" },
-                { "subject": "animal", "relation": "is-a", "object": "entity" },
-                { "subject": "tope", "relation": "instance-of", "object": "fish" }
-            """,
-            """
-                { "subject": "fish", "relation": "is-a", "object": "animal" },
-                { "subject": "animal", "relation": "is-a", "object": "fish" },
-                { "subject": "tope", "relation": "instance-of", "object": "fish" }
-            """,
+            "\"object\": \"entity\"",
+            "\"object\": \"fish\"",
             StringComparison.Ordinal);
         var loader = new SemanticWorldModelLoader();
 
@@ -120,17 +106,16 @@ public sealed class SemanticTaxonomyRelationTests
     public void Rejects_legacy_hierarchy_and_provenance_fields_in_version_three()
     {
         var withParents = ValidModel.Replace(
-            """{ "concept": "fish", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }""",
-            """{ "concept": "fish", "parents": [], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }""",
+            "\"concept\": \"fish\", \"definitionKind\"",
+            "\"concept\": \"fish\", \"parents\": [], \"definitionKind\"",
             StringComparison.Ordinal);
         var withTypeAssertions = ValidModel.Replace(
-            """  "relationAssertions": [""",
-            """  "typeAssertions": [],
-          "relationAssertions": [""",
+            "\"relationAssertions\": [",
+            "\"typeAssertions\": [], \"relationAssertions\": [",
             StringComparison.Ordinal);
         var withProse = ValidModel.Replace(
-            """{ "subject": "tope", "relation": "instance-of", "object": "fish" }""",
-            """{ "subject": "tope", "relation": "instance-of", "object": "fish", "sourceText": "Tope is a fish." }""",
+            "{ \"subject\": \"tope\", \"relation\": \"instance-of\", \"object\": \"fish\" }",
+            "{ \"subject\": \"tope\", \"relation\": \"instance-of\", \"object\": \"fish\", \"sourceText\": \"Tope is a fish.\" }",
             StringComparison.Ordinal);
         var loader = new SemanticWorldModelLoader();
 

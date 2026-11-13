@@ -97,10 +97,16 @@ internal static class CliTextFormatter
             var origin = source.Kind == LatticeKnowledgeSourceKind.UserAssertion
                 ? string.Empty
                 : $" [source: {source.Kind}]";
-            var pack = string.IsNullOrWhiteSpace(source.SourceId)
+            var reference = string.IsNullOrWhiteSpace(source.SourceId)
                 ? string.Empty
-                : $" [pack: {source.SourceId}]";
-            yield return $"{source.SourceText}{origin}{pack}";
+                : source.Kind switch
+                {
+                    LatticeKnowledgeSourceKind.FoundationalKnowledge => $" [fact: {source.SourceId}]",
+                    LatticeKnowledgeSourceKind.ImportedClaim => $" [pack: {source.SourceId}]",
+                    LatticeKnowledgeSourceKind.ExternalObservation => $" [observation: {source.SourceId}]",
+                    _ => string.Empty
+                };
+            yield return $"{source.SourceText}{origin}{reference}";
         }
     }
 }
