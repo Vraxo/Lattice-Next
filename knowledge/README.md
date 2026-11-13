@@ -6,8 +6,10 @@ through the same knowledge-pack loader as external packs, and available without
 a user import or a working-directory dependency.
 
 The core model is intentionally small and foundational. It is not a catalogue
-of prewritten answers: it stores structured assertions and general rules that
-the reasoning and explanation layers can inspect and compose.
+of prewritten answers: it stores structured assertions, general rules, and typed
+reference metadata that the reasoning and response layers can inspect and
+compose. Reference attributes are marked as non-candidates so they do not leak
+into unrelated objective comparisons.
 
 Additional domain packs remain useful for specialized or changing information.
 They extend the same session knowledge base and retain their own provenance.
