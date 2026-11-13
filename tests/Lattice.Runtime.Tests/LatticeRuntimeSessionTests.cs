@@ -256,7 +256,6 @@ public sealed class LatticeRuntimeSessionTests
                     source.SourceId == "core-world-model" &&
                     source.SourceText == claim));
         }
-    }
 
         var pianoSoundProduction = await session.SubmitAsync(
             "Is Piano a struck-string-instrument?");
