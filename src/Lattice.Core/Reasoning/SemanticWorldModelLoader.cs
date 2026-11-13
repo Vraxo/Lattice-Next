@@ -679,9 +679,13 @@ public sealed class SemanticWorldModelLoader
             return [new SemanticRestriction(expression.Relation!, expression.TargetType!)];
         }
 
-        return expression.Operands
-            .SelectMany(GetExpressionRestrictions)
-            .ToImmutableArray();
+        var restrictions = ImmutableArray.CreateBuilder<SemanticRestriction>();
+        foreach (var operand in expression.Operands)
+        {
+            restrictions.AddRange(GetExpressionRestrictions(operand));
+        }
+
+        return restrictions.ToImmutable();
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
