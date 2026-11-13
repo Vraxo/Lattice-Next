@@ -72,7 +72,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"A {type.Label} is {Indefinite(parent.Label)} {parent.Label} that {JoinConditions(conditionPhrases)}.";
+        message = $"{Capitalize(Indefinite(type.Label))} is {Indefinite(parent.Label)} that {JoinConditions(conditionPhrases)}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
         return true;
     }
@@ -602,10 +602,17 @@ internal static class SemanticWorldModelResponder
             _ => $"{string.Join(", ", names.Take(names.Count - 1))}, and {names[^1]}"
         };
 
-    private static string Indefinite(string phrase) =>
-        phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
-            ? "an"
-            : "a";
+    private static string Indefinite(string phrase)
+    {
+        if (phrase is "monopsony power" or "buyer market power" or "market power" or "software" or "straightness")
+        {
+            return phrase;
+        }
+
+        return phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
+            ? $"an {phrase}"
+            : $"a {phrase}";
+    }
 
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
