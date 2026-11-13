@@ -63,7 +63,7 @@ internal static class SemanticWorldModelResponder
         }
 
         message = $"A {type.Label} is {Indefinite(parent.Label)} {parent.Label} that {JoinConditions(conditionPhrases)}.";
-        evidence = ToEvidence([definition.Source], LatticeEvidenceKind.Asserted);
+        evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
         return true;
     }
 
