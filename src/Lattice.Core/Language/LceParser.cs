@@ -363,6 +363,11 @@ public sealed class LceParser
 
         var source = input.Trim();
 
+        if (ChoiceQuestionParser.TryParse(source, out var choiceQuestionUtterance))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(choiceQuestionUtterance!));
+        }
+
         if (TaskRequestParser.TryParse(source, source, out var taskRequestUtterance))
         {
             return TextParseResult.Success(ImmutableArray.Create(taskRequestUtterance!));
