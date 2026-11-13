@@ -13,6 +13,7 @@ public sealed record BenchmarkRunReport(
     int ExecutedRuns,
     int HandledRuns,
     int AnsweredRuns,
+    int SubstantiveAnswerRuns,
     int UnhandledRuns,
     int RunnerErrorRuns,
     int StablePromptCount,

@@ -7,13 +7,15 @@
   "scoring_guidance": {
     "primary": "Assess whether the system correctly interprets the request, its entities, relations, constraints, requested output, and uncertainty.",
     "secondary": "Assess task usefulness separately from interpretation correctness.",
-    "note": "Do not treat a plausible answer as proof that the request was understood. Human review is required for open-ended quality judgments."
+    "note": "Do not treat a plausible answer as proof that the request was understood. Human review is required for open-ended quality judgments.",
+    "substantive_answer_criteria": "Count a prompt only after a human has inspected its current response and confirmed that it directly addresses the requested task with meaningful content. Exclude objective retention, unavailable-knowledge responses, generic acknowledgements, empty responses, and irrelevant output. This is a coverage milestone, not a guarantee that every factual claim is independently verified. New answers remain uncounted until reviewed."
   },
   "counts": {
     "total": 34,
     "dolly": 30,
     "oasst1": 4,
-    "wildchat": 0
+    "wildchat": 0,
+    "substantive_answer_reviewed": 6
   },
   "records": [
     {
@@ -32,7 +34,8 @@
         "source_kind": "community conversation prompt",
         "license": "Apache-2.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-c522beae-5a33-48c1-aee3-19f32fc3f0af",
@@ -50,7 +53,8 @@
         "source_kind": "community conversation prompt",
         "license": "Apache-2.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-3b863a2e-f80a-4520-b305-e7836636f2bf",
@@ -68,7 +72,8 @@
         "source_kind": "community conversation prompt",
         "license": "Apache-2.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "oasst1-c8262e6c-978f-4ad7-a849-39a741fb5ae7",
@@ -87,7 +92,8 @@
         "source_kind": "community conversation prompt",
         "license": "Apache-2.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-001",
@@ -102,7 +108,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-002",
@@ -117,7 +124,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-003",
@@ -132,7 +140,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-004",
@@ -147,7 +156,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-005",
@@ -162,7 +172,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-006",
@@ -177,7 +188,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-007",
@@ -192,7 +204,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-008",
@@ -207,7 +220,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-009",
@@ -222,7 +236,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-010",
@@ -237,7 +252,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-011",
@@ -252,7 +268,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-012",
@@ -267,7 +284,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-013",
@@ -282,7 +300,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-014",
@@ -297,7 +316,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-015",
@@ -312,7 +332,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-016",
@@ -327,7 +348,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-017",
@@ -342,7 +364,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-018",
@@ -357,7 +380,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-019",
@@ -372,7 +396,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-020",
@@ -387,7 +412,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-021",
@@ -402,7 +428,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-022",
@@ -417,7 +444,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-023",
@@ -432,7 +460,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-024",
@@ -447,7 +476,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-025",
@@ -462,7 +492,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-026",
@@ -477,7 +508,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-027",
@@ -492,7 +524,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-028",
@@ -507,7 +540,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-029",
@@ -522,7 +556,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-030",
@@ -537,7 +572,8 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     }
   ]
 }

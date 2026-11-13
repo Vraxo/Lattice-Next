@@ -24,7 +24,14 @@ public sealed class AssistantBenchmarkRunnerTests
               "records": [
                 {
                   "id": "known-fact",
-                  "prompt": "Fido is a dog. Is Fido a dog?",
+                  "prompt": "What is a polygon?",
+                  "category": "reasoning",
+                  "evaluation_layer": "test",
+                  "substantive_answer_reviewed": true
+                },
+                {
+                  "id": "unreviewed-answer",
+                  "prompt": "What is a verb?",
                   "category": "reasoning",
                   "evaluation_layer": "test"
                 },
@@ -47,18 +54,29 @@ public sealed class AssistantBenchmarkRunnerTests
                     markdownPath,
                     Repeat: 2));
 
-            Assert.Equal(2, report.PromptCount);
-            Assert.Equal(4, report.ExecutedRuns);
-            Assert.Equal(4, report.HandledRuns);
-            Assert.Equal(2, report.AnsweredRuns);
+            Assert.Equal(3, report.PromptCount);
+            Assert.Equal(6, report.ExecutedRuns);
+            Assert.Equal(6, report.HandledRuns);
+            Assert.Equal(4, report.AnsweredRuns);
+            Assert.Equal(2, report.SubstantiveAnswerRuns);
             Assert.Equal(0, report.UnhandledRuns);
-            Assert.Equal(2, report.StablePromptCount);
-            Assert.Equal(4, report.Results.Count);
+            Assert.Equal(3, report.StablePromptCount);
+            Assert.Equal(6, report.Results.Count);
             Assert.All(report.Results, result => Assert.Equal("Handled", result.RunStatus));
             Assert.Equal(
-                2,
+                4,
                 report.Results.Count(result => result.UtteranceKinds.Contains("QuestionAnswered", StringComparer.Ordinal)));
-            Assert.Equal(2, report.Categories.Sum(group => group.AnsweredRuns));
+            Assert.Equal(2, report.Categories.Sum(group => group.SubstantiveAnswerRuns));
+            Assert.All(
+                report.Results.Where(result => result.Id == "known-fact"),
+                result =>
+                {
+                    Assert.True(result.SubstantiveAnswerReviewed);
+                    Assert.True(result.HasNonEmptyAnswerMessage);
+                });
+            Assert.All(
+                report.Results.Where(result => result.Id == "unreviewed-answer"),
+                result => Assert.False(result.SubstantiveAnswerReviewed));
 
             var sessionIds = report.Results
                 .Select(result =>
@@ -68,12 +86,13 @@ public sealed class AssistantBenchmarkRunnerTests
                 })
                 .ToArray();
 
-            Assert.Equal(4, sessionIds.Distinct(StringComparer.Ordinal).Count());
+            Assert.Equal(6, sessionIds.Distinct(StringComparer.Ordinal).Count());
             Assert.True(File.Exists(jsonPath));
             Assert.True(File.Exists(markdownPath));
             var markdown = await File.ReadAllTextAsync(markdownPath);
-            Assert.Contains("“Answered” counts prompts that produced a", markdown);
-            Assert.Contains("2/2 answered", markdown);
+            Assert.Contains("“Substantive answers” counts only prompts explicitly marked", markdown);
+            Assert.Contains("2/2 substantive", markdown);
+            Assert.Contains("0/2 substantive", markdown);
         }
         finally
         {

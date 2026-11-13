@@ -102,7 +102,13 @@ dotnet run --project tools/Lattice.Assistant.Benchmark -- --id dolly-001 --id do
 dotnet run --project tools/Lattice.Assistant.Benchmark -- --repeat 5 --fail-on-unhandled
 ```
 
-The default repeat count is one. Repetitions are useful for detecting instability, but deterministic identical runs do not add evidence of answer quality. The runner reports **handled** when the CLI completes a turn without rejecting it; this is an execution metric, not a correctness score. There are currently no gold answers or human-reviewed semantic annotations for this prompt set, so the runner deliberately does not claim an accuracy percentage. The separate diagnostics JSON is not silently mixed into this source-prompt run.
+The default repeat count is one. Repetitions are useful for detecting instability, but deterministic identical runs do not add evidence of answer quality. The runner reports three distinct measures:
+
+- **Substantive answers** are the primary progress metric. A prompt is counted only when its current run produces a non-empty `QuestionAnswered` response and the benchmark record is explicitly marked `substantive_answer_reviewed: true` after human inspection. Newly answered prompts remain uncounted until reviewed. This measures coverage of useful responses, not a full factual-accuracy score.
+- **Answered** counts every `QuestionAnswered` utterance, regardless of whether a human has reviewed its usefulness.
+- **Handled** means the CLI completed a turn without rejecting it. This includes unavailable-knowledge responses and retained objectives, so it is only an execution metric.
+
+At the current checkpoint, **6 of 34 prompts** have been reviewed and accepted as substantive answers: the two OASST1 prompts about monopsony and chemical-process packages, plus Dolly prompts `dolly-001`, `dolly-006`, `dolly-010`, and `dolly-015`. This is a manually reviewed coverage milestone, not a statistically representative capability or accuracy score. The separate diagnostics JSON is not silently mixed into this source-prompt run.
 
 The runner itself is included in `Lattice.slnx` and has integration tests verifying fresh-session isolation, report generation, filtering, and invalid benchmark rejection.
 
