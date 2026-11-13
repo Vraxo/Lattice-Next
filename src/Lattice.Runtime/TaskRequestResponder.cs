@@ -60,15 +60,27 @@ internal static class TaskRequestResponder
             return false;
         }
 
+        var buyerMarketStructure = model.FindConcept("buyer-market-structure", SemanticConceptKind.Type);
+        var wageSettingPower = model.FindConcept("wage-setting-power", SemanticConceptKind.Type);
+        var wageMarkdown = model.FindConcept("wage-markdown", SemanticConceptKind.Type);
+        var powerDefinition = model.FindDefinition("monopsony-power");
+        if (buyerMarketStructure is null ||
+            wageSettingPower is null ||
+            wageMarkdown is null ||
+            powerDefinition is null ||
+            !powerDefinition.ParentTypes.Contains(wageSettingPower.Id, StringComparer.Ordinal) ||
+            !powerDefinition.EquivalentConditions.Any(condition =>
+                condition.Relation == "has-market-power-effect" &&
+                condition.TargetType == wageMarkdown.Id))
+        {
+            return false;
+        }
+
         var paragraphs = new List<string>
         {
             definition,
-            "In labour markets, monopsony power describes a buyer's ability to influence the wages it pays. The semantic model links that power to wage markdowns below workers' marginal revenue product and to mechanisms that can weaken workers' alternatives."
+            $"The model distinguishes monopsony as a {buyerMarketStructure.Label} from monopsony power, a {wageSettingPower.Label} whose modeled effect is a {wageMarkdown.Label}."
         };
-        if (reasoner.IsInstanceOf("labor-market-monopsony-power", "wage-setting-power"))
-        {
-            paragraphs.Add("Monopsony power is a form of wage-setting power; the modeled effect is a wage markdown below marginal revenue product.");
-        }
         var sources = definitionEvidence
             .Concat(causesEvidence)
             .SelectMany(item => item.Sources)
@@ -288,7 +300,7 @@ internal static class TaskRequestResponder
             return false;
         }
 
-        message = $"For example, a labour market in a rural town has {buyer.Label} as its dominant buyer and includes {workerGroup.Label}, whose outside options are limited.";
+        message = $"For example, a labour market in a rural town has {IndefinitePhrase(buyer.Label)} as its dominant buyer and includes {workerGroup.Label}, whose outside options are limited.";
         sources = ImmutableArray.Create(dominantBuyer.Source, workers.Source)
             .AddRange(reasoner.GetMembershipEvidence(workerGroup.Id, "limited-outside-options"));
         return true;
@@ -371,6 +383,11 @@ internal static class TaskRequestResponder
             source.SourceId,
             null,
             source.SourceUrl);
+
+    private static string IndefinitePhrase(string value) =>
+        value.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(value[0]))
+            ? $"an {value}"
+            : $"a {value}";
 
     private static string JoinNames(IReadOnlyList<string> names) =>
         names.Count switch
