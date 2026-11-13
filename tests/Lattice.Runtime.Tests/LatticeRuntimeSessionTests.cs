@@ -125,16 +125,14 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(
-            "A polygon is a geometric shape with a closed boundary. Every boundary has a line segment. Every line segment is straight.",
+            "A polygon is a plane figure that has a closed boundary.",
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
-        Assert.Equal(4, result.Utterances[0].SupportingEvidence.Length);
-        Assert.All(
-            result.Utterances[0].SupportingEvidence,
-            evidence => Assert.Contains(
-                evidence.Sources,
-                source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
-                    source.SourceId == "core-world-model"));
+        var definitionEvidence = Assert.Single(result.Utterances[0].SupportingEvidence);
+        Assert.Contains(
+            definitionEvidence.Sources,
+            source => source.SourceId == "core-world-model" &&
+                source.SourceText == "Existing core-world-model geometry claim migrated into typed concepts and relations.");
     }
 
     [Fact]
@@ -150,13 +148,138 @@ public sealed class LatticeRuntimeSessionTests
             "A verb is a part of speech that expresses an action or state.",
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(verb))", result.Utterances[0].Meaning);
-        Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
+        var definitionEvidence = Assert.Single(result.Utterances[0].SupportingEvidence);
+        Assert.Contains(
+            definitionEvidence.Sources,
+            source => source.SourceId == "core-world-model" &&
+                source.SourceText == "Existing core-world-model grammar claim migrated into typed concepts and relations.");
+    }
+
+
+    [Fact]
+    public async Task Loads_only_the_typed_semantic_model_as_foundational_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var status = await session.GetStatusAsync();
+
+        Assert.Equal(0, status.FactCount);
+        Assert.Equal(0, status.RuleCount);
+        Assert.Equal(0, status.LoadedKnowledgePackCount);
+        Assert.Equal(189, status.SemanticConceptCount);
+        Assert.Equal(33, status.SemanticRelationCount);
+        Assert.Equal(6, status.SemanticDataAssertionCount);
+
+        var tope = await session.SubmitAsync("Is Tope a fish?");
+        var answer = Assert.Single(tope.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(LatticeTruthValue.True, answer.TruthValue);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Tope is a fish."));
+    }
+
+    [Fact]
+    public async Task Answers_geometry_and_language_questions_from_typed_structures()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var polygon = await session.SubmitAsync("What is a polygon?");
+        var boundary = await session.SubmitAsync("What is a boundary?");
+        var segment = await session.SubmitAsync("What is a line segment?");
+        var verb = await session.SubmitAsync("What is a verb?");
+
+        Assert.Equal(
+            "A polygon is a plane figure that has a closed boundary.",
+            Assert.Single(polygon.Utterances).Message);
+        Assert.Equal(
+            "A boundary is a geometric structure that contains a line segment.",
+            Assert.Single(boundary.Utterances).Message);
+        Assert.Equal(
+            "A line segment is a geometric element that has a geometric point as its start point, has a geometric point as its end point, and has straightness.",
+            Assert.Single(segment.Utterances).Message);
+        Assert.Equal(
+            "A verb is a part of speech that expresses an action or state.",
+            Assert.Single(verb.Utterances).Message);
+
         Assert.All(
-            result.Utterances[0].SupportingEvidence,
-            evidence => Assert.Contains(
-                evidence.Sources,
-                source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
-                    source.SourceId == "core-world-model"));
+            new[] { polygon, boundary, segment, verb },
+            turn => Assert.Equal(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                Assert.Single(turn.Utterances).Kind));
+        Assert.Contains(
+            polygon.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model" &&
+                source.SourceText == "Existing core-world-model geometry claim migrated into typed concepts and relations."));
+    }
+
+    [Fact]
+    public async Task Answers_monopsony_questions_from_structured_market_and_mechanism_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var monopsony = await session.SubmitAsync("What is a monopsony?");
+        var power = await session.SubmitAsync("What is monopsony power?");
+        var causes = await session.SubmitAsync("What causes monopsony power?");
+
+        Assert.Equal(
+            "A monopsony is a buyer market structure that has a dominant buyer.",
+            Assert.Single(monopsony.Utterances).Message);
+        Assert.Equal(
+            "Monopsony power is buyer market power that has a wage markdown.",
+            Assert.Single(power.Utterances).Message);
+        Assert.Equal(
+            "Monopsony power can arise through employer concentration, job differentiation, and search frictions.",
+            Assert.Single(causes.Utterances).Message);
+        Assert.All(
+            new[] { monopsony, power, causes },
+            turn => Assert.Equal(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                Assert.Single(turn.Utterances).Kind));
+        Assert.Contains(
+            causes.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceUrl == "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"));
+    }
+
+    [Fact]
+    public async Task Describes_software_profiles_from_capability_relations_and_typed_documentation_uris()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var idaes = await session.SubmitAsync("What is IDAES?");
+        var biosteam = await session.SubmitAsync("What is BioSTEAM?");
+        var pyomo = await session.SubmitAsync("What is Pyomo?");
+
+        var idaesMessage = Assert.Single(idaes.Utterances).Message;
+        var biosteamMessage = Assert.Single(biosteam.Utterances).Message;
+        var pyomoMessage = Assert.Single(pyomo.Utterances).Message;
+
+        Assert.Contains("process systems engineering framework", idaesMessage);
+        Assert.Contains("equation-oriented process modeling", idaesMessage);
+        Assert.Contains("https://idaes-pse.readthedocs.io/en/stable/", idaesMessage);
+        Assert.Contains("biorefinery modeling framework", biosteamMessage);
+        Assert.Contains("techno-economic analysis", biosteamMessage);
+        Assert.Contains("https://biosteam.readthedocs.io/en/latest/", biosteamMessage);
+        Assert.Contains("optimization modeling framework", pyomoMessage);
+        Assert.Contains("mixed-integer optimization", pyomoMessage);
+        Assert.Contains("https://pyomo.readthedocs.io/en/stable/", pyomoMessage);
+        Assert.All(
+            new[] { idaes, biosteam, pyomo },
+            turn => Assert.Equal(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                Assert.Single(turn.Utterances).Kind));
+        Assert.Contains(
+            idaes.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceUrl == "https://idaes.org/overview/"));
     }
 
     [Fact]
