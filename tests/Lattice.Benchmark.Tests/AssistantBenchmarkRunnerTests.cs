@@ -27,6 +27,12 @@ public sealed class AssistantBenchmarkRunnerTests
                   "prompt": "Fido is a dog. Is Fido a dog?",
                   "category": "reasoning",
                   "evaluation_layer": "test"
+                },
+                {
+                  "id": "unknown-concept",
+                  "prompt": "What is a quark?",
+                  "category": "knowledge",
+                  "evaluation_layer": "test"
                 }
               ]
             }
@@ -41,13 +47,18 @@ public sealed class AssistantBenchmarkRunnerTests
                     markdownPath,
                     Repeat: 2));
 
-            Assert.Equal(1, report.PromptCount);
-            Assert.Equal(2, report.ExecutedRuns);
-            Assert.Equal(2, report.HandledRuns);
+            Assert.Equal(2, report.PromptCount);
+            Assert.Equal(4, report.ExecutedRuns);
+            Assert.Equal(4, report.HandledRuns);
+            Assert.Equal(2, report.AnsweredRuns);
             Assert.Equal(0, report.UnhandledRuns);
-            Assert.Equal(1, report.StablePromptCount);
-            Assert.Equal(2, report.Results.Count);
+            Assert.Equal(2, report.StablePromptCount);
+            Assert.Equal(4, report.Results.Count);
             Assert.All(report.Results, result => Assert.Equal("Handled", result.RunStatus));
+            Assert.Equal(
+                2,
+                report.Results.Count(result => result.UtteranceKinds.Contains("QuestionAnswered", StringComparer.Ordinal)));
+            Assert.Equal(2, report.Categories.Sum(group => group.AnsweredRuns));
 
             var sessionIds = report.Results
                 .Select(result =>
@@ -60,7 +71,9 @@ public sealed class AssistantBenchmarkRunnerTests
             Assert.Equal(2, sessionIds.Distinct(StringComparer.Ordinal).Count());
             Assert.True(File.Exists(jsonPath));
             Assert.True(File.Exists(markdownPath));
-            Assert.Contains("does not establish factual accuracy", await File.ReadAllTextAsync(markdownPath));
+            var markdown = await File.ReadAllTextAsync(markdownPath);
+            Assert.Contains("Answered counts prompts that produced a", markdown);
+            Assert.Contains("2 answered", markdown);
         }
         finally
         {
