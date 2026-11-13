@@ -28,23 +28,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     public LatticeRuntimeSession()
     {
-        using var stream = typeof(LatticeRuntimeSession).Assembly.GetManifestResourceStream(
-            "Lattice.Runtime.CoreWorldModel.json")
-            ?? throw new InvalidOperationException("The embedded core world model is missing.");
-        using var reader = new StreamReader(stream);
-
-        if (!knowledgePackLoader.TryLoadAndAdd(
-            reader.ReadToEnd(),
-            knowledgeBase,
-            out var pack,
-            out var error))
-        {
-            throw new InvalidOperationException(
-                error ?? "The embedded core world model could not be loaded.");
-        }
-
-        loadedPacks.Add(pack!);
-
         using var semanticStream = typeof(LatticeRuntimeSession).Assembly.GetManifestResourceStream(
             "Lattice.Runtime.CoreSemanticWorldModel.json")
             ?? throw new InvalidOperationException("The embedded semantic world model is missing.");
@@ -53,7 +36,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (!new SemanticWorldModelLoader().TryLoad(
             semanticReader.ReadToEnd(),
             out var loadedSemanticWorldModel,
-            out error))
+            out var error))
         {
             throw new InvalidOperationException(
                 error ?? "The embedded semantic world model could not be loaded.");
@@ -719,6 +702,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (SemanticWorldModelResponder.TryDefinition(
             requestedConcept,
             semanticWorldModel,
+            semanticWorldModelReasoner,
             out var semanticMessage,
             out var semanticEvidence))
         {
