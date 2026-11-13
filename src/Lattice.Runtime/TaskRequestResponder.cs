@@ -65,6 +65,10 @@ internal static class TaskRequestResponder
             definition,
             "In labour markets, monopsony power describes a buyer's ability to influence the wages it pays. The semantic model links that power to wage markdowns below workers' marginal revenue product and to mechanisms that can weaken workers' alternatives."
         };
+        if (reasoner.IsInstanceOf("labor-market-monopsony-power", "wage-setting-power"))
+        {
+            paragraphs.Add("Monopsony power is a form of wage-setting power; the modeled effect is a wage markdown below marginal revenue product.");
+        }
         var sources = definitionEvidence
             .Concat(causesEvidence)
             .SelectMany(item => item.Sources)
