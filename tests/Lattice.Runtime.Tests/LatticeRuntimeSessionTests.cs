@@ -232,7 +232,7 @@ public sealed class LatticeRuntimeSessionTests
             "A monopsony is a buyer market structure that has a dominant buyer.",
             Assert.Single(monopsony.Utterances).Message);
         Assert.Equal(
-            "Monopsony power is buyer market power that has a wage markdown.",
+            "Monopsony power is a wage-setting power that has a wage markdown.",
             Assert.Single(power.Utterances).Message);
         var causesMessage = Assert.Single(causes.Utterances).Message;
         Assert.StartsWith(
