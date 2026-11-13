@@ -101,7 +101,7 @@ internal static class SemanticWorldModelResponder
                 var sources = reasoner.GetMembershipEvidence(item.Id, categoryType.Id);
                 if (!sources.IsDefaultOrEmpty)
                 {
-                    matching.Add((category.Label, sources));
+                    matching.Add((category.Value, sources));
                 }
             }
 
@@ -315,16 +315,20 @@ internal static class SemanticWorldModelResponder
 
             var firstTypes = reasoner.GetTypes(firstObject.Id).ToHashSet(StringComparer.Ordinal);
             var secondTypes = reasoner.GetTypes(secondObject.Id).ToHashSet(StringComparer.Ordinal);
-            var sharedType = firstTypes.Intersect(secondTypes, StringComparer.Ordinal)
+            var sharedTypes = firstTypes.Intersect(secondTypes, StringComparer.Ordinal).ToArray();
+            var sharedType = sharedTypes
+                .Where(candidate => !sharedTypes.Any(other =>
+                    other != candidate && IsSubtype(other, candidate, model)))
                 .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
                 .Where(type => type is not null)
-                .OrderByDescending(type => reasoner.GetTypes(firstObject.Id)
-                    .Count(candidate => IsSubtype(candidate, type!.Id, model)))
+                .OrderBy(type => type!.Label, StringComparer.Ordinal)
                 .FirstOrDefault();
 
             if (sharedType is not null)
             {
-                clauses.Add($"Both {FormatRelationTarget(relation, sharedType.Label)}");
+                var verb = relation.Verb == "has" ? "have" : relation.Verb;
+                var role = relation.ObjectRole?.Replace("its", "their", StringComparison.Ordinal) ?? string.Empty;
+                clauses.Add($"Both {verb} {Indefinite(sharedType.Label)} {sharedType.Label} {role}".TrimEnd());
             }
             else
             {
