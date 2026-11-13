@@ -547,7 +547,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         var meaning = SemanticFormatter.Format(utterance);
 
-        if (!ConceptKnowledgeFormatter.TryCreate(knowledgeBase, requestedConcept, out var explanation))
+        if (!ConceptKnowledgeFormatter.TryCreate(knowledgeBase, reasoningEngine, requestedConcept, out var explanation))
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
