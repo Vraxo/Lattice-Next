@@ -104,11 +104,12 @@ internal static class ConceptKnowledgeFormatter
         foreach (var fact in factsForConcept.Where(fact => fact.Predicate.Arguments.Length == 2))
         {
             if (evidence.Count >= MaximumFacts ||
-                fact.Predicate.Arguments[1] is not (IndividualTerm or AnonymousIndividualTerm) target)
+                fact.Predicate.Arguments[1] is not (IndividualTerm or AnonymousIndividualTerm))
             {
                 continue;
             }
 
+            var target = fact.Predicate.Arguments[1];
             var polarity = fact.Polarity == EvidencePolarity.Negative ? "not " : string.Empty;
             lines.Add($"{indent}- {polarity}{DisplayIdentifier(fact.Predicate.Predicate.Value)} → {DescribeIndividual(target, facts)}");
             evidence.Add(MapEvidence(fact));
