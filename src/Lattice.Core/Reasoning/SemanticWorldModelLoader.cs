@@ -256,8 +256,8 @@ public sealed class SemanticWorldModelLoader
             }
 
             SemanticDefinitionKind definitionKind;
-            SemanticClassExpression? equivalentExpression;
-            ImmutableArray<SemanticRestriction> expressionRestrictions;
+            SemanticClassExpression? sufficientExpression;
+            ImmutableArray<SemanticRestriction> sufficientRestrictions;
 
             if (document.FormatVersion == 1)
             {
@@ -270,8 +270,8 @@ public sealed class SemanticWorldModelLoader
                 definitionKind = legacyConditions.Count == 0
                     ? SemanticDefinitionKind.Primitive
                     : SemanticDefinitionKind.Defined;
-                expressionRestrictions = legacyConditions.ToImmutable();
-                equivalentExpression = CreateConjunction(expressionRestrictions);
+                sufficientRestrictions = legacyConditions.ToImmutable();
+                sufficientExpression = CreateConjunction(sufficientRestrictions);
             }
             else
             {
@@ -284,14 +284,14 @@ public sealed class SemanticWorldModelLoader
                 }
 
                 if (!TryCreateExpression(item.Concept, item.SufficientExpression, concepts, relations,
-                    out equivalentExpression, out expressionRestrictions, out error))
+                    out sufficientExpression, out sufficientRestrictions, out error))
                 {
                     return false;
                 }
             }
 
-            if ((definitionKind == SemanticDefinitionKind.Defined && equivalentExpression is null) ||
-                (definitionKind == SemanticDefinitionKind.Primitive && equivalentExpression is not null) ||
+            if ((definitionKind == SemanticDefinitionKind.Defined && sufficientExpression is null) ||
+                (definitionKind == SemanticDefinitionKind.Primitive && sufficientExpression is not null) ||
                 (definitionKind == SemanticDefinitionKind.Defined && item.Parents.Count == 0))
             {
                 error = $"Type definition '{item.Concept}' has an inconsistent primitive/defined declaration.";
@@ -301,12 +301,12 @@ public sealed class SemanticWorldModelLoader
             builder.Add(new SemanticTypeDefinition(
                 item.Concept,
                 item.Parents.ToImmutableArray(),
-                GetSimpleConjunctionRestrictions(equivalentExpression),
+                GetSimpleSufficientRestrictions(sufficientExpression),
                 definitionSource!)
             {
                 DefinitionKind = definitionKind,
                 NecessaryConditions = necessaryConditions.ToImmutable(),
-                SufficientExpression = equivalentExpression
+                SufficientExpression = sufficientExpression
             });
         }
 
@@ -449,7 +449,7 @@ public sealed class SemanticWorldModelLoader
             : new SemanticClassExpression(SemanticClassExpressionKind.And, Operands: operands);
     }
 
-    private static ImmutableArray<SemanticRestriction> GetSimpleConjunctionRestrictions(
+    private static ImmutableArray<SemanticRestriction> GetSimpleSufficientRestrictions(
         SemanticClassExpression? expression)
     {
         if (expression is null)
