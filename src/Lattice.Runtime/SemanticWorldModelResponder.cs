@@ -304,6 +304,46 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    internal static bool TryChoice(
+        ChoiceQuestionFormula question,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        ArgumentNullException.ThrowIfNull(question);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(reasoner);
+
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var category = model.FindConcept(question.Category.Value, SemanticConceptKind.Type);
+        if (category is null)
+        {
+            return false;
+        }
+
+        var supported = question.Choices
+            .Select(choice => (
+                Choice: model.FindConcept(choice.Value, SemanticConceptKind.Individual),
+                Evidence: model.FindConcept(choice.Value, SemanticConceptKind.Individual) is { } individual
+                    ? reasoner.GetMembershipEvidence(individual.Id, category.Id)
+                    : ImmutableArray<SemanticWorldModelSource>.Empty))
+            .Where(candidate => candidate.Choice is not null && !candidate.Evidence.IsDefaultOrEmpty)
+            .ToArray();
+
+        if (supported.Length != 1)
+        {
+            return false;
+        }
+
+        message = $"{Capitalize(supported[0].Choice!.Label)} is a species of {category.Label}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            supported[0].Evidence,
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     internal static bool TryAskMembership(
         string individual,
         string type,
@@ -363,7 +403,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(IndefinitePhrase(individual.Label))} {individual.Label} is {IndefinitePhrase(type.Label)} because it {phrase}.";
+        message = $"{Capitalize(IndefinitePhrase(individual.Label))} is {IndefinitePhrase(type.Label)} because it {phrase}.";
         var sources = ImmutableArray.Create(definition.Source, relationAssertion.Source)
             .AddRange(GetTypeEvidence(relationAssertion.Object, matchedCondition.TargetType, model));
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
@@ -596,7 +636,7 @@ internal static class SemanticWorldModelResponder
         SemanticRelationDefinition relation,
         bool first)
     {
-        var prefix = first ? $"{Capitalize(Indefinite(subject.Label))} {subject.Label}" : $"The {subject.Label}";
+        var prefix = first ? Capitalize(IndefinitePhrase(subject.Label)) : $"The {subject.Label}";
         var objectPhrase = relation.ObjectRole is null
             ? $"the {target.Label}"
             : $"{IndefinitePhrase(target.Label)} {relation.ObjectRole}";
