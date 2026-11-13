@@ -46,6 +46,9 @@ public static class SemanticFormatter
         return $"definition({concept})";
     }
 
+    private static string FormatChoiceQuestion(ChoiceQuestionFormula choice) =>
+        $"choice({choice.Category.Value}, {string.Join(", ", choice.Choices.Select(item => item.Value))})";
+
     private static string FormatTaskRequest(TaskRequestFormula taskRequest)
     {
         var context = taskRequest.Context is null ? string.Empty : $"; context={taskRequest.Context}";
