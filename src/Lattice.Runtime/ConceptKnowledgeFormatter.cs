@@ -81,6 +81,7 @@ internal static class ConceptKnowledgeFormatter
                 fact.Predicate.Arguments[0] == subject &&
                 !IsConceptIdentity(fact.Predicate, subject))
             .OrderBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
+            .DistinctBy(GetFactKey)
             .ToArray();
 
         var directRelations = facts
@@ -90,6 +91,7 @@ internal static class ConceptKnowledgeFormatter
                 fact.Predicate.Arguments[0] == subject &&
                 fact.Predicate.Arguments[1] is IndividualTerm)
             .OrderBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
+            .DistinctBy(GetFactKey)
             .ToArray();
 
         var applicableRules = GetApplicableRules(subjectName, rules);
@@ -149,7 +151,7 @@ internal static class ConceptKnowledgeFormatter
                 evidence.Add(MapRuleEvidence(rule));
             }
 
-            sentences.Add(sentence.Append('.').ToString());
+            sentences.Add(Capitalize(sentence.Append('.').ToString()));
 
             foreach (var fact in unaryFacts)
             {
@@ -340,6 +342,9 @@ internal static class ConceptKnowledgeFormatter
             ? "instance"
             : DisplayIdentifier(descriptor);
     }
+
+    private static string GetFactKey(ProofNode proof) =>
+        $"{proof.Predicate.Predicate.Value}:{string.Join("|", proof.Predicate.Arguments)}:{proof.Polarity}";
 
     private static string GetConceptKey(SemanticTerm subject) =>
         subject switch
