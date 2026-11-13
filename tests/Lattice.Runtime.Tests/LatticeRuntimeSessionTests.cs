@@ -126,13 +126,7 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(
-            """
-            The available knowledge represents polygon through these connected facts and general rules:
-            - is → geometric shape
-            - every polygon has → closed boundary
-              - every boundary has → line segment
-                - every line segment is → straight
-            """,
+            "A polygon is a geometric shape with a closed boundary. Every boundary has a line segment. Every line segment is straight.",
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
         Assert.Equal(4, result.Utterances[0].SupportingEvidence.Length);
@@ -143,6 +137,24 @@ public sealed class LatticeRuntimeSessionTests
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
                     source.SourceId == "core-world-model"));
     }
+    [Fact]
+    public async Task Realizes_a_different_concept_from_its_own_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var loaded = await session.LoadKnowledgePackAsync(
+            """{"formatVersion":1,"id":"circles","name":"Circles","claims":["Circle is a geometric-shape."]}""");
+        var result = await session.SubmitAsync("What is a circle?");
+
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
+        Assert.Equal("A circle is a geometric shape.", result.Utterances[0].Message);
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source => source.SourceId == "circles"));
+    }
+
     [Fact]
     public async Task Reports_missing_concept_knowledge_as_unavailable()
     {
@@ -211,15 +223,37 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
-        Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source => source.SourceText == "Loop has Boundary."));
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source => source.SourceText == "Boundary has Loop."));
+        Assert.Contains("A loop has a boundary.", result.Utterances[0].Message);
+        Assert.Contains("A boundary has a loop.", result.Utterances[0].Message);
+        Assert.Contains("A boundary has a line segment.", result.Utterances[0].Message);
+        Assert.Contains("Every line segment is straight.", result.Utterances[0].Message);
         Assert.Equal(
-            """
-            The available knowledge represents loop through these connected facts and general rules:
-            - has → boundary
-              - has → loop
-            """,
-            result.Utterances[0].Message);
+            1,
+            CountOccurrences(result.Utterances[0].Message, "A loop has a boundary."));
+        Assert.Equal(
+            1,
+            CountOccurrences(result.Utterances[0].Message, "A boundary has a loop."));
     }
+    private static int CountOccurrences(string value, string fragment)
+    {
+        var count = 0;
+        var offset = 0;
+
+        while ((offset = value.IndexOf(fragment, offset, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            offset += fragment.Length;
+        }
+
+        return count;
+    }
+
     [Fact]
     public async Task Rejects_knowledge_pack_loading_after_session_disposal()
     {

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text;
 using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -13,7 +12,6 @@ internal sealed record ConceptKnowledgeExplanation(
 internal static class ConceptKnowledgeFormatter
 {
     private const int MaximumDepth = 8;
-    private const int MaximumNodes = 32;
     private const int MaximumFacts = 64;
 
     internal static bool TryCreate(
@@ -35,117 +33,261 @@ internal static class ConceptKnowledgeFormatter
         var root = new IndividualTerm(new SemanticIdentifier(
             concept.Trim().Replace(' ', '-').ToLowerInvariant()));
         var facts = reasoningEngine.GetKnownFacts(knowledgeBase);
-        var visitedIndividuals = new HashSet<SemanticTerm>();
-        var visitedRuleConcepts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var evidence = ImmutableArray.CreateBuilder<LatticeEvidence>();
-        var lines = new List<string>();
+        var sentences = new List<string>();
+        var visitedConcepts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        AppendConcept(root, facts, 0, visitedIndividuals, lines, evidence);
-        AppendGeneralRules(
-            root.Identifier.Value,
+        AppendConcept(
+            root,
+            facts,
             knowledgeBase.Rules,
             0,
-            visitedRuleConcepts,
-            lines,
+            visitedConcepts,
+            sentences,
             evidence);
 
-        if (lines.Count == 0)
+        if (sentences.Count == 0)
         {
             return false;
         }
 
-        var message = new StringBuilder()
-            .Append("The available knowledge represents ")
-            .Append(DisplayIdentifier(root.Identifier.Value))
-            .AppendLine(" through these connected facts and general rules:")
-            .Append(string.Join(Environment.NewLine, lines))
-            .ToString();
-
-        explanation = new ConceptKnowledgeExplanation(message, evidence.ToImmutable());
+        explanation = new ConceptKnowledgeExplanation(
+            string.Join(" ", sentences),
+            evidence
+                .DistinctBy(GetEvidenceKey)
+                .ToImmutableArray());
         return true;
     }
 
-    private static bool AppendConcept(
-        SemanticTerm concept,
+    private static void AppendConcept(
+        SemanticTerm subject,
         ImmutableArray<ProofNode> facts,
+        IReadOnlyList<UniversalRule> rules,
         int depth,
-        HashSet<SemanticTerm> visited,
-        List<string> lines,
+        HashSet<string> visited,
+        List<string> sentences,
         ImmutableArray<LatticeEvidence>.Builder evidence)
     {
         if (depth > MaximumDepth ||
-            visited.Count >= MaximumNodes ||
             evidence.Count >= MaximumFacts ||
-            !visited.Add(concept))
+            !visited.Add(GetConceptKey(subject)))
         {
-            return false;
+            return;
         }
 
-        var factsForConcept = facts
-            .Where(fact => HasSubject(fact.Predicate, concept))
+        var subjectName = GetSubjectName(subject, facts);
+        var unaryFacts = facts
             .Where(fact =>
-                fact.Predicate.Arguments.Length != 1 ||
-                !IsConceptIdentity(fact.Predicate, concept))
-            .OrderBy(fact => fact.Predicate.Arguments.Length == 1 ? 0 : 1)
-            .ThenBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
-            .ThenBy(fact => fact.Polarity)
+                fact.Polarity == EvidencePolarity.Positive &&
+                fact.Predicate.Arguments.Length == 1 &&
+                fact.Predicate.Arguments[0] == subject &&
+                !IsConceptIdentity(fact.Predicate, subject))
+            .OrderBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
+            .DistinctBy(GetFactKey)
             .ToArray();
 
-        var indent = new string(' ', depth * 2);
+        var directRelations = facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Positive &&
+                fact.Predicate.Arguments.Length == 2 &&
+                fact.Predicate.Arguments[0] == subject &&
+                fact.Predicate.Arguments[1] is IndividualTerm)
+            .OrderBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
+            .DistinctBy(GetFactKey)
+            .ToArray();
 
-        foreach (var fact in factsForConcept.Where(fact => fact.Predicate.Arguments.Length == 1))
+        var applicableRules = GetApplicableRules(subjectName, rules);
+        var existentialRules = applicableRules
+            .Where(rule => rule.ExistentialConclusion is not null)
+            .ToArray();
+        var unaryConclusionRules = applicableRules
+            .Where(rule =>
+                rule.ExistentialConclusion is null &&
+                rule.Conclusion.Arguments.Length == 1)
+            .ToArray();
+
+        var descriptions = unaryFacts
+            .Select(fact => DisplayIdentifier(fact.Predicate.Predicate.Value))
+            .ToArray();
+        var rootPrefix = Indefinite(subjectName);
+
+        if (descriptions.Length > 0 || existentialRules.Length > 0)
+        {
+            var sentence = new System.Text.StringBuilder(rootPrefix);
+
+            if (descriptions.Length > 0)
+            {
+                sentence.Append(" is ")
+                    .Append(string.Join(" and ", descriptions.Select(Indefinite)));
+            }
+
+            foreach (var rule in existentialRules)
+            {
+                var existential = rule.ExistentialConclusion!;
+                var descriptor = DescribeConditions(existential.Conditions);
+                if (descriptor is null)
+                {
+                    continue;
+                }
+
+                var relation = DisplayIdentifier(existential.Relation.Predicate.Value);
+                if (descriptions.Length > 0 &&
+                    string.Equals(relation, "has", StringComparison.OrdinalIgnoreCase))
+                {
+                    sentence.Append(" with ");
+                }
+                else if (descriptions.Length > 0)
+                {
+                    sentence.Append(" that ")
+                        .Append(relation)
+                        .Append(' ');
+                }
+                else
+                {
+                    sentence.Append(' ')
+                        .Append(relation)
+                        .Append(' ');
+                }
+
+                sentence.Append(Indefinite(descriptor));
+                evidence.Add(MapRuleEvidence(rule));
+            }
+
+            sentences.Add(Capitalize(sentence.Append('.').ToString()));
+
+            foreach (var fact in unaryFacts)
+            {
+                evidence.Add(MapEvidence(fact));
+            }
+        }
+
+        foreach (var relation in directRelations)
+        {
+            if (evidence.Count >= MaximumFacts ||
+                relation.Predicate.Arguments[1] is not IndividualTerm target)
+            {
+                break;
+            }
+
+            var relationName = DisplayIdentifier(relation.Predicate.Predicate.Value);
+            var targetName = DisplayIdentifier(target.Identifier.Value);
+            sentences.Add($"{Capitalize(Indefinite(subjectName))} {relationName} {Indefinite(targetName)}.");
+            evidence.Add(MapEvidence(relation));
+            AppendConcept(
+                target,
+                facts,
+                rules,
+                depth + 1,
+                visited,
+                sentences,
+                evidence);
+        }
+
+        foreach (var rule in existentialRules)
         {
             if (evidence.Count >= MaximumFacts)
             {
                 break;
             }
 
-            var polarity = fact.Polarity == EvidencePolarity.Negative ? "not " : string.Empty;
-            lines.Add($"{indent}- {polarity}is → {DisplayIdentifier(fact.Predicate.Predicate.Value)}");
-            evidence.Add(MapEvidence(fact));
-        }
-
-        foreach (var fact in factsForConcept.Where(fact => fact.Predicate.Arguments.Length == 2))
-        {
-            if (evidence.Count >= MaximumFacts ||
-                fact.Predicate.Arguments[1] is not (IndividualTerm or AnonymousIndividualTerm))
+            var existential = rule.ExistentialConclusion!;
+            var descriptor = DescribeConditions(existential.Conditions);
+            if (descriptor is null)
             {
                 continue;
             }
 
-            var target = fact.Predicate.Arguments[1];
-            var polarity = fact.Polarity == EvidencePolarity.Negative ? "not " : string.Empty;
-            lines.Add($"{indent}- {polarity}{DisplayIdentifier(fact.Predicate.Predicate.Value)} → {DescribeIndividual(target, facts)}");
-            evidence.Add(MapEvidence(fact));
-
-            if (fact.Polarity == EvidencePolarity.Positive &&
-                depth < MaximumDepth &&
-                visited.Count < MaximumNodes)
-            {
-                AppendConcept(target, facts, depth + 1, visited, lines, evidence);
-            }
+            var relatedConcept = existential.Conditions[^1].Predicate.Value;
+            AppendRelatedRules(
+                relatedConcept,
+                descriptor,
+                rules,
+                depth + 1,
+                visited,
+                sentences,
+                evidence);
         }
 
-        return factsForConcept.Length > 0;
+        foreach (var rule in unaryConclusionRules)
+        {
+            if (evidence.Count >= MaximumFacts)
+            {
+                break;
+            }
+
+            var conclusion = DisplayIdentifier(rule.Conclusion.Predicate.Value);
+            var polarity = rule.ConclusionPolarity == EvidencePolarity.Negative
+                ? " is not "
+                : " is ";
+            sentences.Add($"Every {subjectName}{polarity}{conclusion}.");
+            evidence.Add(MapRuleEvidence(rule));
+        }
     }
 
-    private static void AppendGeneralRules(
+    private static void AppendRelatedRules(
         string concept,
+        string descriptor,
         IReadOnlyList<UniversalRule> rules,
         int depth,
         HashSet<string> visited,
-        List<string> lines,
+        List<string> sentences,
         ImmutableArray<LatticeEvidence>.Builder evidence)
     {
         if (depth > MaximumDepth ||
-            visited.Count >= MaximumNodes ||
             evidence.Count >= MaximumFacts ||
             !visited.Add(concept))
         {
             return;
         }
 
-        var applicableRules = rules
+        var applicableRules = GetApplicableRules(concept, rules);
+        foreach (var rule in applicableRules)
+        {
+            if (evidence.Count >= MaximumFacts)
+            {
+                return;
+            }
+
+            if (rule.ExistentialConclusion is { } existential)
+            {
+                var relatedDescriptor = DescribeConditions(existential.Conditions);
+                if (relatedDescriptor is null)
+                {
+                    continue;
+                }
+
+                var relation = DisplayIdentifier(existential.Relation.Predicate.Value);
+                sentences.Add($"Every {DisplayIdentifier(concept)} {relation} {Indefinite(relatedDescriptor)}.");
+                evidence.Add(MapRuleEvidence(rule));
+                AppendRelatedRules(
+                    existential.Conditions[^1].Predicate.Value,
+                    relatedDescriptor,
+                    rules,
+                    depth + 1,
+                    visited,
+                    sentences,
+                    evidence);
+                continue;
+            }
+
+            if (rule.Conclusion.Arguments.Length != 1)
+            {
+                continue;
+            }
+
+            var polarity = rule.ConclusionPolarity == EvidencePolarity.Negative
+                ? " is not "
+                : " is ";
+            sentences.Add(
+                $"Every {DisplayIdentifier(concept)}{polarity}{DisplayIdentifier(rule.Conclusion.Predicate.Value)}.");
+            evidence.Add(MapRuleEvidence(rule));
+        }
+    }
+
+    private static UniversalRule[] GetApplicableRules(
+        string concept,
+        IReadOnlyList<UniversalRule> rules) =>
+        rules
             .Where(rule =>
                 rule.Premises.Length == 1 &&
                 rule.NegativePremises.IsDefaultOrEmpty &&
@@ -159,67 +301,36 @@ internal static class ConceptKnowledgeFormatter
             .OrderBy(rule => rule.SourceText, StringComparer.Ordinal)
             .ToArray();
 
-        foreach (var rule in applicableRules)
+    private static string? DescribeConditions(
+        ImmutableArray<PredicateApplication> conditions)
+    {
+        if (conditions.IsDefaultOrEmpty)
         {
-            if (evidence.Count >= MaximumFacts)
-            {
-                return;
-            }
-
-            var indent = new string(' ', depth * 2);
-            var subject = DisplayIdentifier(concept);
-
-            if (rule.ExistentialConclusion is { } existential)
-            {
-                var conditions = existential.Conditions
-                    .Select(condition => DisplayIdentifier(condition.Predicate.Value))
-                    .ToArray();
-
-                if (conditions.Length == 0)
-                {
-                    continue;
-                }
-
-                var head = conditions[^1];
-                var modifiers = conditions.Take(conditions.Length - 1);
-                var descriptor = string.Join(" ", modifiers.Append(head));
-                lines.Add(
-                    $"{indent}- every {subject} {DisplayIdentifier(existential.Relation.Predicate.Value)} → {descriptor}");
-                evidence.Add(MapRuleEvidence(rule));
-
-                AppendGeneralRules(
-                    existential.Conditions[^1].Predicate.Value,
-                    rules,
-                    depth + 1,
-                    visited,
-                    lines,
-                    evidence);
-                continue;
-            }
-
-            if (rule.Conclusion.Arguments.Length != 1)
-            {
-                continue;
-            }
-
-            var polarity = rule.ConclusionPolarity == EvidencePolarity.Negative
-                ? "not "
-                : string.Empty;
-            lines.Add(
-                $"{indent}- every {subject} is → {polarity}{DisplayIdentifier(rule.Conclusion.Predicate.Value)}");
-            evidence.Add(MapRuleEvidence(rule));
+            return null;
         }
+
+        var labels = conditions
+            .Select(condition => DisplayIdentifier(condition.Predicate.Value))
+            .ToArray();
+        var head = labels[^1];
+        var modifiers = labels.Take(labels.Length - 1);
+        return string.Join(" ", modifiers.Append(head));
     }
+
+    private static string GetSubjectName(
+        SemanticTerm subject,
+        ImmutableArray<ProofNode> facts) =>
+        subject switch
+        {
+            IndividualTerm individual => DisplayIdentifier(individual.Identifier.Value),
+            AnonymousIndividualTerm => DescribeIndividual(subject, facts),
+            _ => "thing"
+        };
 
     private static string DescribeIndividual(
         SemanticTerm individual,
         ImmutableArray<ProofNode> facts)
     {
-        if (individual is IndividualTerm named)
-        {
-            return DisplayIdentifier(named.Identifier.Value);
-        }
-
         var descriptor = facts
             .Where(fact =>
                 fact.Polarity == EvidencePolarity.Positive &&
@@ -230,26 +341,51 @@ internal static class ConceptKnowledgeFormatter
             .FirstOrDefault();
 
         return descriptor is null
-            ? "an instance"
-            : $"a {DisplayIdentifier(descriptor)}";
+            ? "instance"
+            : DisplayIdentifier(descriptor);
     }
 
-    private static bool HasSubject(
-        PredicateApplication predicate,
-        SemanticTerm concept) =>
-        !predicate.Arguments.IsDefaultOrEmpty &&
-        predicate.Arguments[0] == concept;
+    private static string GetEvidenceKey(LatticeEvidence evidence) =>
+        $"{evidence.Kind}:{evidence.Polarity}:{string.Join(";", evidence.Sources.Select(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}"))}";
+
+    private static string GetFactKey(ProofNode proof) =>
+        $"{proof.Predicate.Predicate.Value}:{string.Join("|", proof.Predicate.Arguments)}:{proof.Polarity}";
+
+    private static string GetConceptKey(SemanticTerm subject) =>
+        subject switch
+        {
+            IndividualTerm individual => individual.Identifier.Value,
+            AnonymousIndividualTerm anonymous => anonymous.Identity.Value,
+            _ => subject.ToString() ?? string.Empty
+        };
 
     private static bool IsConceptIdentity(
         PredicateApplication predicate,
-        SemanticTerm concept) =>
+        SemanticTerm subject) =>
         predicate.Arguments.Length == 1 &&
-        predicate.Arguments[0] == concept &&
-        concept is IndividualTerm individual &&
+        predicate.Arguments[0] == subject &&
+        subject is IndividualTerm individual &&
         string.Equals(
             predicate.Predicate.Value,
             individual.Identifier.Value,
             StringComparison.OrdinalIgnoreCase);
+
+    private static string Indefinite(string phrase)
+    {
+        var trimmed = phrase.Trim();
+        if (trimmed.Length == 0)
+        {
+            return trimmed;
+        }
+
+        var article = "aeiou".Contains(char.ToLowerInvariant(trimmed[0])) ? "an" : "a";
+        return $"{article} {trimmed}";
+    }
+
+    private static string Capitalize(string value) =>
+        value.Length == 0
+            ? value
+            : char.ToUpperInvariant(value[0]) + value[1..];
 
     private static string DisplayIdentifier(string identifier) =>
         identifier.Replace('-', ' ');
