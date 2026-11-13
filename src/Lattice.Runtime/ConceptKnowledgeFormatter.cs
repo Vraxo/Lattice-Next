@@ -105,7 +105,7 @@ internal static class ConceptKnowledgeFormatter
         var descriptions = unaryFacts
             .Select(fact => DisplayIdentifier(fact.Predicate.Predicate.Value))
             .ToArray();
-        var rootPrefix = depth == 0 ? Indefinite(subjectName) : Indefinite(subjectName);
+        var rootPrefix = Indefinite(subjectName);
 
         if (descriptions.Length > 0 || existentialRules.Length > 0)
         {
@@ -119,20 +119,28 @@ internal static class ConceptKnowledgeFormatter
 
             foreach (var rule in existentialRules)
             {
-                var descriptor = DescribeConditions(rule.ExistentialConclusion!.Conditions);
+                var existential = rule.ExistentialConclusion!;
+                var descriptor = DescribeConditions(existential.Conditions);
                 if (descriptor is null)
                 {
                     continue;
                 }
 
-                var relation = DisplayIdentifier(rule.ExistentialConclusion.Relation.Predicate.Value);
-                if (string.Equals(relation, "has", StringComparison.OrdinalIgnoreCase))
+                var relation = DisplayIdentifier(existential.Relation.Predicate.Value);
+                if (descriptions.Length > 0 &&
+                    string.Equals(relation, "has", StringComparison.OrdinalIgnoreCase))
                 {
                     sentence.Append(" with ");
                 }
-                else
+                else if (descriptions.Length > 0)
                 {
                     sentence.Append(" that ")
+                        .Append(relation)
+                        .Append(' ');
+                }
+                else
+                {
+                    sentence.Append(' ')
                         .Append(relation)
                         .Append(' ');
                 }
