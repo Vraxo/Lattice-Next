@@ -21,5 +21,9 @@ public sealed record LatticeSessionStatus(
 
     public string? ObjectiveExplanation { get; init; }
 
+    public int SemanticConceptCount { get; init; }
 
+    public int SemanticRelationCount { get; init; }
+
+    public int SemanticDataAssertionCount { get; init; }
 }

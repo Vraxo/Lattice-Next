@@ -1,34 +1,47 @@
-# Knowledge
+# Foundational semantic world model
 
-The runtime starts every session with two complementary default knowledge resources.
+The runtime starts each session with the single embedded resource `core-semantic-world-model.json`. The deleted `core-world-model.json` sentence pack is no longer part of runtime startup or the repository.
 
-- `core-world-model.json` is the legacy LCE pack. Its remaining sentence claims are retained as source-backed predicates and rules while their domains are migrated.
-- `core-semantic-world-model.json` is the typed semantic model. It declares concept types and individuals, lexical entries, relation signatures, structured type definitions, and typed assertions. The instrument domain has been migrated here; its classification is derived from component and mechanism relationships rather than loaded from sentence claims.
+The semantic model separates **concept identity, semantic structure, assertions, and provenance**:
 
-The semantic model keeps **identity, meaning, assertions, and evidence separate**:
-- A concept's identifier and label name it; they do not define it.
-- A type definition links the type to parent types and equivalent structural conditions.
-- A relation has declared domain and range types.
-- An individual is classified by the structures it participates in. One individual may satisfy several definitions.
-- Each assertion retains source provenance. Source text is evidence metadata, not the value or meaning of the assertion.
+- Concept IDs and labels name types and individuals; they do not define their meaning.
+- Type definitions connect types to parent types and structural restrictions.
+- Relation signatures declare domain and range types.
+- Assertions state typed memberships and relations between individuals.
+- URI-valued data assertions hold documentation and DOI links.
+- `sourceText` and `sourceUrl` preserve provenance, never the meaning of a concept.
 
-For example, a piano satisfies the keyboard-instrument definition because it has a keyboard playing interface. It also satisfies the struck-string-instrument definition because its sound-production mechanism is a struck-string mechanism. Those classifications are independent and can both be true.
+## Core domains
 
-## Instrument knowledge
+The model now includes all the default foundational domains that were previously represented by sentence claims and prose-valued attributes:
 
-The model represents component and mechanism relations for the piano, harmonium, accordion, and the other core instrument examples. The piano mechanism is represented as a connected sequence: its keyboard activates the action; the action strikes strings; string vibration is transmitted to the soundboard; and the soundboard radiates sound. Harmonium and accordion models connect their playing interfaces and bellows-driven free-reed mechanisms separately.
+- Musical instruments, playing interfaces, sound mechanisms, physical components, and overlapping instrument classifications.
+- Geometry, including polygons, boundaries, closed cycles, line segments, endpoints, and straightness.
+- Language concepts, including parts of speech, verbs, lexical items, and action/state content.
+- Economics, including monopsony buyer-market structure, monopsony power, wage markdowns, employer concentration, job differentiation, search frictions, switching costs, and linked illustrative labour-market structures.
+- Software concepts for IDAES, BioSTEAM and Pyomo, represented by typed software roles, capability concepts, application domains, and documentation URIs.
+- Research publications connected to authors and journals, with DOI URIs.
 
-References used by the current seed include:
+## Model size
 
-- [Yamaha: piano and its sound-producing mechanism](https://www.yamaha.com/en/musical_instrument_guide/piano/)
-- [Yamaha: piano action](https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html)
-- [Yamaha: how strings, vibrations, and the soundboard produce sound](https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html)
-- [Metropolitan Museum: harmonium](https://www.metmuseum.org/art/collection/search/505026)
-- [Staatliches Institut für Musikforschung: accordion](https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html)
-- [Yale Library: instrument families](https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603)
-- [European Schools: music syllabus](https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf)
-- [International Research Center for Traditional Polyphony: Georgian instruments](https://polyphony.ge/en/georgia/georgian-traditional-music/musical-instruments/)
+<text>Counts below describe the current checked-in model, not benchmark results.</text>
 
-The semantic format currently supports type inheritance and conjunctive existential restrictions. It is a deliberately bounded description-logic slice, not a claim that arbitrary ontology expressions or unrestricted first-order logic are implemented.
+- 194 concepts
+- 95 type definitions
+- 34 relation signatures
+- 116 explicit type assertions
+- 87 relation assertions
+- 2 typed data-property declarations
+- 6 typed URI data assertions
 
-Additional domain packs remain available through the existing version 1 knowledge-pack loader. Migrating the remaining legacy core claims and prose-valued reference attributes is still outstanding; the instrument domain is the first end-to-end migration.
+## Representation rules
+
+Foundational meaning must not be stored as an English sentence, paragraph, `text` value, or `textSet` attribute. New knowledge belongs in concept types, relation signatures, type definitions, type assertions, relation assertions, or supported typed data properties.
+
+Original text may appear only as evidence/provenance metadata. It is not read as a definition and does not act as a reasoning premise by itself.
+
+The separate version 1 knowledge-pack loader remains available for task-specific candidate data and user-provided objective information. Its text and text-set values are not a substitute for foundational semantic knowledge.
+
+## Reasoning boundary
+
+The current reasoner supports type inheritance and conjunctive existential restrictions. It can derive classifications from a connected graph and retain the evidence supporting the derivation. It does not yet implement arbitrary description logic or unrestricted first-order logic: disjunction, universal restrictions, cardinality/inequality constraints and unrestricted recursive expressions remain unsupported.

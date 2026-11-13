@@ -21,11 +21,13 @@ internal static class SemanticWorldModelResponder
         return request.Kind switch
         {
             SemanticWorldModelQuestionKind.Definition =>
-                TryDefinition(request.Concept ?? request.Subject, model, out message, out evidence),
+                TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
                 TryExplainMechanism(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Causes =>
+                TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -35,11 +37,19 @@ internal static class SemanticWorldModelResponder
     internal static bool TryDefinition(
         string concept,
         SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var individual = model.FindConcept(concept, SemanticConceptKind.Individual);
+        if (individual is not null)
+        {
+            return TryDescribeIndividual(individual, model, reasoner, out message, out evidence);
+        }
+
         var type = model.FindConcept(concept, SemanticConceptKind.Type);
         var definition = type is null ? null : model.FindDefinition(type.Id);
         if (type is null || definition is null || definition.ParentTypes.IsDefaultOrEmpty)
@@ -62,8 +72,167 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"A {type.Label} is {Indefinite(parent.Label)} {parent.Label} that {JoinConditions(conditionPhrases)}.";
+        message = $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {JoinConditions(conditionPhrases)}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
+        return true;
+    }
+
+    private static bool TryDescribeIndividual(
+        SemanticConcept individual,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var types = reasoner.GetTypes(individual.Id);
+        var specificTypes = types
+            .Where(candidate => !types.Any(other =>
+                other != candidate && IsSubtype(other, candidate, model)))
+            .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
+            .Where(type => type is not null && type.Id is not (
+                "entity" or "software" or "capability" or "research-publication"))
+            .ToArray();
+
+        if (specificTypes.Length == 0)
+        {
+            return false;
+        }
+
+        var clauses = new List<string>
+        {
+            $"{individual.Label} is {JoinConditions(specificTypes.Select(DescribeTypeMembership).ToArray())}."
+        };
+        var sources = specificTypes
+            .SelectMany(type => reasoner.GetMembershipEvidence(individual.Id, type!.Id))
+            .ToList();
+
+        var capabilityAssertions = reasoner.GetRelations(individual.Id, "supports-capability");
+        var capabilities = capabilityAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .Select(target => target!)
+            .DistinctBy(target => target.Id)
+            .ToArray();
+
+        if (capabilities.Length > 0)
+        {
+            clauses.Add($"It supports {JoinConditions(capabilities.Select(target => target.Label).ToArray())}.");
+            sources.AddRange(capabilityAssertions.Select(assertion => assertion.Source));
+            foreach (var capability in capabilities)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(capability.Id, "capability"));
+            }
+        }
+
+        var domainAssertions = reasoner.GetRelations(individual.Id, "used-for-domain");
+        var domains = domainAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .Select(target => target!)
+            .DistinctBy(target => target.Id)
+            .ToArray();
+        if (domains.Length > 0)
+        {
+            clauses.Add($"It is used for {JoinConditions(domains.Select(target => target.Label).ToArray())}.");
+            sources.AddRange(domainAssertions.Select(assertion => assertion.Source));
+        }
+
+        var documentation = model.GetDataAssertions(individual.Id, "documentation-url");
+        if (documentation.Length > 0)
+        {
+            clauses.Add($"Its documentation is available at {documentation[0].Value}.");
+            sources.AddRange(documentation.Select(assertion => assertion.Source));
+        }
+
+        message = string.Join(" ", clauses);
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static string DescribeTypeMembership(SemanticConcept type)
+    {
+        if (type.Id == "open-source-software")
+        {
+            return type.Label;
+        }
+
+        return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryExplainCauses(
+        string requestedConcept,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var type = model.FindConcept(requestedConcept, SemanticConceptKind.Type);
+        if (type is null)
+        {
+            return false;
+        }
+
+        var instances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, type.Id))
+            .ToArray();
+        var mechanisms = instances
+            .SelectMany(instance => reasoner.GetRelations(instance.Id, "has-mechanism"))
+            .ToArray();
+        if (mechanisms.Length == 0)
+        {
+            return false;
+        }
+
+        var labels = mechanisms
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (labels.Length == 0)
+        {
+            return false;
+        }
+
+        var clauses = new List<string>
+        {
+            $"{Capitalize(type.Label)} can arise through {JoinConditions(labels)}."
+        };
+        var sources = mechanisms.Select(assertion => assertion.Source)
+            .Concat(instances.SelectMany(instance =>
+                reasoner.GetMembershipEvidence(instance.Id, type.Id)))
+            .ToList();
+
+        var references = instances
+            .SelectMany(instance => reasoner.GetRelations(instance.Id, "has-research-reference"))
+            .ToArray();
+        var referenceDetails = references
+            .Select(assertion => FormatResearchReference(assertion.Object, model, reasoner))
+            .OfType<string>()
+            .ToArray();
+        if (referenceDetails.Length > 0)
+        {
+            clauses.Add($"Research references include {JoinConditions(referenceDetails)}.");
+            sources.AddRange(references.Select(assertion => assertion.Source));
+            foreach (var reference in references)
+            {
+                sources.AddRange(reasoner.GetRelations(reference.Object)
+                    .Select(assertion => assertion.Source));
+                sources.AddRange(model.GetDataAssertions(reference.Object, "doi-url")
+                    .Select(assertion => assertion.Source));
+            }
+        }
+
+        message = string.Join(" ", clauses);
+        evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
 
@@ -131,6 +300,46 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    internal static bool TryChoice(
+        ChoiceQuestionFormula question,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        ArgumentNullException.ThrowIfNull(question);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(reasoner);
+
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var category = model.FindConcept(question.Category.Value, SemanticConceptKind.Type);
+        if (category is null)
+        {
+            return false;
+        }
+
+        var supported = question.Choices
+            .Select(choice => (
+                Choice: model.FindConcept(choice.Value, SemanticConceptKind.Individual),
+                Evidence: model.FindConcept(choice.Value, SemanticConceptKind.Individual) is { } individual
+                    ? reasoner.GetMembershipEvidence(individual.Id, category.Id)
+                    : ImmutableArray<SemanticWorldModelSource>.Empty))
+            .Where(candidate => candidate.Choice is not null && !candidate.Evidence.IsDefaultOrEmpty)
+            .ToArray();
+
+        if (supported.Length != 1)
+        {
+            return false;
+        }
+
+        message = $"{Capitalize(supported[0].Choice!.Label)} is a species of {category.Label}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            supported[0].Evidence,
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     internal static bool TryAskMembership(
         string individual,
         string type,
@@ -190,7 +399,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(Indefinite(individual.Label))} {individual.Label} is {Indefinite(type.Label)} {type.Label} because it {phrase}.";
+        message = $"{Capitalize(IndefinitePhrase(individual.Label))} is {IndefinitePhrase(type.Label)} because it {phrase}.";
         var sources = ImmutableArray.Create(definition.Source, relationAssertion.Source)
             .AddRange(GetTypeEvidence(relationAssertion.Object, matchedCondition.TargetType, model));
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
@@ -324,11 +533,11 @@ internal static class SemanticWorldModelResponder
             {
                 var verb = relation.Verb == "has" ? "have" : relation.Verb;
                 var role = relation.ObjectRole?.Replace("its", "their", StringComparison.Ordinal) ?? string.Empty;
-                clauses.Add($"Both {verb} {Indefinite(firstType.Label)} {firstType.Label} {role}".TrimEnd());
+                clauses.Add($"Both {verb} {IndefinitePhrase(firstType.Label)} {role}".TrimEnd());
             }
             else
             {
-                clauses.Add($"{Capitalize(first.Label)} {relation.Verb} {Indefinite(firstType.Label)} {firstType.Label}, while {second.Label} {relation.Verb} {Indefinite(secondType.Label)} {secondType.Label}");
+                clauses.Add($"{Capitalize(first.Label)} {relation.Verb} {IndefinitePhrase(firstType.Label)}, while {second.Label} {relation.Verb} {IndefinitePhrase(secondType.Label)}");
             }
 
             sources.Add(firstFacts[0].Source);
@@ -391,6 +600,48 @@ internal static class SemanticWorldModelResponder
         return false;
     }
 
+    private static string? FormatResearchReference(
+        string publicationId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner)
+    {
+        var publication = model.FindConcept(publicationId, SemanticConceptKind.Individual);
+        if (publication is null)
+        {
+            return null;
+        }
+
+        var authors = reasoner.GetRelations(publicationId, "authored-by")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(author => author is not null)
+            .Select(author => author!.Label.Split(' ', StringSplitOptions.RemoveEmptyEntries)[^1])
+            .ToArray();
+        var year = reasoner.GetRelations(publicationId, "published-in-year")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(concept => concept is not null);
+        var journal = reasoner.GetRelations(publicationId, "published-in")
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(concept => concept is not null);
+        var doi = model.GetDataAssertions(publicationId, "doi-url").FirstOrDefault();
+
+        var citation = authors.Length == 0
+            ? publication.Label
+            : year is null
+                ? $"{JoinNames(authors)}, {publication.Label}"
+                : $"{JoinNames(authors)} ({year.Label}), {publication.Label}";
+        if (journal is not null)
+        {
+            citation += $", {journal.Label}";
+        }
+
+        if (doi is not null)
+        {
+            citation += $" ({doi.Value})";
+        }
+
+        return citation;
+    }
+
     private static ImmutableArray<SemanticWorldModelSource> GetTypeEvidence(
         string individual,
         string type,
@@ -411,7 +662,7 @@ internal static class SemanticWorldModelResponder
             return null;
         }
 
-        var phrase = $"{relation.Verb} {Indefinite(target.Label)} {target.Label}";
+        var phrase = $"{relation.Verb} {IndefinitePhrase(target.Label)}";
         return relation.ObjectRole is null
             ? phrase
             : $"{phrase} {relation.ObjectRole}";
@@ -423,10 +674,10 @@ internal static class SemanticWorldModelResponder
         SemanticRelationDefinition relation,
         bool first)
     {
-        var prefix = first ? $"{Capitalize(Indefinite(subject.Label))} {subject.Label}" : $"The {subject.Label}";
+        var prefix = first ? Capitalize(IndefinitePhrase(subject.Label)) : $"The {subject.Label}";
         var objectPhrase = relation.ObjectRole is null
             ? $"the {target.Label}"
-            : $"{Indefinite(target.Label)} {target.Label} {relation.ObjectRole}";
+            : $"{IndefinitePhrase(target.Label)} {relation.ObjectRole}";
         var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
             ? InflectPluralSubjectVerb(relation.Verb)
             : relation.Verb;
@@ -472,9 +723,20 @@ internal static class SemanticWorldModelResponder
         };
 
     private static string Indefinite(string phrase) =>
-        phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
-            ? "an"
-            : "a";
+        IsMassNoun(phrase)
+            ? string.Empty
+            : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
+                ? "an"
+                : "a";
+
+    private static string IndefinitePhrase(string phrase)
+    {
+        var article = Indefinite(phrase);
+        return article.Length == 0 ? phrase : $"{article} {phrase}";
+    }
+
+    private static bool IsMassNoun(string phrase) =>
+        phrase is "monopsony power" or "buyer market power" or "market power" or "software" or "straightness";
 
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];

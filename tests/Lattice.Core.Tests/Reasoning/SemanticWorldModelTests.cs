@@ -86,6 +86,138 @@ public sealed class SemanticWorldModelTests
         Assert.Contains(evidence, source => source.SourceText == "Definition source: struck-string instrument.");
     }
 
+
+    [Fact]
+    public void Loads_typed_uri_properties_without_converting_them_to_text_attributes()
+    {
+        const string json = """
+            {
+              "formatVersion": 1,
+              "id": "typed-uri-test",
+              "name": "Typed URI test",
+              "concepts": [
+                { "id": "entity", "label": "entity", "kind": "type" },
+                { "id": "software", "label": "software", "kind": "type" },
+                { "id": "sample", "label": "sample software", "kind": "individual" }
+              ],
+              "lexemes": [],
+              "relations": [],
+              "definitions": [
+                {
+                  "concept": "software",
+                  "parents": ["entity"],
+                  "conditions": [],
+                  "sourceText": "Curated software classification."
+                }
+              ],
+              "typeAssertions": [
+                { "individual": "sample", "type": "software", "sourceText": "Sample is software." }
+              ],
+              "relationAssertions": [],
+              "dataProperties": [
+                { "id": "documentation-url", "domainType": "software", "valueType": "uri" }
+              ],
+              "dataAssertions": [
+                {
+                  "subject": "sample",
+                  "property": "documentation-url",
+                  "value": "https://example.org/docs",
+                  "sourceText": "Official documentation URL."
+                }
+              ]
+            }
+            """;
+
+        Assert.True(loader.TryLoad(json, out var model, out var error), error);
+
+        var property = Assert.Single(model!.DataProperties);
+        var assertion = Assert.Single(model.DataAssertions);
+        Assert.Equal(SemanticDataValueKind.Uri, property.ValueKind);
+        Assert.Equal("https://example.org/docs", assertion.Value);
+        Assert.Equal("documentation-url", assertion.Property);
+    }
+
+    [Fact]
+    public void Rejects_prose_valued_semantic_data_and_free_text_definition_fields()
+    {
+        const string proseValue = """
+            {
+              "formatVersion": 1,
+              "id": "prose-value-test",
+              "name": "Prose value test",
+              "concepts": [
+                { "id": "entity", "label": "entity", "kind": "type" },
+                { "id": "software", "label": "software", "kind": "type" },
+                { "id": "sample", "label": "sample software", "kind": "individual" }
+              ],
+              "lexemes": [],
+              "relations": [],
+              "definitions": [
+                {
+                  "concept": "software",
+                  "parents": ["entity"],
+                  "conditions": [],
+                  "sourceText": "Evidence only.",
+                  "description": "A software object with an explanatory prose definition."
+                }
+              ],
+              "typeAssertions": [
+                { "individual": "sample", "type": "software", "sourceText": "Sample is software." }
+              ],
+              "relationAssertions": [],
+              "dataProperties": [
+                { "id": "description", "domainType": "software", "valueType": "text" }
+              ],
+              "dataAssertions": [
+                {
+                  "subject": "sample",
+                  "property": "description",
+                  "value": "A long explanatory sentence.",
+                  "sourceText": "A prose definition."
+                }
+              ]
+            }
+            """;
+        const string textProperty = """
+            {
+              "formatVersion": 1,
+              "id": "text-property-test",
+              "name": "Text property test",
+              "concepts": [
+                { "id": "entity", "label": "entity", "kind": "type" },
+                { "id": "software", "label": "software", "kind": "type" },
+                { "id": "sample", "label": "sample software", "kind": "individual" }
+              ],
+              "lexemes": [],
+              "relations": [],
+              "definitions": [
+                {
+                  "concept": "software",
+                  "parents": ["entity"],
+                  "conditions": [],
+                  "sourceText": "Evidence only."
+                }
+              ],
+              "typeAssertions": [
+                { "individual": "sample", "type": "software", "sourceText": "Sample is software." }
+              ],
+              "relationAssertions": [],
+              "dataProperties": [
+                { "id": "description", "domainType": "software", "valueType": "text" }
+              ],
+              "dataAssertions": []
+            }
+            """;
+
+        Assert.False(loader.TryLoad(proseValue, out var proseModel, out var proseError));
+        Assert.Null(proseModel);
+        Assert.Contains("unsupported field", proseError);
+
+        Assert.False(loader.TryLoad(textProperty, out var textModel, out var textError));
+        Assert.Null(textModel);
+        Assert.Contains("typed value kind", textError);
+    }
+
     [Fact]
     public void Rejects_relation_assertions_that_violate_declared_domain_types()
     {

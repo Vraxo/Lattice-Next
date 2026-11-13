@@ -10,6 +10,7 @@ public sealed class SemanticWorldModelLoader
     private const int MaximumConcepts = 2000;
     private const int MaximumRelations = 500;
     private const int MaximumDefinitions = 500;
+    private const int MaximumDataProperties = 250;
     private const int MaximumAssertions = 5000;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -55,10 +56,13 @@ public sealed class SemanticWorldModelLoader
             document.Definitions is null ||
             document.TypeAssertions is null ||
             document.RelationAssertions is null ||
+            document.DataProperties is null ||
+            document.DataAssertions is null ||
             document.Concepts.Count is 0 or > MaximumConcepts ||
             document.Relations.Count > MaximumRelations ||
             document.Definitions.Count > MaximumDefinitions ||
-            document.TypeAssertions.Count + document.RelationAssertions.Count > MaximumAssertions)
+            document.DataProperties.Count > MaximumDataProperties ||
+            document.TypeAssertions.Count + document.RelationAssertions.Count + document.DataAssertions.Count > MaximumAssertions)
         {
             error = "The semantic world model metadata or collection sizes are invalid.";
             return false;
@@ -100,6 +104,21 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
+        if (!TryCreateDataProperties(
+            document,
+            conceptMap,
+            out var dataProperties,
+            out error) ||
+            !TryCreateDataAssertions(
+                document,
+                conceptMap,
+                dataProperties,
+                out var dataAssertions,
+                out error))
+        {
+            return false;
+        }
+
         if (!TryCreateLexemes(document, conceptMap, out var lexemes, out error))
         {
             return false;
@@ -114,7 +133,9 @@ public sealed class SemanticWorldModelLoader
             relations,
             definitions,
             typeAssertions,
-            relationAssertions);
+            relationAssertions,
+            dataProperties,
+            dataAssertions);
 
         if (!AreAssertionsWellTyped(candidate))
         {
@@ -345,6 +366,73 @@ public sealed class SemanticWorldModelLoader
         return true;
     }
 
+    private static bool TryCreateDataProperties(
+        SemanticWorldModelDocument document,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        out ImmutableArray<SemanticDataPropertyDefinition> dataProperties,
+        out string? error)
+    {
+        dataProperties = ImmutableArray<SemanticDataPropertyDefinition>.Empty;
+        error = null;
+        var builder = ImmutableArray.CreateBuilder<SemanticDataPropertyDefinition>(document.DataProperties.Count);
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var item in document.DataProperties)
+        {
+            if (item is null ||
+                !IsValidId(item.Id) ||
+                !IsType(concepts, item.DomainType) ||
+                !Enum.TryParse<SemanticDataValueKind>(item.ValueType, true, out var valueKind) ||
+                !identifiers.Add(item.Id))
+            {
+                error = "Every data property requires a unique id, a declared domain type, and a supported typed value kind.";
+                return false;
+            }
+
+            builder.Add(new SemanticDataPropertyDefinition(item.Id, item.DomainType, valueKind));
+        }
+
+        dataProperties = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryCreateDataAssertions(
+        SemanticWorldModelDocument document,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        ImmutableArray<SemanticDataPropertyDefinition> dataProperties,
+        out ImmutableArray<SemanticDataAssertion> dataAssertions,
+        out string? error)
+    {
+        dataAssertions = ImmutableArray<SemanticDataAssertion>.Empty;
+        error = null;
+        var properties = dataProperties.ToDictionary(property => property.Id, StringComparer.Ordinal);
+        var builder = ImmutableArray.CreateBuilder<SemanticDataAssertion>(document.DataAssertions.Count);
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var item in document.DataAssertions)
+        {
+            if (item is null ||
+                !IsIndividual(concepts, item.Subject) ||
+                !properties.TryGetValue(item.Property, out var property) ||
+                property.ValueKind != SemanticDataValueKind.Uri ||
+                !Uri.TryCreate(item.Value, UriKind.Absolute, out var uri) ||
+                uri.Scheme is not ("http" or "https") ||
+                string.IsNullOrWhiteSpace(uri.Host) ||
+                !string.IsNullOrEmpty(uri.UserInfo) ||
+                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var source) ||
+                !keys.Add($"{item.Subject}:{item.Property}:{item.Value}"))
+            {
+                error = "Every semantic data assertion must supply a unique typed URI value, a valid subject/property pair, and provenance.";
+                return false;
+            }
+
+            builder.Add(new SemanticDataAssertion(item.Subject, item.Property, uri.AbsoluteUri, source!));
+        }
+
+        dataAssertions = builder.ToImmutable();
+        return true;
+    }
+
     private static bool AreAssertionsWellTyped(SemanticWorldModel model)
     {
         var reasoner = new SemanticWorldModelReasoner(model);
@@ -368,6 +456,15 @@ public sealed class SemanticWorldModelLoader
                 {
                     return false;
                 }
+            }
+        }
+
+        foreach (var assertion in model.DataAssertions)
+        {
+            var property = model.FindDataProperty(assertion.Property)!;
+            if (!reasoner.IsInstanceOf(assertion.Subject, property.DomainType))
+            {
+                return false;
             }
         }
 
@@ -498,6 +595,8 @@ public sealed class SemanticWorldModelLoader
         public List<TypeDefinitionDocument> Definitions { get; set; } = [];
         public List<TypeAssertionDocument> TypeAssertions { get; set; } = [];
         public List<RelationAssertionDocument> RelationAssertions { get; set; } = [];
+        public List<DataPropertyDocument> DataProperties { get; set; } = [];
+        public List<DataAssertionDocument> DataAssertions { get; set; } = [];
     }
 
     private sealed class ConceptDocument
@@ -543,6 +642,24 @@ public sealed class SemanticWorldModelLoader
         public RestrictionDocument() { }
         public string Relation { get; set; } = string.Empty;
         public string TargetType { get; set; } = string.Empty;
+    }
+
+    private sealed class DataPropertyDocument
+    {
+        public DataPropertyDocument() { }
+        public string Id { get; set; } = string.Empty;
+        public string DomainType { get; set; } = string.Empty;
+        public string ValueType { get; set; } = string.Empty;
+    }
+
+    private sealed class DataAssertionDocument
+    {
+        public DataAssertionDocument() { }
+        public string Subject { get; set; } = string.Empty;
+        public string Property { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public string SourceText { get; set; } = string.Empty;
+        public string? SourceUrl { get; set; }
     }
 
     private sealed class TypeAssertionDocument
