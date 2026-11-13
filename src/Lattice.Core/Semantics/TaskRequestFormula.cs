@@ -8,4 +8,4 @@ public sealed record TaskRequestFormula(
     string? Context,
     string? OutputFormat,
     string? Scope,
-    ImmutableArray<string> Requirements);
+    ImmutableArray<string> Requirements) : SemanticFormula;
