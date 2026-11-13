@@ -52,7 +52,24 @@ internal static class SemanticWorldModelResponder
 
         var type = model.FindConcept(concept, SemanticConceptKind.Type);
         var definition = type is null ? null : model.FindDefinition(type.Id);
-        if (type is null || definition is null || definition.ParentTypes.IsDefaultOrEmpty)
+        if (type is null || definition is null)
+        {
+            return false;
+        }
+
+        if (definition.DefinitionKind == SemanticDefinitionKind.Primitive)
+        {
+            var parentLabel = definition.ParentTypes
+                .Select(parentId => model.FindConcept(parentId, SemanticConceptKind.Type)?.Label)
+                .FirstOrDefault(label => label is not null);
+            message = parentLabel is null
+                ? $"{Capitalize(type.Label)} is a primitive root type in the current model; it has no further structural definition."
+                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parentLabel)}; the model does not claim a sufficient structural definition for it.";
+            evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
+            return true;
+        }
+
+        if (definition.ParentTypes.IsDefaultOrEmpty)
         {
             return false;
         }

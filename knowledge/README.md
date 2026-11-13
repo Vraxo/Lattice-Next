@@ -1,44 +1,48 @@
 # Foundational semantic world model
 
-The default semantic world model is authored as independent domain modules under `knowledge/domains/`. The runtime embeds every module, composes them into one validated model, and creates the session reasoner. There is no generated or hand-maintained aggregate source file.
+The default semantic model is authored in independent modules under `knowledge/domains/`. The runtime composes every module before global validation and reasoning.
+
+## Type-definition semantics
+
+Every type has an explicit status:
+
+- **Primitive** means the ontology intentionally treats the concept as a semantic starting point. Parent types and any necessary restrictions constrain its use, but do not claim to define it sufficiently. Primitive membership is asserted or inherited from a more specific type.
+- **Defined** means membership can be derived from an explicit sufficient class expression. A defined type requires at least one parent and a non-empty expression.
+
+Necessary restrictions use positive existential forms: `some(relation, targetType)`. They constrain instances of a type but do not establish membership by themselves.
+
+Sufficient class expressions support positive existential restrictions combined with `and` and `or`. For example, a striking component is a physical component that strikes another physical component. A resonator is a physical component that receives vibration from another physical component and radiates a sound event. These classifications are derived from relation assertions and the types of their participants.
+
+The current expression language deliberately does not claim support for universal restrictions, negation, cardinality, equality/inequality, inverse-role reasoning, or unrestricted first-order logic. These require additional semantics and tests before being used in foundational knowledge.
 
 ## Module layout
 
 - `core.json`: shared root concepts and model metadata.
 - `instruments.json`: instrument kinds, mechanisms, components, and examples.
-- `geometry.json`: geometric concepts and the triangle structural example.
-- `language.json`: lexical categories, verbs, and semantic content.
-- `economics.json`: market structure, labour-market mechanisms, examples, and research references.
-- `software.json`: software roles, capabilities, application domains, and documentation links.
-- `biology.json`: the animal/fish classification example.
+- `geometry.json`: geometric structures.
+- `language.json`: lexical semantics.
+- `economics.json`: economics, labour markets, and research references.
+- `software.json`: scientific software, capabilities, and application domains.
+- `biology.json`: animal and fish classification.
 
-Each module uses the same typed schema and contains only its own concepts, lexical entries, relation signatures, definitions, assertions, and data properties. Concept IDs are globally unique. References across modules are resolved after composition.
+Concept IDs are globally unique. References between modules are resolved after composition. Version 2 requires an explicit primitive/defined declaration for every type. Version 1 remains loadable for compatibility; new foundational modules must use version 2.
 
-## Representation rules
+## Provenance
 
-- Concept IDs and labels identify types and individuals; they do not define their meaning.
-- Type definitions connect types to parent types and structural restrictions.
-- Relation signatures declare domain and range types.
-- Assertions state typed memberships and relations between individuals.
-- URI-valued data assertions hold documentation and DOI links.
-- `sourceText` and `sourceUrl` preserve provenance, never the meaning of a concept.
+Concept labels, lexical forms, typed relations, restrictions, and assertions carry semantic structure. `sourceText` and `sourceUrl` are provenance only; they never become semantic definitions or reasoning premises. Foundational meaning must not be stored as English paragraphs or prose-valued data properties.
 
-Foundational meaning must not be stored as English sentences, paragraphs, `text` values, or `textSet` attributes. It belongs in typed concepts, relations, definitions, assertions, and supported data properties.
-
-## Current model size
+## Model size
 
 Counts below describe the modules after composition:
 
-- 194 concepts
-- 95 type definitions
-- 34 relation signatures
-- 116 explicit type assertions
-- 87 relation assertions
+- 197 concepts
+- 98 type declarations
+- 36 relation signatures
+- 117 explicit type assertions
+- 90 relation assertions
 - 2 typed data-property declarations
 - 6 typed URI data assertions
 
-## Reasoning boundary
+## Audit boundary
 
-The current reasoner supports type inheritance and conjunctive existential restrictions. It does not yet implement arbitrary description logic or unrestricted first-order logic.
-
-Modularity improves inspection and maintenance; it does not by itself guarantee that every concept has a sufficiently precise definition. Semantic quality remains a separate modeling and validation task.
+Primitive concepts are explicit commitments, not silently presented as fully defined classes. Some still have only their place in the taxonomy and need richer necessary axioms. The primitive inventory should be reduced or better constrained over time; modularity and explicit status do not automatically make the ontology complete.

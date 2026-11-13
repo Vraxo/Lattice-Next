@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 1,
   "id": "core-world-model",
   "name": "Core semantic world model",
   "concepts": [
@@ -17,16 +17,7 @@
     }
   ],
   "relations": [],
-  "definitions": [
-    {
-      "concept": "entity",
-      "parents": [],
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null,
-      "sourceText": "Foundational semantic root."
-    }
-  ],
+  "definitions": [],
   "typeAssertions": [],
   "relationAssertions": [],
   "dataProperties": [],

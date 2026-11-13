@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 1,
   "id": "core-biology",
   "name": "Biology",
   "concepts": [
@@ -43,22 +43,18 @@
       "parents": [
         "entity"
       ],
+      "conditions": [],
       "sourceText": "Existing core-world-model assertion: Tope is a fish.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "fish",
       "parents": [
         "animal"
       ],
+      "conditions": [],
       "sourceText": "Existing core-world-model assertion: Tope is a fish.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     }
   ],
   "typeAssertions": [

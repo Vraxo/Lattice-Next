@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 1,
   "id": "core-instruments",
   "name": "Musical instruments",
   "concepts": [
@@ -296,21 +296,6 @@
     {
       "id": "cantaro",
       "label": "cantaro",
-      "kind": "Individual"
-    },
-    {
-      "id": "mechanical-state",
-      "label": "mechanical state",
-      "kind": "Type"
-    },
-    {
-      "id": "tensioned-state",
-      "label": "tensioned state",
-      "kind": "Type"
-    },
-    {
-      "id": "piano-string-tension",
-      "label": "piano string tension",
       "kind": "Individual"
     }
   ],
@@ -609,21 +594,6 @@
       "form": "cantaro",
       "concept": "cantaro",
       "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "mechanical state",
-      "concept": "mechanical-state",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "tensioned state",
-      "concept": "tensioned-state",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "piano string tension",
-      "concept": "piano-string-tension",
-      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -674,8 +644,8 @@
     },
     {
       "id": "strikes",
-      "domain": "physical-component",
-      "range": "physical-component",
+      "domain": "striking-component",
+      "range": "string-component",
       "verb": "strikes",
       "objectRole": null,
       "order": 2,
@@ -683,8 +653,8 @@
     },
     {
       "id": "transmits-vibration-to",
-      "domain": "physical-component",
-      "range": "physical-component",
+      "domain": "string-component",
+      "range": "resonator",
       "verb": "transmits vibrations to",
       "objectRole": null,
       "order": 3,
@@ -692,7 +662,7 @@
     },
     {
       "id": "radiates",
-      "domain": "physical-component",
+      "domain": "resonator",
       "range": "sound-event",
       "verb": "radiates",
       "objectRole": null,
@@ -719,7 +689,7 @@
     },
     {
       "id": "vibrates-to-produce",
-      "domain": "physical-component",
+      "domain": "free-reed-component",
       "range": "sound-event",
       "verb": "vibrates to produce",
       "objectRole": null,
@@ -729,26 +699,8 @@
     {
       "id": "actuates",
       "domain": "sound-production-mechanism",
-      "range": "physical-component",
+      "range": "striking-component",
       "verb": "actuates",
-      "objectRole": null,
-      "order": 1,
-      "comparisonPriority": 0
-    },
-    {
-      "id": "receives-vibration-from",
-      "domain": "physical-component",
-      "range": "physical-component",
-      "verb": "receives vibrations from",
-      "objectRole": null,
-      "order": 3,
-      "comparisonPriority": 0
-    },
-    {
-      "id": "has-mechanical-state",
-      "domain": "physical-component",
-      "range": "mechanical-state",
-      "verb": "has mechanical state",
       "objectRole": null,
       "order": 1,
       "comparisonPriority": 0
@@ -760,338 +712,248 @@
       "parents": [
         "entity"
       ],
-      "sourceText": "Core ontology: physical-object is a subtype of entity.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: physical-object is a subtype of entity."
     },
     {
       "concept": "physical-process",
       "parents": [
         "entity"
       ],
-      "sourceText": "Core ontology: physical-process is a subtype of entity.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: physical-process is a subtype of entity."
     },
     {
       "concept": "sound-production-mechanism",
       "parents": [
         "entity"
       ],
-      "sourceText": "Core ontology: sound-production mechanisms are entities.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: sound-production mechanisms are entities."
     },
     {
       "concept": "playing-interface",
       "parents": [
         "physical-object"
       ],
-      "sourceText": "Core ontology: a playing interface is a physical object.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: a playing interface is a physical object."
     },
     {
       "concept": "keyboard-interface",
       "parents": [
         "playing-interface"
       ],
+      "conditions": [],
       "sourceText": "Yale Library instrument-family guidance.",
-      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603"
     },
     {
       "concept": "string-sound-mechanism",
       "parents": [
         "sound-production-mechanism"
       ],
-      "sourceText": "Core ontology: string-sound mechanisms are sound-production mechanisms.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: string-sound mechanisms are sound-production mechanisms."
     },
     {
       "concept": "struck-string-mechanism",
       "parents": [
         "string-sound-mechanism"
       ],
+      "conditions": [],
       "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
     },
     {
       "concept": "plucked-string-mechanism",
       "parents": [
         "string-sound-mechanism"
       ],
-      "sourceText": "Core ontology: plucked-string mechanisms are string-sound mechanisms.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: plucked-string mechanisms are string-sound mechanisms."
     },
     {
       "concept": "bowed-string-mechanism",
       "parents": [
         "string-sound-mechanism"
       ],
-      "sourceText": "Core ontology: bowed-string mechanisms are string-sound mechanisms.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: bowed-string mechanisms are string-sound mechanisms."
     },
     {
       "concept": "free-reed-mechanism",
       "parents": [
         "sound-production-mechanism"
       ],
+      "conditions": [],
       "sourceText": "Metropolitan Museum instrument classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
     },
     {
       "concept": "percussion-mechanism",
       "parents": [
         "sound-production-mechanism"
       ],
-      "sourceText": "Core ontology: percussion mechanisms are sound-production mechanisms.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: percussion mechanisms are sound-production mechanisms."
     },
     {
       "concept": "woodwind-mechanism",
       "parents": [
         "sound-production-mechanism"
       ],
+      "conditions": [],
       "sourceText": "Metropolitan Museum zurna classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
     },
     {
       "concept": "physical-component",
       "parents": [
         "physical-object"
       ],
-      "sourceText": "Core ontology: physical components are physical objects.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: physical components are physical objects."
     },
     {
       "concept": "striking-component",
       "parents": [
         "physical-component"
       ],
-      "sourceText": "Core ontology: striking components are physical components.",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "strikes",
-        "targetType": "physical-component"
-      }
+      "conditions": [],
+      "sourceText": "Core ontology: striking components are physical components."
     },
     {
       "concept": "string-component",
       "parents": [
         "physical-component"
       ],
+      "conditions": [],
       "sourceText": "Cambridge Companion to the Piano: piano strings and vibration.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239",
-      "definitionKind": "primitive",
-      "necessaryConditions": [
-        {
-          "relation": "has-mechanical-state",
-          "targetType": "tensioned-state"
-        },
-        {
-          "relation": "vibrates-to-produce",
-          "targetType": "sound-event"
-        }
-      ],
-      "equivalentTo": null
+      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
     },
     {
       "concept": "resonator",
       "parents": [
         "physical-component"
       ],
+      "conditions": [],
       "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "and",
-        "operands": [
-          {
-            "kind": "some",
-            "relation": "receives-vibration-from",
-            "targetType": "physical-component"
-          },
-          {
-            "kind": "some",
-            "relation": "radiates",
-            "targetType": "sound-event"
-          }
-        ]
-      }
+      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
     },
     {
       "concept": "free-reed-component",
       "parents": [
         "physical-component"
       ],
+      "conditions": [],
       "sourceText": "Metropolitan Museum description of free reeds.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
     },
     {
       "concept": "sound-event",
       "parents": [
         "entity"
       ],
-      "sourceText": "Core ontology: sound is an event.",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "conditions": [],
+      "sourceText": "Core ontology: sound is an event."
     },
     {
       "concept": "musical-instrument",
       "parents": [
         "physical-object"
       ],
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "sound-production-mechanism"
+        }
+      ],
       "sourceText": "Yamaha musical instrument guide: piano is a musical instrument.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "sound-production-mechanism"
-      }
+      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
     },
     {
       "concept": "keyboard-instrument",
       "parents": [
         "musical-instrument"
       ],
+      "conditions": [
+        {
+          "relation": "has-playing-interface",
+          "targetType": "keyboard-interface"
+        }
+      ],
       "sourceText": "Yale Library instrument-family guidance.",
-      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-playing-interface",
-        "targetType": "keyboard-interface"
-      }
+      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603"
     },
     {
       "concept": "string-instrument",
       "parents": [
         "musical-instrument"
       ],
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "string-sound-mechanism"
+        }
+      ],
       "sourceText": "European Schools music syllabus: instrument-family classification.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "string-sound-mechanism"
-      }
+      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
     },
     {
       "concept": "struck-string-instrument",
       "parents": [
         "string-instrument"
       ],
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "struck-string-mechanism"
+        }
+      ],
       "sourceText": "Yamaha piano musical instrument guide.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "struck-string-mechanism"
-      }
+      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
     },
     {
       "concept": "free-reed-instrument",
       "parents": [
         "musical-instrument"
       ],
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "free-reed-mechanism"
+        }
+      ],
       "sourceText": "Metropolitan Museum harmonium classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "free-reed-mechanism"
-      }
+      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
     },
     {
       "concept": "percussion-instrument",
       "parents": [
         "musical-instrument"
       ],
-      "sourceText": "Curated core instrument-family classification.",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "percussion-mechanism"
-      }
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "percussion-mechanism"
+        }
+      ],
+      "sourceText": "Curated core instrument-family classification."
     },
     {
       "concept": "woodwind-instrument",
       "parents": [
         "musical-instrument"
       ],
+      "conditions": [
+        {
+          "relation": "has-sound-production-mechanism",
+          "targetType": "woodwind-mechanism"
+        }
+      ],
       "sourceText": "Metropolitan Museum zurna classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "equivalentTo": {
-        "kind": "some",
-        "relation": "has-sound-production-mechanism",
-        "targetType": "woodwind-mechanism"
-      }
-    },
-    {
-      "concept": "mechanical-state",
-      "parents": [
-        "entity"
-      ],
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null,
-      "sourceText": "Foundational physical-state category."
-    },
-    {
-      "concept": "tensioned-state",
-      "parents": [
-        "mechanical-state"
-      ],
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null,
-      "sourceText": "Foundational mechanical-state category."
+      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
     }
   ],
   "typeAssertions": [
@@ -1174,10 +1036,22 @@
       "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html"
     },
     {
+      "individual": "piano-hammers",
+      "type": "striking-component",
+      "sourceText": "Yamaha piano mechanism guide.",
+      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+    },
+    {
       "individual": "piano-strings",
       "type": "string-component",
       "sourceText": "Cambridge Companion to the Piano: acoustics of the piano.",
       "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
+    },
+    {
+      "individual": "piano-soundboard",
+      "type": "resonator",
+      "sourceText": "Yamaha piano mechanism guide.",
+      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
     },
     {
       "individual": "acoustic-sound",
@@ -1286,24 +1160,6 @@
       "type": "woodwind-mechanism",
       "sourceText": "Instrument mechanism type curated from instrument-family references.",
       "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
-    },
-    {
-      "individual": "piano-hammers",
-      "type": "physical-component",
-      "sourceText": "Yamaha piano mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "individual": "piano-soundboard",
-      "type": "physical-component",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "individual": "piano-string-tension",
-      "type": "tensioned-state",
-      "sourceText": "Piano strings are held under tension.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
     }
   ],
   "relationAssertions": [
@@ -1502,27 +1358,6 @@
       "object": "piano-strings",
       "sourceText": "Yamaha piano mechanism guide: hammers strike the strings.",
       "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "subject": "piano-soundboard",
-      "relation": "receives-vibration-from",
-      "object": "piano-strings",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "subject": "piano-strings",
-      "relation": "has-mechanical-state",
-      "object": "piano-string-tension",
-      "sourceText": "Piano strings are held under tension.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
-    },
-    {
-      "subject": "piano-strings",
-      "relation": "vibrates-to-produce",
-      "object": "acoustic-sound",
-      "sourceText": "Cambridge Companion to the Piano: acoustics of the piano.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
     }
   ],
   "dataProperties": [],

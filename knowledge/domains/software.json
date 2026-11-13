@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 1,
   "id": "core-software",
   "name": "Scientific software",
   "concepts": [
@@ -312,77 +312,63 @@
       "parents": [
         "entity"
       ],
+      "conditions": [],
       "sourceText": "Official software documentation.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "open-source-software",
       "parents": [
         "software"
       ],
+      "conditions": [],
       "sourceText": "Official project documentation describing open-source distribution.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "python-package",
       "parents": [
         "software"
       ],
+      "conditions": [],
       "sourceText": "Official project documentation describing Python-based distribution.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "process-simulation-framework",
       "parents": [
         "software"
       ],
+      "conditions": [],
       "sourceText": "Official process-simulation project documentation.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "process-modeling-framework",
       "parents": [
         "software"
       ],
+      "conditions": [],
       "sourceText": "Official process-modeling project documentation.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "optimization-framework",
       "parents": [
         "software"
       ],
+      "conditions": [],
       "sourceText": "Official optimization project documentation.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "process-optimizer",
       "parents": [
         "optimization-framework"
       ],
+      "conditions": [],
       "sourceText": "Official process-optimization project documentation.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "process-systems-engineering-framework",
@@ -390,11 +376,9 @@
         "process-modeling-framework",
         "process-optimizer"
       ],
+      "conditions": [],
       "sourceText": "IDAES official overview.",
-      "sourceUrl": "https://idaes.org/overview/",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://idaes.org/overview/"
     },
     {
       "concept": "biorefinery-modeling-framework",
@@ -402,11 +386,9 @@
         "process-simulation-framework",
         "process-modeling-framework"
       ],
+      "conditions": [],
       "sourceText": "BioSTEAM official documentation.",
-      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
     },
     {
       "concept": "optimization-modeling-framework",
@@ -414,33 +396,27 @@
         "optimization-framework",
         "process-modeling-framework"
       ],
+      "conditions": [],
       "sourceText": "Pyomo official project overview.",
-      "sourceUrl": "https://www.pyomo.org/about",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": "https://www.pyomo.org/about"
     },
     {
       "concept": "capability",
       "parents": [
         "entity"
       ],
+      "conditions": [],
       "sourceText": "Curated software capability vocabulary.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     },
     {
       "concept": "application-domain",
       "parents": [
         "entity"
       ],
+      "conditions": [],
       "sourceText": "Curated software application-domain vocabulary.",
-      "sourceUrl": null,
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "equivalentTo": null
+      "sourceUrl": null
     }
   ],
   "typeAssertions": [
