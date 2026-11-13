@@ -288,7 +288,7 @@ internal static class TaskRequestResponder
             return false;
         }
 
-        message = $"For example, a rural-town labour market has {buyer.Label} as its dominant buyer and includes {workerGroup.Label}, whose outside options are limited.";
+        message = $"For example, a labour market in a rural town has {buyer.Label} as its dominant buyer and includes {workerGroup.Label}, whose outside options are limited.";
         sources = ImmutableArray.Create(dominantBuyer.Source, workers.Source)
             .AddRange(reasoner.GetMembershipEvidence(workerGroup.Id, "limited-outside-options"));
         return true;
@@ -363,10 +363,6 @@ internal static class TaskRequestResponder
 
         return false;
     }
-
-    private static ImmutableArray<LatticeEvidenceSource> ToEvidenceSources(
-        IEnumerable<SemanticWorldModelSource> sources) =>
-        sources.Select(ToEvidenceSource).ToImmutableArray();
 
     private static LatticeEvidenceSource ToEvidenceSource(SemanticWorldModelSource source) =>
         new(
