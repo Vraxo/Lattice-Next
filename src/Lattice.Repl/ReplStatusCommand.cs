@@ -22,7 +22,8 @@ internal sealed class ReplStatusCommand(
         AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.9 + native English grammar");
         AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Typed concepts, relation signatures, type definitions, and graph assertions");
         AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary and fixed-object relational inference + existential lookup");
-        AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {status.FactCount} facts, {status.RuleCount} rules");
+        AnsiConsole.MarkupLine($"  [cyan]Semantic world model[/] {status.SemanticConceptCount} concepts, {status.SemanticRelationCount} relations, {status.SemanticDataAssertionCount} typed data values");
+        AnsiConsole.MarkupLine($"  [cyan]Session assertions[/]  {status.FactCount} facts, {status.RuleCount} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {status.KnownIndividualCount}");
         AnsiConsole.MarkupLine("  [cyan]Persistence[/]          [yellow]Current session only[/]");
         AnsiConsole.MarkupLine("  [cyan]Pack loading[/]         Version 1 JSON; imported claims retain pack provenance");
