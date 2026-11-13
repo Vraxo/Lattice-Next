@@ -14,6 +14,8 @@ public sealed record KnowledgeAttribute(
 {
     public bool IncludeInSummary { get; init; }
 
+    public bool IsObjectiveCandidate { get; init; } = true;
+
     public DateTimeOffset? RetrievedAt { get; init; }
 
     public DateTimeOffset? FreshUntil { get; init; }
