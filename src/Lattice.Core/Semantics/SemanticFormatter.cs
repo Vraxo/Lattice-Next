@@ -16,6 +16,7 @@ public static class SemanticFormatter
             UtteranceKind.ObjectiveInformation => meaning,
             UtteranceKind.ObjectiveCandidateInformation => meaning,
             UtteranceKind.ObjectiveConditionUpdate => meaning,
+            UtteranceKind.TaskRequest => meaning,
             _ => throw new ArgumentOutOfRangeException(nameof(utterance), utterance.Kind, "Unsupported utterance kind.")
         };
     }
@@ -28,6 +29,7 @@ public static class SemanticFormatter
             ObjectiveCandidateInformationFormula information => FormatObjectiveCandidateInformation(information),
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
+            TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
             Implication implication => $"implies({Format(implication.Premise)}, {Format(implication.Conclusion)})",
@@ -41,6 +43,18 @@ public static class SemanticFormatter
     {
         var concept = string.Join("+", definition.Modifiers.Append(definition.Concept).Select(identifier => identifier.Value));
         return $"definition({concept})";
+    }
+
+    private static string FormatTaskRequest(TaskRequestFormula taskRequest)
+    {
+        var context = taskRequest.Context is null ? string.Empty : $"; context={taskRequest.Context}";
+        var output = taskRequest.OutputFormat is null ? string.Empty : $"; output={taskRequest.OutputFormat}";
+        var scope = taskRequest.Scope is null ? string.Empty : $"; scope={taskRequest.Scope}";
+        var requirements = taskRequest.Requirements.IsDefaultOrEmpty
+            ? string.Empty
+            : $"; requirements={string.Join("+", taskRequest.Requirements)}";
+
+        return $"task({taskRequest.Action.ToString().ToLowerInvariant()}, {taskRequest.Subject}{context}{output}{scope}{requirements})";
     }
 
     private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
@@ -92,23 +106,7 @@ public static class SemanticFormatter
             return $"objective({objective.Goal})";
         }
 
-        var conditions = string.Join(", ", objective.Conditions.Select(condition =>
-        {
-            var value = condition.Value switch
-            {
-                ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
-                ObjectiveTextValue text => text.Value,
-                ObjectiveTextSetValue set => string.Join("+", set.Values),
-                ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
-                ObjectiveDurationValue duration => $"{duration.Minutes}m",
-                ObjectiveTimeSetValue times => string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture))),
-                null => "unknown",
-                _ => "unsupported"
-            };
-
-            return $"{condition.Role.ToString().ToLowerInvariant()}({condition.Name}, {condition.Operator.ToString().ToLowerInvariant()}, {value})";
-        }));
-
+        var conditions = string.Join(", ", objective.Conditions.Select(FormatObjectiveCondition));
         return $"objective({objective.Goal}; {conditions})";
     }
 
