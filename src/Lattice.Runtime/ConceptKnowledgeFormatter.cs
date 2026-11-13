@@ -180,13 +180,15 @@ internal static class ConceptKnowledgeFormatter
                     continue;
                 }
 
-                var descriptor = string.Join(" ", conditions);
+                var head = conditions[^1];
+                var modifiers = conditions.Take(conditions.Length - 1);
+                var descriptor = string.Join(" ", modifiers.Append(head));
                 lines.Add(
                     $"{indent}- every {subject} {DisplayIdentifier(existential.Relation.Predicate.Value)} → {descriptor}");
                 evidence.Add(MapRuleEvidence(rule));
 
                 AppendGeneralRules(
-                    existential.Conditions[0].Predicate.Value,
+                    existential.Conditions[^1].Predicate.Value,
                     rules,
                     depth + 1,
                     visited,
