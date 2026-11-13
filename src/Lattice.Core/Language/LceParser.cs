@@ -368,6 +368,11 @@ public sealed class LceParser
             return TextParseResult.Success(ImmutableArray.Create(choiceQuestionUtterance!));
         }
 
+        if (MultiItemClassificationParser.TryParse(source, out var classificationUtterance))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(classificationUtterance!));
+        }
+
         if (TaskRequestParser.TryParse(source, source, out var taskRequestUtterance))
         {
             return TextParseResult.Success(ImmutableArray.Create(taskRequestUtterance!));
