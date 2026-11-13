@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-geometry",
   "name": "Geometry",
   "concepts": [
@@ -335,121 +335,66 @@
   "definitions": [
     {
       "concept": "geometric-object",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geometric-shape",
-      "parents": [
-        "geometric-object"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "plane-figure",
-      "parents": [
-        "geometric-shape"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geometric-structure",
-      "parents": [
-        "geometric-object"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geometric-element",
-      "parents": [
-        "geometric-object"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geometric-point",
-      "parents": [
-        "geometric-element"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geometric-property",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "straightness",
-      "parents": [
-        "geometric-property"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "topological-configuration",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "closed-cycle",
-      "parents": [
-        "topological-configuration"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "boundary",
-      "parents": [
-        "geometric-structure"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -460,11 +405,6 @@
     },
     {
       "concept": "closed-boundary",
-      "parents": [
-        "boundary"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -475,11 +415,6 @@
     },
     {
       "concept": "line-segment",
-      "parents": [
-        "geometric-element"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -505,11 +440,6 @@
     },
     {
       "concept": "polygon",
-      "parents": [
-        "plane-figure"
-      ],
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -520,205 +450,232 @@
     },
     {
       "concept": "linguistic-category",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "part-of-speech",
-      "parents": [
-        "linguistic-category"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
-    }
-  ],
-  "typeAssertions": [
-    {
-      "individual": "cantaro-mechanism",
-      "type": "percussion-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-example",
-      "type": "geometric-object",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-example",
-      "type": "plane-figure",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-boundary",
-      "type": "geometric-structure",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-boundary",
-      "type": "closed-boundary",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-cycle",
-      "type": "closed-cycle",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-segment-one",
-      "type": "geometric-element",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-segment-two",
-      "type": "geometric-element",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-segment-three",
-      "type": "geometric-element",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-point-one",
-      "type": "geometric-point",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-point-two",
-      "type": "geometric-point",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "triangle-point-three",
-      "type": "geometric-point",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "straightness-property",
-      "type": "straightness",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
     }
   ],
   "relationAssertions": [
     {
       "subject": "triangle-example",
       "relation": "has-boundary",
-      "object": "triangle-boundary",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-boundary"
     },
     {
       "subject": "triangle-boundary",
       "relation": "has-topology",
-      "object": "triangle-cycle",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-cycle"
     },
     {
       "subject": "triangle-boundary",
       "relation": "has-boundary-element",
-      "object": "triangle-segment-one",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-segment-one"
     },
     {
       "subject": "triangle-segment-one",
       "relation": "has-geometric-property",
-      "object": "straightness-property",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "straightness-property"
     },
     {
       "subject": "triangle-boundary",
       "relation": "has-boundary-element",
-      "object": "triangle-segment-two",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-segment-two"
     },
     {
       "subject": "triangle-segment-two",
       "relation": "has-geometric-property",
-      "object": "straightness-property",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "straightness-property"
     },
     {
       "subject": "triangle-boundary",
       "relation": "has-boundary-element",
-      "object": "triangle-segment-three",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-segment-three"
     },
     {
       "subject": "triangle-segment-three",
       "relation": "has-geometric-property",
-      "object": "straightness-property",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "straightness-property"
     },
     {
       "subject": "triangle-segment-one",
       "relation": "has-start-point",
-      "object": "triangle-point-one",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-one"
     },
     {
       "subject": "triangle-segment-one",
       "relation": "has-end-point",
-      "object": "triangle-point-two",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-two"
     },
     {
       "subject": "triangle-segment-two",
       "relation": "has-start-point",
-      "object": "triangle-point-two",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-two"
     },
     {
       "subject": "triangle-segment-two",
       "relation": "has-end-point",
-      "object": "triangle-point-three",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-three"
     },
     {
       "subject": "triangle-segment-three",
       "relation": "has-start-point",
-      "object": "triangle-point-three",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-three"
     },
     {
       "subject": "triangle-segment-three",
       "relation": "has-end-point",
-      "object": "triangle-point-one",
-      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "object": "triangle-point-one"
+    },
+    {
+      "subject": "geometric-object",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "geometric-shape",
+      "relation": "is-a",
+      "object": "geometric-object"
+    },
+    {
+      "subject": "plane-figure",
+      "relation": "is-a",
+      "object": "geometric-shape"
+    },
+    {
+      "subject": "geometric-structure",
+      "relation": "is-a",
+      "object": "geometric-object"
+    },
+    {
+      "subject": "geometric-element",
+      "relation": "is-a",
+      "object": "geometric-object"
+    },
+    {
+      "subject": "geometric-point",
+      "relation": "is-a",
+      "object": "geometric-element"
+    },
+    {
+      "subject": "geometric-property",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "straightness",
+      "relation": "is-a",
+      "object": "geometric-property"
+    },
+    {
+      "subject": "topological-configuration",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "closed-cycle",
+      "relation": "is-a",
+      "object": "topological-configuration"
+    },
+    {
+      "subject": "boundary",
+      "relation": "is-a",
+      "object": "geometric-structure"
+    },
+    {
+      "subject": "closed-boundary",
+      "relation": "is-a",
+      "object": "boundary"
+    },
+    {
+      "subject": "line-segment",
+      "relation": "is-a",
+      "object": "geometric-element"
+    },
+    {
+      "subject": "polygon",
+      "relation": "is-a",
+      "object": "plane-figure"
+    },
+    {
+      "subject": "linguistic-category",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "part-of-speech",
+      "relation": "is-a",
+      "object": "linguistic-category"
+    },
+    {
+      "subject": "cantaro-mechanism",
+      "relation": "instance-of",
+      "object": "percussion-mechanism"
+    },
+    {
+      "subject": "triangle-example",
+      "relation": "instance-of",
+      "object": "geometric-object"
+    },
+    {
+      "subject": "triangle-example",
+      "relation": "instance-of",
+      "object": "plane-figure"
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "instance-of",
+      "object": "geometric-structure"
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "instance-of",
+      "object": "closed-boundary"
+    },
+    {
+      "subject": "triangle-cycle",
+      "relation": "instance-of",
+      "object": "closed-cycle"
+    },
+    {
+      "subject": "triangle-segment-one",
+      "relation": "instance-of",
+      "object": "geometric-element"
+    },
+    {
+      "subject": "triangle-segment-two",
+      "relation": "instance-of",
+      "object": "geometric-element"
+    },
+    {
+      "subject": "triangle-segment-three",
+      "relation": "instance-of",
+      "object": "geometric-element"
+    },
+    {
+      "subject": "triangle-point-one",
+      "relation": "instance-of",
+      "object": "geometric-point"
+    },
+    {
+      "subject": "triangle-point-two",
+      "relation": "instance-of",
+      "object": "geometric-point"
+    },
+    {
+      "subject": "triangle-point-three",
+      "relation": "instance-of",
+      "object": "geometric-point"
+    },
+    {
+      "subject": "straightness-property",
+      "relation": "instance-of",
+      "object": "straightness"
     }
   ],
   "dataProperties": [],

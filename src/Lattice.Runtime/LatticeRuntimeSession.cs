@@ -61,7 +61,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         System.Text.Json.Nodes.JsonObject? combined = null;
         var collectionNames = new[]
         {
-            "concepts", "lexemes", "relations", "definitions", "typeAssertions",
+            "concepts", "lexemes", "relations", "definitions",
             "relationAssertions", "dataProperties", "dataAssertions"
         };
 

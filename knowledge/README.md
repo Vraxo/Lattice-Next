@@ -1,23 +1,31 @@
 # Foundational semantic world model
 
-The default semantic model is authored in independent modules under `knowledge/domains/`. The runtime composes every module before global validation and reasoning.
+The default ontology is authored in independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
 
-## Type-definition semantics
+## One relation graph
 
-Every type has an explicit status:
+Every asserted relationship uses `relationAssertions`. Relation signatures declare the kinds of their arguments:
 
-- **Primitive** means the ontology intentionally treats the concept as a semantic starting point. Parent types and any necessary restrictions constrain its use, but do not claim to define it sufficiently. Primitive membership is asserted or inherited from a more specific type.
-- **Defined** means membership can be derived from an explicit sufficient class expression. A defined type requires at least one parent and a non-empty sufficient expression. The reasoner derives membership only when all parents and that expression are satisfied.
+- `is-a`: **Type → Type**. For example, `fish is-a animal`.
+- `instance-of`: **Individual → Type**. For example, `tope instance-of fish`.
+- Ordinary domain relations: generally **Individual → Individual**, such as `piano-hammers strikes piano-strings`.
 
-Necessary restrictions use positive existential forms: `some(relation, targetType)`. They constrain instances of a type but do not establish membership by themselves.
+The reasoner uses the same graph for transitive subtype checks, inherited individual membership, structural classification, and relation evidence. There is no separate `parents` hierarchy or `typeAssertions` collection in version 3.
 
-Sufficient expressions support positive existential restrictions combined with `and` and `or`. For example, a striking component is a physical component that strikes another physical component. A resonator is a physical component that receives vibration from another physical component and radiates a sound event. These classifications are derived from relation assertions and the types of their participants.
+## Type definitions
 
-The current expression language deliberately does not claim support for universal restrictions, negation, cardinality, equality/inequality, inverse-role reasoning, or unrestricted first-order logic. These require additional semantics and tests before being used in foundational knowledge.
+Each type has an explicit status:
+
+- **Primitive** marks a semantic starting point whose membership is asserted or inherited. A primitive is not defined merely by its place in the taxonomy.
+- **Defined** requires a sufficient class expression. Membership is derived only when that expression is satisfied.
+
+Necessary restrictions use positive existential forms: `some(relation, targetType)`. They constrain instances but do not establish membership by themselves. Sufficient expressions support positive existential restrictions combined with `and` and `or`.
+
+The current expression language does not support universal restrictions, negation, cardinality, equality/inequality, inverse-role reasoning, or unrestricted first-order logic.
 
 ## Module layout
 
-- `core.json`: shared root concepts and model metadata.
+- `core.json`: shared root concepts and the general `is-a` and `instance-of` relation signatures.
 - `instruments.json`: instrument kinds, mechanisms, components, and examples.
 - `geometry.json`: geometric structures.
 - `language.json`: lexical semantics.
@@ -25,24 +33,33 @@ The current expression language deliberately does not claim support for universa
 - `software.json`: scientific software, capabilities, and application domains.
 - `biology.json`: animal and fish classification.
 
-Concept IDs are globally unique. References between modules are resolved after composition. Version 2 requires an explicit primitive/defined declaration for every type. Version 1 remains loadable for compatibility; new foundational modules must use version 2.
+Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
-## Provenance
+## Representation rules
 
-Concept labels, lexical forms, typed relations, restrictions, and assertions carry semantic structure. `sourceText` and `sourceUrl` are provenance only; they never become semantic definitions or reasoning premises. Foundational meaning must not be stored as English paragraphs or prose-valued data properties.
+Foundational knowledge stores semantic structure, not evidence packaging or presentation prose:
+
+- No `parents`, `typeAssertions`, `sourceText`, or `sourceUrl` fields in version 3 modules.
+- No quotation or citation metadata attached to concepts, definitions, or assertions.
+- No URI-valued data properties in the foundational ontology.
+- Relation identifiers, argument kinds, typed concepts, class expressions, and graph assertions carry the meaning.
+
+External evidence and retrieval metadata belong in a separate evidence/ingestion layer. They are not prerequisites for loading or reasoning over the ontology. Explanatory sentences are generated from semantic structure; they are not stored as definitions.
 
 ## Model size
 
-Counts below describe the modules after composition:
+Counts after composing all seven modules:
 
 - 197 concepts
 - 98 type declarations
-- 36 relation signatures
-- 117 explicit type assertions
-- 89 relation assertions
-- 2 typed data-property declarations
-- 6 typed URI data assertions
+- 38 relation signatures
+- 308 relation assertions:
+  - 102 `is-a`
+  - 117 `instance-of`
+  - 89 ordinary individual-to-individual relations
 
 ## Audit boundary
 
-There are 81 primitive types and 17 defined types. Of the primitive types, 80 currently have no necessary restrictions and remain opaque beyond their taxonomy position; only `string-component` has necessary restrictions so far. This is an explicit backlog, not a claim that these concepts are semantically complete. The primitive inventory should be reduced or better constrained over time; modularity and explicit status do not automatically make the ontology complete. Relations with positive `order` values participate in sequential mechanism chains; zero-order relations are not traversed as chain steps. Some zero-order links are structural or attribute relations, while others connect a playing interface to its mechanism and remain outside the current chain traversal.
+There are 81 primitive types and 17 defined types. Of the primitive types, 80 currently have no necessary restrictions and remain opaque beyond their taxonomic position; only `string-component` has necessary restrictions so far. This is an explicit backlog, not a claim that these concepts are semantically complete.
+
+Relations with positive `order` values participate in sequential mechanism chains; zero-order relations are not traversed as chain steps. Some zero-order links are structural or attribute relations, while others connect a playing interface to its mechanism and remain outside the current chain traversal.

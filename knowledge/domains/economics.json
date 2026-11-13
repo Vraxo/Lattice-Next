@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-economics",
   "name": "Economics and research",
   "concepts": [
@@ -748,66 +748,36 @@
   "definitions": [
     {
       "concept": "market-participant",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "buyer",
-      "parents": [
-        "market-participant"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "seller",
-      "parents": [
-        "market-participant"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "dominant-buyer",
-      "parents": [
-        "buyer"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "buyer-market-structure",
-      "parents": [
-        "economic-market-structure"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "monopsony",
-      "parents": [
-        "buyer-market-structure"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -818,55 +788,30 @@
     },
     {
       "concept": "market-power",
-      "parents": [
-        "economic-concept"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "buyer-market-power",
-      "parents": [
-        "market-power"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "market-power-effect",
-      "parents": [
-        "economic-concept"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "wage-markdown",
-      "parents": [
-        "market-power-effect"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "monopsony-power",
-      "parents": [
-        "wage-setting-power"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -877,210 +822,114 @@
     },
     {
       "concept": "labor-market",
-      "parents": [
-        "economic-market-structure",
-        "buyer-market-structure"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "employer",
-      "parents": [
-        "buyer"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "worker",
-      "parents": [
-        "seller"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "worker-group",
-      "parents": [
-        "worker"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "labor-market-feature",
-      "parents": [
-        "economic-concept"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "employer-concentration",
-      "parents": [
-        "labor-market-feature"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "job-differentiation",
-      "parents": [
-        "labor-market-feature"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "search-frictions",
-      "parents": [
-        "labor-market-feature"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "limited-outside-options",
-      "parents": [
-        "labor-market-feature"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "switching-friction",
-      "parents": [
-        "labor-market-feature"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "relocation-cost",
-      "parents": [
-        "switching-friction"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "non-compete-restriction",
-      "parents": [
-        "switching-friction"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "geographic-area",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "employment-opportunity",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "market-power-mechanism",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "research-publication",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "person",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "journal",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "wage-setting-power",
-      "parents": [
-        "buyer-market-power"
-      ],
-      "sourceText": "Azar and Marinescu (2024) review employer wage-setting power and wage markdowns in labour markets.",
-      "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1091,504 +940,533 @@
     },
     {
       "concept": "calendar-year",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "A calendar year is a temporal interval identified by its year number.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
-    }
-  ],
-  "typeAssertions": [
-    {
-      "individual": "rural-town-labor-market",
-      "type": "labor-market",
-      "sourceText": "Illustrative structured example based on labour-market monopsony mechanisms reviewed by Azar and Marinescu (2024).",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "rural-town",
-      "type": "geographic-area",
-      "sourceText": "Illustrative structured example based on labour-market monopsony mechanisms reviewed by Azar and Marinescu (2024).",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "rural-hospital",
-      "type": "employer",
-      "sourceText": "Illustrative structured example: one hospital is the dominant buyer of nursing labour in a local market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "rural-hospital",
-      "type": "dominant-buyer",
-      "sourceText": "Illustrative structured example: one hospital is the dominant buyer of nursing labour in a local market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "rural-nurses",
-      "type": "worker-group",
-      "sourceText": "Illustrative structured example: nurses have few realistic alternative employers in the local market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "rural-nurses",
-      "type": "limited-outside-options",
-      "sourceText": "Illustrative structured example: nurses have few realistic alternative employers in the local market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "limited-outside-options-example",
-      "type": "limited-outside-options",
-      "sourceText": "Illustrative structured example: workers have few realistic alternative employers in a local market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-healthcare-labor-market",
-      "type": "labor-market",
-      "sourceText": "Illustrative structured example of monopsony power in a market with multiple employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-hospital-a",
-      "type": "employer",
-      "sourceText": "Illustrative structured example: a regional labour market contains multiple employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-hospital-b",
-      "type": "employer",
-      "sourceText": "Illustrative structured example: a regional labour market contains multiple employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-nurses",
-      "type": "worker-group",
-      "sourceText": "Illustrative structured example of job differentiation and search frictions.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-job-differentiation",
-      "type": "job-differentiation",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-job-differentiation",
-      "type": "market-power-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-search-frictions",
-      "type": "search-frictions",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "regional-search-frictions",
-      "type": "market-power-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "worker-with-switching-barriers",
-      "type": "worker",
-      "sourceText": "Illustrative structured example based on labour-market switching barriers discussed by Azar and Marinescu (2024).",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "worker-relocation-cost",
-      "type": "relocation-cost",
-      "sourceText": "Illustrative structured example: relocation can make switching employers costly.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "worker-non-compete",
-      "type": "non-compete-restriction",
-      "sourceText": "Illustrative structured example: a non-compete can restrict the ability to switch employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "employer-concentration-mechanism",
-      "type": "employer-concentration",
-      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "employer-concentration-mechanism",
-      "type": "market-power-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "job-differentiation-mechanism",
-      "type": "job-differentiation",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "job-differentiation-mechanism",
-      "type": "market-power-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "search-friction-mechanism",
-      "type": "search-frictions",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "search-friction-mechanism",
-      "type": "market-power-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "wage-markdown-effect",
-      "type": "wage-markdown",
-      "sourceText": "Azar and Marinescu (2024) identify wage markdowns below marginal revenue product as a measure of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "labor-market-monopsony-power",
-      "type": "monopsony-power",
-      "sourceText": "Azar and Marinescu (2024) review multiple sources of labour-market monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "alan-manning",
-      "type": "person",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "individual": "jose-azar",
-      "type": "person",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "ioana-marinescu",
-      "type": "person",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "yeh-author",
-      "type": "person",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "macaluso-author",
-      "type": "person",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "hershbein-author",
-      "type": "person",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "ilr-review",
-      "type": "journal",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "individual": "annual-review-economics",
-      "type": "journal",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "american-economic-review",
-      "type": "journal",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "manning-2021-publication",
-      "type": "research-publication",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "individual": "azar-marinescu-2024-publication",
-      "type": "research-publication",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "yeh-macaluso-hershbein-2022-publication",
-      "type": "research-publication",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "year-2021",
-      "type": "calendar-year",
-      "sourceText": "2021 is a calendar year."
-    },
-    {
-      "individual": "year-2022",
-      "type": "calendar-year",
-      "sourceText": "2022 is a calendar year."
-    },
-    {
-      "individual": "year-2024",
-      "type": "calendar-year",
-      "sourceText": "2024 is a calendar year."
     }
   ],
   "relationAssertions": [
     {
       "subject": "rural-town-labor-market",
       "relation": "has-dominant-buyer",
-      "object": "rural-hospital",
-      "sourceText": "Illustrative structured example: the hospital is the dominant buyer of labour in the rural town.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "rural-hospital"
     },
     {
       "subject": "rural-town-labor-market",
       "relation": "has-employer",
-      "object": "rural-hospital",
-      "sourceText": "Illustrative structured example: the rural town labour market includes the hospital as an employer.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "rural-hospital"
     },
     {
       "subject": "rural-town-labor-market",
       "relation": "has-worker-group",
-      "object": "rural-nurses",
-      "sourceText": "Illustrative structured example: nurses supply labour in the rural town market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "rural-nurses"
     },
     {
       "subject": "rural-town-labor-market",
       "relation": "has-market-feature",
-      "object": "limited-outside-options-example",
-      "sourceText": "Illustrative structured example: local workers have limited outside options.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "limited-outside-options-example"
     },
     {
       "subject": "rural-hospital",
       "relation": "located-in",
-      "object": "rural-town",
-      "sourceText": "Illustrative structured example: the hospital is located in the rural town.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "rural-town"
     },
     {
       "subject": "regional-healthcare-labor-market",
       "relation": "has-employer",
-      "object": "regional-hospital-a",
-      "sourceText": "Illustrative structured example: the labour market has multiple employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "regional-hospital-a"
     },
     {
       "subject": "regional-healthcare-labor-market",
       "relation": "has-employer",
-      "object": "regional-hospital-b",
-      "sourceText": "Illustrative structured example: the labour market has multiple employers.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "regional-hospital-b"
     },
     {
       "subject": "regional-healthcare-labor-market",
       "relation": "has-worker-group",
-      "object": "regional-nurses",
-      "sourceText": "Illustrative structured example: nurses participate in the regional labour market.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "regional-nurses"
     },
     {
       "subject": "regional-healthcare-labor-market",
       "relation": "has-market-feature",
-      "object": "regional-job-differentiation",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "regional-job-differentiation"
     },
     {
       "subject": "regional-healthcare-labor-market",
       "relation": "has-market-feature",
-      "object": "regional-search-frictions",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "regional-search-frictions"
     },
     {
       "subject": "worker-with-switching-barriers",
       "relation": "faces-switching-friction",
-      "object": "worker-relocation-cost",
-      "sourceText": "Illustrative structured example: relocation costs create a switching friction.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "worker-relocation-cost"
     },
     {
       "subject": "worker-with-switching-barriers",
       "relation": "faces-switching-friction",
-      "object": "worker-non-compete",
-      "sourceText": "Illustrative structured example: a non-compete agreement creates a switching friction.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "worker-non-compete"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-market-power-effect",
-      "object": "wage-markdown-effect",
-      "sourceText": "Azar and Marinescu (2024) describe wage markdowns below marginal revenue product as an effect of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "wage-markdown-effect"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-mechanism",
-      "object": "employer-concentration-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "employer-concentration-mechanism"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-mechanism",
-      "object": "job-differentiation-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "job-differentiation-mechanism"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-mechanism",
-      "object": "search-friction-mechanism",
-      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "search-friction-mechanism"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-research-reference",
-      "object": "manning-2021-publication",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+      "object": "manning-2021-publication"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-research-reference",
-      "object": "azar-marinescu-2024-publication",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "azar-marinescu-2024-publication"
     },
     {
       "subject": "labor-market-monopsony-power",
       "relation": "has-research-reference",
-      "object": "yeh-macaluso-hershbein-2022-publication",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+      "object": "yeh-macaluso-hershbein-2022-publication"
     },
     {
       "subject": "manning-2021-publication",
       "relation": "authored-by",
-      "object": "alan-manning",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+      "object": "alan-manning"
     },
     {
       "subject": "manning-2021-publication",
       "relation": "published-in",
-      "object": "ilr-review",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+      "object": "ilr-review"
     },
     {
       "subject": "azar-marinescu-2024-publication",
       "relation": "authored-by",
-      "object": "jose-azar",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "jose-azar"
     },
     {
       "subject": "azar-marinescu-2024-publication",
       "relation": "authored-by",
-      "object": "ioana-marinescu",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "ioana-marinescu"
     },
     {
       "subject": "azar-marinescu-2024-publication",
       "relation": "published-in",
-      "object": "annual-review-economics",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "object": "annual-review-economics"
     },
     {
       "subject": "yeh-macaluso-hershbein-2022-publication",
       "relation": "authored-by",
-      "object": "yeh-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+      "object": "yeh-author"
     },
     {
       "subject": "yeh-macaluso-hershbein-2022-publication",
       "relation": "authored-by",
-      "object": "macaluso-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+      "object": "macaluso-author"
     },
     {
       "subject": "yeh-macaluso-hershbein-2022-publication",
       "relation": "authored-by",
-      "object": "hershbein-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+      "object": "hershbein-author"
     },
     {
       "subject": "yeh-macaluso-hershbein-2022-publication",
       "relation": "published-in",
-      "object": "american-economic-review",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+      "object": "american-economic-review"
     },
     {
       "subject": "manning-2021-publication",
       "relation": "published-in-year",
-      "object": "year-2021",
-      "sourceText": "Publication year metadata for Monopsony in Labor Markets: A Review."
+      "object": "year-2021"
     },
     {
       "subject": "azar-marinescu-2024-publication",
       "relation": "published-in-year",
-      "object": "year-2024",
-      "sourceText": "Publication year metadata for Monopsony Power in the Labor Market: From Theory to Policy."
+      "object": "year-2024"
     },
     {
       "subject": "yeh-macaluso-hershbein-2022-publication",
       "relation": "published-in-year",
-      "object": "year-2022",
-      "sourceText": "Publication year metadata for Monopsony in the US Labor Market."
+      "object": "year-2022"
+    },
+    {
+      "subject": "market-participant",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "buyer",
+      "relation": "is-a",
+      "object": "market-participant"
+    },
+    {
+      "subject": "seller",
+      "relation": "is-a",
+      "object": "market-participant"
+    },
+    {
+      "subject": "dominant-buyer",
+      "relation": "is-a",
+      "object": "buyer"
+    },
+    {
+      "subject": "buyer-market-structure",
+      "relation": "is-a",
+      "object": "economic-market-structure"
+    },
+    {
+      "subject": "monopsony",
+      "relation": "is-a",
+      "object": "buyer-market-structure"
+    },
+    {
+      "subject": "market-power",
+      "relation": "is-a",
+      "object": "economic-concept"
+    },
+    {
+      "subject": "buyer-market-power",
+      "relation": "is-a",
+      "object": "market-power"
+    },
+    {
+      "subject": "market-power-effect",
+      "relation": "is-a",
+      "object": "economic-concept"
+    },
+    {
+      "subject": "wage-markdown",
+      "relation": "is-a",
+      "object": "market-power-effect"
+    },
+    {
+      "subject": "monopsony-power",
+      "relation": "is-a",
+      "object": "wage-setting-power"
+    },
+    {
+      "subject": "labor-market",
+      "relation": "is-a",
+      "object": "economic-market-structure"
+    },
+    {
+      "subject": "labor-market",
+      "relation": "is-a",
+      "object": "buyer-market-structure"
+    },
+    {
+      "subject": "employer",
+      "relation": "is-a",
+      "object": "buyer"
+    },
+    {
+      "subject": "worker",
+      "relation": "is-a",
+      "object": "seller"
+    },
+    {
+      "subject": "worker-group",
+      "relation": "is-a",
+      "object": "worker"
+    },
+    {
+      "subject": "labor-market-feature",
+      "relation": "is-a",
+      "object": "economic-concept"
+    },
+    {
+      "subject": "employer-concentration",
+      "relation": "is-a",
+      "object": "labor-market-feature"
+    },
+    {
+      "subject": "job-differentiation",
+      "relation": "is-a",
+      "object": "labor-market-feature"
+    },
+    {
+      "subject": "search-frictions",
+      "relation": "is-a",
+      "object": "labor-market-feature"
+    },
+    {
+      "subject": "limited-outside-options",
+      "relation": "is-a",
+      "object": "labor-market-feature"
+    },
+    {
+      "subject": "switching-friction",
+      "relation": "is-a",
+      "object": "labor-market-feature"
+    },
+    {
+      "subject": "relocation-cost",
+      "relation": "is-a",
+      "object": "switching-friction"
+    },
+    {
+      "subject": "non-compete-restriction",
+      "relation": "is-a",
+      "object": "switching-friction"
+    },
+    {
+      "subject": "geographic-area",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "employment-opportunity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "market-power-mechanism",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "research-publication",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "person",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "journal",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "wage-setting-power",
+      "relation": "is-a",
+      "object": "buyer-market-power"
+    },
+    {
+      "subject": "calendar-year",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "rural-town-labor-market",
+      "relation": "instance-of",
+      "object": "labor-market"
+    },
+    {
+      "subject": "rural-town",
+      "relation": "instance-of",
+      "object": "geographic-area"
+    },
+    {
+      "subject": "rural-hospital",
+      "relation": "instance-of",
+      "object": "employer"
+    },
+    {
+      "subject": "rural-hospital",
+      "relation": "instance-of",
+      "object": "dominant-buyer"
+    },
+    {
+      "subject": "rural-nurses",
+      "relation": "instance-of",
+      "object": "worker-group"
+    },
+    {
+      "subject": "rural-nurses",
+      "relation": "instance-of",
+      "object": "limited-outside-options"
+    },
+    {
+      "subject": "limited-outside-options-example",
+      "relation": "instance-of",
+      "object": "limited-outside-options"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "instance-of",
+      "object": "labor-market"
+    },
+    {
+      "subject": "regional-hospital-a",
+      "relation": "instance-of",
+      "object": "employer"
+    },
+    {
+      "subject": "regional-hospital-b",
+      "relation": "instance-of",
+      "object": "employer"
+    },
+    {
+      "subject": "regional-nurses",
+      "relation": "instance-of",
+      "object": "worker-group"
+    },
+    {
+      "subject": "regional-job-differentiation",
+      "relation": "instance-of",
+      "object": "job-differentiation"
+    },
+    {
+      "subject": "regional-job-differentiation",
+      "relation": "instance-of",
+      "object": "market-power-mechanism"
+    },
+    {
+      "subject": "regional-search-frictions",
+      "relation": "instance-of",
+      "object": "search-frictions"
+    },
+    {
+      "subject": "regional-search-frictions",
+      "relation": "instance-of",
+      "object": "market-power-mechanism"
+    },
+    {
+      "subject": "worker-with-switching-barriers",
+      "relation": "instance-of",
+      "object": "worker"
+    },
+    {
+      "subject": "worker-relocation-cost",
+      "relation": "instance-of",
+      "object": "relocation-cost"
+    },
+    {
+      "subject": "worker-non-compete",
+      "relation": "instance-of",
+      "object": "non-compete-restriction"
+    },
+    {
+      "subject": "employer-concentration-mechanism",
+      "relation": "instance-of",
+      "object": "employer-concentration"
+    },
+    {
+      "subject": "employer-concentration-mechanism",
+      "relation": "instance-of",
+      "object": "market-power-mechanism"
+    },
+    {
+      "subject": "job-differentiation-mechanism",
+      "relation": "instance-of",
+      "object": "job-differentiation"
+    },
+    {
+      "subject": "job-differentiation-mechanism",
+      "relation": "instance-of",
+      "object": "market-power-mechanism"
+    },
+    {
+      "subject": "search-friction-mechanism",
+      "relation": "instance-of",
+      "object": "search-frictions"
+    },
+    {
+      "subject": "search-friction-mechanism",
+      "relation": "instance-of",
+      "object": "market-power-mechanism"
+    },
+    {
+      "subject": "wage-markdown-effect",
+      "relation": "instance-of",
+      "object": "wage-markdown"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "instance-of",
+      "object": "monopsony-power"
+    },
+    {
+      "subject": "alan-manning",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "jose-azar",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "ioana-marinescu",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "yeh-author",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "macaluso-author",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "hershbein-author",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "ilr-review",
+      "relation": "instance-of",
+      "object": "journal"
+    },
+    {
+      "subject": "annual-review-economics",
+      "relation": "instance-of",
+      "object": "journal"
+    },
+    {
+      "subject": "american-economic-review",
+      "relation": "instance-of",
+      "object": "journal"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "instance-of",
+      "object": "research-publication"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "instance-of",
+      "object": "research-publication"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "instance-of",
+      "object": "research-publication"
+    },
+    {
+      "subject": "year-2021",
+      "relation": "instance-of",
+      "object": "calendar-year"
+    },
+    {
+      "subject": "year-2022",
+      "relation": "instance-of",
+      "object": "calendar-year"
+    },
+    {
+      "subject": "year-2024",
+      "relation": "instance-of",
+      "object": "calendar-year"
     }
   ],
-  "dataProperties": [
-    {
-      "id": "doi-url",
-      "domainType": "research-publication",
-      "valueType": "uri"
-    }
-  ],
-  "dataAssertions": [
-    {
-      "subject": "manning-2021-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1177/0019793920922499",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1146/annurev-economics-072823-030431",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1257/aer.20200025",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    }
-  ]
+  "dataProperties": [],
+  "dataAssertions": []
 }

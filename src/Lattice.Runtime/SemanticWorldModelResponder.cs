@@ -57,11 +57,12 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        var parent = reasoner.GetDirectSupertypes(type.Id)
+            .Select(parentId => model.FindConcept(parentId, SemanticConceptKind.Type))
+            .FirstOrDefault(candidate => candidate is not null);
+
         if (definition.DefinitionKind == SemanticDefinitionKind.Primitive)
         {
-            var parentLabel = definition.ParentTypes
-                .Select(parentId => model.FindConcept(parentId, SemanticConceptKind.Type)?.Label)
-                .FirstOrDefault(label => label is not null);
             var necessaryPhrases = definition.NecessaryConditions
                 .Select(condition => FormatCondition(condition, model))
                 .Where(phrase => phrase is not null)
@@ -70,22 +71,11 @@ internal static class SemanticWorldModelResponder
             var necessaryClause = necessaryPhrases.Length == 0
                 ? string.Empty
                 : $" Its instances must {JoinConditions(necessaryPhrases)}.";
-            message = parentLabel is null
+            message = parent is null
                 ? $"{Capitalize(type.Label)} is a primitive root type in the current model; it has no further structural definition.{necessaryClause}"
-                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parentLabel)}; the model does not claim a sufficient structural definition for it.{necessaryClause}";
+                : $"{Capitalize(type.Label)} is currently modeled as a primitive subtype of {IndefinitePhrase(parent.Label)}; the model does not claim a sufficient structural definition for it.{necessaryClause}";
             evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
             return true;
-        }
-
-        if (definition.ParentTypes.IsDefaultOrEmpty)
-        {
-            return false;
-        }
-
-        var parent = model.FindConcept(definition.ParentTypes[0], SemanticConceptKind.Type);
-        if (parent is null)
-        {
-            return false;
         }
 
         var expressionPhrase = FormatExpression(definition.SufficientExpression, model);
@@ -94,7 +84,9 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {expressionPhrase}.";
+        message = parent is null
+            ? $"{Capitalize(IndefinitePhrase(type.Label))} is defined by instances that {expressionPhrase}."
+            : $"{Capitalize(IndefinitePhrase(type.Label))} is {IndefinitePhrase(parent.Label)} that {expressionPhrase}.";
         evidence = ImmutableArray.Create(ToEvidence([definition.Source], LatticeEvidenceKind.Asserted));
         return true;
     }
@@ -660,7 +652,9 @@ internal static class SemanticWorldModelResponder
                 continue;
             }
 
-            foreach (var parent in model.FindDefinition(current)?.ParentTypes ?? [])
+            foreach (var parent in model.RelationAssertions
+                .Where(assertion => assertion.Subject == current && assertion.Relation == "is-a")
+                .Select(assertion => assertion.Object))
             {
                 if (parent == expected)
                 {
@@ -696,8 +690,6 @@ internal static class SemanticWorldModelResponder
         var journal = reasoner.GetRelations(publicationId, "published-in")
             .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
             .FirstOrDefault(concept => concept is not null);
-        var doi = model.GetDataAssertions(publicationId, "doi-url").FirstOrDefault();
-
         var citation = authors.Length == 0
             ? publication.Label
             : year is null
@@ -708,11 +700,6 @@ internal static class SemanticWorldModelResponder
             citation += $", {journal.Label}";
         }
 
-        if (doi is not null)
-        {
-            citation += $" ({doi.Value})";
-        }
-
         return citation;
     }
 
@@ -720,10 +707,11 @@ internal static class SemanticWorldModelResponder
         string individual,
         string type,
         SemanticWorldModel model) =>
-        model.TypeAssertions
+        model.RelationAssertions
             .Where(assertion =>
-                assertion.Individual == individual &&
-                IsSubtype(assertion.Type, type, model))
+                assertion.Subject == individual &&
+                assertion.Relation == "instance-of" &&
+                IsSubtype(assertion.Object, type, model))
             .Select(assertion => assertion.Source)
             .ToImmutableArray();
 
@@ -860,11 +848,11 @@ internal static class SemanticWorldModelResponder
             kind,
             LatticeEvidencePolarity.Positive,
             sources.Select(source => new LatticeEvidenceSource(
-                LatticeKnowledgeSourceKind.ImportedClaim,
-                source.SourceText,
+                LatticeKnowledgeSourceKind.FoundationalKnowledge,
+                source.SourceId,
                 source.SourceId,
                 null,
-                source.SourceUrl)).ToImmutableArray(),
+                null)).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty);
 
     private static bool Fail(

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-world-model",
   "name": "Core semantic world model",
   "concepts": [
@@ -16,18 +16,32 @@
       "partOfSpeech": "noun"
     }
   ],
-  "relations": [],
+  "relations": [
+    {
+      "id": "is-a",
+      "verb": "is a",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
+    },
+    {
+      "id": "instance-of",
+      "verb": "is an instance of",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "type"
+    }
+  ],
   "definitions": [
     {
       "concept": "entity",
-      "parents": [],
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "sourceText": "Foundational semantic root.",
       "sufficientExpression": null
     }
   ],
-  "typeAssertions": [],
   "relationAssertions": [],
   "dataProperties": [],
   "dataAssertions": []

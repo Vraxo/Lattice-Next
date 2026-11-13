@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-instruments",
   "name": "Musical instruments",
   "concepts": [
@@ -757,144 +757,84 @@
   "definitions": [
     {
       "concept": "physical-object",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Core ontology: physical-object is a subtype of entity.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "physical-process",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Core ontology: physical-process is a subtype of entity.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "sound-production-mechanism",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Core ontology: sound-production mechanisms are entities.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "playing-interface",
-      "parents": [
-        "physical-object"
-      ],
-      "sourceText": "Core ontology: a playing interface is a physical object.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "keyboard-interface",
-      "parents": [
-        "playing-interface"
-      ],
-      "sourceText": "Yale Library instrument-family guidance.",
-      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "string-sound-mechanism",
-      "parents": [
-        "sound-production-mechanism"
-      ],
-      "sourceText": "Core ontology: string-sound mechanisms are sound-production mechanisms.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "struck-string-mechanism",
-      "parents": [
-        "string-sound-mechanism"
-      ],
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "plucked-string-mechanism",
-      "parents": [
-        "string-sound-mechanism"
-      ],
-      "sourceText": "Core ontology: plucked-string mechanisms are string-sound mechanisms.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "bowed-string-mechanism",
-      "parents": [
-        "string-sound-mechanism"
-      ],
-      "sourceText": "Core ontology: bowed-string mechanisms are string-sound mechanisms.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "free-reed-mechanism",
-      "parents": [
-        "sound-production-mechanism"
-      ],
-      "sourceText": "Metropolitan Museum instrument classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "percussion-mechanism",
-      "parents": [
-        "sound-production-mechanism"
-      ],
-      "sourceText": "Core ontology: percussion mechanisms are sound-production mechanisms.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "woodwind-mechanism",
-      "parents": [
-        "sound-production-mechanism"
-      ],
-      "sourceText": "Metropolitan Museum zurna classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "physical-component",
-      "parents": [
-        "physical-object"
-      ],
-      "sourceText": "Core ontology: physical components are physical objects.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "striking-component",
-      "parents": [
-        "physical-component"
-      ],
-      "sourceText": "Core ontology: striking components are physical components.",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -905,11 +845,6 @@
     },
     {
       "concept": "string-component",
-      "parents": [
-        "physical-component"
-      ],
-      "sourceText": "Cambridge Companion to the Piano: piano strings and vibration.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239",
       "definitionKind": "primitive",
       "necessaryConditions": [
         {
@@ -925,11 +860,6 @@
     },
     {
       "concept": "resonator",
-      "parents": [
-        "physical-component"
-      ],
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -950,32 +880,18 @@
     },
     {
       "concept": "free-reed-component",
-      "parents": [
-        "physical-component"
-      ],
-      "sourceText": "Metropolitan Museum description of free reeds.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "sound-event",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Core ontology: sound is an event.",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "musical-instrument",
-      "parents": [
-        "physical-object"
-      ],
-      "sourceText": "Yamaha musical instrument guide: piano is a musical instrument.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -986,11 +902,6 @@
     },
     {
       "concept": "keyboard-instrument",
-      "parents": [
-        "musical-instrument"
-      ],
-      "sourceText": "Yale Library instrument-family guidance.",
-      "sourceUrl": "https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1001,11 +912,6 @@
     },
     {
       "concept": "string-instrument",
-      "parents": [
-        "musical-instrument"
-      ],
-      "sourceText": "European Schools music syllabus: instrument-family classification.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1016,11 +922,6 @@
     },
     {
       "concept": "struck-string-instrument",
-      "parents": [
-        "string-instrument"
-      ],
-      "sourceText": "Yamaha piano musical instrument guide.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1031,11 +932,6 @@
     },
     {
       "concept": "free-reed-instrument",
-      "parents": [
-        "musical-instrument"
-      ],
-      "sourceText": "Metropolitan Museum harmonium classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1046,10 +942,6 @@
     },
     {
       "concept": "percussion-instrument",
-      "parents": [
-        "musical-instrument"
-      ],
-      "sourceText": "Curated core instrument-family classification.",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1060,11 +952,6 @@
     },
     {
       "concept": "woodwind-instrument",
-      "parents": [
-        "musical-instrument"
-      ],
-      "sourceText": "Metropolitan Museum zurna classification.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941",
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -1075,447 +962,477 @@
     },
     {
       "concept": "mechanical-state",
-      "parents": [
-        "entity"
-      ],
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "sourceText": "Foundational physical-state category.",
       "sufficientExpression": null
     },
     {
       "concept": "tensioned-state",
-      "parents": [
-        "mechanical-state"
-      ],
       "definitionKind": "primitive",
       "necessaryConditions": [],
-      "sourceText": "Foundational mechanical-state category.",
       "sufficientExpression": null
-    }
-  ],
-  "typeAssertions": [
-    {
-      "individual": "piano",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: piano is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "harmonium",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: harmonium is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "accordion",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: accordion is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "guitar",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: guitar is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "violin",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: violin is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "cello",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: cello is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "banjo",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: banjo is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "panduri",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: panduri is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "gudok",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: gudok is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "zurna",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: zurna is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "cantaro",
-      "type": "physical-object",
-      "sourceText": "Core semantic model: cantaro is an individual physical instrument.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "piano-keyboard",
-      "type": "keyboard-interface",
-      "sourceText": "Yamaha musical instrument guide.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
-    },
-    {
-      "individual": "piano-action",
-      "type": "struck-string-mechanism",
-      "sourceText": "Yamaha piano action guide.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html"
-    },
-    {
-      "individual": "piano-strings",
-      "type": "string-component",
-      "sourceText": "Cambridge Companion to the Piano: acoustics of the piano.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
-    },
-    {
-      "individual": "acoustic-sound",
-      "type": "sound-event",
-      "sourceText": "Core semantic model: curated component typing.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "harmonium-keyboard",
-      "type": "keyboard-interface",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
-    },
-    {
-      "individual": "harmonium-action",
-      "type": "free-reed-mechanism",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
-    },
-    {
-      "individual": "harmonium-bellows",
-      "type": "physical-component",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
-    },
-    {
-      "individual": "harmonium-reeds",
-      "type": "free-reed-component",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
-    },
-    {
-      "individual": "harmonium-sound",
-      "type": "sound-event",
-      "sourceText": "Core semantic model: curated component typing.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "accordion-keyboard",
-      "type": "keyboard-interface",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
-    },
-    {
-      "individual": "accordion-action",
-      "type": "free-reed-mechanism",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
-    },
-    {
-      "individual": "accordion-bellows",
-      "type": "physical-component",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
-    },
-    {
-      "individual": "accordion-reeds",
-      "type": "free-reed-component",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
-    },
-    {
-      "individual": "accordion-sound",
-      "type": "sound-event",
-      "sourceText": "Core semantic model: curated component typing.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "guitar-mechanism",
-      "type": "plucked-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
-    },
-    {
-      "individual": "violin-mechanism",
-      "type": "bowed-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
-    },
-    {
-      "individual": "cello-mechanism",
-      "type": "bowed-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
-    },
-    {
-      "individual": "banjo-mechanism",
-      "type": "plucked-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
-    },
-    {
-      "individual": "panduri-mechanism",
-      "type": "plucked-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://polyphony.ge/en/georgia/georgian-traditional-music/musical-instruments/"
-    },
-    {
-      "individual": "gudok-mechanism",
-      "type": "bowed-string-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "zurna-mechanism",
-      "type": "woodwind-mechanism",
-      "sourceText": "Instrument mechanism type curated from instrument-family references.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
-    },
-    {
-      "individual": "piano-hammers",
-      "type": "physical-component",
-      "sourceText": "Yamaha piano mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "individual": "piano-soundboard",
-      "type": "physical-component",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
-    },
-    {
-      "individual": "piano-string-tension",
-      "type": "tensioned-state",
-      "sourceText": "Piano strings are held under tension.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
     }
   ],
   "relationAssertions": [
     {
       "subject": "piano",
       "relation": "has-playing-interface",
-      "object": "piano-keyboard",
-      "sourceText": "Piano is a keyboard-instrument.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
+      "object": "piano-keyboard"
     },
     {
       "subject": "piano",
       "relation": "has-sound-production-mechanism",
-      "object": "piano-action",
-      "sourceText": "Piano is a struck-string-instrument.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/"
+      "object": "piano-action"
     },
     {
       "subject": "piano",
       "relation": "contains",
-      "object": "piano-hammers",
-      "sourceText": "Yamaha piano mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "piano-hammers"
     },
     {
       "subject": "piano",
       "relation": "contains",
-      "object": "piano-strings",
-      "sourceText": "Yamaha piano mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "piano-strings"
     },
     {
       "subject": "piano-keyboard",
       "relation": "activates",
-      "object": "piano-action",
-      "sourceText": "Yamaha piano action guide.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html"
+      "object": "piano-action"
     },
     {
       "subject": "piano-action",
       "relation": "actuates",
-      "object": "piano-hammers",
-      "sourceText": "Yamaha piano action guide: the action actuates the hammer mechanism.",
-      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html"
+      "object": "piano-hammers"
     },
     {
       "subject": "piano-strings",
       "relation": "transmits-vibration-to",
-      "object": "piano-soundboard",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "piano-soundboard"
     },
     {
       "subject": "piano-soundboard",
       "relation": "radiates",
-      "object": "acoustic-sound",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "acoustic-sound"
     },
     {
       "subject": "harmonium",
       "relation": "has-playing-interface",
-      "object": "harmonium-keyboard",
-      "sourceText": "Harmonium is a keyboard-instrument.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-keyboard"
     },
     {
       "subject": "harmonium",
       "relation": "has-sound-production-mechanism",
-      "object": "harmonium-action",
-      "sourceText": "Harmonium is a free-reed-instrument.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-action"
     },
     {
       "subject": "harmonium-action",
       "relation": "directs-air-through",
-      "object": "harmonium-reeds",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-reeds"
     },
     {
       "subject": "harmonium-bellows",
       "relation": "supplies-air-to",
-      "object": "harmonium-reeds",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-reeds"
     },
     {
       "subject": "harmonium-keyboard",
       "relation": "opens-valves-for",
-      "object": "harmonium-action",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-action"
     },
     {
       "subject": "harmonium-reeds",
       "relation": "vibrates-to-produce",
-      "object": "harmonium-sound",
-      "sourceText": "Metropolitan Museum harmonium collection record.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/505026"
+      "object": "harmonium-sound"
     },
     {
       "subject": "accordion",
       "relation": "has-playing-interface",
-      "object": "accordion-keyboard",
-      "sourceText": "Accordion is a keyboard-instrument.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
+      "object": "accordion-keyboard"
     },
     {
       "subject": "accordion",
       "relation": "has-sound-production-mechanism",
-      "object": "accordion-action",
-      "sourceText": "Accordion is a free-reed-instrument.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
+      "object": "accordion-action"
     },
     {
       "subject": "accordion-action",
       "relation": "directs-air-through",
-      "object": "accordion-reeds",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
+      "object": "accordion-reeds"
     },
     {
       "subject": "accordion-bellows",
       "relation": "supplies-air-to",
-      "object": "accordion-reeds",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
+      "object": "accordion-reeds"
     },
     {
       "subject": "accordion-reeds",
       "relation": "vibrates-to-produce",
-      "object": "accordion-sound",
-      "sourceText": "Staatliches Institut für Musikforschung: The Accordion.",
-      "sourceUrl": "https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html"
+      "object": "accordion-sound"
     },
     {
       "subject": "guitar",
       "relation": "has-sound-production-mechanism",
-      "object": "guitar-mechanism",
-      "sourceText": "Guitar is a string-instrument.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
+      "object": "guitar-mechanism"
     },
     {
       "subject": "violin",
       "relation": "has-sound-production-mechanism",
-      "object": "violin-mechanism",
-      "sourceText": "Violin is a string-instrument.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
+      "object": "violin-mechanism"
     },
     {
       "subject": "cello",
       "relation": "has-sound-production-mechanism",
-      "object": "cello-mechanism",
-      "sourceText": "Cello is a string-instrument.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
+      "object": "cello-mechanism"
     },
     {
       "subject": "banjo",
       "relation": "has-sound-production-mechanism",
-      "object": "banjo-mechanism",
-      "sourceText": "Banjo is a string-instrument.",
-      "sourceUrl": "https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf"
+      "object": "banjo-mechanism"
     },
     {
       "subject": "panduri",
       "relation": "has-sound-production-mechanism",
-      "object": "panduri-mechanism",
-      "sourceText": "Panduri is a string-instrument.",
-      "sourceUrl": "https://polyphony.ge/en/georgia/georgian-traditional-music/musical-instruments/"
+      "object": "panduri-mechanism"
     },
     {
       "subject": "gudok",
       "relation": "has-sound-production-mechanism",
-      "object": "gudok-mechanism",
-      "sourceText": "Gudok is a string-instrument.",
-      "sourceUrl": null
+      "object": "gudok-mechanism"
     },
     {
       "subject": "zurna",
       "relation": "has-sound-production-mechanism",
-      "object": "zurna-mechanism",
-      "sourceText": "Zurna is a woodwind-instrument.",
-      "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
+      "object": "zurna-mechanism"
     },
     {
       "subject": "cantaro",
       "relation": "has-sound-production-mechanism",
-      "object": "cantaro-mechanism",
-      "sourceText": "Cantaro is a percussion-instrument.",
-      "sourceUrl": null
+      "object": "cantaro-mechanism"
     },
     {
       "subject": "piano-hammers",
       "relation": "strikes",
-      "object": "piano-strings",
-      "sourceText": "Yamaha piano mechanism guide: hammers strike the strings.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "piano-strings"
     },
     {
       "subject": "piano-soundboard",
       "relation": "receives-vibration-from",
-      "object": "piano-strings",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "object": "piano-strings"
     },
     {
       "subject": "piano-strings",
       "relation": "has-mechanical-state",
-      "object": "piano-string-tension",
-      "sourceText": "Piano strings are held under tension.",
-      "sourceUrl": "https://www.cambridge.org/core/books/abs/cambridge-companion-to-the-piano/acoustics-of-the-piano/78A7596E021BA1EB4CEF3FA33806D239"
+      "object": "piano-string-tension"
+    },
+    {
+      "subject": "physical-object",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "physical-process",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "sound-production-mechanism",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "playing-interface",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "keyboard-interface",
+      "relation": "is-a",
+      "object": "playing-interface"
+    },
+    {
+      "subject": "string-sound-mechanism",
+      "relation": "is-a",
+      "object": "sound-production-mechanism"
+    },
+    {
+      "subject": "struck-string-mechanism",
+      "relation": "is-a",
+      "object": "string-sound-mechanism"
+    },
+    {
+      "subject": "plucked-string-mechanism",
+      "relation": "is-a",
+      "object": "string-sound-mechanism"
+    },
+    {
+      "subject": "bowed-string-mechanism",
+      "relation": "is-a",
+      "object": "string-sound-mechanism"
+    },
+    {
+      "subject": "free-reed-mechanism",
+      "relation": "is-a",
+      "object": "sound-production-mechanism"
+    },
+    {
+      "subject": "percussion-mechanism",
+      "relation": "is-a",
+      "object": "sound-production-mechanism"
+    },
+    {
+      "subject": "woodwind-mechanism",
+      "relation": "is-a",
+      "object": "sound-production-mechanism"
+    },
+    {
+      "subject": "physical-component",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "striking-component",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "string-component",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "resonator",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "free-reed-component",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "sound-event",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "musical-instrument",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "keyboard-instrument",
+      "relation": "is-a",
+      "object": "musical-instrument"
+    },
+    {
+      "subject": "string-instrument",
+      "relation": "is-a",
+      "object": "musical-instrument"
+    },
+    {
+      "subject": "struck-string-instrument",
+      "relation": "is-a",
+      "object": "string-instrument"
+    },
+    {
+      "subject": "free-reed-instrument",
+      "relation": "is-a",
+      "object": "musical-instrument"
+    },
+    {
+      "subject": "percussion-instrument",
+      "relation": "is-a",
+      "object": "musical-instrument"
+    },
+    {
+      "subject": "woodwind-instrument",
+      "relation": "is-a",
+      "object": "musical-instrument"
+    },
+    {
+      "subject": "mechanical-state",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "tensioned-state",
+      "relation": "is-a",
+      "object": "mechanical-state"
+    },
+    {
+      "subject": "piano",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "harmonium",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "accordion",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "guitar",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "violin",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "cello",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "banjo",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "panduri",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "gudok",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "zurna",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "cantaro",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "piano-keyboard",
+      "relation": "instance-of",
+      "object": "keyboard-interface"
+    },
+    {
+      "subject": "piano-action",
+      "relation": "instance-of",
+      "object": "struck-string-mechanism"
+    },
+    {
+      "subject": "piano-strings",
+      "relation": "instance-of",
+      "object": "string-component"
+    },
+    {
+      "subject": "acoustic-sound",
+      "relation": "instance-of",
+      "object": "sound-event"
+    },
+    {
+      "subject": "harmonium-keyboard",
+      "relation": "instance-of",
+      "object": "keyboard-interface"
+    },
+    {
+      "subject": "harmonium-action",
+      "relation": "instance-of",
+      "object": "free-reed-mechanism"
+    },
+    {
+      "subject": "harmonium-bellows",
+      "relation": "instance-of",
+      "object": "physical-component"
+    },
+    {
+      "subject": "harmonium-reeds",
+      "relation": "instance-of",
+      "object": "free-reed-component"
+    },
+    {
+      "subject": "harmonium-sound",
+      "relation": "instance-of",
+      "object": "sound-event"
+    },
+    {
+      "subject": "accordion-keyboard",
+      "relation": "instance-of",
+      "object": "keyboard-interface"
+    },
+    {
+      "subject": "accordion-action",
+      "relation": "instance-of",
+      "object": "free-reed-mechanism"
+    },
+    {
+      "subject": "accordion-bellows",
+      "relation": "instance-of",
+      "object": "physical-component"
+    },
+    {
+      "subject": "accordion-reeds",
+      "relation": "instance-of",
+      "object": "free-reed-component"
+    },
+    {
+      "subject": "accordion-sound",
+      "relation": "instance-of",
+      "object": "sound-event"
+    },
+    {
+      "subject": "guitar-mechanism",
+      "relation": "instance-of",
+      "object": "plucked-string-mechanism"
+    },
+    {
+      "subject": "violin-mechanism",
+      "relation": "instance-of",
+      "object": "bowed-string-mechanism"
+    },
+    {
+      "subject": "cello-mechanism",
+      "relation": "instance-of",
+      "object": "bowed-string-mechanism"
+    },
+    {
+      "subject": "banjo-mechanism",
+      "relation": "instance-of",
+      "object": "plucked-string-mechanism"
+    },
+    {
+      "subject": "panduri-mechanism",
+      "relation": "instance-of",
+      "object": "plucked-string-mechanism"
+    },
+    {
+      "subject": "gudok-mechanism",
+      "relation": "instance-of",
+      "object": "bowed-string-mechanism"
+    },
+    {
+      "subject": "zurna-mechanism",
+      "relation": "instance-of",
+      "object": "woodwind-mechanism"
+    },
+    {
+      "subject": "piano-hammers",
+      "relation": "instance-of",
+      "object": "physical-component"
+    },
+    {
+      "subject": "piano-soundboard",
+      "relation": "instance-of",
+      "object": "physical-component"
+    },
+    {
+      "subject": "piano-string-tension",
+      "relation": "instance-of",
+      "object": "tensioned-state"
     }
   ],
   "dataProperties": [],

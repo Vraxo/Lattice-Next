@@ -8,6 +8,12 @@ public enum SemanticConceptKind
     Individual
 }
 
+public enum SemanticRelationArgumentKind
+{
+    Individual,
+    Type
+}
+
 public sealed record SemanticConcept(
     string Id,
     string Label,
@@ -20,20 +26,23 @@ public sealed record SemanticLexeme(
 
 public sealed record SemanticRelationDefinition(
     string Id,
-    string DomainType,
-    string RangeType,
+    string? DomainType,
+    string? RangeType,
     string Verb,
     string? ObjectRole,
     int Order,
-    int ComparisonPriority);
+    int ComparisonPriority,
+    SemanticRelationArgumentKind SubjectKind = SemanticRelationArgumentKind.Individual,
+    SemanticRelationArgumentKind ObjectKind = SemanticRelationArgumentKind.Individual);
 
 public sealed record SemanticRestriction(
     string Relation,
     string TargetType);
 
+public sealed record SemanticWorldModelSource(string SourceId);
+
 public sealed record SemanticTypeDefinition(
     string Concept,
-    ImmutableArray<string> ParentTypes,
     ImmutableArray<SemanticRestriction> SufficientConditions,
     SemanticWorldModelSource Source)
 {
@@ -41,16 +50,6 @@ public sealed record SemanticTypeDefinition(
     public ImmutableArray<SemanticRestriction> NecessaryConditions { get; init; } = [];
     public SemanticClassExpression? SufficientExpression { get; init; }
 }
-
-public sealed record SemanticWorldModelSource(
-    string SourceText,
-    string? SourceUrl,
-    string SourceId);
-
-public sealed record SemanticTypeAssertion(
-    string Individual,
-    string Type,
-    SemanticWorldModelSource Source);
 
 public sealed record SemanticRelationAssertion(
     string Subject,
@@ -82,7 +81,6 @@ public sealed record SemanticWorldModel(
     ImmutableArray<SemanticLexeme> Lexemes,
     ImmutableArray<SemanticRelationDefinition> Relations,
     ImmutableArray<SemanticTypeDefinition> Definitions,
-    ImmutableArray<SemanticTypeAssertion> TypeAssertions,
     ImmutableArray<SemanticRelationAssertion> RelationAssertions,
     ImmutableArray<SemanticDataPropertyDefinition> DataProperties,
     ImmutableArray<SemanticDataAssertion> DataAssertions)
@@ -147,4 +145,3 @@ public sealed record SemanticWorldModelMembership(
     SemanticConcept Individual,
     SemanticConcept Type,
     ImmutableArray<SemanticWorldModelSource> Evidence);
-

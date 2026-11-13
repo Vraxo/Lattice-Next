@@ -85,14 +85,14 @@ public sealed class SemanticClassExpressionTests
         Assert.False(reasoner.IsInstanceOf("unclassified-component", "string-component"));
 
         var strikingEvidence = reasoner.GetMembershipEvidence("hammer", "striking-component");
-        Assert.Contains(strikingEvidence, source => source.SourceText == "Hammer strikes string.");
+        Assert.Contains(strikingEvidence, source => source.SourceId.EndsWith(":relation:hammer:strikes:string", StringComparison.Ordinal));
 
         var resonatorEvidence = reasoner.GetMembershipEvidence("board", "resonator");
-        Assert.Contains(resonatorEvidence, source => source.SourceText == "Board receives vibration from string.");
-        Assert.Contains(resonatorEvidence, source => source.SourceText == "Board radiates sound.");
+        Assert.Contains(resonatorEvidence, source => source.SourceId.EndsWith(":relation:board:receives-vibration-from:string", StringComparison.Ordinal));
+        Assert.Contains(resonatorEvidence, source => source.SourceId.EndsWith(":relation:board:radiates:sound", StringComparison.Ordinal));
 
         var disjunctiveEvidence = reasoner.GetMembershipEvidence("string", "sound-producing-component");
-        Assert.Contains(disjunctiveEvidence, source => source.SourceText == "String vibrates to produce sound.");
+        Assert.Contains(disjunctiveEvidence, source => source.SourceId.EndsWith(":relation:string:vibrates-to-produce:sound", StringComparison.Ordinal));
     }
 
     [Fact]

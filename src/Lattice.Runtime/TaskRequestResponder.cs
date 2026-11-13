@@ -68,7 +68,10 @@ internal static class TaskRequestResponder
             wageSettingPower is null ||
             wageMarkdown is null ||
             powerDefinition is null ||
-            !powerDefinition.ParentTypes.Contains(wageSettingPower.Id, StringComparer.Ordinal) ||
+            !model.RelationAssertions.Any(assertion =>
+                assertion.Subject == powerDefinition.Concept &&
+                assertion.Relation == "is-a" &&
+                assertion.Object == wageSettingPower.Id) ||
             !powerDefinition.SufficientConditions.Any(condition =>
                 condition.Relation == "has-market-power-effect" &&
                 condition.TargetType == wageMarkdown.Id))
@@ -113,7 +116,7 @@ internal static class TaskRequestResponder
             LatticeEvidenceKind.Derived,
             LatticeEvidencePolarity.Positive,
             sources
-                .DistinctBy(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}:{source.SourceUrl}")
+                .DistinctBy(source => $"{source.Kind}:{source.SourceId}")
                 .ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty));
         return true;
@@ -171,9 +174,11 @@ internal static class TaskRequestResponder
                 .Append(candidate.ApplicationDomains.Length == 1
                     ? candidate.ApplicationDomains[0]
                     : string.Join(", ", candidate.ApplicationDomains))
-                .Append(". [Documentation](")
-                .Append(candidate.DocumentationUrl)
-                .AppendLine(").");
+                .AppendLine(".");
+            if (!string.IsNullOrWhiteSpace(candidate.DocumentationUrl))
+            {
+                builder.Append("Documentation: ").AppendLine(candidate.DocumentationUrl);
+            }
         }
 
         if (candidates.Any(candidate => candidate.IsOptimizationFramework) &&
@@ -188,7 +193,7 @@ internal static class TaskRequestResponder
             LatticeEvidencePolarity.Positive,
             candidates
                 .SelectMany(candidate => candidate.Evidence)
-                .DistinctBy(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}:{source.SourceUrl}")
+                .DistinctBy(source => $"{source.Kind}:{source.SourceId}")
                 .ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty));
         return true;
@@ -230,7 +235,7 @@ internal static class TaskRequestResponder
             .ToImmutableArray();
         var documentation = model.GetDataAssertions(software.Id, "documentation-url").FirstOrDefault();
 
-        if (capabilities.IsDefaultOrEmpty || domains.IsDefaultOrEmpty || documentation is null)
+        if (capabilities.IsDefaultOrEmpty || domains.IsDefaultOrEmpty)
         {
             return null;
         }
@@ -241,7 +246,11 @@ internal static class TaskRequestResponder
         var relationEvidence = capabilityAssertions
             .Select(assertion => assertion.Source)
             .Concat(domainAssertions.Select(assertion => assertion.Source))
-            .Append(documentation.Source);
+            .ToList();
+        if (documentation is not null)
+        {
+            relationEvidence.Add(documentation.Source);
+        }
 
         var evidence = typeEvidence
             .Concat(relationEvidence)
@@ -254,7 +263,7 @@ internal static class TaskRequestResponder
             role.Label,
             capabilities,
             domains,
-            documentation.Value,
+            documentation?.Value ?? string.Empty,
             role.Id == "optimization-modeling-framework" ||
                 reasoner.IsInstanceOf(software.Id, "optimization-framework"),
             capabilities.Any(capability =>
@@ -362,7 +371,9 @@ internal static class TaskRequestResponder
                 continue;
             }
 
-            foreach (var parent in model.FindDefinition(current)?.ParentTypes ?? [])
+            foreach (var parent in model.RelationAssertions
+                .Where(assertion => assertion.Subject == current && assertion.Relation == "is-a")
+                .Select(assertion => assertion.Object))
             {
                 if (parent == expected)
                 {
@@ -378,11 +389,11 @@ internal static class TaskRequestResponder
 
     private static LatticeEvidenceSource ToEvidenceSource(SemanticWorldModelSource source) =>
         new(
-            LatticeKnowledgeSourceKind.ImportedClaim,
-            source.SourceText,
+            LatticeKnowledgeSourceKind.FoundationalKnowledge,
+            source.SourceId,
             source.SourceId,
             null,
-            source.SourceUrl);
+            null);
 
     private static string IndefinitePhrase(string value) =>
         value.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(value[0]))
