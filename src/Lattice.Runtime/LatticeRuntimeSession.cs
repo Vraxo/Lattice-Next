@@ -603,7 +603,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
                 "I don't have enough evidence to distinguish the available choices.",
-                SemanticFormatter.Format(utterance));
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
 
         return new LatticeUtteranceResult(
