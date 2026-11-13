@@ -24,14 +24,14 @@ public sealed class AssistantBenchmarkRunnerTests
               "records": [
                 {
                   "id": "known-fact",
-                  "prompt": "Fido is a dog. Is Fido a dog?",
+                  "prompt": "What is a polygon?",
                   "category": "reasoning",
                   "evaluation_layer": "test",
                   "substantive_answer_reviewed": true
                 },
                 {
                   "id": "unreviewed-answer",
-                  "prompt": "Rex is a cat. Is Rex a cat?",
+                  "prompt": "What is a verb?",
                   "category": "reasoning",
                   "evaluation_layer": "test"
                 },
