@@ -4,6 +4,6 @@
   "name": "Geometry concepts",
   "claims": [
     "Polygon is a geometric-shape.",
-    "Every polygon has a closed boundary."
+    "Every polygon has a boundary."
   ]
 }
