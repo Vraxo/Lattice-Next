@@ -76,10 +76,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             if (combined is null)
             {
                 combined = (System.Text.Json.Nodes.JsonObject)module.DeepClone();
-                foreach (var collectionName in collectionNames)
-                {
-                    combined[collectionName] = new System.Text.Json.Nodes.JsonArray();
-                }
                 continue;
             }
 
