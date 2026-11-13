@@ -223,13 +223,12 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
-        Assert.Equal(
-            2,
-            result.Utterances[0].SupportingEvidence
-                .SelectMany(evidence => evidence.Sources)
-                .Select(source => source.SourceText)
-                .Distinct()
-                .Count());
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source => source.SourceText == "Loop has Boundary."));
+        Assert.Contains(
+            result.Utterances[0].SupportingEvidence,
+            evidence => evidence.Sources.Any(source => source.SourceText == "Boundary has Loop."));
         Assert.Equal(
             "A loop has a boundary. A boundary has a loop.",
             result.Utterances[0].Message);
