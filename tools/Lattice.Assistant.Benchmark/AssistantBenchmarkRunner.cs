@@ -74,7 +74,7 @@ public static class AssistantBenchmarkRunner
                 foreach (var item in selectedRecords)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var result = await RunPromptAsync(item, repetition, cancellationToken);
+                    var result = await RunPromptAsync(item, options.BenchmarkPath, repetition, cancellationToken);
                     results.Add(result);
                     onRunCompleted?.Invoke(result);
                 }
@@ -143,6 +143,7 @@ public static class AssistantBenchmarkRunner
 
     private static async Task<BenchmarkRunResult> RunPromptAsync(
         BenchmarkRecord item,
+        string benchmarkPath,
         int repetition,
         CancellationToken cancellationToken)
     {
@@ -156,7 +157,7 @@ public static class AssistantBenchmarkRunner
 
             foreach (var packPath in item.KnowledgePacks ?? Array.Empty<string>())
             {
-                var benchmarkDirectory = Path.GetDirectoryName(Path.GetFullPath(options.BenchmarkPath))!;
+                var benchmarkDirectory = Path.GetDirectoryName(Path.GetFullPath(benchmarkPath))!;
                 var resolvedPackPath = Path.GetFullPath(packPath, benchmarkDirectory);
                 arguments.Add("--load-pack");
                 arguments.Add(resolvedPackPath);
@@ -166,7 +167,7 @@ public static class AssistantBenchmarkRunner
             arguments.Add(item.Prompt);
 
             var exitCode = await LatticeCli.RunAsync(
-                arguments,
+                arguments.ToArray(),
                 new StringReader(string.Empty),
                 output,
                 error,
