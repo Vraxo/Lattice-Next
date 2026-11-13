@@ -307,6 +307,646 @@
       "id": "cantaro-mechanism",
       "label": "cantaro percussion mechanism",
       "kind": "Individual"
+    },
+    {
+      "id": "geometric-object",
+      "label": "geometric object",
+      "kind": "Type"
+    },
+    {
+      "id": "geometric-shape",
+      "label": "geometric shape",
+      "kind": "Type"
+    },
+    {
+      "id": "plane-figure",
+      "label": "plane figure",
+      "kind": "Type"
+    },
+    {
+      "id": "geometric-structure",
+      "label": "geometric structure",
+      "kind": "Type"
+    },
+    {
+      "id": "geometric-element",
+      "label": "geometric element",
+      "kind": "Type"
+    },
+    {
+      "id": "geometric-point",
+      "label": "geometric point",
+      "kind": "Type"
+    },
+    {
+      "id": "geometric-property",
+      "label": "geometric property",
+      "kind": "Type"
+    },
+    {
+      "id": "straightness",
+      "label": "straightness",
+      "kind": "Type"
+    },
+    {
+      "id": "topological-configuration",
+      "label": "topological configuration",
+      "kind": "Type"
+    },
+    {
+      "id": "closed-cycle",
+      "label": "closed cycle",
+      "kind": "Type"
+    },
+    {
+      "id": "boundary",
+      "label": "boundary",
+      "kind": "Type"
+    },
+    {
+      "id": "closed-boundary",
+      "label": "closed boundary",
+      "kind": "Type"
+    },
+    {
+      "id": "line-segment",
+      "label": "line segment",
+      "kind": "Type"
+    },
+    {
+      "id": "polygon",
+      "label": "polygon",
+      "kind": "Type"
+    },
+    {
+      "id": "triangle-example",
+      "label": "triangle",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-boundary",
+      "label": "triangle boundary",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-cycle",
+      "label": "triangle closed cycle",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-segment-one",
+      "label": "first triangle side",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-segment-two",
+      "label": "second triangle side",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-segment-three",
+      "label": "third triangle side",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-point-one",
+      "label": "triangle vertex one",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-point-two",
+      "label": "triangle vertex two",
+      "kind": "Individual"
+    },
+    {
+      "id": "triangle-point-three",
+      "label": "triangle vertex three",
+      "kind": "Individual"
+    },
+    {
+      "id": "straightness-property",
+      "label": "straightness property",
+      "kind": "Individual"
+    },
+    {
+      "id": "linguistic-category",
+      "label": "linguistic category",
+      "kind": "Type"
+    },
+    {
+      "id": "part-of-speech",
+      "label": "part of speech",
+      "kind": "Type"
+    },
+    {
+      "id": "lexical-item",
+      "label": "lexical item",
+      "kind": "Type"
+    },
+    {
+      "id": "semantic-content",
+      "label": "semantic content",
+      "kind": "Type"
+    },
+    {
+      "id": "action-or-state",
+      "label": "action or state",
+      "kind": "Type"
+    },
+    {
+      "id": "action",
+      "label": "action",
+      "kind": "Type"
+    },
+    {
+      "id": "state",
+      "label": "state",
+      "kind": "Type"
+    },
+    {
+      "id": "verb",
+      "label": "verb",
+      "kind": "Type"
+    },
+    {
+      "id": "run-lexeme",
+      "label": "run",
+      "kind": "Individual"
+    },
+    {
+      "id": "running-action",
+      "label": "running action",
+      "kind": "Individual"
+    },
+    {
+      "id": "economic-concept",
+      "label": "economic concept",
+      "kind": "Type"
+    },
+    {
+      "id": "market-structure",
+      "label": "market structure",
+      "kind": "Type"
+    },
+    {
+      "id": "economic-market-structure",
+      "label": "economic market structure",
+      "kind": "Type"
+    },
+    {
+      "id": "market-participant",
+      "label": "market participant",
+      "kind": "Type"
+    },
+    {
+      "id": "buyer",
+      "label": "buyer",
+      "kind": "Type"
+    },
+    {
+      "id": "seller",
+      "label": "seller",
+      "kind": "Type"
+    },
+    {
+      "id": "dominant-buyer",
+      "label": "dominant buyer",
+      "kind": "Type"
+    },
+    {
+      "id": "buyer-market-structure",
+      "label": "buyer market structure",
+      "kind": "Type"
+    },
+    {
+      "id": "monopsony",
+      "label": "monopsony",
+      "kind": "Type"
+    },
+    {
+      "id": "market-power",
+      "label": "market power",
+      "kind": "Type"
+    },
+    {
+      "id": "buyer-market-power",
+      "label": "buyer market power",
+      "kind": "Type"
+    },
+    {
+      "id": "market-power-effect",
+      "label": "market power effect",
+      "kind": "Type"
+    },
+    {
+      "id": "wage-markdown",
+      "label": "wage markdown",
+      "kind": "Type"
+    },
+    {
+      "id": "monopsony-power",
+      "label": "monopsony power",
+      "kind": "Type"
+    },
+    {
+      "id": "labor-market",
+      "label": "labor market",
+      "kind": "Type"
+    },
+    {
+      "id": "employer",
+      "label": "employer",
+      "kind": "Type"
+    },
+    {
+      "id": "worker",
+      "label": "worker",
+      "kind": "Type"
+    },
+    {
+      "id": "worker-group",
+      "label": "worker group",
+      "kind": "Type"
+    },
+    {
+      "id": "labor-market-feature",
+      "label": "labor market feature",
+      "kind": "Type"
+    },
+    {
+      "id": "employer-concentration",
+      "label": "employer concentration",
+      "kind": "Type"
+    },
+    {
+      "id": "job-differentiation",
+      "label": "job differentiation",
+      "kind": "Type"
+    },
+    {
+      "id": "search-frictions",
+      "label": "search frictions",
+      "kind": "Type"
+    },
+    {
+      "id": "limited-outside-options",
+      "label": "limited outside options",
+      "kind": "Type"
+    },
+    {
+      "id": "switching-friction",
+      "label": "switching friction",
+      "kind": "Type"
+    },
+    {
+      "id": "relocation-cost",
+      "label": "relocation cost",
+      "kind": "Type"
+    },
+    {
+      "id": "non-compete-restriction",
+      "label": "non-compete restriction",
+      "kind": "Type"
+    },
+    {
+      "id": "geographic-area",
+      "label": "geographic area",
+      "kind": "Type"
+    },
+    {
+      "id": "employment-opportunity",
+      "label": "employment opportunity",
+      "kind": "Type"
+    },
+    {
+      "id": "market-power-mechanism",
+      "label": "market power mechanism",
+      "kind": "Type"
+    },
+    {
+      "id": "research-publication",
+      "label": "research publication",
+      "kind": "Type"
+    },
+    {
+      "id": "person",
+      "label": "person",
+      "kind": "Type"
+    },
+    {
+      "id": "journal",
+      "label": "academic journal",
+      "kind": "Type"
+    },
+    {
+      "id": "rural-town-labor-market",
+      "label": "rural town labor market",
+      "kind": "Individual"
+    },
+    {
+      "id": "rural-town",
+      "label": "rural town",
+      "kind": "Individual"
+    },
+    {
+      "id": "rural-hospital",
+      "label": "rural hospital",
+      "kind": "Individual"
+    },
+    {
+      "id": "rural-nurses",
+      "label": "nurses in the rural town",
+      "kind": "Individual"
+    },
+    {
+      "id": "limited-outside-options-example",
+      "label": "limited outside options in the rural labor market",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-healthcare-labor-market",
+      "label": "regional healthcare labor market",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-hospital-a",
+      "label": "regional hospital A",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-hospital-b",
+      "label": "regional hospital B",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-nurses",
+      "label": "regional nurses",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-job-differentiation",
+      "label": "job differentiation in regional healthcare",
+      "kind": "Individual"
+    },
+    {
+      "id": "regional-search-frictions",
+      "label": "search frictions in regional healthcare",
+      "kind": "Individual"
+    },
+    {
+      "id": "worker-with-switching-barriers",
+      "label": "worker with switching barriers",
+      "kind": "Individual"
+    },
+    {
+      "id": "worker-relocation-cost",
+      "label": "relocation cost faced by worker",
+      "kind": "Individual"
+    },
+    {
+      "id": "worker-non-compete",
+      "label": "non-compete restriction faced by worker",
+      "kind": "Individual"
+    },
+    {
+      "id": "employer-concentration-mechanism",
+      "label": "employer concentration",
+      "kind": "Individual"
+    },
+    {
+      "id": "job-differentiation-mechanism",
+      "label": "job differentiation",
+      "kind": "Individual"
+    },
+    {
+      "id": "search-friction-mechanism",
+      "label": "search frictions",
+      "kind": "Individual"
+    },
+    {
+      "id": "wage-markdown-effect",
+      "label": "wage markdown below marginal revenue product",
+      "kind": "Individual"
+    },
+    {
+      "id": "labor-market-monopsony-power",
+      "label": "labor-market monopsony power",
+      "kind": "Individual"
+    },
+    {
+      "id": "alan-manning",
+      "label": "Alan Manning",
+      "kind": "Individual"
+    },
+    {
+      "id": "jose-azar",
+      "label": "José Azar",
+      "kind": "Individual"
+    },
+    {
+      "id": "ioana-marinescu",
+      "label": "Ioana Marinescu",
+      "kind": "Individual"
+    },
+    {
+      "id": "yeh-author",
+      "label": "Yeh",
+      "kind": "Individual"
+    },
+    {
+      "id": "macaluso-author",
+      "label": "Macaluso",
+      "kind": "Individual"
+    },
+    {
+      "id": "hershbein-author",
+      "label": "Hershbein",
+      "kind": "Individual"
+    },
+    {
+      "id": "ilr-review",
+      "label": "ILR Review",
+      "kind": "Individual"
+    },
+    {
+      "id": "annual-review-economics",
+      "label": "Annual Review of Economics",
+      "kind": "Individual"
+    },
+    {
+      "id": "american-economic-review",
+      "label": "American Economic Review",
+      "kind": "Individual"
+    },
+    {
+      "id": "manning-2021-publication",
+      "label": "Monopsony in Labor Markets: A Review (2021)",
+      "kind": "Individual"
+    },
+    {
+      "id": "azar-marinescu-2024-publication",
+      "label": "Monopsony Power in the Labor Market: From Theory to Policy (2024)",
+      "kind": "Individual"
+    },
+    {
+      "id": "yeh-macaluso-hershbein-2022-publication",
+      "label": "Monopsony in the US Labor Market (2022)",
+      "kind": "Individual"
+    },
+    {
+      "id": "software",
+      "label": "software",
+      "kind": "Type"
+    },
+    {
+      "id": "open-source-software",
+      "label": "open-source software",
+      "kind": "Type"
+    },
+    {
+      "id": "python-package",
+      "label": "Python package",
+      "kind": "Type"
+    },
+    {
+      "id": "process-simulation-framework",
+      "label": "process simulation framework",
+      "kind": "Type"
+    },
+    {
+      "id": "process-modeling-framework",
+      "label": "process modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "optimization-framework",
+      "label": "optimization framework",
+      "kind": "Type"
+    },
+    {
+      "id": "process-optimizer",
+      "label": "process optimizer",
+      "kind": "Type"
+    },
+    {
+      "id": "process-systems-engineering-framework",
+      "label": "process systems engineering framework",
+      "kind": "Type"
+    },
+    {
+      "id": "biorefinery-modeling-framework",
+      "label": "biorefinery modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "optimization-modeling-framework",
+      "label": "optimization modeling framework",
+      "kind": "Type"
+    },
+    {
+      "id": "capability",
+      "label": "software capability",
+      "kind": "Type"
+    },
+    {
+      "id": "application-domain",
+      "label": "application domain",
+      "kind": "Type"
+    },
+    {
+      "id": "idaes",
+      "label": "IDAES",
+      "kind": "Individual"
+    },
+    {
+      "id": "biosteam",
+      "label": "BioSTEAM",
+      "kind": "Individual"
+    },
+    {
+      "id": "pyomo",
+      "label": "Pyomo",
+      "kind": "Individual"
+    },
+    {
+      "id": "equation-oriented-process-modeling",
+      "label": "equation-oriented process modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "process-modeling",
+      "label": "process modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "flowsheet-optimization",
+      "label": "flowsheet optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "unit-operation-modeling",
+      "label": "unit-operation modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "techno-economic-analysis",
+      "label": "techno-economic analysis",
+      "kind": "Individual"
+    },
+    {
+      "id": "life-cycle-assessment",
+      "label": "life-cycle assessment",
+      "kind": "Individual"
+    },
+    {
+      "id": "algebraic-optimization-modeling",
+      "label": "algebraic optimization modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "linear-optimization",
+      "label": "linear optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "nonlinear-optimization",
+      "label": "nonlinear optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "mixed-integer-optimization",
+      "label": "mixed-integer optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "process-systems-engineering-domain",
+      "label": "process systems engineering",
+      "kind": "Individual"
+    },
+    {
+      "id": "biorefinery-domain",
+      "label": "biorefineries and bioprocesses",
+      "kind": "Individual"
+    },
+    {
+      "id": "optimization-domain",
+      "label": "optimization modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "animal",
+      "label": "animal",
+      "kind": "Type"
+    },
+    {
+      "id": "fish",
+      "label": "fish",
+      "kind": "Type"
+    },
+    {
+      "id": "tope",
+      "label": "Tope",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -614,6 +1254,646 @@
       "form": "cantaro percussion mechanism",
       "concept": "cantaro-mechanism",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "geometric object",
+      "concept": "geometric-object",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric shape",
+      "concept": "geometric-shape",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "plane figure",
+      "concept": "plane-figure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric structure",
+      "concept": "geometric-structure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric element",
+      "concept": "geometric-element",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric point",
+      "concept": "geometric-point",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric property",
+      "concept": "geometric-property",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "straightness",
+      "concept": "straightness",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "topological configuration",
+      "concept": "topological-configuration",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "closed cycle",
+      "concept": "closed-cycle",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "boundary",
+      "concept": "boundary",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "closed boundary",
+      "concept": "closed-boundary",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "line segment",
+      "concept": "line-segment",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "polygon",
+      "concept": "polygon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "triangle",
+      "concept": "triangle-example",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "triangle boundary",
+      "concept": "triangle-boundary",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "triangle closed cycle",
+      "concept": "triangle-cycle",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "first triangle side",
+      "concept": "triangle-segment-one",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "second triangle side",
+      "concept": "triangle-segment-two",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "third triangle side",
+      "concept": "triangle-segment-three",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "triangle vertex one",
+      "concept": "triangle-point-one",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "triangle vertex two",
+      "concept": "triangle-point-two",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "triangle vertex three",
+      "concept": "triangle-point-three",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "straightness property",
+      "concept": "straightness-property",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "linguistic category",
+      "concept": "linguistic-category",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "part of speech",
+      "concept": "part-of-speech",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "lexical item",
+      "concept": "lexical-item",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "semantic content",
+      "concept": "semantic-content",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "action or state",
+      "concept": "action-or-state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "action",
+      "concept": "action",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "state",
+      "concept": "state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "verb",
+      "concept": "verb",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "run",
+      "concept": "run-lexeme",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "running action",
+      "concept": "running-action",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "economic concept",
+      "concept": "economic-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market structure",
+      "concept": "market-structure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "economic market structure",
+      "concept": "economic-market-structure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market participant",
+      "concept": "market-participant",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "buyer",
+      "concept": "buyer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "seller",
+      "concept": "seller",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "dominant buyer",
+      "concept": "dominant-buyer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "buyer market structure",
+      "concept": "buyer-market-structure",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "monopsony",
+      "concept": "monopsony",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market power",
+      "concept": "market-power",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "buyer market power",
+      "concept": "buyer-market-power",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market power effect",
+      "concept": "market-power-effect",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "wage markdown",
+      "concept": "wage-markdown",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "monopsony power",
+      "concept": "monopsony-power",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "labor market",
+      "concept": "labor-market",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "employer",
+      "concept": "employer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "worker",
+      "concept": "worker",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "worker group",
+      "concept": "worker-group",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "labor market feature",
+      "concept": "labor-market-feature",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "employer concentration",
+      "concept": "employer-concentration",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "job differentiation",
+      "concept": "job-differentiation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "search frictions",
+      "concept": "search-frictions",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "limited outside options",
+      "concept": "limited-outside-options",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "switching friction",
+      "concept": "switching-friction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "relocation cost",
+      "concept": "relocation-cost",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "non-compete restriction",
+      "concept": "non-compete-restriction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geographic area",
+      "concept": "geographic-area",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "employment opportunity",
+      "concept": "employment-opportunity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "market power mechanism",
+      "concept": "market-power-mechanism",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "research publication",
+      "concept": "research-publication",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "person",
+      "concept": "person",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "academic journal",
+      "concept": "journal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rural town labor market",
+      "concept": "rural-town-labor-market",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "rural town",
+      "concept": "rural-town",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "rural hospital",
+      "concept": "rural-hospital",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "nurses in the rural town",
+      "concept": "rural-nurses",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "limited outside options in the rural labor market",
+      "concept": "limited-outside-options-example",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "regional healthcare labor market",
+      "concept": "regional-healthcare-labor-market",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "regional hospital A",
+      "concept": "regional-hospital-a",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "regional hospital B",
+      "concept": "regional-hospital-b",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "regional nurses",
+      "concept": "regional-nurses",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "job differentiation in regional healthcare",
+      "concept": "regional-job-differentiation",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "search frictions in regional healthcare",
+      "concept": "regional-search-frictions",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "worker with switching barriers",
+      "concept": "worker-with-switching-barriers",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "relocation cost faced by worker",
+      "concept": "worker-relocation-cost",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "non-compete restriction faced by worker",
+      "concept": "worker-non-compete",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "employer concentration",
+      "concept": "employer-concentration-mechanism",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "job differentiation",
+      "concept": "job-differentiation-mechanism",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "search frictions",
+      "concept": "search-friction-mechanism",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "wage markdown below marginal revenue product",
+      "concept": "wage-markdown-effect",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "labor-market monopsony power",
+      "concept": "labor-market-monopsony-power",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Alan Manning",
+      "concept": "alan-manning",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "José Azar",
+      "concept": "jose-azar",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Ioana Marinescu",
+      "concept": "ioana-marinescu",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Yeh",
+      "concept": "yeh-author",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Macaluso",
+      "concept": "macaluso-author",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Hershbein",
+      "concept": "hershbein-author",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "ILR Review",
+      "concept": "ilr-review",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Annual Review of Economics",
+      "concept": "annual-review-economics",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "American Economic Review",
+      "concept": "american-economic-review",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony in Labor Markets: A Review (2021)",
+      "concept": "manning-2021-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony Power in the Labor Market: From Theory to Policy (2024)",
+      "concept": "azar-marinescu-2024-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Monopsony in the US Labor Market (2022)",
+      "concept": "yeh-macaluso-hershbein-2022-publication",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "software",
+      "concept": "software",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "open-source software",
+      "concept": "open-source-software",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Python package",
+      "concept": "python-package",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process simulation framework",
+      "concept": "process-simulation-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process modeling framework",
+      "concept": "process-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "optimization framework",
+      "concept": "optimization-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process optimizer",
+      "concept": "process-optimizer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process systems engineering framework",
+      "concept": "process-systems-engineering-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "biorefinery modeling framework",
+      "concept": "biorefinery-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "optimization modeling framework",
+      "concept": "optimization-modeling-framework",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "software capability",
+      "concept": "capability",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "application domain",
+      "concept": "application-domain",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "IDAES",
+      "concept": "idaes",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "BioSTEAM",
+      "concept": "biosteam",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Pyomo",
+      "concept": "pyomo",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "equation-oriented process modeling",
+      "concept": "equation-oriented-process-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "process modeling",
+      "concept": "process-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "flowsheet optimization",
+      "concept": "flowsheet-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "unit-operation modeling",
+      "concept": "unit-operation-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "techno-economic analysis",
+      "concept": "techno-economic-analysis",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "life-cycle assessment",
+      "concept": "life-cycle-assessment",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "algebraic optimization modeling",
+      "concept": "algebraic-optimization-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "linear optimization",
+      "concept": "linear-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "nonlinear optimization",
+      "concept": "nonlinear-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "mixed-integer optimization",
+      "concept": "mixed-integer-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "process systems engineering",
+      "concept": "process-systems-engineering-domain",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "biorefineries and bioprocesses",
+      "concept": "biorefinery-domain",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "optimization modeling",
+      "concept": "optimization-domain",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "animal",
+      "concept": "animal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fish",
+      "concept": "fish",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Tope",
+      "concept": "tope",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -721,6 +2001,195 @@
       "domain": "sound-production-mechanism",
       "range": "striking-component",
       "verb": "actuates",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-boundary",
+      "domain": "geometric-shape",
+      "range": "geometric-structure",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-boundary-element",
+      "domain": "boundary",
+      "range": "geometric-element",
+      "verb": "contains",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-topology",
+      "domain": "boundary",
+      "range": "topological-configuration",
+      "verb": "has",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-start-point",
+      "domain": "geometric-element",
+      "range": "geometric-point",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-end-point",
+      "domain": "geometric-element",
+      "range": "geometric-point",
+      "verb": "has",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-geometric-property",
+      "domain": "geometric-object",
+      "range": "geometric-property",
+      "verb": "has",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "expresses-content",
+      "domain": "lexical-item",
+      "range": "semantic-content",
+      "verb": "expresses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-dominant-buyer",
+      "domain": "buyer-market-structure",
+      "range": "dominant-buyer",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-market-power-effect",
+      "domain": "buyer-market-power",
+      "range": "market-power-effect",
+      "verb": "has",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-mechanism",
+      "domain": "buyer-market-power",
+      "range": "market-power-mechanism",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-employer",
+      "domain": "labor-market",
+      "range": "employer",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-worker-group",
+      "domain": "labor-market",
+      "range": "worker-group",
+      "verb": "has",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-market-feature",
+      "domain": "labor-market",
+      "range": "labor-market-feature",
+      "verb": "has",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "faces-switching-friction",
+      "domain": "worker",
+      "range": "switching-friction",
+      "verb": "faces",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-outside-option",
+      "domain": "worker",
+      "range": "employment-opportunity",
+      "verb": "has",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "located-in",
+      "domain": "market-participant",
+      "range": "geographic-area",
+      "verb": "is located in",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-research-reference",
+      "domain": "buyer-market-power",
+      "range": "research-publication",
+      "verb": "has research reference",
+      "objectRole": null,
+      "order": 5,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "authored-by",
+      "domain": "research-publication",
+      "range": "person",
+      "verb": "is authored by",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "published-in",
+      "domain": "research-publication",
+      "range": "journal",
+      "verb": "is published in",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "supports-capability",
+      "domain": "software",
+      "range": "capability",
+      "verb": "supports",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "used-for-domain",
+      "domain": "software",
+      "range": "application-domain",
+      "verb": "is used for",
       "objectRole": null,
       "order": 1,
       "comparisonPriority": 0
@@ -974,6 +2443,666 @@
       ],
       "sourceText": "Metropolitan Museum zurna classification.",
       "sourceUrl": "https://www.metmuseum.org/art/collection/search/501941"
+    },
+    {
+      "concept": "geometric-object",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "geometric-shape",
+      "parents": [
+        "geometric-object"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "plane-figure",
+      "parents": [
+        "geometric-shape"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "geometric-structure",
+      "parents": [
+        "geometric-object"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "geometric-element",
+      "parents": [
+        "geometric-object"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "geometric-point",
+      "parents": [
+        "geometric-element"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "geometric-property",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "straightness",
+      "parents": [
+        "geometric-property"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "topological-configuration",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "closed-cycle",
+      "parents": [
+        "topological-configuration"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "boundary",
+      "parents": [
+        "geometric-structure"
+      ],
+      "conditions": [
+        {
+          "relation": "has-boundary-element",
+          "targetType": "line-segment"
+        }
+      ],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "closed-boundary",
+      "parents": [
+        "boundary"
+      ],
+      "conditions": [
+        {
+          "relation": "has-topology",
+          "targetType": "closed-cycle"
+        }
+      ],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "line-segment",
+      "parents": [
+        "geometric-element"
+      ],
+      "conditions": [
+        {
+          "relation": "has-start-point",
+          "targetType": "geometric-point"
+        },
+        {
+          "relation": "has-end-point",
+          "targetType": "geometric-point"
+        },
+        {
+          "relation": "has-geometric-property",
+          "targetType": "straightness"
+        }
+      ],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "polygon",
+      "parents": [
+        "plane-figure"
+      ],
+      "conditions": [
+        {
+          "relation": "has-boundary",
+          "targetType": "closed-boundary"
+        }
+      ],
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "linguistic-category",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "part-of-speech",
+      "parents": [
+        "linguistic-category"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "lexical-item",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "semantic-content",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "action-or-state",
+      "parents": [
+        "semantic-content"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "action",
+      "parents": [
+        "action-or-state"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "state",
+      "parents": [
+        "action-or-state"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "verb",
+      "parents": [
+        "part-of-speech",
+        "lexical-item"
+      ],
+      "conditions": [
+        {
+          "relation": "expresses-content",
+          "targetType": "action-or-state"
+        }
+      ],
+      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "economic-concept",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-structure",
+      "parents": [
+        "economic-concept"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "economic-market-structure",
+      "parents": [
+        "market-structure"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-participant",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "buyer",
+      "parents": [
+        "market-participant"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "seller",
+      "parents": [
+        "market-participant"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "dominant-buyer",
+      "parents": [
+        "buyer"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "buyer-market-structure",
+      "parents": [
+        "economic-market-structure"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "monopsony",
+      "parents": [
+        "buyer-market-structure"
+      ],
+      "conditions": [
+        {
+          "relation": "has-dominant-buyer",
+          "targetType": "dominant-buyer"
+        }
+      ],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-power",
+      "parents": [
+        "economic-concept"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "buyer-market-power",
+      "parents": [
+        "market-power"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-power-effect",
+      "parents": [
+        "economic-concept"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "wage-markdown",
+      "parents": [
+        "market-power-effect"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "monopsony-power",
+      "parents": [
+        "buyer-market-power"
+      ],
+      "conditions": [
+        {
+          "relation": "has-market-power-effect",
+          "targetType": "wage-markdown"
+        }
+      ],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "labor-market",
+      "parents": [
+        "economic-market-structure",
+        "buyer-market-structure"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "employer",
+      "parents": [
+        "buyer"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "worker",
+      "parents": [
+        "seller"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "worker-group",
+      "parents": [
+        "worker"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "labor-market-feature",
+      "parents": [
+        "economic-concept"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "employer-concentration",
+      "parents": [
+        "labor-market-feature"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "job-differentiation",
+      "parents": [
+        "labor-market-feature"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "search-frictions",
+      "parents": [
+        "labor-market-feature"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "limited-outside-options",
+      "parents": [
+        "labor-market-feature"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "switching-friction",
+      "parents": [
+        "labor-market-feature"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "relocation-cost",
+      "parents": [
+        "switching-friction"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "non-compete-restriction",
+      "parents": [
+        "switching-friction"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "geographic-area",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "employment-opportunity",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "market-power-mechanism",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "research-publication",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "person",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "journal",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "software",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Official software documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "open-source-software",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official project documentation describing open-source distribution.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "python-package",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official project documentation describing Python-based distribution.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-simulation-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-simulation project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-modeling-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-modeling project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "optimization-framework",
+      "parents": [
+        "software"
+      ],
+      "conditions": [],
+      "sourceText": "Official optimization project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-optimizer",
+      "parents": [
+        "optimization-framework"
+      ],
+      "conditions": [],
+      "sourceText": "Official process-optimization project documentation.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "process-systems-engineering-framework",
+      "parents": [
+        "process-modeling-framework",
+        "process-optimizer"
+      ],
+      "conditions": [],
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "concept": "biorefinery-modeling-framework",
+      "parents": [
+        "process-simulation-framework",
+        "process-modeling-framework"
+      ],
+      "conditions": [],
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "concept": "optimization-modeling-framework",
+      "parents": [
+        "optimization-framework",
+        "process-modeling-framework"
+      ],
+      "conditions": [],
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "concept": "capability",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Curated software capability vocabulary.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "application-domain",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Curated software application-domain vocabulary.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "animal",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "fish",
+      "parents": [
+        "animal"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
     }
   ],
   "typeAssertions": [
@@ -1186,6 +3315,474 @@
       "type": "percussion-mechanism",
       "sourceText": "Instrument mechanism type curated from instrument-family references.",
       "sourceUrl": null
+    },
+    {
+      "individual": "triangle-example",
+      "type": "geometric-object",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-example",
+      "type": "plane-figure",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-boundary",
+      "type": "geometric-structure",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-boundary",
+      "type": "closed-boundary",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-cycle",
+      "type": "closed-cycle",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-segment-one",
+      "type": "geometric-element",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-segment-two",
+      "type": "geometric-element",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-segment-three",
+      "type": "geometric-element",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-point-one",
+      "type": "geometric-point",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-point-two",
+      "type": "geometric-point",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "triangle-point-three",
+      "type": "geometric-point",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "straightness-property",
+      "type": "straightness",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "run-lexeme",
+      "type": "lexical-item",
+      "sourceText": "Curated lexical-semantic example: the lexeme run expresses a running action.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "running-action",
+      "type": "action",
+      "sourceText": "Curated lexical-semantic example: running is an action.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "rural-town-labor-market",
+      "type": "labor-market",
+      "sourceText": "Illustrative structured example based on labour-market monopsony mechanisms reviewed by Azar and Marinescu (2024).",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "rural-town",
+      "type": "geographic-area",
+      "sourceText": "Illustrative structured example based on labour-market monopsony mechanisms reviewed by Azar and Marinescu (2024).",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "rural-hospital",
+      "type": "employer",
+      "sourceText": "Illustrative structured example: one hospital is the dominant buyer of nursing labour in a local market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "rural-hospital",
+      "type": "dominant-buyer",
+      "sourceText": "Illustrative structured example: one hospital is the dominant buyer of nursing labour in a local market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "rural-nurses",
+      "type": "worker-group",
+      "sourceText": "Illustrative structured example: nurses have few realistic alternative employers in the local market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "rural-nurses",
+      "type": "limited-outside-options",
+      "sourceText": "Illustrative structured example: nurses have few realistic alternative employers in the local market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "limited-outside-options-example",
+      "type": "limited-outside-options",
+      "sourceText": "Illustrative structured example: workers have few realistic alternative employers in a local market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-healthcare-labor-market",
+      "type": "labor-market",
+      "sourceText": "Illustrative structured example of monopsony power in a market with multiple employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-hospital-a",
+      "type": "employer",
+      "sourceText": "Illustrative structured example: a regional labour market contains multiple employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-hospital-b",
+      "type": "employer",
+      "sourceText": "Illustrative structured example: a regional labour market contains multiple employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-nurses",
+      "type": "worker-group",
+      "sourceText": "Illustrative structured example of job differentiation and search frictions.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-job-differentiation",
+      "type": "job-differentiation",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-job-differentiation",
+      "type": "market-power-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-search-frictions",
+      "type": "search-frictions",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "regional-search-frictions",
+      "type": "market-power-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "worker-with-switching-barriers",
+      "type": "worker",
+      "sourceText": "Illustrative structured example based on labour-market switching barriers discussed by Azar and Marinescu (2024).",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "worker-relocation-cost",
+      "type": "relocation-cost",
+      "sourceText": "Illustrative structured example: relocation can make switching employers costly.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "worker-non-compete",
+      "type": "non-compete-restriction",
+      "sourceText": "Illustrative structured example: a non-compete can restrict the ability to switch employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "employer-concentration-mechanism",
+      "type": "employer-concentration",
+      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "employer-concentration-mechanism",
+      "type": "market-power-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "job-differentiation-mechanism",
+      "type": "job-differentiation",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "job-differentiation-mechanism",
+      "type": "market-power-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "search-friction-mechanism",
+      "type": "search-frictions",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "search-friction-mechanism",
+      "type": "market-power-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "wage-markdown-effect",
+      "type": "wage-markdown",
+      "sourceText": "Azar and Marinescu (2024) identify wage markdowns below marginal revenue product as a measure of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "labor-market-monopsony-power",
+      "type": "monopsony-power",
+      "sourceText": "Azar and Marinescu (2024) review multiple sources of labour-market monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "alan-manning",
+      "type": "person",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "individual": "jose-azar",
+      "type": "person",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "ioana-marinescu",
+      "type": "person",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "yeh-author",
+      "type": "person",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "macaluso-author",
+      "type": "person",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "hershbein-author",
+      "type": "person",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "ilr-review",
+      "type": "journal",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "individual": "annual-review-economics",
+      "type": "journal",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "american-economic-review",
+      "type": "journal",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "manning-2021-publication",
+      "type": "research-publication",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "individual": "azar-marinescu-2024-publication",
+      "type": "research-publication",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "individual": "yeh-macaluso-hershbein-2022-publication",
+      "type": "research-publication",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "individual": "idaes",
+      "type": "software",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "open-source-software",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "python-package",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "idaes",
+      "type": "process-systems-engineering-framework",
+      "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "software",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "open-source-software",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "python-package",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "biosteam",
+      "type": "biorefinery-modeling-framework",
+      "sourceText": "BioSTEAM official documentation describes a Python-based platform for biorefinery process simulation and analysis.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "pyomo",
+      "type": "software",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "open-source-software",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "python-package",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "pyomo",
+      "type": "optimization-modeling-framework",
+      "sourceText": "Pyomo official project overview describes a Python-based open-source optimization modeling package.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "equation-oriented-process-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "process-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "flowsheet-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "unit-operation-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "techno-economic-analysis",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "life-cycle-assessment",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "algebraic-optimization-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "linear-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "nonlinear-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "mixed-integer-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "process-systems-engineering-domain",
+      "type": "application-domain",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "biorefinery-domain",
+      "type": "application-domain",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "optimization-domain",
+      "type": "application-domain",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "individual": "tope",
+      "type": "fish",
+      "sourceText": "Tope is a fish.",
+      "sourceUrl": null
     }
   ],
   "relationAssertions": [
@@ -1384,6 +3981,464 @@
       "object": "piano-strings",
       "sourceText": "Yamaha piano mechanism guide: hammers strike the strings.",
       "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+    },
+    {
+      "subject": "triangle-example",
+      "relation": "has-boundary",
+      "object": "triangle-boundary",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "has-topology",
+      "object": "triangle-cycle",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "has-boundary-element",
+      "object": "triangle-segment-one",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-one",
+      "relation": "has-geometric-property",
+      "object": "straightness-property",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "has-boundary-element",
+      "object": "triangle-segment-two",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-two",
+      "relation": "has-geometric-property",
+      "object": "straightness-property",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-boundary",
+      "relation": "has-boundary-element",
+      "object": "triangle-segment-three",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-three",
+      "relation": "has-geometric-property",
+      "object": "straightness-property",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-one",
+      "relation": "has-start-point",
+      "object": "triangle-point-one",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-one",
+      "relation": "has-end-point",
+      "object": "triangle-point-two",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-two",
+      "relation": "has-start-point",
+      "object": "triangle-point-two",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-two",
+      "relation": "has-end-point",
+      "object": "triangle-point-three",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-three",
+      "relation": "has-start-point",
+      "object": "triangle-point-three",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "triangle-segment-three",
+      "relation": "has-end-point",
+      "object": "triangle-point-one",
+      "sourceText": "Existing core-world-model geometry claim migrated into typed concepts and relations.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "run-lexeme",
+      "relation": "expresses-content",
+      "object": "running-action",
+      "sourceText": "Curated lexical-semantic example: run expresses a running action.",
+      "sourceUrl": null
+    },
+    {
+      "subject": "rural-town-labor-market",
+      "relation": "has-dominant-buyer",
+      "object": "rural-hospital",
+      "sourceText": "Illustrative structured example: the hospital is the dominant buyer of labour in the rural town.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "rural-town-labor-market",
+      "relation": "has-employer",
+      "object": "rural-hospital",
+      "sourceText": "Illustrative structured example: the rural town labour market includes the hospital as an employer.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "rural-town-labor-market",
+      "relation": "has-worker-group",
+      "object": "rural-nurses",
+      "sourceText": "Illustrative structured example: nurses supply labour in the rural town market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "rural-town-labor-market",
+      "relation": "has-market-feature",
+      "object": "limited-outside-options-example",
+      "sourceText": "Illustrative structured example: local workers have limited outside options.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "rural-hospital",
+      "relation": "located-in",
+      "object": "rural-town",
+      "sourceText": "Illustrative structured example: the hospital is located in the rural town.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "has-employer",
+      "object": "regional-hospital-a",
+      "sourceText": "Illustrative structured example: the labour market has multiple employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "has-employer",
+      "object": "regional-hospital-b",
+      "sourceText": "Illustrative structured example: the labour market has multiple employers.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "has-worker-group",
+      "object": "regional-nurses",
+      "sourceText": "Illustrative structured example: nurses participate in the regional labour market.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "has-market-feature",
+      "object": "regional-job-differentiation",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "regional-healthcare-labor-market",
+      "relation": "has-market-feature",
+      "object": "regional-search-frictions",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "worker-with-switching-barriers",
+      "relation": "faces-switching-friction",
+      "object": "worker-relocation-cost",
+      "sourceText": "Illustrative structured example: relocation costs create a switching friction.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "worker-with-switching-barriers",
+      "relation": "faces-switching-friction",
+      "object": "worker-non-compete",
+      "sourceText": "Illustrative structured example: a non-compete agreement creates a switching friction.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-market-power-effect",
+      "object": "wage-markdown-effect",
+      "sourceText": "Azar and Marinescu (2024) describe wage markdowns below marginal revenue product as an effect of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-mechanism",
+      "object": "employer-concentration-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify employer concentration as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-mechanism",
+      "object": "job-differentiation-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify job differentiation as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-mechanism",
+      "object": "search-friction-mechanism",
+      "sourceText": "Azar and Marinescu (2024) identify search frictions as a source of monopsony power.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-research-reference",
+      "object": "manning-2021-publication",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-research-reference",
+      "object": "azar-marinescu-2024-publication",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "labor-market-monopsony-power",
+      "relation": "has-research-reference",
+      "object": "yeh-macaluso-hershbein-2022-publication",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "authored-by",
+      "object": "alan-manning",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "published-in",
+      "object": "ilr-review",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "authored-by",
+      "object": "jose-azar",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "authored-by",
+      "object": "ioana-marinescu",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "published-in",
+      "object": "annual-review-economics",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "yeh-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "macaluso-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "authored-by",
+      "object": "hershbein-author",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "published-in",
+      "object": "american-economic-review",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "equation-oriented-process-modeling",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "process-modeling",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "supports-capability",
+      "object": "flowsheet-optimization",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "idaes",
+      "relation": "used-for-domain",
+      "object": "process-systems-engineering-domain",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "unit-operation-modeling",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "techno-economic-analysis",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "supports-capability",
+      "object": "life-cycle-assessment",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "biosteam",
+      "relation": "used-for-domain",
+      "object": "biorefinery-domain",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "algebraic-optimization-modeling",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "linear-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "nonlinear-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "supports-capability",
+      "object": "mixed-integer-optimization",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "pyomo",
+      "relation": "used-for-domain",
+      "object": "optimization-domain",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "doi-url",
+      "domainType": "research-publication",
+      "valueType": "uri"
+    },
+    {
+      "id": "doi-url",
+      "domainType": "research-publication",
+      "valueType": "uri"
+    },
+    {
+      "id": "doi-url",
+      "domainType": "research-publication",
+      "valueType": "uri"
+    },
+    {
+      "id": "documentation-url",
+      "domainType": "software",
+      "valueType": "uri"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "manning-2021-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1177/0019793920922499",
+      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
+      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1146/annurev-economics-072823-030431",
+      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
+      "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "property": "doi-url",
+      "value": "https://doi.org/10.1257/aer.20200025",
+      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
+      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
+    },
+    {
+      "subject": "idaes",
+      "property": "documentation-url",
+      "value": "https://idaes-pse.readthedocs.io/en/stable/",
+      "sourceText": "IDAES official documentation home page.",
+      "sourceUrl": "https://idaes-pse.readthedocs.io/en/stable/"
+    },
+    {
+      "subject": "biosteam",
+      "property": "documentation-url",
+      "value": "https://biosteam.readthedocs.io/en/latest/",
+      "sourceText": "BioSTEAM official documentation home page.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "subject": "pyomo",
+      "property": "documentation-url",
+      "value": "https://pyomo.readthedocs.io/en/stable/",
+      "sourceText": "Pyomo official documentation home page.",
+      "sourceUrl": "https://pyomo.readthedocs.io/en/stable/"
     }
   ]
 }
