@@ -68,7 +68,7 @@ public sealed class AssistantBenchmarkRunnerTests
                 })
                 .ToArray();
 
-            Assert.Equal(2, sessionIds.Distinct(StringComparer.Ordinal).Count());
+            Assert.Equal(4, sessionIds.Distinct(StringComparer.Ordinal).Count());
             Assert.True(File.Exists(jsonPath));
             Assert.True(File.Exists(markdownPath));
             var markdown = await File.ReadAllTextAsync(markdownPath);
