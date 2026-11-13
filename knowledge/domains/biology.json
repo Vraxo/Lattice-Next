@@ -4,57 +4,64 @@
   "name": "Biology",
   "concepts": [
     {
-      "id": "life-cycle-assessment",
-      "label": "life-cycle assessment",
-      "kind": "Individual"
+      "id": "animal",
+      "label": "animal",
+      "kind": "Type"
     },
     {
-      "id": "algebraic-optimization-modeling",
-      "label": "algebraic optimization modeling",
-      "kind": "Individual"
+      "id": "fish",
+      "label": "fish",
+      "kind": "Type"
     },
     {
-      "id": "linear-optimization",
-      "label": "linear optimization",
+      "id": "tope",
+      "label": "Tope",
       "kind": "Individual"
     }
   ],
   "lexemes": [
     {
-      "form": "life-cycle assessment",
-      "concept": "life-cycle-assessment",
-      "partOfSpeech": "proper-noun"
+      "form": "animal",
+      "concept": "animal",
+      "partOfSpeech": "noun"
     },
     {
-      "form": "algebraic optimization modeling",
-      "concept": "algebraic-optimization-modeling",
-      "partOfSpeech": "proper-noun"
+      "form": "fish",
+      "concept": "fish",
+      "partOfSpeech": "noun"
     },
     {
-      "form": "linear optimization",
-      "concept": "linear-optimization",
+      "form": "Tope",
+      "concept": "tope",
       "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [],
-  "definitions": [],
+  "definitions": [
+    {
+      "concept": "animal",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
+    },
+    {
+      "concept": "fish",
+      "parents": [
+        "animal"
+      ],
+      "conditions": [],
+      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
+      "sourceUrl": null
+    }
+  ],
   "typeAssertions": [
     {
-      "individual": "life-cycle-assessment",
-      "type": "capability",
-      "sourceText": "Curated structured software-capability classification.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "algebraic-optimization-modeling",
-      "type": "capability",
-      "sourceText": "Curated structured software-capability classification.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "linear-optimization",
-      "type": "capability",
-      "sourceText": "Curated structured software-capability classification.",
+      "individual": "tope",
+      "type": "fish",
+      "sourceText": "Tope is a fish.",
       "sourceUrl": null
     }
   ],

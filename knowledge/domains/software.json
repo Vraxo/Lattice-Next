@@ -4,26 +4,6 @@
   "name": "Scientific software",
   "concepts": [
     {
-      "id": "american-economic-review",
-      "label": "American Economic Review",
-      "kind": "Individual"
-    },
-    {
-      "id": "manning-2021-publication",
-      "label": "Monopsony in Labor Markets: A Review",
-      "kind": "Individual"
-    },
-    {
-      "id": "azar-marinescu-2024-publication",
-      "label": "Monopsony Power in the Labor Market: From Theory to Policy",
-      "kind": "Individual"
-    },
-    {
-      "id": "yeh-macaluso-hershbein-2022-publication",
-      "label": "Monopsony in the US Labor Market",
-      "kind": "Individual"
-    },
-    {
       "id": "software",
       "label": "software",
       "kind": "Type"
@@ -122,29 +102,49 @@
       "id": "techno-economic-analysis",
       "label": "techno-economic analysis",
       "kind": "Individual"
+    },
+    {
+      "id": "life-cycle-assessment",
+      "label": "life-cycle assessment",
+      "kind": "Individual"
+    },
+    {
+      "id": "algebraic-optimization-modeling",
+      "label": "algebraic optimization modeling",
+      "kind": "Individual"
+    },
+    {
+      "id": "linear-optimization",
+      "label": "linear optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "nonlinear-optimization",
+      "label": "nonlinear optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "mixed-integer-optimization",
+      "label": "mixed-integer optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "process-systems-engineering-domain",
+      "label": "process systems engineering",
+      "kind": "Individual"
+    },
+    {
+      "id": "biorefinery-domain",
+      "label": "biorefineries and bioprocesses",
+      "kind": "Individual"
+    },
+    {
+      "id": "optimization-domain",
+      "label": "optimization modeling",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
-    {
-      "form": "American Economic Review",
-      "concept": "american-economic-review",
-      "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "Monopsony in Labor Markets: A Review",
-      "concept": "manning-2021-publication",
-      "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "Monopsony Power in the Labor Market: From Theory to Policy",
-      "concept": "azar-marinescu-2024-publication",
-      "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "Monopsony in the US Labor Market",
-      "concept": "yeh-macaluso-hershbein-2022-publication",
-      "partOfSpeech": "proper-noun"
-    },
     {
       "form": "software",
       "concept": "software",
@@ -243,6 +243,46 @@
     {
       "form": "techno-economic analysis",
       "concept": "techno-economic-analysis",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "life-cycle assessment",
+      "concept": "life-cycle-assessment",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "algebraic optimization modeling",
+      "concept": "algebraic-optimization-modeling",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "linear optimization",
+      "concept": "linear-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "nonlinear optimization",
+      "concept": "nonlinear-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "mixed-integer optimization",
+      "concept": "mixed-integer-optimization",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "process systems engineering",
+      "concept": "process-systems-engineering-domain",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "biorefineries and bioprocesses",
+      "concept": "biorefinery-domain",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "optimization modeling",
+      "concept": "optimization-domain",
       "partOfSpeech": "proper-noun"
     }
   ],
@@ -381,30 +421,6 @@
   ],
   "typeAssertions": [
     {
-      "individual": "american-economic-review",
-      "type": "journal",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "individual": "manning-2021-publication",
-      "type": "research-publication",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "individual": "azar-marinescu-2024-publication",
-      "type": "research-publication",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "individual": "yeh-macaluso-hershbein-2022-publication",
-      "type": "research-publication",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
       "individual": "idaes",
       "type": "software",
       "sourceText": "IDAES official overview describes an open-source, equation-oriented process systems engineering framework.",
@@ -505,72 +521,57 @@
       "type": "capability",
       "sourceText": "Curated structured software-capability classification.",
       "sourceUrl": null
+    },
+    {
+      "individual": "life-cycle-assessment",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "algebraic-optimization-modeling",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "linear-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "nonlinear-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "mixed-integer-optimization",
+      "type": "capability",
+      "sourceText": "Curated structured software-capability classification.",
+      "sourceUrl": null
+    },
+    {
+      "individual": "process-systems-engineering-domain",
+      "type": "application-domain",
+      "sourceText": "IDAES official overview.",
+      "sourceUrl": "https://idaes.org/overview/"
+    },
+    {
+      "individual": "biorefinery-domain",
+      "type": "application-domain",
+      "sourceText": "BioSTEAM official documentation.",
+      "sourceUrl": "https://biosteam.readthedocs.io/en/latest/"
+    },
+    {
+      "individual": "optimization-domain",
+      "type": "application-domain",
+      "sourceText": "Pyomo official project overview.",
+      "sourceUrl": "https://www.pyomo.org/about"
     }
   ],
   "relationAssertions": [
-    {
-      "subject": "manning-2021-publication",
-      "relation": "authored-by",
-      "object": "alan-manning",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "subject": "manning-2021-publication",
-      "relation": "published-in",
-      "object": "ilr-review",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "relation": "authored-by",
-      "object": "jose-azar",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "relation": "authored-by",
-      "object": "ioana-marinescu",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "relation": "published-in",
-      "object": "annual-review-economics",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "relation": "authored-by",
-      "object": "yeh-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "relation": "authored-by",
-      "object": "macaluso-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "relation": "authored-by",
-      "object": "hershbein-author",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "relation": "published-in",
-      "object": "american-economic-review",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
     {
       "subject": "idaes",
       "relation": "supports-capability",
@@ -661,24 +662,6 @@
       "object": "optimization-domain",
       "sourceText": "Pyomo official project overview.",
       "sourceUrl": "https://www.pyomo.org/about"
-    },
-    {
-      "subject": "manning-2021-publication",
-      "relation": "published-in-year",
-      "object": "year-2021",
-      "sourceText": "Publication year metadata for Monopsony in Labor Markets: A Review."
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "relation": "published-in-year",
-      "object": "year-2024",
-      "sourceText": "Publication year metadata for Monopsony Power in the Labor Market: From Theory to Policy."
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "relation": "published-in-year",
-      "object": "year-2022",
-      "sourceText": "Publication year metadata for Monopsony in the US Labor Market."
     }
   ],
   "dataProperties": [
@@ -689,27 +672,6 @@
     }
   ],
   "dataAssertions": [
-    {
-      "subject": "manning-2021-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1177/0019793920922499",
-      "sourceText": "Manning (2021), Monopsony in Labor Markets: A Review.",
-      "sourceUrl": "https://doi.org/10.1177/0019793920922499"
-    },
-    {
-      "subject": "azar-marinescu-2024-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1146/annurev-economics-072823-030431",
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431"
-    },
-    {
-      "subject": "yeh-macaluso-hershbein-2022-publication",
-      "property": "doi-url",
-      "value": "https://doi.org/10.1257/aer.20200025",
-      "sourceText": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market.",
-      "sourceUrl": "https://doi.org/10.1257/aer.20200025"
-    },
     {
       "subject": "idaes",
       "property": "documentation-url",
