@@ -18,10 +18,12 @@ internal static class ConceptKnowledgeFormatter
 
     internal static bool TryCreate(
         KnowledgeBase knowledgeBase,
+        ReasoningEngine reasoningEngine,
         string concept,
         out ConceptKnowledgeExplanation? explanation)
     {
         ArgumentNullException.ThrowIfNull(knowledgeBase);
+        ArgumentNullException.ThrowIfNull(reasoningEngine);
 
         explanation = null;
 
@@ -30,12 +32,14 @@ internal static class ConceptKnowledgeFormatter
             return false;
         }
 
-        var root = concept.Trim().Replace(' ', '-').ToLowerInvariant();
-        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var root = new IndividualTerm(new SemanticIdentifier(
+            concept.Trim().Replace(' ', '-').ToLowerInvariant()));
+        var facts = reasoningEngine.GetKnownFacts(knowledgeBase);
+        var visited = new HashSet<SemanticTerm>();
         var evidence = ImmutableArray.CreateBuilder<LatticeEvidence>();
         var lines = new List<string>();
 
-        if (!AppendConcept(knowledgeBase, root, 0, visited, lines, evidence) ||
+        if (!AppendConcept(root, facts, 0, visited, lines, evidence) ||
             lines.Count == 0)
         {
             return false;
@@ -43,7 +47,7 @@ internal static class ConceptKnowledgeFormatter
 
         var message = new StringBuilder()
             .Append("The available knowledge represents ")
-            .Append(DisplayIdentifier(root))
+            .Append(DisplayIdentifier(((IndividualTerm)root).Identifier.Value))
             .AppendLine(" through these connected facts:")
             .Append(string.Join(Environment.NewLine, lines))
             .ToString();
@@ -53,10 +57,10 @@ internal static class ConceptKnowledgeFormatter
     }
 
     private static bool AppendConcept(
-        KnowledgeBase knowledgeBase,
-        string concept,
+        SemanticTerm concept,
+        ImmutableArray<ProofNode> facts,
         int depth,
-        HashSet<string> visited,
+        HashSet<SemanticTerm> visited,
         List<string> lines,
         ImmutableArray<LatticeEvidence>.Builder evidence)
     {
@@ -68,27 +72,24 @@ internal static class ConceptKnowledgeFormatter
             return false;
         }
 
-        var facts = knowledgeBase.Facts
-            .Where(fact => HasSubject(fact, concept))
+        var factsForConcept = facts
+            .Where(fact => HasSubject(fact.Predicate, concept))
             .Where(fact =>
                 fact.Predicate.Arguments.Length != 1 ||
-                !string.Equals(
-                    fact.Predicate.Predicate.Value,
-                    concept,
-                    StringComparison.OrdinalIgnoreCase))
+                !IsConceptIdentity(fact.Predicate, concept))
             .OrderBy(fact => fact.Predicate.Arguments.Length == 1 ? 0 : 1)
             .ThenBy(fact => fact.Predicate.Predicate.Value, StringComparer.Ordinal)
             .ThenBy(fact => fact.Polarity)
             .ToArray();
 
-        if (facts.Length == 0)
+        if (factsForConcept.Length == 0)
         {
             return false;
         }
 
         var indent = new string(' ', depth * 2);
 
-        foreach (var fact in facts.Where(fact => fact.Predicate.Arguments.Length == 1))
+        foreach (var fact in factsForConcept.Where(fact => fact.Predicate.Arguments.Length == 1))
         {
             if (evidence.Count >= MaximumFacts)
             {
@@ -100,51 +101,97 @@ internal static class ConceptKnowledgeFormatter
             evidence.Add(MapEvidence(fact));
         }
 
-        foreach (var fact in facts.Where(fact => fact.Predicate.Arguments.Length == 2))
+        foreach (var fact in factsForConcept.Where(fact => fact.Predicate.Arguments.Length == 2))
         {
             if (evidence.Count >= MaximumFacts ||
-                fact.Predicate.Arguments[1] is not IndividualTerm target ||
-                string.IsNullOrWhiteSpace(target.Identifier.Value))
+                fact.Predicate.Arguments[1] is not (IndividualTerm or AnonymousIndividualTerm) target)
             {
                 continue;
             }
 
             var polarity = fact.Polarity == EvidencePolarity.Negative ? "not " : string.Empty;
-            lines.Add($"{indent}- {polarity}{DisplayIdentifier(fact.Predicate.Predicate.Value)} → {DisplayIdentifier(target.Identifier.Value)}");
+            lines.Add($"{indent}- {polarity}{DisplayIdentifier(fact.Predicate.Predicate.Value)} → {DescribeIndividual(target, facts)}");
             evidence.Add(MapEvidence(fact));
 
             if (fact.Polarity == EvidencePolarity.Positive &&
                 depth < MaximumDepth &&
                 visited.Count < MaximumNodes)
             {
-                AppendConcept(
-                    knowledgeBase,
-                    target.Identifier.Value,
-                    depth + 1,
-                    visited,
-                    lines,
-                    evidence);
+                AppendConcept(target, facts, depth + 1, visited, lines, evidence);
             }
         }
 
-        return facts.Length > 0;
+        return factsForConcept.Length > 0;
     }
 
-    private static bool HasSubject(KnowledgeFact fact, string concept) =>
-        !fact.Predicate.Arguments.IsDefaultOrEmpty &&
-        fact.Predicate.Arguments[0] is IndividualTerm subject &&
-        string.Equals(subject.Identifier.Value, concept, StringComparison.OrdinalIgnoreCase);
+    private static string DescribeIndividual(
+        SemanticTerm individual,
+        ImmutableArray<ProofNode> facts)
+    {
+        if (individual is IndividualTerm named)
+        {
+            return DisplayIdentifier(named.Identifier.Value);
+        }
+
+        var descriptor = facts
+            .Where(fact =>
+                fact.Polarity == EvidencePolarity.Positive &&
+                fact.Predicate.Arguments.Length == 1 &&
+                fact.Predicate.Arguments[0] == individual)
+            .Select(fact => fact.Predicate.Predicate.Value)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        return descriptor is null
+            ? "an instance"
+            : $"a {DisplayIdentifier(descriptor)}";
+    }
+
+    private static bool HasSubject(
+        PredicateApplication predicate,
+        SemanticTerm concept) =>
+        !predicate.Arguments.IsDefaultOrEmpty &&
+        predicate.Arguments[0] == concept;
+
+    private static bool IsConceptIdentity(
+        PredicateApplication predicate,
+        SemanticTerm concept) =>
+        predicate.Arguments.Length == 1 &&
+        predicate.Arguments[0] == concept &&
+        concept is IndividualTerm individual &&
+        string.Equals(
+            predicate.Predicate.Value,
+            individual.Identifier.Value,
+            StringComparison.OrdinalIgnoreCase);
 
     private static string DisplayIdentifier(string identifier) =>
         identifier.Replace('-', ' ');
 
-    private static LatticeEvidence MapEvidence(KnowledgeFact fact) =>
-        new(
-            LatticeEvidenceKind.Asserted,
-            fact.Polarity == EvidencePolarity.Positive
+    private static LatticeEvidence MapEvidence(ProofNode proof)
+    {
+        var premises = ImmutableArray.CreateBuilder<LatticeEvidence>();
+
+        if (proof.Premise is not null)
+        {
+            premises.Add(MapEvidence(proof.Premise));
+        }
+
+        if (!proof.AdditionalPremises.IsDefaultOrEmpty)
+        {
+            foreach (var premise in proof.AdditionalPremises)
+            {
+                premises.Add(MapEvidence(premise));
+            }
+        }
+
+        return new LatticeEvidence(
+            proof.Kind == ProofNodeKind.Asserted
+                ? LatticeEvidenceKind.Asserted
+                : LatticeEvidenceKind.Derived,
+            proof.Polarity == EvidencePolarity.Positive
                 ? LatticeEvidencePolarity.Positive
                 : LatticeEvidencePolarity.Negative,
-            fact.Sources
+            proof.Sources
                 .Select(source => new LatticeEvidenceSource(
                     source.Kind switch
                     {
@@ -157,5 +204,6 @@ internal static class ConceptKnowledgeFormatter
                     source.SourceId,
                     source.ResolvedReferent?.Value))
                 .ToImmutableArray(),
-            ImmutableArray<LatticeEvidence>.Empty);
+            premises.ToImmutable());
+    }
 }
