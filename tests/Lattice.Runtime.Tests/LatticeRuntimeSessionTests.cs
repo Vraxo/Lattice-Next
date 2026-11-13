@@ -234,9 +234,13 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(
             "Monopsony power is buyer market power that has a wage markdown.",
             Assert.Single(power.Utterances).Message);
-        Assert.Equal(
+        var causesMessage = Assert.Single(causes.Utterances).Message;
+        Assert.StartsWith(
             "Monopsony power can arise through employer concentration, job differentiation, and search frictions.",
-            Assert.Single(causes.Utterances).Message);
+            causesMessage);
+        Assert.Contains("Monopsony in Labor Markets: A Review (2021)", causesMessage);
+        Assert.Contains("https://doi.org/10.1146/annurev-economics-072823-030431", causesMessage);
+        Assert.Contains("Monopsony in the US Labor Market (2022)", causesMessage);
         Assert.All(
             new[] { monopsony, power, causes },
             turn => Assert.Equal(
@@ -264,6 +268,7 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.Contains("process systems engineering framework", idaesMessage);
         Assert.Contains("equation-oriented process modeling", idaesMessage);
+        Assert.Contains("It is used for process systems engineering.", idaesMessage);
         Assert.Contains("https://idaes-pse.readthedocs.io/en/stable/", idaesMessage);
         Assert.Contains("biorefinery modeling framework", biosteamMessage);
         Assert.Contains("techno-economic analysis", biosteamMessage);
