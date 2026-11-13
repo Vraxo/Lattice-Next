@@ -157,17 +157,22 @@ public sealed class LatticeRuntimeSessionTests
                 evidence.Sources,
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
                     source.SourceId == "geometry-concepts"));
-        var derivedEvidence = Assert.Single(
-            result.Utterances[0].SupportingEvidence.Where(evidence =>
+        var derivedEvidence = result.Utterances[0].SupportingEvidence
+            .Where(evidence =>
                 evidence.Kind == LatticeEvidenceKind.Derived &&
                 evidence.Sources.Any(source =>
-                    source.SourceText == "Every polygon has a boundary.")));
-        Assert.Equal(LatticeEvidencePolarity.Positive, derivedEvidence.Polarity);
-        Assert.NotEmpty(derivedEvidence.Premises);
-        Assert.Contains(
-            derivedEvidence.Premises,
-            premise => premise.Sources.Any(source =>
-                source.SourceText == "Polygon is a polygon."));
+                    source.SourceText == "Every polygon has a boundary."))
+            .ToArray();
+        Assert.Equal(2, derivedEvidence.Length);
+        Assert.All(derivedEvidence, evidence =>
+        {
+            Assert.Equal(LatticeEvidencePolarity.Positive, evidence.Polarity);
+            Assert.NotEmpty(evidence.Premises);
+            Assert.Contains(
+                evidence.Premises,
+                premise => premise.Sources.Any(source =>
+                    source.SourceText == "Polygon is a polygon."));
+        });
         Assert.DoesNotContain(
             result.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(
