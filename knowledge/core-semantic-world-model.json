@@ -664,11 +664,11 @@
     },
     {
       "id": "strikes",
-      "domain": "sound-production-mechanism",
+      "domain": "striking-component",
       "range": "string-component",
       "verb": "strikes",
       "objectRole": null,
-      "order": 1,
+      "order": 2,
       "comparisonPriority": 0
     },
     {
@@ -677,7 +677,7 @@
       "range": "resonator",
       "verb": "transmits vibrations to",
       "objectRole": null,
-      "order": 2,
+      "order": 3,
       "comparisonPriority": 0
     },
     {
@@ -686,7 +686,7 @@
       "range": "sound-event",
       "verb": "radiates",
       "objectRole": null,
-      "order": 3,
+      "order": 4,
       "comparisonPriority": 0
     },
     {
@@ -714,6 +714,15 @@
       "verb": "vibrates to produce",
       "objectRole": null,
       "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "actuates",
+      "domain": "sound-production-mechanism",
+      "range": "striking-component",
+      "verb": "actuates",
+      "objectRole": null,
+      "order": 1,
       "comparisonPriority": 0
     }
   ],
@@ -1217,10 +1226,10 @@
     },
     {
       "subject": "piano-action",
-      "relation": "strikes",
-      "object": "piano-strings",
-      "sourceText": "Yamaha piano sound-producing mechanism guide.",
-      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
+      "relation": "actuates",
+      "object": "piano-hammers",
+      "sourceText": "Yamaha piano action guide: the action actuates the hammer mechanism.",
+      "sourceUrl": "https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html"
     },
     {
       "subject": "piano-strings",
@@ -1368,6 +1377,13 @@
       "object": "cantaro-mechanism",
       "sourceText": "Cantaro is a percussion-instrument.",
       "sourceUrl": null
+    },
+    {
+      "subject": "piano-hammers",
+      "relation": "strikes",
+      "object": "piano-strings",
+      "sourceText": "Yamaha piano mechanism guide: hammers strike the strings.",
+      "sourceUrl": "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"
     }
   ]
 }
