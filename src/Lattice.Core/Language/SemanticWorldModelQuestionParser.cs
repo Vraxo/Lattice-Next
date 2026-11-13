@@ -32,7 +32,7 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.Definition,
                 concept: Normalize(definition.Groups["concept"].Value),
-                source);
+                sourceText: source);
             return true;
         }
 
@@ -43,7 +43,7 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.WhyClassification,
                 subject: Normalize(why.Groups["subject"].Value),
                 concept: Normalize(why.Groups["concept"].Value),
-                source);
+                sourceText: source);
             return true;
         }
 
@@ -82,6 +82,18 @@ internal static class SemanticWorldModelQuestionParser
             new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject),
             sourceText ?? string.Empty);
 
-    private static string Normalize(string value) =>
-        SemanticWorldModel.Normalize(value);
+    private static string Normalize(string value)
+    {
+        var normalized = value.Trim();
+        foreach (var article in new[] { "a ", "an ", "the " })
+        {
+            if (normalized.StartsWith(article, StringComparison.OrdinalIgnoreCase))
+            {
+                normalized = normalized[article.Length..];
+                break;
+            }
+        }
+
+        return SemanticWorldModel.Normalize(normalized);
+    }
 }
