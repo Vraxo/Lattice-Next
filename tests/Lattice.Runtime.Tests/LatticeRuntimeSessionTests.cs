@@ -223,13 +223,15 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
-        Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
         Assert.Equal(
-            """
-            The available knowledge represents loop through these connected facts and general rules:
-            - has → boundary
-              - has → loop
-            """,
+            2,
+            result.Utterances[0].SupportingEvidence
+                .SelectMany(evidence => evidence.Sources)
+                .Select(source => source.SourceText)
+                .Distinct()
+                .Count());
+        Assert.Equal(
+            "A loop has a boundary. A boundary has a loop.",
             result.Utterances[0].Message);
     }
     [Fact]
