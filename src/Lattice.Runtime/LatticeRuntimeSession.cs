@@ -18,6 +18,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
     private readonly ObjectiveEvaluator objectiveEvaluator = new();
+    private readonly SemanticWorldModel semanticWorldModel;
+    private readonly SemanticWorldModelReasoner semanticWorldModelReasoner;
     private readonly List<KnowledgePack> loadedPacks = [];
     private ObjectiveFormula? activeObjective;
     private string? activeObjectiveSource;
@@ -42,6 +44,23 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         loadedPacks.Add(pack!);
+
+        using var semanticStream = typeof(LatticeRuntimeSession).Assembly.GetManifestResourceStream(
+            "Lattice.Runtime.CoreSemanticWorldModel.json")
+            ?? throw new InvalidOperationException("The embedded semantic world model is missing.");
+        using var semanticReader = new StreamReader(semanticStream);
+
+        if (!new SemanticWorldModelLoader().TryLoad(
+            semanticReader.ReadToEnd(),
+            out var loadedSemanticWorldModel,
+            out error))
+        {
+            throw new InvalidOperationException(
+                error ?? "The embedded semantic world model could not be loaded.");
+        }
+
+        semanticWorldModel = loadedSemanticWorldModel!;
+        semanticWorldModelReasoner = new SemanticWorldModelReasoner(semanticWorldModel);
     }
 
     public Guid SessionId { get; } = Guid.NewGuid();
@@ -421,6 +440,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
+        {
+            return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is MultiItemClassificationFormula classification)
         {
             return ProcessClassificationQuestion(parsedUtterance, classification);
@@ -534,6 +559,24 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 });
         }
 
+        if (utterance.Meaning is PredicateApplication membershipQuery &&
+            membershipQuery.Arguments.Length == 1 &&
+            membershipQuery.Arguments[0] is IndividualTerm individual &&
+            SemanticWorldModelResponder.TryAskMembership(
+                individual.Identifier.Value,
+                membershipQuery.Predicate.Value,
+                semanticWorldModel,
+                semanticWorldModelReasoner,
+                out var membershipEvidence))
+        {
+            conversationContext.Observe(utterance);
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                Meaning: SemanticFormatter.Format(utterance),
+                TruthValue: LatticeTruthValue.True,
+                SupportingEvidence: membershipEvidence);
+        }
+
         var answer = utterance.Meaning switch
         {
             PredicateApplication predicateQuery =>
@@ -599,6 +642,20 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance utterance,
         MultiItemClassificationFormula request)
     {
+        if (SemanticWorldModelResponder.TryClassify(
+            request,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var semanticMessage,
+            out var semanticEvidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                semanticMessage,
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: semanticEvidence);
+        }
+
         if (!MultiItemClassificationResponder.TryRespond(
             request,
             knowledgeBase,
@@ -659,6 +716,19 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
         var meaning = SemanticFormatter.Format(utterance);
 
+        if (SemanticWorldModelResponder.TryDefinition(
+            requestedConcept,
+            semanticWorldModel,
+            out var semanticMessage,
+            out var semanticEvidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                semanticMessage,
+                meaning,
+                SupportingEvidence: semanticEvidence);
+        }
+
         if (!ConceptKnowledgeFormatter.TryCreate(knowledgeBase, reasoningEngine, requestedConcept, out var explanation))
         {
             return new LatticeUtteranceResult(
@@ -673,6 +743,32 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             explanation!.Message,
             meaning,
             SupportingEvidence: explanation.Evidence);
+    }
+
+    private LatticeUtteranceResult ProcessSemanticWorldModelQuestion(
+        SemanticUtterance utterance,
+        SemanticWorldModelQuestionFormula question)
+    {
+        var meaning = SemanticFormatter.Format(utterance);
+        if (!SemanticWorldModelResponder.TryRespond(
+            question,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough structured semantic knowledge to answer that question.",
+                meaning,
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            meaning,
+            SupportingEvidence: evidence);
     }
 
     private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
