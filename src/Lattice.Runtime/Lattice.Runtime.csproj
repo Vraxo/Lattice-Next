@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="../../knowledge/core-world-model.json" LogicalName="Lattice.Runtime.CoreWorldModel.json" />
+    <EmbeddedResource Include="../../knowledge/core-semantic-world-model.json" LogicalName="Lattice.Runtime.CoreSemanticWorldModel.json" />
   </ItemGroup>
 
   <ItemGroup>

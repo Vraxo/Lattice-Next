@@ -38,7 +38,7 @@ Session context is not automatically durable knowledge. It also retains the late
 
 Knowledge packs are versioned, declarative data. They may describe concepts, facts, relations, rules, and examples. They do not contain executable plugin code and should not require a special project for each subject domain.
 
-The initial version 1 format is JSON metadata plus ordered LCE assertion strings. Core validates the entire pack against the current parser and reasoning boundary before adding any claim. This deliberately reuses the proven language-to-semantics path instead of prematurely serializing internal semantic records. Imported claims retain both their imported-claim classification and the pack ID as a structured source identifier. The format should evolve with demonstrated semantic needs, not dictate them.
+The existing version 1 external pack format remains JSON metadata plus ordered LCE assertion strings and typed candidate attributes for backward compatibility. It is no longer the target representation for foundational concepts. The embedded semantic world model is a separate typed resource: concepts, lexical entries, relation signatures, type definitions, type assertions, and relation assertions are validated as structured data before runtime use. An assertion's source text and URL are provenance, not the assertion's meaning. The first migrated domain is musical instruments; the remaining legacy core claims and prose-valued reference attributes are explicitly a migration backlog. New concept knowledge should use the typed semantic model rather than introduce additional sentence-valued definitions.
 
 ### Tools
 

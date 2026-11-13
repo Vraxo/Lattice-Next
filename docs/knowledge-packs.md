@@ -163,3 +163,4 @@ Concept explanations inspect direct facts and applicable universal rules,
 follow the related concept structure within bounded limits, and retain the
 original source claims as evidence. This is an initial seed, not a claim that
 the world model is already comprehensive.
+undefined

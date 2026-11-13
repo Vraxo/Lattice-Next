@@ -20,7 +20,7 @@ internal sealed class ReplStatusCommand(
 
         AnsiConsole.MarkupLine("[bold]Implementation status[/]");
         AnsiConsole.MarkupLine("  [cyan]Language[/]             LCE 0.9 + native English grammar");
-        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Terms, n-ary predicates, conjunction, existential and universal quantification");
+        AnsiConsole.MarkupLine("  [cyan]Semantics[/]            Typed concepts, relation signatures, type definitions, and graph assertions");
         AnsiConsole.MarkupLine("  [cyan]Reasoning[/]            Unary and fixed-object relational inference + existential lookup");
         AnsiConsole.MarkupLine($"  [cyan]Session knowledge[/]    {status.FactCount} facts, {status.RuleCount} rules");
         AnsiConsole.MarkupLine($"  [cyan]Known individuals[/]    {status.KnownIndividualCount}");
