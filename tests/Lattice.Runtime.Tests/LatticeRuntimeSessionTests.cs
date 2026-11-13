@@ -89,11 +89,13 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal("The session has been closed.", result.Error);
     }
 
+
     [Fact]
     public async Task Loads_knowledge_packs_into_the_session_with_imported_provenance()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
+        var initialStatus = await session.GetStatusAsync();
 
         var loaded = await session.LoadKnowledgePackAsync(
             """{"formatVersion":1,"id":"animals","name":"Animals","claims":["Fido is a dog."]}""");
@@ -109,76 +111,38 @@ public sealed class LatticeRuntimeSessionTests
             evidence => evidence.Sources.Any(
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
                     source.SourceId == "animals"));
-        Assert.Equal(1, status.FactCount);
-        Assert.Equal(1, status.LoadedKnowledgePackCount);
+        Assert.Equal(initialStatus.FactCount + 1, status.FactCount);
+        Assert.Equal(initialStatus.RuleCount, status.RuleCount);
+        Assert.Equal(initialStatus.LoadedKnowledgePackCount + 1, status.LoadedKnowledgePackCount);
     }
 
     [Fact]
-    public async Task Answers_definition_questions_by_composing_imported_concept_facts()
+    public async Task Answers_definition_questions_from_the_default_world_model_without_imports()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var loaded = await session.LoadKnowledgePackAsync(
-            """
-            {
-              "formatVersion": 1,
-              "id": "geometry-concepts",
-              "name": "Geometry concepts",
-              "claims": [
-                "Polygon is a geometric-shape.",
-                "Polygon is a polygon.",
-                "Every polygon has a boundary.",
-                "The boundary is closed.",
-                "The boundary has Line-segment.",
-                "Line-segment is a line-segment.",
-                "The line-segment is straight."
-              ]
-            }
-            """);
-
         var result = await session.SubmitAsync("What is a polygon?");
 
-        Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(
             """
-            The available knowledge represents polygon through these connected facts:
+            The available knowledge represents polygon through these connected facts and general rules:
             - is → geometric shape
-            - has → a boundary
-              - is → boundary
+            - every polygon has → boundary closed
+              - every boundary has → line segment
+                - every line segment is → straight
             """,
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
-        Assert.Equal(3, result.Utterances[0].SupportingEvidence.Length);
+        Assert.Equal(4, result.Utterances[0].SupportingEvidence.Length);
         Assert.All(
             result.Utterances[0].SupportingEvidence,
             evidence => Assert.Contains(
                 evidence.Sources,
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
-                    source.SourceId == "geometry-concepts"));
-        var derivedEvidence = result.Utterances[0].SupportingEvidence
-            .Where(evidence =>
-                evidence.Kind == LatticeEvidenceKind.Derived &&
-                evidence.Sources.Any(source =>
-                    source.SourceText == "Every polygon has a boundary."))
-            .ToArray();
-        Assert.Equal(2, derivedEvidence.Length);
-        Assert.All(derivedEvidence, evidence =>
-        {
-            Assert.Equal(LatticeEvidencePolarity.Positive, evidence.Polarity);
-            Assert.NotEmpty(evidence.Premises);
-            Assert.Contains(
-                evidence.Premises,
-                premise => premise.Sources.Any(source =>
-                    source.SourceText == "Polygon is a polygon."));
-        });
-        Assert.DoesNotContain(
-            result.Utterances[0].SupportingEvidence,
-            evidence => evidence.Sources.Any(
-                source => source.SourceText.Contains("A polygon is", StringComparison.Ordinal)));
+                    source.SourceId == "core-world-model"));
     }
-
     [Fact]
     public async Task Reports_missing_concept_knowledge_as_unavailable()
     {
@@ -223,6 +187,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Empty(result.Utterances[0].SupportingEvidence);
     }
 
+
     [Fact]
     public async Task Stops_concept_traversal_when_a_relationship_forms_a_cycle()
     {
@@ -236,26 +201,25 @@ public sealed class LatticeRuntimeSessionTests
               "id": "cyclic-concepts",
               "name": "Cyclic concepts",
               "claims": [
-                "Polygon has Boundary.",
-                "Boundary has Polygon."
+                "CycleNode has CycleBoundary.",
+                "CycleBoundary has CycleNode."
               ]
             }
             """);
 
-        var result = await session.SubmitAsync("What is a polygon?");
+        var result = await session.SubmitAsync("What is a cycle node?");
 
         Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
         Assert.Equal(
             """
-            The available knowledge represents polygon through these connected facts:
-            - has → boundary
-              - has → polygon
+            The available knowledge represents cycle node through these connected facts and general rules:
+            - has → cycle boundary
+              - has → cycle node
             """,
             result.Utterances[0].Message);
     }
-
     [Fact]
     public async Task Rejects_knowledge_pack_loading_after_session_disposal()
     {
