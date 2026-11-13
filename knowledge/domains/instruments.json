@@ -741,7 +741,7 @@
       "range": "physical-component",
       "verb": "receives vibrations from",
       "objectRole": null,
-      "order": 3,
+      "order": 0,
       "comparisonPriority": 0
     },
     {
@@ -750,7 +750,7 @@
       "range": "mechanical-state",
       "verb": "has mechanical state",
       "objectRole": null,
-      "order": 1,
+      "order": 0,
       "comparisonPriority": 0
     }
   ],

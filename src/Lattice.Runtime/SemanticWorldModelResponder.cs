@@ -542,7 +542,8 @@ internal static class SemanticWorldModelResponder
             return;
         }
 
-        foreach (var assertion in reasoner.GetRelations(subjectId))
+        foreach (var assertion in reasoner.GetRelations(subjectId)
+            .Where(assertion => (model.FindRelation(assertion.Relation)?.Order ?? 0) > 0))
         {
             var relation = model.FindRelation(assertion.Relation);
             var subject = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
