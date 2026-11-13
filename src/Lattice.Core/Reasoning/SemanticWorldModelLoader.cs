@@ -915,17 +915,6 @@ public sealed class SemanticWorldModelLoader
             _ => false
         };
 
-    private static bool IsRelationArgument(
-        IReadOnlyDictionary<string, SemanticConcept> concepts,
-        string? id,
-        SemanticRelationArgumentKind kind) =>
-        kind switch
-        {
-            SemanticRelationArgumentKind.Individual => IsIndividual(concepts, id),
-            SemanticRelationArgumentKind.Type => IsType(concepts, id),
-            _ => false
-        };
-
     private static bool IsType(IReadOnlyDictionary<string, SemanticConcept> concepts, string? id) =>
         id is not null &&
         concepts.TryGetValue(id, out var concept) &&
