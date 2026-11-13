@@ -51,7 +51,7 @@ internal static class MultiItemClassificationResponder
         message = string.Join(
             " ",
             classifications.Select(classification =>
-                $"{Capitalize(Display(classification.Item.Value))} is {Indefinite(Display(classification.Category.Value))} {Display(request.ItemType.Value)}."));
+                $"{Capitalize(Display(classification.Item.Value))} is {Indefinite(Display(classification.Category.Value))} {Display(classification.Category.Value)} {Display(request.ItemType.Value)}."));
 
         evidence = classifications
             .SelectMany(classification => classification.Proofs)
