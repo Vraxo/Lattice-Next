@@ -1,47 +1,34 @@
 # Knowledge
 
-The runtime starts every session with the versioned core world model in
-`core-world-model.json`. It is embedded in the runtime assembly, validated
-through the same knowledge-pack loader as external packs, and available without
-a user import or a working-directory dependency.
+The runtime starts every session with two complementary default knowledge resources.
 
-The core model is intentionally small and foundational. It is not a catalogue
-of prewritten answers: it stores structured assertions, general rules, and typed
-reference metadata that the reasoning and response layers can inspect and
-compose. Reference attributes are marked as non-candidates so they do not leak
-into unrelated objective comparisons.
+- `core-world-model.json` is the legacy LCE pack. Its remaining sentence claims are retained as source-backed predicates and rules while their domains are migrated.
+- `core-semantic-world-model.json` is the typed semantic model. It declares concept types and individuals, lexical entries, relation signatures, structured type definitions, and typed assertions. The instrument domain has been migrated here; its classification is derived from component and mechanism relationships rather than loaded from sentence claims.
 
-Additional domain packs remain useful for specialized or changing information.
-They extend the same session knowledge base and retain their own provenance.
-They are not required for concepts that belong in the default world model.
+The semantic model keeps **identity, meaning, assertions, and evidence separate**:
+- A concept's identifier and label name it; they do not define it.
+- A type definition links the type to parent types and equivalent structural conditions.
+- A relation has declared domain and range types.
+- An individual is classified by the structures it participates in. One individual may satisfy several definitions.
+- Each assertion retains source provenance. Source text is evidence metadata, not the value or meaning of the assertion.
 
+For example, a piano satisfies the keyboard-instrument definition because it has a keyboard playing interface. It also satisfies the struck-string-instrument definition because its sound-production mechanism is a struck-string mechanism. Those classifications are independent and can both be true.
 
-## Foundational instrument knowledge
+## Instrument knowledge
 
-The core world model includes verified classifications for the Georgian panduri (string instrument) and the zurna (woodwind instrument). The International Research Center for Traditional Polyphony lists panduri among Georgian string instruments: https://polyphony.ge/en/georgia/georgian-traditional-music/musical-instruments/. The Metropolitan Museum of Art classifies zurna examples as double-reed aerophones: https://www.metmuseum.org/art/collection/search/501941. The Smithsonian Institution's Encyclopaedia of Islam describes the zurna as a characteristic woodwind instrument: https://isamveri.org/pdfdkm/23/DKM230353.pdf.
+The model represents component and mechanism relations for the piano, harmonium, accordion, and the other core instrument examples. The piano mechanism is represented as a connected sequence: its keyboard activates the action; the action strikes strings; string vibration is transmitted to the soundboard; and the soundboard radiates sound. Harmonium and accordion models connect their playing interfaces and bellows-driven free-reed mechanisms separately.
 
+References used by the current seed include:
 
-## Instrument-family classification
+- [Yamaha: piano and its sound-producing mechanism](https://www.yamaha.com/en/musical_instrument_guide/piano/)
+- [Yamaha: piano action](https://www.yamaha.com/en/musical_instrument_guide/piano/mechanism/mechanism003.html)
+- [Yamaha: how strings, vibrations, and the soundboard produce sound](https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html)
+- [Metropolitan Museum: harmonium](https://www.metmuseum.org/art/collection/search/505026)
+- [Staatliches Institut für Musikforschung: accordion](https://www.simpk.de/en/museum/collection/special-exhibitions/das-akkordeon.html)
+- [Yale Library: instrument families](https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603)
+- [European Schools: music syllabus](https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf)
+- [International Research Center for Traditional Polyphony: Georgian instruments](https://polyphony.ge/en/georgia/georgian-traditional-music/musical-instruments/)
 
-The core model includes the seven instrument classifications needed by the
-benchmark's string-versus-keyboard grouping. The source material distinguishes
-the requested playing-family grouping from classification by sound production:
-a piano is a keyboard instrument and also a struck-string instrument; a
-harmonium and accordion are keyboard-played free-reed instruments. These
-separate facts are represented independently in the world model. The model's
-keyboard labels answer the prompt's requested family grouping rather than
-claiming these instruments produce sound in the same way.
+The semantic format currently supports type inheritance and conjunctive existential restrictions. It is a deliberately bounded description-logic slice, not a claim that arbitrary ontology expressions or unrestricted first-order logic are implemented.
 
-References:
-- Yale Library's instrument-family guidance places piano in the keyboard family
-  and treats accordion as a keyboard instrument:
-  https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603
-- The Library of Congress lists piano under both keyboard instrument and struck
-  string instrument:
-  https://www.loc.gov/aba/publications/FreeLCMPT/MEDIUM.pdf
-- The Metropolitan Museum of Art describes the harmonium as a free-reed
-  keyboard instrument:
-  https://www.metmuseum.org/art/collection/search/505026
-- The European Schools' music syllabus lists guitar, violin, cello, and banjo
-  among string instruments, and accordion among free-reed instruments:
-  https://www.eursc.eu/Syllabuses/2016-10-D-14-en-5.pdf
+Additional domain packs remain available through the existing version 1 knowledge-pack loader. Migrating the remaining legacy core claims and prose-valued reference attributes is still outstanding; the instrument domain is the first end-to-end migration.
