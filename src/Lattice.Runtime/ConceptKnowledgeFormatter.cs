@@ -53,7 +53,9 @@ internal static class ConceptKnowledgeFormatter
 
         explanation = new ConceptKnowledgeExplanation(
             string.Join(" ", sentences),
-            evidence.ToImmutable());
+            evidence
+                .DistinctBy(GetEvidenceKey)
+                .ToImmutableArray());
         return true;
     }
 
@@ -342,6 +344,9 @@ internal static class ConceptKnowledgeFormatter
             ? "instance"
             : DisplayIdentifier(descriptor);
     }
+
+    private static string GetEvidenceKey(LatticeEvidence evidence) =>
+        $"{evidence.Kind}:{evidence.Polarity}:{string.Join(";", evidence.Sources.Select(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}"))}";
 
     private static string GetFactKey(ProofNode proof) =>
         $"{proof.Predicate.Predicate.Value}:{string.Join("|", proof.Predicate.Arguments)}:{proof.Polarity}";
