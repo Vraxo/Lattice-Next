@@ -126,6 +126,19 @@ internal static class SemanticWorldModelResponder
             }
         }
 
+        var domainAssertions = reasoner.GetRelations(individual.Id, "used-for-domain");
+        var domains = domainAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .Select(target => target!)
+            .DistinctBy(target => target.Id)
+            .ToArray();
+        if (domains.Length > 0)
+        {
+            clauses.Add($"It is used for {JoinConditions(domains.Select(target => target.Label).ToArray())}.");
+            sources.AddRange(domainAssertions.Select(assertion => assertion.Source));
+        }
+
         var documentation = model.GetDataAssertions(individual.Id, "documentation-url");
         if (documentation.Length > 0)
         {
@@ -189,11 +202,40 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(type.Label)} can arise through {JoinConditions(labels)}.";
+        var clauses = new List<string>
+        {
+            $"{Capitalize(type.Label)} can arise through {JoinConditions(labels)}."
+        };
         var sources = mechanisms.Select(assertion => assertion.Source)
             .Concat(instances.SelectMany(instance =>
                 reasoner.GetMembershipEvidence(instance.Id, type.Id)))
-            .ToImmutableArray();
+            .ToList();
+
+        var references = instances
+            .SelectMany(instance => reasoner.GetRelations(instance.Id, "has-research-reference"))
+            .ToArray();
+        var referenceDetails = references
+            .Select(assertion =>
+            {
+                var publication = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                var doi = model.GetDataAssertions(assertion.Object, "doi-url").FirstOrDefault();
+                return publication is null
+                    ? null
+                    : doi is null
+                        ? publication.Label
+                        : $"{publication.Label} ({doi.Value})";
+            })
+            .Where(reference => reference is not null)
+            .ToArray();
+        if (referenceDetails.Length > 0)
+        {
+            clauses.Add($"Research references include {JoinConditions(referenceDetails!)}.");
+            sources.AddRange(references.Select(assertion => assertion.Source));
+            sources.AddRange(references.SelectMany(assertion =>
+                model.GetDataAssertions(assertion.Object, "doi-url").Select(item => item.Source)));
+        }
+
+        message = string.Join(" ", clauses);
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
