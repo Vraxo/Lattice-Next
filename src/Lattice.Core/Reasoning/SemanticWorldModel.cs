@@ -34,7 +34,8 @@ public sealed record SemanticRestriction(
 public sealed record SemanticTypeDefinition(
     string Concept,
     ImmutableArray<string> ParentTypes,
-    ImmutableArray<SemanticRestriction> EquivalentConditions);
+    ImmutableArray<SemanticRestriction> EquivalentConditions,
+    SemanticWorldModelSource Source);
 
 public sealed record SemanticWorldModelSource(
     string SourceText,
