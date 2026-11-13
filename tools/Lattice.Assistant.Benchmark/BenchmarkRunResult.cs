@@ -5,6 +5,7 @@ public sealed record BenchmarkRunResult(
     string Prompt,
     string Category,
     string EvaluationLayer,
+    bool SubstantiveAnswerReviewed,
     int Repetition,
     int ExitCode,
     bool CliSuccess,
