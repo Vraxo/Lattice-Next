@@ -154,7 +154,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(expectedGoal, status.ActiveObjective);
         Assert.Equal(input, status.ActiveObjectiveSource);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
 
         if (expectedKind == LatticeUtteranceResultKind.ClarificationRequired)
         {
@@ -241,7 +241,7 @@ public sealed class ObjectiveSessionTests
         Assert.Equal(input, status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -518,7 +518,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationPrompt);
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -673,7 +673,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -699,7 +699,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -728,7 +728,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -762,7 +762,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("$25 total.", status.ActiveObjectiveSource);
         Assert.Contains("Central Station", status.ActiveObjectiveSource);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -786,7 +786,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("My starting point is Central Station.", status.ActiveObjectiveSource);
         Assert.Null(status.PendingInformationName);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -811,7 +811,7 @@ public sealed class ObjectiveSessionTests
         Assert.Null(status.PendingInformationName);
         Assert.Null(status.PendingInformationPrompt);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
@@ -849,7 +849,7 @@ public sealed class ObjectiveSessionTests
         Assert.Contains("bring-lunch", meaning);
         Assert.Contains("Walking only.", status.ActiveObjectiveSource);
         Assert.Equal(2, status.FactCount);
-        Assert.Equal(3, status.RuleCount);
+        Assert.Equal(4, status.RuleCount);
     }
 
     [Fact]
