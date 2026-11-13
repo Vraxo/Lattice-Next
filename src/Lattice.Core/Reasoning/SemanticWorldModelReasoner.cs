@@ -58,19 +58,14 @@ public sealed class SemanticWorldModelReasoner
                 foreach (var definition in model.Definitions)
                 {
                     if (allTypes[individualId].Contains(definition.Concept) ||
-                        definition.EquivalentConditions.IsDefaultOrEmpty)
+                        definition.DefinitionKind != SemanticDefinitionKind.Defined ||
+                        definition.EquivalentExpression is null ||
+                        !definition.ParentTypes.All(parent => allTypes[individualId].Contains(parent)))
                     {
                         continue;
                     }
 
-                    var conditionsSatisfied = definition.EquivalentConditions.All(condition =>
-                        model.RelationAssertions.Any(assertion =>
-                            assertion.Subject == individualId &&
-                            assertion.Relation == condition.Relation &&
-                            allTypes.TryGetValue(assertion.Object, out var objectTypes) &&
-                            objectTypes.Contains(condition.TargetType)));
-
-                    if (conditionsSatisfied)
+                    if (MatchesExpression(definition.EquivalentExpression, individualId, allTypes, model))
                     {
                         changed |= allTypes[individualId].Add(definition.Concept);
                     }
@@ -82,6 +77,27 @@ public sealed class SemanticWorldModelReasoner
             pair => pair.Key,
             pair => pair.Value.Order(StringComparer.Ordinal).ToImmutableArray(),
             StringComparer.Ordinal);
+    }
+
+    private static bool MatchesExpression(
+        SemanticClassExpression expression,
+        string individual,
+        IReadOnlyDictionary<string, HashSet<string>> allTypes,
+        SemanticWorldModel model)
+    {
+        return expression.Kind switch
+        {
+            SemanticClassExpressionKind.Some => model.RelationAssertions.Any(assertion =>
+                assertion.Subject == individual &&
+                assertion.Relation == expression.Relation &&
+                allTypes.TryGetValue(assertion.Object, out var objectTypes) &&
+                objectTypes.Contains(expression.TargetType!)),
+            SemanticClassExpressionKind.And => expression.Operands.All(operand =>
+                MatchesExpression(operand, individual, allTypes, model)),
+            SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
+                MatchesExpression(operand, individual, allTypes, model)),
+            _ => false
+        };
     }
 
     public ImmutableArray<SemanticWorldModelMembership> GetMemberships(string individual)

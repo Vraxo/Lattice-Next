@@ -6,7 +6,7 @@ namespace Lattice.Core.Reasoning;
 
 public sealed class SemanticWorldModelLoader
 {
-    private const int SupportedFormatVersion = 1;
+    private const int SupportedFormatVersion = 2;
     private const int MaximumConcepts = 2000;
     private const int MaximumRelations = 500;
     private const int MaximumDefinitions = 500;
@@ -16,7 +16,8 @@ public sealed class SemanticWorldModelLoader
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     public bool TryLoad(
@@ -46,7 +47,7 @@ public sealed class SemanticWorldModelLoader
         }
 
         if (document is null ||
-            document.FormatVersion != SupportedFormatVersion ||
+            document.FormatVersion is not (1 or SupportedFormatVersion) ||
             !IsValidId(document.Id) ||
             string.IsNullOrWhiteSpace(document.Name) ||
             document.Name.Length > 120 ||
@@ -237,6 +238,7 @@ public sealed class SemanticWorldModelLoader
                 !IsType(concepts, item.Concept) ||
                 item.Parents is null ||
                 item.Conditions is null ||
+                item.NecessaryConditions is null ||
                 item.Parents.Any(parent => !IsType(concepts, parent)) ||
                 item.Parents.Distinct(StringComparer.Ordinal).Count() != item.Parents.Count ||
                 !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var definitionSource) ||
@@ -246,35 +248,226 @@ public sealed class SemanticWorldModelLoader
                 return false;
             }
 
-            var conditions = ImmutableArray.CreateBuilder<SemanticRestriction>(item.Conditions.Count);
-            foreach (var condition in item.Conditions)
+            var necessaryConditions = ImmutableArray.CreateBuilder<SemanticRestriction>();
+            if (document.FormatVersion == SupportedFormatVersion &&
+                !TryCreateRestrictions(item.Concept, item.NecessaryConditions, concepts, relations, necessaryConditions, out error))
             {
-                if (condition is null ||
-                    !relations.ContainsKey(condition.Relation) ||
-                    !IsType(concepts, condition.TargetType))
+                return false;
+            }
+
+            SemanticDefinitionKind definitionKind;
+            SemanticClassExpression? equivalentExpression;
+            ImmutableArray<SemanticRestriction> expressionRestrictions;
+
+            if (document.FormatVersion == 1)
+            {
+                var legacyConditions = ImmutableArray.CreateBuilder<SemanticRestriction>();
+                if (!TryCreateRestrictions(item.Concept, item.Conditions, concepts, relations, legacyConditions, out error))
                 {
-                    error = $"Type definition '{item.Concept}' contains an invalid equivalent condition.";
                     return false;
                 }
 
-                conditions.Add(new SemanticRestriction(condition.Relation, condition.TargetType));
+                definitionKind = legacyConditions.Count == 0
+                    ? SemanticDefinitionKind.Primitive
+                    : SemanticDefinitionKind.Defined;
+                expressionRestrictions = legacyConditions.ToImmutable();
+                equivalentExpression = CreateConjunction(expressionRestrictions);
+            }
+            else
+            {
+                if (item.Conditions.Count != 0 ||
+                    !Enum.TryParse(item.DefinitionKind, true, out definitionKind) ||
+                    !Enum.IsDefined(definitionKind))
+                {
+                    error = $"Type definition '{item.Concept}' requires an explicit primitive or defined status and must use equivalentTo rather than legacy conditions.";
+                    return false;
+                }
+
+                if (!TryCreateExpression(item.Concept, item.EquivalentTo, concepts, relations,
+                    out equivalentExpression, out expressionRestrictions, out error))
+                {
+                    return false;
+                }
             }
 
-            if (conditions.Count > 0 && item.Parents.Count == 0)
+            if ((definitionKind == SemanticDefinitionKind.Defined && equivalentExpression is null) ||
+                (definitionKind == SemanticDefinitionKind.Primitive && equivalentExpression is not null) ||
+                (definitionKind == SemanticDefinitionKind.Defined && item.Parents.Count == 0))
             {
-                error = $"Type definition '{item.Concept}' must declare its parent type separately from its defining conditions.";
+                error = $"Type definition '{item.Concept}' has an inconsistent primitive/defined declaration.";
                 return false;
             }
 
             builder.Add(new SemanticTypeDefinition(
                 item.Concept,
                 item.Parents.ToImmutableArray(),
-                conditions.ToImmutable(),
-                definitionSource!));
+                GetSimpleConjunctionRestrictions(equivalentExpression),
+                definitionSource!)
+            {
+                DefinitionKind = definitionKind,
+                NecessaryConditions = necessaryConditions.ToImmutable(),
+                EquivalentExpression = equivalentExpression
+            });
         }
 
         definitions = builder.ToImmutable();
+        if (document.FormatVersion == SupportedFormatVersion)
+        {
+            var definedTypes = definitions.Select(definition => definition.Concept)
+                .ToHashSet(StringComparer.Ordinal);
+            if (concepts.Values.Any(concept =>
+                concept.Kind == SemanticConceptKind.Type &&
+                !definedTypes.Contains(concept.Id)))
+            {
+                error = "Every type concept in a version 2 semantic world model requires an explicit primitive or defined declaration.";
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    private static bool TryCreateRestrictions(
+        string ownerType,
+        IReadOnlyCollection<RestrictionDocument> documents,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        IReadOnlyDictionary<string, SemanticRelationDefinition> relations,
+        ImmutableArray<SemanticRestriction>.Builder restrictions,
+        out string? error)
+    {
+        error = null;
+        foreach (var condition in documents)
+        {
+            if (condition is null ||
+                !relations.ContainsKey(condition.Relation) ||
+                !IsType(concepts, condition.TargetType))
+            {
+                error = $"Type definition '{ownerType}' contains an invalid necessary or equivalent relation restriction.";
+                return false;
+            }
+
+            restrictions.Add(new SemanticRestriction(condition.Relation, condition.TargetType));
+        }
+
+        return true;
+    }
+
+    private static bool TryCreateExpression(
+        string ownerType,
+        SemanticClassExpression? expression,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        IReadOnlyDictionary<string, SemanticRelationDefinition> relations,
+        out SemanticClassExpression? parsed,
+        out ImmutableArray<SemanticRestriction> restrictions,
+        out string? error)
+    {
+        parsed = null;
+        restrictions = [];
+        error = null;
+        if (expression is null)
+        {
+            return true;
+        }
+
+        var collected = ImmutableArray.CreateBuilder<SemanticRestriction>();
+        var nodeCount = 0;
+        if (!ValidateExpression(expression, 0, ref nodeCount, relations, concepts, collected))
+        {
+            error = $"Type definition '{ownerType}' contains an invalid class expression. Use some restrictions combined with and/or.";
+            return false;
+        }
+
+        parsed = expression;
+        restrictions = collected.ToImmutable();
+        return true;
+    }
+
+    private static bool ValidateExpression(
+        SemanticClassExpression expression,
+        int depth,
+        ref int nodeCount,
+        IReadOnlyDictionary<string, SemanticRelationDefinition> relations,
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        ImmutableArray<SemanticRestriction>.Builder restrictions)
+    {
+        if (depth > 8 || ++nodeCount > 64)
+        {
+            return false;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Some)
+        {
+            if (string.IsNullOrWhiteSpace(expression.Relation) ||
+                !relations.ContainsKey(expression.Relation) ||
+                string.IsNullOrWhiteSpace(expression.TargetType) ||
+                !IsType(concepts, expression.TargetType) ||
+                !expression.Operands.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            restrictions.Add(new SemanticRestriction(expression.Relation, expression.TargetType));
+            return true;
+        }
+
+        if (expression.Kind is not (SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or) ||
+            expression.Relation is not null ||
+            expression.TargetType is not null ||
+            expression.Operands.IsDefault ||
+            expression.Operands.Length < 2)
+        {
+            return false;
+        }
+
+        foreach (var operand in expression.Operands)
+        {
+            if (operand is null ||
+                !ValidateExpression(operand, depth + 1, ref nodeCount, relations, concepts, restrictions))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static SemanticClassExpression? CreateConjunction(
+        ImmutableArray<SemanticRestriction> restrictions)
+    {
+        if (restrictions.IsDefaultOrEmpty)
+        {
+            return null;
+        }
+
+        var operands = restrictions.Select(restriction => new SemanticClassExpression(
+            SemanticClassExpressionKind.Some,
+            restriction.Relation,
+            restriction.TargetType)).ToImmutableArray();
+
+        return operands.Length == 1
+            ? operands[0]
+            : new SemanticClassExpression(SemanticClassExpressionKind.And, Operands: operands);
+    }
+
+    private static ImmutableArray<SemanticRestriction> GetSimpleConjunctionRestrictions(
+        SemanticClassExpression? expression)
+    {
+        if (expression is null)
+        {
+            return [];
+        }
+
+        var operands = expression.Kind == SemanticClassExpressionKind.And
+            ? expression.Operands
+            : ImmutableArray.Create(expression);
+        if (operands.Any(operand => operand.Kind != SemanticClassExpressionKind.Some))
+        {
+            return [];
+        }
+
+        return operands.Select(operand => new SemanticRestriction(
+            operand.Relation!,
+            operand.TargetType!)).ToImmutableArray();
     }
 
     private static bool TryCreateAssertions(
@@ -448,7 +641,9 @@ public sealed class SemanticWorldModelLoader
 
         foreach (var definition in model.Definitions)
         {
-            foreach (var condition in definition.EquivalentConditions)
+            var restrictions = definition.NecessaryConditions
+                .AddRange(GetExpressionRestrictions(definition.EquivalentExpression));
+            foreach (var condition in restrictions)
             {
                 var relation = model.FindRelation(condition.Relation)!;
                 if (!IsSubtype(model, definition.Concept, relation.DomainType) ||
@@ -469,6 +664,24 @@ public sealed class SemanticWorldModelLoader
         }
 
         return true;
+    }
+
+    private static ImmutableArray<SemanticRestriction> GetExpressionRestrictions(
+        SemanticClassExpression? expression)
+    {
+        if (expression is null)
+        {
+            return [];
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Some)
+        {
+            return [new SemanticRestriction(expression.Relation!, expression.TargetType!)];
+        }
+
+        return expression.Operands
+            .SelectMany(GetExpressionRestrictions)
+            .ToImmutableArray();
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
@@ -632,7 +845,10 @@ public sealed class SemanticWorldModelLoader
         public TypeDefinitionDocument() { }
         public string Concept { get; set; } = string.Empty;
         public List<string> Parents { get; set; } = [];
+        public string? DefinitionKind { get; set; }
         public List<RestrictionDocument> Conditions { get; set; } = [];
+        public List<RestrictionDocument> NecessaryConditions { get; set; } = [];
+        public SemanticClassExpression? EquivalentTo { get; set; }
         public string SourceText { get; set; } = string.Empty;
         public string? SourceUrl { get; set; }
     }
