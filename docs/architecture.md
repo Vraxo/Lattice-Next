@@ -36,9 +36,13 @@ Session context is not automatically durable knowledge. It also retains the late
 
 ### Knowledge
 
-Knowledge packs are versioned, declarative data. They may describe concepts, facts, relations, rules, and examples. They do not contain executable plugin code and should not require a special project for each subject domain.
+Knowledge is versioned, declarative data. It does not contain executable plugin code and should not require a special project for each subject domain.
 
-The existing version 1 external pack format remains JSON metadata plus ordered LCE assertion strings and typed candidate attributes for backward compatibility. It is no longer the target representation for foundational concepts. The embedded semantic world model is a separate typed resource: concepts, lexical entries, relation signatures, type definitions, type assertions, and relation assertions are validated as structured data before runtime use. An assertion's source text and URL are provenance, not the assertion's meaning. The first migrated domain is musical instruments; the remaining legacy core claims and prose-valued reference attributes are explicitly a migration backlog. New concept knowledge should use the typed semantic model rather than introduce additional sentence-valued definitions.
+The default world model is exclusively the embedded typed semantic resource at `knowledge/core-semantic-world-model.json`. It declares concept types and individuals, lexical entries, relation signatures with domain/range types, parent-type hierarchies, conjunctive existential type conditions, typed membership/relation assertions, and typed data properties. The loader validates the complete model before a session can start. The current data-property value kind is URI; it cannot store prose descriptions. Free-text fields are reserved for assertion provenance (`sourceText`) and its source URL, not concept meaning.
+
+All foundational domains currently in the core seed—musical instruments, geometry, basic lexical semantics, monopsony/economic market structure, and the IDAES/BioSTEAM/Pyomo catalogue—use this typed model. Definitions and classifications are derived from connected properties, component relations, mechanisms, and constraints. Publication metadata is represented with publication, author, journal, and DOI nodes/relations; software capabilities are capability concepts linked to the software individual; documentation and DOI links are URI-valued data assertions.
+
+The version 1 external knowledge-pack loader remains available for task-specific candidate data and backward compatibility. Its text/text-set values represent candidate-specific fields or user-provided task data; they are not the location for foundational concept definitions, mechanisms, examples, or explanatory knowledge. New foundational information must be added to the typed semantic world model, not as LCE sentence claims or prose-valued attributes.
 
 ### Tools
 
