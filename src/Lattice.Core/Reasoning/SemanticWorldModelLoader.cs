@@ -279,11 +279,11 @@ public sealed class SemanticWorldModelLoader
                     !Enum.TryParse(item.DefinitionKind, true, out definitionKind) ||
                     !Enum.IsDefined(definitionKind))
                 {
-                    error = $"Type definition '{item.Concept}' requires an explicit primitive or defined status and must use equivalentTo rather than legacy conditions.";
+                    error = $"Type definition '{item.Concept}' requires an explicit primitive or defined status and must use sufficientExpression rather than legacy conditions.";
                     return false;
                 }
 
-                if (!TryCreateExpression(item.Concept, item.EquivalentTo, concepts, relations,
+                if (!TryCreateExpression(item.Concept, item.SufficientExpression, concepts, relations,
                     out equivalentExpression, out expressionRestrictions, out error))
                 {
                     return false;
@@ -306,7 +306,7 @@ public sealed class SemanticWorldModelLoader
             {
                 DefinitionKind = definitionKind,
                 NecessaryConditions = necessaryConditions.ToImmutable(),
-                EquivalentExpression = equivalentExpression
+                SufficientExpression = equivalentExpression
             });
         }
 
@@ -342,7 +342,7 @@ public sealed class SemanticWorldModelLoader
                 !relations.ContainsKey(condition.Relation) ||
                 !IsType(concepts, condition.TargetType))
             {
-                error = $"Type definition '{ownerType}' contains an invalid necessary or equivalent relation restriction.";
+                error = $"Type definition '{ownerType}' contains an invalid necessary or sufficient relation restriction.";
                 return false;
             }
 
@@ -642,7 +642,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var definition in model.Definitions)
         {
             var restrictions = definition.NecessaryConditions
-                .AddRange(GetExpressionRestrictions(definition.EquivalentExpression));
+                .AddRange(GetExpressionRestrictions(definition.SufficientExpression));
             foreach (var condition in restrictions)
             {
                 var relation = model.FindRelation(condition.Relation)!;
@@ -852,7 +852,7 @@ public sealed class SemanticWorldModelLoader
         public string? DefinitionKind { get; set; }
         public List<RestrictionDocument> Conditions { get; set; } = [];
         public List<RestrictionDocument> NecessaryConditions { get; set; } = [];
-        public SemanticClassExpression? EquivalentTo { get; set; }
+        public SemanticClassExpression? SufficientExpression { get; set; }
         public string SourceText { get; set; } = string.Empty;
         public string? SourceUrl { get; set; }
     }

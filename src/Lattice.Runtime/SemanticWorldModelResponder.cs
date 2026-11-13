@@ -88,7 +88,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        var expressionPhrase = FormatExpression(definition.EquivalentExpression, model);
+        var expressionPhrase = FormatExpression(definition.SufficientExpression, model);
         if (expressionPhrase is null)
         {
             return false;
@@ -402,10 +402,10 @@ internal static class SemanticWorldModelResponder
         var definition = type is null ? null : model.FindDefinition(type.Id);
         if (individual is null ||
             type is null ||
-            definition?.EquivalentExpression is null ||
+            definition?.SufficientExpression is null ||
             !TryExplainExpression(
                 individual.Id,
-                definition.EquivalentExpression,
+                definition.SufficientExpression,
                 model,
                 reasoner,
                 out var phrases,

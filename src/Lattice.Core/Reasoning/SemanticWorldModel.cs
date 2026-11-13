@@ -31,34 +31,15 @@ public sealed record SemanticRestriction(
     string Relation,
     string TargetType);
 
-public enum SemanticDefinitionKind
-{
-    Primitive,
-    Defined
-}
-
-public enum SemanticClassExpressionKind
-{
-    Some,
-    And,
-    Or
-}
-
-public sealed record SemanticClassExpression(
-    SemanticClassExpressionKind Kind,
-    string? Relation = null,
-    string? TargetType = null,
-    ImmutableArray<SemanticClassExpression> Operands = default);
-
 public sealed record SemanticTypeDefinition(
     string Concept,
     ImmutableArray<string> ParentTypes,
-    ImmutableArray<SemanticRestriction> EquivalentConditions,
+    ImmutableArray<SemanticRestriction> SufficientConditions,
     SemanticWorldModelSource Source)
 {
     public SemanticDefinitionKind DefinitionKind { get; init; } = SemanticDefinitionKind.Primitive;
     public ImmutableArray<SemanticRestriction> NecessaryConditions { get; init; } = [];
-    public SemanticClassExpression? EquivalentExpression { get; init; }
+    public SemanticClassExpression? SufficientExpression { get; init; }
 }
 
 public sealed record SemanticWorldModelSource(

@@ -59,13 +59,13 @@ public sealed class SemanticWorldModelReasoner
                 {
                     if (allTypes[individualId].Contains(definition.Concept) ||
                         definition.DefinitionKind != SemanticDefinitionKind.Defined ||
-                        definition.EquivalentExpression is null ||
+                        definition.SufficientExpression is null ||
                         !definition.ParentTypes.All(parent => allTypes[individualId].Contains(parent)))
                     {
                         continue;
                     }
 
-                    if (MatchesExpression(definition.EquivalentExpression, individualId, allTypes, model))
+                    if (MatchesExpression(definition.SufficientExpression, individualId, allTypes, model))
                     {
                         changed |= allTypes[individualId].Add(definition.Concept);
                     }
@@ -171,7 +171,7 @@ public sealed class SemanticWorldModelReasoner
             definition.Concept == type ||
             IsSubtype(definition.Concept, type)))
         {
-            if (definition.EquivalentExpression is null)
+            if (definition.SufficientExpression is null)
             {
                 continue;
             }
@@ -179,7 +179,7 @@ public sealed class SemanticWorldModelReasoner
             var matchedSources = new List<SemanticWorldModelSource>();
             if (TryAppendExpressionEvidence(
                 individual,
-                definition.EquivalentExpression,
+                definition.SufficientExpression,
                 visited,
                 matchedSources))
             {

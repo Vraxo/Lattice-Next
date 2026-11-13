@@ -40,15 +40,15 @@ public sealed class SemanticClassExpressionTests
                 { "id": "has-mechanical-state", "domain": "physical-component", "range": "mechanical-state", "verb": "has mechanical state", "objectRole": null, "order": 0, "comparisonPriority": 0 }
               ],
               "definitions": [
-                { "concept": "entity", "parents": [], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Ontology root." },
-                { "concept": "physical-component", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Primitive physical component." },
-                { "concept": "sound-event", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Primitive sound event." },
-                { "concept": "mechanical-state", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Primitive mechanical state." },
-                { "concept": "tensioned-state", "parents": ["mechanical-state"], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Primitive tensioned state." },
-                { "concept": "striking-component", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "equivalentTo": { "kind": "some", "relation": "strikes", "targetType": "physical-component" }, "sourceText": "A striking component acts on another physical component by striking it." },
-                { "concept": "string-component", "parents": ["physical-component"], "definitionKind": "primitive", "necessaryConditions": [{ "relation": "has-mechanical-state", "targetType": "tensioned-state" }, { "relation": "vibrates-to-produce", "targetType": "sound-event" }], "equivalentTo": null, "sourceText": "Primitive string component with necessary mechanical and vibrational characteristics." },
-                { "concept": "resonator", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "equivalentTo": { "kind": "and", "operands": [{ "kind": "some", "relation": "receives-vibration-from", "targetType": "physical-component" }, { "kind": "some", "relation": "radiates", "targetType": "sound-event" }] }, "sourceText": "A resonator receives vibration and radiates sound." },
-                { "concept": "sound-producing-component", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "equivalentTo": { "kind": "or", "operands": [{ "kind": "some", "relation": "radiates", "targetType": "sound-event" }, { "kind": "some", "relation": "vibrates-to-produce", "targetType": "sound-event" }] }, "sourceText": "A sound-producing component radiates or directly produces a sound event." }
+                { "concept": "entity", "parents": [], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Ontology root." },
+                { "concept": "physical-component", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Primitive physical component." },
+                { "concept": "sound-event", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Primitive sound event." },
+                { "concept": "mechanical-state", "parents": ["entity"], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Primitive mechanical state." },
+                { "concept": "tensioned-state", "parents": ["mechanical-state"], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Primitive tensioned state." },
+                { "concept": "striking-component", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "sufficientExpression": { "kind": "some", "relation": "strikes", "targetType": "physical-component" }, "sourceText": "A striking component acts on another physical component by striking it." },
+                { "concept": "string-component", "parents": ["physical-component"], "definitionKind": "primitive", "necessaryConditions": [{ "relation": "has-mechanical-state", "targetType": "tensioned-state" }, { "relation": "vibrates-to-produce", "targetType": "sound-event" }], "sufficientExpression": null, "sourceText": "Primitive string component with necessary mechanical and vibrational characteristics." },
+                { "concept": "resonator", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "sufficientExpression": { "kind": "and", "operands": [{ "kind": "some", "relation": "receives-vibration-from", "targetType": "physical-component" }, { "kind": "some", "relation": "radiates", "targetType": "sound-event" }] }, "sourceText": "A resonator receives vibration and radiates sound." },
+                { "concept": "sound-producing-component", "parents": ["physical-component"], "definitionKind": "defined", "necessaryConditions": [], "sufficientExpression": { "kind": "or", "operands": [{ "kind": "some", "relation": "radiates", "targetType": "sound-event" }, { "kind": "some", "relation": "vibrates-to-produce", "targetType": "sound-event" }] }, "sourceText": "A sound-producing component radiates or directly produces a sound event." }
               ],
               "typeAssertions": [
                 { "individual": "hammer", "type": "physical-component", "sourceText": "Hammer is a physical component." },
@@ -100,8 +100,8 @@ public sealed class SemanticClassExpressionTests
               "lexemes": [],
               "relations": [],
               "definitions": [
-                { "concept": "entity", "parents": [], "definitionKind": "primitive", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Root." },
-                { "concept": "sample-type", "parents": ["entity"], "definitionKind": "defined", "necessaryConditions": [], "equivalentTo": null, "sourceText": "Missing sufficient definition." }
+                { "concept": "entity", "parents": [], "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Root." },
+                { "concept": "sample-type", "parents": ["entity"], "definitionKind": "defined", "necessaryConditions": [], "sufficientExpression": null, "sourceText": "Missing sufficient definition." }
               ],
               "typeAssertions": [],
               "relationAssertions": [],
