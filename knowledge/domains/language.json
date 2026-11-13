@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "core-language",
   "name": "Lexical semantics",
   "concepts": [
@@ -133,45 +133,55 @@
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "semantic-content",
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "action-or-state",
       "parents": [
         "semantic-content"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "action",
       "parents": [
         "action-or-state"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "state",
       "parents": [
         "action-or-state"
       ],
-      "conditions": [],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "verb",
@@ -179,41 +189,48 @@
         "part-of-speech",
         "lexical-item"
       ],
-      "conditions": [
-        {
-          "relation": "expresses-content",
-          "targetType": "action-or-state"
-        }
-      ],
       "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null
+      "sourceUrl": null,
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "equivalentTo": {
+        "kind": "some",
+        "relation": "expresses-content",
+        "targetType": "action-or-state"
+      }
     },
     {
       "concept": "economic-concept",
       "parents": [
         "entity"
       ],
-      "conditions": [],
       "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "market-structure",
       "parents": [
         "economic-concept"
       ],
-      "conditions": [],
       "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     },
     {
       "concept": "economic-market-structure",
       "parents": [
         "market-structure"
       ],
-      "conditions": [],
       "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"
+      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "equivalentTo": null
     }
   ],
   "typeAssertions": [
