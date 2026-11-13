@@ -167,7 +167,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(189, status.SemanticConceptCount);
+        Assert.Equal(190, status.SemanticConceptCount);
         Assert.Equal(33, status.SemanticRelationCount);
         Assert.Equal(6, status.SemanticDataAssertionCount);
 
