@@ -177,10 +177,7 @@
         "source_kind": "human-authored elicited instruction",
         "license": "CC-BY-SA-3.0"
       },
-      "reference_response": null,
-      "knowledge_packs": [
-        "../knowledge-packs/geometry-concepts.json"
-      ]
+      "reference_response": null
     },
     {
       "id": "dolly-007",
