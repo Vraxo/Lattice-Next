@@ -126,7 +126,7 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(
-            "A polygon is a geometric shape with a closed boundary. Every boundary has a line segment. Every line segment is straight."",
+            "A polygon is a geometric shape with a closed boundary. Every boundary has a line segment. Every line segment is straight.",
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
         Assert.Equal(4, result.Utterances[0].SupportingEvidence.Length);
