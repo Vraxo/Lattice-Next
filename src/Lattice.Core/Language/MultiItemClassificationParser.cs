@@ -10,18 +10,27 @@ internal static class MultiItemClassificationParser
         @"^Identify\s+which\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+is\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CategorizePattern = new(
+        @"^Categorize\s+each\s+of\s+the\s+following\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+as\s+either\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$"
+
     internal static bool TryParse(
         string source,
         out SemanticUtterance? utterance)
     {
-        var match = Pattern.Match(source.Trim());
+        var trimmedSource = source.Trim();
+        var match = Pattern.Match(trimmedSource);
+        if (!match.Success)
+        {
+            match = CategorizePattern.Match(trimmedSource);
+        }
+
         if (!match.Success)
         {
             utterance = null;
             return false;
         }
 
-        var itemType = NormalizeIdentifier(match.Groups["itemType"].Value);
+        var itemType = NormalizePluralIdentifier(NormalizeIdentifier(match.Groups["itemType"].Value));
         var categories = ImmutableArray.Create(
             new SemanticIdentifier(NormalizeIdentifier(match.Groups["firstCategory"].Value)),
             new SemanticIdentifier(NormalizeIdentifier(match.Groups["secondCategory"].Value)));
@@ -56,4 +65,12 @@ internal static class MultiItemClassificationParser
 
     private static string NormalizeIdentifier(string value) =>
         Regex.Replace(value.Trim(), @"\s+", "-").ToLowerInvariant();
+
+    private static string NormalizePluralIdentifier(string value) =>
+        value.EndsWith("ies", StringComparison.Ordinal)
+            ? value[..^3] + "y"
+            : value.EndsWith("s", StringComparison.Ordinal) &&
+                !value.EndsWith("ss", StringComparison.Ordinal)
+                ? value[..^1]
+                : value;
 }
