@@ -30,6 +30,7 @@ public static class SemanticFormatter
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
+            MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
@@ -48,6 +49,9 @@ public static class SemanticFormatter
 
     private static string FormatChoiceQuestion(ChoiceQuestionFormula choice) =>
         $"choice({choice.Category.Value}, {string.Join(", ", choice.Choices.Select(item => item.Value))})";
+
+    private static string FormatClassification(MultiItemClassificationFormula classification) =>
+        $"classify({classification.ItemType.Value}, categories({string.Join(", ", classification.Categories.Select(category => category.Value))}), items({string.Join(", ", classification.Items.Select(item => item.Value))}))";
 
     private static string FormatTaskRequest(TaskRequestFormula taskRequest)
     {
