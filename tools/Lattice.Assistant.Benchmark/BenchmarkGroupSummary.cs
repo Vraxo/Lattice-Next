@@ -5,5 +5,6 @@ public sealed record BenchmarkGroupSummary(
     int Runs,
     int HandledRuns,
     int AnsweredRuns,
+    int SubstantiveAnswerRuns,
     int UnhandledRuns,
     double AverageLatencyMilliseconds);
