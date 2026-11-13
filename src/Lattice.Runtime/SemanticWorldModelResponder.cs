@@ -225,11 +225,11 @@ internal static class SemanticWorldModelResponder
                         ? publication.Label
                         : $"{publication.Label} ({doi.Value})";
             })
-            .Where(reference => reference is not null)
+            .OfType<string>()
             .ToArray();
         if (referenceDetails.Length > 0)
         {
-            clauses.Add($"Research references include {JoinConditions(referenceDetails!)}.");
+            clauses.Add($"Research references include {JoinConditions(referenceDetails)}.");
             sources.AddRange(references.Select(assertion => assertion.Source));
             sources.AddRange(references.SelectMany(assertion =>
                 model.GetDataAssertions(assertion.Object, "doi-url").Select(item => item.Source)));
