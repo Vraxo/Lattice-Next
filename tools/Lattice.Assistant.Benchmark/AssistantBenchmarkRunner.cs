@@ -88,6 +88,7 @@ public static class AssistantBenchmarkRunner
         timer.Stop();
         var handledRuns = results.Count(item => item.RunStatus == "Handled");
         var answeredRuns = results.Count(IsAnswered);
+        var substantiveAnswerRuns = results.Count(IsSubstantiveAnswer);
         var runnerErrorRuns = results.Count(item => item.RunStatus == "RunnerError");
         var categories = Summarize(results, item => item.Category);
         var layers = Summarize(results, item => item.EvaluationLayer);
@@ -113,6 +114,7 @@ public static class AssistantBenchmarkRunner
             results.Count,
             handledRuns,
             answeredRuns,
+            substantiveAnswerRuns,
             results.Count - handledRuns,
             runnerErrorRuns,
             stablePromptCount,
@@ -138,7 +140,8 @@ public static class AssistantBenchmarkRunner
             : $"{report.StablePromptCount}/{report.PromptCount} prompts stable across repetitions";
 
         return $"Completed {report.ExecutedRuns} runs across {report.PromptCount} prompts. " +
-            $"{report.AnsweredRuns} answered; {report.HandledRuns} handled; {report.UnhandledRuns} unhandled; " +
+            $"{report.SubstantiveAnswerRuns} substantive answers; {report.AnsweredRuns} answered; " +
+            $"{report.HandledRuns} handled; {report.UnhandledRuns} unhandled; " +
             $"{report.RunnerErrorRuns} runner errors. Stability: {stability}. " +
             $"Average latency: {report.AverageLatencyMilliseconds:0} ms.";
     }
@@ -210,6 +213,7 @@ public static class AssistantBenchmarkRunner
                 item.Prompt,
                 item.Category,
                 item.EvaluationLayer,
+                item.SubstantiveAnswerReviewed,
                 repetition,
                 exitCode,
                 cliSuccess,
@@ -253,6 +257,11 @@ public static class AssistantBenchmarkRunner
     private static bool IsAnswered(BenchmarkRunResult result) =>
         result.UtteranceKinds.Contains("QuestionAnswered", StringComparer.Ordinal);
 
+    private static bool IsSubstantiveAnswer(BenchmarkRunResult result) =>
+        result.SubstantiveAnswerReviewed &&
+        IsAnswered(result) &&
+        !string.IsNullOrWhiteSpace(result.ResponseSummary);
+
     private static IReadOnlyList<BenchmarkGroupSummary> Summarize(
         IReadOnlyList<BenchmarkRunResult> results,
         Func<BenchmarkRunResult, string> keySelector) =>
@@ -264,6 +273,7 @@ public static class AssistantBenchmarkRunner
                 group.Count(),
                 group.Count(item => item.RunStatus == "Handled"),
                 group.Count(IsAnswered),
+                group.Count(IsSubstantiveAnswer),
                 group.Count(item => item.RunStatus != "Handled"),
                 group.Average(item => item.LatencyMilliseconds)))
             .ToArray();
@@ -309,14 +319,15 @@ public static class AssistantBenchmarkRunner
         builder.AppendLine($"- Prompts: {report.PromptCount}");
         builder.AppendLine($"- Repetitions per prompt: {report.RepeatCount}");
         builder.AppendLine($"- Executed runs: {report.ExecutedRuns}");
-        builder.AppendLine($"- Answered: {report.AnsweredRuns}");
+        builder.AppendLine($"- Substantive answers (human-reviewed): {report.SubstantiveAnswerRuns}");
+        builder.AppendLine($"- Answered (QuestionAnswered output): {report.AnsweredRuns}");
         builder.AppendLine($"- Handled: {report.HandledRuns}");
         builder.AppendLine($"- Unhandled: {report.UnhandledRuns}");
         builder.AppendLine($"- Runner errors: {report.RunnerErrorRuns}");
         builder.AppendLine($"- Average latency: {report.AverageLatencyMilliseconds:0} ms");
         builder.AppendLine($"- Stability: {(report.RepeatCount < 2 ? "not measured" : $"{report.StablePromptCount}/{report.PromptCount} prompts produced identical turn output across repetitions")}");
         builder.AppendLine();
-        builder.AppendLine("**Scoring:** “Answered” counts prompts that produced a `QuestionAnswered` utterance. “Handled” means the CLI completed the turn without rejecting it; this also includes unavailable-knowledge responses and retained objectives. Neither metric establishes factual accuracy or instruction quality, which require human review.");
+        builder.AppendLine("**Scoring:** “Substantive answers” counts only prompts explicitly marked `substantive_answer_reviewed: true` after human inspection, and only while the current run still produces a non-empty `QuestionAnswered` response. New answers do not count until reviewed. “Answered” is the raw `QuestionAnswered` output count; “Handled” means the CLI completed the turn without rejecting it and also includes unavailable-knowledge responses and retained objectives. Human review of substantive output does not imply every factual claim has been independently verified.");
         builder.AppendLine();
         AppendGroupTable(builder, "By category", report.Categories);
         AppendGroupTable(builder, "By evaluation layer", report.EvaluationLayers);
@@ -330,6 +341,7 @@ public static class AssistantBenchmarkRunner
             var first = group.First();
             var handled = group.Count(item => item.RunStatus == "Handled");
             var answered = group.Count(IsAnswered);
+            var substantive = group.Count(IsSubstantiveAnswer);
             var signatures = group.Select(item => item.OutcomeSignature).Distinct(StringComparer.Ordinal).Count();
             var stability = report.RepeatCount < 2
                 ? "not measured"
@@ -339,7 +351,7 @@ public static class AssistantBenchmarkRunner
                         ? "stable"
                         : "varied";
             builder.AppendLine(
-                $"| `{Escape(first.Id)}` | {Escape(first.Category)} | {Escape(first.EvaluationLayer)} | {group.Count()} | {answered}/{group.Count()} answered; {handled}/{group.Count()} handled | {stability} |");
+                $"| `{Escape(first.Id)}` | {Escape(first.Category)} | {Escape(first.EvaluationLayer)} | {group.Count()} | {substantive}/{group.Count()} substantive; {answered}/{group.Count()} answered; {handled}/{group.Count()} handled | {stability} |");
         }
 
         builder.AppendLine();
@@ -356,6 +368,7 @@ public static class AssistantBenchmarkRunner
             builder.AppendLine($"- Status: {result.RunStatus} (exit {result.ExitCode})");
             builder.AppendLine($"- Turn: {result.TurnStatus ?? "no turn result"}");
             builder.AppendLine($"- Utterances: {(result.UtteranceKinds.Count == 0 ? "none" : string.Join(", ", result.UtteranceKinds))}");
+            builder.AppendLine($"- Substantive answer reviewed: {(result.SubstantiveAnswerReviewed ? "yes" : "no")}");
             builder.AppendLine($"- Latency: {result.LatencyMilliseconds:0} ms");
             if (!string.IsNullOrWhiteSpace(result.ResponseSummary))
             {
@@ -386,13 +399,13 @@ public static class AssistantBenchmarkRunner
     {
         builder.AppendLine($"## {title}");
         builder.AppendLine();
-        builder.AppendLine("| Group | Runs | Answered | Handled | Unhandled | Avg. latency |");
-        builder.AppendLine("|---|---:|---:|---:|---:|---:|");
+        builder.AppendLine("| Group | Runs | Substantive | Answered | Handled | Unhandled | Avg. latency |");
+        builder.AppendLine("|---|---:|---:|---:|---:|---:|---:|");
 
         foreach (var group in groups)
         {
             builder.AppendLine(
-                $"| {Escape(group.Name)} | {group.Runs} | {group.AnsweredRuns} | {group.HandledRuns} | {group.UnhandledRuns} | {group.AverageLatencyMilliseconds:0} ms |");
+                $"| {Escape(group.Name)} | {group.Runs} | {group.SubstantiveAnswerRuns} | {group.AnsweredRuns} | {group.HandledRuns} | {group.UnhandledRuns} | {group.AverageLatencyMilliseconds:0} ms |");
         }
 
         builder.AppendLine();
