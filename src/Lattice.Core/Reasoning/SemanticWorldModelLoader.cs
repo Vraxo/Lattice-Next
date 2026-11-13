@@ -229,7 +229,7 @@ public sealed class SemanticWorldModelLoader
             foreach (var condition in item.Conditions)
             {
                 if (condition is null ||
-                    !relations.TryGetValue(condition.Relation, out var relation) ||
+                    !relations.ContainsKey(condition.Relation) ||
                     !IsType(concepts, condition.TargetType))
                 {
                     error = $"Type definition '{item.Concept}' contains an invalid equivalent condition.";
@@ -488,6 +488,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class SemanticWorldModelDocument
     {
+        public SemanticWorldModelDocument() { }
         public int FormatVersion { get; set; }
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -501,6 +502,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class ConceptDocument
     {
+        public ConceptDocument() { }
         public string Id { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
         public string Kind { get; set; } = string.Empty;
@@ -508,6 +510,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class LexemeDocument
     {
+        public LexemeDocument() { }
         public string Form { get; set; } = string.Empty;
         public string Concept { get; set; } = string.Empty;
         public string PartOfSpeech { get; set; } = string.Empty;
@@ -515,6 +518,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class RelationDocument
     {
+        public RelationDocument() { }
         public string Id { get; set; } = string.Empty;
         public string Domain { get; set; } = string.Empty;
         public string Range { get; set; } = string.Empty;
@@ -526,6 +530,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class TypeDefinitionDocument
     {
+        public TypeDefinitionDocument() { }
         public string Concept { get; set; } = string.Empty;
         public List<string> Parents { get; set; } = [];
         public List<RestrictionDocument> Conditions { get; set; } = [];
@@ -535,12 +540,14 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class RestrictionDocument
     {
+        public RestrictionDocument() { }
         public string Relation { get; set; } = string.Empty;
         public string TargetType { get; set; } = string.Empty;
     }
 
     private sealed class TypeAssertionDocument
     {
+        public TypeAssertionDocument() { }
         public string Individual { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
         public string SourceText { get; set; } = string.Empty;
@@ -549,6 +556,7 @@ public sealed class SemanticWorldModelLoader
 
     private sealed class RelationAssertionDocument
     {
+        public RelationAssertionDocument() { }
         public string Subject { get; set; } = string.Empty;
         public string Relation { get; set; } = string.Empty;
         public string Object { get; set; } = string.Empty;
