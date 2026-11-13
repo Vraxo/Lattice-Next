@@ -27,7 +27,8 @@ The core model includes the seven instrument classifications needed by the
 benchmark's string-versus-keyboard grouping. The source material distinguishes
 the requested playing-family grouping from classification by sound production:
 a piano is a keyboard instrument and also a struck-string instrument; a
-harmonium and accordion are keyboard-played free-reed instruments. The model's
+harmonium and accordion are keyboard-played free-reed instruments. These
+separate facts are represented independently in the world model. The model's
 keyboard labels answer the prompt's requested family grouping rather than
 claiming these instruments produce sound in the same way.
 
@@ -35,6 +36,9 @@ References:
 - Yale Library's instrument-family guidance places piano in the keyboard family
   and treats accordion as a keyboard instrument:
   https://yalelibrary.atlassian.net/wiki/spaces/YMD/pages/202036603
+- The Library of Congress lists piano under both keyboard instrument and struck
+  string instrument:
+  https://www.loc.gov/aba/publications/FreeLCMPT/MEDIUM.pdf
 - The Metropolitan Museum of Art describes the harmonium as a free-reed
   keyboard instrument:
   https://www.metmuseum.org/art/collection/search/505026
