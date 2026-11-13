@@ -229,10 +229,31 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             result.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(source => source.SourceText == "Boundary has Loop."));
+        Assert.Contains("A loop has a boundary.", result.Utterances[0].Message);
+        Assert.Contains("A boundary has a loop.", result.Utterances[0].Message);
+        Assert.Contains("A boundary has a line segment.", result.Utterances[0].Message);
+        Assert.Contains("Every line segment is straight.", result.Utterances[0].Message);
         Assert.Equal(
-            "A loop has a boundary. A boundary has a loop.",
-            result.Utterances[0].Message);
+            1,
+            CountOccurrences(result.Utterances[0].Message, "A loop has a boundary."));
+        Assert.Equal(
+            1,
+            CountOccurrences(result.Utterances[0].Message, "A boundary has a loop."));
     }
+    private static int CountOccurrences(string value, string fragment)
+    {
+        var count = 0;
+        var offset = 0;
+
+        while ((offset = value.IndexOf(fragment, offset, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            offset += fragment.Length;
+        }
+
+        return count;
+    }
+
     [Fact]
     public async Task Rejects_knowledge_pack_loading_after_session_disposal()
     {
