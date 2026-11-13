@@ -178,6 +178,7 @@ public static class AssistantBenchmarkRunner
             var turnStatus = GetString(turn, "status");
             var utteranceKinds = new List<string>();
             var responseParts = new List<string>();
+            var hasNonEmptyAnswerMessage = false;
 
             if (turn.ValueKind == JsonValueKind.Object &&
                 turn.TryGetProperty("utterances", out var utterances) &&
@@ -192,6 +193,12 @@ public static class AssistantBenchmarkRunner
                     }
 
                     var message = GetString(utterance, "message");
+                    if (string.Equals(kind, "QuestionAnswered", StringComparison.Ordinal) &&
+                        !string.IsNullOrWhiteSpace(message))
+                    {
+                        hasNonEmptyAnswerMessage = true;
+                    }
+
                     var meaning = GetString(utterance, "meaning");
                     var truthValue = GetString(utterance, "truthValue");
                     var response = message ?? meaning ?? truthValue;
@@ -214,6 +221,7 @@ public static class AssistantBenchmarkRunner
                 item.Category,
                 item.EvaluationLayer,
                 item.SubstantiveAnswerReviewed,
+                hasNonEmptyAnswerMessage,
                 repetition,
                 exitCode,
                 cliSuccess,
@@ -240,6 +248,7 @@ public static class AssistantBenchmarkRunner
                 item.Category,
                 item.EvaluationLayer,
                 item.SubstantiveAnswerReviewed,
+                false,
                 repetition,
                 -1,
                 false,
@@ -261,7 +270,7 @@ public static class AssistantBenchmarkRunner
     private static bool IsSubstantiveAnswer(BenchmarkRunResult result) =>
         result.SubstantiveAnswerReviewed &&
         IsAnswered(result) &&
-        !string.IsNullOrWhiteSpace(result.ResponseSummary);
+        result.HasNonEmptyAnswerMessage;
 
     private static IReadOnlyList<BenchmarkGroupSummary> Summarize(
         IReadOnlyList<BenchmarkRunResult> results,
