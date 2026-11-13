@@ -67,9 +67,16 @@ public sealed class AssistantBenchmarkRunnerTests
                 4,
                 report.Results.Count(result => result.UtteranceKinds.Contains("QuestionAnswered", StringComparer.Ordinal)));
             Assert.Equal(2, report.Categories.Sum(group => group.SubstantiveAnswerRuns));
-            Assert.Equal(
-                0,
-                report.Results.Count(result => result.Id == "unreviewed-answer" && result.SubstantiveAnswerReviewed));
+            Assert.All(
+                report.Results.Where(result => result.Id == "known-fact"),
+                result =>
+                {
+                    Assert.True(result.SubstantiveAnswerReviewed);
+                    Assert.True(result.HasNonEmptyAnswerMessage);
+                });
+            Assert.All(
+                report.Results.Where(result => result.Id == "unreviewed-answer"),
+                result => Assert.False(result.SubstantiveAnswerReviewed));
 
             var sessionIds = report.Results
                 .Select(result =>
