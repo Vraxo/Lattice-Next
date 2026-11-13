@@ -62,7 +62,8 @@ public sealed class KnowledgeBase
         attributes[existingIndex] = existingAttribute with
         {
             AdditionalSources = sources.Skip(1).ToImmutableArray(),
-            IncludeInSummary = existingAttribute.IncludeInSummary || attribute.IncludeInSummary
+            IncludeInSummary = existingAttribute.IncludeInSummary || attribute.IncludeInSummary,
+            IsObjectiveCandidate = existingAttribute.IsObjectiveCandidate || attribute.IsObjectiveCandidate
         };
         return true;
     }
