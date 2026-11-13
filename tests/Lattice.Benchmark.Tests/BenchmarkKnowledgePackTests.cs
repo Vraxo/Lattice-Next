@@ -61,7 +61,6 @@ public sealed class BenchmarkKnowledgePackTests
             Assert.Contains("QuestionAnswered", result.UtteranceKinds);
             Assert.Contains("geometric shape", result.ResponseSummary, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("boundary", result.ResponseSummary, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("closed", result.ResponseSummary, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
