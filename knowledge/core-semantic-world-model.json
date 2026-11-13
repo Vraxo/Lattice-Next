@@ -1661,21 +1661,6 @@
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "employer concentration",
-      "concept": "employer-concentration-mechanism",
-      "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "job differentiation",
-      "concept": "job-differentiation-mechanism",
-      "partOfSpeech": "proper-noun"
-    },
-    {
-      "form": "search frictions",
-      "concept": "search-friction-mechanism",
-      "partOfSpeech": "proper-noun"
-    },
-    {
       "form": "wage markdown below marginal revenue product",
       "concept": "wage-markdown-effect",
       "partOfSpeech": "proper-noun"
