@@ -390,14 +390,4 @@ internal static class TaskRequestResponder
         return false;
     }
 
-    private sealed record SoftwareProfile(
-        string Name,
-        string Role,
-        ImmutableArray<string> Capabilities,
-        ImmutableArray<string> ApplicationDomains,
-        string DocumentationUrl,
-        bool IsOptimizationFramework,
-        bool HasProcessModelingCapability,
-        bool HasOptimizationCapability,
-        ImmutableArray<LatticeEvidenceSource> Evidence);
 }
