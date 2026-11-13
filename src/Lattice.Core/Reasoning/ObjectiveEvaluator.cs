@@ -11,6 +11,7 @@ public sealed class ObjectiveEvaluator
         ArgumentNullException.ThrowIfNull(knowledgeBase);
 
         var candidates = knowledgeBase.Attributes
+            .Where(attribute => attribute.IsObjectiveCandidate)
             .Select(attribute => attribute.Subject)
             .Distinct()
             .OrderBy(candidate => candidate.Value, StringComparer.Ordinal)

@@ -242,10 +242,13 @@ public sealed class KnowledgePackLoader
         foreach (var item in items)
         {
             JsonElement summaryElement = default;
+            JsonElement candidateElement = default;
             JsonElement requiresFreshnessElement = default;
             JsonElement freshUntilElement = default;
             var hasSummary = item.ValueKind == JsonValueKind.Object &&
                 item.TryGetProperty("summary", out summaryElement);
+            var hasCandidate = item.ValueKind == JsonValueKind.Object &&
+                item.TryGetProperty("candidate", out candidateElement);
             var hasRequiresFreshness = item.ValueKind == JsonValueKind.Object &&
                 item.TryGetProperty("requiresFreshness", out requiresFreshnessElement);
             var hasFreshUntil = item.ValueKind == JsonValueKind.Object &&
@@ -269,8 +272,9 @@ public sealed class KnowledgePackLoader
             }
 
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "subject", "name", "value", "sourceText", "summary", "requiresFreshness", "freshUntil") ||
+                !HasOnlyProperties(item, "subject", "name", "value", "sourceText", "summary", "candidate", "requiresFreshness", "freshUntil") ||
                 (hasSummary && summaryElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
+                (hasCandidate && candidateElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
                 (hasRequiresFreshness && requiresFreshnessElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) ||
                 !TryGetString(item, "subject", out var subject) ||
                 !TryGetString(item, "name", out var name) ||
@@ -294,6 +298,7 @@ public sealed class KnowledgePackLoader
                 SourceId: packId)
             {
                 IncludeInSummary = hasSummary && summaryElement.GetBoolean(),
+                IsObjectiveCandidate = !hasCandidate || candidateElement.GetBoolean(),
                 RequiresFreshness = (hasRequiresFreshness && requiresFreshnessElement.GetBoolean()) || hasFreshUntil,
                 FreshUntil = freshUntil
             });

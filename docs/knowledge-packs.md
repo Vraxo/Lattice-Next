@@ -15,7 +15,7 @@ A pack must contain at least one claim or one typed attribute. Each array is lim
 
 ## Typed attributes
 
-Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. An optional boolean `summary` marks a curated detail to surface in candidate summaries; it defaults to false. The loader attaches imported-claim provenance and the pack ID to every attribute.
+Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. An optional boolean `summary` marks a curated detail to surface in candidate summaries; it defaults to false. An optional boolean `candidate` controls whether the subject participates in objective evaluation; it defaults to true for compatibility with existing candidate packs. Reference metadata in the default world model sets it to false, so concepts, citations, and package catalogues do not become candidates in unrelated comparisons. The loader attaches imported-claim provenance and the pack ID to every attribute.
 
 Supported value forms:
 
@@ -149,13 +149,14 @@ session-local in the current implementation: it is loaded into each new
 session, and user assertions and optional packs enrich that same knowledge
 base for the life of the session.
 
-The initial core seed includes basic geometry expressed as a classification
-and general quantified rules:
+The initial core seed includes basic geometry, a compositional verb concept, and foundational economics knowledge. It also contains a small, sourced reference catalogue for monopsony research and open-source Python process-simulation and optimization tools. Reference attributes are not objective candidates. The geometry and concept claims include:
 
 - a polygon is a geometric shape;
 - every polygon has a closed boundary;
 - every boundary has a line segment;
-- every line segment is straight.
+- every line segment is straight;
+- a verb is a part of speech that expresses an action or state;
+- a monopsony is an economic buyer-market structure.
 
 These are stored as assertions and rules, not as a prewritten polygon answer.
 Concept explanations inspect direct facts and applicable universal rules,

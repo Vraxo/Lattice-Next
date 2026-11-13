@@ -7,5 +7,6 @@ public enum UtteranceKind
     Objective,
     ObjectiveInformation,
     ObjectiveCandidateInformation,
-    ObjectiveConditionUpdate
+    ObjectiveConditionUpdate,
+    TaskRequest
 }
