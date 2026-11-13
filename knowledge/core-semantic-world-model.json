@@ -780,17 +780,17 @@
     },
     {
       "id": "manning-2021-publication",
-      "label": "Manning (2021), Monopsony in Labor Markets: A Review",
+      "label": "Monopsony in Labor Markets: A Review",
       "kind": "Individual"
     },
     {
       "id": "azar-marinescu-2024-publication",
-      "label": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy",
+      "label": "Monopsony Power in the Labor Market: From Theory to Policy",
       "kind": "Individual"
     },
     {
       "id": "yeh-macaluso-hershbein-2022-publication",
-      "label": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market",
+      "label": "Monopsony in the US Labor Market",
       "kind": "Individual"
     },
     {
@@ -952,6 +952,26 @@
       "id": "wage-setting-power",
       "label": "wage-setting power",
       "kind": "Type"
+    },
+    {
+      "id": "calendar-year",
+      "label": "calendar year",
+      "kind": "Type"
+    },
+    {
+      "id": "year-2021",
+      "label": "2021",
+      "kind": "Individual"
+    },
+    {
+      "id": "year-2022",
+      "label": "2022",
+      "kind": "Individual"
+    },
+    {
+      "id": "year-2024",
+      "label": "2024",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -1716,17 +1736,17 @@
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "Manning (2021), Monopsony in Labor Markets: A Review",
+      "form": "Monopsony in Labor Markets: A Review",
       "concept": "manning-2021-publication",
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy",
+      "form": "Monopsony Power in the Labor Market: From Theory to Policy",
       "concept": "azar-marinescu-2024-publication",
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market",
+      "form": "Monopsony in the US Labor Market",
       "concept": "yeh-macaluso-hershbein-2022-publication",
       "partOfSpeech": "proper-noun"
     },
@@ -1888,6 +1908,11 @@
     {
       "form": "wage-setting power",
       "concept": "wage-setting-power",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "calendar year",
+      "concept": "calendar-year",
       "partOfSpeech": "noun"
     }
   ],
@@ -2187,6 +2212,15 @@
       "verb": "is used for",
       "objectRole": null,
       "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "published-in-year",
+      "domain": "research-publication",
+      "range": "calendar-year",
+      "verb": "published in",
+      "objectRole": null,
+      "order": 3,
       "comparisonPriority": 0
     }
   ],
@@ -3112,6 +3146,14 @@
       ],
       "sourceText": "Azar and Marinescu (2024) review employer wage-setting power and wage markdowns in labour markets.",
       "sourceUrl": "https://doi.org/10.1146/annurev-economics-072823-030431"
+    },
+    {
+      "concept": "calendar-year",
+      "parents": [
+        "entity"
+      ],
+      "conditions": [],
+      "sourceText": "A calendar year is a temporal interval identified by its year number."
     }
   ],
   "typeAssertions": [
@@ -3792,6 +3834,21 @@
       "type": "fish",
       "sourceText": "Tope is a fish.",
       "sourceUrl": null
+    },
+    {
+      "individual": "year-2021",
+      "type": "calendar-year",
+      "sourceText": "2021 is a calendar year."
+    },
+    {
+      "individual": "year-2022",
+      "type": "calendar-year",
+      "sourceText": "2022 is a calendar year."
+    },
+    {
+      "individual": "year-2024",
+      "type": "calendar-year",
+      "sourceText": "2024 is a calendar year."
     }
   ],
   "relationAssertions": [
@@ -4382,6 +4439,24 @@
       "object": "optimization-domain",
       "sourceText": "Pyomo official project overview.",
       "sourceUrl": "https://www.pyomo.org/about"
+    },
+    {
+      "subject": "manning-2021-publication",
+      "relation": "published-in-year",
+      "object": "year-2021",
+      "sourceText": "Publication year metadata for Monopsony in Labor Markets: A Review."
+    },
+    {
+      "subject": "azar-marinescu-2024-publication",
+      "relation": "published-in-year",
+      "object": "year-2024",
+      "sourceText": "Publication year metadata for Monopsony Power in the Labor Market: From Theory to Policy."
+    },
+    {
+      "subject": "yeh-macaluso-hershbein-2022-publication",
+      "relation": "published-in-year",
+      "object": "year-2022",
+      "sourceText": "Publication year metadata for Monopsony in the US Labor Market."
     }
   ],
   "dataProperties": [
