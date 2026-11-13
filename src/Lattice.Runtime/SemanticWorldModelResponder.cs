@@ -363,7 +363,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"{Capitalize(Indefinite(individual.Label))} {individual.Label} is {Indefinite(type.Label)} {type.Label} because it {phrase}.";
+        message = $"{Capitalize(IndefinitePhrase(individual.Label))} {individual.Label} is {IndefinitePhrase(type.Label)} because it {phrase}.";
         var sources = ImmutableArray.Create(definition.Source, relationAssertion.Source)
             .AddRange(GetTypeEvidence(relationAssertion.Object, matchedCondition.TargetType, model));
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
@@ -497,11 +497,11 @@ internal static class SemanticWorldModelResponder
             {
                 var verb = relation.Verb == "has" ? "have" : relation.Verb;
                 var role = relation.ObjectRole?.Replace("its", "their", StringComparison.Ordinal) ?? string.Empty;
-                clauses.Add($"Both {verb} {Indefinite(firstType.Label)} {firstType.Label} {role}".TrimEnd());
+                clauses.Add($"Both {verb} {IndefinitePhrase(firstType.Label)} {role}".TrimEnd());
             }
             else
             {
-                clauses.Add($"{Capitalize(first.Label)} {relation.Verb} {Indefinite(firstType.Label)} {firstType.Label}, while {second.Label} {relation.Verb} {Indefinite(secondType.Label)} {secondType.Label}");
+                clauses.Add($"{Capitalize(first.Label)} {relation.Verb} {IndefinitePhrase(firstType.Label)}, while {second.Label} {relation.Verb} {IndefinitePhrase(secondType.Label)}");
             }
 
             sources.Add(firstFacts[0].Source);
@@ -584,7 +584,7 @@ internal static class SemanticWorldModelResponder
             return null;
         }
 
-        var phrase = $"{relation.Verb} {Indefinite(target.Label)} {target.Label}";
+        var phrase = $"{relation.Verb} {IndefinitePhrase(target.Label)}";
         return relation.ObjectRole is null
             ? phrase
             : $"{phrase} {relation.ObjectRole}";
@@ -599,7 +599,7 @@ internal static class SemanticWorldModelResponder
         var prefix = first ? $"{Capitalize(Indefinite(subject.Label))} {subject.Label}" : $"The {subject.Label}";
         var objectPhrase = relation.ObjectRole is null
             ? $"the {target.Label}"
-            : $"{Indefinite(target.Label)} {target.Label} {relation.ObjectRole}";
+            : $"{IndefinitePhrase(target.Label)} {relation.ObjectRole}";
         var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
             ? InflectPluralSubjectVerb(relation.Verb)
             : relation.Verb;
