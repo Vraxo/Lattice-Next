@@ -26,8 +26,8 @@ The model now includes all the default foundational domains that were previously
 
 <text>Counts below describe the current checked-in model, not benchmark results.</text>
 
-- 189 concepts
-- 93 type definitions
+- 190 concepts
+- 94 type definitions
 - 33 relation signatures
 - 113 explicit type assertions
 - 84 relation assertions
