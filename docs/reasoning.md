@@ -51,6 +51,12 @@ Identical facts and rules remain deduplicated for reasoning, but each distinct s
 
 A ProofNode distinguishes asserted premises from derived conclusions. Asserted nodes carry the sources attached to the stored fact; derived nodes carry the sources attached to the rule that produced them and recursively retain their supporting premise proofs. A rule is never applied by matching its conditions against different individuals. When a source sentence contained a resolved pronoun, the proof also retains the referent selected by the conversation-context layer.
 
+## Foundational semantic world model
+
+The runtime's default knowledge is loaded from `knowledge/core-semantic-world-model.json`, not as LCE claims in the legacy KnowledgeBase. Concept identity, type definitions, relation signatures, typed assertions, and URI data properties are validated by `SemanticWorldModelLoader` and reasoned over by `SemanticWorldModelReasoner`. Type inheritance and conjunctive existential restrictions derive classifications from connected structures; the default model is not counted as LCE facts or rules in session status.
+
+The model's `sourceText` and `sourceUrl` fields are provenance only. They may identify the source supporting an assertion, but no resolver treats them as definitions, property values, or premises. The foundational semantic data schema accepts URI data properties only; free-text semantic descriptions are rejected. The version 1 `KnowledgePackLoader` remains for backward-compatible task-specific candidate data and user-provided assertions, not for authoring new default foundational definitions.
+
 ## Versioned knowledge packs
 
 Core can load version 1 JSON knowledge packs through `KnowledgePackLoader`. A pack contains a format version, stable pack ID, display name, and an ordered array of LCE assertion strings. Reusing the controlled language keeps the pack format aligned with the semantic model instead of introducing a parallel AST serialization.
