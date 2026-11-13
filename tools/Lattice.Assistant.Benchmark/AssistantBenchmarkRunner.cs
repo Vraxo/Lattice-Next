@@ -87,6 +87,7 @@ public static class AssistantBenchmarkRunner
 
         timer.Stop();
         var handledRuns = results.Count(item => item.RunStatus == "Handled");
+        var answeredRuns = results.Count(IsAnswered);
         var runnerErrorRuns = results.Count(item => item.RunStatus == "RunnerError");
         var categories = Summarize(results, item => item.Category);
         var layers = Summarize(results, item => item.EvaluationLayer);
@@ -111,6 +112,7 @@ public static class AssistantBenchmarkRunner
             selectedRecords.Length,
             results.Count,
             handledRuns,
+            answeredRuns,
             results.Count - handledRuns,
             runnerErrorRuns,
             stablePromptCount,
@@ -136,7 +138,7 @@ public static class AssistantBenchmarkRunner
             : $"{report.StablePromptCount}/{report.PromptCount} prompts stable across repetitions";
 
         return $"Completed {report.ExecutedRuns} runs across {report.PromptCount} prompts. " +
-            $"{report.HandledRuns} handled; {report.UnhandledRuns} unhandled; " +
+            $"{report.AnsweredRuns} answered; {report.HandledRuns} handled; {report.UnhandledRuns} unhandled; " +
             $"{report.RunnerErrorRuns} runner errors. Stability: {stability}. " +
             $"Average latency: {report.AverageLatencyMilliseconds:0} ms.";
     }
@@ -248,6 +250,9 @@ public static class AssistantBenchmarkRunner
         }
     }
 
+    private static bool IsAnswered(BenchmarkRunResult result) =>
+        result.UtteranceKinds.Contains("QuestionAnswered", StringComparer.Ordinal);
+
     private static IReadOnlyList<BenchmarkGroupSummary> Summarize(
         IReadOnlyList<BenchmarkRunResult> results,
         Func<BenchmarkRunResult, string> keySelector) =>
@@ -258,6 +263,7 @@ public static class AssistantBenchmarkRunner
                 group.Key,
                 group.Count(),
                 group.Count(item => item.RunStatus == "Handled"),
+                group.Count(IsAnswered),
                 group.Count(item => item.RunStatus != "Handled"),
                 group.Average(item => item.LatencyMilliseconds)))
             .ToArray();
@@ -303,13 +309,14 @@ public static class AssistantBenchmarkRunner
         builder.AppendLine($"- Prompts: {report.PromptCount}");
         builder.AppendLine($"- Repetitions per prompt: {report.RepeatCount}");
         builder.AppendLine($"- Executed runs: {report.ExecutedRuns}");
+        builder.AppendLine($"- Answered: {report.AnsweredRuns}");
         builder.AppendLine($"- Handled: {report.HandledRuns}");
         builder.AppendLine($"- Unhandled: {report.UnhandledRuns}");
         builder.AppendLine($"- Runner errors: {report.RunnerErrorRuns}");
         builder.AppendLine($"- Average latency: {report.AverageLatencyMilliseconds:0} ms");
         builder.AppendLine($"- Stability: {(report.RepeatCount < 2 ? "not measured" : $"{report.StablePromptCount}/{report.PromptCount} prompts produced identical turn output across repetitions")}");
         builder.AppendLine();
-        builder.AppendLine("**Important:** “Handled” means the CLI completed the turn without rejecting it. It does not establish factual accuracy, instruction satisfaction, or answer quality. Those require explicit evaluation criteria and, for open-ended prompts, human review.");
+        builder.AppendLine("**Scoring:** “Answered” counts prompts that produced a `QuestionAnswered` utterance. “Handled” means the CLI completed the turn without rejecting it; this also includes unavailable-knowledge responses and retained objectives. Neither metric establishes factual accuracy or instruction quality, which require human review.");
         builder.AppendLine();
         AppendGroupTable(builder, "By category", report.Categories);
         AppendGroupTable(builder, "By evaluation layer", report.EvaluationLayers);
@@ -322,6 +329,7 @@ public static class AssistantBenchmarkRunner
         {
             var first = group.First();
             var handled = group.Count(item => item.RunStatus == "Handled");
+            var answered = group.Count(IsAnswered);
             var signatures = group.Select(item => item.OutcomeSignature).Distinct(StringComparer.Ordinal).Count();
             var stability = report.RepeatCount < 2
                 ? "not measured"
@@ -331,7 +339,7 @@ public static class AssistantBenchmarkRunner
                         ? "stable"
                         : "varied";
             builder.AppendLine(
-                $"| `{Escape(first.Id)}` | {Escape(first.Category)} | {Escape(first.EvaluationLayer)} | {group.Count()} | {handled}/{group.Count()} handled | {stability} |");
+                $"| `{Escape(first.Id)}` | {Escape(first.Category)} | {Escape(first.EvaluationLayer)} | {group.Count()} | {answered}/{group.Count()} answered; {handled}/{group.Count()} handled | {stability} |");
         }
 
         builder.AppendLine();
@@ -378,13 +386,13 @@ public static class AssistantBenchmarkRunner
     {
         builder.AppendLine($"## {title}");
         builder.AppendLine();
-        builder.AppendLine("| Group | Runs | Handled | Unhandled | Avg. latency |");
-        builder.AppendLine("|---|---:|---:|---:|---:|");
+        builder.AppendLine("| Group | Runs | Answered | Handled | Unhandled | Avg. latency |");
+        builder.AppendLine("|---|---:|---:|---:|---:|---:|");
 
         foreach (var group in groups)
         {
             builder.AppendLine(
-                $"| {Escape(group.Name)} | {group.Runs} | {group.HandledRuns} | {group.UnhandledRuns} | {group.AverageLatencyMilliseconds:0} ms |");
+                $"| {Escape(group.Name)} | {group.Runs} | {group.AnsweredRuns} | {group.HandledRuns} | {group.UnhandledRuns} | {group.AverageLatencyMilliseconds:0} ms |");
         }
 
         builder.AppendLine();
