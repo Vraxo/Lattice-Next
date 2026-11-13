@@ -127,7 +127,7 @@ public sealed class LatticeRuntimeSessionTests
               "name": "Geometry concepts",
               "claims": [
                 "Polygon is a geometric-shape.",
-                "Polygon has Boundary.",
+                "Every polygon has a boundary.",
                 "The boundary is closed.",
                 "The boundary has Line-segment.",
                 "Line-segment is a line-segment.",
@@ -144,20 +144,29 @@ public sealed class LatticeRuntimeSessionTests
             """
             The available knowledge represents polygon through these connected facts:
             - is → geometric shape
-            - has → boundary
-              - is → closed
-              - has → line segment
-                - is → straight
+            - has → a boundary
+              - is → boundary
             """,
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
-        Assert.Equal(5, result.Utterances[0].SupportingEvidence.Length);
+        Assert.Equal(3, result.Utterances[0].SupportingEvidence.Length);
         Assert.All(
             result.Utterances[0].SupportingEvidence,
             evidence => Assert.Contains(
                 evidence.Sources,
                 source => source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
                     source.SourceId == "geometry-concepts"));
+        var derivedEvidence = Assert.Single(
+            result.Utterances[0].SupportingEvidence.Where(evidence =>
+                evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Sources.Any(source =>
+                    source.SourceText == "Every polygon has a boundary.")));
+        Assert.Equal(LatticeEvidencePolarity.Positive, derivedEvidence.Polarity);
+        Assert.NotEmpty(derivedEvidence.Premises);
+        Assert.Contains(
+            derivedEvidence.Premises,
+            premise => premise.Sources.Any(source =>
+                source.SourceText == "Polygon is a geometric-shape."));
         Assert.DoesNotContain(
             result.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(
