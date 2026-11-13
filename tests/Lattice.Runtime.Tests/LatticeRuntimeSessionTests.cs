@@ -129,7 +129,7 @@ public sealed class LatticeRuntimeSessionTests
             """
             The available knowledge represents polygon through these connected facts and general rules:
             - is → geometric shape
-            - every polygon has → boundary closed
+            - every polygon has → closed boundary
               - every boundary has → line segment
                 - every line segment is → straight
             """,
@@ -201,22 +201,22 @@ public sealed class LatticeRuntimeSessionTests
               "id": "cyclic-concepts",
               "name": "Cyclic concepts",
               "claims": [
-                "CycleNode has CycleBoundary.",
-                "CycleBoundary has CycleNode."
+                "Loop has Boundary.",
+                "Boundary has Loop."
               ]
             }
             """);
 
-        var result = await session.SubmitAsync("What is a cycle node?");
+        var result = await session.SubmitAsync("What is a loop?");
 
         Assert.True(loaded.IsSuccess, loaded.Error);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(2, result.Utterances[0].SupportingEvidence.Length);
         Assert.Equal(
             """
-            The available knowledge represents cycle node through these connected facts and general rules:
-            - has → cycle boundary
-              - has → cycle node
+            The available knowledge represents loop through these connected facts and general rules:
+            - has → boundary
+              - has → loop
             """,
             result.Utterances[0].Message);
     }
