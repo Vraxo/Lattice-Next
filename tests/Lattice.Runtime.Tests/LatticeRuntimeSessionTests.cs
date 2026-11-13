@@ -127,6 +127,7 @@ public sealed class LatticeRuntimeSessionTests
               "name": "Geometry concepts",
               "claims": [
                 "Polygon is a geometric-shape.",
+                "Polygon is a polygon.",
                 "Every polygon has a boundary.",
                 "The boundary is closed.",
                 "The boundary has Line-segment.",
@@ -166,7 +167,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             derivedEvidence.Premises,
             premise => premise.Sources.Any(source =>
-                source.SourceText == "Polygon is a geometric-shape."));
+                source.SourceText == "Polygon is a polygon."));
         Assert.DoesNotContain(
             result.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(
