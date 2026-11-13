@@ -152,8 +152,21 @@ public static class AssistantBenchmarkRunner
 
         try
         {
+            var arguments = new List<string> { "--format", "json" };
+
+            foreach (var packPath in item.KnowledgePacks ?? Array.Empty<string>())
+            {
+                var benchmarkDirectory = Path.GetDirectoryName(Path.GetFullPath(options.BenchmarkPath))!;
+                var resolvedPackPath = Path.GetFullPath(packPath, benchmarkDirectory);
+                arguments.Add("--load-pack");
+                arguments.Add(resolvedPackPath);
+            }
+
+            arguments.Add("--");
+            arguments.Add(item.Prompt);
+
             var exitCode = await LatticeCli.RunAsync(
-                ["--format", "json", "--", item.Prompt],
+                arguments,
                 new StringReader(string.Empty),
                 output,
                 error,
