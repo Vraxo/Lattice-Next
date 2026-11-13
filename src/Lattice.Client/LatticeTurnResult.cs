@@ -94,4 +94,5 @@ public sealed record LatticeEvidenceSource(
     LatticeKnowledgeSourceKind Kind,
     string SourceText,
     string? SourceId,
-    string? ResolvedReferent);
+    string? ResolvedReferent,
+    string? SourceUrl = null);
