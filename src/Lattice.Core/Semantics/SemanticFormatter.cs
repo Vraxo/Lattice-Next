@@ -29,6 +29,7 @@ public static class SemanticFormatter
             ObjectiveCandidateInformationFormula information => FormatObjectiveCandidateInformation(information),
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
+            ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
