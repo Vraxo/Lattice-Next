@@ -81,7 +81,8 @@ public enum LatticeKnowledgeSourceKind
 {
     UserAssertion,
     ImportedClaim,
-    ExternalObservation
+    ExternalObservation,
+    FoundationalKnowledge
 }
 
 public sealed record LatticeEvidence(

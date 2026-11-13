@@ -696,8 +696,6 @@ internal static class SemanticWorldModelResponder
         var journal = reasoner.GetRelations(publicationId, "published-in")
             .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
             .FirstOrDefault(concept => concept is not null);
-        var doi = model.GetDataAssertions(publicationId, "doi-url").FirstOrDefault();
-
         var citation = authors.Length == 0
             ? publication.Label
             : year is null
@@ -708,11 +706,6 @@ internal static class SemanticWorldModelResponder
             citation += $", {journal.Label}";
         }
 
-        if (doi is not null)
-        {
-            citation += $" ({doi.Value})";
-        }
-
         return citation;
     }
 
@@ -720,10 +713,11 @@ internal static class SemanticWorldModelResponder
         string individual,
         string type,
         SemanticWorldModel model) =>
-        model.TypeAssertions
+        model.RelationAssertions
             .Where(assertion =>
-                assertion.Individual == individual &&
-                IsSubtype(assertion.Type, type, model))
+                assertion.Subject == individual &&
+                assertion.Relation == "instance-of" &&
+                IsSubtype(assertion.Object, type, model))
             .Select(assertion => assertion.Source)
             .ToImmutableArray();
 
@@ -860,11 +854,11 @@ internal static class SemanticWorldModelResponder
             kind,
             LatticeEvidencePolarity.Positive,
             sources.Select(source => new LatticeEvidenceSource(
-                LatticeKnowledgeSourceKind.ImportedClaim,
-                source.SourceText,
+                LatticeKnowledgeSourceKind.FoundationalKnowledge,
+                source.SourceId,
                 source.SourceId,
                 null,
-                source.SourceUrl)).ToImmutableArray(),
+                null)).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty);
 
     private static bool Fail(

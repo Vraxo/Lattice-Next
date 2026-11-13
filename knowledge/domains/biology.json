@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-biology",
   "name": "Biology",
   "concepts": [
@@ -40,36 +40,34 @@
   "definitions": [
     {
       "concept": "animal",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "fish",
-      "parents": [
-        "animal"
-      ],
-      "sourceText": "Existing core-world-model assertion: Tope is a fish.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     }
   ],
-  "typeAssertions": [
+  "relationAssertions": [
     {
-      "individual": "tope",
-      "type": "fish",
-      "sourceText": "Tope is a fish.",
-      "sourceUrl": null
+      "subject": "animal",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "fish",
+      "relation": "is-a",
+      "object": "animal"
+    },
+    {
+      "subject": "tope",
+      "relation": "instance-of",
+      "object": "fish"
     }
   ],
-  "relationAssertions": [],
   "dataProperties": [],
   "dataAssertions": []
 }

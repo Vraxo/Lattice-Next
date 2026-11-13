@@ -4,6 +4,9 @@ namespace Lattice.Core.Reasoning;
 
 public sealed class SemanticWorldModelReasoner
 {
+    private const string IsA = "is-a";
+    private const string InstanceOf = "instance-of";
+
     private readonly SemanticWorldModel model;
     private readonly ImmutableDictionary<string, ImmutableArray<string>> typeClosure;
 
@@ -24,6 +27,31 @@ public sealed class SemanticWorldModelReasoner
             : ImmutableArray<string>.Empty;
     }
 
+    public ImmutableArray<string> GetDirectSupertypes(string type)
+    {
+        var normalized = SemanticWorldModel.Normalize(type);
+        return model.RelationAssertions
+            .Where(assertion => assertion.Subject == normalized && assertion.Relation == IsA)
+            .Select(assertion => assertion.Object)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToImmutableArray();
+    }
+
+    public ImmutableArray<string> GetDirectSubtypes(string type)
+    {
+        var normalized = SemanticWorldModel.Normalize(type);
+        return model.RelationAssertions
+            .Where(assertion => assertion.Object == normalized && assertion.Relation == IsA)
+            .Select(assertion => assertion.Subject)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToImmutableArray();
+    }
+
+    public bool IsSubtypeOf(string candidate, string expected) =>
+        IsSubtype(model, SemanticWorldModel.Normalize(candidate), SemanticWorldModel.Normalize(expected));
+
     private static ImmutableDictionary<string, ImmutableArray<string>> BuildTypeClosure(
         SemanticWorldModel model)
     {
@@ -34,9 +62,10 @@ public sealed class SemanticWorldModelReasoner
                 _ => new HashSet<string>(StringComparer.Ordinal),
                 StringComparer.Ordinal);
 
-        foreach (var assertion in model.TypeAssertions)
+        foreach (var assertion in model.RelationAssertions.Where(assertion =>
+            assertion.Relation == InstanceOf))
         {
-            allTypes[assertion.Individual].Add(assertion.Type);
+            allTypes[assertion.Subject].Add(assertion.Object);
         }
 
         var changed = true;
@@ -49,7 +78,9 @@ public sealed class SemanticWorldModelReasoner
             {
                 foreach (var currentType in allTypes[individualId].ToArray())
                 {
-                    foreach (var parent in model.FindDefinition(currentType)?.ParentTypes ?? [])
+                    foreach (var parent in model.RelationAssertions
+                        .Where(assertion => assertion.Subject == currentType && assertion.Relation == IsA)
+                        .Select(assertion => assertion.Object))
                     {
                         changed |= allTypes[individualId].Add(parent);
                     }
@@ -59,8 +90,7 @@ public sealed class SemanticWorldModelReasoner
                 {
                     if (allTypes[individualId].Contains(definition.Concept) ||
                         definition.DefinitionKind != SemanticDefinitionKind.Defined ||
-                        definition.SufficientExpression is null ||
-                        !definition.ParentTypes.All(parent => allTypes[individualId].Contains(parent)))
+                        definition.SufficientExpression is null)
                     {
                         continue;
                     }
@@ -159,17 +189,18 @@ public sealed class SemanticWorldModelReasoner
             return;
         }
 
-        foreach (var assertion in model.TypeAssertions.Where(assertion =>
-            assertion.Individual == individual &&
-            IsSubtype(assertion.Type, type)))
+        foreach (var assertion in model.RelationAssertions.Where(assertion =>
+            assertion.Subject == individual &&
+            assertion.Relation == InstanceOf &&
+            IsSubtype(model, assertion.Object, type)))
         {
             evidence.Add(assertion.Source);
-            AddTypeHierarchySources(assertion.Type, type, evidence);
+            AddTypeHierarchySources(assertion.Object, type, evidence);
         }
 
         foreach (var definition in model.Definitions.Where(definition =>
             definition.Concept == type ||
-            IsSubtype(definition.Concept, type)))
+            IsSubtype(model, definition.Concept, type)))
         {
             if (definition.SufficientExpression is null)
             {
@@ -184,18 +215,19 @@ public sealed class SemanticWorldModelReasoner
                 matchedSources))
             {
                 evidence.Add(definition.Source);
+                AddTypeHierarchySources(definition.Concept, type, evidence);
                 evidence.AddRange(matchedSources);
             }
         }
 
-        var inheritedDefinitions = model.Definitions
-            .Where(definition => definition.ParentTypes.Contains(type, StringComparer.Ordinal));
-
-        foreach (var definition in inheritedDefinitions)
+        foreach (var childType in GetDirectSubtypes(type))
         {
-            if (IsInstanceOf(individual, definition.Concept))
+            var hierarchyAssertion = model.RelationAssertions.FirstOrDefault(assertion =>
+                assertion.Subject == childType && assertion.Relation == IsA && assertion.Object == type);
+            if (hierarchyAssertion is not null && IsInstanceOf(individual, childType))
             {
-                AppendMembershipEvidence(individual, definition.Concept, visited, evidence);
+                evidence.Add(hierarchyAssertion.Source);
+                AppendMembershipEvidence(individual, childType, visited, evidence);
             }
         }
     }
@@ -266,21 +298,19 @@ public sealed class SemanticWorldModelReasoner
                 continue;
             }
 
-            var definition = model.FindDefinition(current);
-            if (definition is null)
+            foreach (var assertion in model.RelationAssertions.Where(assertion =>
+                assertion.Subject == current && assertion.Relation == IsA))
             {
-                continue;
-            }
-
-            evidence.Add(definition.Source);
-            foreach (var parent in definition.ParentTypes)
-            {
-                pending.Push(parent);
+                evidence.Add(assertion.Source);
+                pending.Push(assertion.Object);
             }
         }
     }
 
-    private bool IsSubtype(string candidate, string expected)
+    private static bool IsSubtype(
+        SemanticWorldModel model,
+        string candidate,
+        string expected)
     {
         if (candidate == expected)
         {
@@ -298,7 +328,9 @@ public sealed class SemanticWorldModelReasoner
                 continue;
             }
 
-            foreach (var parent in model.FindDefinition(current)?.ParentTypes ?? [])
+            foreach (var parent in model.RelationAssertions
+                .Where(assertion => assertion.Subject == current && assertion.Relation == IsA)
+                .Select(assertion => assertion.Object))
             {
                 if (parent == expected)
                 {

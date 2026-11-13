@@ -81,9 +81,9 @@ public sealed class SemanticWorldModelTests
         Assert.True(reasoner.IsInstanceOf("piano", "struck-string-instrument"));
 
         var evidence = reasoner.GetMembershipEvidence("piano", "struck-string-instrument");
-        Assert.Contains(evidence, source => source.SourceText == "Piano uses its action.");
-        Assert.Contains(evidence, source => source.SourceText == "Piano action is a struck-string mechanism.");
-        Assert.Contains(evidence, source => source.SourceText == "Definition source: struck-string instrument.");
+        Assert.Contains(evidence, source => source.SourceId.EndsWith(":relation:piano:has-sound-production-mechanism:action", StringComparison.Ordinal));
+        Assert.Contains(evidence, source => source.SourceId.EndsWith(":instance-of:action:struck-string-mechanism", StringComparison.Ordinal));
+        Assert.Contains(evidence, source => source.SourceId.EndsWith(":definition:struck-string-instrument", StringComparison.Ordinal));
     }
 
 

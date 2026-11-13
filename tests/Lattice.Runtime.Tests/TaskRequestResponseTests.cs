@@ -26,12 +26,10 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("Manning (2021)", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Azar and Marinescu (2024)", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Yeh, Macaluso, and Hershbein (2022)", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("https://doi.org/10.1177/0019793920922499", utterance.Message, StringComparison.Ordinal);
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy."));
+                source.SourceId == "core-world-model:relation:labor-market-monopsony-power:has-research-reference:azar-marinescu-2024-publication"));
     }
 
     [Fact]
@@ -66,13 +64,10 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("unit-operation modeling", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("flowsheet optimization", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("algebraic optimization modeling", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("https://idaes-pse.readthedocs.io/en/stable/", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("https://biosteam.readthedocs.io/en/latest/", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("https://pyomo.readthedocs.io/en/stable/", utterance.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("https://", utterance.Message, StringComparison.Ordinal);
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText.Contains("IDAES official overview", StringComparison.Ordinal)));
+                source.SourceId == "core-world-model:relation:idaes:instance-of:process-systems-engineering-framework"));
     }
 }

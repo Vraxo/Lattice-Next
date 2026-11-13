@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "core-language",
   "name": "Lexical semantics",
   "concepts": [
@@ -130,67 +130,36 @@
   "definitions": [
     {
       "concept": "lexical-item",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "semantic-content",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "action-or-state",
-      "parents": [
-        "semantic-content"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "action",
-      "parents": [
-        "action-or-state"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "state",
-      "parents": [
-        "action-or-state"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "verb",
-      "parents": [
-        "part-of-speech",
-        "lexical-item"
-      ],
-      "sourceText": "Existing core-world-model grammar claim migrated into typed concepts and relations.",
-      "sourceUrl": null,
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
@@ -201,59 +170,88 @@
     },
     {
       "concept": "economic-concept",
-      "parents": [
-        "entity"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "market-structure",
-      "parents": [
-        "economic-concept"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
       "concept": "economic-market-structure",
-      "parents": [
-        "market-structure"
-      ],
-      "sourceText": "Azar and Marinescu (2024), Monopsony Power in the Labor Market: From Theory to Policy.",
-      "sourceUrl": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
-    }
-  ],
-  "typeAssertions": [
-    {
-      "individual": "run-lexeme",
-      "type": "lexical-item",
-      "sourceText": "Curated lexical-semantic example: the lexeme run expresses a running action.",
-      "sourceUrl": null
-    },
-    {
-      "individual": "running-action",
-      "type": "action",
-      "sourceText": "Curated lexical-semantic example: running is an action.",
-      "sourceUrl": null
     }
   ],
   "relationAssertions": [
     {
       "subject": "run-lexeme",
       "relation": "expresses-content",
-      "object": "running-action",
-      "sourceText": "Curated lexical-semantic example: run expresses a running action.",
-      "sourceUrl": null
+      "object": "running-action"
+    },
+    {
+      "subject": "lexical-item",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "semantic-content",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "action-or-state",
+      "relation": "is-a",
+      "object": "semantic-content"
+    },
+    {
+      "subject": "action",
+      "relation": "is-a",
+      "object": "action-or-state"
+    },
+    {
+      "subject": "state",
+      "relation": "is-a",
+      "object": "action-or-state"
+    },
+    {
+      "subject": "verb",
+      "relation": "is-a",
+      "object": "part-of-speech"
+    },
+    {
+      "subject": "verb",
+      "relation": "is-a",
+      "object": "lexical-item"
+    },
+    {
+      "subject": "economic-concept",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "market-structure",
+      "relation": "is-a",
+      "object": "economic-concept"
+    },
+    {
+      "subject": "economic-market-structure",
+      "relation": "is-a",
+      "object": "market-structure"
+    },
+    {
+      "subject": "run-lexeme",
+      "relation": "instance-of",
+      "object": "lexical-item"
+    },
+    {
+      "subject": "running-action",
+      "relation": "instance-of",
+      "object": "action"
     }
   ],
   "dataProperties": [],

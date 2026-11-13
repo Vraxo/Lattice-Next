@@ -131,8 +131,7 @@ public sealed class LatticeRuntimeSessionTests
         var definitionEvidence = Assert.Single(result.Utterances[0].SupportingEvidence);
         Assert.Contains(
             definitionEvidence.Sources,
-            source => source.SourceId == "core-world-model" &&
-                source.SourceText == "Existing core-world-model geometry claim migrated into typed concepts and relations.");
+            source => source.SourceId == "core-world-model:definition:polygon");
     }
 
     [Fact]
@@ -151,8 +150,7 @@ public sealed class LatticeRuntimeSessionTests
         var definitionEvidence = Assert.Single(result.Utterances[0].SupportingEvidence);
         Assert.Contains(
             definitionEvidence.Sources,
-            source => source.SourceId == "core-world-model" &&
-                source.SourceText == "Existing core-world-model grammar claim migrated into typed concepts and relations.");
+            source => source.SourceId == "core-world-model:definition:verb");
     }
 
 
@@ -168,8 +166,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
         Assert.Equal(197, status.SemanticConceptCount);
-        Assert.Equal(36, status.SemanticRelationCount);
-        Assert.Equal(6, status.SemanticDataAssertionCount);
+        Assert.Equal(38, status.SemanticRelationCount);
+        Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
         var answer = Assert.Single(tope.Utterances);
@@ -178,8 +176,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Tope is a fish."));
+                source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
     }
 
     [Fact]
@@ -214,8 +211,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             polygon.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Existing core-world-model geometry claim migrated into typed concepts and relations."));
+                source.SourceId == "core-world-model:definition:polygon"));
     }
 
     [Fact]
@@ -239,7 +235,6 @@ public sealed class LatticeRuntimeSessionTests
             "Monopsony power can arise through employer concentration, job differentiation, and search frictions.",
             causesMessage);
         Assert.Contains("Manning (2021), Monopsony in Labor Markets: A Review", causesMessage);
-        Assert.Contains("https://doi.org/10.1146/annurev-economics-072823-030431", causesMessage);
         Assert.Contains("Yeh, Macaluso, and Hershbein (2022), Monopsony in the US Labor Market", causesMessage);
         Assert.All(
             new[] { monopsony, power, causes },
@@ -249,11 +244,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             causes.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceUrl == "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-072823-030431"));
+                source.SourceId == "core-world-model:relation:labor-market-monopsony-power:has-research-reference:azar-marinescu-2024-publication"));
     }
 
     [Fact]
-    public async Task Describes_software_profiles_from_capability_relations_and_typed_documentation_uris()
+    public async Task Describes_software_profiles_from_capability_relations_without_embedded_urls()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -269,22 +264,22 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("process systems engineering framework", idaesMessage);
         Assert.Contains("equation-oriented process modeling", idaesMessage);
         Assert.Contains("It is used for process systems engineering.", idaesMessage);
-        Assert.Contains("https://idaes-pse.readthedocs.io/en/stable/", idaesMessage);
         Assert.Contains("biorefinery modeling framework", biosteamMessage);
         Assert.Contains("techno-economic analysis", biosteamMessage);
-        Assert.Contains("https://biosteam.readthedocs.io/en/latest/", biosteamMessage);
         Assert.Contains("optimization modeling framework", pyomoMessage);
         Assert.Contains("mixed-integer optimization", pyomoMessage);
-        Assert.Contains("https://pyomo.readthedocs.io/en/stable/", pyomoMessage);
         Assert.All(
             new[] { idaes, biosteam, pyomo },
             turn => Assert.Equal(
                 LatticeUtteranceResultKind.QuestionAnswered,
                 Assert.Single(turn.Utterances).Kind));
+        Assert.All(
+            new[] { idaesMessage, biosteamMessage, pyomoMessage },
+            message => Assert.DoesNotContain("https://", message, StringComparison.Ordinal));
         Assert.Contains(
             idaes.Utterances[0].SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceUrl == "https://idaes.org/overview/"));
+                source.SourceId == "core-world-model:relation:idaes:instance-of:process-systems-engineering-framework"));
     }
 
     [Fact]
@@ -308,13 +303,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Cantaro is a percussion-instrument."));
+                source.SourceId == "core-world-model:relation:cantaro:instance-of:percussion-instrument"));
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Gudok is a string-instrument."));
+                source.SourceId == "core-world-model:relation:gudok:instance-of:string-instrument"));
     }
 
     [Fact]
@@ -338,13 +331,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Panduri is a string-instrument."));
+                source.SourceId == "core-world-model:relation:panduri:instance-of:string-instrument"));
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Zurna is a woodwind-instrument."));
+                source.SourceId == "core-world-model:relation:zurna:instance-of:woodwind-instrument"));
     }
 
 
@@ -367,22 +358,20 @@ public sealed class LatticeRuntimeSessionTests
             "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
             utterance.Meaning);
         Assert.Equal(7, utterance.SupportingEvidence.Length);
-        foreach (var claim in new[]
+        foreach (var assertionId in new[]
         {
-            "Guitar is a string-instrument.",
-            "Violin is a string-instrument.",
-            "Piano is a keyboard-instrument.",
-            "Harmonium is a keyboard-instrument.",
-            "Cello is a string-instrument.",
-            "Accordion is a keyboard-instrument.",
-            "Banjo is a string-instrument."
+            "core-world-model:relation:guitar:instance-of:string-instrument",
+            "core-world-model:relation:violin:instance-of:string-instrument",
+            "core-world-model:relation:piano:instance-of:keyboard-instrument",
+            "core-world-model:relation:harmonium:instance-of:keyboard-instrument",
+            "core-world-model:relation:cello:instance-of:string-instrument",
+            "core-world-model:relation:accordion:instance-of:keyboard-instrument",
+            "core-world-model:relation:banjo:instance-of:string-instrument"
         })
         {
             Assert.Contains(
                 utterance.SupportingEvidence,
-                evidence => evidence.Sources.Any(source =>
-                    source.SourceId == "core-world-model" &&
-                    source.SourceText == claim));
+                evidence => evidence.Sources.Any(source => source.SourceId == assertionId));
         }
 
         var pianoSoundProduction = await session.SubmitAsync(
@@ -392,8 +381,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             pianoSoundProductionAnswer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Piano is a struck-string-instrument."));
+                source.SourceId == "core-world-model:relation:piano:has-sound-production-mechanism:piano-action"));
     }
 
 
@@ -439,12 +427,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceText == "Piano is a keyboard-instrument." &&
-                source.SourceId == "core-world-model"));
+                source.SourceId == "core-world-model:relation:piano:has-playing-interface:piano-keyboard"));
         Assert.Contains(
             soundMechanism.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceUrl == "https://usa.yamaha.com/musical-instruments/pianos/explore/musical-instrument-guide/piano/mechanism/mechanism002.html"));
+                source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
     }
 
     [Fact]
@@ -477,9 +464,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.Kind == LatticeKnowledgeSourceKind.ImportedClaim &&
-                source.SourceId == "core-world-model" &&
-                source.SourceText == "Tope is a fish."));
+                source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge &&
+                source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
     }
 
     [Fact]

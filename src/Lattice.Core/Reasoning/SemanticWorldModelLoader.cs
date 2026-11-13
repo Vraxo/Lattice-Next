@@ -6,7 +6,7 @@ namespace Lattice.Core.Reasoning;
 
 public sealed class SemanticWorldModelLoader
 {
-    private const int SupportedFormatVersion = 2;
+    private const int SupportedFormatVersion = 3;
     private const int MaximumConcepts = 2000;
     private const int MaximumRelations = 500;
     private const int MaximumDefinitions = 500;
@@ -47,7 +47,7 @@ public sealed class SemanticWorldModelLoader
         }
 
         if (document is null ||
-            document.FormatVersion is not (1 or SupportedFormatVersion) ||
+            document.FormatVersion is not (1 or 2 or SupportedFormatVersion) ||
             !IsValidId(document.Id) ||
             string.IsNullOrWhiteSpace(document.Name) ||
             document.Name.Length > 120 ||
@@ -55,7 +55,6 @@ public sealed class SemanticWorldModelLoader
             document.Lexemes is null ||
             document.Relations is null ||
             document.Definitions is null ||
-            document.TypeAssertions is null ||
             document.RelationAssertions is null ||
             document.DataProperties is null ||
             document.DataAssertions is null ||
@@ -63,9 +62,15 @@ public sealed class SemanticWorldModelLoader
             document.Relations.Count > MaximumRelations ||
             document.Definitions.Count > MaximumDefinitions ||
             document.DataProperties.Count > MaximumDataProperties ||
-            document.TypeAssertions.Count + document.RelationAssertions.Count + document.DataAssertions.Count > MaximumAssertions)
+            (document.TypeAssertions?.Count ?? 0) +
+                document.RelationAssertions.Count +
+                document.DataAssertions.Count > MaximumAssertions ||
+            (document.FormatVersion == SupportedFormatVersion &&
+                (document.TypeAssertions is not null ||
+                 document.DataProperties.Count > 0 ||
+                 document.DataAssertions.Count > 0)))
         {
-            error = "The semantic world model metadata or collection sizes are invalid.";
+            error = "The semantic world model metadata, collections, or version-3 semantic fields are invalid.";
             return false;
         }
 
@@ -86,22 +91,19 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
-        var definitionMap = definitions.ToDictionary(definition => definition.Concept, StringComparer.Ordinal);
-        if (HasInheritanceCycle(definitionMap))
-        {
-            error = "The semantic world model contains a cyclic type hierarchy.";
-            return false;
-        }
-
         if (!TryCreateAssertions(
             document,
             conceptMap,
             relationMap,
-            definitions,
-            out var typeAssertions,
             out var relationAssertions,
             out error))
         {
+            return false;
+        }
+
+        if (HasInheritanceCycle(relationAssertions))
+        {
+            error = "The semantic world model contains a cyclic type hierarchy.";
             return false;
         }
 
@@ -133,7 +135,6 @@ public sealed class SemanticWorldModelLoader
             lexemes,
             relations,
             definitions,
-            typeAssertions,
             relationAssertions,
             dataProperties,
             dataAssertions);
@@ -186,23 +187,58 @@ public sealed class SemanticWorldModelLoader
     {
         relations = ImmutableArray<SemanticRelationDefinition>.Empty;
         error = null;
-        var builder = ImmutableArray.CreateBuilder<SemanticRelationDefinition>(document.Relations.Count);
+        var builder = ImmutableArray.CreateBuilder<SemanticRelationDefinition>(document.Relations.Count + 2);
         var identifiers = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var item in document.Relations)
         {
             if (item is null ||
                 !IsValidId(item.Id) ||
-                !IsType(concepts, item.Domain) ||
-                !IsType(concepts, item.Range) ||
+                !Enum.TryParse<SemanticRelationArgumentKind>(item.SubjectKind, true, out var subjectKind) ||
+                !Enum.IsDefined(subjectKind) ||
+                !Enum.TryParse<SemanticRelationArgumentKind>(item.ObjectKind, true, out var objectKind) ||
+                !Enum.IsDefined(objectKind) ||
                 string.IsNullOrWhiteSpace(item.Verb) ||
                 item.Verb.Length > 80 ||
                 (item.ObjectRole is not null && item.ObjectRole.Length > 80) ||
                 item.Order is < 0 or > 1000 ||
                 item.ComparisonPriority is < 0 or > 1000 ||
+                (item.Domain is not null && !IsType(concepts, item.Domain)) ||
+                (item.Range is not null && !IsType(concepts, item.Range)) ||
+                (subjectKind == SemanticRelationArgumentKind.Type && item.Domain is not null) ||
+                (objectKind == SemanticRelationArgumentKind.Type && item.Range is not null) ||
                 !identifiers.Add(item.Id))
             {
-                error = "Every relation requires a unique id, declared domain and range types, and valid language metadata.";
+                error = "Every relation requires a unique id, valid argument kinds, optional valid domain/range types, and valid language metadata.";
+                return false;
+            }
+
+            var validDomain = item.Id == "instance-of"
+                ? subjectKind == SemanticRelationArgumentKind.Individual && item.Domain is null
+                : subjectKind switch
+                {
+                    SemanticRelationArgumentKind.Individual => IsType(concepts, item.Domain),
+                    SemanticRelationArgumentKind.Type => item.Domain is null,
+                    _ => false
+                };
+            var validRange = objectKind switch
+            {
+                SemanticRelationArgumentKind.Individual => IsType(concepts, item.Range),
+                SemanticRelationArgumentKind.Type => item.Range is null,
+                _ => false
+            };
+
+            if (!validDomain || !validRange ||
+                (item.Id == "is-a" &&
+                    (subjectKind != SemanticRelationArgumentKind.Type ||
+                     objectKind != SemanticRelationArgumentKind.Type)) ||
+                (item.Id == "instance-of" &&
+                    (subjectKind != SemanticRelationArgumentKind.Individual ||
+                     objectKind != SemanticRelationArgumentKind.Type ||
+                     item.Domain is not null ||
+                     item.Range is not null)))
+            {
+                error = $"Relation '{item.Id}' has an invalid argument-kind declaration.";
                 return false;
             }
 
@@ -213,7 +249,42 @@ public sealed class SemanticWorldModelLoader
                 item.Verb,
                 item.ObjectRole,
                 item.Order,
-                item.ComparisonPriority));
+                item.ComparisonPriority,
+                subjectKind,
+                objectKind));
+        }
+
+        if (document.FormatVersion < SupportedFormatVersion)
+        {
+            if (!identifiers.Contains("is-a"))
+            {
+                builder.Add(new SemanticRelationDefinition(
+                    "is-a", null, null, "is a", null, 0, 0,
+                    SemanticRelationArgumentKind.Type,
+                    SemanticRelationArgumentKind.Type));
+            }
+
+            if (!identifiers.Contains("instance-of"))
+            {
+                builder.Add(new SemanticRelationDefinition(
+                    "instance-of", null, null, "is an instance of", null, 0, 0,
+                    SemanticRelationArgumentKind.Individual,
+                    SemanticRelationArgumentKind.Type));
+            }
+        }
+
+        if (document.FormatVersion == SupportedFormatVersion &&
+            (!builder.Any(relation =>
+                relation.Id == "is-a" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Type &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Type) ||
+             !builder.Any(relation =>
+                relation.Id == "instance-of" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Type)))
+        {
+            error = "Version 3 semantic world models require both is-a (type-to-type) and instance-of (individual-to-type) relations.";
+            return false;
         }
 
         relations = builder.ToImmutable();
@@ -234,22 +305,28 @@ public sealed class SemanticWorldModelLoader
 
         foreach (var item in document.Definitions)
         {
+            var parents = item?.Parents ?? [];
+            var hasValidLegacyParents = document.FormatVersion < SupportedFormatVersion &&
+                parents.All(parent => IsType(concepts, parent)) &&
+                parents.Distinct(StringComparer.Ordinal).Count() == parents.Count;
+
             if (item is null ||
                 !IsType(concepts, item.Concept) ||
-                item.Parents is null ||
                 item.Conditions is null ||
                 item.NecessaryConditions is null ||
-                item.Parents.Any(parent => !IsType(concepts, parent)) ||
-                item.Parents.Distinct(StringComparer.Ordinal).Count() != item.Parents.Count ||
-                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var definitionSource) ||
+                (document.FormatVersion < SupportedFormatVersion && !hasValidLegacyParents) ||
+                (document.FormatVersion == SupportedFormatVersion &&
+                    (item.Parents is not null || item.SourceText is not null || item.SourceUrl is not null)) ||
                 !identifiers.Add(item.Concept))
             {
-                error = "Every type definition must reference one unique type concept and valid parent types.";
+                error = document.FormatVersion == SupportedFormatVersion
+                    ? "Version 3 type definitions must contain semantic structure only; omit parents and provenance fields."
+                    : "Every type definition must reference one unique type concept and valid legacy parent types.";
                 return false;
             }
 
             var necessaryConditions = ImmutableArray.CreateBuilder<SemanticRestriction>();
-            if (document.FormatVersion == SupportedFormatVersion &&
+            if (document.FormatVersion >= 2 &&
                 !TryCreateRestrictions(item.Concept, item.NecessaryConditions, concepts, relations, necessaryConditions, out error))
             {
                 return false;
@@ -291,8 +368,7 @@ public sealed class SemanticWorldModelLoader
             }
 
             if ((definitionKind == SemanticDefinitionKind.Defined && sufficientExpression is null) ||
-                (definitionKind == SemanticDefinitionKind.Primitive && sufficientExpression is not null) ||
-                (definitionKind == SemanticDefinitionKind.Defined && item.Parents.Count == 0))
+                (definitionKind == SemanticDefinitionKind.Primitive && sufficientExpression is not null))
             {
                 error = $"Type definition '{item.Concept}' has an inconsistent primitive/defined declaration.";
                 return false;
@@ -300,9 +376,8 @@ public sealed class SemanticWorldModelLoader
 
             builder.Add(new SemanticTypeDefinition(
                 item.Concept,
-                item.Parents.ToImmutableArray(),
                 GetSimpleSufficientRestrictions(sufficientExpression),
-                definitionSource!)
+                new SemanticWorldModelSource($"{document.Id}:definition:{item.Concept}"))
             {
                 DefinitionKind = definitionKind,
                 NecessaryConditions = necessaryConditions.ToImmutable(),
@@ -311,7 +386,7 @@ public sealed class SemanticWorldModelLoader
         }
 
         definitions = builder.ToImmutable();
-        if (document.FormatVersion == SupportedFormatVersion)
+        if (document.FormatVersion >= 2)
         {
             var definedTypes = definitions.Select(definition => definition.Concept)
                 .ToHashSet(StringComparer.Ordinal);
@@ -319,7 +394,7 @@ public sealed class SemanticWorldModelLoader
                 concept.Kind == SemanticConceptKind.Type &&
                 !definedTypes.Contains(concept.Id)))
             {
-                error = "Every type concept in a version 2 semantic world model requires an explicit primitive or defined declaration.";
+                error = "Every version 2 or later type concept requires an explicit primitive or defined declaration.";
                 return false;
             }
         }
@@ -339,7 +414,11 @@ public sealed class SemanticWorldModelLoader
         foreach (var condition in documents)
         {
             if (condition is null ||
-                !relations.ContainsKey(condition.Relation) ||
+                !relations.TryGetValue(condition.Relation, out var relation) ||
+                relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
+                relation.DomainType is null ||
+                relation.RangeType is null ||
                 !IsType(concepts, condition.TargetType))
             {
                 error = $"Type definition '{ownerType}' contains an invalid necessary or sufficient relation restriction.";
@@ -398,7 +477,11 @@ public sealed class SemanticWorldModelLoader
         if (expression.Kind == SemanticClassExpressionKind.Some)
         {
             if (string.IsNullOrWhiteSpace(expression.Relation) ||
-                !relations.ContainsKey(expression.Relation) ||
+                !relations.TryGetValue(expression.Relation, out var relation) ||
+                relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
+                relation.DomainType is null ||
+                relation.RangeType is null ||
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
                 !IsType(concepts, expression.TargetType) ||
                 !expression.Operands.IsDefaultOrEmpty)
@@ -474,55 +557,95 @@ public sealed class SemanticWorldModelLoader
         SemanticWorldModelDocument document,
         IReadOnlyDictionary<string, SemanticConcept> concepts,
         IReadOnlyDictionary<string, SemanticRelationDefinition> relations,
-        ImmutableArray<SemanticTypeDefinition> definitions,
-        out ImmutableArray<SemanticTypeAssertion> typeAssertions,
         out ImmutableArray<SemanticRelationAssertion> relationAssertions,
         out string? error)
     {
-        typeAssertions = ImmutableArray<SemanticTypeAssertion>.Empty;
         relationAssertions = ImmutableArray<SemanticRelationAssertion>.Empty;
         error = null;
-        var typeBuilder = ImmutableArray.CreateBuilder<SemanticTypeAssertion>(document.TypeAssertions.Count);
-        var relationBuilder = ImmutableArray.CreateBuilder<SemanticRelationAssertion>(document.RelationAssertions.Count);
-        var typeKeys = new HashSet<string>(StringComparer.Ordinal);
+        var legacyTypeAssertions = document.TypeAssertions ?? [];
+        var relationBuilder = ImmutableArray.CreateBuilder<SemanticRelationAssertion>(
+            document.RelationAssertions.Count +
+            legacyTypeAssertions.Count +
+            (document.FormatVersion < SupportedFormatVersion
+                ? document.Definitions.Sum(definition => definition.Parents?.Count ?? 0)
+                : 0));
         var relationKeys = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var item in document.TypeAssertions)
+        if (document.FormatVersion == SupportedFormatVersion && document.TypeAssertions is not null)
         {
-            if (item is null ||
-                !IsIndividual(concepts, item.Individual) ||
-                !IsType(concepts, item.Type) ||
-                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var source) ||
-                !typeKeys.Add($"{item.Individual}:{item.Type}"))
-            {
-                error = "Every type assertion requires a unique individual/type pair and non-empty provenance.";
-                return false;
-            }
-
-            typeBuilder.Add(new SemanticTypeAssertion(item.Individual, item.Type, source!));
+            error = "Version 3 models represent membership with instance-of relation assertions, not typeAssertions.";
+            return false;
         }
 
         foreach (var item in document.RelationAssertions)
         {
             if (item is null ||
-                !IsIndividual(concepts, item.Subject) ||
-                !relations.ContainsKey(item.Relation) ||
-                !IsIndividual(concepts, item.Object) ||
-                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var source) ||
+                !relations.TryGetValue(item.Relation, out var relation) ||
+                !IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
+                !IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
+                (document.FormatVersion == SupportedFormatVersion &&
+                    (item.SourceText is not null || item.SourceUrl is not null)) ||
                 !relationKeys.Add($"{item.Subject}:{item.Relation}:{item.Object}"))
             {
-                error = "Every relation assertion requires declared individuals, a relation, unique arguments, and non-empty provenance.";
+                error = "Every relation assertion requires arguments of the declared kinds and a unique declared relation.";
                 return false;
             }
 
+            var sourceId = $"{document.Id}:relation:{item.Subject}:{item.Relation}:{item.Object}";
             relationBuilder.Add(new SemanticRelationAssertion(
                 item.Subject,
                 item.Relation,
                 item.Object,
-                source!));
+                new SemanticWorldModelSource(sourceId)));
         }
 
-        typeAssertions = typeBuilder.ToImmutable();
+        foreach (var item in legacyTypeAssertions)
+        {
+            if (document.FormatVersion >= SupportedFormatVersion ||
+                item is null ||
+                !IsIndividual(concepts, item.Individual) ||
+                !IsType(concepts, item.Type))
+            {
+                error = "Legacy type assertions must reference a declared individual and type.";
+                return false;
+            }
+
+            var key = $"{item.Individual}:instance-of:{item.Type}";
+            if (!relationKeys.Add(key))
+            {
+                error = "A legacy instance-of assertion is duplicated.";
+                return false;
+            }
+
+            relationBuilder.Add(new SemanticRelationAssertion(
+                item.Individual,
+                "instance-of",
+                item.Type,
+                new SemanticWorldModelSource($"{document.Id}:instance-of:{item.Individual}:{item.Type}")));
+        }
+
+        if (document.FormatVersion < SupportedFormatVersion)
+        {
+            foreach (var definition in document.Definitions)
+            {
+                foreach (var parent in definition.Parents ?? [])
+                {
+                    var key = $"{definition.Concept}:is-a:{parent}";
+                    if (!relationKeys.Add(key))
+                    {
+                        error = "A legacy type hierarchy contains duplicate parent relations.";
+                        return false;
+                    }
+
+                    relationBuilder.Add(new SemanticRelationAssertion(
+                        definition.Concept,
+                        "is-a",
+                        parent,
+                        new SemanticWorldModelSource($"{document.Id}:is-a:{definition.Concept}:{parent}")));
+                }
+            }
+        }
+
         relationAssertions = relationBuilder.ToImmutable();
         return true;
     }
@@ -612,14 +735,17 @@ public sealed class SemanticWorldModelLoader
                 uri.Scheme is not ("http" or "https") ||
                 string.IsNullOrWhiteSpace(uri.Host) ||
                 !string.IsNullOrEmpty(uri.UserInfo) ||
-                !TryCreateSource(item.SourceText, item.SourceUrl, document.Id, out var source) ||
                 !keys.Add($"{item.Subject}:{item.Property}:{item.Value}"))
             {
-                error = "Every semantic data assertion must supply a unique typed URI value, a valid subject/property pair, and provenance.";
+                error = "Every semantic data assertion must supply a unique typed URI value and a valid subject/property pair.";
                 return false;
             }
 
-            builder.Add(new SemanticDataAssertion(item.Subject, item.Property, uri.AbsoluteUri, source!));
+            builder.Add(new SemanticDataAssertion(
+                item.Subject,
+                item.Property,
+                uri.AbsoluteUri,
+                new SemanticWorldModelSource($"{document.Id}:data:{item.Subject}:{item.Property}")));
         }
 
         dataAssertions = builder.ToImmutable();
@@ -632,8 +758,18 @@ public sealed class SemanticWorldModelLoader
         foreach (var assertion in model.RelationAssertions)
         {
             var relation = model.FindRelation(assertion.Relation)!;
-            if (!reasoner.IsInstanceOf(assertion.Subject, relation.DomainType) ||
-                !reasoner.IsInstanceOf(assertion.Object, relation.RangeType))
+            if ((relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                    (model.FindConcept(assertion.Subject, SemanticConceptKind.Individual) is null ||
+                     (relation.DomainType is not null &&
+                      !reasoner.IsInstanceOf(assertion.Subject, relation.DomainType)))) ||
+                (relation.SubjectKind == SemanticRelationArgumentKind.Type &&
+                    model.FindConcept(assertion.Subject, SemanticConceptKind.Type) is null) ||
+                (relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                    (model.FindConcept(assertion.Object, SemanticConceptKind.Individual) is null ||
+                     (relation.RangeType is not null &&
+                      !reasoner.IsInstanceOf(assertion.Object, relation.RangeType)))) ||
+                (relation.ObjectKind == SemanticRelationArgumentKind.Type &&
+                    model.FindConcept(assertion.Object, SemanticConceptKind.Type) is null))
             {
                 return false;
             }
@@ -646,7 +782,9 @@ public sealed class SemanticWorldModelLoader
             foreach (var condition in restrictions)
             {
                 var relation = model.FindRelation(condition.Relation)!;
-                if (!IsSubtype(model, definition.Concept, relation.DomainType) ||
+                if (relation.DomainType is null ||
+                    relation.RangeType is null ||
+                    !IsSubtype(model, definition.Concept, relation.DomainType) ||
                     !IsSubtype(model, condition.TargetType, relation.RangeType))
                 {
                     return false;
@@ -706,7 +844,9 @@ public sealed class SemanticWorldModelLoader
                 continue;
             }
 
-            foreach (var parent in model.FindDefinition(current)?.ParentTypes ?? [])
+            foreach (var parent in model.RelationAssertions
+                .Where(assertion => assertion.Subject == current && assertion.Relation == "is-a")
+                .Select(assertion => assertion.Object))
             {
                 if (parent == expected)
                 {
@@ -721,8 +861,15 @@ public sealed class SemanticWorldModelLoader
     }
 
     private static bool HasInheritanceCycle(
-        IReadOnlyDictionary<string, SemanticTypeDefinition> definitions)
+        ImmutableArray<SemanticRelationAssertion> assertions)
     {
+        var parentsByType = assertions
+            .Where(assertion => assertion.Relation == "is-a")
+            .GroupBy(assertion => assertion.Subject, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(assertion => assertion.Object).ToArray(),
+                StringComparer.Ordinal);
         var completed = new HashSet<string>(StringComparer.Ordinal);
         var active = new HashSet<string>(StringComparer.Ordinal);
 
@@ -738,9 +885,9 @@ public sealed class SemanticWorldModelLoader
                 return true;
             }
 
-            if (definitions.TryGetValue(type, out var definition))
+            if (parentsByType.TryGetValue(type, out var parents))
             {
-                foreach (var parent in definition.ParentTypes)
+                foreach (var parent in parents)
                 {
                     if (Visit(parent))
                     {
@@ -754,34 +901,30 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
-        return definitions.Keys.Any(Visit);
+        return parentsByType.Keys.Any(Visit);
     }
 
-    private static bool TryCreateSource(
-        string? sourceText,
-        string? sourceUrl,
-        string sourceId,
-        out SemanticWorldModelSource? source)
-    {
-        source = null;
-        if (string.IsNullOrWhiteSpace(sourceText) ||
-            sourceText.Length > 1000)
+    private static bool IsRelationArgument(
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        string? id,
+        SemanticRelationArgumentKind kind) =>
+        kind switch
         {
-            return false;
-        }
+            SemanticRelationArgumentKind.Individual => IsIndividual(concepts, id),
+            SemanticRelationArgumentKind.Type => IsType(concepts, id),
+            _ => false
+        };
 
-        if (sourceUrl is not null &&
-            (!Uri.TryCreate(sourceUrl, UriKind.Absolute, out var uri) ||
-             uri.Scheme is not ("http" or "https") ||
-             string.IsNullOrWhiteSpace(uri.Host) ||
-             !string.IsNullOrEmpty(uri.UserInfo)))
+    private static bool IsRelationArgument(
+        IReadOnlyDictionary<string, SemanticConcept> concepts,
+        string? id,
+        SemanticRelationArgumentKind kind) =>
+        kind switch
         {
-            return false;
-        }
-
-        source = new SemanticWorldModelSource(sourceText, sourceUrl, sourceId);
-        return true;
-    }
+            SemanticRelationArgumentKind.Individual => IsIndividual(concepts, id),
+            SemanticRelationArgumentKind.Type => IsType(concepts, id),
+            _ => false
+        };
 
     private static bool IsType(IReadOnlyDictionary<string, SemanticConcept> concepts, string? id) =>
         id is not null &&
@@ -810,7 +953,7 @@ public sealed class SemanticWorldModelLoader
         public List<LexemeDocument> Lexemes { get; set; } = [];
         public List<RelationDocument> Relations { get; set; } = [];
         public List<TypeDefinitionDocument> Definitions { get; set; } = [];
-        public List<TypeAssertionDocument> TypeAssertions { get; set; } = [];
+        public List<TypeAssertionDocument>? TypeAssertions { get; set; }
         public List<RelationAssertionDocument> RelationAssertions { get; set; } = [];
         public List<DataPropertyDocument> DataProperties { get; set; } = [];
         public List<DataAssertionDocument> DataAssertions { get; set; } = [];
@@ -836,24 +979,26 @@ public sealed class SemanticWorldModelLoader
     {
         public RelationDocument() { }
         public string Id { get; set; } = string.Empty;
-        public string Domain { get; set; } = string.Empty;
-        public string Range { get; set; } = string.Empty;
+        public string? Domain { get; set; }
+        public string? Range { get; set; }
         public string Verb { get; set; } = string.Empty;
         public string? ObjectRole { get; set; }
         public int Order { get; set; }
         public int ComparisonPriority { get; set; }
+        public string SubjectKind { get; set; } = "individual";
+        public string ObjectKind { get; set; } = "individual";
     }
 
     private sealed class TypeDefinitionDocument
     {
         public TypeDefinitionDocument() { }
         public string Concept { get; set; } = string.Empty;
-        public List<string> Parents { get; set; } = [];
+        public List<string>? Parents { get; set; }
         public string? DefinitionKind { get; set; }
         public List<RestrictionDocument> Conditions { get; set; } = [];
         public List<RestrictionDocument> NecessaryConditions { get; set; } = [];
         public SemanticClassExpression? SufficientExpression { get; set; }
-        public string SourceText { get; set; } = string.Empty;
+        public string? SourceText { get; set; }
         public string? SourceUrl { get; set; }
     }
 
@@ -878,7 +1023,7 @@ public sealed class SemanticWorldModelLoader
         public string Subject { get; set; } = string.Empty;
         public string Property { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
-        public string SourceText { get; set; } = string.Empty;
+        public string? SourceText { get; set; }
         public string? SourceUrl { get; set; }
     }
 
@@ -887,7 +1032,7 @@ public sealed class SemanticWorldModelLoader
         public TypeAssertionDocument() { }
         public string Individual { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
-        public string SourceText { get; set; } = string.Empty;
+        public string? SourceText { get; set; }
         public string? SourceUrl { get; set; }
     }
 
@@ -897,7 +1042,7 @@ public sealed class SemanticWorldModelLoader
         public string Subject { get; set; } = string.Empty;
         public string Relation { get; set; } = string.Empty;
         public string Object { get; set; } = string.Empty;
-        public string SourceText { get; set; } = string.Empty;
+        public string? SourceText { get; set; }
         public string? SourceUrl { get; set; }
     }
 }
