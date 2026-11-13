@@ -80,7 +80,7 @@ internal static class TaskRequestResponder
         }
 
         message = string.Join(" ", paragraphs);
-        evidence = explanation.Evidence
+        evidence = explanation!.Evidence
             .AddRange(GetAttributeEvidence(
                 knowledgeBase,
                 request.Subject,
