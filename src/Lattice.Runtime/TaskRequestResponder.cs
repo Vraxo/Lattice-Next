@@ -10,89 +10,103 @@ internal static class TaskRequestResponder
 {
     internal static bool TryRespond(
         TaskRequestFormula request,
-        KnowledgeBase knowledgeBase,
-        ReasoningEngine reasoningEngine,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(knowledgeBase);
-        ArgumentNullException.ThrowIfNull(reasoningEngine);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(reasoner);
 
         return request.Action switch
         {
-            TaskRequestAction.Write => TryWrite(
-                request,
-                knowledgeBase,
-                reasoningEngine,
-                out message,
-                out evidence),
-            TaskRequestAction.Recommend => TryRecommend(
-                request,
-                knowledgeBase,
-                out message,
-                out evidence),
+            TaskRequestAction.Write => TryWrite(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Recommend => TryRecommend(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
 
     private static bool TryWrite(
         TaskRequestFormula request,
-        KnowledgeBase knowledgeBase,
-        ReasoningEngine reasoningEngine,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
 
-        if (!ConceptKnowledgeFormatter.TryCreate(
-            knowledgeBase,
-            reasoningEngine,
-            request.Subject,
-            out var explanation))
+        if (SemanticWorldModel.Normalize(request.Subject) != "monopsony" ||
+            !SemanticWorldModelResponder.TryDefinition(
+                "monopsony",
+                model,
+                reasoner,
+                out var definition,
+                out var definitionEvidence))
         {
             return false;
         }
 
-        var mechanisms = GetTextValues(knowledgeBase, request.Subject, "mechanism");
-        var examples = GetTextValues(knowledgeBase, request.Subject, "example");
-        var references = GetTextValues(knowledgeBase, request.Subject, "research-reference");
-
-        if (mechanisms.IsDefaultOrEmpty ||
-            (request.Requirements.Contains("examples") && examples.IsDefaultOrEmpty) ||
-            (request.Requirements.Contains("research-citations") && references.IsDefaultOrEmpty))
+        if (!SemanticWorldModelResponder.TryRespond(
+            new SemanticWorldModelQuestionFormula(
+                SemanticWorldModelQuestionKind.Causes,
+                "monopsony-power"),
+            model,
+            reasoner,
+            out var causes,
+            out var causesEvidence))
         {
             return false;
         }
 
-        var paragraphs = new List<string> { explanation!.Message };
-        paragraphs.AddRange(mechanisms);
+        var paragraphs = new List<string>
+        {
+            definition,
+            "In labour markets, monopsony power describes a buyer's ability to influence the wages it pays. The semantic model links that power to wage markdowns below workers' marginal revenue product and to mechanisms that can weaken workers' alternatives."
+        };
+        var sources = definitionEvidence
+            .Concat(causesEvidence)
+            .SelectMany(item => item.Sources)
+            .ToList();
 
         if (request.Requirements.Contains("examples"))
         {
-            paragraphs.AddRange(examples.Select(example => $"For example, {example}"));
+            if (!TryDescribeRuralMarket(model, reasoner, out var ruralExample, out var ruralSources) ||
+                !TryDescribeRegionalMarket(model, reasoner, out var regionalExample, out var regionalSources))
+            {
+                return false;
+            }
+
+            paragraphs.Add(ruralExample);
+            paragraphs.Add(regionalExample);
+            sources.AddRange(ruralSources.Select(ToEvidenceSource));
+            sources.AddRange(regionalSources.Select(ToEvidenceSource));
         }
 
-        if (request.Requirements.Contains("research-citations"))
+        paragraphs.Add(causes);
+
+        if (request.Requirements.Contains("research-citations") &&
+            !causes.Contains("Research references include", StringComparison.Ordinal))
         {
-            paragraphs.Add($"Relevant research includes: {string.Join("; ", references)}.");
+            return false;
         }
 
         message = string.Join(" ", paragraphs);
-        evidence = explanation!.Evidence
-            .AddRange(GetAttributeEvidence(
-                knowledgeBase,
-                request.Subject,
-                ["mechanism", "example", "research-reference"]))
-            .DistinctBy(GetEvidenceKey)
-            .ToImmutableArray();
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources
+                .DistinctBy(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}:{source.SourceUrl}")
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
         return true;
     }
 
     private static bool TryRecommend(
         TaskRequestFormula request,
-        KnowledgeBase knowledgeBase,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
@@ -104,35 +118,21 @@ internal static class TaskRequestResponder
         var requiresProcessSimulation = request.Requirements.Contains("process-simulation");
         var requiresOptimization = request.Requirements.Contains("optimization");
 
-        var candidates = knowledgeBase.Attributes
-            .Where(attribute =>
-                attribute.Name.Value == "category" &&
-                attribute.Value is ObjectiveTextSetValue categories &&
-                (!requiresOpenSource || categories.Values.Contains("open-source", StringComparer.OrdinalIgnoreCase)) &&
-                (!requiresPython || categories.Values.Contains("python", StringComparer.OrdinalIgnoreCase)) &&
-                ((!requiresProcessSimulation && !requiresOptimization) ||
-                    (requiresProcessSimulation && categories.Values.Contains("process-simulation", StringComparer.OrdinalIgnoreCase)) ||
-                    (requiresOptimization && categories.Values.Contains("optimization", StringComparer.OrdinalIgnoreCase))))
-            .Select(attribute => attribute.Subject.Value)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(subject => new
-            {
-                Subject = subject,
-                DisplayName = GetTextValue(knowledgeBase, subject, "display-name"),
-                Role = GetTextValue(knowledgeBase, subject, "role"),
-                PrimaryUse = GetTextValue(knowledgeBase, subject, "primary-use"),
-                Capabilities = GetTextSetValue(knowledgeBase, subject, "capabilities"),
-                DocumentationUrl = GetTextValue(knowledgeBase, subject, "documentation-url")
-            })
-            .Where(candidate =>
-                candidate.DisplayName is not null &&
-                candidate.Role is not null &&
-                candidate.PrimaryUse is not null &&
-                !candidate.Capabilities.IsDefaultOrEmpty &&
-                candidate.DocumentationUrl is not null)
-            .OrderBy(candidate =>
-                candidate.Role == "optimization-framework" ? 1 : 0)
-            .ThenBy(candidate => candidate.DisplayName, StringComparer.Ordinal)
+        var candidates = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, "software") &&
+                (!requiresOpenSource || reasoner.IsInstanceOf(concept.Id, "open-source-software")) &&
+                (!requiresPython || reasoner.IsInstanceOf(concept.Id, "python-package")))
+            .Select(concept => CreateSoftwareProfile(concept, model, reasoner))
+            .Where(profile => profile is not null)
+            .Select(profile => profile!)
+            .Where(profile =>
+                (!requiresProcessSimulation && !requiresOptimization) ||
+                (requiresProcessSimulation && profile.HasProcessModelingCapability) ||
+                (requiresOptimization && profile.HasOptimizationCapability))
+            .OrderBy(profile => profile.IsOptimizationFramework ? 1 : 0)
+            .ThenBy(profile => profile.Name, StringComparer.Ordinal)
             .ToArray();
 
         if (candidates.Length == 0)
@@ -145,107 +145,241 @@ internal static class TaskRequestResponder
 
         foreach (var candidate in candidates)
         {
-            var role = candidate.Role!.Replace('-', ' ');
-            var capabilities = string.Join(", ", candidate.Capabilities);
             builder.Append("- **")
-                .Append(candidate.DisplayName)
+                .Append(candidate.Name)
                 .Append("** (")
-                .Append(role)
-                .Append("): ")
-                .Append(candidate.PrimaryUse)
-                .Append(". Capabilities include ")
-                .Append(capabilities)
+                .Append(candidate.Role)
+                .Append("): capabilities include ")
+                .Append(string.Join(", ", candidate.Capabilities))
+                .Append(". It is used for ")
+                .Append(candidate.ApplicationDomains.Length == 1
+                    ? candidate.ApplicationDomains[0]
+                    : string.Join(", ", candidate.ApplicationDomains))
                 .Append(". [Documentation](")
                 .Append(candidate.DocumentationUrl)
                 .AppendLine(").");
         }
 
-        if (candidates.Any(candidate => candidate.Role == "optimization-framework") &&
-            candidates.Any(candidate => candidate.Role != "optimization-framework"))
+        if (candidates.Any(candidate => candidate.IsOptimizationFramework) &&
+            candidates.Any(candidate => !candidate.IsOptimizationFramework))
         {
             builder.Append("Use the optimization framework alongside a process simulator; it does not replace the simulator's unit-operation and thermodynamic models.");
         }
 
         message = builder.ToString().Trim();
-        evidence = candidates
-            .SelectMany(candidate => GetAttributeEvidence(
-                knowledgeBase,
-                candidate.Subject,
-                ["category", "display-name", "role", "primary-use", "capabilities", "documentation-url"]))
-            .DistinctBy(GetEvidenceKey)
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            candidates
+                .SelectMany(candidate => candidate.Evidence)
+                .DistinctBy(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}:{source.SourceUrl}")
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    private static SoftwareProfile? CreateSoftwareProfile(
+        SemanticConcept software,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner)
+    {
+        var types = reasoner.GetTypes(software.Id);
+        var role = types
+            .Where(type => type is not ("software" or "open-source-software" or "python-package"))
+            .Where(type => !types.Any(other =>
+                other != type && IsSubtype(other, type, model)))
+            .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
+            .Where(type => type is not null)
+            .OrderBy(type => type!.Label, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        if (role is null)
+        {
+            return null;
+        }
+
+        var capabilityAssertions = reasoner.GetRelations(software.Id, "supports-capability");
+        var capabilities = capabilityAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToImmutableArray();
+        var domainAssertions = reasoner.GetRelations(software.Id, "used-for-domain");
+        var domains = domainAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToImmutableArray();
+        var documentation = model.GetDataAssertions(software.Id, "documentation-url").FirstOrDefault();
+
+        if (capabilities.IsDefaultOrEmpty || domains.IsDefaultOrEmpty || documentation is null)
+        {
+            return null;
+        }
+
+        var typeEvidence = types
+            .Where(type => model.FindConcept(type, SemanticConceptKind.Type) is not null)
+            .SelectMany(type => reasoner.GetMembershipEvidence(software.Id, type));
+        var relationEvidence = capabilityAssertions
+            .Select(assertion => assertion.Source)
+            .Concat(domainAssertions.Select(assertion => assertion.Source))
+            .Append(documentation.Source);
+
+        var evidence = typeEvidence
+            .Concat(relationEvidence)
+            .Distinct()
+            .Select(ToEvidenceSource)
+            .ToImmutableArray();
+
+        return new SoftwareProfile(
+            software.Label,
+            role.Label,
+            capabilities,
+            domains,
+            documentation.Value,
+            role.Id == "optimization-modeling-framework" ||
+                reasoner.IsInstanceOf(software.Id, "optimization-framework"),
+            capabilities.Any(capability =>
+                capability is "equation-oriented process modeling" or
+                    "process modeling" or
+                    "unit-operation modeling" or
+                    "flowsheet optimization"),
+            capabilities.Any(capability =>
+                capability is "algebraic optimization modeling" or
+                    "linear optimization" or
+                    "nonlinear optimization" or
+                    "mixed-integer optimization" or
+                    "flowsheet optimization"),
+            evidence);
+    }
+
+    private static bool TryDescribeRuralMarket(
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<SemanticWorldModelSource> sources)
+    {
+        message = string.Empty;
+        sources = ImmutableArray<SemanticWorldModelSource>.Empty;
+        var market = model.FindConcept("rural-town-labor-market", SemanticConceptKind.Individual);
+        if (market is null)
+        {
+            return false;
+        }
+
+        var dominantBuyer = reasoner.GetRelations(market.Id, "has-dominant-buyer").FirstOrDefault();
+        var workers = reasoner.GetRelations(market.Id, "has-worker-group").FirstOrDefault();
+        if (dominantBuyer is null || workers is null)
+        {
+            return false;
+        }
+
+        var buyer = model.FindConcept(dominantBuyer.Object, SemanticConceptKind.Individual);
+        var workerGroup = model.FindConcept(workers.Object, SemanticConceptKind.Individual);
+        if (buyer is null || workerGroup is null ||
+            !reasoner.IsInstanceOf(workerGroup.Id, "limited-outside-options"))
+        {
+            return false;
+        }
+
+        message = $"For example, a rural-town labour market has {buyer.Label} as its dominant buyer and includes {workerGroup.Label}, whose outside options are limited.";
+        sources = ImmutableArray.Create(dominantBuyer.Source, workers.Source)
+            .AddRange(reasoner.GetMembershipEvidence(workerGroup.Id, "limited-outside-options"));
+        return true;
+    }
+
+    private static bool TryDescribeRegionalMarket(
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<SemanticWorldModelSource> sources)
+    {
+        message = string.Empty;
+        sources = ImmutableArray<SemanticWorldModelSource>.Empty;
+        var market = model.FindConcept("regional-healthcare-labor-market", SemanticConceptKind.Individual);
+        if (market is null)
+        {
+            return false;
+        }
+
+        var employers = reasoner.GetRelations(market.Id, "has-employer");
+        var features = reasoner.GetRelations(market.Id, "has-market-feature");
+        if (employers.Length < 2 || features.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var featureLabels = features
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .ToArray();
+        if (featureLabels.Length == 0)
+        {
+            return false;
+        }
+
+        message = $"A regional healthcare labour market can have several employers while still exhibiting {JoinNames(featureLabels)}.";
+        sources = employers.Select(assertion => assertion.Source)
+            .Concat(features.Select(assertion => assertion.Source))
             .ToImmutableArray();
         return true;
     }
 
-    private static ImmutableArray<string> GetTextValues(
-        KnowledgeBase knowledgeBase,
-        string subject,
-        string name) =>
-        knowledgeBase.Attributes
-            .Where(attribute =>
-                string.Equals(attribute.Subject.Value, subject, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(attribute.Name.Value, name, StringComparison.OrdinalIgnoreCase) &&
-                attribute.Value is ObjectiveTextValue)
-            .Select(attribute => ((ObjectiveTextValue)attribute.Value).Value)
-            .ToImmutableArray();
+    private static bool IsSubtype(string candidate, string expected, SemanticWorldModel model)
+    {
+        if (candidate == expected)
+        {
+            return true;
+        }
 
-    private static string? GetTextValue(
-        KnowledgeBase knowledgeBase,
-        string subject,
-        string name) =>
-        knowledgeBase.Attributes
-            .Where(attribute =>
-                string.Equals(attribute.Subject.Value, subject, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(attribute.Name.Value, name, StringComparison.OrdinalIgnoreCase))
-            .Select(attribute => attribute.Value)
-            .OfType<ObjectiveTextValue>()
-            .Select(value => value.Value)
-            .FirstOrDefault();
+        var pending = new Stack<string>();
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        pending.Push(candidate);
 
-    private static ImmutableArray<string> GetTextSetValue(
-        KnowledgeBase knowledgeBase,
-        string subject,
-        string name) =>
-        knowledgeBase.Attributes
-            .Where(attribute =>
-                string.Equals(attribute.Subject.Value, subject, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(attribute.Name.Value, name, StringComparison.OrdinalIgnoreCase))
-            .Select(attribute => attribute.Value)
-            .OfType<ObjectiveTextSetValue>()
-            .SelectMany(value => value.Values)
-            .ToImmutableArray();
+        while (pending.TryPop(out var current))
+        {
+            if (!visited.Add(current))
+            {
+                continue;
+            }
 
-    private static ImmutableArray<LatticeEvidence> GetAttributeEvidence(
-        KnowledgeBase knowledgeBase,
-        string subject,
-        IReadOnlyCollection<string> names) =>
-        knowledgeBase.Attributes
-            .Where(attribute =>
-                string.Equals(attribute.Subject.Value, subject, StringComparison.OrdinalIgnoreCase) &&
-                names.Contains(attribute.Name.Value, StringComparer.OrdinalIgnoreCase))
-            .Select(ToEvidence)
-            .ToImmutableArray();
-
-    private static LatticeEvidence ToEvidence(KnowledgeAttribute attribute) =>
-        new(
-            LatticeEvidenceKind.Asserted,
-            LatticeEvidencePolarity.Positive,
-            attribute.Sources.Select(source => new LatticeEvidenceSource(
-                source.Kind switch
+            foreach (var parent in model.FindDefinition(current)?.ParentTypes ?? [])
+            {
+                if (parent == expected)
                 {
-                    KnowledgeSourceKind.UserAssertion => LatticeKnowledgeSourceKind.UserAssertion,
-                    KnowledgeSourceKind.ImportedClaim => LatticeKnowledgeSourceKind.ImportedClaim,
-                    KnowledgeSourceKind.ExternalObservation => LatticeKnowledgeSourceKind.ExternalObservation,
-                    _ => throw new ArgumentOutOfRangeException(nameof(source), source.Kind, "Unsupported knowledge source kind.")
-                },
-                source.SourceText,
-                source.SourceId,
-                source.ResolvedReferent?.Value))
-                .ToImmutableArray(),
-            ImmutableArray<LatticeEvidence>.Empty);
+                    return true;
+                }
 
-    private static string GetEvidenceKey(LatticeEvidence evidence) =>
-        $"{evidence.Kind}:{evidence.Polarity}:{string.Join(";", evidence.Sources.Select(source => $"{source.Kind}:{source.SourceId}:{source.SourceText}"))}";
+                pending.Push(parent);
+            }
+        }
+
+        return false;
+    }
+
+    private static ImmutableArray<LatticeEvidenceSource> ToEvidenceSources(
+        IEnumerable<SemanticWorldModelSource> sources) =>
+        sources.Select(ToEvidenceSource).ToImmutableArray();
+
+    private static LatticeEvidenceSource ToEvidenceSource(SemanticWorldModelSource source) =>
+        new(
+            LatticeKnowledgeSourceKind.ImportedClaim,
+            source.SourceText,
+            source.SourceId,
+            null,
+            source.SourceUrl);
+
+    private static string JoinNames(IReadOnlyList<string> names) =>
+        names.Count switch
+        {
+            0 => string.Empty,
+            1 => names[0],
+            2 => $"{names[0]} and {names[1]}",
+            _ => $"{string.Join(", ", names.Take(names.Count - 1))}, and {names[^1]}"
+        };
 
     private static bool Fail(
         out string message,
@@ -255,4 +389,15 @@ internal static class TaskRequestResponder
         evidence = ImmutableArray<LatticeEvidence>.Empty;
         return false;
     }
+
+    private sealed record SoftwareProfile(
+        string Name,
+        string Role,
+        ImmutableArray<string> Capabilities,
+        ImmutableArray<string> ApplicationDomains,
+        string DocumentationUrl,
+        bool IsOptimizationFramework,
+        bool HasProcessModelingCapability,
+        bool HasOptimizationCapability,
+        ImmutableArray<LatticeEvidenceSource> Evidence);
 }
