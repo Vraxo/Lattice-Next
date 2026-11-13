@@ -5,10 +5,12 @@ namespace Lattice.Core.Reasoning;
 public sealed class SemanticWorldModelReasoner
 {
     private readonly SemanticWorldModel model;
+    private readonly ImmutableDictionary<string, ImmutableArray<string>> typeClosure;
 
     public SemanticWorldModelReasoner(SemanticWorldModel model)
     {
         this.model = model ?? throw new ArgumentNullException(nameof(model));
+        typeClosure = BuildTypeClosure(this.model);
     }
 
     public bool IsInstanceOf(string individual, string type) =>
@@ -17,11 +19,14 @@ public sealed class SemanticWorldModelReasoner
     public ImmutableArray<string> GetTypes(string individual)
     {
         var normalized = SemanticWorldModel.Normalize(individual);
-        if (model.FindConcept(normalized, SemanticConceptKind.Individual) is null)
-        {
-            return ImmutableArray<string>.Empty;
-        }
+        return typeClosure.TryGetValue(normalized, out var types)
+            ? types
+            : ImmutableArray<string>.Empty;
+    }
 
+    private static ImmutableDictionary<string, ImmutableArray<string>> BuildTypeClosure(
+        SemanticWorldModel model)
+    {
         var allTypes = model.Concepts
             .Where(concept => concept.Kind == SemanticConceptKind.Individual)
             .ToDictionary(
@@ -36,7 +41,8 @@ public sealed class SemanticWorldModelReasoner
 
         var changed = true;
         var passes = 0;
-        while (changed && passes++ < model.Definitions.Length + model.Concepts.Length)
+        var maximumPasses = model.Definitions.Length + model.Concepts.Length;
+        while (changed && passes++ < maximumPasses)
         {
             changed = false;
             foreach (var individualId in allTypes.Keys)
@@ -72,9 +78,10 @@ public sealed class SemanticWorldModelReasoner
             }
         }
 
-        return allTypes[normalized]
-            .Order(StringComparer.Ordinal)
-            .ToImmutableArray();
+        return allTypes.ToImmutableDictionary(
+            pair => pair.Key,
+            pair => pair.Value.Order(StringComparer.Ordinal).ToImmutableArray(),
+            StringComparer.Ordinal);
     }
 
     public ImmutableArray<SemanticWorldModelMembership> GetMemberships(string individual)
