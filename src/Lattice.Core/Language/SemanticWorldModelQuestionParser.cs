@@ -18,6 +18,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CausesPattern = new(
+        @"^What causes (?<subject>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ComparePattern = new(
         @"^What distinguishes (?<subject>[A-Za-z][A-Za-z -]*?) from (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -54,6 +58,16 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.Mechanism,
                 subject: Normalize(mechanism.Groups["subject"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var causes = CausesPattern.Match(text);
+        if (causes.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Causes,
+                subject: Normalize(causes.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
