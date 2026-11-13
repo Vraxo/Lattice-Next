@@ -29,6 +29,7 @@ public static class SemanticFormatter
             ObjectiveCandidateInformationFormula information => FormatObjectiveCandidateInformation(information),
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
+            SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
@@ -46,6 +47,16 @@ public static class SemanticFormatter
         var concept = string.Join("+", definition.Modifiers.Append(definition.Concept).Select(identifier => identifier.Value));
         return $"definition({concept})";
     }
+
+    private static string FormatSemanticWorldModelQuestion(SemanticWorldModelQuestionFormula question) =>
+        question.Kind switch
+        {
+            SemanticWorldModelQuestionKind.Definition => $"world-model-definition({question.Concept})",
+            SemanticWorldModelQuestionKind.WhyClassification => $"world-model-why({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.Mechanism => $"world-model-mechanism({question.Subject})",
+            SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
+            _ => "world-model-question(unsupported)"
+        };
 
     private static string FormatChoiceQuestion(ChoiceQuestionFormula choice) =>
         $"choice({choice.Category.Value}, {string.Join(", ", choice.Choices.Select(item => item.Value))})";
