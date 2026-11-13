@@ -68,10 +68,12 @@ internal static class MultiItemClassificationParser
         Regex.Replace(value.Trim(), @"\s+", "-").ToLowerInvariant();
 
     private static string NormalizePluralIdentifier(string value) =>
-        value.EndsWith("ies", StringComparison.Ordinal)
-            ? value[..^3] + "y"
-            : value.EndsWith("s", StringComparison.Ordinal) &&
-                !value.EndsWith("ss", StringComparison.Ordinal)
-                ? value[..^1]
-                : value;
+        value is "species" or "series"
+            ? value
+            : value.EndsWith("ies", StringComparison.Ordinal)
+                ? value[..^3] + "y"
+                : value.EndsWith("s", StringComparison.Ordinal) &&
+                    !value.EndsWith("ss", StringComparison.Ordinal)
+                    ? value[..^1]
+                    : value;
 }
