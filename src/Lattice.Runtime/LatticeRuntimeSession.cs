@@ -421,6 +421,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ChoiceQuestionFormula choiceQuestion)
+        {
+            return ProcessChoiceQuestion(parsedUtterance, choiceQuestion);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is DefinitionQuestionFormula definition)
         {
             return ProcessDefinitionQuestion(parsedUtterance, definition);
@@ -573,6 +579,30 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
                 "I don't have enough structured knowledge to complete this request.",
+                SemanticFormatter.Format(utterance));
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
+    }
+
+    private LatticeUtteranceResult ProcessChoiceQuestion(
+        SemanticUtterance utterance,
+        ChoiceQuestionFormula question)
+    {
+        if (!ChoiceQuestionResponder.TryRespond(
+            question,
+            knowledgeBase,
+            reasoningEngine,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough evidence to distinguish the available choices.",
                 SemanticFormatter.Format(utterance));
         }
 
