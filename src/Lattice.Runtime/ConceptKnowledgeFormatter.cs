@@ -125,13 +125,16 @@ internal static class ConceptKnowledgeFormatter
                     continue;
                 }
 
-                if (sentence.Length > rootPrefix.Length)
+                var relation = DisplayIdentifier(rule.ExistentialConclusion.Relation.Predicate.Value);
+                if (string.Equals(relation, "has", StringComparison.OrdinalIgnoreCase))
                 {
                     sentence.Append(" with ");
                 }
                 else
                 {
-                    sentence.Append(" has ");
+                    sentence.Append(" that ")
+                        .Append(relation)
+                        .Append(' ');
                 }
 
                 sentence.Append(Indefinite(descriptor));
