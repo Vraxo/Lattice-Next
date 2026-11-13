@@ -366,7 +366,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 PendingInformationName = pendingObjectiveCondition?.Name,
                 PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
                 ObjectiveEvaluation = evaluation is null ? null : MapObjectiveEvaluation(evaluation),
-                ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation)
+                ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation),
+                SemanticConceptCount = semanticWorldModel.Concepts.Length,
+                SemanticRelationCount = semanticWorldModel.Relations.Length,
+                SemanticDataAssertionCount = semanticWorldModel.DataAssertions.Length
             });
         }
     }
