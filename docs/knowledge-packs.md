@@ -15,7 +15,7 @@ A pack must contain at least one claim or one typed attribute. Each array is lim
 
 ## Typed attributes
 
-Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. An optional boolean `summary` marks a curated detail to surface in candidate summaries; it defaults to false. An optional boolean `candidate` controls whether the subject participates in objective evaluation; it defaults to true for compatibility with existing candidate packs. Reference metadata in the default world model sets it to false, so concepts, citations, and package catalogues do not become candidates in unrelated comparisons. The loader attaches imported-claim provenance and the pack ID to every attribute.
+Each attribute has a `subject`, an attribute `name`, a typed `value`, and its original `sourceText`. An optional boolean `summary` marks a curated detail to surface in candidate summaries; it defaults to false. An optional boolean `candidate` controls whether the subject participates in objective evaluation; it defaults to true for compatibility with existing candidate packs. Foundational concepts, citations, and software catalogues no longer use candidate attributes; they live in the typed semantic world model. Task-specific candidate packs use the `candidate` flag to control which candidate subjects participate in objective evaluation. The loader attaches imported-claim provenance and the pack ID to every attribute.
 
 Supported value forms:
 
