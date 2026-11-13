@@ -438,13 +438,32 @@ internal static class SemanticWorldModelResponder
         var objectPhrase = relation.ObjectRole is null
             ? $"the {target.Label}"
             : $"{Indefinite(target.Label)} {target.Label} {relation.ObjectRole}";
-        return $"{prefix} {relation.Verb} {objectPhrase}.";
+        var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
+            ? InflectPluralSubjectVerb(relation.Verb)
+            : relation.Verb;
+        return $"{prefix} {verb} {objectPhrase}.";
     }
 
     private static string FormatRelationTarget(SemanticRelationDefinition relation, string targetLabel) =>
         relation.ObjectRole is null
             ? $"{relation.Verb} {Indefinite(targetLabel)} {targetLabel}"
             : $"{relation.Verb} {Indefinite(targetLabel)} {targetLabel} {relation.ObjectRole}";
+
+    private static string InflectPluralSubjectVerb(string verbPhrase)
+    {
+        var separator = verbPhrase.IndexOf(' ');
+        var verb = separator < 0 ? verbPhrase : verbPhrase[..separator];
+        var remainder = separator < 0 ? string.Empty : verbPhrase[separator..];
+        var baseVerb = verb switch
+        {
+            "has" => "have",
+            "does" => "do",
+            _ when verb.EndsWith("ies", StringComparison.Ordinal) => $"{verb[..^3]}y",
+            _ when verb.EndsWith("s", StringComparison.Ordinal) => verb[..^1],
+            _ => verb
+        };
+        return $"{baseVerb}{remainder}";
+    }
 
     private static string JoinConditions(IReadOnlyList<string> phrases) =>
         phrases.Count switch
@@ -481,7 +500,8 @@ internal static class SemanticWorldModelResponder
                 LatticeKnowledgeSourceKind.ImportedClaim,
                 source.SourceText,
                 source.SourceId,
-                null)).ToImmutableArray(),
+                null,
+                source.SourceUrl)).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty);
 
     private static bool Fail(
