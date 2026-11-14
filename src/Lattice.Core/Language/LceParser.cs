@@ -368,6 +368,11 @@ public sealed class LceParser
             return TextParseResult.Success(ImmutableArray.Create(familySetCompletion!));
         }
 
+        if (ActivitySelectionParser.TryParse(source, out var activitySelection))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(activitySelection!));
+        }
+
         if (SemanticWorldModelQuestionParser.TryParse(source, out var semanticQuestion))
         {
             return TextParseResult.Success(ImmutableArray.Create(semanticQuestion!));

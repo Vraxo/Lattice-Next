@@ -15,7 +15,7 @@
     "dolly": 30,
     "oasst1": 4,
     "wildchat": 0,
-    "substantive_answer_reviewed": 11
+    "substantive_answer_reviewed": 17
   },
   "records": [
     {
@@ -301,7 +301,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-014",
@@ -317,7 +317,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-015",
@@ -349,7 +349,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-017",
@@ -429,7 +429,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": true
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-022",
@@ -445,7 +445,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-023",
@@ -461,7 +461,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-024",
@@ -477,7 +477,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-025",
@@ -493,7 +493,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-026",

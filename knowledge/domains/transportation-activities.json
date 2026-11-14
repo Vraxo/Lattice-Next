@@ -392,6 +392,11 @@
       "id": "driving-distraction-example",
       "label": "possible distraction while driving",
       "kind": "Individual"
+    },
+    {
+      "id": "transportation",
+      "label": "transportation",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -794,6 +799,11 @@
       "form": "distraction while driving",
       "concept": "driving-distraction",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "transportation",
+      "concept": "transportation",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -1144,6 +1154,12 @@
     },
     {
       "concept": "driving-distraction",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "transportation",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1704,6 +1720,16 @@
       "subject": "driving-distraction-example",
       "relation": "affects",
       "object": "person"
+    },
+    {
+      "subject": "transportation",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "transportation-activity",
+      "relation": "is-a",
+      "object": "transportation"
     }
   ],
   "dataProperties": [],
