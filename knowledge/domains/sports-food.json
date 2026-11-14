@@ -543,9 +543,13 @@
     },
     {
       "concept": "golf-equipment-company",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "makes-equipment-for",
+        "targetType": "golf"
+      }
     }
   ],
   "relationAssertions": [
@@ -683,31 +687,6 @@
       "subject": "dirty-dozen-list",
       "relation": "instance-of",
       "object": "annual-produce-list"
-    },
-    {
-      "subject": "titleist",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
-    },
-    {
-      "subject": "callaway",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
-    },
-    {
-      "subject": "taylormade",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
-    },
-    {
-      "subject": "ping",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
-    },
-    {
-      "subject": "cobra-golf",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
     },
     {
       "subject": "albatross",
