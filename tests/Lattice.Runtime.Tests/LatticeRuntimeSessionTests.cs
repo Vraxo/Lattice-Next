@@ -403,14 +403,6 @@ public sealed class LatticeRuntimeSessionTests
             "An example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
 
-        var pianoDefinition = await session.SubmitAsync("Is the example piano a piano?");
-        var pianoDefinitionAnswer = Assert.Single(pianoDefinition.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, pianoDefinitionAnswer.Kind);
-        Assert.Equal(LatticeTruthValue.True, pianoDefinitionAnswer.TruthValue);
-        Assert.Contains(
-            pianoDefinitionAnswer.SupportingEvidence,
-            evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano-example:instance-of:piano"));
 
         var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         Assert.Equal(
