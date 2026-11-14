@@ -425,16 +425,19 @@
         "earth-rotation",
         "day-night-cycle",
         "sunset",
-        "sunlight"
+        "sunlight",
+        "time-of-day",
+        "nighttime"
       ],
       "relations": [
         "rotates-on-axis",
         "causes-day-night-cycle",
         "explains-sunset",
+        "produces-apparent-motion",
         "illuminates",
-        "emits-solar-radiation"
+        "marks-start-of"
       ],
-      "limitations": "The model connects Earth's rotation, sunlight, day/night, and apparent sunset."
+      "limitations": "The runtime follows sunset to nighttime and derives the apparent setting explanation from Earth's rotation and the day-night cycle. It does not calculate location-specific sunset times or model seasonal, latitude, atmospheric, or polar-day variations."
     },
     {
       "id": "dolly-015",
