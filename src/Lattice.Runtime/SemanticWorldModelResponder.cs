@@ -257,9 +257,20 @@ internal static class SemanticWorldModelResponder
         }
 
         var processNames = processes
-            .Select(process => process.Label.StartsWith($"{subjectType.Label} ", StringComparison.OrdinalIgnoreCase)
-                ? process.Label[(subjectType.Label.Length + 1)..]
-                : process.Label)
+            .Select(process =>
+            {
+                var processTypes = reasoner.GetTypes(process.Id);
+                var specificType = processTypes
+                    .Where(candidate => !processTypes.Any(other =>
+                        other != candidate && reasoner.IsSubtypeOf(other, candidate)))
+                    .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
+                    .FirstOrDefault(type => type is not null);
+
+                return specificType?.Label ??
+                    (process.Label.StartsWith($"{subjectType.Label} ", StringComparison.OrdinalIgnoreCase)
+                        ? process.Label[(subjectType.Label.Length + 1)..]
+                        : process.Label);
+            })
             .ToArray();
         var subjectLabel = Pluralize(subjectType.Label);
         message = $"{Capitalize(subjectLabel)} can survive periods without drinking water because their water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
