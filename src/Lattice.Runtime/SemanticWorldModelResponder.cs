@@ -48,6 +48,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainEventOutcome(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.HighestPointQuery =>
                 TryHighestPointQuery(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.IngredientListQuery =>
+                TryListIngredients(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
                 TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
@@ -996,6 +998,86 @@ internal static class SemanticWorldModelResponder
         evidence = ImmutableArray.Create(ToEvidence(
             supported[0].Evidence,
             LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryListIngredients(
+        string dishId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var dish = model.FindConcept(dishId, SemanticConceptKind.Individual);
+        var foodType = model.FindConcept("food", SemanticConceptKind.Type);
+        if (dish is null || foodType is null)
+        {
+            return false;
+        }
+
+        var ingredientRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "has-ingredient" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+            })
+            .Where(candidate =>
+                candidate.Domain is not null &&
+                candidate.Range is not null &&
+                reasoner.IsInstanceOf(dish.Id, candidate.Domain.Id) &&
+                reasoner.IsSubtypeOf(foodType.Id, candidate.Range.Id))
+            .ToArray();
+
+        if (ingredientRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var ingredientRelation = ingredientRelations[0].Relation;
+        var assertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == dish.Id &&
+                assertion.Relation == ingredientRelation.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Ingredient = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Ingredient is not null &&
+                reasoner.IsInstanceOf(candidate.Ingredient.Id, foodType.Id) &&
+                reasoner.IsInstanceOf(candidate.Ingredient.Id, ingredientRelations[0].Range!.Id))
+            .GroupBy(candidate => candidate.Ingredient!.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+
+        if (assertions.Length == 0)
+        {
+            return false;
+        }
+
+        var ingredients = assertions
+            .Select(candidate => candidate.Ingredient!)
+            .ToArray();
+        message =
+            $"Common ingredients of {IndefinitePhrase(dish.Label)} include {JoinNames(ingredients.Select(item => item.Label).ToArray())}.";
+
+        var sources = assertions
+            .Select(candidate => candidate.Assertion.Source)
+            .Concat(reasoner.GetMembershipEvidence(dish.Id, ingredientRelations[0].Domain!.Id))
+            .Concat(ingredients.SelectMany(item =>
+                reasoner.GetMembershipEvidence(item.Id, foodType.Id)))
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 
