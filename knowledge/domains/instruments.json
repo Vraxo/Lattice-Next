@@ -792,6 +792,15 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "actuates-hammer",
+      "domain": "sound-production-mechanism",
+      "range": "hammer-component",
+      "verb": "actuates",
+      "objectRole": "as its hammer",
+      "order": 0,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -1056,7 +1065,7 @@
       "necessaryConditions": [],
       "sufficientExpression": {
         "kind": "some",
-        "relation": "actuates",
+        "relation": "actuates-hammer",
         "targetType": "hammer-component",
         "filler": {
           "kind": "some",
@@ -1586,6 +1595,11 @@
       "subject": "hammer-component",
       "relation": "is-a",
       "object": "physical-component"
+    },
+    {
+      "subject": "piano-action",
+      "relation": "actuates-hammer",
+      "object": "piano-hammers"
     }
   ],
   "dataProperties": [],
