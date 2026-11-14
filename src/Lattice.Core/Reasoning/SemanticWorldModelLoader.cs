@@ -487,6 +487,8 @@ public sealed class SemanticWorldModelLoader
                 !expression.Operands.IsDefaultOrEmpty ||
                 expression.StartRelation is not null ||
                 expression.MinimumLength != 0 ||
+                expression.SourceConnectionRelation is not null ||
+                expression.TargetConnectionRelation is not null ||
                 (expression.Filler is not null &&
                  !ValidateExpression(expression.Filler, depth + 1, ref nodeCount, relations, concepts, restrictions)))
             {
@@ -514,6 +516,10 @@ public sealed class SemanticWorldModelLoader
                 !string.IsNullOrWhiteSpace(expression.TargetType) &&
                 IsType(concepts, expression.TargetType) &&
                 expression.MinimumLength is >= 2 and <= 64 &&
+                ((expression.SourceConnectionRelation is null &&
+                  expression.TargetConnectionRelation is null) ||
+                 (IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
+                  IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
                 expression.Filler is null &&
                 expression.Operands.IsDefaultOrEmpty;
         }
@@ -523,6 +529,8 @@ public sealed class SemanticWorldModelLoader
             expression.StartRelation is not null ||
             expression.TargetType is not null ||
             expression.MinimumLength != 0 ||
+            expression.SourceConnectionRelation is not null ||
+            expression.TargetConnectionRelation is not null ||
             expression.Filler is not null ||
             expression.Operands.IsDefault ||
             expression.Operands.Length < 2)
@@ -836,6 +844,16 @@ public sealed class SemanticWorldModelLoader
         return true;
     }
 
+    private static bool IsValidConnectionRelation(
+        string? relationId,
+        IReadOnlyDictionary<string, SemanticRelationDefinition> relations) =>
+        !string.IsNullOrWhiteSpace(relationId) &&
+        relations.TryGetValue(relationId, out var relation) &&
+        relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+        relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+        relation.DomainType is not null &&
+        relation.RangeType is not null;
+
     private static bool IsExpressionWellTyped(
         SemanticClassExpression expression,
         string subjectType,
@@ -863,12 +881,41 @@ public sealed class SemanticWorldModelLoader
                 IsSubtype(model, subjectType, startRelation.DomainType) &&
                 IsSubtype(model, expression.TargetType!, startRelation.RangeType) &&
                 IsSubtype(model, expression.TargetType!, traversalRelation.DomainType) &&
-                IsSubtype(model, expression.TargetType!, traversalRelation.RangeType);
+                IsSubtype(model, expression.TargetType!, traversalRelation.RangeType) &&
+                AreConnectionRelationsWellTyped(expression, model);
         }
 
         return expression.Kind is SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or &&
             expression.Operands.All(operand =>
                 IsExpressionWellTyped(operand, subjectType, model));
+    }
+
+    private static bool AreConnectionRelationsWellTyped(
+        SemanticClassExpression expression,
+        SemanticWorldModel model)
+    {
+        if (expression.SourceConnectionRelation is null &&
+            expression.TargetConnectionRelation is null)
+        {
+            return true;
+        }
+
+        if (expression.SourceConnectionRelation is null ||
+            expression.TargetConnectionRelation is null)
+        {
+            return false;
+        }
+
+        var source = model.FindRelation(expression.SourceConnectionRelation)!;
+        var target = model.FindRelation(expression.TargetConnectionRelation)!;
+        return source.DomainType is not null &&
+            source.RangeType is not null &&
+            target.DomainType is not null &&
+            target.RangeType is not null &&
+            IsSubtype(model, expression.TargetType!, source.DomainType) &&
+            IsSubtype(model, expression.TargetType!, target.DomainType) &&
+            (IsSubtype(model, source.RangeType, target.RangeType) ||
+             IsSubtype(model, target.RangeType, source.RangeType));
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
