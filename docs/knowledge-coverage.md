@@ -26,15 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #223's tested head `3420b66897f9d688b905620807a4396f93245c7a`:
+The latest fully executed integrated run is PR #220's head `4d5f36126420a0b776407ba834ad9ac894cf88f0` (CI run 846):
 
 - .NET build: passed
-- .NET tests: 918 passed, 0 failed
+- .NET tests: 921 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 15 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
-- Average latency: 262 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 16 substantive answers, 18 answered, 19 handled, 15 unhandled, 0 runner errors
+- Average latency: 313 ms (single run; stability not measured)
 
-The runtime benchmark score is **15/34 (44.1%)**. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
+The runtime benchmark score is **16/34 (47.1%)**, up from 15/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer. All 16 reviewed records in this run meet those criteria.
+
+Dolly-025's answer was inspected in the benchmark artifact: it lists eight modeled ingredients and cites all eight `has-ingredient` assertions, plus the dish's inherited dish membership and each ingredient's food membership. It is framed as common components, not a mandatory recipe.
 
 ## Cross-domain structure
 
