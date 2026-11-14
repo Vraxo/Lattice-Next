@@ -610,10 +610,7 @@ internal static class SemanticWorldModelResponder
                 relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
                 relation.Verb.EndsWith(" by", StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(
-                    relation.Verb[3..^3].Trim(),
-                    activeVerb,
-                    StringComparison.OrdinalIgnoreCase))
+                MatchesActiveVerb(relation.Verb[3..^3].Trim(), activeVerb))
             .ToArray();
         if (matchingRelations.Length != 1)
         {
@@ -633,7 +630,7 @@ internal static class SemanticWorldModelResponder
         if (!hasRequestedType)
         {
             var agents = assertions
-                .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
                 .Where(agent => agent is not null)
                 .DistinctBy(agent => agent!.Id)
                 .ToArray();
@@ -718,6 +715,36 @@ internal static class SemanticWorldModelResponder
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static bool MatchesActiveVerb(string relationVerb, string activeVerb)
+    {
+        if (string.Equals(relationVerb, activeVerb, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (relationVerb.EndsWith("ied", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                relationVerb[..^3] + "y",
+                activeVerb,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (relationVerb.EndsWith("ed", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                    relationVerb[..^2],
+                    activeVerb,
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(
+                    relationVerb[..^1],
+                    activeVerb,
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
     }
 
     private static string Pluralize(string value)
