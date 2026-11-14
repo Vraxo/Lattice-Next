@@ -709,15 +709,6 @@
       "comparisonPriority": 0
     },
     {
-      "id": "supplies-air-to",
-      "domain": "physical-component",
-      "range": "free-reed-component",
-      "verb": "supplies air to",
-      "objectRole": null,
-      "order": 1,
-      "comparisonPriority": 0
-    },
-    {
       "id": "vibrates-to-produce",
       "domain": "physical-component",
       "range": "sound-event",
@@ -1071,11 +1062,6 @@
       "object": "harmonium-reeds"
     },
     {
-      "subject": "harmonium-bellows",
-      "relation": "supplies-air-to",
-      "object": "harmonium-reeds"
-    },
-    {
       "subject": "harmonium-keyboard",
       "relation": "opens-valves-for",
       "object": "harmonium-action"
@@ -1098,11 +1084,6 @@
     {
       "subject": "accordion-action",
       "relation": "directs-air-through",
-      "object": "accordion-reeds"
-    },
-    {
-      "subject": "accordion-bellows",
-      "relation": "supplies-air-to",
       "object": "accordion-reeds"
     },
     {
