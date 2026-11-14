@@ -46,6 +46,8 @@ internal static class SemanticWorldModelResponder
                     out evidence),
             SemanticWorldModelQuestionKind.EventOutcomeExplanation =>
                 TryExplainEventOutcome(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.HighestPointQuery =>
+                TryHighestPointQuery(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
                 TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
@@ -199,6 +201,132 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryHighestPointQuery(
+        string regionId,
+        string featureTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var region = model.FindConcept(regionId, SemanticConceptKind.Individual);
+        var featureType = model.FindConcept(featureTypeId, SemanticConceptKind.Type);
+        var highestRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "highest-point-of" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+            })
+            .Where(candidate => candidate.Domain is not null && candidate.Range is not null)
+            .ToArray();
+
+        if (region is null ||
+            featureType is null ||
+            highestRelations.Length != 1 ||
+            !reasoner.IsSubtypeOf(featureType.Id, highestRelations[0].Domain!.Id) ||
+            !reasoner.IsInstanceOf(region.Id, highestRelations[0].Range!.Id))
+        {
+            return false;
+        }
+
+        var highestRelation = highestRelations[0].Relation;
+        var highestAssertion = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == highestRelation.Id &&
+                assertion.Object == region.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Feature = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Feature is not null &&
+                reasoner.IsInstanceOf(candidate.Feature.Id, featureType.Id))
+            .ToArray();
+        if (highestAssertion.Length != 1)
+        {
+            return false;
+        }
+
+        var peak = highestAssertion[0].Feature!;
+        var sources = new List<SemanticWorldModelSource>
+        {
+            highestAssertion[0].Assertion.Source
+        };
+        sources.AddRange(reasoner.GetMembershipEvidence(peak.Id, featureType.Id));
+        sources.AddRange(reasoner.GetMembershipEvidence(region.Id, highestRelations[0].Range!.Id));
+
+        var partOfRelations = model.Relations
+            .Where(relation => relation.Id == "part-of-geographic-region")
+            .ToArray();
+        var contiguousRegionType = model.FindConcept("contiguous-region", SemanticConceptKind.Type);
+        if (partOfRelations.Length == 1 && contiguousRegionType is not null)
+        {
+            var subregions = model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Relation == partOfRelations[0].Id &&
+                    assertion.Object == region.Id)
+                .Select(assertion => new
+                {
+                    Assertion = assertion,
+                    Region = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+                })
+                .Where(candidate =>
+                    candidate.Region is not null &&
+                    reasoner.IsInstanceOf(candidate.Region.Id, contiguousRegionType.Id))
+                .ToArray();
+
+            if (subregions.Length == 1)
+            {
+                var subregion = subregions[0].Region!;
+                var subregionHighest = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Relation == highestRelation.Id &&
+                        assertion.Object == subregion.Id)
+                    .Select(assertion => new
+                    {
+                        Assertion = assertion,
+                        Feature = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+                    })
+                    .Where(candidate =>
+                        candidate.Feature is not null &&
+                        reasoner.IsInstanceOf(candidate.Feature.Id, featureType.Id))
+                    .ToArray();
+
+                if (subregionHighest.Length == 1 &&
+                    subregionHighest[0].Feature!.Id != peak.Id)
+                {
+                    var subregionPeak = subregionHighest[0].Feature!;
+                    message =
+                        $"{peak.Label} is the tallest {featureType.Label} in the {region.Label}. " +
+                        $"If you mean the {subregion.Label}, {subregionPeak.Label} is the tallest {featureType.Label} there.";
+                    sources.Add(subregions[0].Assertion.Source);
+                    sources.Add(subregionHighest[0].Assertion.Source);
+                    sources.AddRange(reasoner.GetMembershipEvidence(subregion.Id, contiguousRegionType.Id));
+                    sources.AddRange(reasoner.GetMembershipEvidence(subregionPeak.Id, featureType.Id));
+                }
+            }
+        }
+
+        if (message.Length == 0)
+        {
+            message = $"{peak.Label} is the tallest {featureType.Label} in the {region.Label}.";
+        }
+
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryExplainEventOutcome(
