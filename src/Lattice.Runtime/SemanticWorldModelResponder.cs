@@ -267,19 +267,17 @@ internal static class SemanticWorldModelResponder
             regionRelation.DomainType is null ||
             regionRelation.RangeType is null ||
             sportRelation.DomainType is null ||
-            sportRelation.RangeType is null ||
             scoreRelation.DomainType is null ||
             scoreRelation.RangeType is null ||
             !reasoner.IsSubtypeOf(regionalRelation.DomainType, "golf-scoring-term") ||
             !reasoner.IsSubtypeOf(regionalRelation.RangeType, "golf-scoring-term") ||
             !reasoner.IsSubtypeOf(regionRelation.DomainType, "golf-scoring-term") ||
             !reasoner.IsSubtypeOf(sportRelation.DomainType, "golf-scoring-term") ||
-            !reasoner.IsSubtypeOf(sportRelation.RangeType, "sport") ||
             !reasoner.IsSubtypeOf(scoreRelation.DomainType, "golf-scoring-term") ||
             !reasoner.IsSubtypeOf(scoreRelation.RangeType, "score-meaning") ||
             !reasoner.IsInstanceOf(term.Id, regionalRelation.RangeType) ||
             !reasoner.IsInstanceOf(term.Id, sportRelation.DomainType) ||
-            !reasoner.IsSubtypeOf(sport.Id, sportRelation.RangeType) ||
+            !reasoner.IsSubtypeOf(sport.Id, "sport") ||
             !reasoner.IsInstanceOf(region.Id, regionRelation.RangeType))
         {
             return false;
