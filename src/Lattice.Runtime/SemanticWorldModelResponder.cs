@@ -404,6 +404,8 @@ internal static class SemanticWorldModelResponder
 
         var matchingRelations = model.Relations
             .Where(relation =>
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
                 relation.Verb.EndsWith(" by", StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(
@@ -411,21 +413,19 @@ internal static class SemanticWorldModelResponder
                     activeVerb,
                     StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        if (matchingRelations.Length == 0)
+        if (matchingRelations.Length != 1)
         {
             return false;
         }
 
-        var relationIds = matchingRelations
-            .Select(relation => relation.Id)
-            .ToHashSet(StringComparer.Ordinal);
+        var relationId = matchingRelations[0].Id;
         var assertions = model.RelationAssertions
             .Where(assertion =>
-                assertion.Object == target.Id &&
-                relationIds.Contains(assertion.Relation))
+                assertion.Subject == target.Id &&
+                assertion.Relation == relationId)
             .ToArray();
         var agents = assertions
-            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
             .Where(agent => agent is not null)
             .DistinctBy(agent => agent!.Id)
             .ToArray();
