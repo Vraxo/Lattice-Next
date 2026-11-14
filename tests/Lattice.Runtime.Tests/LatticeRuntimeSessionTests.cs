@@ -165,8 +165,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(237, status.SemanticConceptCount);
-        Assert.Equal(57, status.SemanticRelationCount);
+        Assert.Equal(246, status.SemanticConceptCount);
+        Assert.Equal(59, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -177,6 +177,25 @@ public sealed class LatticeRuntimeSessionTests
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
+    }
+
+    [Fact]
+    public async Task Explains_an_ability_from_subject_adaptations_and_enabled_ability_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive for long without water?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("water-conserving kidneys", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("water-extracting digestive system", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("nasal passages", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("dehydration", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(answer.SupportingEvidence, evidence =>
+            evidence.Sources.Any(source =>
+                source.SourceId.Contains("animal-survival", StringComparison.Ordinal)));
     }
 
     [Fact]
