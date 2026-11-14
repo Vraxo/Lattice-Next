@@ -464,7 +464,8 @@ internal static class SemanticWorldModelResponder
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
 
-        if (resource is not ("land" or "property" or "site") ||
+        var resourceType = model.FindConcept(resource, SemanticConceptKind.Type);
+        if (resourceType is null ||
             facility is not ("headquarters" or "hq"))
         {
             return false;
@@ -493,7 +494,9 @@ internal static class SemanticWorldModelResponder
                 assertion.Relation == "situated-in" &&
                 assertion.Object == location.Id)
             .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
-            .Where(site => site is not null && reasoner.IsInstanceOf(site.Id, "site"))
+            .Where(site => site is not null &&
+                reasoner.IsInstanceOf(site.Id, "site") &&
+                reasoner.IsInstanceOf(site.Id, resourceType.Id))
             .DistinctBy(site => site!.Id)
             .ToArray();
         if (sites.Length != 1)
