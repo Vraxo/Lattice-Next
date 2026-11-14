@@ -34,6 +34,77 @@ internal static class SemanticWorldModelResponder
         };
     }
 
+    internal static bool TryRespond(
+        SemanticRelationQueryFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(reasoner);
+
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var subject = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        if (subject is null)
+        {
+            return false;
+        }
+
+        var matchingRelations = model.Relations
+            .Where(relation => MatchesVerb(relation.Verb, request.Verb))
+            .ToArray();
+        if (matchingRelations.Length == 0)
+        {
+            return false;
+        }
+
+        var matches = matchingRelations
+            .SelectMany(relation => reasoner.GetRelations(subject.Id, relation.Id)
+                .Select(assertion => (Relation: relation, Assertion: assertion)))
+            .Select(match => (
+                match.Relation,
+                Target: model.FindConcept(match.Assertion.Object, SemanticConceptKind.Individual),
+                match.Assertion.Source))
+            .Where(match => match.Target is not null)
+            .ToArray();
+        if (matches.Length == 0)
+        {
+            return false;
+        }
+
+        var relation = matches[0].Relation;
+        var targets = matches
+            .Select(match => match.Target!)
+            .DistinctBy(target => target.Id)
+            .ToArray();
+        var verb = relation.Verb;
+        var targetPhrase = JoinNames(targets.Select(target => $"the {target.Label}").ToArray());
+        message = $"The {subject.Label} {verb} {targetPhrase}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            matches.Select(match => match.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool MatchesVerb(string relationVerb, string requestedVerb)
+    {
+        var relationHead = relationVerb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];
+        var requested = SemanticWorldModel.Normalize(requestedVerb);
+        var baseVerb = relationHead switch
+        {
+            "has" => "have",
+            "does" => "do",
+            _ when relationHead.EndsWith("ies", StringComparison.Ordinal) => $"{relationHead[..^3]}y",
+            _ when relationHead.EndsWith("s", StringComparison.Ordinal) => relationHead[..^1],
+            _ => relationHead
+        };
+
+        return string.Equals(baseVerb, requested, StringComparison.Ordinal);
+    }
+
     internal static bool TryDefinition(
         string concept,
         SemanticWorldModel model,
