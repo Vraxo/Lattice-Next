@@ -7,6 +7,55 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Answers_common_ingredient_queries_through_typed_relation_lookup()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are common ingredients of a full english breakfast?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "A full English breakfast has egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-relation(full-english-breakfast, has, any, target-type=ingredient))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:egg", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":egg:instance-of:ingredient", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:black-pudding", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_ingredients_for_unknown_dishes_or_unmatched_types()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unknownDish = await session.SubmitAsync(
+            "What are common ingredients of a moon sandwich?");
+        var unsupportedType = await session.SubmitAsync(
+            "What are common minerals of a full english breakfast?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unknownDish.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedType.Utterances).Kind);
+    }
+
+    [Fact]
     public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
     {
         var client = new LatticeRuntimeClient();
