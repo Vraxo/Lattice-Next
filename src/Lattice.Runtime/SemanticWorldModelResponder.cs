@@ -510,9 +510,8 @@ internal static class SemanticWorldModelResponder
             }
 
             var pathSentences = path
-                .Select(step =>
+                .Select(assertion =>
                 {
-                    var assertion = step.Assertion;
                     var relation = model.FindRelation(assertion.Relation);
                     var first = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
                     var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
