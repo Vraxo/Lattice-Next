@@ -6,4 +6,5 @@ public sealed record SemanticClassExpression(
     SemanticClassExpressionKind Kind,
     string? Relation = null,
     string? TargetType = null,
-    ImmutableArray<SemanticClassExpression> Operands = default);
+    ImmutableArray<SemanticClassExpression> Operands = default,
+    SemanticClassExpression? Filler = null);
