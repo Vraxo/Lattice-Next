@@ -837,6 +837,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             LatticeUtteranceResultKind.QuestionAnswered,
             message,
             meaning,
+            TruthValue: question.Kind == SemanticWorldModelQuestionKind.Membership
+                ? LatticeTruthValue.True
+                : null,
             SupportingEvidence: evidence);
     }
 
