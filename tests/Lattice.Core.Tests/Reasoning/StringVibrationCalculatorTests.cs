@@ -22,7 +22,7 @@ public sealed class StringVibrationCalculatorTests
     public void Calculates_fundamental_when_harmonic_number_is_one()
     {
         var success = StringVibrationCalculator.TryCalculateIdealStringVibration(
-            80m, 0.02m, 0.4m, 1, out var result, out var error);
+            80m, 0.05m, 0.4m, 1, out var result, out var error);
 
         Assert.True(success, error);
         Assert.NotNull(result);
