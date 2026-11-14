@@ -44,6 +44,8 @@ internal static class SemanticWorldModelResponder
                     reasoner,
                     out message,
                     out evidence),
+            SemanticWorldModelQuestionKind.ImpactExplanation =>
+                TryExplainImpact(request.Subject, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
@@ -195,6 +197,98 @@ internal static class SemanticWorldModelResponder
         return IndefinitePhrase(type.Label);
     }
 
+    private static bool TryExplainImpact(
+        string subjectTypeId,
+        string targetTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var subjectType = model.FindConcept(subjectTypeId, SemanticConceptKind.Type);
+        var targetType = model.FindConcept(targetTypeId, SemanticConceptKind.Type);
+        if (subjectType is null ||
+            targetType is null ||
+            !reasoner.IsSubtypeOf(subjectType.Id, "communication-device") ||
+            !(targetType.Id == "person" || reasoner.IsSubtypeOf(targetType.Id, "person")))
+        {
+            return false;
+        }
+
+        var targetEffects = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == "affects" &&
+                (assertion.Object == targetType.Id || reasoner.IsSubtypeOf(targetType.Id, assertion.Object)))
+            .Select(assertion => assertion.Subject)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (targetEffects.Count == 0)
+        {
+            return false;
+        }
+
+        var devices = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, subjectType.Id))
+            .ToArray();
+        var contributions = devices
+            .SelectMany(device => reasoner.GetRelations(device.Id, "may-contribute-to"))
+            .Where(assertion =>
+                targetEffects.Contains(assertion.Object) &&
+                reasoner.IsInstanceOf(assertion.Object, "effect"))
+            .DistinctBy(assertion => assertion.Object)
+            .ToArray();
+        if (contributions.Length == 0)
+        {
+            return false;
+        }
+
+        var effects = contributions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(effect => effect is not null)
+            .Select(effect => effect!)
+            .ToArray();
+        if (effects.Length == 0)
+        {
+            return false;
+        }
+
+        var effectNames = effects
+            .Select(effect => GetMostSpecificTypeLabel(effect.Id, effect.Label, model, reasoner))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var deviceIds = contributions
+            .Select(assertion => assertion.Subject)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var relevantEffectIds = contributions
+            .Select(assertion => assertion.Object)
+            .ToHashSet(StringComparer.Ordinal);
+        var targetAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == "affects" &&
+                relevantEffectIds.Contains(assertion.Subject) &&
+                (assertion.Object == targetType.Id || reasoner.IsSubtypeOf(targetType.Id, assertion.Object)))
+            .ToArray();
+        var sources = contributions
+            .Select(assertion => assertion.Source)
+            .Concat(targetAssertions.Select(assertion => assertion.Source))
+            .Concat(deviceIds.SelectMany(deviceId =>
+                reasoner.GetMembershipEvidence(deviceId, subjectType.Id)))
+            .Distinct()
+            .ToImmutableArray();
+
+        var subjectName = Pluralize(subjectType.Label);
+        var targetName = targetType.Id == "person" ? "people" : Pluralize(targetType.Label);
+        message = $"{Capitalize(subjectName)} are not inherently bad for {targetName}. They may contribute to {JoinNames(effectNames)}. These are possible effects, not inevitable outcomes; the impact depends on how and when the phone is used.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     private static bool TryExplainCapability(
         string requestedSubject,
         string requestedCapability,
@@ -257,20 +351,13 @@ internal static class SemanticWorldModelResponder
         }
 
         var processNames = processes
-            .Select(process =>
-            {
-                var processTypes = reasoner.GetTypes(process.Id);
-                var specificType = processTypes
-                    .Where(candidate => !processTypes.Any(other =>
-                        other != candidate && reasoner.IsSubtypeOf(other, candidate)))
-                    .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
-                    .FirstOrDefault(type => type is not null);
-
-                return specificType?.Label ??
-                    (process.Label.StartsWith($"{subjectType.Label} ", StringComparison.OrdinalIgnoreCase)
-                        ? process.Label[(subjectType.Label.Length + 1)..]
-                        : process.Label);
-            })
+            .Select(process => GetMostSpecificTypeLabel(
+                process.Id,
+                process.Label.StartsWith($"{subjectType.Label} ", StringComparison.OrdinalIgnoreCase)
+                    ? process.Label[(subjectType.Label.Length + 1)..]
+                    : process.Label,
+                model,
+                reasoner))
             .ToArray();
         var subjectLabel = Pluralize(subjectType.Label);
         message = $"{Capitalize(subjectLabel)} can survive periods without drinking water because their water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
@@ -756,6 +843,22 @@ internal static class SemanticWorldModelResponder
         }
 
         return false;
+    }
+
+    private static string GetMostSpecificTypeLabel(
+        string individualId,
+        string fallback,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner)
+    {
+        var types = reasoner.GetTypes(individualId);
+        var specificType = types
+            .Where(candidate => !types.Any(other =>
+                other != candidate && reasoner.IsSubtypeOf(other, candidate)))
+            .Select(type => model.FindConcept(type, SemanticConceptKind.Type))
+            .FirstOrDefault(type => type is not null);
+
+        return specificType?.Label ?? fallback;
     }
 
     private static string Pluralize(string value)
