@@ -1062,13 +1062,7 @@
     {
       "concept": "piano-hammer-action",
       "definitionKind": "primitive",
-      "necessaryConditions": [
-        {
-          "kind": "some",
-          "relation": "actuates-hammer",
-          "targetType": "hammer-component"
-        }
-      ],
+      "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
