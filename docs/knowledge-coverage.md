@@ -26,14 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is the PR #208 head, before the later stacked changes in PRs #209–#211:
+The latest fully executed integrated run is PR #212's head `aadf0acb20fe1c53e0371662343d9bfaac640c5d`:
 
-- .NET test suite: 887 passed, 0 failed
+- .NET build: passed
+- .NET tests: 900 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 9 handled, 25 unhandled, 0 runner errors
-- Average latency: 334 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 8 substantive answers, 11 answered, 12 handled, 22 unhandled, 0 runner errors
+- Average latency: 322 ms (single run; stability not measured)
 
-The stacked PRs #209–#212 have not yet had an integrated .NET test run, external Python test run, or full benchmark run. PR #212 adds end-to-end tests for contextual family-set completion, but they remain unverified until CI completes. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is executed and the new response is reviewed. Ontology coverage counts above are not runtime capability scores.
+Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. The separate `substantive_answer_reviewed` metadata count is 9; it is a review count, not a runtime capability score.
 
 ## Cross-domain structure
 
