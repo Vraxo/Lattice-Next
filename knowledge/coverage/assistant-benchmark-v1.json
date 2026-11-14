@@ -697,7 +697,7 @@
       "relations": [
         "has-ingredient"
       ],
-      "limitations": "Common ingredients are represented; regional variations remain possible."
+      "limitations": "The generic common-typed-relation question form resolves the dish and ingredient type, then returns only asserted has-ingredient targets that are typed as ingredients. The output includes the supporting ingredient memberships and relation assertions; unknown dishes or unmatched target types are not guessed."
     },
     {
       "id": "dolly-026",
