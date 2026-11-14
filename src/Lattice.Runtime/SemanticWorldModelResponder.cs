@@ -220,8 +220,8 @@ internal static class SemanticWorldModelResponder
 
         var matchingRelations = model.Relations
             .Where(relation =>
-                relation.SubjectKind == SemanticConceptKind.Individual &&
-                relation.ObjectKind == SemanticConceptKind.Individual &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
                 relation.Verb.EndsWith(" by", StringComparison.OrdinalIgnoreCase) &&
                 MatchesActiveVerb(relation.Verb[3..^3].Trim(), activeVerb))
