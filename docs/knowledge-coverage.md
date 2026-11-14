@@ -11,29 +11,30 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 545 concepts: 313 types and 232 individuals
+- 548 concepts: 315 types and 233 individuals
 - 133 relation signatures
-- 822 graph assertions
-- 544 lexical forms
+- 826 graph assertions
+- 545 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
 - 16 represented at the ontology level
-- 16 partially represented
-- 2 not represented as static ontology knowledge
+- 17 partially represented
+- 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is the PR #208 head, before the later stacked changes in PRs #209–#211:
+The latest fully executed integrated run is PR #212's head `aadf0acb20fe1c53e0371662343d9bfaac640c5d`:
 
-- .NET test suite: 887 passed, 0 failed
+- .NET build: passed
+- .NET tests: 900 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 9 handled, 25 unhandled, 0 runner errors
-- Average latency: 334 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 8 substantive answers, 11 answered, 12 handled, 22 unhandled, 0 runner errors
+- Average latency: 322 ms (single run; stability not measured)
 
-The current PR #211 stack has not had its .NET tests, external Python tests, or full benchmark executed. Its new end-to-end test is added but unverified. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is actually run and the responses are reviewed. Ontology coverage counts above are not runtime capability scores.
+Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. The separate `substantive_answer_reviewed` metadata count is 9; it is a review count, not a runtime capability score.
 
 ## Cross-domain structure
 
