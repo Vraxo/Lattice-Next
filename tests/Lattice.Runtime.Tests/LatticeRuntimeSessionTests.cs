@@ -778,7 +778,7 @@ public sealed class LatticeRuntimeSessionTests
         var utterance = Assert.Single(turn.Utterances);
 
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The piano hammers strikes the piano strings.", utterance.Message);
+        Assert.Equal("The piano hammers strike the piano strings.", utterance.Message);
         Assert.Equal(
             "ask(relation-sources(piano-strings, strikes))",
             utterance.Meaning);
