@@ -788,11 +788,12 @@ internal static class SemanticWorldModelResponder
 
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
         {
+            var start = model.FindRelation(expression.StartRelation!);
             var traversal = model.FindRelation(expression.Relation!);
             var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
-            return traversal is null || target is null
+            return start is null || traversal is null || target is null
                 ? null
-                : $"starts at {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element";
+                : $"{start.Verb} {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element";
         }
 
         var phrases = expression.Operands
