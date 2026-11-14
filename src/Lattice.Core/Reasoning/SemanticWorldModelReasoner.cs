@@ -163,6 +163,11 @@ public sealed class SemanticWorldModelReasoner
 
             bool FindPath(string current, string target)
             {
+                if (path.Count >= 64)
+                {
+                    return false;
+                }
+
                 foreach (var edge in model.RelationAssertions.Where(assertion =>
                     assertion.Subject == current &&
                     assertion.Relation == expression.Relation &&
