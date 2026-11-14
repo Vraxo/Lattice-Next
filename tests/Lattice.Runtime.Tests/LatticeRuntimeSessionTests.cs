@@ -200,11 +200,20 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Theory]
-    [InlineData("Where is the rural hospital located?", "A rural hospital is located in the rural town.", "located-in")]
-    [InlineData("What does the piano string bending response produce?", "A piano string bending response produces the piano string bending deformation.", "produces-deformation")]
+    [InlineData(
+        "Where is the rural hospital located?",
+        "A rural hospital is located in the rural town.",
+        "ask(world-model-relation(rural-hospital, located, any))",
+        "located-in")]
+    [InlineData(
+        "What does the piano string bending response produce?",
+        "A piano string bending response produces the piano string bending deformation.",
+        "ask(world-model-relation(piano-string-bending, produce, any))",
+        "produces-deformation")]
     public async Task Answers_direct_relation_queries_from_relation_signatures(
         string prompt,
         string expectedMessage,
+        string expectedMeaning,
         string relation)
     {
         var client = new LatticeRuntimeClient();
@@ -215,9 +224,7 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(expectedMessage, answer.Message);
-        Assert.Equal(
-            $"ask(world-model-relation({(relation == "located-in" ? "rural-hospital" : "piano-string-bending"), (relation == "located-in" ? "located" : "produce")}, any))",
-            answer.Meaning);
+        Assert.Equal(expectedMeaning, answer.Meaning);
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
