@@ -21,7 +21,7 @@ public sealed class LatticeRuntimeSessionTests
             "A full English breakfast has egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
             answer.Message);
         Assert.Equal(
-            "ask(world-model-relation(full-english-breakfast, has, any, target-type=ingredient))",
+            "ask(world-model-common-relation-list(full-english-breakfast, has, target-type=ingredient))",
             answer.Meaning);
         var evidence = Assert.Single(answer.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
