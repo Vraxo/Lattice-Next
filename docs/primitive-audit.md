@@ -29,7 +29,7 @@ This is an inventory of authored type definitions, not a claim that all 79 primi
 
 ## Current result on this branch
 
-The string decomposition adds three reusable geometry primitives and one defined geometric type, plus two primitive mechanical-behavior concepts and two defined component types. The current composed inventory is **84 primitive types and 26 defined types**: Instruments 18/17 and Geometry 15/5. The baseline table above remains tied to its explicitly stated historical commit.
+The current composed inventory is **89 primitive types and 36 defined types** across eight modules. The mechanics module derives tensile and transverse forces from pulling mode and geometry-relative direction; derives tensile/transverse loads from their force and affected component; then derives a tensioned state, bending deformation, and bending response. Instruments reuse those types to derive a piano string's state and behavior. The original baseline table remains tied to its explicitly stated historical commit.
 
 The piano string example now demonstrates the graph path: its longitudinal extent exceeds its cross-sectional extent; it exhibits a bending response; it is tensioned; it vibrates to produce sound; and it transmits vibration to the soundboard.
 
@@ -59,8 +59,8 @@ The following is a first-pass semantic disposition, not a claim that every liste
 | `woodwind-mechanism` | Candidate; missing structure | Air-column, airflow, and excitation structures (edge, reed, or other embouchure mechanisms). |
 | `physical-component` | Keep for now | A general part/whole and physical-constitution model. The current `contains` relation is not enough to define componenthood without circularity. |
 | `sound-event` | Keep for now | Acoustic properties and propagation: frequency, amplitude, waveform, duration, and medium. |
-| `mechanical-state` | Keep as an abstract state category | State-bearing entities and state/value semantics. |
-| `tensioned-state` | Candidate; missing property representation | A tension/force property or measurable mechanical condition. |\n| `mechanical-behavior` | Keep as an abstract behavior category | More detailed kinematic and force/response semantics are needed to define behavior classes without treating them as labels. |\n| `bending-response` | Keep primitive for now | A formal deformation model must represent geometry, loading, displacement, and elastic recovery before bending can be reduced further. |
+
+\n\n
 | `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |\n| `string-component` | **Decomposed further in this change** | Its defined structure now combines elongated form, bending response, tension, sound-producing vibration, and vibration transfer to a resonator. |
 | `piano-hammer-action` | **Decomposed in this change** | Defined by actuating a hammer component that strikes a string component. The example graph supplies both links. |
 
@@ -91,6 +91,29 @@ The piano decomposition uses the general `actuates` and `strikes` relations. No 
 | `part-of-speech` | Candidate for formalization | Explicit POS subtypes and lexical-item-to-POS classification, rather than an untyped string field alone. |
 
 Existing defined geometry types (`boundary`, `closed-boundary`, `line-segment`, and `polygon`) are useful examples of the intended direction: their definitions use typed boundary elements, endpoints, properties, and topology.
+
+### Mechanics
+
+| Concept | Disposition | What is represented / remaining boundary |
+|---|---|---|
+| `force` | Keep as a physical primitive | A force is modeled as an interaction with direction and mode; magnitude and units are not yet represented. |
+| `force-mode` | Keep as an abstract category | The ontology needs a vocabulary of force/action modes beyond the current pulling mode. |
+| `pulling-mode` | Keep primitive | A directional mode of force application; magnitude and endpoint constraints are not encoded. |
+| `mechanical-state` | Keep as an abstract state category | State/value semantics remain broader than the current load representation. |
+| `mechanical-behavior` | Keep as an abstract behavior category | The model currently represents load-conditioned bending behavior. |
+| `deformation` | Keep as a physical process | Displacement fields, strain, and temporal evolution remain outside the current graph. |
+| `deformation-mode` | Keep as an abstract mode category | Additional modes can be added when their geometry is represented. |
+| `bending-mode` | Keep primitive | Curvature and deflection geometry are not yet formalized. |
+| `mechanical-load` | Defined | A load has a force and acts on a physical component. |
+| `tensile-force` | Defined | A pulling-mode force directed along a longitudinal direction. |
+| `transverse-force` | Defined | A force directed along a transverse direction, perpendicular to a longitudinal direction. |
+| `tensile-load` | Defined | A mechanical load that contains a tensile force and acts on a physical component. |
+| `transverse-load` | Defined | A mechanical load that contains a transverse force and acts on a physical component. |
+| `tensioned-state` | Defined | A mechanical state with a tensile load and associated physical component. |
+| `bending-deformation` | Defined | A deformation with bending mode that deforms a physical component. |
+| `bending-response` | Defined | A mechanical behavior under a transverse load, associated with a physical component, that produces a bending deformation. |
+
+
 
 ### Software
 
@@ -199,7 +222,7 @@ The previous explicit `instance-of piano-hammer-action` and `instance-of piano` 
 ## Recommended implementation order
 
 1. **Instrument mechanics:** define the hammer-action from its actuation path (done here); then model hammer head/shank/attachment and define the hammer assembly. Add reusable plucking, bowing, airflow, and percussion interaction relations before defining those mechanisms.
-2. **Geometry and mechanics:** the first reusable extent/shape and bending-response layer is now modeled. Further work should add quantitative dimensions, aspect-ratio comparisons, material elasticity, force, and loading conditions before attempting stricter physical definitions.
+2. **Geometry and mechanics:** longitudinal/transverse directions, force modes, load application, and qualitative bending deformation are now modeled. Further work should add quantitative force and geometry values, stiffness/compliance, material elasticity, elastic recovery, and identity/temporal constraints before making degree-of-flexibility claims.
 3. **Language:** represent lexical items, senses, grammatical categories, and compositional semantic content as graph structures rather than POS strings and broad taxonomic buckets.
 4. **Economics:** model transactions, employment relationships, opportunities, market membership, and quantitative market properties before defining buyer/seller, employer/worker, concentration, and market power.
 5. **Software:** represent packages, modules, licenses, models, capabilities, and solver/simulation operations before deriving framework categories.

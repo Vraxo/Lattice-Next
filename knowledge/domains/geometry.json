@@ -157,6 +157,21 @@
       "id": "elongated-shape",
       "label": "elongated shape",
       "kind": "Type"
+    },
+    {
+      "id": "geometric-direction",
+      "label": "geometric direction",
+      "kind": "Type"
+    },
+    {
+      "id": "longitudinal-direction",
+      "label": "longitudinal direction",
+      "kind": "Type"
+    },
+    {
+      "id": "transverse-direction",
+      "label": "transverse direction",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -314,6 +329,21 @@
       "form": "elongated shape",
       "concept": "elongated-shape",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric direction",
+      "concept": "geometric-direction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "longitudinal direction",
+      "concept": "longitudinal-direction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transverse direction",
+      "concept": "transverse-direction",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -324,7 +354,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-boundary-element",
@@ -333,7 +365,9 @@
       "verb": "contains",
       "objectRole": null,
       "order": 1,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-topology",
@@ -342,7 +376,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 2,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-start-point",
@@ -351,7 +387,9 @@
       "verb": "has",
       "objectRole": "as its start point",
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-end-point",
@@ -360,7 +398,9 @@
       "verb": "has",
       "objectRole": "as its end point",
       "order": 1,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-geometric-property",
@@ -369,7 +409,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 2,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-longitudinal-extent",
@@ -378,7 +420,9 @@
       "verb": "has longitudinal extent",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "exceeds-in-extent",
@@ -387,7 +431,31 @@
       "verb": "exceeds in extent",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-longitudinal-direction",
+      "domain": "geometric-object",
+      "range": "geometric-direction",
+      "verb": "has longitudinal direction",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "perpendicular-to",
+      "domain": "geometric-direction",
+      "range": "geometric-direction",
+      "verb": "is perpendicular to",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -549,6 +617,28 @@
           "relation": "exceeds-in-extent",
           "targetType": "cross-sectional-extent"
         }
+      }
+    },
+    {
+      "concept": "geometric-direction",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "longitudinal-direction",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "transverse-direction",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "perpendicular-to",
+        "targetType": "longitudinal-direction"
       }
     }
   ],
@@ -787,6 +877,21 @@
       "subject": "elongated-shape",
       "relation": "is-a",
       "object": "geometric-shape"
+    },
+    {
+      "subject": "geometric-direction",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "longitudinal-direction",
+      "relation": "is-a",
+      "object": "geometric-direction"
+    },
+    {
+      "subject": "transverse-direction",
+      "relation": "is-a",
+      "object": "geometric-direction"
     }
   ],
   "dataProperties": [],

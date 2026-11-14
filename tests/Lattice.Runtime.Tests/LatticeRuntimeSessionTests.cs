@@ -165,8 +165,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(213, status.SemanticConceptCount);
-        Assert.Equal(42, status.SemanticRelationCount);
+        Assert.Equal(237, status.SemanticConceptCount);
+        Assert.Equal(55, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -474,6 +474,69 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:transmits-vibration-to:piano-soundboard"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:tensioned-state"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:tensile-load"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:tensile-force"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:transverse-load"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:transverse-force"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:bending-response"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:bending-deformation"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:transverse-direction"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-tension:has-load:piano-string-tensile-load"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-tension:state-of:piano-strings"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-tensile-load:has-force:piano-string-tensile-force"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-tensile-force:force-has-mode:piano-string-pulling-mode"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-tensile-force:force-has-direction:piano-string-longitudinal-direction"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-transverse-direction:perpendicular-to:piano-string-longitudinal-direction"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending:occurs-under-load:piano-string-transverse-load"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending:response-of:piano-strings"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-transverse-load:has-force:piano-string-bending-force"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending-force:force-has-direction:piano-string-transverse-direction"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending:produces-deformation:piano-string-bending-deformation"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending-deformation:has-deformation-mode:piano-string-bending-mode"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-bending-deformation:deforms-component:piano-strings"));
     }
 
     [Fact]
