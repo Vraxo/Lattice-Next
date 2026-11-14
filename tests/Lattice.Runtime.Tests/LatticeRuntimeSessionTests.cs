@@ -210,6 +210,11 @@ public sealed class LatticeRuntimeSessionTests
         "A piano string bending response produces the piano string bending deformation.",
         "ask(world-model-relation(piano-string-bending, produce, any))",
         "produces-deformation")]
+    [InlineData(
+        "What deformation does the piano string bending response produce?",
+        "A piano string bending response produces the piano string bending deformation.",
+        "ask(world-model-relation(piano-string-bending, produce, any, target-type=deformation))",
+        "produces-deformation")]
     public async Task Answers_direct_relation_queries_from_relation_signatures(
         string prompt,
         string expectedMessage,
