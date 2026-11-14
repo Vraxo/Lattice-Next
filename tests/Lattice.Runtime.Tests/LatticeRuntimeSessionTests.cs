@@ -409,6 +409,10 @@ public sealed class LatticeRuntimeSessionTests
             "An example piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
             Assert.Single(soundMechanism.Utterances).Message);
 
+        var hammerActionReason = await session.SubmitAsync("Why is the piano action a piano hammer action?");
+        var hammerActionUtterance = Assert.Single(hammerActionReason.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, hammerActionUtterance.Kind);
+
         var comparison = await session.SubmitAsync("What distinguishes the example piano from a harmonium?");
         var comparisonMessage = Assert.Single(comparison.Utterances).Message;
         Assert.Contains("Example piano has a piano keyboard interface", comparisonMessage);
@@ -417,7 +421,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("harmonium uses a free-reed mechanism", comparisonMessage);
 
         Assert.All(
-            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, comparison },
+            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, hammerActionReason, comparison },
             turn => Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, Assert.Single(turn.Utterances).Kind));
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
@@ -428,15 +432,15 @@ public sealed class LatticeRuntimeSessionTests
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
         Assert.Contains(
-            comparison.Utterances[0].SupportingEvidence,
+            hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:definition:piano-hammer-action"));
         Assert.Contains(
-            comparison.Utterances[0].SupportingEvidence,
+            hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:piano-action:actuates-hammer:piano-hammers"));
         Assert.Contains(
-            comparison.Utterances[0].SupportingEvidence,
+            hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
     }
