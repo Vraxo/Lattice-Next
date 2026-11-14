@@ -338,6 +338,72 @@ public sealed class SemanticWorldModelReasoner
         return evidence.Distinct().ToImmutableArray();
     }
 
+    public ImmutableArray<SemanticRelationAssertion> FindShortestRelationPath(
+        string source,
+        string target)
+    {
+        var normalizedSource = SemanticWorldModel.Normalize(source);
+        var normalizedTarget = SemanticWorldModel.Normalize(target);
+
+        if (normalizedSource == normalizedTarget ||
+            model.FindConcept(normalizedSource) is null ||
+            model.FindConcept(normalizedTarget) is null)
+        {
+            return [];
+        }
+
+        var pending = new Queue<string>();
+        var visited = new HashSet<string>(StringComparer.Ordinal) { normalizedSource };
+        var previous = new Dictionary<string, (string Node, SemanticRelationAssertion Assertion)>();
+        pending.Enqueue(normalizedSource);
+
+        while (pending.TryDequeue(out var current))
+        {
+            var adjacent = model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Subject == current ||
+                    assertion.Object == current)
+                .OrderBy(assertion => model.FindRelation(assertion.Relation)?.Order ?? 0)
+                .ThenBy(assertion => assertion.Relation, StringComparer.Ordinal)
+                .ThenBy(assertion => assertion.Subject, StringComparer.Ordinal)
+                .ThenBy(assertion => assertion.Object, StringComparer.Ordinal);
+
+            foreach (var assertion in adjacent)
+            {
+                var next = assertion.Subject == current
+                    ? assertion.Object
+                    : assertion.Subject;
+
+                if (!visited.Add(next))
+                {
+                    continue;
+                }
+
+                previous[next] = (current, assertion);
+
+                if (next == normalizedTarget)
+                {
+                    var path = new List<SemanticRelationAssertion>();
+                    var cursor = normalizedTarget;
+
+                    while (cursor != normalizedSource)
+                    {
+                        var step = previous[cursor];
+                        path.Add(step.Assertion);
+                        cursor = step.Node;
+                    }
+
+                    path.Reverse();
+                    return path.ToImmutableArray();
+                }
+
+                pending.Enqueue(next);
+            }
+        }
+
+        return [];
+    }
+
     public ImmutableArray<SemanticRelationAssertion> GetRelations(
         string subject,
         string? relation = null)
