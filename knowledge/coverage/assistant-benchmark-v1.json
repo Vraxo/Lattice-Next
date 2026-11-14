@@ -400,12 +400,14 @@
         "girl-with-pearl-earring",
         "johannes-vermeer",
         "artist",
+        "dutch-artist",
         "painting"
       ],
       "relations": [
-        "created-by"
+        "created-by",
+        "painted-by"
       ],
-      "limitations": "The painting-to-artist relation is represented."
+      "limitations": "The artwork is typed as a painting, Johannes Vermeer is typed as a Dutch artist, and a painted-by relation supports a reusable typed object-to-agent query. The runtime abstains if the requested type or unique relation target is not supported."
     },
     {
       "id": "dolly-014",
