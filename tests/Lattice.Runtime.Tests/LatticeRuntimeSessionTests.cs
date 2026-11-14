@@ -188,6 +188,7 @@ public sealed class LatticeRuntimeSessionTests
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("ask(world-model-contribution(un, land, ny, hq))", answer.Meaning);
         Assert.Equal(
             "John D. Rockefeller Jr. provided funding toward acquisition of the United Nations Headquarters site. City of New York contributed additional property to the site.",
             answer.Message);
