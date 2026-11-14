@@ -1,0 +1,69 @@
+{
+  "formatVersion": 3,
+  "id": "core-film-production",
+  "name": "Film production and incentives",
+  "concepts": [
+    {
+      "id": "film-production-incentive",
+      "label": "film production incentive",
+      "kind": "Type"
+    },
+    {
+      "id": "film-production-in-georgia",
+      "label": "film production in Georgia",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "film production incentive",
+      "concept": "film-production-incentive",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "film production in Georgia",
+      "concept": "film-production-in-georgia",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "attracts-production",
+      "domain": "economic-incentive",
+      "range": "production-activity",
+      "verb": "attracts production",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "film-production-incentive",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "film-production-incentive",
+      "relation": "is-a",
+      "object": "economic-incentive"
+    },
+    {
+      "subject": "film-production-in-georgia",
+      "relation": "instance-of",
+      "object": "production-activity"
+    },
+    {
+      "subject": "georgia-film-tax-credit",
+      "relation": "attracts-production",
+      "object": "film-production-in-georgia"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

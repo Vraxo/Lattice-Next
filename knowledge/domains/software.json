@@ -142,6 +142,86 @@
       "id": "optimization-domain",
       "label": "optimization modeling",
       "kind": "Individual"
+    },
+    {
+      "id": "conversational-software",
+      "label": "conversational software",
+      "kind": "Type"
+    },
+    {
+      "id": "chatbot",
+      "label": "chatbot",
+      "kind": "Type"
+    },
+    {
+      "id": "conversational-assistant",
+      "label": "conversational assistant",
+      "kind": "Type"
+    },
+    {
+      "id": "software-comparison-criterion",
+      "label": "software comparison criterion",
+      "kind": "Type"
+    },
+    {
+      "id": "hosting-model",
+      "label": "hosting model",
+      "kind": "Type"
+    },
+    {
+      "id": "open-source-status",
+      "label": "open-source status",
+      "kind": "Type"
+    },
+    {
+      "id": "customization-support",
+      "label": "customization support",
+      "kind": "Type"
+    },
+    {
+      "id": "privacy-model",
+      "label": "privacy model",
+      "kind": "Type"
+    },
+    {
+      "id": "integration-support",
+      "label": "integration support",
+      "kind": "Type"
+    },
+    {
+      "id": "open-assistant",
+      "label": "OpenAssistant",
+      "kind": "Individual"
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "kind": "Individual"
+    },
+    {
+      "id": "hosting-model-criterion",
+      "label": "hosting model criterion",
+      "kind": "Individual"
+    },
+    {
+      "id": "open-source-status-criterion",
+      "label": "open-source status criterion",
+      "kind": "Individual"
+    },
+    {
+      "id": "customization-support-criterion",
+      "label": "customization support criterion",
+      "kind": "Individual"
+    },
+    {
+      "id": "privacy-model-criterion",
+      "label": "privacy model criterion",
+      "kind": "Individual"
+    },
+    {
+      "id": "integration-support-criterion",
+      "label": "integration support criterion",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -284,6 +364,86 @@
       "form": "optimization modeling",
       "concept": "optimization-domain",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "conversational software",
+      "concept": "conversational-software",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "chatbot",
+      "concept": "chatbot",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "conversational assistant",
+      "concept": "conversational-assistant",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "software comparison criterion",
+      "concept": "software-comparison-criterion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "hosting model",
+      "concept": "hosting-model",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "open-source status",
+      "concept": "open-source-status",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "customization support",
+      "concept": "customization-support",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "privacy model",
+      "concept": "privacy-model",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "integration support",
+      "concept": "integration-support",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "OpenAssistant",
+      "concept": "open-assistant",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "ChatGPT",
+      "concept": "chatgpt",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "hosting model criterion",
+      "concept": "hosting-model-criterion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "open-source status criterion",
+      "concept": "open-source-status-criterion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "customization support criterion",
+      "concept": "customization-support-criterion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "privacy model criterion",
+      "concept": "privacy-model-criterion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "integration support criterion",
+      "concept": "integration-support-criterion",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -304,6 +464,17 @@
       "objectRole": null,
       "order": 1,
       "comparisonPriority": 0
+    },
+    {
+      "id": "has-comparison-criterion",
+      "domain": "software",
+      "range": "software-comparison-criterion",
+      "verb": "can be compared by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -375,6 +546,60 @@
     },
     {
       "concept": "application-domain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "conversational-software",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "chatbot",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "conversational-assistant",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "software-comparison-criterion",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "hosting-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "open-source-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "customization-support",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "privacy-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "integration-support",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -645,6 +870,161 @@
       "subject": "optimization-domain",
       "relation": "instance-of",
       "object": "application-domain"
+    },
+    {
+      "subject": "conversational-software",
+      "relation": "is-a",
+      "object": "software"
+    },
+    {
+      "subject": "chatbot",
+      "relation": "is-a",
+      "object": "conversational-software"
+    },
+    {
+      "subject": "conversational-assistant",
+      "relation": "is-a",
+      "object": "chatbot"
+    },
+    {
+      "subject": "software-comparison-criterion",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "hosting-model",
+      "relation": "is-a",
+      "object": "software-comparison-criterion"
+    },
+    {
+      "subject": "open-source-status",
+      "relation": "is-a",
+      "object": "software-comparison-criterion"
+    },
+    {
+      "subject": "customization-support",
+      "relation": "is-a",
+      "object": "software-comparison-criterion"
+    },
+    {
+      "subject": "privacy-model",
+      "relation": "is-a",
+      "object": "software-comparison-criterion"
+    },
+    {
+      "subject": "integration-support",
+      "relation": "is-a",
+      "object": "software-comparison-criterion"
+    },
+    {
+      "subject": "software",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "capability",
+      "relation": "is-a",
+      "object": "function"
+    },
+    {
+      "subject": "application-domain",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "instance-of",
+      "object": "conversational-assistant"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "instance-of",
+      "object": "software"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "instance-of",
+      "object": "conversational-assistant"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "instance-of",
+      "object": "software"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-comparison-criterion",
+      "object": "hosting-model-criterion"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-comparison-criterion",
+      "object": "hosting-model-criterion"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-comparison-criterion",
+      "object": "open-source-status-criterion"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-comparison-criterion",
+      "object": "open-source-status-criterion"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-comparison-criterion",
+      "object": "customization-support-criterion"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-comparison-criterion",
+      "object": "customization-support-criterion"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-comparison-criterion",
+      "object": "privacy-model-criterion"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-comparison-criterion",
+      "object": "privacy-model-criterion"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-comparison-criterion",
+      "object": "integration-support-criterion"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-comparison-criterion",
+      "object": "integration-support-criterion"
+    },
+    {
+      "subject": "hosting-model-criterion",
+      "relation": "instance-of",
+      "object": "hosting-model"
+    },
+    {
+      "subject": "open-source-status-criterion",
+      "relation": "instance-of",
+      "object": "open-source-status"
+    },
+    {
+      "subject": "customization-support-criterion",
+      "relation": "instance-of",
+      "object": "customization-support"
+    },
+    {
+      "subject": "privacy-model-criterion",
+      "relation": "instance-of",
+      "object": "privacy-model"
+    },
+    {
+      "subject": "integration-support-criterion",
+      "relation": "instance-of",
+      "object": "integration-support"
     }
   ],
   "dataProperties": [],

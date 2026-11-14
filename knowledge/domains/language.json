@@ -252,6 +252,31 @@
       "subject": "running-action",
       "relation": "instance-of",
       "object": "action"
+    },
+    {
+      "subject": "lexical-item",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "semantic-content",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "action-or-state",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "action",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "economic-concept",
+      "relation": "is-a",
+      "object": "abstract-entity"
     }
   ],
   "dataProperties": [],

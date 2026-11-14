@@ -1,0 +1,451 @@
+{
+  "formatVersion": 3,
+  "id": "core-mathematics",
+  "name": "Mathematics and calculus",
+  "concepts": [
+    {
+      "id": "mathematical-field",
+      "label": "mathematical field",
+      "kind": "Type"
+    },
+    {
+      "id": "calculus-concept",
+      "label": "calculus concept",
+      "kind": "Type"
+    },
+    {
+      "id": "limit-concept",
+      "label": "limit",
+      "kind": "Type"
+    },
+    {
+      "id": "derivative-concept",
+      "label": "derivative",
+      "kind": "Type"
+    },
+    {
+      "id": "differentiable-function",
+      "label": "differentiable function",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-problem",
+      "label": "mathematical problem",
+      "kind": "Type"
+    },
+    {
+      "id": "limit-problem",
+      "label": "limit problem",
+      "kind": "Type"
+    },
+    {
+      "id": "ratio-expression",
+      "label": "ratio expression",
+      "kind": "Type"
+    },
+    {
+      "id": "numerator",
+      "label": "numerator",
+      "kind": "Type"
+    },
+    {
+      "id": "denominator",
+      "label": "denominator",
+      "kind": "Type"
+    },
+    {
+      "id": "indeterminate-form",
+      "label": "indeterminate form",
+      "kind": "Type"
+    },
+    {
+      "id": "zero-over-zero-form",
+      "label": "zero over zero form",
+      "kind": "Type"
+    },
+    {
+      "id": "infinity-over-infinity-form",
+      "label": "infinity over infinity form",
+      "kind": "Type"
+    },
+    {
+      "id": "theorem",
+      "label": "theorem",
+      "kind": "Type"
+    },
+    {
+      "id": "l-hopital-rule",
+      "label": "L'Hôpital's rule",
+      "kind": "Type"
+    },
+    {
+      "id": "differentiability-condition",
+      "label": "differentiability condition",
+      "kind": "Type"
+    },
+    {
+      "id": "derivative-existence-condition",
+      "label": "derivative existence condition",
+      "kind": "Type"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "mathematical field",
+      "concept": "mathematical-field",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "calculus concept",
+      "concept": "calculus-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "limit",
+      "concept": "limit-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "derivative",
+      "concept": "derivative-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "differentiable function",
+      "concept": "differentiable-function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical problem",
+      "concept": "mathematical-problem",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "limit problem",
+      "concept": "limit-problem",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "ratio expression",
+      "concept": "ratio-expression",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "numerator",
+      "concept": "numerator",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "denominator",
+      "concept": "denominator",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "indeterminate form",
+      "concept": "indeterminate-form",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "zero over zero form",
+      "concept": "zero-over-zero-form",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "infinity over infinity form",
+      "concept": "infinity-over-infinity-form",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "theorem",
+      "concept": "theorem",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L'Hôpital's rule",
+      "concept": "l-hopital-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "differentiability condition",
+      "concept": "differentiability-condition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "derivative existence condition",
+      "concept": "derivative-existence-condition",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "applies-to-problem",
+      "domain": "mathematical-method",
+      "range": "mathematical-problem",
+      "verb": "applies to problem",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "applies-to-form",
+      "domain": "mathematical-method",
+      "range": "indeterminate-form",
+      "verb": "applies to indeterminate form",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-required-condition",
+      "domain": "mathematical-method",
+      "range": "mathematical-condition",
+      "verb": "requires condition",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-limit-form",
+      "domain": "limit-problem",
+      "range": "indeterminate-form",
+      "verb": "has indeterminate form",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-numerator",
+      "domain": "ratio-expression",
+      "range": "mathematical-expression",
+      "verb": "has numerator",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-denominator",
+      "domain": "ratio-expression",
+      "range": "mathematical-expression",
+      "verb": "has denominator",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-derivative",
+      "domain": "mathematical-function",
+      "range": "derivative-concept",
+      "verb": "has derivative",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "mathematical-field",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "calculus-concept",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "limit-concept",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "derivative-concept",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "differentiable-function",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-problem",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "limit-problem",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "ratio-expression",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "numerator",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "denominator",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "indeterminate-form",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "zero-over-zero-form",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "infinity-over-infinity-form",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "theorem",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "l-hopital-rule",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "differentiability-condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "derivative-existence-condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "mathematical-field",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "calculus-concept",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "limit-concept",
+      "relation": "is-a",
+      "object": "calculus-concept"
+    },
+    {
+      "subject": "derivative-concept",
+      "relation": "is-a",
+      "object": "calculus-concept"
+    },
+    {
+      "subject": "differentiable-function",
+      "relation": "is-a",
+      "object": "mathematical-function"
+    },
+    {
+      "subject": "mathematical-problem",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "limit-problem",
+      "relation": "is-a",
+      "object": "mathematical-problem"
+    },
+    {
+      "subject": "ratio-expression",
+      "relation": "is-a",
+      "object": "mathematical-expression"
+    },
+    {
+      "subject": "numerator",
+      "relation": "is-a",
+      "object": "mathematical-expression"
+    },
+    {
+      "subject": "denominator",
+      "relation": "is-a",
+      "object": "mathematical-expression"
+    },
+    {
+      "subject": "indeterminate-form",
+      "relation": "is-a",
+      "object": "mathematical-condition"
+    },
+    {
+      "subject": "zero-over-zero-form",
+      "relation": "is-a",
+      "object": "indeterminate-form"
+    },
+    {
+      "subject": "infinity-over-infinity-form",
+      "relation": "is-a",
+      "object": "indeterminate-form"
+    },
+    {
+      "subject": "theorem",
+      "relation": "is-a",
+      "object": "mathematical-method"
+    },
+    {
+      "subject": "l-hopital-rule",
+      "relation": "is-a",
+      "object": "theorem"
+    },
+    {
+      "subject": "differentiability-condition",
+      "relation": "is-a",
+      "object": "mathematical-condition"
+    },
+    {
+      "subject": "derivative-existence-condition",
+      "relation": "is-a",
+      "object": "mathematical-condition"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

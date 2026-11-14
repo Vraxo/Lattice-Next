@@ -1,0 +1,464 @@
+{
+  "formatVersion": 3,
+  "id": "core-geography-institutions",
+  "name": "Geography and institutions",
+  "concepts": [
+    {
+      "id": "continent",
+      "label": "continent",
+      "kind": "Type"
+    },
+    {
+      "id": "country",
+      "label": "country",
+      "kind": "Type"
+    },
+    {
+      "id": "state-region",
+      "label": "state or province",
+      "kind": "Type"
+    },
+    {
+      "id": "city",
+      "label": "city",
+      "kind": "Type"
+    },
+    {
+      "id": "mountain",
+      "label": "mountain",
+      "kind": "Type"
+    },
+    {
+      "id": "mountain-range",
+      "label": "mountain range",
+      "kind": "Type"
+    },
+    {
+      "id": "company",
+      "label": "company",
+      "kind": "Type"
+    },
+    {
+      "id": "governmental-organization",
+      "label": "governmental organization",
+      "kind": "Type"
+    },
+    {
+      "id": "north-america",
+      "label": "North America",
+      "kind": "Individual"
+    },
+    {
+      "id": "united-states",
+      "label": "United States",
+      "kind": "Individual"
+    },
+    {
+      "id": "contiguous-united-states",
+      "label": "contiguous United States",
+      "kind": "Individual"
+    },
+    {
+      "id": "california",
+      "label": "California",
+      "kind": "Individual"
+    },
+    {
+      "id": "georgia-us",
+      "label": "Georgia (US state)",
+      "kind": "Individual"
+    },
+    {
+      "id": "new-york-city",
+      "label": "New York City",
+      "kind": "Individual"
+    },
+    {
+      "id": "sierra-nevada",
+      "label": "Sierra Nevada",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-whitney",
+      "label": "Mount Whitney",
+      "kind": "Individual"
+    },
+    {
+      "id": "united-nations",
+      "label": "United Nations",
+      "kind": "Individual"
+    },
+    {
+      "id": "united-nations-headquarters-site",
+      "label": "United Nations Headquarters site",
+      "kind": "Individual"
+    },
+    {
+      "id": "john-d-rockefeller-jr",
+      "label": "John D. Rockefeller Jr.",
+      "kind": "Individual"
+    },
+    {
+      "id": "georgia-film-tax-credit",
+      "label": "Georgia film tax credit",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "continent",
+      "concept": "continent",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "country",
+      "concept": "country",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "state or province",
+      "concept": "state-region",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "city",
+      "concept": "city",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mountain",
+      "concept": "mountain",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mountain range",
+      "concept": "mountain-range",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "company",
+      "concept": "company",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "governmental organization",
+      "concept": "governmental-organization",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "North America",
+      "concept": "north-america",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "United States",
+      "concept": "united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "contiguous United States",
+      "concept": "contiguous-united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "California",
+      "concept": "california",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Georgia (US state)",
+      "concept": "georgia-us",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "New York City",
+      "concept": "new-york-city",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Sierra Nevada",
+      "concept": "sierra-nevada",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Mount Whitney",
+      "concept": "mount-whitney",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "United Nations",
+      "concept": "united-nations",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "United Nations Headquarters site",
+      "concept": "united-nations-headquarters-site",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "John D. Rockefeller Jr.",
+      "concept": "john-d-rockefeller-jr",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Georgia film tax credit",
+      "concept": "georgia-film-tax-credit",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "highest-point-of",
+      "domain": "geographic-feature",
+      "range": "geographic-region",
+      "verb": "is highest point of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "part-of-geographic-region",
+      "domain": "place",
+      "range": "place",
+      "verb": "is within",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "funded-acquisition-of",
+      "domain": "agent",
+      "range": "place",
+      "verb": "provided funding toward acquisition of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-tax-incentive",
+      "domain": "geographic-region",
+      "range": "economic-incentive",
+      "verb": "has tax incentive",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "continent",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "country",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "state-region",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "city",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mountain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mountain-range",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "company",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "governmental-organization",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "continent",
+      "relation": "is-a",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "country",
+      "relation": "is-a",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "state-region",
+      "relation": "is-a",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "city",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "mountain",
+      "relation": "is-a",
+      "object": "geographic-feature"
+    },
+    {
+      "subject": "mountain-range",
+      "relation": "is-a",
+      "object": "geographic-feature"
+    },
+    {
+      "subject": "company",
+      "relation": "is-a",
+      "object": "organization"
+    },
+    {
+      "subject": "governmental-organization",
+      "relation": "is-a",
+      "object": "organization"
+    },
+    {
+      "subject": "north-america",
+      "relation": "instance-of",
+      "object": "continent"
+    },
+    {
+      "subject": "united-states",
+      "relation": "instance-of",
+      "object": "country"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "california",
+      "relation": "instance-of",
+      "object": "state-region"
+    },
+    {
+      "subject": "georgia-us",
+      "relation": "instance-of",
+      "object": "state-region"
+    },
+    {
+      "subject": "new-york-city",
+      "relation": "instance-of",
+      "object": "city"
+    },
+    {
+      "subject": "sierra-nevada",
+      "relation": "instance-of",
+      "object": "mountain-range"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "united-nations",
+      "relation": "instance-of",
+      "object": "organization"
+    },
+    {
+      "subject": "united-nations-headquarters-site",
+      "relation": "instance-of",
+      "object": "site"
+    },
+    {
+      "subject": "john-d-rockefeller-jr",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "georgia-film-tax-credit",
+      "relation": "instance-of",
+      "object": "economic-incentive"
+    },
+    {
+      "subject": "united-states",
+      "relation": "part-of-geographic-region",
+      "object": "north-america"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "part-of-geographic-region",
+      "object": "united-states"
+    },
+    {
+      "subject": "california",
+      "relation": "part-of-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "georgia-us",
+      "relation": "part-of-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "part-of-geographic-region",
+      "object": "california"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "part-of-geographic-region",
+      "object": "sierra-nevada"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "highest-point-of",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "united-nations",
+      "relation": "has-hq-in",
+      "object": "new-york-city"
+    },
+    {
+      "subject": "united-nations-headquarters-site",
+      "relation": "situated-in",
+      "object": "new-york-city"
+    },
+    {
+      "subject": "john-d-rockefeller-jr",
+      "relation": "funded-acquisition-of",
+      "object": "united-nations-headquarters-site"
+    },
+    {
+      "subject": "georgia-us",
+      "relation": "has-tax-incentive",
+      "object": "georgia-film-tax-credit"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

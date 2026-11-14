@@ -1,0 +1,848 @@
+{
+  "formatVersion": 3,
+  "id": "core-natural-world",
+  "name": "Natural world and astronomy",
+  "concepts": [
+    {
+      "id": "mammal",
+      "label": "mammal",
+      "kind": "Type"
+    },
+    {
+      "id": "camel",
+      "label": "camel",
+      "kind": "Type"
+    },
+    {
+      "id": "dromedary-camel",
+      "label": "dromedary camel",
+      "kind": "Type"
+    },
+    {
+      "id": "bactrian-camel",
+      "label": "Bactrian camel",
+      "kind": "Type"
+    },
+    {
+      "id": "desert-environment",
+      "label": "desert environment",
+      "kind": "Type"
+    },
+    {
+      "id": "adaptation",
+      "label": "adaptation",
+      "kind": "Type"
+    },
+    {
+      "id": "water-conservation",
+      "label": "water conservation adaptation",
+      "kind": "Type"
+    },
+    {
+      "id": "dehydration-tolerance",
+      "label": "dehydration tolerance",
+      "kind": "Type"
+    },
+    {
+      "id": "water-conservation-process",
+      "label": "water conservation process",
+      "kind": "Type"
+    },
+    {
+      "id": "urine-concentration",
+      "label": "urine concentration",
+      "kind": "Type"
+    },
+    {
+      "id": "fecal-water-reduction",
+      "label": "reduced fecal water loss",
+      "kind": "Type"
+    },
+    {
+      "id": "nasal-water-recovery",
+      "label": "nasal water recovery",
+      "kind": "Type"
+    },
+    {
+      "id": "thermoregulation",
+      "label": "thermoregulation",
+      "kind": "Type"
+    },
+    {
+      "id": "planet",
+      "label": "planet",
+      "kind": "Type"
+    },
+    {
+      "id": "star",
+      "label": "star",
+      "kind": "Type"
+    },
+    {
+      "id": "rotation",
+      "label": "rotation",
+      "kind": "Type"
+    },
+    {
+      "id": "day-night-cycle",
+      "label": "day-night cycle",
+      "kind": "Type"
+    },
+    {
+      "id": "sunset",
+      "label": "sunset",
+      "kind": "Type"
+    },
+    {
+      "id": "apparent-solar-motion",
+      "label": "apparent solar motion",
+      "kind": "Type"
+    },
+    {
+      "id": "horizon",
+      "label": "horizon",
+      "kind": "Type"
+    },
+    {
+      "id": "camel-example",
+      "label": "camel example",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-hump",
+      "label": "camel hump",
+      "kind": "Individual"
+    },
+    {
+      "id": "fat",
+      "label": "fat",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-water-conservation",
+      "label": "camel water conservation",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-dehydration-tolerance",
+      "label": "camel dehydration tolerance",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-urine-concentration",
+      "label": "camel urine concentration",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-fecal-water-reduction",
+      "label": "camel fecal water reduction",
+      "kind": "Individual"
+    },
+    {
+      "id": "camel-nasal-water-recovery",
+      "label": "camel nasal water recovery",
+      "kind": "Individual"
+    },
+    {
+      "id": "earth",
+      "label": "Earth",
+      "kind": "Individual"
+    },
+    {
+      "id": "sun",
+      "label": "Sun",
+      "kind": "Individual"
+    },
+    {
+      "id": "earth-rotation",
+      "label": "Earth's rotation",
+      "kind": "Individual"
+    },
+    {
+      "id": "day-night-cycle-example",
+      "label": "day and night cycle",
+      "kind": "Individual"
+    },
+    {
+      "id": "sunset-example",
+      "label": "sunset event",
+      "kind": "Individual"
+    },
+    {
+      "id": "apparent-solar-motion-example",
+      "label": "apparent daily solar motion",
+      "kind": "Individual"
+    },
+    {
+      "id": "desert-environment-example",
+      "label": "desert environment example",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "mammal",
+      "concept": "mammal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel",
+      "concept": "camel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "dromedary camel",
+      "concept": "dromedary-camel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Bactrian camel",
+      "concept": "bactrian-camel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "desert environment",
+      "concept": "desert-environment",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "adaptation",
+      "concept": "adaptation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "water conservation adaptation",
+      "concept": "water-conservation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "dehydration tolerance",
+      "concept": "dehydration-tolerance",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "water conservation process",
+      "concept": "water-conservation-process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "urine concentration",
+      "concept": "urine-concentration",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "reduced fecal water loss",
+      "concept": "fecal-water-reduction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "nasal water recovery",
+      "concept": "nasal-water-recovery",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "thermoregulation",
+      "concept": "thermoregulation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "planet",
+      "concept": "planet",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "star",
+      "concept": "star",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rotation",
+      "concept": "rotation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "day-night cycle",
+      "concept": "day-night-cycle",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sunset",
+      "concept": "sunset",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "apparent solar motion",
+      "concept": "apparent-solar-motion",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "horizon",
+      "concept": "horizon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel example",
+      "concept": "camel-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel hump",
+      "concept": "camel-hump",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fat",
+      "concept": "fat",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel water conservation",
+      "concept": "camel-water-conservation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel dehydration tolerance",
+      "concept": "camel-dehydration-tolerance",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel urine concentration",
+      "concept": "camel-urine-concentration",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel fecal water reduction",
+      "concept": "camel-fecal-water-reduction",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camel nasal water recovery",
+      "concept": "camel-nasal-water-recovery",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Earth",
+      "concept": "earth",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Sun",
+      "concept": "sun",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Earth's rotation",
+      "concept": "earth-rotation",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "day and night cycle",
+      "concept": "day-night-cycle-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sunset event",
+      "concept": "sunset-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "apparent daily solar motion",
+      "concept": "apparent-solar-motion-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "desert environment example",
+      "concept": "desert-environment-example",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-adaptation",
+      "domain": "animal",
+      "range": "biological-adaptation",
+      "verb": "has adaptation",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-body-part",
+      "domain": "animal",
+      "range": "body-part",
+      "verb": "has body part",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "stores-substance",
+      "domain": "body-part",
+      "range": "substance",
+      "verb": "stores substance",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "supports-survival-in",
+      "domain": "biological-adaptation",
+      "range": "environment",
+      "verb": "supports survival in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "includes-physiological-process",
+      "domain": "biological-adaptation",
+      "range": "physiological-process",
+      "verb": "includes physiological process",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "reduces-water-loss",
+      "domain": "biological-adaptation",
+      "range": "physiological-process",
+      "verb": "reduces water loss through",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "rotates-on-axis",
+      "domain": "planet",
+      "range": "rotation",
+      "verb": "rotates through",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "causes-day-night-cycle",
+      "domain": "rotation",
+      "range": "day-night-cycle",
+      "verb": "causes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "produces-apparent-motion",
+      "domain": "rotation",
+      "range": "apparent-solar-motion",
+      "verb": "produces apparent",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "explains-sunset",
+      "domain": "rotation",
+      "range": "sunset",
+      "verb": "explains",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "illuminates",
+      "domain": "star",
+      "range": "planet",
+      "verb": "illuminates",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "mammal",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "camel",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dromedary-camel",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "bactrian-camel",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "desert-environment",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "adaptation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "water-conservation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dehydration-tolerance",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "water-conservation-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "urine-concentration",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "fecal-water-reduction",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "nasal-water-recovery",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "thermoregulation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "planet",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "star",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "rotation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "day-night-cycle",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sunset",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "apparent-solar-motion",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "horizon",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "mammal",
+      "relation": "is-a",
+      "object": "animal"
+    },
+    {
+      "subject": "camel",
+      "relation": "is-a",
+      "object": "mammal"
+    },
+    {
+      "subject": "dromedary-camel",
+      "relation": "is-a",
+      "object": "camel"
+    },
+    {
+      "subject": "bactrian-camel",
+      "relation": "is-a",
+      "object": "camel"
+    },
+    {
+      "subject": "desert-environment",
+      "relation": "is-a",
+      "object": "environment"
+    },
+    {
+      "subject": "adaptation",
+      "relation": "is-a",
+      "object": "biological-adaptation"
+    },
+    {
+      "subject": "water-conservation",
+      "relation": "is-a",
+      "object": "biological-adaptation"
+    },
+    {
+      "subject": "dehydration-tolerance",
+      "relation": "is-a",
+      "object": "biological-adaptation"
+    },
+    {
+      "subject": "water-conservation-process",
+      "relation": "is-a",
+      "object": "physiological-process"
+    },
+    {
+      "subject": "urine-concentration",
+      "relation": "is-a",
+      "object": "physiological-process"
+    },
+    {
+      "subject": "fecal-water-reduction",
+      "relation": "is-a",
+      "object": "physiological-process"
+    },
+    {
+      "subject": "nasal-water-recovery",
+      "relation": "is-a",
+      "object": "physiological-process"
+    },
+    {
+      "subject": "thermoregulation",
+      "relation": "is-a",
+      "object": "physiological-process"
+    },
+    {
+      "subject": "planet",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "star",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "rotation",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "day-night-cycle",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "sunset",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "apparent-solar-motion",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "horizon",
+      "relation": "is-a",
+      "object": "geographic-feature"
+    },
+    {
+      "subject": "camel-example",
+      "relation": "instance-of",
+      "object": "camel"
+    },
+    {
+      "subject": "camel-hump",
+      "relation": "instance-of",
+      "object": "body-part"
+    },
+    {
+      "subject": "fat",
+      "relation": "instance-of",
+      "object": "substance"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "instance-of",
+      "object": "water-conservation"
+    },
+    {
+      "subject": "camel-dehydration-tolerance",
+      "relation": "instance-of",
+      "object": "dehydration-tolerance"
+    },
+    {
+      "subject": "camel-urine-concentration",
+      "relation": "instance-of",
+      "object": "urine-concentration"
+    },
+    {
+      "subject": "camel-fecal-water-reduction",
+      "relation": "instance-of",
+      "object": "fecal-water-reduction"
+    },
+    {
+      "subject": "camel-nasal-water-recovery",
+      "relation": "instance-of",
+      "object": "nasal-water-recovery"
+    },
+    {
+      "subject": "earth",
+      "relation": "instance-of",
+      "object": "planet"
+    },
+    {
+      "subject": "sun",
+      "relation": "instance-of",
+      "object": "star"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "instance-of",
+      "object": "rotation"
+    },
+    {
+      "subject": "day-night-cycle-example",
+      "relation": "instance-of",
+      "object": "day-night-cycle"
+    },
+    {
+      "subject": "sunset-example",
+      "relation": "instance-of",
+      "object": "sunset"
+    },
+    {
+      "subject": "apparent-solar-motion-example",
+      "relation": "instance-of",
+      "object": "apparent-solar-motion"
+    },
+    {
+      "subject": "camel-example",
+      "relation": "has-body-part",
+      "object": "camel-hump"
+    },
+    {
+      "subject": "camel-hump",
+      "relation": "stores-substance",
+      "object": "fat"
+    },
+    {
+      "subject": "camel-example",
+      "relation": "has-adaptation",
+      "object": "camel-water-conservation"
+    },
+    {
+      "subject": "camel-example",
+      "relation": "has-adaptation",
+      "object": "camel-dehydration-tolerance"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "supports-survival-in",
+      "object": "desert-environment-example"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "includes-physiological-process",
+      "object": "camel-urine-concentration"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "includes-physiological-process",
+      "object": "camel-fecal-water-reduction"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "includes-physiological-process",
+      "object": "camel-nasal-water-recovery"
+    },
+    {
+      "subject": "earth",
+      "relation": "rotates-on-axis",
+      "object": "earth-rotation"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "causes-day-night-cycle",
+      "object": "day-night-cycle-example"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "produces-apparent-motion",
+      "object": "apparent-solar-motion-example"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "explains-sunset",
+      "object": "sunset-example"
+    },
+    {
+      "subject": "sun",
+      "relation": "illuminates",
+      "object": "earth"
+    },
+    {
+      "subject": "desert-environment-example",
+      "relation": "instance-of",
+      "object": "desert-environment"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

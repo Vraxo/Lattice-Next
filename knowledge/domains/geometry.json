@@ -892,6 +892,21 @@
       "subject": "transverse-direction",
       "relation": "is-a",
       "object": "geometric-direction"
+    },
+    {
+      "subject": "geometric-object",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "geometric-property",
+      "relation": "is-a",
+      "object": "property"
+    },
+    {
+      "subject": "linguistic-category",
+      "relation": "is-a",
+      "object": "abstract-entity"
     }
   ],
   "dataProperties": [],

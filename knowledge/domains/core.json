@@ -7,12 +7,532 @@
       "id": "entity",
       "label": "entity",
       "kind": "Type"
+    },
+    {
+      "id": "physical-entity",
+      "label": "physical entity",
+      "kind": "Type"
+    },
+    {
+      "id": "abstract-entity",
+      "label": "abstract entity",
+      "kind": "Type"
+    },
+    {
+      "id": "agent",
+      "label": "agent",
+      "kind": "Type"
+    },
+    {
+      "id": "organization",
+      "label": "organization",
+      "kind": "Type"
+    },
+    {
+      "id": "place",
+      "label": "place",
+      "kind": "Type"
+    },
+    {
+      "id": "geographic-region",
+      "label": "geographic region",
+      "kind": "Type"
+    },
+    {
+      "id": "geographic-feature",
+      "label": "geographic feature",
+      "kind": "Type"
+    },
+    {
+      "id": "artifact",
+      "label": "artifact",
+      "kind": "Type"
+    },
+    {
+      "id": "event",
+      "label": "event",
+      "kind": "Type"
+    },
+    {
+      "id": "process",
+      "label": "process",
+      "kind": "Type"
+    },
+    {
+      "id": "activity",
+      "label": "activity",
+      "kind": "Type"
+    },
+    {
+      "id": "property",
+      "label": "property",
+      "kind": "Type"
+    },
+    {
+      "id": "material",
+      "label": "material",
+      "kind": "Type"
+    },
+    {
+      "id": "substance",
+      "label": "substance",
+      "kind": "Type"
+    },
+    {
+      "id": "information-object",
+      "label": "information object",
+      "kind": "Type"
+    },
+    {
+      "id": "creative-work",
+      "label": "creative work",
+      "kind": "Type"
+    },
+    {
+      "id": "media-work",
+      "label": "media work",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-object",
+      "label": "mathematical object",
+      "kind": "Type"
+    },
+    {
+      "id": "quantity",
+      "label": "quantity",
+      "kind": "Type"
+    },
+    {
+      "id": "time-interval",
+      "label": "time interval",
+      "kind": "Type"
+    },
+    {
+      "id": "function",
+      "label": "function",
+      "kind": "Type"
+    },
+    {
+      "id": "role",
+      "label": "role",
+      "kind": "Type"
+    },
+    {
+      "id": "condition",
+      "label": "condition",
+      "kind": "Type"
+    },
+    {
+      "id": "effect",
+      "label": "effect",
+      "kind": "Type"
+    },
+    {
+      "id": "genre",
+      "label": "genre",
+      "kind": "Type"
+    },
+    {
+      "id": "environment",
+      "label": "environment",
+      "kind": "Type"
+    },
+    {
+      "id": "living-organism",
+      "label": "living organism",
+      "kind": "Type"
+    },
+    {
+      "id": "biological-adaptation",
+      "label": "biological adaptation",
+      "kind": "Type"
+    },
+    {
+      "id": "physiological-process",
+      "label": "physiological process",
+      "kind": "Type"
+    },
+    {
+      "id": "body-part",
+      "label": "body part",
+      "kind": "Type"
+    },
+    {
+      "id": "food",
+      "label": "food",
+      "kind": "Type"
+    },
+    {
+      "id": "vehicle",
+      "label": "vehicle",
+      "kind": "Type"
+    },
+    {
+      "id": "tool",
+      "label": "tool",
+      "kind": "Type"
+    },
+    {
+      "id": "transportation-activity",
+      "label": "transportation activity",
+      "kind": "Type"
+    },
+    {
+      "id": "travel-trip",
+      "label": "travel trip",
+      "kind": "Type"
+    },
+    {
+      "id": "plan",
+      "label": "plan",
+      "kind": "Type"
+    },
+    {
+      "id": "step",
+      "label": "step",
+      "kind": "Type"
+    },
+    {
+      "id": "record",
+      "label": "record",
+      "kind": "Type"
+    },
+    {
+      "id": "scientific-method",
+      "label": "scientific method",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-method",
+      "label": "mathematical method",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-condition",
+      "label": "mathematical condition",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-expression",
+      "label": "mathematical expression",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-function",
+      "label": "mathematical function",
+      "kind": "Type"
+    },
+    {
+      "id": "score",
+      "label": "score",
+      "kind": "Type"
+    },
+    {
+      "id": "economic-incentive",
+      "label": "economic incentive",
+      "kind": "Type"
+    },
+    {
+      "id": "production-activity",
+      "label": "production activity",
+      "kind": "Type"
+    },
+    {
+      "id": "exercise",
+      "label": "exercise",
+      "kind": "Type"
+    },
+    {
+      "id": "communication-device",
+      "label": "communication device",
+      "kind": "Type"
+    },
+    {
+      "id": "craft-material",
+      "label": "craft material",
+      "kind": "Type"
+    },
+    {
+      "id": "reusable-container",
+      "label": "reusable container",
+      "kind": "Type"
+    },
+    {
+      "id": "time-period",
+      "label": "time period",
+      "kind": "Type"
+    },
+    {
+      "id": "site",
+      "label": "site",
+      "kind": "Type"
     }
   ],
   "lexemes": [
     {
       "form": "entity",
       "concept": "entity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "physical entity",
+      "concept": "physical-entity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "abstract entity",
+      "concept": "abstract-entity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "agent",
+      "concept": "agent",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "organization",
+      "concept": "organization",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "place",
+      "concept": "place",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geographic region",
+      "concept": "geographic-region",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "geographic feature",
+      "concept": "geographic-feature",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "artifact",
+      "concept": "artifact",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "event",
+      "concept": "event",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "process",
+      "concept": "process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "activity",
+      "concept": "activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "property",
+      "concept": "property",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "material",
+      "concept": "material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "substance",
+      "concept": "substance",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "information object",
+      "concept": "information-object",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "creative work",
+      "concept": "creative-work",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "media work",
+      "concept": "media-work",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical object",
+      "concept": "mathematical-object",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "quantity",
+      "concept": "quantity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "time interval",
+      "concept": "time-interval",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "function",
+      "concept": "function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "role",
+      "concept": "role",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "condition",
+      "concept": "condition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "effect",
+      "concept": "effect",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "genre",
+      "concept": "genre",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "environment",
+      "concept": "environment",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "living organism",
+      "concept": "living-organism",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "biological adaptation",
+      "concept": "biological-adaptation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "physiological process",
+      "concept": "physiological-process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "body part",
+      "concept": "body-part",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "food",
+      "concept": "food",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "vehicle",
+      "concept": "vehicle",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "tool",
+      "concept": "tool",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transportation activity",
+      "concept": "transportation-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "travel trip",
+      "concept": "travel-trip",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "plan",
+      "concept": "plan",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "step",
+      "concept": "step",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "record",
+      "concept": "record",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "scientific method",
+      "concept": "scientific-method",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical method",
+      "concept": "mathematical-method",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical condition",
+      "concept": "mathematical-condition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical expression",
+      "concept": "mathematical-expression",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mathematical function",
+      "concept": "mathematical-function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "score",
+      "concept": "score",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "economic incentive",
+      "concept": "economic-incentive",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "production activity",
+      "concept": "production-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "exercise",
+      "concept": "exercise",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "communication device",
+      "concept": "communication-device",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "craft material",
+      "concept": "craft-material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "reusable container",
+      "concept": "reusable-container",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "time period",
+      "concept": "time-period",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "site",
+      "concept": "site",
       "partOfSpeech": "noun"
     }
   ],
@@ -32,6 +552,270 @@
       "comparisonPriority": 0,
       "subjectKind": "individual",
       "objectKind": "type"
+    },
+    {
+      "id": "has-part",
+      "domain": "physical-entity",
+      "range": "physical-entity",
+      "verb": "has part",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "part-of",
+      "domain": "physical-entity",
+      "range": "physical-entity",
+      "verb": "is part of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-property",
+      "domain": "entity",
+      "range": "property",
+      "verb": "has property",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-function",
+      "domain": "entity",
+      "range": "function",
+      "verb": "has function",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "used-for",
+      "domain": "physical-entity",
+      "range": "activity",
+      "verb": "is used for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "made-of",
+      "domain": "physical-entity",
+      "range": "material",
+      "verb": "is made of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "created-by",
+      "domain": "creative-work",
+      "range": "agent",
+      "verb": "is created by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "directed-by",
+      "domain": "media-work",
+      "range": "agent",
+      "verb": "is directed by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-genre",
+      "domain": "creative-work",
+      "range": "genre",
+      "verb": "has genre",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-hq-in",
+      "domain": "organization",
+      "range": "place",
+      "verb": "has headquarters in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "situated-in",
+      "domain": "entity",
+      "range": "place",
+      "verb": "is situated in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-member",
+      "domain": "organization",
+      "range": "agent",
+      "verb": "has member",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "member-of",
+      "domain": "agent",
+      "range": "organization",
+      "verb": "is a member of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "participates-in",
+      "domain": "agent",
+      "range": "activity",
+      "verb": "participates in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-participant",
+      "domain": "event",
+      "range": "agent",
+      "verb": "has participant",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "occurred-at",
+      "domain": "event",
+      "range": "place",
+      "verb": "occurs at",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-time",
+      "domain": "event",
+      "range": "time-interval",
+      "verb": "has time",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "causes",
+      "domain": "event",
+      "range": "event",
+      "verb": "causes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-effect",
+      "domain": "activity",
+      "range": "effect",
+      "verb": "has possible effect",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "requires",
+      "domain": "activity",
+      "range": "condition",
+      "verb": "requires",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-input",
+      "domain": "process",
+      "range": "entity",
+      "verb": "has input",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-output",
+      "domain": "process",
+      "range": "entity",
+      "verb": "has output",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "produces",
+      "domain": "process",
+      "range": "entity",
+      "verb": "produces",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "has-use-case",
+      "domain": "physical-entity",
+      "range": "activity",
+      "verb": "has use case",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
     }
   ],
   "definitions": [
@@ -40,9 +824,582 @@
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
+    },
+    {
+      "concept": "physical-entity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "abstract-entity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "agent",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "organization",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "place",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "geographic-region",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "geographic-feature",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "artifact",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "event",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "property",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "material",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "substance",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "information-object",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "creative-work",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "media-work",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-object",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "quantity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "time-interval",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "function",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "role",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "genre",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "environment",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "living-organism",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "biological-adaptation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "physiological-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "body-part",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "food",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "vehicle",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "tool",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "transportation-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "travel-trip",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "plan",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "step",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "record",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "scientific-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-expression",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-function",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "score",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "economic-incentive",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "production-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "exercise",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "communication-device",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "craft-material",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "reusable-container",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "time-period",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "site",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
-  "relationAssertions": [],
+  "relationAssertions": [
+    {
+      "subject": "organization",
+      "relation": "is-a",
+      "object": "agent"
+    },
+    {
+      "subject": "geographic-region",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "geographic-feature",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "artifact",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "process",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "activity",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "material",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "substance",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "information-object",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "creative-work",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "media-work",
+      "relation": "is-a",
+      "object": "creative-work"
+    },
+    {
+      "subject": "mathematical-object",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "quantity",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "function",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "role",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "condition",
+      "relation": "is-a",
+      "object": "state"
+    },
+    {
+      "subject": "effect",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "genre",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "living-organism",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "biological-adaptation",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "physiological-process",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "body-part",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "food",
+      "relation": "is-a",
+      "object": "substance"
+    },
+    {
+      "subject": "vehicle",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "tool",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "transportation-activity",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "travel-trip",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "plan",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "step",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "record",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "scientific-method",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "mathematical-method",
+      "relation": "is-a",
+      "object": "scientific-method"
+    },
+    {
+      "subject": "mathematical-condition",
+      "relation": "is-a",
+      "object": "condition"
+    },
+    {
+      "subject": "mathematical-expression",
+      "relation": "is-a",
+      "object": "mathematical-object"
+    },
+    {
+      "subject": "mathematical-function",
+      "relation": "is-a",
+      "object": "function"
+    },
+    {
+      "subject": "score",
+      "relation": "is-a",
+      "object": "quantity"
+    },
+    {
+      "subject": "economic-incentive",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "production-activity",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "exercise",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "communication-device",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "craft-material",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "reusable-container",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "time-period",
+      "relation": "is-a",
+      "object": "time-interval"
+    },
+    {
+      "subject": "site",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "physical-entity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "abstract-entity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "agent",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "place",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "event",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "property",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "time-interval",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "environment",
+      "relation": "is-a",
+      "object": "entity"
+    }
+  ],
   "dataProperties": [],
   "dataAssertions": []
 }
