@@ -7,6 +7,45 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Selects_transportation_items_from_explicit_activity_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which of the following is useful for transportation: a glass of wine, a lamp, a train, an iced cube tray, a plane, a bicycle, an apple and a scooter.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Train, plane, bicycle, and scooter are used for transportation.",
+            answer.Message);
+        Assert.Equal(
+            "ask(select-for-activity(transportation, items(glass-of-wine, lamp, train, iced-cube-tray, plane, bicycle, apple, scooter)))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Equal(
+            4,
+            evidence.Sources.Count(source =>
+                source.SourceId.Contains(":used-for:", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("Which of the following is useful for transportation: a lamp and an apple?")]
+    [InlineData("Which of the following are useful for running: a train and a bicycle?")]
+    public async Task Abstains_when_no_candidate_has_an_asserted_activity_relation(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Explains_sunset_outcome_and_earth_rotation_from_event_graph()
     {
         var client = new LatticeRuntimeClient();
