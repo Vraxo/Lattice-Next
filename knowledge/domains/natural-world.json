@@ -187,6 +187,21 @@
       "id": "desert-environment-example",
       "label": "desert environment example",
       "kind": "Individual"
+    },
+    {
+      "id": "time-of-day",
+      "label": "time of day",
+      "kind": "Type"
+    },
+    {
+      "id": "nighttime",
+      "label": "nighttime",
+      "kind": "Type"
+    },
+    {
+      "id": "nighttime-example",
+      "label": "nighttime",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -374,6 +389,41 @@
       "form": "desert environment example",
       "concept": "desert-environment-example",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "time of day",
+      "concept": "time-of-day",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "nighttime",
+      "concept": "nighttime",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "night",
+      "concept": "nighttime",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "nightfall",
+      "concept": "nighttime",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the sun goes down",
+      "concept": "sunset",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sun goes down",
+      "concept": "sunset",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sun sets",
+      "concept": "sunset",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -508,6 +558,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "marks-start-of",
+      "domain": "event",
+      "range": "time-of-day",
+      "verb": "marks start of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -633,6 +694,18 @@
     },
     {
       "concept": "horizon",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "time-of-day",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "nighttime",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -913,6 +986,26 @@
       "subject": "desert-environment-example",
       "relation": "instance-of",
       "object": "desert-environment"
+    },
+    {
+      "subject": "time-of-day",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "nighttime",
+      "relation": "is-a",
+      "object": "time-of-day"
+    },
+    {
+      "subject": "nighttime-example",
+      "relation": "instance-of",
+      "object": "nighttime"
+    },
+    {
+      "subject": "sunset-example",
+      "relation": "marks-start-of",
+      "object": "nighttime-example"
     }
   ],
   "dataProperties": [],

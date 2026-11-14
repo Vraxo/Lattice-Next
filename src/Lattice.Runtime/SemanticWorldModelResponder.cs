@@ -44,6 +44,12 @@ internal static class SemanticWorldModelResponder
                     reasoner,
                     out message,
                     out evidence),
+            SemanticWorldModelQuestionKind.EventOutcomeExplanation =>
+                TryExplainEventOutcome(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.HighestPointQuery =>
+                TryHighestPointQuery(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RegionalTerminologyQuery =>
+                TryRegionalTerminologyQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
                 TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
@@ -51,7 +57,11 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
-                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: false, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CommonTypedRelationQuery =>
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery =>
+                TryMediaExamplesByGenreAndPeriod(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -197,6 +207,536 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryMediaExamplesByGenreAndPeriod(
+        string genreId,
+        string periodId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var genre = model.FindConcept(genreId, SemanticConceptKind.Type);
+        var period = model.FindConcept(periodId, SemanticConceptKind.Individual);
+        var filmType = model.FindConcept("film", SemanticConceptKind.Type);
+        var genreRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "has-genre" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var periodRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "released-during" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+
+        if (genre is null ||
+            period is null ||
+            filmType is null ||
+            genreRelations.Length != 1 ||
+            periodRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var genreRelation = genreRelations[0];
+        var periodRelation = periodRelations[0];
+        if (genreRelation.DomainType is null ||
+            genreRelation.RangeType is null ||
+            periodRelation.DomainType is null ||
+            periodRelation.RangeType is null ||
+            !reasoner.IsSubtypeOf(filmType.Id, genreRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(filmType.Id, periodRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(genre.Id, genreRelation.RangeType) ||
+            !reasoner.IsInstanceOf(period.Id, periodRelation.RangeType))
+        {
+            return false;
+        }
+
+        var genreAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == genreRelation.Id &&
+                reasoner.IsInstanceOf(assertion.Object, genre.Id))
+            .ToArray();
+        var periodAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == periodRelation.Id &&
+                assertion.Object == period.Id)
+            .ToArray();
+
+        var periodFilmIds = periodAssertions
+            .Select(assertion => assertion.Subject)
+            .ToHashSet(StringComparer.Ordinal);
+        var candidates = genreAssertions
+            .Where(assertion => periodFilmIds.Contains(assertion.Subject))
+            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Where(candidate =>
+                candidate is not null &&
+                reasoner.IsInstanceOf(candidate.Id, filmType.Id))
+            .DistinctBy(candidate => candidate!.Id)
+            .OrderBy(candidate => candidate!.Label, StringComparer.Ordinal)
+            .ToArray();
+
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        var candidateIds = candidates
+            .Select(candidate => candidate!.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var matchingGenreAssertions = genreAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+        var matchingPeriodAssertions = periodAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+
+        var sources = matchingGenreAssertions
+            .Select(assertion => assertion.Source)
+            .Concat(matchingPeriodAssertions.Select(assertion => assertion.Source))
+            .Concat(candidates.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate!.Id, filmType.Id)))
+            .Concat(matchingGenreAssertions.SelectMany(assertion =>
+                reasoner.GetMembershipEvidence(assertion.Object, genre.Id)))
+            .Concat(reasoner.GetMembershipEvidence(period.Id, periodRelation.RangeType))
+            .Distinct()
+            .ToImmutableArray();
+
+        message =
+            $"Some {genre.Label} films from the {period.Label} include {JoinNames(candidates.Select(candidate => candidate!.Label).ToArray())}. These are examples, not a ranked 'best' list.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryRegionalTerminologyQuery(
+        string termId,
+        string sportId,
+        string regionId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var term = model.FindConcept(termId, SemanticConceptKind.Individual);
+        var sport = model.FindConcept(sportId, SemanticConceptKind.Type);
+        var region = model.FindConcept(regionId, SemanticConceptKind.Individual);
+
+        var regionalRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "regional-equivalent-of" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var regionRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "used-in-region" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var sportRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "used-in-sport" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Type)
+            .ToArray();
+        var scoreRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "has-score-meaning" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+
+        if (term is null ||
+            sport is null ||
+            region is null ||
+            regionalRelations.Length != 1 ||
+            regionRelations.Length != 1 ||
+            sportRelations.Length != 1 ||
+            scoreRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var regionalRelation = regionalRelations[0];
+        var regionRelation = regionRelations[0];
+        var sportRelation = sportRelations[0];
+        var scoreRelation = scoreRelations[0];
+
+        if (regionalRelation.DomainType is null ||
+            regionalRelation.RangeType is null ||
+            regionRelation.DomainType is null ||
+            regionRelation.RangeType is null ||
+            sportRelation.DomainType is null ||
+            scoreRelation.DomainType is null ||
+            scoreRelation.RangeType is null ||
+            !reasoner.IsSubtypeOf(regionalRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(regionalRelation.RangeType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(regionRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(sportRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(scoreRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(scoreRelation.RangeType, "score-meaning") ||
+            !reasoner.IsInstanceOf(term.Id, regionalRelation.RangeType) ||
+            !reasoner.IsInstanceOf(term.Id, sportRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(sport.Id, "sport") ||
+            !reasoner.IsInstanceOf(region.Id, regionRelation.RangeType))
+        {
+            return false;
+        }
+
+        var termSportAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == term.Id &&
+                assertion.Relation == sportRelation.Id &&
+                assertion.Object == sport.Id)
+            .ToArray();
+        var termScores = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == term.Id &&
+                assertion.Relation == scoreRelation.Id)
+            .ToArray();
+
+        if (termSportAssertions.Length != 1 || termScores.Length != 1)
+        {
+            return false;
+        }
+
+        var candidates = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == regionalRelation.Id &&
+                assertion.Object == term.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Candidate = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Candidate is not null &&
+                reasoner.IsInstanceOf(candidate.Candidate.Id, regionalRelation.DomainType) &&
+                reasoner.IsInstanceOf(candidate.Candidate.Id, sportRelation.DomainType))
+            .Select(candidate => new
+            {
+                candidate.Assertion,
+                Candidate = candidate.Candidate!,
+                RegionAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == regionRelation.Id &&
+                        assertion.Object == region.Id)
+                    .ToArray(),
+                SportAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == sportRelation.Id &&
+                        assertion.Object == sport.Id)
+                    .ToArray(),
+                ScoreAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == scoreRelation.Id)
+                    .ToArray()
+            })
+            .Where(candidate =>
+                candidate.RegionAssertions.Length == 1 &&
+                candidate.SportAssertions.Length == 1 &&
+                candidate.ScoreAssertions.Length == 1 &&
+                candidate.ScoreAssertions[0].Object == termScores[0].Object)
+            .ToArray();
+
+        if (candidates.Length != 1)
+        {
+            return false;
+        }
+
+        var match = candidates[0];
+        var alias = match.Candidate;
+        var scoreMeaning = model.FindConcept(termScores[0].Object, SemanticConceptKind.Individual);
+        if (scoreMeaning is null ||
+            !reasoner.IsInstanceOf(scoreMeaning.Id, scoreRelation.RangeType))
+        {
+            return false;
+        }
+
+        var sources = new List<SemanticWorldModelSource>
+        {
+            match.Assertion.Source,
+            match.RegionAssertions[0].Source,
+            match.SportAssertions[0].Source,
+            match.ScoreAssertions[0].Source,
+            termSportAssertions[0].Source,
+            termScores[0].Source
+        };
+        sources.AddRange(reasoner.GetMembershipEvidence(term.Id, regionalRelation.RangeType));
+        sources.AddRange(reasoner.GetMembershipEvidence(alias.Id, regionalRelation.DomainType));
+        sources.AddRange(reasoner.GetMembershipEvidence(region.Id, regionRelation.RangeType));
+        sources.AddRange(reasoner.GetMembershipEvidence(scoreMeaning.Id, scoreRelation.RangeType));
+
+        message =
+            $"In {sport.Label} in the {region.Label}, {IndefinitePhrase(term.Label)} is also called {IndefinitePhrase(alias.Label)}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryHighestPointQuery(
+        string regionId,
+        string featureTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var region = model.FindConcept(regionId, SemanticConceptKind.Individual);
+        var featureType = model.FindConcept(featureTypeId, SemanticConceptKind.Type);
+        var highestRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "highest-point-of" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+            })
+            .Where(candidate => candidate.Domain is not null && candidate.Range is not null)
+            .ToArray();
+
+        if (region is null ||
+            featureType is null ||
+            highestRelations.Length != 1 ||
+            !reasoner.IsSubtypeOf(featureType.Id, highestRelations[0].Domain!.Id) ||
+            !reasoner.IsInstanceOf(region.Id, highestRelations[0].Range!.Id))
+        {
+            return false;
+        }
+
+        var highestRelation = highestRelations[0].Relation;
+        var highestAssertion = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == highestRelation.Id &&
+                assertion.Object == region.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Feature = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Feature is not null &&
+                reasoner.IsInstanceOf(candidate.Feature.Id, featureType.Id))
+            .ToArray();
+        if (highestAssertion.Length != 1)
+        {
+            return false;
+        }
+
+        var peak = highestAssertion[0].Feature!;
+        var sources = new List<SemanticWorldModelSource>
+        {
+            highestAssertion[0].Assertion.Source
+        };
+        sources.AddRange(reasoner.GetMembershipEvidence(peak.Id, featureType.Id));
+        sources.AddRange(reasoner.GetMembershipEvidence(region.Id, highestRelations[0].Range!.Id));
+
+        var partOfRelations = model.Relations
+            .Where(relation => relation.Id == "part-of-geographic-region")
+            .ToArray();
+        var contiguousRegionType = model.FindConcept("contiguous-region", SemanticConceptKind.Type);
+        if (partOfRelations.Length == 1 && contiguousRegionType is not null)
+        {
+            var subregions = model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Relation == partOfRelations[0].Id &&
+                    assertion.Object == region.Id)
+                .Select(assertion => new
+                {
+                    Assertion = assertion,
+                    Region = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+                })
+                .Where(candidate =>
+                    candidate.Region is not null &&
+                    reasoner.IsInstanceOf(candidate.Region.Id, contiguousRegionType.Id))
+                .ToArray();
+
+            if (subregions.Length == 1)
+            {
+                var subregion = subregions[0].Region!;
+                var subregionHighest = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Relation == highestRelation.Id &&
+                        assertion.Object == subregion.Id)
+                    .Select(assertion => new
+                    {
+                        Assertion = assertion,
+                        Feature = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+                    })
+                    .Where(candidate =>
+                        candidate.Feature is not null &&
+                        reasoner.IsInstanceOf(candidate.Feature.Id, featureType.Id))
+                    .ToArray();
+
+                if (subregionHighest.Length == 1 &&
+                    subregionHighest[0].Feature!.Id != peak.Id)
+                {
+                    var subregionPeak = subregionHighest[0].Feature!;
+                    message =
+                        $"{peak.Label} is the tallest {featureType.Label} in the {region.Label}. " +
+                        $"If you mean the {subregion.Label}, {subregionPeak.Label} is the tallest {featureType.Label} there.";
+                    sources.Add(subregions[0].Assertion.Source);
+                    sources.Add(subregionHighest[0].Assertion.Source);
+                    sources.AddRange(reasoner.GetMembershipEvidence(subregion.Id, contiguousRegionType.Id));
+                    sources.AddRange(reasoner.GetMembershipEvidence(subregionPeak.Id, featureType.Id));
+                }
+            }
+        }
+
+        if (message.Length == 0)
+        {
+            message = $"{peak.Label} is the tallest {featureType.Label} in the {region.Label}.";
+        }
+
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainEventOutcome(
+        string eventTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var eventType = model.FindConcept(eventTypeId, SemanticConceptKind.Type);
+        if (eventType is null)
+        {
+            return false;
+        }
+
+        var eventInstances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, eventType.Id))
+            .ToArray();
+        if (eventInstances.Length != 1)
+        {
+            return false;
+        }
+
+        var eventInstance = eventInstances[0];
+        var startRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("marks start of", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (startRelations.Length != 1 ||
+            startRelations[0].DomainType is null ||
+            startRelations[0].RangeType is null ||
+            !reasoner.IsSubtypeOf(eventType.Id, startRelations[0].DomainType))
+        {
+            return false;
+        }
+
+        var startRelation = startRelations[0];
+        var outcomeAssertions = reasoner.GetRelations(eventInstance.Id, startRelation.Id).ToArray();
+        if (outcomeAssertions.Length != 1)
+        {
+            return false;
+        }
+
+        var outcome = model.FindConcept(outcomeAssertions[0].Object, SemanticConceptKind.Individual);
+        if (outcome is null || !reasoner.IsInstanceOf(outcome.Id, startRelation.RangeType))
+        {
+            return false;
+        }
+
+        var explanationRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("explains", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var explanations = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Object == eventInstance.Id &&
+                explanationRelations.Any(relation => relation.Id == assertion.Relation))
+            .ToArray();
+        if (explanations.Length != 1)
+        {
+            return false;
+        }
+
+        var explanation = explanations[0];
+        var explanationRelation = explanationRelations.Single(relation => relation.Id == explanation.Relation);
+        var cause = model.FindConcept(explanation.Subject, SemanticConceptKind.Individual);
+        if (cause is null ||
+            explanationRelation.DomainType is null ||
+            !reasoner.IsInstanceOf(cause.Id, explanationRelation.DomainType))
+        {
+            return false;
+        }
+
+        var apparentRelations = model.Relations
+            .Where(relation => relation.Verb.StartsWith("produces apparent", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var apparentAssertions = apparentRelations
+            .SelectMany(relation => reasoner.GetRelations(cause.Id, relation.Id))
+            .ToArray();
+        var causalRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("causes", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var causalAssertions = causalRelations
+            .SelectMany(relation => reasoner.GetRelations(cause.Id, relation.Id))
+            .ToArray();
+        if (apparentAssertions.Length != 1 || causalAssertions.Length != 1)
+        {
+            return false;
+        }
+
+        var apparentAssertion = apparentAssertions[0];
+        var causalAssertion = causalAssertions[0];
+        var apparentRelation = apparentRelations.Single(relation => relation.Id == apparentAssertion.Relation);
+        var causalRelation = causalRelations.Single(relation => relation.Id == causalAssertion.Relation);
+        var apparentMotion = model.FindConcept(apparentAssertion.Object, SemanticConceptKind.Individual);
+        var consequence = model.FindConcept(causalAssertion.Object, SemanticConceptKind.Individual);
+        if (apparentMotion is null ||
+            consequence is null ||
+            apparentRelation.RangeType is null ||
+            causalRelation.RangeType is null ||
+            !reasoner.IsInstanceOf(apparentMotion.Id, apparentRelation.RangeType) ||
+            !reasoner.IsInstanceOf(consequence.Id, causalRelation.RangeType))
+        {
+            return false;
+        }
+
+        var outcomeName = GetMostSpecificTypeLabel(outcome.Id, outcome.Label, model, reasoner);
+        var consequenceName = GetMostSpecificTypeLabel(consequence.Id, consequence.Label, model, reasoner);
+        var sources = ImmutableArray.Create(outcomeAssertions[0].Source, explanation.Source)
+            .Add(apparentAssertion.Source)
+            .Add(causalAssertion.Source)
+            .AddRange(reasoner.GetMembershipEvidence(eventInstance.Id, eventType.Id))
+            .AddRange(reasoner.GetMembershipEvidence(outcome.Id, startRelation.RangeType))
+            .AddRange(reasoner.GetMembershipEvidence(cause.Id, explanationRelation.DomainType))
+            .AddRange(reasoner.GetMembershipEvidence(apparentMotion.Id, apparentRelation.RangeType))
+            .AddRange(reasoner.GetMembershipEvidence(consequence.Id, causalRelation.RangeType))
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"{Capitalize(outcomeName)} begins. {cause.Label} explains why the Sun appears to set and causes the {consequenceName}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryTypedObjectRelationQuery(
@@ -590,6 +1130,120 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    internal static bool TrySelectForActivity(
+        ActivitySelectionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var activityType = model.FindConcept(request.Activity.Value, SemanticConceptKind.Type);
+        if (activityType is null)
+        {
+            return false;
+        }
+
+        var relations = model.Relations
+            .Where(relation =>
+                relation.Verb.Equals("is used for", StringComparison.OrdinalIgnoreCase) &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+            })
+            .Where(candidate =>
+                candidate.Domain is not null &&
+                candidate.Range is not null &&
+                reasoner.IsSubtypeOf(activityType.Id, candidate.Range.Id))
+            .ToArray();
+
+        if (relations.Length != 1)
+        {
+            return false;
+        }
+
+        var relation = relations[0].Relation;
+        var domain = relations[0].Domain!;
+        var range = relations[0].Range!;
+        var activityInstances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, activityType.Id) &&
+                reasoner.IsInstanceOf(concept.Id, range.Id))
+            .ToArray();
+        if (activityInstances.Length == 0)
+        {
+            return false;
+        }
+
+        var activityInstanceIds = activityInstances
+            .Select(concept => concept.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var selected = new List<(string Label, List<SemanticWorldModelSource> Sources)>();
+
+        foreach (var requestedItem in request.Items)
+        {
+            var itemType = model.FindConcept(requestedItem.Value, SemanticConceptKind.Type);
+            if (itemType is null || !reasoner.IsSubtypeOf(itemType.Id, domain.Id))
+            {
+                continue;
+            }
+
+            var itemInstances = model.Concepts
+                .Where(concept =>
+                    concept.Kind == SemanticConceptKind.Individual &&
+                    reasoner.IsInstanceOf(concept.Id, itemType.Id) &&
+                    reasoner.IsInstanceOf(concept.Id, domain.Id))
+                .ToArray();
+            var assertions = itemInstances
+                .SelectMany(instance => model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == instance.Id &&
+                        assertion.Relation == relation.Id &&
+                        activityInstanceIds.Contains(assertion.Object))
+                    .Select(assertion => (Instance: instance, Assertion: assertion)))
+                .ToArray();
+            if (assertions.Length == 0)
+            {
+                continue;
+            }
+
+            var sources = new List<SemanticWorldModelSource>();
+            foreach (var match in assertions)
+            {
+                sources.Add(match.Assertion.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Instance.Id, itemType.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Instance.Id, domain.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Assertion.Object, activityType.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Assertion.Object, range.Id));
+            }
+
+            selected.Add((itemType.Label, sources));
+        }
+
+        if (selected.Count == 0)
+        {
+            return false;
+        }
+
+        var names = selected.Select(item => item.Label).ToArray();
+        message = names.Length == 1
+            ? $"{Capitalize(names[0])} is used for {activityType.Label}."
+            : $"{Capitalize(JoinNames(names))} are used for {activityType.Label}.";
+        var allSources = selected
+            .SelectMany(item => item.Sources)
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(allSources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     internal static bool TryChoice(
         ChoiceQuestionFormula question,
         SemanticWorldModel model,
@@ -960,6 +1614,7 @@ internal static class SemanticWorldModelResponder
         string? requestedVerb,
         string? otherSubjectId,
         string? requestedTargetType,
+        bool formatAsList,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
         out string message,
@@ -1093,12 +1748,41 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = string.Join(
-            " ",
-            targets.Select((target, index) =>
-                FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
+        if (formatAsList)
+        {
+            if (targetType is null ||
+                selectedRelation.ObjectRole is not null ||
+                !selectedRelation.Verb.EndsWith(targetType.Label, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var baseVerb = selectedRelation.Verb[..^targetType.Label.Length].TrimEnd();
+            var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
+                ? InflectPluralSubjectVerb(baseVerb)
+                : baseVerb;
+            message = $"{Capitalize(IndefinitePhrase(subject.Label))} {verb} {JoinNames(targets.Select(target => target!.Label).ToArray())}.";
+        }
+        else
+        {
+            message = string.Join(
+                " ",
+                targets.Select((target, index) =>
+                    FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
+        }
+
+        var membershipSources = selectedRelation.DomainType is null
+            ? Enumerable.Empty<SemanticWorldModelSource>()
+            : reasoner.GetMembershipEvidence(subject.Id, selectedRelation.DomainType);
+        var targetMembershipSources = targetType is null
+            ? Enumerable.Empty<SemanticWorldModelSource>()
+            : targets.SelectMany(target => reasoner.GetMembershipEvidence(target!.Id, targetType.Id));
         evidence = ImmutableArray.Create(ToEvidence(
-            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            assertions.Select(assertion => assertion.Source)
+                .Concat(membershipSources)
+                .Concat(targetMembershipSources)
+                .Distinct()
+                .ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
     }

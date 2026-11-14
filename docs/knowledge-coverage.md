@@ -11,30 +11,30 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 551 concepts: 317 types and 234 individuals
-- 135 relation signatures
-- 838 graph assertions
-- 554 lexical forms
+- 560 concepts: 321 types and 239 individuals
+- 139 relation signatures
+- 861 graph assertions
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 16 represented at the ontology level
-- 17 partially represented
+- 18 represented at the ontology level
+- 15 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #215's head `78316eb22e80915db90edac00fad0de89efa5867`:
+The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
 
 - .NET build: passed
-- .NET tests: 908 passed, 0 failed
-- External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 11 substantive answers, 13 answered, 14 handled, 20 unhandled, 0 runner errors
-- Average latency: 378 ms (single run; stability not measured)
+- .NET tests: 922 passed, 0 failed
+- External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
+- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 262 ms (single run; stability not measured)
 
-Dolly-003, Dolly-004, Dolly-005, and Dolly-013 have been individually inspected and marked as substantively reviewed. Their answers are composed from graph relations and explicit premises; they are not stored answer sentences. The runtime benchmark score is **11/34 (32.4%)**. The separate `substantive_answer_reviewed` metadata count is 12; it is a review count, not a runtime capability score.
+Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
 
 ## Cross-domain structure
 
@@ -104,3 +104,60 @@ The answer therefore corrects the absolute premise: mobile phones are not inhere
 The benchmark's Dutch-artist question is represented with a typed artist hierarchy and a specific `painted-by` relation. Johannes Vermeer is classified as a Dutch artist; the artwork is classified as a painting; and the relation connects the painting to Vermeer.
 
 Historical grounding: the [Mauritshuis collection record](https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring) identifies the painting as a work by Johannes Vermeer and describes him as a Dutch painter. The runtime query does not retrieve a stored answer sentence; it resolves the typed relation and composes the answer from the graph.
+
+
+## Sunset and nighttime outcome
+
+The event graph links sunset to the start of nighttime, and connects that event to Earth's rotation, apparent solar motion, and the day-night cycle. The answer is derived from those relations rather than stored as a sentence.
+
+- [U.S. Naval Observatory: Rise, Set, and Twilight Definitions](https://aa.usno.navy.mil/faq/RST_defs) explains that Earth's rotation causes the phenomena of rising and setting.
+- [Lunar and Planetary Institute: Day and Night](https://www.lpi.usra.edu/education/skytellers/day_night.shtml) explains that the side of Earth facing the Sun experiences day, while the side facing away experiences night.
+
+The model represents the general sunset-to-nighttime transition; it does not calculate local sunset times or account for latitude, season, atmospheric refraction, or polar-day conditions.
+
+
+## Continental versus contiguous United States
+
+The geographic graph distinguishes the continental United States (49 states, including Alaska) from the contiguous United States (the lower 48). The highest-point relations identify Mount McKinley (also known as Denali) for the 49-state continental region and Mount Whitney for the contiguous region.
+
+The query responder follows those relations instead of comparing unmodeled elevation numbers. It explicitly notes the contiguous-state answer when a question uses the ambiguous phrase "continental US".
+
+Grounding:
+- [USGS, Elevations and Distances](https://pubs.usgs.gov/gip/Elevations-Distances/elvadist.html) lists Alaska's Mount McKinley and California's Mount Whitney as their respective state high points.
+- [USGS, Mount Whitney Quadrangle](https://pubs.usgs.gov/bul/1760/report.pdf) identifies Mount Whitney as the highest point in the conterminous United States.
+- [USGS, Extreme and Mean Altitudes](https://pubs.usgs.gov/bul/0817/report.pdf) distinguishes the continental United States (49 states) from the conterminous United States (48 states).
+- [Federal Register, Executive Order 14172](https://www.govinfo.gov/content/pkg/FR-2025-01-31/pdf/2025-02096.pdf) reinstates Mount McKinley as the federal name; the mountain is also widely known as Denali.
+
+The knowledge graph records the current federal name and retains Denali as an alternate lexical form.
+
+
+## Regional golf terminology
+
+The golf graph represents an albatross as a score of three strokes under par. It also represents double eagle as a regional equivalent used in the United States. Both terms point to the same score meaning, and the regional term has explicit golf and United States usage assertions. The responder requires all of those graph paths before answering; it does not rely on a stored answer sentence.
+
+Grounding:
+- [USGA, Golf History Questions](https://www.usga.org/history/faq--golf-history-questions-232994f0.html) describes albatross as a term for a double eagle.
+- [The Double Eagle Club, FAQ](https://www.doubleeagleclub.org/frequently-asked-questions) identifies double eagle as the term used most often by American golfers.
+- [International Golf Federation, Golf Glossary](https://www.igfgolf.org/pdf/media-centre/golf-glossary-for-website.pdf) cross-references albatross and double eagle.
+
+The answer is a terminology distinction, not a claim that the terms denote different scores.
+
+
+## Common ingredient queries
+
+The full English breakfast is represented as a dish with eight asserted food-ingredient relations: egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding. The generic `What are common <type> of <subject>?` query form resolves the requested ingredient type, returns only graph-backed targets, and includes both the ingredient relations and type memberships as evidence. It abstains for unknown dishes and unsupported target types.
+
+
+Grounding for the full English breakfast ingredient list:
+- [BBC Good Food — What is a full English breakfast?](https://www.bbcgoodfood.com/howto/guide/what-is-a-full-english-breakfast) identifies eggs, bacon, toast, tomatoes, baked beans, and sausages as essentials, with mushrooms and black pudding among common additions. It also notes that modern plates vary and do not always contain every component.
+- [English Breakfast Society — Reference Guide](https://englishbreakfastsociety.com/reference/) describes the core components and recognises regional variation.
+
+
+## 1980s comedy-film examples
+
+The media graph already contains five film individuals with both a comedy-genre assertion and a 1980s release-period assertion. The runtime now intersects those two relations and checks that each candidate is a film. It returns examples, not a ranking: the graph has no objective quality or popularity scores.
+
+Grounding:
+- [AFI Catalog — Airplane! (1980)](https://catalog.afi.com/Film/53895-AIRPLANE) identifies the film as a comedy released in 1980.
+- [Filmsite — Comedy Films](https://www.filmsite.org/comedyfilms7.html) lists 1980s examples including Ghostbusters, Ferris Bueller's Day Off, Coming to America, and A Fish Called Wanda.
+- [MyShows — Comedy Movies 1980–1989](https://en.myshows.me/movies/catalog/y-1980-1989/g-comedy/) independently lists all five modeled titles in its 1980s comedy catalog.

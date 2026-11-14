@@ -485,6 +485,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ActivitySelectionFormula activitySelection)
+        {
+            return ProcessActivitySelectionQuestion(parsedUtterance, activitySelection);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
         {
             if (semanticQuestion.Kind == SemanticWorldModelQuestionKind.Membership &&
@@ -752,6 +758,31 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
                 "I don't have enough evidence to classify every item into exactly one requested category.",
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
+    }
+
+    private LatticeUtteranceResult ProcessActivitySelectionQuestion(
+        SemanticUtterance utterance,
+        ActivitySelectionFormula request)
+    {
+        if (!SemanticWorldModelResponder.TrySelectForActivity(
+            request,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough graph evidence to identify items used for that activity.",
                 SemanticFormatter.Format(utterance),
                 SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
