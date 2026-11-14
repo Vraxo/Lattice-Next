@@ -334,3 +334,8 @@ The construction `Which of the following is useful for <activity>: <items>?` res
 ### Regional highest-point questions
 
 The `What is the tallest/highest <feature type> in <region>?` construction resolves the feature type and region, then follows a typed `highest-point-of` assertion. It requires a unique supported peak and includes its type-membership evidence. When the requested region contains a modeled contiguous subregion, the answer can state that narrower region's highest point as a clarification. Unknown regions or missing/ambiguous highest-point assertions cause abstention.
+
+
+### Ingredient-list questions
+
+The construction `What are common ingredients of <dish>?` resolves the dish as an individual and follows its typed `has-ingredient` assertions. The responder checks the relation's individual argument kinds and declared dish/food types, then composes the ingredient list from the asserted food individuals. Missing dishes, incompatible relation signatures, or dishes without supported ingredient assertions cause abstention. The answer reports modeled common ingredients; it does not claim every serving contains every listed item.
