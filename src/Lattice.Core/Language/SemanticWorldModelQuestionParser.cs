@@ -62,6 +62,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RecordHolderPattern = new(
+        @"^What individual has won the most (?<record>[A-Za-z][A-Za-z -]*?)(?: in the history of the games)?\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -249,6 +253,16 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var recordHolder = RecordHolderPattern.Match(text);
+        if (recordHolder.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RecordHolderQuery,
+                subject: Normalize(recordHolder.Groups["record"].Value),
                 sourceText: source);
             return true;
         }
