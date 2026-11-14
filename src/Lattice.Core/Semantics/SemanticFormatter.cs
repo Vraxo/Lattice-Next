@@ -63,6 +63,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ContributionQuery => $"world-model-contribution({question.Subject}, {question.Concept}, {question.OtherSubject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.ImpactExplanation => $"world-model-impact-explanation({question.Subject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery => $"world-model-typed-object-relation({question.Subject}, {question.Concept}, {question.TargetType})",
+            SemanticWorldModelQuestionKind.EventOutcomeExplanation => $"world-model-event-outcome({question.Subject})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
