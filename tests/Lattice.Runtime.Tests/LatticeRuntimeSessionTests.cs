@@ -912,6 +912,19 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Does_not_reuse_water_deprivation_explanation_for_an_unmodeled_survival_condition()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive in freezing weather?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Empty(answer.SupportingEvidence);
+    }
+
+    [Fact]
     public async Task Derives_free_reed_instruments_from_airflow_and_vibrating_reed_structure()
     {
         var client = new LatticeRuntimeClient();
