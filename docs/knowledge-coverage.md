@@ -26,17 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #225's head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (CI run 845):
+The latest fully executed integrated run is PR #228's head `e8c653bc75edf71e13ffb19f7aee8e1e09760c89` (CI run 859):
 
 - .NET build: passed
-- .NET tests: 920 passed, 0 failed
+- .NET tests: 925 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 15 substantive answers at execution time, 18 answered, 19 handled, 15 unhandled, 0 runner errors
-- Average latency: 346 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 18 substantive answers, 20 answered, 21 handled, 13 unhandled, 0 runner errors
+- Average latency: 307 ms (single run; stability not measured)
 
-Dolly-025's benchmark output was manually inspected after that run. It answered with the eight modeled ingredients and included all eight `has-ingredient` assertions plus the dish and ingredient type-membership evidence. The record's `substantive_answer_reviewed` flag is now true. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Therefore the reviewed result set now contains **16 substantive answers (16/34, 47.1%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+The runtime benchmark score is **18/34 (52.9%)**, up from 16/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer.
 
-Dolly-024's regional golf terminology answer and Dolly-022's continental/contiguous mountain distinction are also represented in that same integrated run. The substantive count is based on reviewed, answered outputs—not the ontology coverage count.
+Dolly-029's output was manually inspected: Steve Urkel is returned with both the `neighbor-of` and `character-in` assertions, plus supporting type memberships. Dolly-023 was also inspected: the five listed films each have both a comedy-genre assertion and a 1980s release-period assertion. The response explicitly treats them as examples rather than claiming an unsupported ranking.
 
 ## Cross-domain structure
 
