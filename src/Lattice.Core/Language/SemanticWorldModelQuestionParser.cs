@@ -46,6 +46,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?!(?:is|are|of|one)\b)(?<type>[A-Za-z][A-Za-z -]*) (?!(?:is|are)\b)(?<verb>[A-Za-z]+) (?<object>.+?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex IngredientListPattern = new(
+        @"^What are (?:some )?common ingredients of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex HighestPointPattern = new(
         @"^What is the (?:tallest|highest) (?<type>[A-Za-z][A-Za-z -]*?) in (?<region>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -203,6 +207,16 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.Membership,
                 subject: Normalize(membership.Groups["subject"].Value),
                 concept: Normalize(membership.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var ingredientList = IngredientListPattern.Match(text);
+        if (ingredientList.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.IngredientListQuery,
+                subject: Normalize(ingredientList.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
