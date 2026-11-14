@@ -362,7 +362,7 @@ public sealed class LatticeRuntimeSessionTests
         {
             "core-world-model:relation:guitar:has-sound-production-mechanism:guitar-mechanism",
             "core-world-model:relation:violin:has-sound-production-mechanism:violin-mechanism",
-            "core-world-model:relation:piano:has-playing-interface:piano-keyboard",
+            "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
             "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
             "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
             "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
@@ -381,7 +381,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             pianoSoundProductionAnswer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano:has-sound-production-mechanism:piano-action"));
+                source.SourceId == "core-world-model:relation:piano-example:has-sound-production-mechanism:piano-action"));
     }
 
 
@@ -401,24 +401,24 @@ public sealed class LatticeRuntimeSessionTests
             "A keyboard instrument is a musical instrument that has a keyboard as its playing interface.",
             Assert.Single(keyboardDefinition.Utterances).Message);
 
-        var keyboardReason = await session.SubmitAsync("Why is a piano a keyboard instrument?");
+        var keyboardReason = await session.SubmitAsync("Why is the example piano a keyboard instrument?");
         Assert.Equal(
-            "A piano is a keyboard instrument because it has a keyboard as its playing interface.",
+            "The example piano is a keyboard instrument because it has a keyboard as its playing interface.",
             Assert.Single(keyboardReason.Utterances).Message);
 
-        var stringReason = await session.SubmitAsync("Why is a piano a struck-string instrument?");
+        var stringReason = await session.SubmitAsync("Why is the example piano a struck-string instrument?");
         Assert.Equal(
-            "A piano is a struck-string instrument because it uses a struck-string mechanism.",
+            "The example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
 
-        var soundMechanism = await session.SubmitAsync("How does a piano produce sound?");
+        var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         Assert.Equal(
-            "A piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
+            "The example piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
             Assert.Single(soundMechanism.Utterances).Message);
 
-        var comparison = await session.SubmitAsync("What distinguishes a piano from a harmonium?");
+        var comparison = await session.SubmitAsync("What distinguishes the example piano from a harmonium?");
         Assert.Equal(
-            "Both have a keyboard as their playing interface. Piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
+            "Both have a keyboard as their playing interface. The example piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
             Assert.Single(comparison.Utterances).Message);
 
         Assert.All(
@@ -427,7 +427,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano:has-playing-interface:piano-keyboard"));
+                source.SourceId == "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard"));
         Assert.Contains(
             soundMechanism.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>

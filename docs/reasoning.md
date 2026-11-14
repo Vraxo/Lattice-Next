@@ -294,3 +294,10 @@ The query is **False**, with a proof containing Fido's dog fact and the negative
     Does Fido like milk?
 
 The negative relation is derived for that exact subject and object. A positive assertion can coexist with it, producing **Both** while retaining both explanations. Universal rules may use explicit negative unary premises and one explicit negative fixed-object relational premise. For example, `Every dog that does not like milk is unfriendly.` requires both a dog fact and an explicitly stored negative `likes` fact for that same individual and exact object `milk`; absence of a positive `likes` fact is insufficient. Negative evidence never satisfies a positive premise, nor does positive evidence satisfy a negative premise. Derived relational conclusions remain terminal and are not reused as relational premises. This narrow chaining does not add contraposition, closed-world reasoning, or explosion.
+
+
+## Piano as a defined instrument type
+
+The piano is represented as a defined **type**, not as a named individual. Its sufficient expression is the conjunction of two existential restrictions: it has a keyboard playing interface, and it has a struck-string sound-production mechanism. The type is also placed under both keyboard instrument and struck-string instrument in the taxonomy.
+
+The concrete component graph belongs to a separate `example-piano` individual. Its keyboard activates the piano action; the action actuates hammers; the hammers strike tensioned strings; and the strings transmit vibration to a resonator that radiates sound. The existing nested definitions derive the struck-string mechanism and string/resonator classifications from those structural facts. This keeps the reusable type definition separate from the evidence about one represented piano.
