@@ -7,10 +7,10 @@
     { "id": "biological-ability", "label": "biological ability", "kind": "Type" },
     { "id": "survival-adaptation", "label": "survival adaptation", "kind": "Type" },
     { "id": "survive-for-long-without-water", "label": "survive for long without water", "kind": "Individual" },
-    { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, limiting water lost in urine", "kind": "Individual" },
-    { "id": "water-extracting-digestive-system", "label": "their intestines reabsorb water from digested material, leaving dry feces and reducing water lost in waste", "kind": "Individual" },
+    { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, reducing water lost in urine", "kind": "Individual" },
+    { "id": "water-extracting-digestive-system", "label": "their intestines reabsorb water, leaving dry feces and reducing water lost in waste", "kind": "Individual" },
     { "id": "nasal-moisture-recovery", "label": "their nasal passages recover moisture from exhaled air before it is lost", "kind": "Individual" },
-    { "id": "dehydration-tolerance", "label": "they tolerate substantial dehydration and allow body temperature to fluctuate, reducing the need to cool themselves by sweating", "kind": "Individual" }
+    { "id": "dehydration-tolerance", "label": "they tolerate dehydration and body-temperature changes, so they need to sweat less", "kind": "Individual" }
   ],
   "lexemes": [
     { "form": "camel", "concept": "camel", "partOfSpeech": "noun" },
