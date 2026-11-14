@@ -610,22 +610,27 @@
         "mountains"
       ],
       "concepts": [
-        "mount-whitney",
-        "contiguous-united-states",
-        "california",
-        "sierra-nevada",
         "mountain",
-        "geographic-region"
+        "mount-whitney",
+        "mount-mckinley",
+        "alaska",
+        "continental-united-states",
+        "contiguous-united-states",
+        "contiguous-region",
+        "geographic-region",
+        "state-region"
       ],
       "relations": [
         "highest-point-of",
-        "part-of-geographic-region"
+        "part-of-geographic-region",
+        "is-a",
+        "instance-of"
       ],
-      "limitations": "Mount Whitney is linked as the highest point of the contiguous United States."
+      "limitations": "The graph distinguishes the 49-state continental United States (including Alaska) from the contiguous 48 states. The answer follows curated highest-point-of assertions rather than comparing elevation measurements. It uses Mount McKinley as the current federal name and Denali as an alternate lexical form."
     },
     {
       "id": "dolly-023",
-      "status": "partial",
+      "status": "represented",
       "areas": [
         "film",
         "comedy",
@@ -644,7 +649,7 @@
         "has-genre",
         "released-during"
       ],
-      "limitations": "Representative films are linked to comedy and the 1980s. 'Best' is subjective and no ranking is encoded."
+      "limitations": "The runtime intersects graph assertions for film genre and release period, returning only films typed as films that match both constraints. 'Best' is subjective; no ranking is encoded, so the output explicitly presents examples rather than a ranked list."
     },
     {
       "id": "dolly-024",
@@ -657,12 +662,18 @@
         "albatross",
         "three-under-par",
         "golf-scoring-term",
-        "score-meaning"
+        "score-meaning",
+        "double-eagle",
+        "united-states"
       ],
       "relations": [
-        "has-score-meaning"
+        "has-score-meaning",
+        "regional-equivalent-of",
+        "used-in-region",
+        "used-in-sport",
+        "instance-of"
       ],
-      "limitations": "Albatross is linked to a score of three strokes under par."
+      "limitations": "The runtime resolves the requested sport, regional term, and source term through lexical entries, then requires a regional-equivalence assertion, shared score meaning, and matching sport and region usage assertions. It does not infer regional terminology without those graph paths."
     },
     {
       "id": "dolly-025",
@@ -686,7 +697,7 @@
       "relations": [
         "has-ingredient"
       ],
-      "limitations": "Common ingredients are represented; regional variations remain possible."
+      "limitations": "The generic common-typed-relation question form resolves the dish and ingredient type, then returns only asserted has-ingredient targets that are typed as ingredients. The output includes the supporting ingredient memberships and relation assertions; unknown dishes or unmatched target types are not guessed."
     },
     {
       "id": "dolly-026",

@@ -18,6 +18,14 @@ internal static class SemanticWorldModelQuestionParser
         @"^Where is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex MediaExamplesByGenreAndPeriodPattern = new(
+        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) (?:movies|films) of (?:the )?(?<period>[0-9]{4}'?s)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex CommonTypedRelationPattern = new(
+        @"^What are (?:the )?common (?<type>[A-Za-z][A-Za-z -]*?) of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex TypedRelationActionPattern = new(
         @"^What (?<type>[A-Za-z][A-Za-z -]*) does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -44,6 +52,14 @@ internal static class SemanticWorldModelQuestionParser
 
     private static readonly Regex TypedObjectRelationPattern = new(
         @"^Which (?!(?:is|are|of|one)\b)(?<type>[A-Za-z][A-Za-z -]*) (?!(?:is|are)\b)(?<verb>[A-Za-z]+) (?<object>.+?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex HighestPointPattern = new(
+        @"^What is the (?:tallest|highest) (?<type>[A-Za-z][A-Za-z -]*?) in (?<region>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RegionalTerminologyPattern = new(
+        @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
@@ -101,6 +117,29 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationLocation.Groups["subject"].Value),
                 concept: Normalize(relationLocation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var mediaExamples = MediaExamplesByGenreAndPeriodPattern.Match(text);
+        if (mediaExamples.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery,
+                subject: Normalize(mediaExamples.Groups["genre"].Value),
+                otherSubject: Normalize(mediaExamples.Groups["period"].Value).Replace("'", string.Empty, StringComparison.Ordinal),
+                sourceText: source);
+            return true;
+        }
+
+        var commonTypedRelation = CommonTypedRelationPattern.Match(text);
+        if (commonTypedRelation.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.CommonTypedRelationQuery,
+                subject: Normalize(commonTypedRelation.Groups["subject"].Value),
+                concept: "has",
+                targetType: NormalizeType(commonTypedRelation.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
@@ -199,6 +238,29 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.Membership,
                 subject: Normalize(membership.Groups["subject"].Value),
                 concept: Normalize(membership.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var highestPoint = HighestPointPattern.Match(text);
+        if (highestPoint.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.HighestPointQuery,
+                subject: Normalize(highestPoint.Groups["region"].Value),
+                concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var regionalTerminology = RegionalTerminologyPattern.Match(text);
+        if (regionalTerminology.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RegionalTerminologyQuery,
+                subject: Normalize(regionalTerminology.Groups["term"].Value),
+                concept: Normalize(regionalTerminology.Groups["sport"].Value),
+                otherSubject: Normalize(regionalTerminology.Groups["region"].Value),
                 sourceText: source);
             return true;
         }

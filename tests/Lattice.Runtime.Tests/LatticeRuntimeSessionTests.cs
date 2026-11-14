@@ -7,6 +7,212 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Lists_comedy_films_from_the_requested_decade_without_claiming_a_ranking()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1980's?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Some comedy films from the 1980s include A Fish Called Wanda, Airplane!, Coming to America, Ferris Bueller's Day Off, and Ghostbusters. These are examples, not a ranked 'best' list.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-media-examples(comedy, 1980s))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:released-during:decade-1980s", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":ghostbusters-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_return_films_when_genre_or_period_constraints_are_unsupported()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedGenre = await session.SubmitAsync(
+            "What are some of the best horror movies of the 1980's?");
+        var unsupportedPeriod = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1970's?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedGenre.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedPeriod.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Answers_common_ingredient_queries_through_typed_relation_lookup()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are common ingredients of a full english breakfast?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "A full English breakfast has egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-common-relation-list(full-english-breakfast, has, target-type=ingredient))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:egg", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":egg:instance-of:ingredient", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:black-pudding", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_ingredients_for_unknown_dishes_or_unmatched_types()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unknownDish = await session.SubmitAsync(
+            "What are common ingredients of a moon sandwich?");
+        var unsupportedType = await session.SubmitAsync(
+            "What are common minerals of a full english breakfast?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unknownDish.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedType.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "In golf what do the Americans call an albatross");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "In golf in the United States, an albatross is also called a double eagle.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-regional-terminology(albatross, golf, americans))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:regional-equivalent-of:albatross", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:used-in-region:united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:has-score-meaning:three-under-par", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_apply_a_regional_golf_term_to_an_unsupported_sport_or_region()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedSport = await session.SubmitAsync(
+            "In tennis what do the Americans call an albatross");
+        var unsupportedRegion = await session.SubmitAsync(
+            "In golf what do Canadians call an albatross");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedSport.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedRegion.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Distinguishes_continental_and_contiguous_US_highest_mountains()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in the continental US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount McKinley is the tallest mountain in the continental United States. If you mean the contiguous United States, Mount Whitney is the tallest mountain there.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-highest-point(continental-us, mountain))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:continental-united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Answers_highest_mountain_in_contiguous_US_from_regional_relation()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the highest mountain in the contiguous US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount Whitney is the tallest mountain in the contiguous United States.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(item => item.Sources),
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Abstains_when_region_has_no_supported_highest_point()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in Canada?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Selects_transportation_items_from_explicit_activity_relations()
     {
         var client = new LatticeRuntimeClient();

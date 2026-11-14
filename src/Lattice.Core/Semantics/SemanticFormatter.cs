@@ -65,6 +65,10 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ImpactExplanation => $"world-model-impact-explanation({question.Subject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery => $"world-model-typed-object-relation({question.Subject}, {question.Concept}, {question.TargetType})",
             SemanticWorldModelQuestionKind.EventOutcomeExplanation => $"world-model-event-outcome({question.Subject})",
+            SemanticWorldModelQuestionKind.HighestPointQuery => $"world-model-highest-point({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.RegionalTerminologyQuery => $"world-model-regional-terminology({question.Subject}, {question.Concept}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery => $"world-model-media-examples({question.Subject}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.CommonTypedRelationQuery => $"world-model-common-relation-list({question.Subject}, {question.Concept ?? "any"}, target-type={question.TargetType})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
