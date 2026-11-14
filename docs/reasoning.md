@@ -294,3 +294,14 @@ The query is **False**, with a proof containing Fido's dog fact and the negative
     Does Fido like milk?
 
 The negative relation is derived for that exact subject and object. A positive assertion can coexist with it, producing **Both** while retaining both explanations. Universal rules may use explicit negative unary premises and one explicit negative fixed-object relational premise. For example, `Every dog that does not like milk is unfriendly.` requires both a dog fact and an explicitly stored negative `likes` fact for that same individual and exact object `milk`; absence of a positive `likes` fact is insufficient. Negative evidence never satisfies a positive premise, nor does positive evidence satisfy a negative premise. Derived relational conclusions remain terminal and are not reused as relational premises. This narrow chaining does not add contraposition, closed-world reasoning, or explosion.
+
+
+## Piano as a compositional instrument type
+
+The piano is a defined **type**, separate from the `example-piano` individual used as structural evidence. Its sufficient expression requires both a piano-specific keyboard interface and a piano hammer-action mechanism.
+
+The piano keyboard interface is defined by activating a piano hammer-action mechanism. The piano hammer-action is a primitive mechanism type. Its subtype relationship to struck-string mechanism preserves the required string-striking structure. The example piano action is explicitly classified in this type, while the graph separately records the action's hammer actuation and the hammer-to-string relation. The piano hammer-action is a subtype of struck-string mechanism, and the piano keyboard interface is a subtype of keyboard interface. The piano type combines these two more specific structures; its keyboard-instrument and struck-string-instrument classifications follow through the taxonomy.
+
+The example piano is explicitly asserted as an instance of the piano type. Its component graph separately records the keyboard activating the action, the action actuating its hammers, and those hammers striking its strings. The type definition is compositional, but the example's piano membership remains an explicit foundational assertion: the current reasoner does not yet derive this full piano-specific classification from the combined nested graph.
+
+The hammer component remains primitive: the current ontology has no independently represented physical structure that distinguishes a hammer from every other striking component. It is therefore an explicit foundational category, not a fabricated prose definition.

@@ -165,8 +165,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(197, status.SemanticConceptCount);
-        Assert.Equal(38, status.SemanticRelationCount);
+        Assert.Equal(201, status.SemanticConceptCount);
+        Assert.Equal(39, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -346,23 +346,23 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, piano, harmonium, cello, accordion, banjo");
+            "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, example piano, harmonium, cello, accordion, banjo");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal(
-            "Guitar is a string instrument. Violin is a string instrument. Piano is both a string and a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
+            "Guitar is a string instrument. Violin is a string instrument. Example piano is both a string and a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
             utterance.Message);
         Assert.Equal(
-            "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
+            "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, example-piano, harmonium, cello, accordion, banjo)))",
             utterance.Meaning);
         Assert.Equal(7, utterance.SupportingEvidence.Length);
         foreach (var assertionId in new[]
         {
             "core-world-model:relation:guitar:has-sound-production-mechanism:guitar-mechanism",
             "core-world-model:relation:violin:has-sound-production-mechanism:violin-mechanism",
-            "core-world-model:relation:piano:has-playing-interface:piano-keyboard",
+            "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
             "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
             "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
             "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
@@ -374,14 +374,6 @@ public sealed class LatticeRuntimeSessionTests
                 evidence => evidence.Sources.Any(source => source.SourceId == assertionId));
         }
 
-        var pianoSoundProduction = await session.SubmitAsync(
-            "Is Piano a struck-string-instrument?");
-        var pianoSoundProductionAnswer = Assert.Single(pianoSoundProduction.Utterances);
-        Assert.Equal(LatticeTruthValue.True, pianoSoundProductionAnswer.TruthValue);
-        Assert.Contains(
-            pianoSoundProductionAnswer.SupportingEvidence,
-            evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano:has-sound-production-mechanism:piano-action"));
     }
 
 
@@ -401,25 +393,28 @@ public sealed class LatticeRuntimeSessionTests
             "A keyboard instrument is a musical instrument that has a keyboard as its playing interface.",
             Assert.Single(keyboardDefinition.Utterances).Message);
 
-        var keyboardReason = await session.SubmitAsync("Why is a piano a keyboard instrument?");
+        var keyboardReason = await session.SubmitAsync("Why is the example piano a keyboard instrument?");
         Assert.Equal(
-            "A piano is a keyboard instrument because it has a keyboard as its playing interface.",
+            "An example piano is a keyboard instrument because it has a keyboard as its playing interface.",
             Assert.Single(keyboardReason.Utterances).Message);
 
-        var stringReason = await session.SubmitAsync("Why is a piano a struck-string instrument?");
+        var stringReason = await session.SubmitAsync("Why is the example piano a struck-string instrument?");
         Assert.Equal(
-            "A piano is a struck-string instrument because it uses a struck-string mechanism.",
+            "An example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
 
-        var soundMechanism = await session.SubmitAsync("How does a piano produce sound?");
+
+        var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         Assert.Equal(
-            "A piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
+            "An example piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
             Assert.Single(soundMechanism.Utterances).Message);
 
-        var comparison = await session.SubmitAsync("What distinguishes a piano from a harmonium?");
-        Assert.Equal(
-            "Both have a keyboard as their playing interface. Piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
-            Assert.Single(comparison.Utterances).Message);
+        var comparison = await session.SubmitAsync("What distinguishes the example piano from a harmonium?");
+        var comparisonMessage = Assert.Single(comparison.Utterances).Message;
+        Assert.Contains("Example piano has a piano keyboard interface", comparisonMessage);
+        Assert.Contains("harmonium has a keyboard", comparisonMessage);
+        Assert.Contains("Example piano uses a piano hammer action", comparisonMessage);
+        Assert.Contains("harmonium uses a free-reed mechanism", comparisonMessage);
 
         Assert.All(
             new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, comparison },
@@ -427,7 +422,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano:has-playing-interface:piano-keyboard"));
+                source.SourceId == "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard"));
         Assert.Contains(
             soundMechanism.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
