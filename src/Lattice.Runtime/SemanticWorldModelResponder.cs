@@ -852,7 +852,14 @@ internal static class SemanticWorldModelResponder
                 return null;
             }
 
-            return $"{relation.Verb} only elements of type {target.Label}";
+            var phrase = $"{relation.Verb} only elements of type {target.Label}";
+            if (expression.Filler is null)
+            {
+                return phrase;
+            }
+
+            var filler = FormatExpression(expression.Filler, model);
+            return filler is null ? null : $"{phrase} that {filler}";
         }
 
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
