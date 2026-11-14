@@ -51,7 +51,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RegionalTerminologyPattern = new(
-        @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\\??$",
+        @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
