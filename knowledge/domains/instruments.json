@@ -1596,6 +1596,11 @@
       "subject": "piano-action",
       "relation": "instance-of",
       "object": "piano-hammer-action"
+    },
+    {
+      "subject": "piano-example",
+      "relation": "instance-of",
+      "object": "piano"
     }
   ],
   "dataProperties": [],
