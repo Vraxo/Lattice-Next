@@ -6,6 +6,14 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex MembershipPattern = new(
+        @"^Is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?:a|an) (?<concept>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex InverseRelationPattern = new(
+        @"^Who (?<verb>[A-Za-z]+) (?<subject>[A-Za-z][A-Za-z0-9'’! -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -30,6 +38,28 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var inverseRelation = InverseRelationPattern.Match(text);
+        if (inverseRelation.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.InverseRelation,
+                subject: Normalize(inverseRelation.Groups["subject"].Value),
+                concept: Normalize(inverseRelation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var membership = MembershipPattern.Match(text);
+        if (membership.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Membership,
+                subject: Normalize(membership.Groups["subject"].Value),
+                concept: Normalize(membership.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var definition = DefinitionPattern.Match(text);
         if (definition.Success)

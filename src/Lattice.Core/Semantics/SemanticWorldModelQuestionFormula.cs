@@ -6,7 +6,9 @@ public enum SemanticWorldModelQuestionKind
     WhyClassification,
     Mechanism,
     Causes,
-    Compare
+    Compare,
+    Membership,
+    InverseRelation
 }
 
 public sealed record SemanticWorldModelQuestionFormula(

@@ -481,7 +481,22 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
         {
-            return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+            if (semanticQuestion.Kind == SemanticWorldModelQuestionKind.Membership &&
+                (semanticWorldModel.FindConcept(semanticQuestion.Subject, SemanticConceptKind.Individual) is null ||
+                 semanticWorldModel.FindConcept(semanticQuestion.Concept ?? string.Empty, SemanticConceptKind.Type) is null))
+            {
+                var legacyParse = parser.Parse(parsedUtterance.SourceText);
+                if (!legacyParse.IsSuccess || legacyParse.Utterance is null)
+                {
+                    return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+                }
+
+                parsedUtterance = legacyParse.Utterance;
+            }
+            else
+            {
+                return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+            }
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
@@ -822,6 +837,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             LatticeUtteranceResultKind.QuestionAnswered,
             message,
             meaning,
+            TruthValue: question.Kind == SemanticWorldModelQuestionKind.Membership
+                ? LatticeTruthValue.True
+                : null,
             SupportingEvidence: evidence);
     }
 

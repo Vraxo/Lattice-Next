@@ -56,6 +56,8 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Mechanism => $"world-model-mechanism({question.Subject})",
             SemanticWorldModelQuestionKind.Causes => $"world-model-causes({question.Subject})",
             SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.Membership => $"world-model-membership({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.InverseRelation => $"world-model-inverse-relation({question.Concept}, {question.Subject})",
             _ => "world-model-question(unsupported)"
         };
 

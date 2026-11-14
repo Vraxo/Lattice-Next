@@ -264,3 +264,18 @@ This boundary is intentionally separate from the controlled grammar. More aggres
 - Do not interpret a missing predicate as false.
 - Keep original wording and resolved referents separately so explanations do not silently rewrite what the user said.
 - Optional translator adapters must implement `ISemanticsTranslator` and pass through `SemanticTranslationService` and `SemanticUtteranceValidator`; they must not bypass context resolution, knowledge validation, provenance, or user review.
+
+## Graph-backed question resolution
+
+The typed world model is queried through semantic question forms that remain separate from the controlled-language knowledge base.
+
+The first general query slice supports:
+
+- **Type membership:** `Is Mount Whitney a mountain?` resolves the named individual and type through the model's lexical entries, then asks the reasoner for membership evidence. A missing membership is not treated as proof of non-membership; the world model follows open-world semantics.
+- **Inverse relations:** `Who created Girl with a Pearl Earring?` and `Who directed Oathkeeper?` resolve the object, match the requested active verb to a relation definition expressed in passive form (for example, `is created by`), and read the agent from the relation's declared object argument.
+
+These operations use the same relation signatures, concept identities, assertions, and evidence sources as the rest of the world model. They do not store question-specific answers or add per-entity handlers.
+
+When a membership question does not resolve to a foundational individual and type, the parser preserves compatibility by routing it through the ordinary session knowledge-base query path. Inverse-relation questions require a matching relation signature and asserted graph edge; otherwise the runtime reports that structured evidence is unavailable.
+
+This is an initial vertical slice, not unrestricted English understanding. The parser recognizes explicit constructions and the reasoner answers only what the graph supports. Broader question forms should be added by composing reusable semantic query structures, not by adding one handler per benchmark prompt.

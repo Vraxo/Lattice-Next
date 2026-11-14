@@ -155,6 +155,65 @@ public sealed class LatticeRuntimeSessionTests
 
 
     [Fact]
+    public async Task Answers_multiword_entity_membership_questions_from_the_world_model()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Is Mount Whitney a mountain?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("Yes, Mount Whitney is a mountain.", answer.Message);
+        Assert.Equal("ask(world-model-membership(mount-whitney, mountain))", answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:mount-whitney:instance-of:mountain"));
+
+        var unsupportedMembership = await session.SubmitAsync("Is Mount Whitney a mountain range?");
+        var unavailable = Assert.Single(unsupportedMembership.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, unavailable.Kind);
+        Assert.Null(unavailable.TruthValue);
+    }
+
+    [Theory]
+    [InlineData("Who created Girl with a Pearl Earring?", "Johannes Vermeer created Girl with a Pearl Earring.", "created-by")]
+    [InlineData("Who directed Oathkeeper?", "Michelle MacLaren directed Oathkeeper.", "directed-by")]
+    public async Task Answers_inverse_relation_questions_from_relation_signatures(
+        string prompt,
+        string expectedMessage,
+        string relation)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(expectedMessage, answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains($":{relation}:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Multiword_graph_question_parsing_does_not_break_session_knowledge_questions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        await session.SubmitAsync("Fido is a dog.");
+        var result = await session.SubmitAsync("Is Fido a dog?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(LatticeTruthValue.True, answer.TruthValue);
+    }
+
+    [Fact]
     public async Task Loads_only_the_typed_semantic_model_as_foundational_knowledge()
     {
         var client = new LatticeRuntimeClient();
