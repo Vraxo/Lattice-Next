@@ -119,7 +119,9 @@ public sealed class SemanticWorldModelReasoner
                 assertion.Subject == individual &&
                 assertion.Relation == expression.Relation &&
                 allTypes.TryGetValue(assertion.Object, out var objectTypes) &&
-                objectTypes.Contains(expression.TargetType!)),
+                objectTypes.Contains(expression.TargetType!) &&
+                (expression.Filler is null ||
+                 MatchesExpression(expression.Filler, assertion.Object, allTypes, model))),
             SemanticClassExpressionKind.And => expression.Operands.All(operand =>
                 MatchesExpression(operand, individual, allTypes, model)),
             SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
@@ -230,6 +232,26 @@ public sealed class SemanticWorldModelReasoner
         }
     }
 
+    private bool MatchesExpressionForEvidence(
+        string individual,
+        SemanticClassExpression expression)
+    {
+        return expression.Kind switch
+        {
+            SemanticClassExpressionKind.Some => model.RelationAssertions.Any(assertion =>
+                assertion.Subject == individual &&
+                assertion.Relation == expression.Relation &&
+                IsInstanceOf(assertion.Object, expression.TargetType!) &&
+                (expression.Filler is null ||
+                 MatchesExpressionForEvidence(assertion.Object, expression.Filler))),
+            SemanticClassExpressionKind.And => expression.Operands.All(operand =>
+                MatchesExpressionForEvidence(individual, operand)),
+            SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
+                MatchesExpressionForEvidence(individual, operand)),
+            _ => false
+        };
+    }
+
     private bool TryAppendExpressionEvidence(
         string individual,
         SemanticClassExpression expression,
@@ -241,7 +263,9 @@ public sealed class SemanticWorldModelReasoner
             var assertion = model.RelationAssertions.FirstOrDefault(candidate =>
                 candidate.Subject == individual &&
                 candidate.Relation == expression.Relation &&
-                IsInstanceOf(candidate.Object, expression.TargetType!));
+                IsInstanceOf(candidate.Object, expression.TargetType!) &&
+                (expression.Filler is null ||
+                 MatchesExpressionForEvidence(candidate.Object, expression.Filler)));
             if (assertion is null)
             {
                 return false;
@@ -249,6 +273,11 @@ public sealed class SemanticWorldModelReasoner
 
             evidence.Add(assertion.Source);
             AppendMembershipEvidence(assertion.Object, expression.TargetType!, visited, evidence);
+            if (expression.Filler is not null)
+            {
+                TryAppendExpressionEvidence(assertion.Object, expression.Filler, visited, evidence);
+            }
+
             return true;
         }
 
