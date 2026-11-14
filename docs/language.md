@@ -309,3 +309,8 @@ The recipient–resource–location–purpose question form “Who gave the UN t
 A structured family-set completion construction handles prompts such as “Alice's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?” The parser records the anchor, parent relation, member type, stated cardinality, named members, and requested ordinal as a semantic formula. The responder completes the set only when exactly one member is missing, the anchor is not already listed, and the semantic model supports the anchor's required person type. For daughters and sons, the anchor must have the corresponding female-person or male-person classification; for children, it must be a person. Otherwise the responder abstains.
 
 This is a narrow, explicit inference rule over a structured set, not a general English coreference resolver or a stored question/answer pair. The current seed includes Alice as a female-person individual; broader name/gender knowledge is not assumed.
+
+
+### Impact explanations
+
+The `Why <subject> is bad for <target>` and `Why is <subject> harmful to <target>` constructions produce a typed impact query. The responder requires the subject to be a communication-device subtype and the target to be a person subtype, then follows `may-contribute-to` assertions to effects that are explicitly related to that target by `affects`. It composes a qualified explanation from the effect types and their evidence. Unsupported subjects, targets, or missing effect paths cause abstention. The modal relation is preserved in the answer: possible effects are not stated as inevitable outcomes.
