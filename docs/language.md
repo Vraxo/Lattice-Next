@@ -287,3 +287,8 @@ A direct lookup is accepted only when the requested verb identifies exactly one 
 When a membership question does not resolve to a foundational individual and type, the parser preserves compatibility by routing it through the ordinary session knowledge-base query path. Inverse-relation and general relation questions require matching relation signatures and asserted graph edges; otherwise the runtime reports that structured evidence is unavailable.
 
 This is still a deliberately limited slice of English, not unrestricted language understanding. The parser maps explicit question constructions to a shared relation-query representation, and the responder answers only what the graph supports. The next reasoning extension should build multi-hop paths and explicit query constraints on top of this representation rather than adding another handler for every wording.
+
+
+## Typed inverse relation questions
+
+Questions of the form "Which <type> did <agent> <verb>?" query relation assertions in the inverse direction and filter the returned subjects by the requested type. An optional "of <context>" phrase further restricts results to subjects directly connected to that context by a declared individual-to-individual relation. The answer is composed from the matching graph assertions and includes evidence for both the requested relation and context constraint. Missing or ambiguous relation signatures remain unanswered.
