@@ -31,6 +31,7 @@ public static class SemanticFormatter
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
             SemanticRelationQueryFormula relationQuery => $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})",
+            SemanticRelationSourceQueryFormula relationQuery => $"relation-sources({relationQuery.Object}, {relationQuery.Verb})",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
