@@ -14,7 +14,7 @@ The ontology now contains:
 - 560 concepts: 321 types and 239 individuals
 - 139 relation signatures
 - 861 graph assertions
-- 571 lexical forms
+- 573 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
