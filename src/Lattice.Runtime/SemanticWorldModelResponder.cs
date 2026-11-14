@@ -822,7 +822,7 @@ internal static class SemanticWorldModelResponder
         var names = selected.Select(item => item.Label).ToArray();
         message = names.Length == 1
             ? $"{Capitalize(names[0])} is used for {activityType.Label}."
-            : $"{JoinNames(names)} are used for {activityType.Label}.";
+            : $"{Capitalize(JoinNames(names))} are used for {activityType.Label}.";
         var allSources = selected
             .SelectMany(item => item.Sources)
             .Distinct()
