@@ -15,7 +15,8 @@ public enum SemanticWorldModelQuestionKind
     ImpactExplanation,
     TypedObjectRelationQuery,
     EventOutcomeExplanation,
-    HighestPointQuery
+    HighestPointQuery,
+    IngredientListQuery
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
