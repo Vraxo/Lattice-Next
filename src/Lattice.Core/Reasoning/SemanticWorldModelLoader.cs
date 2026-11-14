@@ -452,7 +452,7 @@ public sealed class SemanticWorldModelLoader
         var nodeCount = 0;
         if (!ValidateExpression(expression, 0, ref nodeCount, relations, concepts, collected))
         {
-            error = $"Type definition '{ownerType}' contains an invalid class expression. Use some restrictions combined with and/or.";
+            error = $"Type definition '{ownerType}' contains an invalid class expression. Use valid some, cycle, and/or expressions.";
             return false;
         }
 
