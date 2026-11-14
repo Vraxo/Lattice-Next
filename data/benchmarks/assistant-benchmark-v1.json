@@ -429,7 +429,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": true
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-022",
@@ -477,7 +477,7 @@
         "license": "CC-BY-SA-3.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "dolly-025",
