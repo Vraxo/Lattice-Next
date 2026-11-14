@@ -887,6 +887,31 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Explains_camel_water_deprivation_tolerance_from_adaptations_and_processes()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive for long without water?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("water-conservation adaptation limits water loss", answer.Message);
+        Assert.Contains("urine concentration", answer.Message);
+        Assert.Contains("reduced fecal water loss", answer.Message);
+        Assert.Contains("nasal water recovery", answer.Message);
+        Assert.Contains("dehydration-tolerance adaptation", answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-natural-world:relation:camel-water-conservation:reduces-water-loss:camel-urine-concentration"));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-natural-world:relation:camel-dehydration-tolerance:supports-survival-under:water-deprivation-condition"));
+    }
+
+    [Fact]
     public async Task Derives_free_reed_instruments_from_airflow_and_vibrating_reed_structure()
     {
         var client = new LatticeRuntimeClient();
