@@ -27,6 +27,12 @@ Audited at commit `3413245d3165a1d260fc78e9e7c558f86ee2391c`.
 
 This is an inventory of authored type definitions, not a claim that all 79 primitives are equally fundamental or equally well justified.
 
+## Current result on this branch
+
+The string decomposition adds three reusable geometry primitives and one defined geometric type, plus two primitive mechanical-behavior concepts and two defined component types. The current composed inventory is **84 primitive types and 26 defined types**: Instruments 18/17 and Geometry 15/5. The baseline table above remains tied to its explicitly stated historical commit.
+
+The piano string example now demonstrates the graph path: its longitudinal extent exceeds its cross-sectional extent; it exhibits a bending response; it is tensioned; it vibrates to produce sound; and it transmits vibration to the soundboard.
+
 ## Primitive-by-primitive disposition
 
 The following is a first-pass semantic disposition, not a claim that every listed concept has a complete philosophical definition.
@@ -54,11 +60,11 @@ The following is a first-pass semantic disposition, not a claim that every liste
 | `physical-component` | Keep for now | A general part/whole and physical-constitution model. The current `contains` relation is not enough to define componenthood without circularity. |
 | `sound-event` | Keep for now | Acoustic properties and propagation: frequency, amplitude, waveform, duration, and medium. |
 | `mechanical-state` | Keep as an abstract state category | State-bearing entities and state/value semantics. |
-| `tensioned-state` | Candidate; missing property representation | A tension/force property or measurable mechanical condition. |
-| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |
+| `tensioned-state` | Candidate; missing property representation | A tension/force property or measurable mechanical condition. |\n| `mechanical-behavior` | Keep as an abstract behavior category | More detailed kinematic and force/response semantics are needed to define behavior classes without treating them as labels. |\n| `bending-response` | Keep primitive for now | A formal deformation model must represent geometry, loading, displacement, and elastic recovery before bending can be reduced further. |
+| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |\n| `string-component` | **Decomposed further in this change** | Its defined structure now combines elongated form, bending response, tension, sound-producing vibration, and vibration transfer to a resonator. |
 | `piano-hammer-action` | **Decomposed in this change** | Defined by actuating a hammer component that strikes a string component. The example graph supplies both links. |
 
-The piano decomposition uses the general `actuates` and `strikes` relations. No special-purpose `actuates-hammer` relation is introduced. `string-component` already has a compositional definition; `hammer-component` remains a clearly marked primitive until head, shank, and assembly structure are represented.
+The piano decomposition uses the general `actuates` and `strikes` relations. No special-purpose `actuates-hammer` relation is introduced. `string-component` now has a richer compositional definition. `elongated-component` is derived from geometric form, and `flexible-component` from a bending response. `hammer-component` remains a clearly marked primitive until head, shank, and assembly structure are represented.
 
 ### Biology
 
@@ -77,7 +83,7 @@ The piano decomposition uses the general `actuates` and `strikes` relations. No 
 | `geometric-structure` | Keep as an abstract structural category | General composition and incidence semantics beyond the existing boundary slice. |
 | `geometric-element` | Keep as an abstract category | A principled account of geometric constituents, not merely a disjunction of currently known point and segment types. |
 | `geometric-point` | Keep foundational | A point is an idealized primitive in the current geometric formalization. |
-| `geometric-property` | Keep as an abstract property category | Property/value semantics and applicable measurement domains. |
+| `geometric-property` | Keep as an abstract property category | Property/value semantics and applicable measurement domains. |\n| `geometric-extent` | Keep as an abstract measure category | A quantitative geometry/measurement model and unit semantics. |\n| `longitudinal-extent` | Keep as an extent role | A formal principal-axis and measurement model. |\n| `cross-sectional-extent` | Keep as an extent role | A formal cross-section and measurement model. |
 | `straightness` | Candidate for formalization, not a prose definition | A geometric predicate or invariant grounded in the formal geometry model. |
 | `topological-configuration` | Keep as an abstract category | Incidence, adjacency, and connectivity relations. |
 | `closed-cycle` | Candidate; missing relations | Ordered/connected path structure and an explicit closure condition. |
@@ -173,7 +179,7 @@ Its definition is:
 }
 ```
 
-This means there exists a physical component classified as a hammer, actuated by the mechanism, and that same component strikes a string. The current example graph asserts the generic actuation and striking relations. The string type is defined from its mechanical state and vibration-transfer role; the hammer type is still a primitive classification. Therefore the reasoner can derive:
+This means there exists a physical component classified as a hammer, actuated by the mechanism, and that same component strikes a string. The current example graph asserts the generic actuation and striking relations. The string type is defined from its elongated geometric form, bending response, tensioned state, sound-producing vibration, and vibration transfer to a resonator; the hammer type is still a primitive classification. Therefore the reasoner can derive:
 
 1. `piano-action` is a `piano-hammer-action`;
 2. `piano-keyboard` activates that action, so it is a `piano-keyboard-interface`;
@@ -193,7 +199,7 @@ The previous explicit `instance-of piano-hammer-action` and `instance-of piano` 
 ## Recommended implementation order
 
 1. **Instrument mechanics:** define the hammer-action from its actuation path (done here); then model hammer head/shank/attachment and define the hammer assembly. Add reusable plucking, bowing, airflow, and percussion interaction relations before defining those mechanisms.
-2. **Geometry:** extend the existing boundary/topology model with incidence, connectivity, and planar embedding. Then revisit geometric shape, plane figure, and closed cycle.
+2. **Geometry and mechanics:** the first reusable extent/shape and bending-response layer is now modeled. Further work should add quantitative dimensions, aspect-ratio comparisons, material elasticity, force, and loading conditions before attempting stricter physical definitions.
 3. **Language:** represent lexical items, senses, grammatical categories, and compositional semantic content as graph structures rather than POS strings and broad taxonomic buckets.
 4. **Economics:** model transactions, employment relationships, opportunities, market membership, and quantitative market properties before defining buyer/seller, employer/worker, concentration, and market power.
 5. **Software:** represent packages, modules, licenses, models, capabilities, and solver/simulation operations before deriving framework categories.
