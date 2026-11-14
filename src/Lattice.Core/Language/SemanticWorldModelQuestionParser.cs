@@ -62,6 +62,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypeInstanceListPattern = new(
+        @"^Give me the top (?<count>[0-9]+) (?<type>[A-Za-z][A-Za-z -]*?) names?\.?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -249,6 +253,17 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typeInstanceList = TypeInstanceListPattern.Match(text);
+        if (typeInstanceList.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.TypeInstanceListQuery,
+                subject: Normalize(typeInstanceList.Groups["type"].Value),
+                targetType: typeInstanceList.Groups["count"].Value,
                 sourceText: source);
             return true;
         }

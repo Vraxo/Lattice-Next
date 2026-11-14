@@ -1006,6 +1006,44 @@ public sealed class LatticeRuntimeSessionTests
 
 
     [Fact]
+    public async Task Lists_golf_equipment_companies_from_composable_definitions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Give me the top 5 golf equipment company names.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The model identifies 5 golf equipment companies: Callaway, Cobra Golf, PING, TaylorMade, and Titleist. The model does not rank them.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-type-instances(golf-equipment-company, count=5))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Equal(
+            5,
+            evidence.Sources.Count(source =>
+                source.SourceId.Contains(":makes-equipment-for:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Abstains_when_requested_company_type_is_unknown()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Give me the top 5 moon mining company names.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Categorizes_seven_instruments_into_string_and_keyboard_families()
     {
         var client = new LatticeRuntimeClient();

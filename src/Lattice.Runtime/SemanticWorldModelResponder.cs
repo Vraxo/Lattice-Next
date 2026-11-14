@@ -60,6 +60,8 @@ internal static class SemanticWorldModelResponder
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: false, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CommonTypedRelationQuery =>
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.TypeInstanceListQuery =>
+                TryListTypeInstances(request.Subject, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery =>
                 TryMediaExamplesByGenreAndPeriod(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -311,6 +313,55 @@ internal static class SemanticWorldModelResponder
 
         message =
             $"Some {genre.Label} films from the {period.Label} include {JoinNames(candidates.Select(candidate => candidate!.Label).ToArray())}. These are examples, not a ranked 'best' list.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryListTypeInstances(
+        string typeId,
+        string countText,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var type = model.FindConcept(typeId, SemanticConceptKind.Type);
+        if (type is null ||
+            !int.TryParse(countText, out var requestedCount) ||
+            requestedCount < 1 ||
+            requestedCount > 20)
+        {
+            return false;
+        }
+
+        var instances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, type.Id))
+            .OrderBy(concept => concept.Label, StringComparer.OrdinalIgnoreCase)
+            .Take(requestedCount)
+            .ToArray();
+
+        if (instances.Length == 0)
+        {
+            return false;
+        }
+
+        var sources = instances
+            .SelectMany(instance => reasoner.GetMembershipEvidence(instance.Id, type.Id))
+            .Distinct()
+            .ToImmutableArray();
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var names = instances.Select(instance => instance.Label).ToArray();
+        message =
+            $"The model identifies {instances.Length} {Pluralize(type.Label)}: {JoinNames(names)}. The model does not rank them.";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
