@@ -613,4 +613,18 @@ public sealed class LceParserTests
     {
         Assert.False(parser.ParseText(" ").IsSuccess);
     }
+    [Fact]
+    public void Parses_relation_target_questions_into_a_semantic_query()
+    {
+        var result = parser.ParseText("What does the piano action actuate?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        var query = Assert.IsType<SemanticRelationQueryFormula>(utterance.Meaning);
+        Assert.Equal("piano-action", query.Subject);
+        Assert.Equal("actuate", query.Verb);
+        Assert.Equal("ask(relation-targets(piano-action, actuate))", SemanticFormatter.Format(utterance));
+    }
+
 }

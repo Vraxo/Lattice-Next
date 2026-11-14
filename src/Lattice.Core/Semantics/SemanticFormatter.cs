@@ -30,6 +30,7 @@ public static class SemanticFormatter
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
+            SemanticRelationQueryFormula relationQuery => $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
