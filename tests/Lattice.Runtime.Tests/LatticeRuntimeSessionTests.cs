@@ -422,6 +422,7 @@ public sealed class LatticeRuntimeSessionTests
             "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
             "core-world-model:relation:piano-keyboard:activates:piano-action",
             "core-world-model:relation:piano-action:actuates:piano-hammers",
+            "core-world-model:relation:piano-action:actuates-hammer:piano-hammers",
             "core-world-model:relation:piano-hammers:strikes:piano-strings"
         })
         {
