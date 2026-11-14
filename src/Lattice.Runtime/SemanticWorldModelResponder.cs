@@ -432,13 +432,16 @@ internal static class SemanticWorldModelResponder
         }
 
         var relation = matchingRelations[0];
+        var hasRequestedType = !string.IsNullOrWhiteSpace(requestedTargetType);
         var assertions = model.RelationAssertions
             .Where(assertion =>
-                assertion.Object == knownObject.Id &&
-                assertion.Relation == relation.Id)
+                assertion.Relation == relation.Id &&
+                (hasRequestedType
+                    ? assertion.Object == knownObject.Id
+                    : assertion.Subject == knownObject.Id))
             .ToArray();
 
-        if (string.IsNullOrWhiteSpace(requestedTargetType))
+        if (!hasRequestedType)
         {
             var agents = assertions
                 .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
