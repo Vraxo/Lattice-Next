@@ -54,6 +54,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex IngredientListPattern = new(
+        @"^What are (?:some )?common ingredients of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -218,6 +222,16 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var ingredientList = IngredientListPattern.Match(text);
+        if (ingredientList.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.IngredientListQuery,
+                subject: Normalize(ingredientList.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
