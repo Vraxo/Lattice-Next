@@ -12,8 +12,8 @@ public enum SemanticWorldModelQuestionKind
     InverseRelation,
     RelationQuery,
     ContributionQuery,
-    ImpactExplanation
-}
+    ImpactExplanation,
+    TypedObjectRelationQuery}
 
 public sealed record SemanticWorldModelQuestionFormula(
     SemanticWorldModelQuestionKind Kind,
