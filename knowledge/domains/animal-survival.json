@@ -10,7 +10,7 @@
     { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, reducing water loss", "kind": "Individual" },
     { "id": "water-extracting-digestive-system", "label": "their digestive system extracts water efficiently and produces very dry feces", "kind": "Individual" },
     { "id": "nasal-moisture-recovery", "label": "their nasal passages recover moisture from exhaled air", "kind": "Individual" },
-    { "id": "dehydration-tolerance", "label": "they tolerate substantial dehydration and changes in body temperature", "kind": "Individual" },
+    { "id": "dehydration-tolerance", "label": "they tolerate substantial dehydration and changes in body temperature", "kind": "Individual" }
   ],
   "lexemes": [
     { "form": "camel", "concept": "camel", "partOfSpeech": "noun" },
