@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
+The latest fully executed integrated run is PR #234's head `fcd9960646d4db6405a87ad46209c6f966b91a8c` (CI run 886):
 
 - .NET build: passed
-- .NET tests: 922 passed, 0 failed
+- .NET tests: 924 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
-- Average latency: 262 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 17 substantive answers at execution time, 20 answered, 21 handled, 13 unhandled, 0 runner errors
+- Average latency: 226 ms (single run; stability not measured)
 
-Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
+Dolly-011's output was manually inspected: Callaway, Cobra Golf, PING, TaylorMade, and Titleist are each derived as golf-equipment-company from their `makes-equipment-for` assertion to an individual instance of golf. The answer explicitly states that the list is not ranked. The record is now marked substantively reviewed. Applying that review to the captured result gives **18 substantive answers (18/34, 52.9%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
 
 ## Cross-domain structure
 
