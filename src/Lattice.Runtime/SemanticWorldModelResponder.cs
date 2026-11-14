@@ -57,7 +57,9 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
-                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: false, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CommonTypedRelationQuery =>
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -1504,6 +1506,7 @@ internal static class SemanticWorldModelResponder
         string? requestedVerb,
         string? otherSubjectId,
         string? requestedTargetType,
+        bool formatAsList,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
         out string message,
@@ -1637,10 +1640,15 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        if (targetType is not null &&
-            selectedRelation.ObjectRole is null &&
-            selectedRelation.Verb.EndsWith(targetType.Label, StringComparison.OrdinalIgnoreCase))
+        if (formatAsList)
         {
+            if (targetType is null ||
+                selectedRelation.ObjectRole is not null ||
+                !selectedRelation.Verb.EndsWith(targetType.Label, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
             var baseVerb = selectedRelation.Verb[..^targetType.Label.Length].TrimEnd();
             var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
                 ? InflectPluralSubjectVerb(baseVerb)
