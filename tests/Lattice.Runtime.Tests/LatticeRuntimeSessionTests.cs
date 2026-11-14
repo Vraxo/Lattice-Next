@@ -177,6 +177,34 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Null(unavailable.TruthValue);
     }
 
+    [Fact]
+    public async Task Answers_headquarters_land_question_with_distinct_financial_and_property_contributions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Who gave the UN the land in NY to build their HQ?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "John D. Rockefeller Jr. provided funding toward acquisition of the United Nations Headquarters site. City of New York contributed additional property to the site.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":funded-acquisition-of:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":contributed-property-to:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":has-hq-in:", StringComparison.Ordinal)));
+    }
+
     [Theory]
     [InlineData("Who created Girl with a Pearl Earring?", "Johannes Vermeer created Girl with a Pearl Earring.", "created-by")]
     [InlineData("Who directed Oathkeeper?", "Michelle MacLaren directed Oathkeeper.", "directed-by")]
