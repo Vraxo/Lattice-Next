@@ -7,6 +7,45 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Lists_full_English_breakfast_ingredients_from_food_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are common ingredients of a full english breakfast?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Common ingredients of a full English breakfast include egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-ingredients(full-english-breakfast))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Equal(
+            8,
+            evidence.Sources.Count(source =>
+                source.SourceId.Contains(":has-ingredient:", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("What are common ingredients of the moon?")]
+    [InlineData("What are common ingredients of a piano?")]
+    public async Task Abstains_when_subject_has_no_typed_ingredient_assertions(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
     {
         var client = new LatticeRuntimeClient();
