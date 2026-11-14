@@ -31,7 +31,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RelationSourcePattern = new(
-        @"^(?:Who|What) (?!(?:is|are|was|were|be|being|been|has|have|does|do|did)\b)(?<verb>[a-z]+s) (?<object>(?:(?:the|a|an) )?(?!(?:when|where|why|how|to|for|from|with|by|in|on|at|of|that|which|who|what)\\b)[A-Za-z]+(?: [A-Za-z]+){0,2})\??$",
+        @"^(?:Who|What) (?!(?:is|are|was|were|be|being|been|has|have|does|do|did)\b)(?<verb>[a-z]+s) (?<object>(?:(?:the|a|an) )?(?!(?:when|where|why|how|to|for|from|with|by|in|on|at|of|that|which|who|what)\b)[A-Za-z]+(?: [A-Za-z]+){0,2})\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     internal static bool TryParse(string source, out SemanticUtterance? utterance)
