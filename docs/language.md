@@ -339,3 +339,8 @@ The `What is the tallest/highest <feature type> in <region>?` construction resol
 ### Regional terminology questions
 
 The construction `In <sport> what do <region> call <term>?` resolves the sport, regional context, and source term through lexical entries. The responder finds a regional-equivalent term only when the graph supports the equivalence, both terms share a modeled score meaning, and the candidate term has explicit usage assertions for the requested sport and region. The answer is composed from those assertions and type-membership evidence; unknown regions, sports, or unsupported terminology cause abstention.
+
+
+### Ingredient-list questions
+
+The construction `What are common ingredients of <dish>?` resolves the dish as an individual and follows its typed `has-ingredient` assertions. The responder checks the relation's individual argument kinds and declared dish/food types, then composes the ingredient list from the asserted food individuals. Missing dishes, incompatible relation signatures, or dishes without supported ingredient assertions cause abstention. The answer reports modeled common ingredients; it does not claim every serving contains every listed item.
