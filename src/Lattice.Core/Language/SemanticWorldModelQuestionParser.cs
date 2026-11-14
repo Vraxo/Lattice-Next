@@ -47,7 +47,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ImpactExplanationPattern = new(
-        @"^Why (?:is )?(?<subject>[A-Za-z][A-Za-z -]*?) (?:is |are )?(?:bad for|harmful to) (?<target>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^Why (?:is )?(?<subject>[A-Za-z][A-Za-z -]*?) (?:is |are )?(?:bad for|harmful to) (?<target>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex WhyPattern = new(
