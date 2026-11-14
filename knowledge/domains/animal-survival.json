@@ -7,11 +7,10 @@
     { "id": "biological-ability", "label": "biological ability", "kind": "Type" },
     { "id": "survival-adaptation", "label": "survival adaptation", "kind": "Type" },
     { "id": "survive-for-long-without-water", "label": "survive for long without water", "kind": "Individual" },
-    { "id": "water-conserving-kidneys", "label": "kidneys that produce highly concentrated urine, reducing water loss", "kind": "Individual" },
-    { "id": "water-extracting-digestive-system", "label": "digestive system that extracts water efficiently and produces very dry feces", "kind": "Individual" },
-    { "id": "nasal-moisture-recovery", "label": "nasal passages that recover moisture from exhaled air", "kind": "Individual" },
-    { "id": "dehydration-tolerance", "label": "tolerance of substantial dehydration and changes in body temperature", "kind": "Individual" },
-    { "id": "hump-fat-storage", "label": "humps that store fat rather than water, providing energy when food is scarce", "kind": "Individual" }
+    { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, reducing water loss", "kind": "Individual" },
+    { "id": "water-extracting-digestive-system", "label": "their digestive system extracts water efficiently and produces very dry feces", "kind": "Individual" },
+    { "id": "nasal-moisture-recovery", "label": "their nasal passages recover moisture from exhaled air", "kind": "Individual" },
+    { "id": "dehydration-tolerance", "label": "they tolerate substantial dehydration and changes in body temperature", "kind": "Individual" },
   ],
   "lexemes": [
     { "form": "camel", "concept": "camel", "partOfSpeech": "noun" },
@@ -55,7 +54,6 @@
     { "subject": "water-extracting-digestive-system", "relation": "instance-of", "object": "survival-adaptation" },
     { "subject": "nasal-moisture-recovery", "relation": "instance-of", "object": "survival-adaptation" },
     { "subject": "dehydration-tolerance", "relation": "instance-of", "object": "survival-adaptation" },
-    { "subject": "hump-fat-storage", "relation": "instance-of", "object": "survival-adaptation" },
     { "subject": "camel", "relation": "has-adaptation", "object": "water-conserving-kidneys" },
     { "subject": "camel", "relation": "has-adaptation", "object": "water-extracting-digestive-system" },
     { "subject": "camel", "relation": "has-adaptation", "object": "nasal-moisture-recovery" },
