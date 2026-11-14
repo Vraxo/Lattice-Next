@@ -852,8 +852,23 @@ public sealed class SemanticWorldModelLoader
                  IsExpressionWellTyped(expression.Filler, expression.TargetType!, model));
         }
 
-        return expression.Operands.All(operand =>
-            IsExpressionWellTyped(operand, subjectType, model));
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var startRelation = model.FindRelation(expression.StartRelation!)!;
+            var traversalRelation = model.FindRelation(expression.Relation!)!;
+            return startRelation.DomainType is not null &&
+                startRelation.RangeType is not null &&
+                traversalRelation.DomainType is not null &&
+                traversalRelation.RangeType is not null &&
+                IsSubtype(model, subjectType, startRelation.DomainType) &&
+                IsSubtype(model, expression.TargetType!, startRelation.RangeType) &&
+                IsSubtype(model, expression.TargetType!, traversalRelation.DomainType) &&
+                IsSubtype(model, expression.TargetType!, traversalRelation.RangeType);
+        }
+
+        return expression.Kind is SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or &&
+            expression.Operands.All(operand =>
+                IsExpressionWellTyped(operand, subjectType, model));
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
