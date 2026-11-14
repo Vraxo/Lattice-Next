@@ -349,3 +349,8 @@ The construction `What are common <type> of <subject>?` is parsed into a typed r
 ### Media examples by genre and period
 
 The construction `What are some of the best <genre> movies of the <decade>?` is interpreted as a conjunctive retrieval request, not a ranking request. The responder intersects films with asserted genre membership and release-period relations, verifies the film type, and returns only candidates satisfying both constraints. Because the model contains no ranking evidence, the response explicitly labels the results as examples rather than a ranked best-of list.
+
+
+### Record-holder questions
+
+The construction `What individual has won the most <achievement>?` resolves the achievement to a modeled record individual and follows the typed `holds-record` relation in reverse to its holder. The responder validates the relation's athlete domain and sports-record range, requires a unique holder, and composes the answer with assertion and type-membership evidence. Unknown records and ambiguous holders cause abstention. A record-holder answer does not imply that a numeric record count is modeled.
