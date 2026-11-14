@@ -19,7 +19,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(
             "Nighttime begins. Earth's rotation explains why the Sun appears to set and causes the day-night cycle.",
             answer.Message);
-        Assert.Equal("ask(world-model-event-outcome(the-sun-goes-down))", answer.Meaning);
+        Assert.Equal("ask(world-model-event-outcome(sun-goes-down))", answer.Meaning);
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
