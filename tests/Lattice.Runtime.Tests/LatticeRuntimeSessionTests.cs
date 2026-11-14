@@ -411,6 +411,8 @@ public sealed class LatticeRuntimeSessionTests
         {
             "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
             "core-world-model:relation:piano-keyboard:activates:piano-action",
+            "core-world-model:relation:piano-action:instance-of:piano-hammer-action",
+            "core-world-model:relation:piano-example:has-sound-production-mechanism:piano-action",
         })
         {
             Assert.Contains(
