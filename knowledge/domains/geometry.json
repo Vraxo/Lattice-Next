@@ -857,11 +857,6 @@
       "object": "geometric-structure"
     },
     {
-      "subject": "triangle-boundary",
-      "relation": "instance-of",
-      "object": "closed-boundary"
-    },
-    {
       "subject": "triangle-segment-one",
       "relation": "instance-of",
       "object": "geometric-element"
@@ -935,6 +930,11 @@
       "subject": "triangle-cycle",
       "relation": "has-first-element",
       "object": "triangle-segment-one"
+    },
+    {
+      "subject": "triangle-cycle",
+      "relation": "instance-of",
+      "object": "topological-configuration"
     }
   ],
   "dataProperties": [],
