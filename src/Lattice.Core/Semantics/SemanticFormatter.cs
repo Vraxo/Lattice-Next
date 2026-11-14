@@ -30,6 +30,7 @@ public static class SemanticFormatter
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
+            FamilySetCompletionQuestionFormula familySetCompletion => FormatFamilySetCompletion(familySetCompletion),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
@@ -65,6 +66,9 @@ public static class SemanticFormatter
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
             _ => "world-model-question(unsupported)"
         };
+
+    private static string FormatFamilySetCompletion(FamilySetCompletionQuestionFormula question) =>
+        $"family-set-completion(anchor={question.Anchor}, owner={question.OwnerRelation}, member={question.MemberType}, count={question.ExpectedCount}, known=[{string.Join(", ", question.KnownMembers)}], ordinal={question.RequestedOrdinal})";
 
     private static string FormatChoiceQuestion(ChoiceQuestionFormula choice) =>
         $"choice({choice.Category.Value}, {string.Join(", ", choice.Choices.Select(item => item.Value))})";
