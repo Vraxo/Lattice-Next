@@ -334,3 +334,8 @@ The construction `Which of the following is useful for <activity>: <items>?` res
 ### Regional highest-point questions
 
 The `What is the tallest/highest <feature type> in <region>?` construction resolves the feature type and region, then follows a typed `highest-point-of` assertion. It requires a unique supported peak and includes its type-membership evidence. When the requested region contains a modeled contiguous subregion, the answer can state that narrower region's highest point as a clarification. Unknown regions or missing/ambiguous highest-point assertions cause abstention.
+
+
+### Regional terminology questions
+
+The construction `In <sport> what do <region> call <term>?` resolves the sport, regional context, and source term through lexical entries. The responder finds a regional-equivalent term only when the graph supports the equivalence, both terms share a modeled score meaning, and the candidate term has explicit usage assertions for the requested sport and region. The answer is composed from those assertions and type-membership evidence; unknown regions, sports, or unsupported terminology cause abstention.
