@@ -6,6 +6,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex RelationPathPattern = new(
+        @"^How is (?<subject>[A-Za-z][A-Za-z -]*?) connected to (?<other>[A-Za-z][A-Za-z -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -38,6 +42,17 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var relationPath = RelationPathPattern.Match(text);
+        if (relationPath.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationPath,
+                subject: Normalize(relationPath.Groups["subject"].Value),
+                otherSubject: Normalize(relationPath.Groups["other"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var definition = DefinitionPattern.Match(text);
         if (definition.Success)
