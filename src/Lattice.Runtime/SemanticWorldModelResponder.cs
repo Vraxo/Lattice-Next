@@ -574,8 +574,8 @@ internal static class SemanticWorldModelResponder
                                 return false;
                             }
 
-                            var domain = model.FindConcept(contextRelation.Domain, SemanticConceptKind.Type);
-                            var range = model.FindConcept(contextRelation.Range, SemanticConceptKind.Type);
+                            var domain = model.FindConcept(contextRelation.DomainType, SemanticConceptKind.Type);
+                            var range = model.FindConcept(contextRelation.RangeType, SemanticConceptKind.Type);
                             return domain is not null &&
                                 range is not null &&
                                 reasoner.IsInstanceOf(context.Id, domain.Id) &&
