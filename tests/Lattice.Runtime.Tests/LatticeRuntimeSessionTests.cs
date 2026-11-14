@@ -7,6 +7,40 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Explains_sunset_outcome_and_earth_rotation_from_event_graph()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What happens when the sun goes down?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Nighttime begins. Earth's rotation explains why the Sun appears to set and causes the day-night cycle.",
+            answer.Message);
+        Assert.Equal("ask(world-model-event-outcome(the-sun-goes-down))", answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":marks-start-of:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":explains-sunset:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":causes-day-night-cycle:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Abstains_when_event_outcome_is_not_represented()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What happens when a toaster breaks?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Answers_typed_artist_painting_query_from_graph_relations()
     {
         var client = new LatticeRuntimeClient();
