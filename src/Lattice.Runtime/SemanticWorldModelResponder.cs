@@ -238,8 +238,8 @@ internal static class SemanticWorldModelResponder
             .Select(relation => new
             {
                 Relation = relation,
-                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
-                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type),
+                Domain = relation.DomainType is null ? null : model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = relation.RangeType is null ? null : model.FindConcept(relation.RangeType, SemanticConceptKind.Type),
                 Role = relation.Verb[3..^3].Replace(' ', '-')
             })
             .Where(candidate =>
@@ -276,8 +276,8 @@ internal static class SemanticWorldModelResponder
             .Select(relation => new
             {
                 Relation = relation,
-                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
-                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+                Domain = relation.DomainType is null ? null : model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = relation.RangeType is null ? null : model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
             })
             .Where(candidate =>
                 candidate.Domain is not null &&
