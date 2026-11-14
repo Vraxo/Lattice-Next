@@ -463,26 +463,31 @@
     },
     {
       "id": "dolly-016",
-      "status": "partial",
+      "status": "represented",
       "areas": [
         "transportation",
         "object classification"
       ],
       "concepts": [
+        "transportation",
+        "transportation-activity",
+        "transportation-example",
+        "vehicle",
         "train",
         "plane",
         "bicycle",
         "scooter",
-        "vehicle",
-        "transportation-activity",
-        "transportation-example"
+        "train-example",
+        "plane-example",
+        "bicycle-example",
+        "scooter-example"
       ],
       "relations": [
         "used-for",
         "is-a",
         "instance-of"
       ],
-      "limitations": "Positive transportation examples are represented. The graph does not yet classify every distractor object in the prompt."
+      "limitations": "The runtime selects listed item types only when an example instance has an asserted is-used-for relation to an instance of the requested activity. Unknown or unsupported options are not inferred to be unsuitable."
     },
     {
       "id": "dolly-017",
