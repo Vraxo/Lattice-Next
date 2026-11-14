@@ -467,6 +467,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "has-first-element",
+      "domain": "topological-configuration",
+      "range": "geometric-element",
+      "verb": "starts with",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -526,9 +537,15 @@
     },
     {
       "concept": "closed-cycle",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "cycle",
+        "relation": "next-element",
+        "startRelation": "has-first-element",
+        "targetType": "geometric-element",
+        "minimumLength": 3
+      }
     },
     {
       "concept": "boundary",
@@ -845,11 +862,6 @@
       "object": "closed-boundary"
     },
     {
-      "subject": "triangle-cycle",
-      "relation": "instance-of",
-      "object": "closed-cycle"
-    },
-    {
       "subject": "triangle-segment-one",
       "relation": "instance-of",
       "object": "geometric-element"
@@ -918,6 +930,11 @@
       "subject": "transverse-direction",
       "relation": "is-a",
       "object": "geometric-direction"
+    },
+    {
+      "subject": "triangle-cycle",
+      "relation": "has-first-element",
+      "object": "triangle-segment-one"
     }
   ],
   "dataProperties": [],
