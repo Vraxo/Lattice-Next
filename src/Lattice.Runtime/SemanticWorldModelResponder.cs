@@ -34,6 +34,8 @@ internal static class SemanticWorldModelResponder
                 TryMembership(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.InverseRelation =>
                 TryInverseRelation(request.Subject, request.Concept ?? string.Empty, model, out message, out evidence),
+            SemanticWorldModelQuestionKind.RelationQuery =>
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, model, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -442,6 +444,136 @@ internal static class SemanticWorldModelResponder
             assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static bool TryRelationQuery(
+        string subjectId,
+        string? requestedVerb,
+        string? otherSubjectId,
+        SemanticWorldModel model,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var subject = model.FindConcept(subjectId, SemanticConceptKind.Individual);
+        if (subject is null)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(otherSubjectId))
+        {
+            var other = model.FindConcept(otherSubjectId, SemanticConceptKind.Individual);
+            if (other is null)
+            {
+                return false;
+            }
+
+            var connectedAssertions = model.RelationAssertions
+                .Where(assertion =>
+                    (assertion.Subject == subject.Id && assertion.Object == other.Id) ||
+                    (assertion.Subject == other.Id && assertion.Object == subject.Id))
+                .ToArray();
+            var sentences = connectedAssertions
+                .Select(assertion =>
+                {
+                    var relation = model.FindRelation(assertion.Relation);
+                    var first = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
+                    var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                    return relation is null || first is null || second is null
+                        ? null
+                        : FormatRelation(first, second, relation, first: false);
+                })
+                .Where(sentence => sentence is not null)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (sentences.Length == 0)
+            {
+                return false;
+            }
+
+            message = string.Join(" ", sentences);
+            evidence = ImmutableArray.Create(ToEvidence(
+                connectedAssertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+                LatticeEvidenceKind.Derived));
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(requestedVerb))
+        {
+            return false;
+        }
+
+        var matchingRelations = model.Relations
+            .Where(relation =>
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                MatchesRelationVerb(relation.Verb, requestedVerb))
+            .ToArray();
+        if (matchingRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var selectedRelation = matchingRelations[0];
+        var assertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == subject.Id &&
+                assertion.Relation == selectedRelation.Id)
+            .ToArray();
+        var targets = assertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .DistinctBy(target => target!.Id)
+            .ToArray();
+        if (targets.Length == 0)
+        {
+            return false;
+        }
+
+        message = string.Join(
+            " ",
+            targets.Select((target, index) =>
+                FormatRelation(subject, target!, selectedRelation, first: index == 0)));
+        evidence = ImmutableArray.Create(ToEvidence(
+            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool MatchesRelationVerb(string relationVerb, string requestedVerb)
+    {
+        var requested = NormalizeVerb(requestedVerb);
+        if (requested.Length == 0)
+        {
+            return false;
+        }
+
+        var words = relationVerb.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var activeVerb = words.FirstOrDefault(word =>
+            !word.Equals("is", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("are", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("was", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("were", StringComparison.OrdinalIgnoreCase));
+        return activeVerb is not null &&
+            NormalizeVerb(activeVerb).Equals(requested, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeVerb(string verb)
+    {
+        var normalized = SemanticWorldModel.Normalize(verb);
+        if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
+        {
+            return normalized[..^3] + "y";
+        }
+
+        if (normalized.EndsWith('s') && normalized.Length > 1)
+        {
+            return normalized[..^1];
+        }
+
+        return normalized;
     }
 
     internal static bool TryAskMembership(
