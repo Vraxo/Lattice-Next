@@ -191,6 +191,11 @@
       "partOfSpeech": "proper-noun"
     },
     {
+      "form": "Americans",
+      "concept": "united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
       "form": "contiguous United States",
       "concept": "contiguous-united-states",
       "partOfSpeech": "proper-noun"

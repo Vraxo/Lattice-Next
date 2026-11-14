@@ -7,6 +7,55 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "In golf what do the Americans call an albatross");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "In golf in the United States, an albatross is also called a double eagle.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-regional-terminology(albatross, golf, americans))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:regional-equivalent-of:albatross", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:used-in-region:united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:has-score-meaning:three-under-par", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_apply_a_regional_golf_term_to_an_unsupported_sport_or_region()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedSport = await session.SubmitAsync(
+            "In tennis what do the Americans call an albatross");
+        var unsupportedRegion = await session.SubmitAsync(
+            "In golf what do Canadians call an albatross");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedSport.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedRegion.Utterances).Kind);
+    }
+
+    [Fact]
     public async Task Distinguishes_continental_and_contiguous_US_highest_mountains()
     {
         var client = new LatticeRuntimeClient();

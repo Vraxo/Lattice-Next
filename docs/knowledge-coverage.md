@@ -11,10 +11,10 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 559 concepts: 321 types and 238 individuals
-- 136 relation signatures
-- 855 graph assertions
-- 569 lexical forms
+- 560 concepts: 321 types and 239 individuals
+- 139 relation signatures
+- 861 graph assertions
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #217's head `bab1c961be1414ed9616d026f90da398d8d3405b`:
+The latest fully executed integrated run is PR #223's tested head `3420b66897f9d688b905620807a4396f93245c7a`:
 
 - .NET build: passed
-- .NET tests: 913 passed, 0 failed
-- External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 13 substantive answers, 15 answered, 16 handled, 18 unhandled, 0 runner errors
-- Average latency: 257 ms (single run; stability not measured)
+- .NET tests: 918 passed, 0 failed
+- External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
+- Assistant benchmark: 34 prompts, 15 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
+- Average latency: 262 ms (single run; stability not measured)
 
-The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer was manually inspected: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation. The response cites all four relations and the supporting type memberships. The distractor options are not declared unsuitable; the system returns only positively supported choices.
+The runtime benchmark score is **15/34 (44.1%)**. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
 
 ## Cross-domain structure
 
@@ -129,3 +129,15 @@ Grounding:
 - [Federal Register, Executive Order 14172](https://www.govinfo.gov/content/pkg/FR-2025-01-31/pdf/2025-02096.pdf) reinstates Mount McKinley as the federal name; the mountain is also widely known as Denali.
 
 The knowledge graph records the current federal name and retains Denali as an alternate lexical form.
+
+
+## Regional golf terminology
+
+The golf graph represents an albatross as a score of three strokes under par. It also represents double eagle as a regional equivalent used in the United States. Both terms point to the same score meaning, and the regional term has explicit golf and United States usage assertions. The responder requires all of those graph paths before answering; it does not rely on a stored answer sentence.
+
+Grounding:
+- [USGA, Golf History Questions](https://www.usga.org/history/faq--golf-history-questions-232994f0.html) describes albatross as a term for a double eagle.
+- [The Double Eagle Club, FAQ](https://www.doubleeagleclub.org/frequently-asked-questions) identifies double eagle as the term used most often by American golfers.
+- [International Golf Federation, Golf Glossary](https://www.igfgolf.org/pdf/media-centre/golf-glossary-for-website.pdf) cross-references albatross and double eagle.
+
+The answer is a terminology distinction, not a claim that the terms denote different scores.
