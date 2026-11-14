@@ -1944,16 +1944,6 @@
       "object": "physical-object"
     },
     {
-      "subject": "playing-interface",
-      "relation": "is-a",
-      "object": "physical-object"
-    },
-    {
-      "subject": "physical-component",
-      "relation": "is-a",
-      "object": "physical-object"
-    },
-    {
       "subject": "musical-instrument",
       "relation": "is-a",
       "object": "artifact"
