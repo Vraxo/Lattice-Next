@@ -484,7 +484,9 @@ public sealed class SemanticWorldModelLoader
                 relation.RangeType is null ||
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
                 !IsType(concepts, expression.TargetType) ||
-                !expression.Operands.IsDefaultOrEmpty)
+                !expression.Operands.IsDefaultOrEmpty ||
+                (expression.Filler is not null &&
+                 !ValidateExpression(expression.Filler, depth + 1, ref nodeCount, relations, concepts, restrictions)))
             {
                 return false;
             }
@@ -496,6 +498,7 @@ public sealed class SemanticWorldModelLoader
         if (expression.Kind is not (SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or) ||
             expression.Relation is not null ||
             expression.TargetType is not null ||
+            expression.Filler is not null ||
             expression.Operands.IsDefault ||
             expression.Operands.Length < 2)
         {
@@ -777,9 +780,7 @@ public sealed class SemanticWorldModelLoader
 
         foreach (var definition in model.Definitions)
         {
-            var restrictions = definition.NecessaryConditions
-                .AddRange(GetExpressionRestrictions(definition.SufficientExpression));
-            foreach (var condition in restrictions)
+            foreach (var condition in definition.NecessaryConditions)
             {
                 var relation = model.FindRelation(condition.Relation)!;
                 if (relation.DomainType is null ||
@@ -789,6 +790,12 @@ public sealed class SemanticWorldModelLoader
                 {
                     return false;
                 }
+            }
+
+            if (definition.SufficientExpression is not null &&
+                !IsExpressionWellTyped(definition.SufficientExpression, definition.Concept, model))
+            {
+                return false;
             }
         }
 
@@ -804,26 +811,24 @@ public sealed class SemanticWorldModelLoader
         return true;
     }
 
-    private static ImmutableArray<SemanticRestriction> GetExpressionRestrictions(
-        SemanticClassExpression? expression)
+    private static bool IsExpressionWellTyped(
+        SemanticClassExpression expression,
+        string subjectType,
+        SemanticWorldModel model)
     {
-        if (expression is null)
-        {
-            return [];
-        }
-
         if (expression.Kind == SemanticClassExpressionKind.Some)
         {
-            return [new SemanticRestriction(expression.Relation!, expression.TargetType!)];
+            var relation = model.FindRelation(expression.Relation!)!;
+            return relation.DomainType is not null &&
+                relation.RangeType is not null &&
+                IsSubtype(model, subjectType, relation.DomainType) &&
+                IsSubtype(model, expression.TargetType!, relation.RangeType) &&
+                (expression.Filler is null ||
+                 IsExpressionWellTyped(expression.Filler, expression.TargetType!, model));
         }
 
-        var restrictions = ImmutableArray.CreateBuilder<SemanticRestriction>();
-        foreach (var operand in expression.Operands)
-        {
-            restrictions.AddRange(GetExpressionRestrictions(operand));
-        }
-
-        return restrictions.ToImmutable();
+        return expression.Operands.All(operand =>
+            IsExpressionWellTyped(operand, subjectType, model));
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
