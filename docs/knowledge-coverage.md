@@ -34,7 +34,7 @@ The latest fully executed integrated run is PR #217's head `ba52010a29920432e6a0
 - Assistant benchmark: 34 prompts, 13 substantive answers, 15 answered, 16 handled, 18 unhandled, 0 runner errors
 - Average latency: 355 ms (single run; stability not measured)
 
-The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer is supported by four explicit `used-for` assertions and the corresponding instance/type evidence. The distractor options are not declared unsuitable; the system returns only positively supported choices. The separate `substantive_answer_reviewed` metadata count is 14; it is a review count, not the runtime score.
+The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer is supported by four explicit `used-for` assertions and the corresponding instance/type evidence. The distractor options are not declared unsuitable; the system returns only positively supported choices. The benchmark counts a run as substantive only when its record is manually reviewed, the runtime marks it answered, and it returns a non-empty answer. Fourteen records were reviewed; Dolly-021 remained reviewed but unanswered, so the runtime score is 13.
 
 ## Cross-domain structure
 
