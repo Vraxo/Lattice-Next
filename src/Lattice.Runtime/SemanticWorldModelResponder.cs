@@ -499,7 +499,7 @@ internal static class SemanticWorldModelResponder
                 }
             }
 
-            var phrase = $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
+            var phrase = $"{relation.Verb} only elements of type {target.Label}";
             if (expression.Filler is not null)
             {
                 var fillerPhrase = FormatExpression(expression.Filler, model);
@@ -852,7 +852,7 @@ internal static class SemanticWorldModelResponder
                 return null;
             }
 
-            return $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
+            return $"{relation.Verb} only elements of type {target.Label}";
         }
 
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
