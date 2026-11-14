@@ -314,3 +314,8 @@ This is a narrow, explicit inference rule over a structured set, not a general E
 ### Impact explanations
 
 The `Why <subject> is bad for <target>` and `Why is <subject> harmful to <target>` constructions produce a typed impact query. The responder requires the subject to be a communication-device subtype and the target to be a person subtype, then follows `may-contribute-to` assertions to effects that are explicitly related to that target by `affects`. It composes a qualified explanation from the effect types and their evidence. Unsupported subjects, targets, or missing effect paths cause abstention. The modal relation is preserved in the answer: possible effects are not stated as inevitable outcomes.
+
+
+### Typed object-to-agent relation questions
+
+The construction `Which <type> <verb> <object>?` resolves the known object, the requested answer type, and a passive relation signature such as `is painted by`. The responder checks the relation's declared domain and range, follows assertions from the known object to candidate agents, and filters candidates through the requested type. It composes the answer from the candidate label and graph evidence, abstaining when the object, relation, or unique typed answer cannot be resolved.
