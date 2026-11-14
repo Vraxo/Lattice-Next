@@ -302,3 +302,10 @@ The capability-explanation question form accepts "Why can <subject> <verb> ...?"
 ### Headquarters-site contribution questions
 
 The recipient–resource–location–purpose question form “Who gave the UN the land in NY to build their HQ?” is resolved through lexical types, the recipient's headquarters location, and a site matching both the resource and facility types. The responder then queries contribution relations on that site and composes each contributor's role from the graph. Financial funding toward acquisition remains distinct from additional property contributed by a municipality. Unsupported resource/facility types, mismatched locations, and ambiguous candidate sites cause abstention.
+
+
+### Family-set completion
+
+A structured family-set completion construction handles prompts such as “Alice's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?” The parser records the anchor, parent relation, member type, stated cardinality, named members, and requested ordinal as a semantic formula. The responder completes the set only when exactly one member is missing, the anchor is not already listed, and the semantic model supports the anchor's required person type. For daughters and sons, the anchor must have the corresponding female-person or male-person classification; for children, it must be a person. Otherwise the responder abstains.
+
+This is a narrow, explicit inference rule over a structured set, not a general English coreference resolver or a stored question/answer pair. The current seed includes Alice as a female-person individual; broader name/gender knowledge is not assumed.
