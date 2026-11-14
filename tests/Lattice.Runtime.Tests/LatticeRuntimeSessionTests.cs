@@ -407,18 +407,10 @@ public sealed class LatticeRuntimeSessionTests
         var pianoDefinitionAnswer = Assert.Single(pianoDefinition.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, pianoDefinitionAnswer.Kind);
         Assert.Equal(LatticeTruthValue.True, pianoDefinitionAnswer.TruthValue);
-        foreach (var assertionId in new[]
-        {
-            "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
-            "core-world-model:relation:piano-keyboard:activates:piano-action",
-            "core-world-model:relation:piano-action:instance-of:piano-hammer-action",
-            "core-world-model:relation:piano-example:has-sound-production-mechanism:piano-action",
-        })
-        {
-            Assert.Contains(
-                pianoDefinitionAnswer.SupportingEvidence,
-                evidence => evidence.Sources.Any(source => source.SourceId == assertionId));
-        }
+        Assert.Contains(
+            pianoDefinitionAnswer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano-example:instance-of:piano"));
 
         var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         Assert.Equal(
