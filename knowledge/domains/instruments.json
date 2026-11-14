@@ -1534,11 +1534,6 @@
       "object": "musical-instrument"
     },
     {
-      "subject": "mechanical-state",
-      "relation": "is-a",
-      "object": "entity"
-    },
-    {
       "subject": "piano-example",
       "relation": "instance-of",
       "object": "physical-object"
@@ -1767,11 +1762,6 @@
       "subject": "string-component",
       "relation": "is-a",
       "object": "flexible-component"
-    },
-    {
-      "subject": "mechanical-behavior",
-      "relation": "is-a",
-      "object": "entity"
     },
     {
       "subject": "piano-strings",
