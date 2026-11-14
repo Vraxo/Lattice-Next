@@ -19,7 +19,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex MediaExamplesByGenreAndPeriodPattern = new(
-        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) (?:movies|films) of (?:the )?(?<period>[0-9]{4}'?s)\\??$",
+        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) (?:movies|films) of (?:the )?(?<period>[0-9]{4}'?s)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CommonTypedRelationPattern = new(
