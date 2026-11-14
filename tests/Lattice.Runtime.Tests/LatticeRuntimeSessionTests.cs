@@ -13,7 +13,7 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Alice's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?");
+            "Alice's parents have three daughters: Amy, Jessy, and what’s the name of the third daughter?");
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
@@ -29,6 +29,20 @@ public sealed class LatticeRuntimeSessionTests
             answer.SupportingEvidence.SelectMany(evidence => evidence.Premises),
             evidence => evidence.Sources.Any(source =>
                 source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
+    public async Task Completes_a_family_set_for_children_without_gender_specific_assumptions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Alice's parents have three children: Amy, Jessy, and what’s the name of the third child?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("The third child is Alice.", answer.Message);
     }
 
     [Theory]
