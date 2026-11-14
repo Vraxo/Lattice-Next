@@ -196,6 +196,25 @@ This is a first reasoning slice, not a general theorem prover. It does not curre
 
 The foundational semantic model has a separate, deliberately small class-expression language: positive existential restrictions combined with conjunction and disjunction. Primitive types are explicitly marked as primitive and may carry necessary restrictions; defined types require a sufficient expression. The class-expression reasoner evaluates these expressions over asserted relations and derived type memberships. It does not currently support universal restrictions, negation, cardinality, equality/inequality, inverse roles, or unrestricted first-order logic.
 
+Existential restrictions may also constrain the related individual with a nested class expression. A restriction such as:
+
+```json
+{
+  "kind": "some",
+  "relation": "actuates",
+  "targetType": "physical-component",
+  "filler": {
+    "kind": "some",
+    "relation": "strikes",
+    "targetType": "string-component"
+  }
+}
+```
+
+means that the subject actuates a physical component, and that same component strikes a string component. The filler is evaluated against the related individual, not against the original subject. Nested restrictions compose with the existing conjunction and disjunction operators, and their complete evidence paths are retained.
+
+The instrument model uses this to define a struck-string mechanism from its structure rather than asserting that a particular mechanism belongs to that type. It also defines a string component through its mechanical state and its vibration path to a resonator. Consequently, the piano action is classified from the hammer → string → soundboard structure; removing the required nested link prevents that classification.
+
 ## Lifetime and boundaries
 
 The CLI owns one in-memory KnowledgeBase for the duration of the interactive process. User assertions and claims loaded from declarative knowledge packs remain available across turns in that process and are discarded when it ends. There is no durable session persistence or pack unloading yet.
