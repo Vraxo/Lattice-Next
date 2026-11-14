@@ -465,7 +465,7 @@
       "order": 0,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
-      "objectKind": "Individual"
+      "objectKind": "Type"
     }
   ],
   "definitions": [
