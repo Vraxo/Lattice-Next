@@ -610,18 +610,23 @@
         "mountains"
       ],
       "concepts": [
-        "mount-whitney",
-        "contiguous-united-states",
-        "california",
-        "sierra-nevada",
         "mountain",
-        "geographic-region"
+        "mount-whitney",
+        "mount-mckinley",
+        "alaska",
+        "continental-united-states",
+        "contiguous-united-states",
+        "contiguous-region",
+        "geographic-region",
+        "state-region"
       ],
       "relations": [
         "highest-point-of",
-        "part-of-geographic-region"
+        "part-of-geographic-region",
+        "is-a",
+        "instance-of"
       ],
-      "limitations": "Mount Whitney is linked as the highest point of the contiguous United States."
+      "limitations": "The graph distinguishes the 49-state continental United States (including Alaska) from the contiguous 48 states. The answer follows curated highest-point-of assertions rather than comparing elevation measurements. It uses Mount McKinley as the current federal name and Denali as an alternate lexical form."
     },
     {
       "id": "dolly-023",
