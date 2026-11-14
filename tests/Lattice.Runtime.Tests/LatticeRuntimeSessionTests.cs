@@ -7,6 +7,54 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Explains_mobile_phone_risks_from_typed_effect_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why mobile is bad for human");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mobile phones are not inherently bad for people. They may contribute to sleep disruption, attention disruption, reduced physical activity, social disconnection, and distraction while driving. These are possible effects, not inevitable outcomes; the impact depends on how and when the phone is used.",
+            answer.Message);
+        Assert.Equal("ask(world-model-impact-explanation(mobile-phone, person))", answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":may-contribute-to:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":affects:person", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Parses_the_inverted_harm_question_construction()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why is mobile harmful to human?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("not inherently bad for people", answer.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("Why hoverboards are bad for human")]
+    [InlineData("Why mobile is bad for software")]
+    public async Task Abstains_when_impact_subject_or_target_is_not_supported(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Completes_a_family_set_from_the_parent_relationship_and_member_type()
     {
         var client = new LatticeRuntimeClient();
