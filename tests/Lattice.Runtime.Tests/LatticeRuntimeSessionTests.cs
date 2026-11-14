@@ -207,6 +207,21 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Theory]
+    [InlineData("Who gave the UN the land in NY to build their stadium?")]
+    [InlineData("Who gave the UN the water in NY to build their HQ?")]
+    [InlineData("Who gave the UN the land in Boston to build their HQ?")]
+    public async Task Abstains_when_contribution_query_types_or_headquarters_context_do_not_resolve(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Theory]
     [InlineData("Who created Girl with a Pearl Earring?", "Johannes Vermeer created Girl with a Pearl Earring.", "created-by")]
     [InlineData("Who directed Oathkeeper?", "Michelle MacLaren directed Oathkeeper.", "directed-by")]
     public async Task Answers_inverse_relation_questions_from_relation_signatures(
