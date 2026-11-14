@@ -526,7 +526,7 @@ internal static class SemanticWorldModelResponder
             return $"{value[..^1]}ies";
         }
 
-        return value.EndsWith('s', StringComparison.OrdinalIgnoreCase)
+        return value.EndsWith("s", StringComparison.OrdinalIgnoreCase)
             ? $"{value}es"
             : $"{value}s";
     }
