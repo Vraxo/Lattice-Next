@@ -30,8 +30,62 @@ internal static class SemanticWorldModelResponder
                 TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RelationPath =>
+                TryExplainRelationPath(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
+    }
+
+    private static bool TryExplainRelationPath(
+        string requestedSource,
+        string requestedTarget,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var source = model.FindConcept(requestedSource);
+        var target = model.FindConcept(requestedTarget);
+        if (source is null || target is null)
+        {
+            return false;
+        }
+
+        var path = reasoner.FindShortestRelationPath(source.Id, target.Id);
+        if (path.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var segments = new List<string> { source.Label };
+        var current = source.Id;
+
+        foreach (var assertion in path)
+        {
+            var relation = model.FindRelation(assertion.Relation);
+            var forward = assertion.Subject == current;
+            var next = forward ? assertion.Object : assertion.Subject;
+            var nextConcept = model.FindConcept(next);
+            if (relation is null || nextConcept is null)
+            {
+                return false;
+            }
+
+            segments.Add(forward
+                ? $"—{relation.Verb}→"
+                : $"←{relation.Verb}—");
+            segments.Add(nextConcept.Label);
+            current = next;
+        }
+
+        message = $"A shortest supported relation path from {source.Label} to {target.Label} is: {string.Join(" ", segments)}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            path.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
     }
 
     internal static bool TryRespond(
