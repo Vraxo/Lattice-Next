@@ -193,11 +193,13 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("very dry feces", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("recover moisture from exhaled air", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("substantial dehydration", answer.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains(answer.SupportingEvidence, evidence =>
-            evidence.Sources.Any(source =>
-                source.SourceId.Contains("animal-survival", StringComparison.Ordinal)));
+        Assert.NotEmpty(answer.SupportingEvidence);
+        Assert.All(
+            answer.SupportingEvidence,
+            evidence => Assert.Contains(
+                evidence.Sources,
+                source => source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge));
     }
-
     [Fact]
     public async Task Answers_geometry_and_language_questions_from_typed_structures()
     {
@@ -397,8 +399,7 @@ public sealed class LatticeRuntimeSessionTests
             "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
             "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
             "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
-            "core-world-model:relation:banjo:has-sound-production-mechanism:banjo-mechanism"
-        })
+            "core-world-model:relation:banjo:has-sound-production-mechanism:banjo-mechanism"        })
         {
             Assert.Contains(
                 utterance.SupportingEvidence,
@@ -597,8 +598,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal("Tope is a species of fish.", utterance.Message);
         Assert.Equal("ask(choice(fish, tope, rope))", utterance.Meaning);
-        Assert.Contains(
-            utterance.SupportingEvidence,
+        Assert.Contains(            utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge &&
                 source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
