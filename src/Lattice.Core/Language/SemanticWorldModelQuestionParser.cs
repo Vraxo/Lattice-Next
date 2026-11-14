@@ -46,6 +46,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?!(?:is|are|of|one)\b)(?<type>[A-Za-z][A-Za-z -]*) (?!(?:is|are)\b)(?<verb>[A-Za-z]+) (?<object>.+?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex HighestPointPattern = new(
+        @"^What is the (?:tallest|highest) (?<type>[A-Za-z][A-Za-z -]*?) in (?<region>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -199,6 +203,17 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.Membership,
                 subject: Normalize(membership.Groups["subject"].Value),
                 concept: Normalize(membership.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var highestPoint = HighestPointPattern.Match(text);
+        if (highestPoint.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.HighestPointQuery,
+                subject: Normalize(highestPoint.Groups["region"].Value),
+                concept: NormalizeType(highestPoint.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
