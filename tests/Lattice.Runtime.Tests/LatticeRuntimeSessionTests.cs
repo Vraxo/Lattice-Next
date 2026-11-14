@@ -374,7 +374,7 @@ public sealed class LatticeRuntimeSessionTests
         {
             "core-world-model:relation:guitar:has-sound-production-mechanism:guitar-mechanism",
             "core-world-model:relation:violin:has-sound-production-mechanism:violin-mechanism",
-            "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
+            "core-world-model:relation:piano:is-a:keyboard-instrument",
             "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
             "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
             "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
