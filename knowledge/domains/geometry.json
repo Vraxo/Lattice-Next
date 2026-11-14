@@ -556,7 +556,7 @@
       "sufficientExpression": {
         "kind": "some",
         "relation": "has-boundary-element",
-        "targetType": "line-segment"
+        "targetType": "geometric-element"
       }
     },
     {
@@ -564,9 +564,19 @@
       "definitionKind": "defined",
       "necessaryConditions": [],
       "sufficientExpression": {
-        "kind": "some",
-        "relation": "has-topology",
-        "targetType": "closed-cycle"
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-boundary-element",
+            "targetType": "geometric-element"
+          },
+          {
+            "kind": "some",
+            "relation": "has-topology",
+            "targetType": "closed-cycle"
+          }
+        ]
       }
     },
     {
@@ -601,7 +611,22 @@
       "sufficientExpression": {
         "kind": "some",
         "relation": "has-boundary",
-        "targetType": "closed-boundary"
+        "targetType": "closed-boundary",
+        "filler": {
+          "kind": "and",
+          "operands": [
+            {
+              "kind": "some",
+              "relation": "has-boundary-element",
+              "targetType": "line-segment"
+            },
+            {
+              "kind": "all",
+              "relation": "has-boundary-element",
+              "targetType": "line-segment"
+            }
+          ]
+        }
       }
     },
     {
