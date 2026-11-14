@@ -166,7 +166,7 @@
     },
     {
       "id": "dolly-003",
-      "status": "not-represented",
+      "status": "partial",
       "areas": [
         "language understanding",
         "discourse context",
@@ -174,11 +174,12 @@
       ],
       "concepts": [
         "person",
-        "family",
-        "agent"
+        "female-person",
+        "male-person",
+        "alice"
       ],
       "relations": [],
-      "limitations": "This is primarily a contextual inference from the wording of the prompt, not a static world-knowledge lookup. The conversation/context reasoner must resolve it."
+      "limitations": "A narrow family-set completion construction is implemented: the anchor's parent relationship, a known person type, explicitly named members, and a stated cardinality are composed to infer the missing member. This is not general discourse or kinship reasoning; unknown or mismatched member types cause abstention."
     },
     {
       "id": "dolly-004",
