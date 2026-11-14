@@ -7,6 +7,61 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Completes_a_family_set_from_the_parent_relationship_and_member_type()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Alice's parents have three daughters: Amy, Jessy, and what’s the name of the third daughter?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("The third daughter is Alice.", answer.Message);
+        Assert.Equal(
+            "ask(family-set-completion(anchor=alice, owner=parents, member=daughter, count=3, known=[amy, jessy], ordinal=3))",
+            answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Premises.Length == 2);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(evidence => evidence.Premises),
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
+    public async Task Completes_a_family_set_for_children_without_gender_specific_assumptions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Alice's parents have three children: Amy, Jessy, and what’s the name of the third child?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("The third child is Alice.", answer.Message);
+    }
+
+    [Theory]
+    [InlineData("Alex's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?")]
+    [InlineData("Alice's parents have three daughters: Amy, and what's the name of the third daughter?")]
+    [InlineData("Alice's parents have three sons: Amy, Jessy, and what's the name of the third son?")]
+    [InlineData("Alice's parents have three daughters: Amy, Alice, and what's the name of the third daughter?")]
+    public async Task Abstains_when_family_set_completion_premises_are_insufficient(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Stores_assertions_and_answers_questions_with_evidence()
     {
         var client = new LatticeRuntimeClient();
