@@ -195,7 +195,8 @@
         "new-york-city",
         "organization",
         "site",
-        "new-york-city-government"
+        "new-york-city-government",
+        "land-parcel"
       ],
       "relations": [
         "funded-acquisition-of",
@@ -203,7 +204,7 @@
         "situated-in",
         "contributed-property-to"
       ],
-      "limitations": "The graph distinguishes Rockefeller Jr.'s funding toward acquisition from the City of New York's contribution of additional property. Runtime answering composes both roles and avoids describing the financial gift as a donation of the entire site."
+      "limitations": "The graph distinguishes Rockefeller Jr.'s financial gift toward acquisition from the City of New York's contribution of additional parcels and property rights. The runtime query composes both roles and does not claim that Rockefeller personally donated the entire site."
     },
     {
       "id": "dolly-005",
