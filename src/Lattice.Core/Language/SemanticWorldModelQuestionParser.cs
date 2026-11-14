@@ -42,6 +42,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?<type>[A-Za-z][A-Za-z -]*?) did (?<agent>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypedObjectRelationPattern = new(
+        @"^Which (?<type>[A-Za-z][A-Za-z -]*?) (?<verb>[A-Za-z]+) (?<object>.+?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -154,6 +158,21 @@ internal static class SemanticWorldModelQuestionParser
                 subject: Normalize(typedInverse.Groups["agent"].Value),
                 concept: Normalize(typedInverse.Groups["verb"].Value),
                 targetType: NormalizeType(typedInverse.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typedObjectRelation = TypedObjectRelationPattern.Match(text);
+        if (typedObjectRelation.Success)
+        {
+            var objectName = typedObjectRelation.Groups["object"].Value
+                .Trim()
+                .Trim('"', '“', '”', '‘', '’');
+            utterance = Create(
+                SemanticWorldModelQuestionKind.TypedObjectRelationQuery,
+                subject: Normalize(objectName),
+                concept: Normalize(typedObjectRelation.Groups["verb"].Value),
+                targetType: NormalizeType(typedObjectRelation.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
