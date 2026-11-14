@@ -413,7 +413,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("The piano strings transmit vibrations to the piano soundboard", soundMechanismMessage);
         Assert.Contains("The piano soundboard radiates the acoustic sound", soundMechanismMessage);
 
-        var stringComponentReason = await session.SubmitAsync("Why are the piano strings string components?");
+        var stringComponentReason = await session.SubmitAsync("What is piano strings?");
         var stringComponentUtterance = Assert.Single(stringComponentReason.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, stringComponentUtterance.Kind);
 
