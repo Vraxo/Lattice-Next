@@ -35,7 +35,7 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.InverseRelation =>
                 TryInverseRelation(request.Subject, request.Concept ?? string.Empty, model, out message, out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
-                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, model, out message, out evidence),
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -450,7 +450,9 @@ internal static class SemanticWorldModelResponder
         string subjectId,
         string? requestedVerb,
         string? otherSubjectId,
+        string? requestedTargetType,
         SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
@@ -505,23 +507,38 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        var targetType = string.IsNullOrWhiteSpace(requestedTargetType)
+            ? null
+            : model.FindConcept(requestedTargetType, SemanticConceptKind.Type);
+        if (!string.IsNullOrWhiteSpace(requestedTargetType) && targetType is null)
+        {
+            return false;
+        }
+
         var matchingRelations = model.Relations
             .Where(relation =>
                 relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
                 MatchesRelationVerb(relation.Verb, requestedVerb))
+            .Select(relation => new
+            {
+                Relation = relation,
+                Assertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == subject.Id &&
+                        assertion.Relation == relation.Id &&
+                        (targetType is null || reasoner.IsInstanceOf(assertion.Object, targetType.Id)))
+                    .ToArray()
+            })
+            .Where(candidate => candidate.Assertions.Length > 0)
             .ToArray();
         if (matchingRelations.Length != 1)
         {
             return false;
         }
 
-        var selectedRelation = matchingRelations[0];
-        var assertions = model.RelationAssertions
-            .Where(assertion =>
-                assertion.Subject == subject.Id &&
-                assertion.Relation == selectedRelation.Id)
-            .ToArray();
+        var selectedRelation = matchingRelations[0].Relation;
+        var assertions = matchingRelations[0].Assertions;
         var targets = assertions
             .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
             .Where(target => target is not null)
