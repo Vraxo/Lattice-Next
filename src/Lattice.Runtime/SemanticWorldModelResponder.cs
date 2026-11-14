@@ -358,6 +358,92 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    private static bool TryMembership(
+        string individualId,
+        string typeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var individual = model.FindConcept(individualId, SemanticConceptKind.Individual);
+        var type = model.FindConcept(typeId, SemanticConceptKind.Type);
+        if (individual is null || type is null ||
+            !reasoner.IsInstanceOf(individual.Id, type.Id))
+        {
+            return false;
+        }
+
+        var sources = reasoner.GetMembershipEvidence(individual.Id, type.Id);
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        message = $"Yes, {individual.Label} is {IndefinitePhrase(type.Label)}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryInverseRelation(
+        string objectId,
+        string activeVerb,
+        SemanticWorldModel model,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var target = model.FindConcept(objectId, SemanticConceptKind.Individual);
+        if (target is null)
+        {
+            return false;
+        }
+
+        var matchingRelations = model.Relations
+            .Where(relation =>
+                relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
+                relation.Verb.EndsWith(" by", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    relation.Verb[3..^3].Trim(),
+                    activeVerb,
+                    StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (matchingRelations.Length == 0)
+        {
+            return false;
+        }
+
+        var relationIds = matchingRelations
+            .Select(relation => relation.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var assertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Object == target.Id &&
+                relationIds.Contains(assertion.Relation))
+            .ToArray();
+        var agents = assertions
+            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Where(agent => agent is not null)
+            .DistinctBy(agent => agent!.Id)
+            .ToArray();
+        if (agents.Length == 0)
+        {
+            return false;
+        }
+
+        var verb = activeVerb.Trim();
+        message = agents.Length == 1
+            ? $"{agents[0]!.Label} {verb} {target.Label}."
+            : $"{JoinNames(agents.Select(agent => agent!.Label).ToArray())} {verb} {target.Label}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     internal static bool TryAskMembership(
         string individual,
         string type,
