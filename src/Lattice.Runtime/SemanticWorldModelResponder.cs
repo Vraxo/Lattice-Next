@@ -369,7 +369,6 @@ internal static class SemanticWorldModelResponder
         };
         sources.AddRange(reasoner.GetMembershipEvidence(term.Id, regionalRelation.RangeType));
         sources.AddRange(reasoner.GetMembershipEvidence(alias.Id, regionalRelation.DomainType));
-        sources.AddRange(reasoner.GetMembershipEvidence(sport.Id, sportRelation.RangeType));
         sources.AddRange(reasoner.GetMembershipEvidence(region.Id, regionRelation.RangeType));
         sources.AddRange(reasoner.GetMembershipEvidence(scoreMeaning.Id, scoreRelation.RangeType));
 
