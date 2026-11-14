@@ -279,10 +279,10 @@ These operations use the same relation signatures, concept identities, assertion
 The relation-query form adds three reusable constructions:
 
 - **Direct relation lookup:** `Where is the rural hospital located?` resolves the subject and matches the requested verb against relation signatures such as `is located in`.
-- **Action relation lookup:** `What does the piano string bending response produce?` matches the base verb `produce` against a signature such as `produces deformation`, then returns its asserted object.
+- **Action relation lookup:** `What does the piano string bending response produce?` matches the base verb `produce` against relation signatures and considers only signatures with assertions for that subject. An optional object-type constraint is also supported: `What deformation does the piano string bending response produce?`.
 - **Pairwise relation lookup:** `How is the rural hospital related to the rural town?` checks for a direct asserted edge between the two resolved individuals and expresses the actual direction of that edge.
 
-A direct lookup is accepted only when the requested verb identifies exactly one compatible relation signature. If the verb is ambiguous, either entity is unresolved, or the graph contains no matching assertion, the runtime abstains. Pairwise lookup currently checks direct edges only; it does not infer arbitrary paths or claim that two entities are related merely because they share a type.
+A direct lookup is accepted only when the requested verb identifies exactly one relation signature with matching assertions for the resolved subject. An optional target-type constraint filters those assertions using the reasoner's type hierarchy. If multiple signatures remain, an entity or requested type is unresolved, or the graph contains no matching assertion, the runtime abstains. Pairwise lookup currently checks direct edges only; it does not infer arbitrary paths or claim that two entities are related merely because they share a type.
 
 When a membership question does not resolve to a foundational individual and type, the parser preserves compatibility by routing it through the ordinary session knowledge-base query path. Inverse-relation and general relation questions require matching relation signatures and asserted graph edges; otherwise the runtime reports that structured evidence is unavailable.
 
