@@ -459,7 +459,7 @@
     {
       "id": "used-in-sport",
       "domain": "golf-scoring-term",
-      "range": "sport",
+      "range": null,
       "verb": "is used in",
       "objectRole": null,
       "order": 0,
