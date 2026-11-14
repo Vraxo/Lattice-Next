@@ -117,6 +117,26 @@
       "id": "headquarters-site",
       "label": "headquarters site",
       "kind": "Type"
+    },
+    {
+      "id": "contiguous-region",
+      "label": "contiguous region",
+      "kind": "Type"
+    },
+    {
+      "id": "continental-united-states",
+      "label": "continental United States",
+      "kind": "Individual"
+    },
+    {
+      "id": "alaska",
+      "label": "Alaska",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-mckinley",
+      "label": "Mount McKinley",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -254,6 +274,41 @@
       "form": "HQ",
       "concept": "headquarters-site",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "contiguous region",
+      "concept": "contiguous-region",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "contiguous US",
+      "concept": "contiguous-united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "continental United States",
+      "concept": "continental-united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "continental US",
+      "concept": "continental-united-states",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Alaska",
+      "concept": "alaska",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Mount McKinley",
+      "concept": "mount-mckinley",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Denali",
+      "concept": "mount-mckinley",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -370,6 +425,12 @@
     },
     {
       "concept": "headquarters-site",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "contiguous-region",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -560,6 +621,61 @@
       "subject": "united-nations-headquarters-site",
       "relation": "instance-of",
       "object": "headquarters-site"
+    },
+    {
+      "subject": "contiguous-region",
+      "relation": "is-a",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "instance-of",
+      "object": "contiguous-region"
+    },
+    {
+      "subject": "continental-united-states",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "continental-united-states",
+      "relation": "part-of-geographic-region",
+      "object": "united-states"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "part-of-geographic-region",
+      "object": "continental-united-states"
+    },
+    {
+      "subject": "alaska",
+      "relation": "instance-of",
+      "object": "state-region"
+    },
+    {
+      "subject": "alaska",
+      "relation": "part-of-geographic-region",
+      "object": "continental-united-states"
+    },
+    {
+      "subject": "alaska",
+      "relation": "part-of-geographic-region",
+      "object": "united-states"
+    },
+    {
+      "subject": "mount-mckinley",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "mount-mckinley",
+      "relation": "part-of-geographic-region",
+      "object": "alaska"
+    },
+    {
+      "subject": "mount-mckinley",
+      "relation": "highest-point-of",
+      "object": "continental-united-states"
     }
   ],
   "dataProperties": [],
