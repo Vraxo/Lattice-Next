@@ -33,6 +33,7 @@ public static class SemanticFormatter
             FamilySetCompletionQuestionFormula familySetCompletion => FormatFamilySetCompletion(familySetCompletion),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
+            ActivitySelectionFormula selection => FormatActivitySelection(selection),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
@@ -78,6 +79,9 @@ public static class SemanticFormatter
 
     private static string FormatClassification(MultiItemClassificationFormula classification) =>
         $"classify({classification.ItemType.Value}, categories({string.Join(", ", classification.Categories.Select(category => category.Value))}), items({string.Join(", ", classification.Items.Select(item => item.Value))}))";
+
+    private static string FormatActivitySelection(ActivitySelectionFormula selection) =>
+        $"select-for-activity({selection.Activity.Value}, items({string.Join(", ", selection.Items.Select(item => item.Value))}))";
 
     private static string FormatTaskRequest(TaskRequestFormula taskRequest)
     {
