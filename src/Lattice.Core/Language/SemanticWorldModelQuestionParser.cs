@@ -14,6 +14,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Why is (?<subject>[A-Za-z][A-Za-z -]*?) an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex AbilityPattern = new(
+        @"^Why can (?<subject>[A-Za-z][A-Za-z -]*?) (?<ability>[A-Za-z][A-Za-z -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex MechanismPattern = new(
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -56,6 +60,17 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.WhyClassification,
                 subject: Normalize(why.Groups["subject"].Value),
                 concept: Normalize(why.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var ability = AbilityPattern.Match(text);
+        if (ability.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Ability,
+                subject: Normalize(ability.Groups["subject"].Value),
+                concept: Normalize(ability.Groups["ability"].Value),
                 sourceText: source);
             return true;
         }
