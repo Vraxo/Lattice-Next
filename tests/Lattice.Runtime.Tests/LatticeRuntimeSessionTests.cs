@@ -190,10 +190,11 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Contains("highly concentrated urine", answer.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("; their digestive system", answer.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("very dry feces", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("limiting water lost in urine", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("reabsorb water from digested material", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("dry feces", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("recover moisture from exhaled air", answer.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("substantial dehydration", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("reducing the need to cool themselves by sweating", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("humps", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.NotEmpty(answer.SupportingEvidence);
         Assert.All(
