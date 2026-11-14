@@ -25,7 +25,7 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CapabilityExplanation =>
-                TryExplainCapability(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+                TryExplainCapability(request.Subject, request.Concept ?? string.Empty, request.OtherSubject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
                 TryExplainMechanism(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Causes =>
@@ -196,6 +196,7 @@ internal static class SemanticWorldModelResponder
     private static bool TryExplainCapability(
         string requestedSubject,
         string requestedCapability,
+        string? requestedContext,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
         out string message,
@@ -203,7 +204,9 @@ internal static class SemanticWorldModelResponder
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
-        if (!string.Equals(requestedCapability, "survive", StringComparison.Ordinal))
+        if (!string.Equals(requestedCapability, "survive", StringComparison.Ordinal) ||
+            string.IsNullOrWhiteSpace(requestedContext) ||
+            !requestedContext.Contains("water", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -256,8 +259,8 @@ internal static class SemanticWorldModelResponder
                 ? process.Label[(subjectType.Label.Length + 1)..]
                 : process.Label)
             .ToArray();
-        var subjectLabel = subjectType.Label;
-        message = $"{Capitalize(subjectLabel)} can survive periods without drinking water because its water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Its dehydration-tolerance adaptation also supports survival during water deprivation.";
+        var subjectLabel = Pluralize(subjectType.Label);
+        message = $"{Capitalize(subjectLabel)} can survive periods without drinking water because their water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
         var sources = adaptations.Select(adaptation => adaptation.Source)
             .Concat(survivalAssertions.Select(assertion => assertion.Source))
             .Concat(waterConservation.SelectMany(adaptation =>
