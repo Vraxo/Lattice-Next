@@ -20,13 +20,17 @@ public sealed class SemanticDirectedCycleTests
 
         var evidence = reasoner.GetMembershipEvidence("cycle-example", "closed-cycle");
         Assert.Contains(evidence, source => source.SourceId.EndsWith(
-            ":relation:cycle-example:starts-at:node-a", StringComparison.Ordinal));
+            ":relation:cycle-example:has-first-node:node-a", StringComparison.Ordinal));
         Assert.Contains(evidence, source => source.SourceId.EndsWith(
             ":relation:node-a:next-node:node-b", StringComparison.Ordinal));
         Assert.Contains(evidence, source => source.SourceId.EndsWith(
             ":relation:node-b:next-node:node-c", StringComparison.Ordinal));
         Assert.Contains(evidence, source => source.SourceId.EndsWith(
             ":relation:node-c:next-node:node-a", StringComparison.Ordinal));
+        Assert.Contains(evidence, source => source.SourceId.EndsWith(
+            ":relation:node-a:ends-at:point-two", StringComparison.Ordinal));
+        Assert.Contains(evidence, source => source.SourceId.EndsWith(
+            ":relation:node-b:starts-at:point-two", StringComparison.Ordinal));
     }
 
     private static string CreateModel() =>
