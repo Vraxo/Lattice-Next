@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #213's head `566cf6c6e5fa4e781a15fbbdaeac072958d40af0`:
+The latest fully executed integrated run is PR #214's head `5e97ca82dd67d09b42804f4f20652d00d7c7aa40`:
 
 - .NET build: passed
-- .NET tests: 900 passed, 0 failed
+- .NET tests: 905 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 8 substantive answers, 11 answered, 12 handled, 22 unhandled, 0 runner errors
-- Average latency: 343 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 10 substantive answers, 12 answered, 13 handled, 21 unhandled, 0 runner errors
+- Average latency: 374 ms (single run; stability not measured)
 
-Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. Dolly-004's contribution answer has also since been manually reviewed; the separate `substantive_answer_reviewed` metadata count is now 10. That is a review count, not a runtime capability score, and Dolly-004 will only affect the runtime score after the next benchmark execution.
+Dolly-003, Dolly-004, and Dolly-005 have been individually inspected and marked as substantively reviewed. Their answers are composed from graph relations and explicit premises; they are not stored answer sentences. The runtime benchmark score is **10/34 (29.4%)**. The separate `substantive_answer_reviewed` metadata count is 11; it is a review count, not a runtime capability score.
 
 ## Cross-domain structure
 
