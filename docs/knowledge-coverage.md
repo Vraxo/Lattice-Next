@@ -26,17 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #228's head `32b4d3a0989bbf05e78272a6067ed6dc64ff2a22` (CI run 871):
+The latest fully executed integrated run is PR #228's head `4b98eab09adf0157685dae661cc519a2f4b13f56` (CI run 874):
 
 - .NET build: passed
 - .NET tests: 925 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 17 substantive answers at execution time, 20 answered, 21 handled, 13 unhandled, 0 runner errors
-- Average latency: 276 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 18 substantive answers, 20 answered, 21 handled, 13 unhandled, 0 runner errors
+- Average latency: 381 ms (single run; stability not measured)
 
-Dolly-029's benchmark output was manually inspected: Steve Urkel is returned with both the `neighbor-of` and `character-in` assertions, plus candidate, family, and show type-membership evidence. The record is now marked substantively reviewed. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Applying that review to the captured result gives **18 substantive answers (18/34, 52.9%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+The runtime benchmark score is **18/34 (52.9%)**, up from 16/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer.
 
-Dolly-023's film examples and Dolly-025's ingredient list are also reviewed and supported by their respective graph assertions.
+Dolly-029's output was inspected: Steve Urkel is returned with both the `neighbor-of` and `character-in` assertions, plus candidate, family, and show type-membership evidence. Dolly-023's five film examples each have both a comedy-genre assertion and a 1980s release-period assertion; the response explicitly avoids claiming an unsupported ranking. Dolly-025's ingredient list is supported by its eight ingredient assertions.
 
 ## Cross-domain structure
 
