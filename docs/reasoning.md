@@ -55,7 +55,7 @@ A ProofNode distinguishes asserted premises from derived conclusions. Asserted n
 
 The runtime's foundational knowledge is loaded by composing the modules under `knowledge/domains/`, not as LCE claims in the legacy KnowledgeBase. Concept identity, type definitions, relation signatures, graph assertions, and class expressions are validated by `SemanticWorldModelLoader` and reasoned over by `SemanticWorldModelReasoner`. All asserted facts share one relation graph: `is-a` connects types, `instance-of` connects individuals to types, and ordinary relations connect their declared argument kinds. The reasoner derives transitive subtype membership and classifications from connected structures; the default model is not counted as LCE facts or rules in session status.
 
-Version 3 foundational modules store no assertion quotations, source URLs, provenance fields, or URI-valued data properties. Evidence identifiers are generated from the asserted graph edges and definition identifiers. Older version 1 and 2 models remain loadable; their parent lists and type assertions are converted into `is-a` and `instance-of` graph edges. The version 1 `KnowledgePackLoader` remains for backward-compatible task-specific candidate data and user-provided assertions, not for authoring foundational definitions.
+Version 3 foundational modules store no assertion quotations, source URLs, provenance fields, or data properties. Version 4 adds typed decimal data properties with declared dimensions and explicit units; values are validated and normalized to SI base units during loading. URI-valued data properties remain supported. Evidence identifiers are generated from the asserted graph edges and definition identifiers. Older version 1 and 2 models remain loadable; their parent lists and type assertions are converted into `is-a` and `instance-of` graph edges. The version 1 `KnowledgePackLoader` remains for backward-compatible task-specific candidate data and user-provided assertions, not for authoring foundational definitions.
 
 ## Versioned knowledge packs
 
@@ -213,7 +213,7 @@ Existential restrictions may also constrain the related individual with a nested
 
 means that the subject actuates a physical component, and that same component strikes a string component. The filler is evaluated against the related individual, not against the original subject. Nested restrictions compose with the existing conjunction and disjunction operators, and their complete evidence paths are retained.
 
-The instrument model uses this to define a struck-string mechanism from its structure rather than asserting that a particular mechanism belongs to that type. A string component is composed from five independently represented requirements: an elongated geometric form, a bending response, a tensioned mechanical state, vibration that produces sound, and transmission of vibration to a resonator. Its geometry is represented through longitudinal and cross-sectional extents, plus a longitudinal direction. A transverse direction is derived from its perpendicular relationship to a longitudinal direction. In the shared mechanics module, a tensile force is a pulling-mode force directed along a longitudinal direction; a tensile load connects that force to the component it acts on. A tensioned state is derived from a tensile load and its association with a physical component. A transverse force is derived from its direction being transverse, and a transverse load connects it to the affected component. A bending deformation has a bending mode and deforms a physical component; a bending response occurs under a transverse load, is associated with a component, and produces that deformation. The piano-string example supplies the explicit force → load → state and deformation → response paths. The model remains qualitative: it does not calculate force magnitudes, stiffness/compliance, yield limits, elastic recovery, or aspect-ratio thresholds. Its existential restrictions also cannot yet enforce that multiple role fillers refer to the same component in every possible classification.
+The instrument model uses this to define a struck-string mechanism from its structure rather than asserting that a particular mechanism belongs to that type. A string component is composed from five independently represented requirements: an elongated geometric form, a bending response, a tensioned mechanical state, vibration that produces sound, and transmission of vibration to a resonator. Its geometry is represented through longitudinal and cross-sectional extents, plus a longitudinal direction. A transverse direction is derived from its perpendicular relationship to a longitudinal direction. In the shared mechanics module, a tensile force is a pulling-mode force directed along a longitudinal direction; a tensile load connects that force to the component it acts on. A tensioned state is derived from a tensile load and its association with a physical component. A transverse force is derived from its direction being transverse, and a transverse load connects it to the affected component. A bending deformation has a bending mode and deforms a physical component; a bending response occurs under a transverse load, is associated with a component, and produces that deformation. The piano-string example supplies the explicit force → load → state and deformation → response paths. The qualitative graph remains distinct from quantitative measurements. Version 4 supports typed decimal measurements with unit and dimension validation. The mechanics calculation layer derives axial stress, axial strain, and axial stiffness from force, cross-sectional area, Young's modulus, and length. Yield limits, elastic recovery, transverse-string vibration, and acoustic output remain outside this first quantitative slice. Its existential restrictions also cannot yet enforce that multiple role fillers refer to the same component in every possible classification.
 
 The free-reed instrument model applies the same principle without nested restrictions: a free-reed component is defined by receiving air from a physical component and vibrating to produce a sound event; a free-reed mechanism is defined by directing air through such a component. Harmonium and accordion actions and reeds are therefore classified from their asserted airflow and vibration relationships. The instruments inherit their free-reed classification through the mechanism they use. The individual reed and mechanism memberships are not manually asserted.
 
@@ -305,3 +305,36 @@ The piano keyboard interface is defined by activating a piano hammer-action mech
 The piano type combines the piano-specific keyboard interface and piano hammer-action mechanism. For the represented example, the reasoner derives the piano hammer-action from the action → hammer → string structure, derives the piano keyboard interface from the keyboard → action link, and derives the example's membership in the piano type from its playing-interface and sound-production-mechanism links. The example's `instance-of piano` assertion is no longer needed.
 
 The hammer component remains primitive for now: the model does not yet represent the hammer head, shank, and their assembly as reusable structural concepts. This is an acknowledged gap, not a claim that hammers are irreducible. `string-component` is defined from its geometric form, load-induced bending response, tensioned state, sound-producing vibration, and vibration transfer to a resonator. The mechanical model distinguishes axial pulling loads from transverse loads through force modes and geometry-relative directions, but it does not yet calculate numerical forces, compliance, or elastic recovery.
+
+
+## Ideal stretched-string vibration
+
+The quantitative mechanics layer includes an ideal transverse-vibration calculation for a uniform, flexible string under constant positive tension. It uses the string's linear mass density and effective vibrating length:
+
+\[
+v = \sqrt{\frac{T}{\mu}}, \qquad
+f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}}
+\]
+
+Here, \(T\) is tension in newtons, \(\mu\) is mass per unit length in kilograms per metre, \(L\) is the vibrating length in metres, \(v\) is transverse wave speed, and \(n\) is a positive integer harmonic number. The fundamental frequency is the case \(n=1\).
+
+This ideal-string model assumes fixed endpoints, uniform tension and linear density, small transverse displacement, and negligible bending stiffness, damping, and coupling to the soundboard. It predicts ideal modal frequencies only; it does not yet predict inharmonicity, decay, loudness, timbre, or radiated sound. No measurements or tuning values are invented for the piano example.
+
+
+## Stiff-string inharmonicity
+
+The stiff-string calculation extends the ideal-string model with Euler–Bernoulli bending stiffness. For a uniform string with fixed endpoints, constant tension, and small transverse displacement, its dimensionless inharmonicity coefficient is:
+
+\[
+B = \frac{\pi^2 E I}{T L^2}
+\]
+
+Here, \(E\) is Young's modulus, \(I\) is the cross-section's second moment of area about the relevant bending axis, \(T\) is tension, and \(L\) is vibrating length. The ideal flexible-string fundamental is \(f_0 = \frac{1}{2L}\sqrt{T/\mu}\). The stiff-string partial frequencies are:
+
+\[
+f_n = n f_0 \sqrt{1 + B n^2}
+\]
+
+The first partial is therefore shifted to \(f_1 = f_0\sqrt{1+B}\), and higher partials rise progressively farther above exact integer multiples. The implementation reports both the ideal fundamental and the stiffness-shifted fundamental, plus the requested partial.
+
+The model assumes a uniform isotropic material, constant cross-section, a constant tensile load, and ideal fixed endpoints. It uses the Euler–Bernoulli approximation and does not yet represent string winding, nonuniform construction, frequency-dependent material behavior, boundary compliance, coupling between multiple strings, damping, or soundboard acoustics. The second moment of area must be supplied for the relevant bending axis; it is not inferred from cross-sectional area alone. No physical measurements are assigned to the piano example.

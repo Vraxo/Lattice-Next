@@ -1,5 +1,5 @@
 {
-  "formatVersion": 3,
+  "formatVersion": 4,
   "id": "core-mechanics",
   "name": "Mechanics",
   "concepts": [
@@ -576,6 +576,49 @@
       "object": "deformation"
     }
   ],
-  "dataProperties": [],
+  "dataProperties": [
+    {
+      "id": "force-magnitude",
+      "domainType": "force",
+      "valueType": "decimal",
+      "dimensionUnit": "N"
+    },
+    {
+      "id": "cross-sectional-area",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m2"
+    },
+    {
+      "id": "youngs-modulus",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "Pa"
+    },
+    {
+      "id": "component-length",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m"
+    },
+    {
+      "id": "linear-mass-density",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "kg/m"
+    },
+    {
+      "id": "effective-vibrating-length",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m"
+    },
+    {
+      "id": "second-moment-of-area",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m4"
+    }
+  ],
   "dataAssertions": []
 }
