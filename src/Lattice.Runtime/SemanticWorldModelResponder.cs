@@ -379,13 +379,11 @@ internal static class SemanticWorldModelResponder
 
         var holder = holders[0];
         var recordName = record.Label.EndsWith(" record", StringComparison.OrdinalIgnoreCase)
-            ? record.Label[..^" record".Length]
+            ? record.Label[..^7]
             : record.Label;
         message = $"{holder.Holder!.Label} holds the record for the {recordName}.";
 
-        var sources = holder.Assertion.Source == null
-            ? ImmutableArray<SemanticWorldModelSource>.Empty
-            : ImmutableArray.Create(holder.Assertion.Source);
+        var sources = ImmutableArray.Create(holder.Assertion.Source);
         sources = sources
             .AddRange(reasoner.GetMembershipEvidence(holder.Holder.Id, relation.Domain!.Id))
             .AddRange(reasoner.GetMembershipEvidence(record.Id, relation.Range!.Id))
