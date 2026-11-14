@@ -272,7 +272,7 @@ The typed world model is queried through semantic question forms that remain sep
 The first general query slice supports:
 
 - **Type membership:** `Is Mount Whitney a mountain?` resolves the named individual and type through the model's lexical entries, then asks the reasoner for membership evidence. A missing membership is not treated as proof of non-membership; the world model follows open-world semantics.
-- **Inverse relations:** `Who created Girl with a Pearl Earring?` and `Who directed Oathkeeper?` resolve the object, match the requested active verb to a relation definition expressed in passive form (for example, `is created by`), and traverse matching graph assertions in reverse.
+- **Inverse relations:** `Who created Girl with a Pearl Earring?` and `Who directed Oathkeeper?` resolve the object, match the requested active verb to a relation definition expressed in passive form (for example, `is created by`), and read the agent from the relation's declared object argument.
 
 These operations use the same relation signatures, concept identities, assertions, and evidence sources as the rest of the world model. They do not store question-specific answers or add per-entity handlers.
 
