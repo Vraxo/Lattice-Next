@@ -1066,6 +1066,40 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
+        SemanticWorldModel model,
+        string subtype,
+        string supertype)
+    {
+        var pending = new Queue<(string Type, ImmutableArray<SemanticWorldModelSource> Sources)>();
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        pending.Enqueue((subtype, ImmutableArray<SemanticWorldModelSource>.Empty));
+
+        while (pending.Count > 0)
+        {
+            var current = pending.Dequeue();
+            if (!visited.Add(current.Type))
+            {
+                continue;
+            }
+
+            foreach (var assertion in model.RelationAssertions.Where(assertion =>
+                assertion.Subject == current.Type &&
+                assertion.Relation == "is-a"))
+            {
+                var sources = current.Sources.Add(assertion.Source);
+                if (assertion.Object == supertype)
+                {
+                    return sources;
+                }
+
+                pending.Enqueue((assertion.Object, sources));
+            }
+        }
+
+        return ImmutableArray<SemanticWorldModelSource>.Empty;
+    }
+
     internal static bool TryClassify(
         MultiItemClassificationFormula request,
         SemanticWorldModel model,
@@ -1080,7 +1114,9 @@ internal static class SemanticWorldModelResponder
 
         foreach (var requestedItem in request.Items)
         {
-            var item = model.FindConcept(requestedItem.Value, SemanticConceptKind.Individual);
+            var item =
+                model.FindConcept(requestedItem.Value, SemanticConceptKind.Individual) ??
+                model.FindConcept(requestedItem.Value, SemanticConceptKind.Type);
             if (item is null)
             {
                 return false;
@@ -1097,7 +1133,11 @@ internal static class SemanticWorldModelResponder
                     continue;
                 }
 
-                var sources = reasoner.GetMembershipEvidence(item.Id, categoryType.Id);
+                var sources = item.Kind == SemanticConceptKind.Individual
+                    ? reasoner.GetMembershipEvidence(item.Id, categoryType.Id)
+                    : reasoner.IsSubtypeOf(item.Id, categoryType.Id)
+                        ? GetSubtypeEvidence(model, item.Id, categoryType.Id)
+                        : ImmutableArray<SemanticWorldModelSource>.Empty;
                 if (!sources.IsDefaultOrEmpty)
                 {
                     matching.Add((category.Value, sources));
