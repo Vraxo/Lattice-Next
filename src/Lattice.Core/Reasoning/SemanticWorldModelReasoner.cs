@@ -234,6 +234,44 @@ public sealed class SemanticWorldModelReasoner
         return false;
     }
 
+    private static ImmutableArray<SemanticRelationAssertion> GetCycleConnectionAssertions(
+        ImmutableArray<SemanticRelationAssertion> cycleAssertions,
+        SemanticClassExpression expression,
+        SemanticWorldModel model)
+    {
+        if (expression.SourceConnectionRelation is null ||
+            expression.TargetConnectionRelation is null)
+        {
+            return [];
+        }
+
+        var connections = ImmutableArray.CreateBuilder<SemanticRelationAssertion>();
+        foreach (var edge in cycleAssertions.Where(assertion =>
+            assertion.Relation == expression.Relation))
+        {
+            var sourceConnection = model.RelationAssertions.FirstOrDefault(assertion =>
+                assertion.Subject == edge.Subject &&
+                assertion.Relation == expression.SourceConnectionRelation &&
+                model.RelationAssertions.Any(targetAssertion =>
+                    targetAssertion.Subject == edge.Object &&
+                    targetAssertion.Relation == expression.TargetConnectionRelation &&
+                    targetAssertion.Object == assertion.Object));
+            if (sourceConnection is null)
+            {
+                continue;
+            }
+
+            var targetConnection = model.RelationAssertions.First(assertion =>
+                assertion.Subject == edge.Object &&
+                assertion.Relation == expression.TargetConnectionRelation &&
+                assertion.Object == sourceConnection.Object);
+            connections.Add(sourceConnection);
+            connections.Add(targetConnection);
+        }
+
+        return connections.Distinct().ToImmutableArray();
+    }
+
     public ImmutableArray<SemanticWorldModelSource> GetCycleEvidence(
         string individual,
         SemanticClassExpression expression)
@@ -249,9 +287,16 @@ public sealed class SemanticWorldModelReasoner
             pair => pair.Key,
             pair => pair.Value.ToHashSet(StringComparer.Ordinal),
             StringComparer.Ordinal);
-        return TryFindCycleAssertions(normalized, expression, types, model, out var assertions)
-            ? assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray()
-            : [];
+        if (!TryFindCycleAssertions(normalized, expression, types, model, out var assertions))
+        {
+            return [];
+        }
+
+        return assertions
+            .Concat(GetCycleConnectionAssertions(assertions, expression, model))
+            .Select(assertion => assertion.Source)
+            .Distinct()
+            .ToImmutableArray();
     }
 
     public ImmutableArray<SemanticWorldModelMembership> GetMemberships(string individual)
@@ -400,8 +445,10 @@ public sealed class SemanticWorldModelReasoner
             }
 
             evidence.AddRange(cycleAssertions.Select(assertion => assertion.Source));
+            evidence.AddRange(GetCycleConnectionAssertions(cycleAssertions, expression, model)
+                .Select(assertion => assertion.Source));
             foreach (var node in cycleAssertions
-                .Skip(1)
+                .Where(assertion => assertion.Relation == expression.Relation)
                 .Select(assertion => assertion.Object)
                 .Distinct(StringComparer.Ordinal))
             {
