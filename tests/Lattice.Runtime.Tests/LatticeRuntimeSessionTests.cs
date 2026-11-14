@@ -411,7 +411,7 @@ public sealed class LatticeRuntimeSessionTests
 
         var comparison = await session.SubmitAsync("What distinguishes the example piano from a harmonium?");
         Assert.Equal(
-            "Both have a keyboard as their playing interface. Example piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
+            "Example piano has a piano keyboard interface, while harmonium has a keyboard as its playing interface. Example piano uses a struck-string mechanism, while harmonium uses a free-reed mechanism.",
             Assert.Single(comparison.Utterances).Message);
 
         Assert.All(
