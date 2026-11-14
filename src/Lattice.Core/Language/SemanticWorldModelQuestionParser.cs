@@ -121,7 +121,7 @@ internal static class SemanticWorldModelQuestionParser
         if (commonTypedRelation.Success)
         {
             utterance = Create(
-                SemanticWorldModelQuestionKind.RelationQuery,
+                SemanticWorldModelQuestionKind.CommonTypedRelationQuery,
                 subject: Normalize(commonTypedRelation.Groups["subject"].Value),
                 concept: "has",
                 targetType: NormalizeType(commonTypedRelation.Groups["type"].Value),
