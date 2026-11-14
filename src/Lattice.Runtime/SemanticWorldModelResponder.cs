@@ -237,7 +237,7 @@ internal static class SemanticWorldModelResponder
             .Where(relation =>
                 relation.Id == "used-in-sport" &&
                 relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+                relation.ObjectKind == SemanticRelationArgumentKind.Type)
             .ToArray();
         var scoreRelations = model.Relations
             .Where(relation =>
