@@ -544,7 +544,9 @@
         "relation": "next-element",
         "startRelation": "has-first-element",
         "targetType": "geometric-element",
-        "minimumLength": 3
+        "minimumLength": 3,
+        "sourceConnectionRelation": "has-end-point",
+        "targetConnectionRelation": "has-start-point"
       }
     },
     {
