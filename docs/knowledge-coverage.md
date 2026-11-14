@@ -26,14 +26,14 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest CI run completed successfully:
+The latest fully executed integrated run is the PR #208 head, before the later stacked changes in PRs #209–#211:
 
-- .NET test suite: 876 passed, 0 failed
+- .NET test suite: 887 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 8 handled, 26 unhandled, 0 runner errors
-- Average latency: 259 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 9 handled, 25 unhandled, 0 runner errors
+- Average latency: 334 ms (single run; stability not measured)
 
-The benchmark result did not improve relative to the previous run. This is expected from an ontology-only expansion: the new subgraphs are now present and validated, but the current language interpreter and responder still do not reliably navigate many of them. Improving end-to-end coverage requires connecting language understanding and answer composition to these graph structures; it should not be disguised as a knowledge-count improvement.
+The current PR #211 stack has not had its .NET tests, external Python tests, or full benchmark executed. Its new end-to-end test is added but unverified. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is actually run and the responses are reviewed. Ontology coverage counts above are not runtime capability scores.
 
 ## Cross-domain structure
 
