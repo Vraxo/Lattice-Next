@@ -339,3 +339,8 @@ The `What is the tallest/highest <feature type> in <region>?` construction resol
 ### Regional terminology questions
 
 The construction `In <sport> what do <region> call <term>?` resolves the sport, regional context, and source term through lexical entries. The responder finds a regional-equivalent term only when the graph supports the equivalence, both terms share a modeled score meaning, and the candidate term has explicit usage assertions for the requested sport and region. The answer is composed from those assertions and type-membership evidence; unknown regions, sports, or unsupported terminology cause abstention.
+
+
+### Common typed-relation lists
+
+The construction `What are common <type> of <subject>?` is parsed into a typed relation query. It resolves the requested type and subject through the semantic model, finds a unique compatible relation, and returns only asserted targets that are instances of the requested type. When the relation verb ends with its declared target-type label, the responder removes that label and composes a concise list sentence. Supporting relation assertions and type memberships are retained as evidence.
