@@ -122,6 +122,15 @@ public sealed class SemanticWorldModelReasoner
                 objectTypes.Contains(expression.TargetType!) &&
                 (expression.Filler is null ||
                  MatchesExpression(expression.Filler, assertion.Object, allTypes, model))),
+            SemanticClassExpressionKind.All => model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Subject == individual &&
+                    assertion.Relation == expression.Relation)
+                .All(assertion =>
+                    allTypes.TryGetValue(assertion.Object, out var objectTypes) &&
+                    objectTypes.Contains(expression.TargetType!) &&
+                    (expression.Filler is null ||
+                     MatchesExpression(expression.Filler, assertion.Object, allTypes, model))),
             SemanticClassExpressionKind.And => expression.Operands.All(operand =>
                 MatchesExpression(operand, individual, allTypes, model)),
             SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
@@ -413,6 +422,14 @@ public sealed class SemanticWorldModelReasoner
                 IsInstanceOf(assertion.Object, expression.TargetType!) &&
                 (expression.Filler is null ||
                  MatchesExpressionForEvidence(assertion.Object, expression.Filler))),
+            SemanticClassExpressionKind.All => model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Subject == individual &&
+                    assertion.Relation == expression.Relation)
+                .All(assertion =>
+                    IsInstanceOf(assertion.Object, expression.TargetType!) &&
+                    (expression.Filler is null ||
+                     MatchesExpressionForEvidence(assertion.Object, expression.Filler))),
             SemanticClassExpressionKind.And => expression.Operands.All(operand =>
                 MatchesExpressionForEvidence(individual, operand)),
             SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
@@ -476,6 +493,35 @@ public sealed class SemanticWorldModelReasoner
             if (expression.Filler is not null)
             {
                 TryAppendExpressionEvidence(assertion.Object, expression.Filler, visited, evidence);
+            }
+
+            return true;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.All)
+        {
+            var assertions = model.RelationAssertions
+                .Where(candidate =>
+                    candidate.Subject == individual &&
+                    candidate.Relation == expression.Relation)
+                .ToArray();
+
+            if (assertions.Any(assertion =>
+                !IsInstanceOf(assertion.Object, expression.TargetType!) ||
+                (expression.Filler is not null &&
+                 !MatchesExpressionForEvidence(assertion.Object, expression.Filler))))
+            {
+                return false;
+            }
+
+            foreach (var assertion in assertions)
+            {
+                evidence.Add(assertion.Source);
+                AppendMembershipEvidence(assertion.Object, expression.TargetType!, visited, evidence);
+                if (expression.Filler is not null)
+                {
+                    TryAppendExpressionEvidence(assertion.Object, expression.Filler, visited, evidence);
+                }
             }
 
             return true;
