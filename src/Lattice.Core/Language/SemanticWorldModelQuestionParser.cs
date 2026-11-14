@@ -15,7 +15,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex AbilityPattern = new(
-        @"^Why can (?<subject>[A-Za-z][A-Za-z -]*?) (?<ability>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^Why can (?<subject>[A-Za-z][A-Za-z -]*?) (?<ability>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex MechanismPattern = new(
