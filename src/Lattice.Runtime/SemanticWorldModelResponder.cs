@@ -424,20 +424,48 @@ internal static class SemanticWorldModelResponder
         sources = [];
         if (expression.Kind == SemanticClassExpressionKind.Some)
         {
-            var assertion = reasoner.GetRelations(individual, expression.Relation)
-                .FirstOrDefault(candidate => reasoner.IsInstanceOf(candidate.Object, expression.TargetType!));
-            var phrase = FormatCondition(
-                new SemanticRestriction(expression.Relation!, expression.TargetType!),
-                model);
-            if (assertion is null || phrase is null)
+            foreach (var candidate in reasoner.GetRelations(individual, expression.Relation))
             {
-                return false;
+                if (!reasoner.IsInstanceOf(candidate.Object, expression.TargetType!))
+                {
+                    continue;
+                }
+
+                var nestedPhrases = ImmutableArray<string>.Empty;
+                var nestedSources = ImmutableArray<SemanticWorldModelSource>.Empty;
+                if (expression.Filler is not null &&
+                    !TryExplainExpression(
+                        candidate.Object,
+                        expression.Filler,
+                        model,
+                        reasoner,
+                        out nestedPhrases,
+                        out nestedSources))
+                {
+                    continue;
+                }
+
+                var phrase = FormatCondition(
+                    new SemanticRestriction(expression.Relation!, expression.TargetType!),
+                    model);
+                if (phrase is null)
+                {
+                    return false;
+                }
+
+                if (!nestedPhrases.IsDefaultOrEmpty)
+                {
+                    phrase += $" that {JoinConditions(nestedPhrases)}";
+                }
+
+                phrases = [phrase];
+                sources = ImmutableArray.Create(candidate.Source)
+                    .AddRange(reasoner.GetMembershipEvidence(candidate.Object, expression.TargetType!))
+                    .AddRange(nestedSources);
+                return true;
             }
 
-            phrases = [phrase];
-            sources = ImmutableArray.Create(assertion.Source)
-                .AddRange(GetTypeEvidence(assertion.Object, expression.TargetType!, model));
-            return true;
+            return false;
         }
 
         if (expression.Kind == SemanticClassExpressionKind.Or)
@@ -726,9 +754,16 @@ internal static class SemanticWorldModelResponder
 
         if (expression.Kind == SemanticClassExpressionKind.Some)
         {
-            return FormatCondition(
+            var phrase = FormatCondition(
                 new SemanticRestriction(expression.Relation!, expression.TargetType!),
                 model);
+            if (phrase is null || expression.Filler is null)
+            {
+                return phrase;
+            }
+
+            var filler = FormatExpression(expression.Filler, model);
+            return filler is null ? null : $"{phrase} that {filler}";
         }
 
         var phrases = expression.Operands
