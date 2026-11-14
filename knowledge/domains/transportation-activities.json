@@ -382,6 +382,16 @@
       "id": "aluminum-material",
       "label": "aluminum material",
       "kind": "Individual"
+    },
+    {
+      "id": "driving-distraction",
+      "label": "distraction while driving",
+      "kind": "Type"
+    },
+    {
+      "id": "driving-distraction-example",
+      "label": "possible distraction while driving",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -764,6 +774,21 @@
       "form": "aluminum material",
       "concept": "aluminum-material",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobile",
+      "concept": "mobile-phone",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobiles",
+      "concept": "mobile-phone",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobile phones",
+      "concept": "mobile-phone",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -876,6 +901,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "affects",
+      "domain": "effect",
+      "range": null,
+      "verb": "affects",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
     }
   ],
   "definitions": [
@@ -1097,6 +1133,12 @@
     },
     {
       "concept": "aluminum",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "driving-distraction",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1612,6 +1654,56 @@
       "subject": "aluminum-material",
       "relation": "instance-of",
       "object": "aluminum"
+    },
+    {
+      "subject": "smartphone",
+      "relation": "is-a",
+      "object": "mobile-phone"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "driving-distraction",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "driving-distraction-example",
+      "relation": "instance-of",
+      "object": "driving-distraction"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "may-contribute-to",
+      "object": "driving-distraction-example"
+    },
+    {
+      "subject": "sleep-disruption-example",
+      "relation": "affects",
+      "object": "person"
+    },
+    {
+      "subject": "attention-disruption-example",
+      "relation": "affects",
+      "object": "person"
+    },
+    {
+      "subject": "reduced-activity-example",
+      "relation": "affects",
+      "object": "person"
+    },
+    {
+      "subject": "social-disconnection-example",
+      "relation": "affects",
+      "object": "person"
+    },
+    {
+      "subject": "driving-distraction-example",
+      "relation": "affects",
+      "object": "person"
     }
   ],
   "dataProperties": [],
