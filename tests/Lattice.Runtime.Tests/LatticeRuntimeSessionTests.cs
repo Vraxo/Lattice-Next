@@ -279,14 +279,15 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId.Contains(":located-in:", StringComparison.Ordinal)));
     }
 
-    [Fact]
-    public async Task Answers_pairwise_relation_queries_through_a_unique_two_edge_path()
+    [Theory]
+    [InlineData("How is Earth related to the day and night cycle?")]
+    [InlineData("How is the day and night cycle related to Earth?")]
+    public async Task Answers_pairwise_relation_queries_through_a_unique_two_edge_path(string prompt)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var result = await session.SubmitAsync(
-            "How is Earth related to the day and night cycle?");
+        var result = await session.SubmitAsync(prompt);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
