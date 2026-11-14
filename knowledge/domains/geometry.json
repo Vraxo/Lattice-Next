@@ -137,6 +137,26 @@
       "id": "part-of-speech",
       "label": "part of speech",
       "kind": "Type"
+    },
+    {
+      "id": "geometric-extent",
+      "label": "geometric extent",
+      "kind": "Type"
+    },
+    {
+      "id": "longitudinal-extent",
+      "label": "longitudinal extent",
+      "kind": "Type"
+    },
+    {
+      "id": "cross-sectional-extent",
+      "label": "cross-sectional extent",
+      "kind": "Type"
+    },
+    {
+      "id": "elongated-shape",
+      "label": "elongated shape",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -274,6 +294,26 @@
       "form": "part of speech",
       "concept": "part-of-speech",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "geometric extent",
+      "concept": "geometric-extent",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "longitudinal extent",
+      "concept": "longitudinal-extent",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "cross-sectional extent",
+      "concept": "cross-sectional-extent",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "elongated shape",
+      "concept": "elongated-shape",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -329,6 +369,24 @@
       "verb": "has",
       "objectRole": null,
       "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-longitudinal-extent",
+      "domain": "geometric-object",
+      "range": "longitudinal-extent",
+      "verb": "has longitudinal extent",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "exceeds-in-extent",
+      "domain": "longitudinal-extent",
+      "range": "cross-sectional-extent",
+      "verb": "exceeds in extent",
+      "objectRole": null,
+      "order": 0,
       "comparisonPriority": 0
     }
   ],
@@ -459,6 +517,39 @@
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
+    },
+    {
+      "concept": "geometric-extent",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "longitudinal-extent",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "cross-sectional-extent",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "elongated-shape",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "has-longitudinal-extent",
+        "targetType": "longitudinal-extent",
+        "filler": {
+          "kind": "some",
+          "relation": "exceeds-in-extent",
+          "targetType": "cross-sectional-extent"
+        }
+      }
     }
   ],
   "relationAssertions": [
@@ -676,6 +767,26 @@
       "subject": "straightness-property",
       "relation": "instance-of",
       "object": "straightness"
+    },
+    {
+      "subject": "geometric-extent",
+      "relation": "is-a",
+      "object": "geometric-property"
+    },
+    {
+      "subject": "longitudinal-extent",
+      "relation": "is-a",
+      "object": "geometric-extent"
+    },
+    {
+      "subject": "cross-sectional-extent",
+      "relation": "is-a",
+      "object": "geometric-extent"
+    },
+    {
+      "subject": "elongated-shape",
+      "relation": "is-a",
+      "object": "geometric-shape"
     }
   ],
   "dataProperties": [],
