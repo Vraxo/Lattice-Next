@@ -110,11 +110,11 @@ The piano decomposition uses the general `actuates` and `strikes` relations. No 
 | `cross-sectional-extent` | Keep as an extent role | A formal cross-section and measurement model. |
 | `straightness` | Candidate for formalization, not a prose definition | A geometric predicate or invariant grounded in the formal geometry model. |
 | `topological-configuration` | Keep as an abstract category | Incidence, adjacency, and connectivity relations. |
-| `closed-cycle` | Candidate; missing relations | Ordered/connected path structure and an explicit closure condition. |
+| `closed-cycle` | Candidate; structural representation added | Boundary elements now have an explicit directed `next-element` sequence, including the closing edge; shared endpoint identities represent incidence and continuity. The reasoner still needs a general graph-cycle operation before this structure can classify arbitrary cycles. |
 | `linguistic-category` | Revisit module ownership | This belongs in the language ontology; its current presence in geometry is organizational, not a semantic reason to keep it primitive. |
 | `part-of-speech` | Candidate for formalization | Explicit POS subtypes and lexical-item-to-POS classification, rather than an untyped string field alone. |
 
-Existing defined geometry types (`boundary`, `closed-boundary`, `line-segment`, and `polygon`) are useful examples of the intended direction: their definitions use typed boundary elements, endpoints, properties, and topology.
+Existing defined geometry types (`boundary`, `closed-boundary`, `line-segment`, and `polygon`) are useful examples of the intended direction: their definitions use typed boundary elements, endpoints, properties, and topology. The triangle boundary now additionally records the ordered edge sequence (`one → two → three → one`). Its endpoint assertions identify the shared vertices between consecutive edges and the final-to-first closure. `closed-cycle` remains primitive for now: representing a cycle in the graph is not the same as deriving cycle membership from arbitrary graph structure.
 
 ### Mechanics
 
