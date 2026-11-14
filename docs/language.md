@@ -319,3 +319,8 @@ The `Why <subject> is bad for <target>` and `Why is <subject> harmful to <target
 ### Typed object-to-agent relation questions
 
 The construction `Which <type> <verb> <object>?` resolves the known object, the requested answer type, and a passive relation signature such as `is painted by`. The responder checks the relation's declared domain and range, follows assertions from the known object to candidate agents, and filters candidates through the requested type. It composes the answer from the candidate label and graph evidence, abstaining when the object, relation, or unique typed answer cannot be resolved.
+
+
+### Event outcome explanations
+
+The `What happens when <event>?` construction resolves an event type, follows a `marks start of` relation to a time-of-day outcome, then follows an incoming `explains` relation to its cause. It also requires the cause's modeled apparent-motion and causal-consequence relations before composing an explanation. Unsupported events, ambiguous event instances, or incomplete causal paths cause abstention.
