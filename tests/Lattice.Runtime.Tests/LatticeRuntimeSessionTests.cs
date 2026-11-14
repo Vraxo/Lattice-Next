@@ -599,8 +599,8 @@ public sealed class LatticeRuntimeSessionTests
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var harmonium = await session.SubmitAsync("Is harmonium a free-reed instrument?");
-        var accordion = await session.SubmitAsync("Is accordion a free-reed instrument?");
+        var harmonium = await session.SubmitAsync("Why is harmonium a free-reed instrument?");
+        var accordion = await session.SubmitAsync("Why is accordion a free-reed instrument?");
 
         Assert.Equal(
             LatticeUtteranceResultKind.QuestionAnswered,
