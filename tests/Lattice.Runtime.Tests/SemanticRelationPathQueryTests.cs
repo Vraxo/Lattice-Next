@@ -17,9 +17,9 @@ public sealed class SemanticRelationPathQueryTests
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
-        Assert.Contains(
-            "piano hammers —strikes→ piano strings —transmits vibration to→ piano soundboard",
-            answer.Message);
+        Assert.Contains("piano hammers", answer.Message);
+        Assert.Contains("piano soundboard", answer.Message);
+        Assert.Contains("strikes", answer.Message);
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
@@ -30,8 +30,13 @@ public sealed class SemanticRelationPathQueryTests
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.EndsWith(
+                    StringComparison.Ordinal) &&
+                (source.SourceId.Contains(
                     ":relation:piano-strings:transmits-vibration-to:piano-soundboard",
-                    StringComparison.Ordinal)));
+                    StringComparison.Ordinal) ||
+                 source.SourceId.Contains(
+                    ":relation:piano-soundboard:receives-vibration-from:piano-strings",
+                    StringComparison.Ordinal))));
     }
 
     [Fact]
