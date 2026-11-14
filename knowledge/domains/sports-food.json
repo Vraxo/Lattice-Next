@@ -354,6 +354,16 @@
       "form": "double eagle",
       "concept": "double-eagle",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "Olympic gold medals",
+      "concept": "most-olympic-gold-medals-record",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "most Olympic gold medals",
+      "concept": "most-olympic-gold-medals-record",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
