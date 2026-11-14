@@ -18,23 +18,25 @@ The ontology now contains:
 
 The 34 benchmark prompts are currently mapped as:
 
-- 18 represented at the ontology level
-- 15 partially represented
+- 17 represented at the ontology level
+- 16 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #225's tested head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (run `43610580041`):
+The latest fully executed integrated run is PR #225's head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (CI run 845):
 
 - .NET build: passed
 - .NET tests: 920 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 16 substantively reviewed answers, 18 answered, 19 handled, 15 unhandled, 0 runner errors
-- Average latency: 259 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 15 substantive answers at execution time, 18 answered, 19 handled, 15 unhandled, 0 runner errors
+- Average latency: 346 ms (single run; stability not measured)
 
-The runtime benchmark score is **16/34 (47.1%)**. Dolly-025's current run produced a `QuestionAnswered` result; after manually reviewing its ingredient list against the reference, its substantive-review flag was set to true. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
+Dolly-025's benchmark output was manually inspected after that run. It answered with the eight modeled ingredients and included all eight `has-ingredient` assertions plus the dish and ingredient type-membership evidence. The record's `substantive_answer_reviewed` flag is now true. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Therefore the reviewed result set now contains **16 substantive answers (16/34, 47.1%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+
+Dolly-024's regional golf terminology answer and Dolly-022's continental/contiguous mountain distinction are also represented in that same integrated run. The substantive count is based on reviewed, answered outputs—not the ontology coverage count.
 
 ## Cross-domain structure
 
