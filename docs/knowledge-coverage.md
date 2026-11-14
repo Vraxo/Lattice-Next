@@ -18,25 +18,25 @@ The ontology now contains:
 
 The 34 benchmark prompts are currently mapped as:
 
-- 17 represented at the ontology level
-- 16 partially represented
+- 18 represented at the ontology level
+- 15 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #225's head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (CI run 845):
+The latest fully executed integrated run is PR #227's tested head `cfc312023287388dcaa7710d6e294a91f8cf9019` (CI run 848):
 
 - .NET build: passed
-- .NET tests: 920 passed, 0 failed
+- .NET tests: 922 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 15 substantive answers at execution time, 18 answered, 19 handled, 15 unhandled, 0 runner errors
-- Average latency: 346 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 16 substantive answers at execution time, 19 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 408 ms (single run; stability not measured)
 
-Dolly-025's benchmark output was manually inspected after that run. It answered with the eight modeled ingredients and included all eight `has-ingredient` assertions plus the dish and ingredient type-membership evidence. The record's `substantive_answer_reviewed` flag is now true. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Therefore the reviewed result set now contains **16 substantive answers (16/34, 47.1%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+Dolly-023's answer was manually reviewed after the run. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Its `substantive_answer_reviewed` flag is now true. Re-evaluating the captured outputs with that review gives **17 substantive answers (17/34, 50.0%)**. This is a post-run review recalculation, not a second execution of the benchmark.
 
-Dolly-024's regional golf terminology answer and Dolly-022's continental/contiguous mountain distinction are also represented in that same integrated run. The substantive count is based on reviewed, answered outputs—not the ontology coverage count.
+Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
 
 ## Cross-domain structure
 
