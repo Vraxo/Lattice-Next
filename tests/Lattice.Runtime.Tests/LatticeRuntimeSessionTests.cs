@@ -7,6 +7,45 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Answers_typed_artist_painting_query_from_graph_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which Dutch artist painted “Girl with a Pearl Earring”?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Johannes Vermeer is the Dutch artist who painted Girl with a Pearl Earring.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-typed-object-relation(girl-with-pearl-earring, painted, dutch-artist))",
+            answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":painted-by:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source =>
+                    source.SourceId.Contains(":instance-of:dutch-artist", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("Which Dutch artist painted “Unknown Painting”?")]
+    [InlineData("Which mountain painted “Girl with a Pearl Earring”?")]
+    public async Task Abstains_when_typed_object_relation_or_answer_type_is_unsupported(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Explains_mobile_phone_risks_from_typed_effect_relations()
     {
         var client = new LatticeRuntimeClient();
