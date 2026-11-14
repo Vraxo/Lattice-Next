@@ -110,7 +110,7 @@ The piano decomposition uses the general `actuates` and `strikes` relations. No 
 | `cross-sectional-extent` | Keep as an extent role | A formal cross-section and measurement model. |
 | `straightness` | Candidate for formalization, not a prose definition | A geometric predicate or invariant grounded in the formal geometry model. |
 | `topological-configuration` | Keep as an abstract category | Incidence, adjacency, and connectivity relations. |
-| `closed-cycle` | Candidate; structural representation added | Boundary elements now have an explicit directed `next-element` sequence, including the closing edge; shared endpoint identities represent incidence and continuity. The reasoner still needs a general graph-cycle operation before this structure can classify arbitrary cycles. |
+| `closed-cycle` | **Defined** | A topological configuration whose declared first element participates in a directed cycle of typed elements. A generic cycle class expression traverses a relation until it returns to its starting element; minimum cycle length is explicit. For geometric boundaries, shared endpoint identities additionally establish segment continuity. |
 | `linguistic-category` | Revisit module ownership | This belongs in the language ontology; its current presence in geometry is organizational, not a semantic reason to keep it primitive. |
 | `part-of-speech` | Candidate for formalization | Explicit POS subtypes and lexical-item-to-POS classification, rather than an untyped string field alone. |
 
