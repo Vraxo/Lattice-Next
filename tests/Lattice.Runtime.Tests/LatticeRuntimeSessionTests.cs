@@ -199,6 +199,30 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId.Contains($":{relation}:", StringComparison.Ordinal)));
     }
 
+    [Fact]
+    public async Task Answers_typed_inverse_relation_queries_with_a_graph_context_constraint()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which episodes of season four of Game of Thrones did Michelle MacLaren direct?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Oathkeeper and First of His Name are episodes directed by Michelle MacLaren.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":directed-by:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":has-episode:", StringComparison.Ordinal)));
+    }
+
     [Theory]
     [InlineData(
         "Where is the rural hospital located?",
