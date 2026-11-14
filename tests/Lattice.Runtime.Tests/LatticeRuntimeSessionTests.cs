@@ -297,11 +297,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":rotates-through:", StringComparison.Ordinal)));
+                source.SourceId.Contains(":rotates-on-axis:", StringComparison.Ordinal)));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":causes:", StringComparison.Ordinal)));
+                source.SourceId.Contains(":causes-day-night-cycle:", StringComparison.Ordinal)));
     }
 
     [Fact]
