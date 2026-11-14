@@ -341,8 +341,8 @@ internal static class SemanticWorldModelResponder
                 Assertion: assertion))
             .Where(candidate => candidate.Concept is not null)
             .Select(candidate => (
-                candidate.Concept!,
-                candidate.Assertion,
+                Concept: candidate.Concept!,
+                Assertion: candidate.Assertion,
                 AbilityAssertion: reasoner.GetRelations(candidate.Concept!.Id, "enables-ability")
                     .FirstOrDefault(assertion => assertion.Object == ability.Id)))
             .Where(candidate => candidate.AbilityAssertion is not null)
