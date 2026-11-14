@@ -211,7 +211,7 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "Oathkeeper and First of His Name are episodes directed by Michelle MacLaren.",
+            "Oathkeeper and First of His Name are television episodes directed by Michelle MacLaren.",
             answer.Message);
         Assert.Contains(
             answer.SupportingEvidence,
