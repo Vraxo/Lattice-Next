@@ -1066,12 +1066,7 @@
       "sufficientExpression": {
         "kind": "some",
         "relation": "actuates-hammer",
-        "targetType": "hammer-component",
-        "filler": {
-          "kind": "some",
-          "relation": "strikes",
-          "targetType": "string-component"
-        }
+        "targetType": "hammer-component"
       }
     },
     {
