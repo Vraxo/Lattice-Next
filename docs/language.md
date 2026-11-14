@@ -324,3 +324,8 @@ The construction `Which <type> <verb> <object>?` resolves the known object, the 
 ### Event outcome explanations
 
 The `What happens when <event>?` construction resolves an event type, follows a `marks start of` relation to a time-of-day outcome, then follows an incoming `explains` relation to its cause. It also requires the cause's modeled apparent-motion and causal-consequence relations before composing an explanation. Unsupported events, ambiguous event instances, or incomplete causal paths cause abstention.
+
+
+### Activity-based item selection
+
+The construction `Which of the following is useful for <activity>: <items>?` resolves the activity and each listed item as semantic types. The responder selects only item types with modeled individual instances connected to an instance of the requested activity by an asserted `is used for` relation. It composes the selected list from those graph paths and their evidence. Unknown items and items without supporting relations are not treated as proven unsuitable; if no candidate has support, the responder abstains.
