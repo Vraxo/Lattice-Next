@@ -260,6 +260,50 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Answers_pairwise_relation_queries_when_the_assertion_points_in_the_opposite_direction()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "How is the rural town related to the rural hospital?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The rural hospital is located in the rural town.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":located-in:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Answers_pairwise_relation_queries_through_a_unique_two_edge_path()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "How is Earth related to the day and night cycle?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The Earth rotates through the Earth's rotation. The Earth's rotation causes the day and night cycle.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":rotates-through:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":causes:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task Multiword_graph_question_parsing_does_not_break_session_knowledge_questions()
     {
         var client = new LatticeRuntimeClient();
