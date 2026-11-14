@@ -33,7 +33,15 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.Membership =>
                 TryMembership(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.InverseRelation =>
-                TryInverseRelation(request.Subject, request.Concept ?? string.Empty, model, out message, out evidence),
+                TryInverseRelation(
+                    request.Subject,
+                    request.Concept ?? string.Empty,
+                    request.TargetType,
+                    request.OtherSubject,
+                    model,
+                    reasoner,
+                    out message,
+                    out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -392,14 +400,17 @@ internal static class SemanticWorldModelResponder
     private static bool TryInverseRelation(
         string objectId,
         string activeVerb,
+        string? requestedTargetType,
+        string? contextId,
         SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
-        var target = model.FindConcept(objectId, SemanticConceptKind.Individual);
-        if (target is null)
+        var knownObject = model.FindConcept(objectId, SemanticConceptKind.Individual);
+        if (knownObject is null)
         {
             return false;
         }
@@ -420,30 +431,104 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        var relationId = matchingRelations[0].Id;
+        var relation = matchingRelations[0];
         var assertions = model.RelationAssertions
             .Where(assertion =>
-                assertion.Subject == target.Id &&
-                assertion.Relation == relationId)
+                assertion.Object == knownObject.Id &&
+                assertion.Relation == relation.Id)
             .ToArray();
-        var agents = assertions
-            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
-            .Where(agent => agent is not null)
-            .DistinctBy(agent => agent!.Id)
-            .ToArray();
-        if (agents.Length == 0)
+
+        if (string.IsNullOrWhiteSpace(requestedTargetType))
+        {
+            var agents = assertions
+                .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+                .Where(agent => agent is not null)
+                .DistinctBy(agent => agent!.Id)
+                .ToArray();
+            if (agents.Length == 0)
+            {
+                return false;
+            }
+
+            message = agents.Length == 1
+                ? $"{agents[0]!.Label} {activeVerb} {knownObject.Label}."
+                : $"{JoinNames(agents.Select(agent => agent!.Label).ToArray())} {activeVerb} {knownObject.Label}.";
+            evidence = ImmutableArray.Create(ToEvidence(
+                assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+                LatticeEvidenceKind.Derived));
+            return true;
+        }
+
+        var targetType = model.FindConcept(requestedTargetType, SemanticConceptKind.Type);
+        var context = string.IsNullOrWhiteSpace(contextId)
+            ? null
+            : model.FindConcept(contextId, SemanticConceptKind.Individual);
+        if (targetType is null || (!string.IsNullOrWhiteSpace(contextId) && context is null))
         {
             return false;
         }
 
-        var verb = activeVerb.Trim();
-        message = agents.Length == 1
-            ? $"{agents[0]!.Label} {verb} {target.Label}."
-            : $"{JoinNames(agents.Select(agent => agent!.Label).ToArray())} {verb} {target.Label}.";
-        evidence = ImmutableArray.Create(ToEvidence(
-            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
-            LatticeEvidenceKind.Derived));
+        var candidates = assertions
+            .Where(assertion => reasoner.IsInstanceOf(assertion.Subject, targetType.Id))
+            .Select(assertion => new
+            {
+                Concept = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual),
+                RelationSource = assertion.Source,
+                ContextSources = context is null
+                    ? ImmutableArray<SemanticWorldModelSource>.Empty
+                    : model.RelationAssertions
+                        .Where(contextAssertion =>
+                            (contextAssertion.Subject == context.Id && contextAssertion.Object == assertion.Subject) ||
+                            (contextAssertion.Subject == assertion.Subject && contextAssertion.Object == context.Id))
+                        .Where(contextAssertion =>
+                        {
+                            var contextRelation = model.FindRelation(contextAssertion.Relation);
+                            return contextRelation is not null &&
+                                contextRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                                contextRelation.ObjectKind == SemanticRelationArgumentKind.Individual;
+                        })
+                        .Select(contextAssertion => contextAssertion.Source)
+                        .ToImmutableArray()
+            })
+            .Where(candidate =>
+                candidate.Concept is not null &&
+                (context is null || !candidate.ContextSources.IsDefaultOrEmpty))
+            .DistinctBy(candidate => candidate.Concept!.Id)
+            .ToArray();
+
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        var passivePhrase = relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase)
+            ? relation.Verb[3..]
+            : relation.Verb;
+        var names = candidates.Select(candidate => candidate.Concept!.Label).ToArray();
+        message = candidates.Length == 1
+            ? $"{names[0]} is {IndefinitePhrase(targetType.Label)} {passivePhrase} {knownObject.Label}."
+            : $"{JoinNames(names)} are {Pluralize(targetType.Label)} {passivePhrase} {knownObject.Label}.";
+
+        var sources = candidates
+            .Select(candidate => candidate.RelationSource)
+            .Concat(candidates.SelectMany(candidate => candidate.ContextSources))
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static string Pluralize(string value)
+    {
+        if (value.EndsWith('y') && value.Length > 1 &&
+            !"aeiou".Contains(char.ToLowerInvariant(value[^2])))
+        {
+            return $"{value[..^1]}ies";
+        }
+
+        return value.EndsWith('s', StringComparison.OrdinalIgnoreCase)
+            ? $"{value}es"
+            : $"{value}s";
     }
 
     private static bool TryRelationQuery(
