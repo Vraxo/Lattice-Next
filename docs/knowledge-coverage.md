@@ -26,17 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #227's tested head `cfc312023287388dcaa7710d6e294a91f8cf9019` (CI run 848):
+The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
 
 - .NET build: passed
 - .NET tests: 922 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 16 substantive answers at execution time, 19 answered, 20 handled, 14 unhandled, 0 runner errors
-- Average latency: 408 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 262 ms (single run; stability not measured)
 
-Dolly-023's answer was manually reviewed after the run. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Its `substantive_answer_reviewed` flag is now true. Re-evaluating the captured outputs with that review gives **17 substantive answers (17/34, 50.0%)**. This is a post-run review recalculation, not a second execution of the benchmark.
-
-Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
+Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
 
 ## Cross-domain structure
 
