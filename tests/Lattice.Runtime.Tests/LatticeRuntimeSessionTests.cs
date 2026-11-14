@@ -165,7 +165,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(198, status.SemanticConceptCount);
+        Assert.Equal(201, status.SemanticConceptCount);
         Assert.Equal(38, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
@@ -374,14 +374,6 @@ public sealed class LatticeRuntimeSessionTests
                 evidence => evidence.Sources.Any(source => source.SourceId == assertionId));
         }
 
-        var pianoSoundProduction = await session.SubmitAsync(
-            "Is Example piano a piano?");
-        var pianoSoundProductionAnswer = Assert.Single(pianoSoundProduction.Utterances);
-        Assert.Equal(LatticeTruthValue.True, pianoSoundProductionAnswer.TruthValue);
-        Assert.Contains(
-            pianoSoundProductionAnswer.SupportingEvidence,
-            evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano-example:has-sound-production-mechanism:piano-action"));
     }
 
 
@@ -410,6 +402,23 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(
             "An example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
+
+        var pianoDefinition = await session.SubmitAsync("Is the example piano a piano?");
+        var pianoDefinitionAnswer = Assert.Single(pianoDefinition.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, pianoDefinitionAnswer.Kind);
+        Assert.Equal(LatticeTruthValue.True, pianoDefinitionAnswer.TruthValue);
+        foreach (var assertionId in new[]
+        {
+            "core-world-model:relation:piano-example:has-playing-interface:piano-keyboard",
+            "core-world-model:relation:piano-keyboard:activates:piano-action",
+            "core-world-model:relation:piano-action:actuates:piano-hammers",
+            "core-world-model:relation:piano-hammers:strikes:piano-strings"
+        })
+        {
+            Assert.Contains(
+                pianoDefinitionAnswer.SupportingEvidence,
+                evidence => evidence.Sources.Any(source => source.SourceId == assertionId));
+        }
 
         var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         Assert.Equal(
