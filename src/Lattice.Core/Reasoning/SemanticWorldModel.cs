@@ -59,19 +59,22 @@ public sealed record SemanticRelationAssertion(
 
 public enum SemanticDataValueKind
 {
-    Uri
+    Uri,
+    Decimal
 }
 
 public sealed record SemanticDataPropertyDefinition(
     string Id,
     string DomainType,
-    SemanticDataValueKind ValueKind);
+    SemanticDataValueKind ValueKind,
+    string? Dimension = null);
 
 public sealed record SemanticDataAssertion(
     string Subject,
     string Property,
     string Value,
-    SemanticWorldModelSource Source);
+    SemanticWorldModelSource Source,
+    string? Unit = null);
 
 public sealed record SemanticWorldModel(
     int FormatVersion,
