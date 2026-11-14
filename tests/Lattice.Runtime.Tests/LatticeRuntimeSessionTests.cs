@@ -208,7 +208,8 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var polygon = await session.SubmitAsync("What is a polygon?");
-        var boundary = await session.SubmitAsync("What is a boundary?");        var segment = await session.SubmitAsync("What is a line segment?");
+        var boundary = await session.SubmitAsync("What is a boundary?");
+        var segment = await session.SubmitAsync("What is a line segment?");
         var verb = await session.SubmitAsync("What is a verb?");
 
         Assert.Equal(
@@ -399,7 +400,8 @@ public sealed class LatticeRuntimeSessionTests
             "core-world-model:relation:harmonium:has-playing-interface:harmonium-keyboard",
             "core-world-model:relation:cello:has-sound-production-mechanism:cello-mechanism",
             "core-world-model:relation:accordion:has-playing-interface:accordion-keyboard",
-            "core-world-model:relation:banjo:has-sound-production-mechanism:banjo-mechanism"        })
+            "core-world-model:relation:banjo:has-sound-production-mechanism:banjo-mechanism"
+        })
         {
             Assert.Contains(
                 utterance.SupportingEvidence,
@@ -417,7 +419,8 @@ public sealed class LatticeRuntimeSessionTests
 
         var musicalInstrument = await session.SubmitAsync("What is a musical instrument?");
         Assert.Equal(
-            "A musical instrument is a physical object that uses a sound-production mechanism.",            Assert.Single(musicalInstrument.Utterances).Message);
+            "A musical instrument is a physical object that uses a sound-production mechanism.",
+            Assert.Single(musicalInstrument.Utterances).Message);
 
         var keyboardDefinition = await session.SubmitAsync("What makes something a keyboard instrument?");
         Assert.Equal(
@@ -597,7 +600,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal("Tope is a species of fish.", utterance.Message);
         Assert.Equal("ask(choice(fish, tope, rope))", utterance.Meaning);
-        Assert.Contains(            utterance.SupportingEvidence,
+        Assert.Contains(
+            utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge &&
                 source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
@@ -626,7 +630,8 @@ public sealed class LatticeRuntimeSessionTests
             """{"formatVersion":1,"id":"circles","name":"Circles","claims":["Circle is a geometric-shape."]}""");
         var result = await session.SubmitAsync("What is a circle?");
 
-        Assert.True(loaded.IsSuccess, loaded.Error);        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
+        Assert.True(loaded.IsSuccess, loaded.Error);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal("A circle is a geometric shape.", result.Utterances[0].Message);
         Assert.Contains(
             result.Utterances[0].SupportingEvidence,
