@@ -50,6 +50,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What is the (?:tallest|highest) (?<type>[A-Za-z][A-Za-z -]*?) in (?<region>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RegionalTerminologyPattern = new(
+        @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -214,6 +218,18 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var regionalTerminology = RegionalTerminologyPattern.Match(text);
+        if (regionalTerminology.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RegionalTerminologyQuery,
+                subject: Normalize(regionalTerminology.Groups["term"].Value),
+                concept: Normalize(regionalTerminology.Groups["sport"].Value),
+                otherSubject: Normalize(regionalTerminology.Groups["region"].Value),
                 sourceText: source);
             return true;
         }
