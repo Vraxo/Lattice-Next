@@ -112,6 +112,11 @@
       "id": "land-parcel",
       "label": "land parcel",
       "kind": "Type"
+    },
+    {
+      "id": "headquarters-site",
+      "label": "headquarters site",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -239,6 +244,16 @@
       "form": "land parcel",
       "concept": "land-parcel",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "headquarters",
+      "concept": "headquarters-site",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "HQ",
+      "concept": "headquarters-site",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -349,6 +364,12 @@
     },
     {
       "concept": "land-parcel",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "headquarters-site",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -529,6 +550,16 @@
       "subject": "united-nations-headquarters-site",
       "relation": "instance-of",
       "object": "land-parcel"
+    },
+    {
+      "subject": "headquarters-site",
+      "relation": "is-a",
+      "object": "site"
+    },
+    {
+      "subject": "united-nations-headquarters-site",
+      "relation": "instance-of",
+      "object": "headquarters-site"
     }
   ],
   "dataProperties": [],
