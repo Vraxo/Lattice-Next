@@ -50,6 +50,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex EventOutcomePattern = new(
+        @"^What happens when (?<event>[A-Za-z][A-Za-z0-9'’ -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ImpactExplanationPattern = new(
         @"^Why (?:is )?(?<subject>[A-Za-z][A-Za-z -]*?) (?:is |are )?(?:bad for|harmful to) (?<target>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -205,6 +209,16 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.Definition,
                 concept: Normalize(definition.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var eventOutcome = EventOutcomePattern.Match(text);
+        if (eventOutcome.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.EventOutcomeExplanation,
+                subject: Normalize(eventOutcome.Groups["event"].Value),
                 sourceText: source);
             return true;
         }
