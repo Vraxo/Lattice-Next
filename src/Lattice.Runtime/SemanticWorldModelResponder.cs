@@ -62,6 +62,8 @@ internal static class SemanticWorldModelResponder
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery =>
                 TryMediaExamplesByGenreAndPeriod(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RecordHolderQuery =>
+                TryRecordHolderQuery(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -311,6 +313,84 @@ internal static class SemanticWorldModelResponder
 
         message =
             $"Some {genre.Label} films from the {period.Label} include {JoinNames(candidates.Select(candidate => candidate!.Label).ToArray())}. These are examples, not a ranked 'best' list.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryRecordHolderQuery(
+        string recordId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var record = model.FindConcept(recordId, SemanticConceptKind.Individual);
+        if (record is null)
+        {
+            return false;
+        }
+
+        var relations = model.Relations
+            .Where(relation =>
+                relation.Id == "holds-record" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.DomainType is not null &&
+                relation.RangeType is not null)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType!, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType!, SemanticConceptKind.Type)
+            })
+            .Where(candidate =>
+                candidate.Domain is not null &&
+                candidate.Range is not null &&
+                reasoner.IsInstanceOf(record.Id, candidate.Range.Id))
+            .ToArray();
+
+        if (relations.Length != 1)
+        {
+            return false;
+        }
+
+        var relation = relations[0];
+        var holders = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == relation.Relation.Id &&
+                assertion.Object == record.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Holder = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Holder is not null &&
+                reasoner.IsInstanceOf(candidate.Holder.Id, relation.Domain!.Id))
+            .ToArray();
+
+        if (holders.Length != 1)
+        {
+            return false;
+        }
+
+        var holder = holders[0];
+        var recordName = record.Label.EndsWith(" record", StringComparison.OrdinalIgnoreCase)
+            ? record.Label[..^" record".Length]
+            : record.Label;
+        message = $"{holder.Holder!.Label} holds the record for the {recordName}.";
+
+        var sources = holder.Assertion.Source == null
+            ? ImmutableArray<SemanticWorldModelSource>.Empty
+            : ImmutableArray.Create(holder.Assertion.Source);
+        sources = sources
+            .AddRange(reasoner.GetMembershipEvidence(holder.Holder.Id, relation.Domain!.Id))
+            .AddRange(reasoner.GetMembershipEvidence(record.Id, relation.Range!.Id))
+            .Distinct()
+            .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
