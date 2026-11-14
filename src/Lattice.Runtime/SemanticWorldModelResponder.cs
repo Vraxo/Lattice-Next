@@ -529,7 +529,7 @@ internal static class SemanticWorldModelResponder
 
             message = string.Join(" ", pathSentences);
             evidence = ImmutableArray.Create(ToEvidence(
-                path.Select(step => step.Assertion.Source).Distinct().ToImmutableArray(),
+                path.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
                 LatticeEvidenceKind.Derived));
             return true;
         }
@@ -595,17 +595,17 @@ internal static class SemanticWorldModelResponder
         string start,
         string target,
         SemanticWorldModel model,
-        out ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> path)
+        out ImmutableArray<SemanticRelationAssertion> path)
     {
         const int maximumDepth = 3;
         path = [];
         var pending = new Queue<(
             string Node,
-            ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> Path,
+            ImmutableArray<SemanticRelationAssertion> Path,
             HashSet<string> Visited)>();
         pending.Enqueue((start, [], new HashSet<string>(StringComparer.Ordinal) { start }));
         int? shortestDepth = null;
-        var shortestPaths = new List<ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)>>();
+        var shortestPaths = new List<ImmutableArray<SemanticRelationAssertion>>();
 
         while (pending.TryDequeue(out var current))
         {
@@ -633,7 +633,7 @@ internal static class SemanticWorldModelResponder
                     continue;
                 }
 
-                var nextPath = current.Path.Add((assertion, forward));
+                var nextPath = current.Path.Add(assertion);
                 if (nextNode == target)
                 {
                     shortestDepth ??= nextPath.Length;
