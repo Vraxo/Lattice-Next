@@ -30,6 +30,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What does (?<subject>[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RelationSourcePattern = new(
+        @"^(?:Who|What) (?<verb>[a-z]+) (?<object>[A-Za-z][A-Za-z -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     internal static bool TryParse(string source, out SemanticUtterance? utterance)
     {
         utterance = null;
@@ -95,6 +99,18 @@ internal static class SemanticWorldModelQuestionParser
                 new SemanticRelationQueryFormula(
                     Normalize(relationTarget.Groups["subject"].Value),
                     Normalize(relationTarget.Groups["verb"].Value)),
+                source);
+            return true;
+        }
+
+        var relationSource = RelationSourcePattern.Match(text);
+        if (relationSource.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationSourceQueryFormula(
+                    Normalize(relationSource.Groups["object"].Value),
+                    Normalize(relationSource.Groups["verb"].Value)),
                 source);
             return true;
         }
