@@ -430,15 +430,15 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             comparison.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-instruments:definition:piano-hammer-action"));
+                source.SourceId == "core-world-model:definition:piano-hammer-action"));
         Assert.Contains(
             comparison.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-instruments:relation:piano-action:actuates-hammer:piano-hammers"));
+                source.SourceId == "core-world-model:relation:piano-action:actuates-hammer:piano-hammers"));
         Assert.Contains(
             comparison.Utterances[0].SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-instruments:relation:piano-hammers:strikes:piano-strings"));
+                source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
     }
 
     [Fact]
