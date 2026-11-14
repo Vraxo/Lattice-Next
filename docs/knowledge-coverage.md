@@ -11,10 +11,10 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 551 concepts: 317 types and 234 individuals
-- 135 relation signatures
-- 838 graph assertions
-- 554 lexical forms
+- 554 concepts: 319 types and 235 individuals
+- 136 relation signatures
+- 842 graph assertions
+- 561 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -104,3 +104,13 @@ The answer therefore corrects the absolute premise: mobile phones are not inhere
 The benchmark's Dutch-artist question is represented with a typed artist hierarchy and a specific `painted-by` relation. Johannes Vermeer is classified as a Dutch artist; the artwork is classified as a painting; and the relation connects the painting to Vermeer.
 
 Historical grounding: the [Mauritshuis collection record](https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring) identifies the painting as a work by Johannes Vermeer and describes him as a Dutch painter. The runtime query does not retrieve a stored answer sentence; it resolves the typed relation and composes the answer from the graph.
+
+
+## Sunset and nighttime outcome
+
+The event graph links sunset to the start of nighttime, and connects that event to Earth's rotation, apparent solar motion, and the day-night cycle. The answer is derived from those relations rather than stored as a sentence.
+
+- [U.S. Naval Observatory: Rise, Set, and Twilight Definitions](https://aa.usno.navy.mil/faq/RST_defs) explains that Earth's rotation causes the phenomena of rising and setting.
+- [Lunar and Planetary Institute: Day and Night](https://www.lpi.usra.edu/education/skytellers/day_night.shtml) explains that the side of Earth facing the Sun experiences day, while the side facing away experiences night.
+
+The model represents the general sunset-to-nighttime transition; it does not calculate local sunset times or account for latitude, season, atmospheric refraction, or polar-day conditions.
