@@ -483,7 +483,7 @@ internal static class SemanticWorldModelResponder
                     var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
                     return relation is null || first is null || second is null
                         ? null
-                        : FormatRelation(first, second, relation, first: false);
+                        : FormatQueryRelation(first, second, relation, model, first: false);
                 })
                 .Where(sentence => sentence is not null)
                 .Distinct(StringComparer.Ordinal)
@@ -535,11 +535,35 @@ internal static class SemanticWorldModelResponder
         message = string.Join(
             " ",
             targets.Select((target, index) =>
-                FormatRelation(subject, target!, selectedRelation, first: index == 0)));
+                FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
         evidence = ImmutableArray.Create(ToEvidence(
             assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static string FormatQueryRelation(
+        SemanticConcept subject,
+        SemanticConcept target,
+        SemanticRelationDefinition relation,
+        SemanticWorldModel model,
+        bool first)
+    {
+        var rangeType = relation.RangeType is null
+            ? null
+            : model.FindConcept(relation.RangeType, SemanticConceptKind.Type);
+        if (relation.ObjectRole is null &&
+            rangeType is not null &&
+            relation.Verb.EndsWith(rangeType.Label, StringComparison.OrdinalIgnoreCase))
+        {
+            var verb = relation.Verb[..^rangeType.Label.Length].TrimEnd();
+            var prefix = first
+                ? Capitalize(IndefinitePhrase(subject.Label))
+                : $"The {subject.Label}";
+            return $"{prefix} {verb} the {target.Label}.";
+        }
+
+        return FormatRelation(subject, target, relation, first);
     }
 
     private static bool MatchesRelationVerb(string relationVerb, string requestedVerb)
