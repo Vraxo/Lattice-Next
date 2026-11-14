@@ -27,7 +27,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex HeadquartersContributionPattern = new(
-        @"^Who gave (?<recipient>[A-Za-z][A-Za-z0-9'’ -]*?) (?:the )?(?<resource>land|property|site) in (?<location>[A-Za-z][A-Za-z0-9'’ -]*?) to build (?:(?:their|its|the) )?(?<facility>headquarters|HQ)\??$",
+        @"^Who gave (?<recipient>[A-Za-z][A-Za-z0-9'’ -]*?) (?:the )?(?<resource>land(?: parcel)?) in (?<location>[A-Za-z][A-Za-z0-9'’ -]*?) to build (?:(?:their|its|the) )?(?<facility>headquarters|HQ)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex InverseRelationPattern = new(
