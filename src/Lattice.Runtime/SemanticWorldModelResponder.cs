@@ -490,7 +490,7 @@ internal static class SemanticWorldModelResponder
                 if (expression.Filler is not null)
                 {
                     if (!TryExplainExpression(candidate.Object, expression.Filler, model, reasoner,
-                        out var nestedPhrases, out var nestedSources))
+                        out _, out var nestedSources))
                     {
                         return false;
                     }
@@ -499,7 +499,19 @@ internal static class SemanticWorldModelResponder
                 }
             }
 
-            phrases = [$"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}"];
+            var phrase = $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
+            if (expression.Filler is not null)
+            {
+                var fillerPhrase = FormatExpression(expression.Filler, model);
+                if (fillerPhrase is null)
+                {
+                    return false;
+                }
+
+                phrase += $" that {fillerPhrase}";
+            }
+
+            phrases = [phrase];
             sources = assertionSources.Distinct().ToImmutableArray();
             return true;
         }
