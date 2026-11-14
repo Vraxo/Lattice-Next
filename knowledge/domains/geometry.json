@@ -456,6 +456,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "next-element",
+      "domain": "geometric-element",
+      "range": "geometric-element",
+      "verb": "is followed by",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -712,6 +723,21 @@
       "subject": "triangle-segment-three",
       "relation": "has-end-point",
       "object": "triangle-point-one"
+    },
+    {
+      "subject": "triangle-segment-one",
+      "relation": "next-element",
+      "object": "triangle-segment-two"
+    },
+    {
+      "subject": "triangle-segment-two",
+      "relation": "next-element",
+      "object": "triangle-segment-three"
+    },
+    {
+      "subject": "triangle-segment-three",
+      "relation": "next-element",
+      "object": "triangle-segment-one"
     },
     {
       "subject": "geometric-object",
