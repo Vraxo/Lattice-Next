@@ -10,6 +10,22 @@ internal static class SemanticWorldModelQuestionParser
         @"^Is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?:a|an) (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RelationObjectPattern = new(
+        @"^How is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) related to (?<other>[A-Za-z][A-Za-z0-9'’! -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RelationLocationPattern = new(
+        @"^Where is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex TypedRelationActionPattern = new(
+        @"^What (?<type>[A-Za-z][A-Za-z -]*) does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RelationActionPattern = new(
+        @"^What does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex InverseRelationPattern = new(
         @"^Who (?<verb>[A-Za-z]+) (?<subject>[A-Za-z][A-Za-z0-9'’! -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -38,6 +54,51 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var relationObject = RelationObjectPattern.Match(text);
+        if (relationObject.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationQuery,
+                subject: Normalize(relationObject.Groups["subject"].Value),
+                otherSubject: Normalize(relationObject.Groups["other"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var relationLocation = RelationLocationPattern.Match(text);
+        if (relationLocation.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationQuery,
+                subject: Normalize(relationLocation.Groups["subject"].Value),
+                concept: Normalize(relationLocation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typedRelationAction = TypedRelationActionPattern.Match(text);
+        if (typedRelationAction.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationQuery,
+                subject: Normalize(typedRelationAction.Groups["subject"].Value),
+                concept: Normalize(typedRelationAction.Groups["verb"].Value),
+                targetType: Normalize(typedRelationAction.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var relationAction = RelationActionPattern.Match(text);
+        if (relationAction.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationQuery,
+                subject: Normalize(relationAction.Groups["subject"].Value),
+                concept: Normalize(relationAction.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var inverseRelation = InverseRelationPattern.Match(text);
         if (inverseRelation.Success)
@@ -121,10 +182,11 @@ internal static class SemanticWorldModelQuestionParser
         string subject = "",
         string? concept = null,
         string? otherSubject = null,
+        string? targetType = null,
         string? sourceText = null) =>
         new(
             UtteranceKind.Question,
-            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject),
+            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType),
             sourceText ?? string.Empty);
 
     private static string Normalize(string value)

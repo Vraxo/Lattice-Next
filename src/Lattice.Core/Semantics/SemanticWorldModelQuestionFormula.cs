@@ -8,11 +8,13 @@ public enum SemanticWorldModelQuestionKind
     Causes,
     Compare,
     Membership,
-    InverseRelation
+    InverseRelation,
+    RelationQuery
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
     SemanticWorldModelQuestionKind Kind,
     string Subject,
     string? Concept = null,
-    string? OtherSubject = null) : SemanticFormula;
+    string? OtherSubject = null,
+    string? TargetType = null) : SemanticFormula;

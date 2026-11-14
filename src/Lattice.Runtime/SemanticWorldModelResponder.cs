@@ -34,6 +34,8 @@ internal static class SemanticWorldModelResponder
                 TryMembership(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.InverseRelation =>
                 TryInverseRelation(request.Subject, request.Concept ?? string.Empty, model, out message, out evidence),
+            SemanticWorldModelQuestionKind.RelationQuery =>
+                TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -442,6 +444,286 @@ internal static class SemanticWorldModelResponder
             assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static bool TryRelationQuery(
+        string subjectId,
+        string? requestedVerb,
+        string? otherSubjectId,
+        string? requestedTargetType,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var subject = model.FindConcept(subjectId, SemanticConceptKind.Individual);
+        if (subject is null)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(otherSubjectId))
+        {
+            var other = model.FindConcept(otherSubjectId, SemanticConceptKind.Individual);
+            if (other is null)
+            {
+                return false;
+            }
+
+            var connectedAssertions = model.RelationAssertions
+                .Where(assertion =>
+                    (assertion.Subject == subject.Id && assertion.Object == other.Id) ||
+                    (assertion.Subject == other.Id && assertion.Object == subject.Id))
+                .ToArray();
+            if (connectedAssertions.Length > 0)
+            {
+                var sentences = connectedAssertions
+                    .Select(assertion =>
+                    {
+                        var relation = model.FindRelation(assertion.Relation);
+                        var first = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
+                        var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                        return relation is null || first is null || second is null
+                            ? null
+                            : FormatQueryRelation(first, second, relation, model, first: false);
+                    })
+                    .Where(sentence => sentence is not null)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray();
+                if (sentences.Length == 0)
+                {
+                    return false;
+                }
+
+                message = string.Join(" ", sentences);
+                evidence = ImmutableArray.Create(ToEvidence(
+                    connectedAssertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+                    LatticeEvidenceKind.Derived));
+                return true;
+            }
+
+            if (!TryFindUniqueShortestPath(subject.Id, other.Id, model, out var path))
+            {
+                return false;
+            }
+
+            var orderedPath = path.All(step => !step.Forward)
+                ? path.Reverse()
+                : path;
+            var pathSentences = orderedPath
+                .Select(step =>
+                {
+                    var assertion = step.Assertion;
+                    var relation = model.FindRelation(assertion.Relation);
+                    var first = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
+                    var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                    return relation is null || first is null || second is null
+                        ? null
+                        : FormatQueryRelation(first, second, relation, model, first: false);
+                })
+                .Where(sentence => sentence is not null)
+                .ToArray();
+            if (pathSentences.Length != path.Length)
+            {
+                return false;
+            }
+
+            message = string.Join(" ", pathSentences);
+            evidence = ImmutableArray.Create(ToEvidence(
+                path.Select(step => step.Assertion.Source).Distinct().ToImmutableArray(),
+                LatticeEvidenceKind.Derived));
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(requestedVerb))
+        {
+            return false;
+        }
+
+        var targetType = string.IsNullOrWhiteSpace(requestedTargetType)
+            ? null
+            : model.FindConcept(requestedTargetType, SemanticConceptKind.Type);
+        if (!string.IsNullOrWhiteSpace(requestedTargetType) && targetType is null)
+        {
+            return false;
+        }
+
+        var matchingRelations = model.Relations
+            .Where(relation =>
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                MatchesRelationVerb(relation.Verb, requestedVerb))
+            .Select(relation => new
+            {
+                Relation = relation,
+                Assertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == subject.Id &&
+                        assertion.Relation == relation.Id &&
+                        (targetType is null || reasoner.IsInstanceOf(assertion.Object, targetType.Id)))
+                    .ToArray()
+            })
+            .Where(candidate => candidate.Assertions.Length > 0)
+            .ToArray();
+        if (matchingRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var selectedRelation = matchingRelations[0].Relation;
+        var assertions = matchingRelations[0].Assertions;
+        var targets = assertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(target => target is not null)
+            .DistinctBy(target => target!.Id)
+            .ToArray();
+        if (targets.Length == 0)
+        {
+            return false;
+        }
+
+        message = string.Join(
+            " ",
+            targets.Select((target, index) =>
+                FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
+        evidence = ImmutableArray.Create(ToEvidence(
+            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryFindUniqueShortestPath(
+        string start,
+        string target,
+        SemanticWorldModel model,
+        out ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> path)
+    {
+        const int maximumDepth = 3;
+        path = [];
+        var pending = new Queue<(
+            string Node,
+            ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> Path,
+            HashSet<string> Visited)>();
+        pending.Enqueue((start, [], new HashSet<string>(StringComparer.Ordinal) { start }));
+        int? shortestDepth = null;
+        var shortestPaths = new List<ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)>>();
+
+        while (pending.TryDequeue(out var current))
+        {
+            if (current.Path.Length >= maximumDepth ||
+                (shortestDepth.HasValue && current.Path.Length >= shortestDepth.Value))
+            {
+                continue;
+            }
+
+            foreach (var assertion in model.RelationAssertions.Where(assertion =>
+                assertion.Subject == current.Node || assertion.Object == current.Node))
+            {
+                var relation = model.FindRelation(assertion.Relation);
+                if (relation is null ||
+                    relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                    relation.ObjectKind != SemanticRelationArgumentKind.Individual)
+                {
+                    continue;
+                }
+
+                var forward = assertion.Subject == current.Node;
+                var nextNode = forward ? assertion.Object : assertion.Subject;
+                if (current.Visited.Contains(nextNode))
+                {
+                    continue;
+                }
+
+                var nextPath = current.Path.Add((assertion, forward));
+                if (nextNode == target)
+                {
+                    shortestDepth ??= nextPath.Length;
+                    if (nextPath.Length == shortestDepth.Value)
+                    {
+                        shortestPaths.Add(nextPath);
+                    }
+
+                    continue;
+                }
+
+                if (!shortestDepth.HasValue || nextPath.Length < shortestDepth.Value)
+                {
+                    var visited = new HashSet<string>(current.Visited, StringComparer.Ordinal)
+                    {
+                        nextNode
+                    };
+                    pending.Enqueue((nextNode, nextPath, visited));
+                }
+            }
+        }
+
+        if (shortestPaths.Count != 1)
+        {
+            return false;
+        }
+
+        path = shortestPaths[0];
+        return true;
+    }
+
+    private static string FormatQueryRelation(
+        SemanticConcept subject,
+        SemanticConcept target,
+        SemanticRelationDefinition relation,
+        SemanticWorldModel model,
+        bool first)
+    {
+        var rangeType = relation.RangeType is null
+            ? null
+            : model.FindConcept(relation.RangeType, SemanticConceptKind.Type);
+        if (relation.ObjectRole is null &&
+            rangeType is not null &&
+            relation.Verb.EndsWith(rangeType.Label, StringComparison.OrdinalIgnoreCase))
+        {
+            var verb = relation.Verb[..^rangeType.Label.Length].TrimEnd();
+            var prefix = first
+                ? Capitalize(IndefinitePhrase(subject.Label))
+                : $"The {subject.Label}";
+            return $"{prefix} {verb} the {target.Label}.";
+        }
+
+        return FormatRelation(subject, target, relation, first);
+    }
+
+    private static bool MatchesRelationVerb(string relationVerb, string requestedVerb)
+    {
+        var requested = NormalizeVerb(requestedVerb);
+        if (requested.Length == 0)
+        {
+            return false;
+        }
+
+        var words = relationVerb.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var activeVerb = words.FirstOrDefault(word =>
+            !word.Equals("is", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("are", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("was", StringComparison.OrdinalIgnoreCase) &&
+            !word.Equals("were", StringComparison.OrdinalIgnoreCase));
+        return activeVerb is not null &&
+            NormalizeVerb(activeVerb).Equals(requested, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeVerb(string verb)
+    {
+        var normalized = SemanticWorldModel.Normalize(verb);
+        if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
+        {
+            return normalized[..^3] + "y";
+        }
+
+        if (normalized.EndsWith('s') && normalized.Length > 1)
+        {
+            return normalized[..^1];
+        }
+
+        return normalized;
     }
 
     internal static bool TryAskMembership(

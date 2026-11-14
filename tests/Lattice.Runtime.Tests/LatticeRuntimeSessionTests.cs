@@ -199,6 +199,111 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId.Contains($":{relation}:", StringComparison.Ordinal)));
     }
 
+    [Theory]
+    [InlineData(
+        "Where is the rural hospital located?",
+        "A rural hospital is located in the rural town.",
+        "ask(world-model-relation(rural-hospital, located, any))",
+        "located-in")]
+    [InlineData(
+        "What does the piano string bending response produce?",
+        "A piano string bending response produces the piano string bending deformation.",
+        "ask(world-model-relation(piano-string-bending-response, produce, any))",
+        "produces-deformation")]
+    [InlineData(
+        "What deformation does the piano string bending response produce?",
+        "A piano string bending response produces the piano string bending deformation.",
+        "ask(world-model-relation(piano-string-bending-response, produce, any, target-type=deformation))",
+        "produces-deformation")]
+    public async Task Answers_direct_relation_queries_from_relation_signatures(
+        string prompt,
+        string expectedMessage,
+        string expectedMeaning,
+        string relation)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(expectedMessage, answer.Message);
+        Assert.Equal(expectedMeaning, answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains($":{relation}:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Answers_pairwise_relation_queries_from_graph_assertions()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "How is the rural hospital related to the rural town?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The rural hospital is located in the rural town.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-relation(rural-hospital, any, rural-town))",
+            answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":located-in:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Answers_pairwise_relation_queries_when_the_assertion_points_in_the_opposite_direction()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "How is the rural town related to the rural hospital?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The rural hospital is located in the rural town.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":located-in:", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("How is Earth related to the day and night cycle?")]
+    [InlineData("How is the day and night cycle related to Earth?")]
+    public async Task Answers_pairwise_relation_queries_through_a_unique_two_edge_path(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "The Earth rotates through the Earth's rotation. The Earth's rotation causes the day and night cycle.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":rotates-on-axis:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":causes-day-night-cycle:", StringComparison.Ordinal)));
+    }
+
     [Fact]
     public async Task Multiword_graph_question_parsing_does_not_break_session_knowledge_questions()
     {
