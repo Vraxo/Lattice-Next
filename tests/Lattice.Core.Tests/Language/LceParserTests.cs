@@ -643,4 +643,12 @@ public sealed class LceParserTests
             SemanticFormatter.Format(utterance));
     }
 
+    [Fact]
+    public void Does_not_treat_a_clause_as_a_relation_object()
+    {
+        var result = parser.ParseText("What happens when the sun goes down?");
+
+        Assert.False(result.IsSuccess);
+    }
+
 }
