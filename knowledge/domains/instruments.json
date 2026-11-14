@@ -1581,6 +1581,11 @@
       "subject": "piano-hammers",
       "relation": "instance-of",
       "object": "hammer-component"
+    },
+    {
+      "subject": "hammer-component",
+      "relation": "is-a",
+      "object": "physical-component"
     }
   ],
   "dataProperties": [],
