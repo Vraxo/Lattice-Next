@@ -717,6 +717,120 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
+    internal static bool TrySelectForActivity(
+        ActivitySelectionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var activityType = model.FindConcept(request.Activity.Value, SemanticConceptKind.Type);
+        if (activityType is null)
+        {
+            return false;
+        }
+
+        var relations = model.Relations
+            .Where(relation =>
+                relation.Verb.Equals("is used for", StringComparison.OrdinalIgnoreCase) &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .Select(relation => new
+            {
+                Relation = relation,
+                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
+                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
+            })
+            .Where(candidate =>
+                candidate.Domain is not null &&
+                candidate.Range is not null &&
+                reasoner.IsSubtypeOf(activityType.Id, candidate.Range.Id))
+            .ToArray();
+
+        if (relations.Length != 1)
+        {
+            return false;
+        }
+
+        var relation = relations[0].Relation;
+        var domain = relations[0].Domain!;
+        var range = relations[0].Range!;
+        var activityInstances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, activityType.Id) &&
+                reasoner.IsInstanceOf(concept.Id, range.Id))
+            .ToArray();
+        if (activityInstances.Length == 0)
+        {
+            return false;
+        }
+
+        var activityInstanceIds = activityInstances
+            .Select(concept => concept.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var selected = new List<(string Label, List<SemanticWorldModelSource> Sources)>();
+
+        foreach (var requestedItem in request.Items)
+        {
+            var itemType = model.FindConcept(requestedItem.Value, SemanticConceptKind.Type);
+            if (itemType is null || !reasoner.IsSubtypeOf(itemType.Id, domain.Id))
+            {
+                continue;
+            }
+
+            var itemInstances = model.Concepts
+                .Where(concept =>
+                    concept.Kind == SemanticConceptKind.Individual &&
+                    reasoner.IsInstanceOf(concept.Id, itemType.Id) &&
+                    reasoner.IsInstanceOf(concept.Id, domain.Id))
+                .ToArray();
+            var assertions = itemInstances
+                .SelectMany(instance => model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == instance.Id &&
+                        assertion.Relation == relation.Id &&
+                        activityInstanceIds.Contains(assertion.Object))
+                    .Select(assertion => (Instance: instance, Assertion: assertion)))
+                .ToArray();
+            if (assertions.Length == 0)
+            {
+                continue;
+            }
+
+            var sources = new List<SemanticWorldModelSource>();
+            foreach (var match in assertions)
+            {
+                sources.Add(match.Assertion.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Instance.Id, itemType.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Instance.Id, domain.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Assertion.Object, activityType.Id));
+                sources.AddRange(reasoner.GetMembershipEvidence(match.Assertion.Object, range.Id));
+            }
+
+            selected.Add((itemType.Label, sources));
+        }
+
+        if (selected.Count == 0)
+        {
+            return false;
+        }
+
+        var names = selected.Select(item => item.Label).ToArray();
+        message = names.Length == 1
+            ? $"{Capitalize(names[0])} is used for {activityType.Label}."
+            : $"{JoinNames(names)} are used for {activityType.Label}.";
+        var allSources = selected
+            .SelectMany(item => item.Sources)
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(allSources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     internal static bool TryChoice(
         ChoiceQuestionFormula question,
         SemanticWorldModel model,
