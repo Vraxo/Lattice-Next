@@ -387,7 +387,7 @@
       "relations": [
         "holds-record"
       ],
-      "limitations": "The record-holder relationship is represented; exact medal counts are not currently modeled."
+      "limitations": "The runtime resolves the Olympic gold-medal record and follows the typed holds-record assertion to Michael Phelps. It does not provide a numeric medal count; the benchmark asks only for the individual."
     },
     {
       "id": "dolly-013",
