@@ -62,6 +62,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ContextualRelationRolePattern = new(
+        @"^What is the name of (?:the )?(?<possessor>[A-Za-z][A-Za-z'’ -]*?)'s (?<role>[A-Za-z][A-Za-z -]*?) on (?:the )?(?:TV show )?[""“]?(?<context>[A-Za-z][A-Za-z0-9'’ -]*)[""”]?\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -249,6 +253,18 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var contextualRole = ContextualRelationRolePattern.Match(text);
+        if (contextualRole.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ContextualRelationRoleQuery,
+                subject: Normalize(contextualRole.Groups["possessor"].Value),
+                concept: Normalize(contextualRole.Groups["role"].Value),
+                otherSubject: Normalize(contextualRole.Groups["context"].Value),
                 sourceText: source);
             return true;
         }
