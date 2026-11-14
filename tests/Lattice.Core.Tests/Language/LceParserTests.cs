@@ -627,4 +627,28 @@ public sealed class LceParserTests
         Assert.Equal("ask(relation-targets(piano-action, actuate))", SemanticFormatter.Format(utterance));
     }
 
+    [Fact]
+    public void Parses_relation_source_questions_into_a_semantic_query()
+    {
+        var result = parser.ParseText("What strikes the piano strings?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        var query = Assert.IsType<SemanticRelationSourceQueryFormula>(utterance.Meaning);
+        Assert.Equal("piano-strings", query.Object);
+        Assert.Equal("strikes", query.Verb);
+        Assert.Equal(
+            "ask(relation-sources(piano-strings, strikes))",
+            SemanticFormatter.Format(utterance));
+    }
+
+    [Fact]
+    public void Does_not_treat_a_clause_as_a_relation_object()
+    {
+        var result = parser.ParseText("What happens when the sun goes down?");
+
+        Assert.False(result.IsSuccess);
+    }
+
 }
