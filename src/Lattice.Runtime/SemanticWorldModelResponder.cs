@@ -482,7 +482,7 @@ internal static class SemanticWorldModelResponder
 
             phrases =
             [
-                $"starts at {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element"
+                $"{startRelation.Verb} {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element"
             ];
             sources = cycleSources;
             return true;
