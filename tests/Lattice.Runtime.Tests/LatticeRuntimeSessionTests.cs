@@ -255,7 +255,7 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "Oathkeeper and First of His Name are episodes directed by Michelle MacLaren.",
+            "Oathkeeper and First of His Name are television episodes directed by Michelle MacLaren.",
             answer.Message);
         Assert.Contains(
             answer.SupportingEvidence,
@@ -948,11 +948,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-natural-world:relation:camel-water-conservation:reduces-water-loss:camel-urine-concentration"));
+                source.SourceId == "core-world-model:relation:camel-water-conservation:reduces-water-loss:camel-urine-concentration"));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "core-natural-world:relation:camel-dehydration-tolerance:supports-survival-under:water-deprivation-condition"));
+                source.SourceId == "core-world-model:relation:camel-dehydration-tolerance:supports-survival-under:water-deprivation-condition"));
     }
 
     [Fact]
