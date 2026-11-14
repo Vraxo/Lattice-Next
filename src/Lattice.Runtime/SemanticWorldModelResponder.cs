@@ -44,6 +44,8 @@ internal static class SemanticWorldModelResponder
                     reasoner,
                     out message,
                     out evidence),
+            SemanticWorldModelQuestionKind.EventOutcomeExplanation =>
+                TryExplainEventOutcome(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
                 TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
@@ -197,6 +199,131 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryExplainEventOutcome(
+        string eventTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var eventType = model.FindConcept(eventTypeId, SemanticConceptKind.Type);
+        if (eventType is null)
+        {
+            return false;
+        }
+
+        var eventInstances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, eventType.Id))
+            .ToArray();
+        if (eventInstances.Length != 1)
+        {
+            return false;
+        }
+
+        var eventInstance = eventInstances[0];
+        var startRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("marks start of", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (startRelations.Length != 1 ||
+            startRelations[0].DomainType is null ||
+            startRelations[0].RangeType is null ||
+            !reasoner.IsSubtypeOf(eventType.Id, startRelations[0].DomainType))
+        {
+            return false;
+        }
+
+        var startRelation = startRelations[0];
+        var outcomeAssertions = reasoner.GetRelations(eventInstance.Id, startRelation.Id).ToArray();
+        if (outcomeAssertions.Length != 1)
+        {
+            return false;
+        }
+
+        var outcome = model.FindConcept(outcomeAssertions[0].Object, SemanticConceptKind.Individual);
+        if (outcome is null || !reasoner.IsInstanceOf(outcome.Id, startRelation.RangeType))
+        {
+            return false;
+        }
+
+        var explanationRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("explains", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var explanations = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Object == eventInstance.Id &&
+                explanationRelations.Any(relation => relation.Id == assertion.Relation))
+            .ToArray();
+        if (explanations.Length != 1)
+        {
+            return false;
+        }
+
+        var explanation = explanations[0];
+        var explanationRelation = explanationRelations.Single(relation => relation.Id == explanation.Relation);
+        var cause = model.FindConcept(explanation.Subject, SemanticConceptKind.Individual);
+        if (cause is null ||
+            explanationRelation.DomainType is null ||
+            !reasoner.IsInstanceOf(cause.Id, explanationRelation.DomainType))
+        {
+            return false;
+        }
+
+        var apparentRelations = model.Relations
+            .Where(relation => relation.Verb.StartsWith("produces apparent", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var apparentAssertions = apparentRelations
+            .SelectMany(relation => reasoner.GetRelations(cause.Id, relation.Id))
+            .ToArray();
+        var causalRelations = model.Relations
+            .Where(relation => relation.Verb.Equals("causes", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var causalAssertions = causalRelations
+            .SelectMany(relation => reasoner.GetRelations(cause.Id, relation.Id))
+            .ToArray();
+        if (apparentAssertions.Length != 1 || causalAssertions.Length != 1)
+        {
+            return false;
+        }
+
+        var apparentAssertion = apparentAssertions[0];
+        var causalAssertion = causalAssertions[0];
+        var apparentRelation = apparentRelations.Single(relation => relation.Id == apparentAssertion.Relation);
+        var causalRelation = causalRelations.Single(relation => relation.Id == causalAssertion.Relation);
+        var apparentMotion = model.FindConcept(apparentAssertion.Object, SemanticConceptKind.Individual);
+        var consequence = model.FindConcept(causalAssertion.Object, SemanticConceptKind.Individual);
+        if (apparentMotion is null ||
+            consequence is null ||
+            apparentRelation.RangeType is null ||
+            causalRelation.RangeType is null ||
+            !reasoner.IsInstanceOf(apparentMotion.Id, apparentRelation.RangeType) ||
+            !reasoner.IsInstanceOf(consequence.Id, causalRelation.RangeType))
+        {
+            return false;
+        }
+
+        var outcomeName = GetMostSpecificTypeLabel(outcome.Id, outcome.Label, model, reasoner);
+        var consequenceName = GetMostSpecificTypeLabel(consequence.Id, consequence.Label, model, reasoner);
+        var sources = ImmutableArray.Create(outcomeAssertions[0].Source, explanation.Source)
+            .Add(apparentAssertion.Source)
+            .Add(causalAssertion.Source)
+            .AddRange(reasoner.GetMembershipEvidence(eventInstance.Id, eventType.Id))
+            .AddRange(reasoner.GetMembershipEvidence(outcome.Id, startRelation.RangeType))
+            .AddRange(reasoner.GetMembershipEvidence(cause.Id, explanationRelation.DomainType))
+            .AddRange(reasoner.GetMembershipEvidence(apparentMotion.Id, apparentRelation.RangeType))
+            .AddRange(reasoner.GetMembershipEvidence(consequence.Id, causalRelation.RangeType))
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"{Capitalize(outcomeName)} begins. {cause.Label} explains why the Sun appears to set and causes the {consequenceName}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryTypedObjectRelationQuery(
