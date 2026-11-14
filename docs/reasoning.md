@@ -300,7 +300,7 @@ The negative relation is derived for that exact subject and object. A positive a
 
 The piano is a defined **type**, separate from the `example-piano` individual used as structural evidence. Its sufficient expression requires both a piano-specific keyboard interface and a piano hammer-action mechanism.
 
-The piano keyboard interface is defined by activating a piano hammer-action mechanism. The piano hammer-action mechanism is defined by actuating a hammer component that strikes a string component. The piano hammer-action is a subtype of struck-string mechanism, and the piano keyboard interface is a subtype of keyboard interface. The piano type combines these two more specific structures; its keyboard-instrument and struck-string-instrument classifications follow through the taxonomy.
+The piano keyboard interface is defined by activating a piano hammer-action mechanism. The piano hammer-action mechanism is defined by actuating a hammer component. In the example graph, that hammer component strikes a string component. The piano hammer-action is a subtype of struck-string mechanism, and the piano keyboard interface is a subtype of keyboard interface. The piano type combines these two more specific structures; its keyboard-instrument and struck-string-instrument classifications follow through the taxonomy.
 
 The example piano is not explicitly asserted to be a piano. Its keyboard activates its action; the action actuates its hammers; and those hammers strike its strings. Those graph edges, together with the nested definitions, are sufficient to derive the example's piano-specific interface, piano hammer-action, and ultimately piano membership. This tests the definition against the structure rather than merely restating the intended classification.
 
