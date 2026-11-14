@@ -13,8 +13,8 @@ The ontology now contains:
 - 17 composable domain modules
 - 548 concepts: 315 types and 233 individuals
 - 133 relation signatures
-- 826 graph assertions
-- 545 lexical forms
+- 832 graph assertions
+- 551 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -83,3 +83,17 @@ Primary and institutional references:
 - [UN General Assembly resolution 100 (I)](https://mandates.un.org/mandate/A/RES/100%28I%29?end_year=1947&start_year=1947) — records the $8.5 million gift for acquisition of the New York tract.
 
 The benchmark wording “Who gave the UN the land” is therefore answered with the contribution roles separated, rather than treating the cash gift and municipal land contributions as the same act.
+
+
+## Mobile-phone impact coverage
+
+The mobile-phone graph distinguishes the device type from the possible effects of a smartphone example. Smartphones are classified as mobile phones; the example links through `may-contribute-to` to typed effects, and each effect is explicitly related to people through `affects`. The runtime query requires both the device-to-effect path and the target-type relation before composing an answer.
+
+Evidence and interpretation notes:
+
+- [JAMA Network Open (2025)](https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2831993) reports an association between daily pre-bed screen use and poorer sleep outcomes in a large adult sample. This is cross-sectional evidence, not proof that every phone use causes sleep problems.
+- [National Sleep Foundation consensus statement (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC13181348/) describes how engaging screen content and pre-bedtime exposure may delay or disrupt sleep.
+- [NHTSA distracted-driving guidance](https://www.nhtsa.gov/risky-driving/distracted-driving) documents the visual, manual, and cognitive distraction involved in phone use while driving.
+- [Preventive Medicine Reports systematic review (2025)](https://pmc.ncbi.nlm.nih.gov/articles/PMC12304691/) reports an association between problematic smartphone use and lower physical activity among university students, while noting the predominance of correlational studies.
+
+The answer therefore corrects the absolute premise: mobile phones are not inherently harmful. The graph represents potential risks whose likelihood and importance depend on use patterns; it does not model risk magnitude or prove causation.
