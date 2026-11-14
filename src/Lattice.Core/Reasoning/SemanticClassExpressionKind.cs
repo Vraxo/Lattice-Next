@@ -4,5 +4,6 @@ public enum SemanticClassExpressionKind
 {
     Some,
     And,
-    Or
+    Or,
+    Cycle
 }
