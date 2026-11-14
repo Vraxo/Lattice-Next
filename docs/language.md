@@ -349,3 +349,10 @@ The construction `What are common <type> of <subject>?` is parsed into a typed r
 ### Media examples by genre and period
 
 The construction `What are some of the best <genre> movies of the <decade>?` is interpreted as a conjunctive retrieval request, not a ranking request. The responder intersects films with asserted genre membership and release-period relations, verifies the film type, and returns only candidates satisfying both constraints. Because the model contains no ranking evidence, the response explicitly labels the results as examples rather than a ranked best-of list.
+
+
+### Bounded type-instance lists
+
+The construction `Give me the top <count> <type> names` resolves the requested type and returns up to the requested number of individuals that the reasoner classifies as instances. The result is deterministic and alphabetically ordered. It is not a ranking unless the knowledge graph contains an explicit ranking relation or order; the responder states when no ranking is modeled.
+
+Golf equipment companies are defined compositionally as companies that make equipment for golf. Their membership is derived from the `makes-equipment-for` relation and the sport taxonomy rather than duplicated as direct type assertions.
