@@ -369,7 +369,7 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
 
-        message = $"{Capitalize(requestedSubject)} can {ability.Label} because {JoinConditions(labels)}."
+        message = $"{Capitalize(requestedSubject)} can {ability.Label} because {JoinConditions(labels)}.";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
