@@ -807,6 +807,31 @@
       "subject": "albatross",
       "relation": "used-in-sport",
       "object": "golf"
+    },
+    {
+      "subject": "titleist",
+      "relation": "instance-of",
+      "object": "company"
+    },
+    {
+      "subject": "callaway",
+      "relation": "instance-of",
+      "object": "company"
+    },
+    {
+      "subject": "taylormade",
+      "relation": "instance-of",
+      "object": "company"
+    },
+    {
+      "subject": "ping",
+      "relation": "instance-of",
+      "object": "company"
+    },
+    {
+      "subject": "cobra-golf",
+      "relation": "instance-of",
+      "object": "company"
     }
   ],
   "dataProperties": [],
