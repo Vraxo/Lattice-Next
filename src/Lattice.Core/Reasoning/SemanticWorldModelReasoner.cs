@@ -126,8 +126,80 @@ public sealed class SemanticWorldModelReasoner
                 MatchesExpression(operand, individual, allTypes, model)),
             SemanticClassExpressionKind.Or => expression.Operands.Any(operand =>
                 MatchesExpression(operand, individual, allTypes, model)),
+            SemanticClassExpressionKind.Cycle => TryFindCycleAssertions(
+                individual, expression, allTypes, model, out _),
             _ => false
         };
+    }
+
+
+    private static bool TryFindCycleAssertions(
+        string individual,
+        SemanticClassExpression expression,
+        IReadOnlyDictionary<string, HashSet<string>> allTypes,
+        SemanticWorldModel model,
+        out ImmutableArray<SemanticRelationAssertion> cycleAssertions)
+    {
+        cycleAssertions = [];
+        var startAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == individual &&
+                assertion.Relation == expression.StartRelation &&
+                allTypes.TryGetValue(assertion.Object, out var types) &&
+                types.Contains(expression.TargetType!))
+            .ToArray();
+
+        foreach (var startAssertion in startAssertions)
+        {
+            var start = startAssertion.Object;
+            var visited = new HashSet<string>(StringComparer.Ordinal) { start };
+            var path = new List<SemanticRelationAssertion>();
+
+            if (FindPath(start, start))
+            {
+                cycleAssertions = [startAssertion, .. path];
+                return true;
+            }
+
+            bool FindPath(string current, string target)
+            {
+                foreach (var edge in model.RelationAssertions.Where(assertion =>
+                    assertion.Subject == current &&
+                    assertion.Relation == expression.Relation &&
+                    allTypes.TryGetValue(assertion.Object, out var types) &&
+                    types.Contains(expression.TargetType!)))
+                {
+                    if (edge.Object == target)
+                    {
+                        if (path.Count + 1 >= expression.MinimumLength)
+                        {
+                            path.Add(edge);
+                            return true;
+                        }
+
+                        continue;
+                    }
+
+                    if (!visited.Add(edge.Object))
+                    {
+                        continue;
+                    }
+
+                    path.Add(edge);
+                    if (FindPath(edge.Object, target))
+                    {
+                        return true;
+                    }
+
+                    path.RemoveAt(path.Count - 1);
+                    visited.Remove(edge.Object);
+                }
+
+                return false;
+            }
+        }
+
+        return false;
     }
 
     public ImmutableArray<SemanticWorldModelMembership> GetMemberships(string individual)
@@ -258,6 +330,35 @@ public sealed class SemanticWorldModelReasoner
         HashSet<string> visited,
         List<SemanticWorldModelSource> evidence)
     {
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            if (!TryFindCycleAssertions(
+                individual,
+                expression,
+                model.Concepts
+                    .Where(concept => concept.Kind == SemanticConceptKind.Individual)
+                    .ToDictionary(
+                        concept => concept.Id,
+                        concept => GetTypes(concept.Id).ToHashSet(StringComparer.Ordinal),
+                        StringComparer.Ordinal),
+                model,
+                out var cycleAssertions))
+            {
+                return false;
+            }
+
+            evidence.AddRange(cycleAssertions.Select(assertion => assertion.Source));
+            foreach (var node in cycleAssertions
+                .Skip(1)
+                .Select(assertion => assertion.Object)
+                .Distinct(StringComparer.Ordinal))
+            {
+                AppendMembershipEvidence(node, expression.TargetType!, visited, evidence);
+            }
+
+            return true;
+        }
+
         if (expression.Kind == SemanticClassExpressionKind.Some)
         {
             var assertion = model.RelationAssertions.FirstOrDefault(candidate =>
