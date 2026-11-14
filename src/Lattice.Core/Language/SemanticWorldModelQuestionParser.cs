@@ -18,6 +18,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Where is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypedRelationActionPattern = new(
+        @"^What (?<type>[A-Za-z][A-Za-z -]*) does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RelationActionPattern = new(
         @"^What does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -69,6 +73,18 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationLocation.Groups["subject"].Value),
                 concept: Normalize(relationLocation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typedRelationAction = TypedRelationActionPattern.Match(text);
+        if (typedRelationAction.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RelationQuery,
+                subject: Normalize(typedRelationAction.Groups["subject"].Value),
+                concept: Normalize(typedRelationAction.Groups["verb"].Value),
+                targetType: Normalize(typedRelationAction.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
@@ -166,10 +182,11 @@ internal static class SemanticWorldModelQuestionParser
         string subject = "",
         string? concept = null,
         string? otherSubject = null,
+        string? targetType = null,
         string? sourceText = null) =>
         new(
             UtteranceKind.Question,
-            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject),
+            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType),
             sourceText ?? string.Empty);
 
     private static string Normalize(string value)
