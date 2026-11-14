@@ -21,7 +21,7 @@ public sealed class LatticeRuntimeSessionTests
             "Johannes Vermeer is the Dutch artist who painted Girl with a Pearl Earring.",
             answer.Message);
         Assert.Equal(
-            "ask(world-model-typed-object-relation(girl-with-pearl-earring, painted, dutch-artist))",
+            "ask(world-model-typed-object-relation(girl-with-a-pearl-earring, painted, dutch-artist))",
             answer.Meaning);
         Assert.Contains(
             answer.SupportingEvidence,
