@@ -27,13 +27,13 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
         Assert.Contains(
             evidence.Sources,
-            source => source.SourceId.Contains(":regional-equivalent-of:double-eagle:albatross", StringComparison.Ordinal));
+            source => source.SourceId.Contains(":double-eagle:regional-equivalent-of:albatross", StringComparison.Ordinal));
         Assert.Contains(
             evidence.Sources,
-            source => source.SourceId.Contains(":used-in-region:double-eagle:united-states", StringComparison.Ordinal));
+            source => source.SourceId.Contains(":double-eagle:used-in-region:united-states", StringComparison.Ordinal));
         Assert.Contains(
             evidence.Sources,
-            source => source.SourceId.Contains(":has-score-meaning:double-eagle:three-under-par", StringComparison.Ordinal));
+            source => source.SourceId.Contains(":double-eagle:has-score-meaning:three-under-par", StringComparison.Ordinal));
     }
 
     [Fact]
