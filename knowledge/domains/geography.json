@@ -102,6 +102,11 @@
       "id": "georgia-film-tax-credit",
       "label": "Georgia film tax credit",
       "kind": "Individual"
+    },
+    {
+      "id": "new-york-city-government",
+      "label": "City of New York",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -204,6 +209,21 @@
       "form": "Georgia film tax credit",
       "concept": "georgia-film-tax-credit",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "UN",
+      "concept": "united-nations",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "NY",
+      "concept": "new-york-city",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "City of New York",
+      "concept": "new-york-city-government",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -245,6 +265,17 @@
       "domain": "geographic-region",
       "range": "economic-incentive",
       "verb": "has tax incentive",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "contributed-property-to",
+      "domain": "organization",
+      "range": "place",
+      "verb": "contributed additional property to",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
@@ -457,6 +488,16 @@
       "subject": "georgia-us",
       "relation": "has-tax-incentive",
       "object": "georgia-film-tax-credit"
+    },
+    {
+      "subject": "new-york-city-government",
+      "relation": "instance-of",
+      "object": "governmental-organization"
+    },
+    {
+      "subject": "new-york-city-government",
+      "relation": "contributed-property-to",
+      "object": "united-nations-headquarters-site"
     }
   ],
   "dataProperties": [],
