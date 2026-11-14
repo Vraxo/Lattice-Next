@@ -462,7 +462,7 @@ internal static class SemanticWorldModelResponder
             return true;
         }
 
-        var targetType = model.FindConcept(requestedTargetType, SemanticConceptKind.Type);
+        var targetType = model.FindConcept(requestedTargetType!, SemanticConceptKind.Type);
         var context = string.IsNullOrWhiteSpace(contextId)
             ? null
             : model.FindConcept(contextId, SemanticConceptKind.Individual);
