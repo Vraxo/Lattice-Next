@@ -58,3 +58,8 @@ The optional `web-search` capability returns search results as one such sourced 
 The CLI owns one ConversationContext for the duration of the interactive process. It is separate from the knowledge base but has the same session lifetime. It is not persisted, shared between sessions, or loaded from a knowledge pack.
 
 The implementation supports the unary subject-position forms and one relational pronoun in either argument position listed in [language.md](language.md). A relational assertion uses `It` as its subject pronoun or lowercase `it` as its object pronoun; a relational question uses lowercase `it` in either position. A relation cannot contain two unresolved pronouns. Resolution still requires exactly one distinct known individual, regardless of argument position. This is not a general co-reference resolver; recency, salience, and richer antecedent selection remain future work.
+
+
+## Family-set completion
+
+Family-set completion is a separate structured inference path, not pronoun resolution. It combines an explicit family relation (“X's parents”), a typed anchor individual, a stated set cardinality, and the named members. The responder infers the anchor as the missing member only when its person type matches the requested family role and exactly one set position remains. This does not imply general kinship inference or unrestricted discourse resolution.
