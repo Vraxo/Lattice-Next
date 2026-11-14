@@ -14,29 +14,27 @@ The ontology now contains:
 - 560 concepts: 321 types and 239 individuals
 - 139 relation signatures
 - 861 graph assertions
-- 573 lexical forms
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 17 represented at the ontology level
-- 16 partially represented
+- 18 represented at the ontology level
+- 15 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #228's head `e8c653bc75edf71e13ffb19f7aee8e1e09760c89` (CI run 859):
+The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
 
 - .NET build: passed
-- .NET tests: 925 passed, 0 failed
+- .NET tests: 922 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 18 substantive answers, 20 answered, 21 handled, 13 unhandled, 0 runner errors
-- Average latency: 307 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 262 ms (single run; stability not measured)
 
-The runtime benchmark score is **18/34 (52.9%)**, up from 16/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer.
-
-Dolly-029's output was manually inspected: Steve Urkel is returned with both the `neighbor-of` and `character-in` assertions, plus supporting type memberships. Dolly-023 was also inspected: the five listed films each have both a comedy-genre assertion and a 1980s release-period assertion. The response explicitly treats them as examples rather than claiming an unsupported ranking.
+Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
 
 ## Cross-domain structure
 

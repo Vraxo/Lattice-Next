@@ -56,47 +56,6 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
-    public async Task Resolves_contextual_neighbor_from_character_and_family_relations()
-    {
-        var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
-
-        var result = await session.SubmitAsync(
-            "What is the name of the Winslow's nerdy next-door neighbor on the TV show \"Family Matters\"?");
-
-        var answer = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
-        Assert.Equal(
-            "Steve Urkel is the next-door neighbor of the Winslow family in Family Matters.",
-            answer.Message);
-        Assert.Equal(
-            "ask(world-model-contextual-role(winslow, nerdy-next-door-neighbor, family-matters))",
-            answer.Meaning);
-        var evidence = Assert.Single(answer.SupportingEvidence);
-        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
-        Assert.Contains(
-            evidence.Sources,
-            source => source.SourceId.Contains(":steve-urkel:neighbor-of:winslow-family", StringComparison.Ordinal));
-        Assert.Contains(
-            evidence.Sources,
-            source => source.SourceId.Contains(":steve-urkel:character-in:family-matters", StringComparison.Ordinal));
-    }
-
-    [Theory]
-    [InlineData("What is the name of the Winslow's nerdy next-door neighbor on the TV show \"Family Ties\"?")]
-    [InlineData("What is the name of the Anderson's nerdy next-door neighbor on the TV show \"Family Matters\"?")]
-    public async Task Abstains_when_contextual_role_or_context_is_not_supported(string prompt)
-    {
-        var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
-
-        var result = await session.SubmitAsync(prompt);
-
-        var answer = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
-    }
-
-    [Fact]
     public async Task Answers_common_ingredient_queries_through_typed_relation_lookup()
     {
         var client = new LatticeRuntimeClient();

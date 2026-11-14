@@ -785,7 +785,7 @@
         "character-in",
         "neighbor-of"
       ],
-      "limitations": "The runtime resolves the Winslow family and Family Matters, matches the next-door-neighbor role to the neighbor-of relation, and requires both the neighbor assertion and the character-in context assertion. It composes the answer from those paths and their type memberships."
+      "limitations": "Steve Urkel is linked to Family Matters and the Winslow family."
     },
     {
       "id": "dolly-030",
