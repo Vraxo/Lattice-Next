@@ -15,6 +15,12 @@ public sealed class MechanicalQuantityCalculatorTests
         Assert.True(SemanticUnit.TryConvertToBase(3m, "GPa", out var pressureDimension, out var pressure));
         Assert.Equal("pressure", pressureDimension);
         Assert.Equal(3000000000m, pressure);
+        Assert.True(SemanticUnit.TryConvertToBase(2m, "kg/m", out var densityDimension, out var density));
+        Assert.Equal("linear-mass-density", densityDimension);
+        Assert.Equal(2m, density);
+        Assert.True(SemanticUnit.TryConvertToBase(440m, "Hz", out var frequencyDimension, out var frequency));
+        Assert.Equal("frequency", frequencyDimension);
+        Assert.Equal(440m, frequency);
     }
 
     [Fact]
