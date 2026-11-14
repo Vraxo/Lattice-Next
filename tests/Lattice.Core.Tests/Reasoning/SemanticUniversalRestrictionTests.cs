@@ -13,18 +13,18 @@ public sealed class SemanticUniversalRestrictionTests
 
         var reasoner = new SemanticWorldModelReasoner(model!);
 
-        Assert.True(reasoner.IsInstanceOf("valid-shape", "boundary"));
-        Assert.True(reasoner.IsInstanceOf("valid-shape", "closed-boundary"));
+        Assert.True(reasoner.IsInstanceOf("valid-boundary", "boundary"));
+        Assert.True(reasoner.IsInstanceOf("valid-boundary", "closed-boundary"));
         Assert.True(reasoner.IsInstanceOf("valid-shape", "polygon"));
 
-        Assert.True(reasoner.IsInstanceOf("open-shape", "boundary"));
-        Assert.False(reasoner.IsInstanceOf("open-shape", "closed-boundary"));
+        Assert.True(reasoner.IsInstanceOf("open-boundary", "boundary"));
+        Assert.False(reasoner.IsInstanceOf("open-boundary", "closed-boundary"));
         Assert.False(reasoner.IsInstanceOf("open-shape", "polygon"));
 
-        Assert.True(reasoner.IsInstanceOf("mixed-shape", "closed-boundary"));
+        Assert.True(reasoner.IsInstanceOf("mixed-boundary", "closed-boundary"));
         Assert.False(reasoner.IsInstanceOf("mixed-shape", "polygon"));
 
-        Assert.True(reasoner.IsInstanceOf("curved-shape", "closed-boundary"));
+        Assert.True(reasoner.IsInstanceOf("curved-boundary", "closed-boundary"));
         Assert.False(reasoner.IsInstanceOf("curved-shape", "polygon"));
 
         var evidence = reasoner.GetMembershipEvidence("valid-shape", "polygon");
