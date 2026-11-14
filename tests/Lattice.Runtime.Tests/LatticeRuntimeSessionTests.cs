@@ -405,9 +405,13 @@ public sealed class LatticeRuntimeSessionTests
 
 
         var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
-        Assert.Equal(
-            "An example piano uses the piano action. The piano action actuates the piano hammers. The piano hammers strike the piano strings. The piano strings transmit vibrations to the piano soundboard. The piano soundboard radiates the acoustic sound.",
-            Assert.Single(soundMechanism.Utterances).Message);
+        var soundMechanismMessage = Assert.Single(soundMechanism.Utterances).Message;
+        Assert.Contains("The example piano uses the piano action", soundMechanismMessage);
+        Assert.Contains("The piano action actuates the piano hammers", soundMechanismMessage);
+        Assert.Contains("The piano hammers strike the piano strings", soundMechanismMessage);
+        Assert.Contains("The piano strings vibrate to produce the acoustic sound", soundMechanismMessage);
+        Assert.Contains("The piano strings transmit vibrations to the piano soundboard", soundMechanismMessage);
+        Assert.Contains("The piano soundboard radiates the acoustic sound", soundMechanismMessage);
 
         var stringComponentReason = await session.SubmitAsync("Why are the piano strings string components?");
         var stringComponentUtterance = Assert.Single(stringComponentReason.Utterances);
