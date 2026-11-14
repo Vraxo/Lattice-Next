@@ -305,3 +305,17 @@ The piano keyboard interface is defined by activating a piano hammer-action mech
 The piano type combines the piano-specific keyboard interface and piano hammer-action mechanism. For the represented example, the reasoner derives the piano hammer-action from the action → hammer → string structure, derives the piano keyboard interface from the keyboard → action link, and derives the example's membership in the piano type from its playing-interface and sound-production-mechanism links. The example's `instance-of piano` assertion is no longer needed.
 
 The hammer component remains primitive for now: the model does not yet represent the hammer head, shank, and their assembly as reusable structural concepts. This is an acknowledged gap, not a claim that hammers are irreducible. `string-component` is defined from its geometric form, load-induced bending response, tensioned state, sound-producing vibration, and vibration transfer to a resonator. The mechanical model distinguishes axial pulling loads from transverse loads through force modes and geometry-relative directions, but it does not yet calculate numerical forces, compliance, or elastic recovery.
+
+
+## Ideal stretched-string vibration
+
+The quantitative mechanics layer includes an ideal transverse-vibration calculation for a uniform, flexible string under constant positive tension. It uses the string's linear mass density and effective vibrating length:
+
+\[
+v = \sqrt{\frac{T}{\mu}}, \qquad
+f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}}
+\]
+
+Here, \(T\) is tension in newtons, \(\mu\) is mass per unit length in kilograms per metre, \(L\) is the vibrating length in metres, \(v\) is transverse wave speed, and \(n\) is a positive integer harmonic number. The fundamental frequency is the case \(n=1\).
+
+This ideal-string model assumes fixed endpoints, uniform tension and linear density, small transverse displacement, and negligible bending stiffness, damping, and coupling to the soundboard. It predicts ideal modal frequencies only; it does not yet predict inharmonicity, decay, loudness, timbre, or radiated sound. No measurements or tuning values are invented for the piano example.

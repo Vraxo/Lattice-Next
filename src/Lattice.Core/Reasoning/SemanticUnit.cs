@@ -11,6 +11,8 @@ public static class SemanticUnit
             "m2" or "cm2" or "mm2" => "area",
             "Pa" or "kPa" or "MPa" or "GPa" => "pressure",
             "kg" => "mass",
+            "kg/m" => "linear-mass-density",
+            "Hz" => "frequency",
             "s" => "time",
             _ => string.Empty
         };
@@ -24,6 +26,8 @@ public static class SemanticUnit
         "area" => "m2",
         "pressure" => "Pa",
         "mass" => "kg",
+        "linear-mass-density" => "kg/m",
+        "frequency" => "Hz",
         "time" => "s",
         _ => throw new ArgumentOutOfRangeException(nameof(dimension))
     };

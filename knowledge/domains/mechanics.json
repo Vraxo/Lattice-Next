@@ -600,6 +600,18 @@
       "domainType": "physical-component",
       "valueType": "decimal",
       "dimensionUnit": "m"
+    },
+    {
+      "id": "linear-mass-density",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "kg/m"
+    },
+    {
+      "id": "effective-vibrating-length",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m"
     }
   ],
   "dataAssertions": []
