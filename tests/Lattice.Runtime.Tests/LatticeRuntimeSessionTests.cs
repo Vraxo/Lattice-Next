@@ -193,6 +193,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("very dry feces", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("recover moisture from exhaled air", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("substantial dehydration", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("humps", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.NotEmpty(answer.SupportingEvidence);
         Assert.All(
             answer.SupportingEvidence,
@@ -207,8 +208,7 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var polygon = await session.SubmitAsync("What is a polygon?");
-        var boundary = await session.SubmitAsync("What is a boundary?");
-        var segment = await session.SubmitAsync("What is a line segment?");
+        var boundary = await session.SubmitAsync("What is a boundary?");        var segment = await session.SubmitAsync("What is a line segment?");
         var verb = await session.SubmitAsync("What is a verb?");
 
         Assert.Equal(
@@ -417,8 +417,7 @@ public sealed class LatticeRuntimeSessionTests
 
         var musicalInstrument = await session.SubmitAsync("What is a musical instrument?");
         Assert.Equal(
-            "A musical instrument is a physical object that uses a sound-production mechanism.",
-            Assert.Single(musicalInstrument.Utterances).Message);
+            "A musical instrument is a physical object that uses a sound-production mechanism.",            Assert.Single(musicalInstrument.Utterances).Message);
 
         var keyboardDefinition = await session.SubmitAsync("What makes something a keyboard instrument?");
         Assert.Equal(
@@ -627,8 +626,7 @@ public sealed class LatticeRuntimeSessionTests
             """{"formatVersion":1,"id":"circles","name":"Circles","claims":["Circle is a geometric-shape."]}""");
         var result = await session.SubmitAsync("What is a circle?");
 
-        Assert.True(loaded.IsSuccess, loaded.Error);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
+        Assert.True(loaded.IsSuccess, loaded.Error);        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal("A circle is a geometric shape.", result.Utterances[0].Message);
         Assert.Contains(
             result.Utterances[0].SupportingEvidence,
