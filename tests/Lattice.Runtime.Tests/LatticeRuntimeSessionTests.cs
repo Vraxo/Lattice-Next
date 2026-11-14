@@ -19,7 +19,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(
             "Mobile phones are not inherently bad for people. They may contribute to sleep disruption, attention disruption, reduced physical activity, social disconnection, and distraction while driving. These are possible effects, not inevitable outcomes; the impact depends on how and when the phone is used.",
             answer.Message);
-        Assert.Equal("ask(world-model-impact-explanation(mobile-phone, person))", answer.Meaning);
+        Assert.Equal("ask(world-model-impact-explanation(mobile, human))", answer.Meaning);
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
