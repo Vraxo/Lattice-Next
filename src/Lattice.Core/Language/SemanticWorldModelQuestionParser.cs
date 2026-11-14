@@ -46,6 +46,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ImpactExplanationPattern = new(
+        @"^Why (?:is )?(?<subject>[A-Za-z][A-Za-z -]*?) (?:is |are )?(?:bad for|harmful to) (?<target>[A-Za-z][A-Za-z -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex WhyPattern = new(
         @"^Why is (?<subject>[A-Za-z][A-Za-z -]*?) an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -182,6 +186,17 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.Definition,
                 concept: Normalize(definition.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var impactExplanation = ImpactExplanationPattern.Match(text);
+        if (impactExplanation.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ImpactExplanation,
+                subject: Normalize(impactExplanation.Groups["subject"].Value),
+                targetType: Normalize(impactExplanation.Groups["target"].Value),
                 sourceText: source);
             return true;
         }
