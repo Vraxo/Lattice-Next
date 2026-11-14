@@ -413,38 +413,6 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("The piano strings transmit vibrations to the piano soundboard", soundMechanismMessage);
         Assert.Contains("The piano soundboard radiates the acoustic sound", soundMechanismMessage);
 
-        var stringComponentReason = await session.SubmitAsync("What is piano strings?");
-        var stringComponentUtterance = Assert.Single(stringComponentReason.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, stringComponentUtterance.Kind);
-
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:string-component"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:elongated-shape"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:has-geometric-form:piano-string-form"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-form:has-longitudinal-extent:piano-string-longitudinal-extent"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-longitudinal-extent:exceeds-in-extent:piano-string-cross-sectional-extent"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:exhibits-mechanical-behavior:piano-string-bending"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:has-mechanical-state:piano-string-tension"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:vibrates-to-produce:acoustic-sound"));
-        Assert.Contains(
-            stringComponentUtterance.SupportingEvidence,
-            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:transmits-vibration-to:piano-soundboard"));
-
         var hammerActionReason = await session.SubmitAsync("Why is the piano action a piano hammer action?");
         var hammerActionUtterance = Assert.Single(hammerActionReason.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, hammerActionUtterance.Kind);
@@ -457,7 +425,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("harmonium uses a free-reed mechanism", comparisonMessage);
 
         Assert.All(
-            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, stringComponentReason, hammerActionReason, comparison },
+            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, hammerActionReason, comparison },
             turn => Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, Assert.Single(turn.Utterances).Kind));
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
@@ -479,6 +447,33 @@ public sealed class LatticeRuntimeSessionTests
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:string-component"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:definition:elongated-shape"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:has-geometric-form:piano-string-form"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-form:has-longitudinal-extent:piano-string-longitudinal-extent"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-string-longitudinal-extent:exceeds-in-extent:piano-string-cross-sectional-extent"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:exhibits-mechanical-behavior:piano-string-bending"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:has-mechanical-state:piano-string-tension"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:vibrates-to-produce:acoustic-sound"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source => source.SourceId == "core-world-model:relation:piano-strings:transmits-vibration-to:piano-soundboard"));
     }
 
     [Fact]
