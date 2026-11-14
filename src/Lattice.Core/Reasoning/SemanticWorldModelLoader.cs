@@ -255,7 +255,7 @@ public sealed class SemanticWorldModelLoader
                 objectKind));
         }
 
-        if (document.FormatVersion < SupportedFormatVersion)
+        if (document.FormatVersion < 3)
         {
             if (!identifiers.Contains("is-a"))
             {
@@ -307,7 +307,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.Definitions)
         {
             var parents = item?.Parents ?? [];
-            var hasValidLegacyParents = document.FormatVersion < SupportedFormatVersion &&
+            var hasValidLegacyParents = document.FormatVersion < 3 &&
                 parents.All(parent => IsType(concepts, parent)) &&
                 parents.Distinct(StringComparer.Ordinal).Count() == parents.Count;
 
@@ -315,7 +315,7 @@ public sealed class SemanticWorldModelLoader
                 !IsType(concepts, item.Concept) ||
                 item.Conditions is null ||
                 item.NecessaryConditions is null ||
-                (document.FormatVersion < SupportedFormatVersion && !hasValidLegacyParents) ||
+                (document.FormatVersion < 3 && !hasValidLegacyParents) ||
                 (document.FormatVersion >= 3 &&
                     (item.Parents is not null || item.SourceText is not null || item.SourceUrl is not null)) ||
                 !identifiers.Add(item.Concept))
@@ -570,7 +570,7 @@ public sealed class SemanticWorldModelLoader
         var relationBuilder = ImmutableArray.CreateBuilder<SemanticRelationAssertion>(
             document.RelationAssertions.Count +
             legacyTypeAssertions.Count +
-            (document.FormatVersion < SupportedFormatVersion
+            (document.FormatVersion < 3
                 ? document.Definitions.Sum(definition => definition.Parents?.Count ?? 0)
                 : 0));
         var relationKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -628,7 +628,7 @@ public sealed class SemanticWorldModelLoader
                 new SemanticWorldModelSource($"{document.Id}:instance-of:{item.Individual}:{item.Type}")));
         }
 
-        if (document.FormatVersion < SupportedFormatVersion)
+        if (document.FormatVersion < 3)
         {
             foreach (var definition in document.Definitions)
             {
@@ -735,6 +735,7 @@ public sealed class SemanticWorldModelLoader
             if (item is null ||
                 !IsIndividual(concepts, item.Subject) ||
                 !properties.TryGetValue(item.Property, out var property) ||
+                (document.FormatVersion >= 3 && (item.SourceText is not null || item.SourceUrl is not null)) ||
                 !IsValidDataValue(property, item, out var normalizedValue) ||
                 !keys.Add($"{item.Subject}:{item.Property}:{normalizedValue}:{item.Unit}"))
             {
