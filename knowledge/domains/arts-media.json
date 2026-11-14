@@ -754,11 +754,6 @@
     },
     {
       "subject": "girl-with-pearl-earring",
-      "relation": "instance-of",
-      "object": "painting"
-    },
-    {
-      "subject": "girl-with-pearl-earring",
       "relation": "painted-by",
       "object": "johannes-vermeer"
     }
