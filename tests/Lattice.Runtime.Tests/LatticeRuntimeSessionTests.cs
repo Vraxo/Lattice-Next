@@ -18,7 +18,7 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "train, plane, bicycle, and scooter are used for transportation.",
+            "Train, plane, bicycle, and scooter are used for transportation.",
             answer.Message);
         Assert.Equal(
             "ask(select-for-activity(transportation, items(glass-of-wine, lamp, train, iced-cube-tray, plane, bicycle, apple, scooter)))",
