@@ -17,7 +17,8 @@ public enum SemanticWorldModelQuestionKind
     EventOutcomeExplanation,
     HighestPointQuery,
     RegionalTerminologyQuery,
-    CommonTypedRelationQuery
+    CommonTypedRelationQuery,
+    MediaExamplesByGenreAndPeriodQuery
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
