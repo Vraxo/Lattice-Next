@@ -789,6 +789,11 @@
       "form": "mobile phones",
       "concept": "mobile-phone",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "distraction while driving",
+      "concept": "driving-distraction",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -1659,11 +1664,6 @@
       "subject": "smartphone",
       "relation": "is-a",
       "object": "mobile-phone"
-    },
-    {
-      "subject": "reduced-physical-activity",
-      "relation": "is-a",
-      "object": "effect"
     },
     {
       "subject": "driving-distraction",
