@@ -346,7 +346,7 @@ public sealed class LatticeRuntimeSessionTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, example piano, harmonium, cello, accordion, banjo");
+            "Categorize each of the following instruments as either string or keyboard: Guitar, Violin, piano, harmonium, cello, accordion, banjo");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -355,9 +355,21 @@ public sealed class LatticeRuntimeSessionTests
             "Guitar is a string instrument. Violin is a string instrument. Example piano is both a string and a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
             utterance.Message);
         Assert.Equal(
-            "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, example-piano, harmonium, cello, accordion, banjo)))",
+            "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
             utterance.Meaning);
         Assert.Equal(7, utterance.SupportingEvidence.Length);
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano:is-a:keyboard-instrument"));
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano:is-a:struck-string-instrument"));
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:struck-string-instrument:is-a:string-instrument"));
         foreach (var assertionId in new[]
         {
             "core-world-model:relation:guitar:has-sound-production-mechanism:guitar-mechanism",
