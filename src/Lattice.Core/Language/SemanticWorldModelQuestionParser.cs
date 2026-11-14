@@ -18,6 +18,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Where is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CommonTypedRelationPattern = new(
+        @"^What are (?:the )?common (?<type>[A-Za-z][A-Za-z -]*?) of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex TypedRelationActionPattern = new(
         @"^What (?<type>[A-Za-z][A-Za-z -]*) does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -109,6 +113,18 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationLocation.Groups["subject"].Value),
                 concept: Normalize(relationLocation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var commonTypedRelation = CommonTypedRelationPattern.Match(text);
+        if (commonTypedRelation.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.CommonTypedRelationQuery,
+                subject: Normalize(commonTypedRelation.Groups["subject"].Value),
+                concept: "has",
+                targetType: NormalizeType(commonTypedRelation.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
