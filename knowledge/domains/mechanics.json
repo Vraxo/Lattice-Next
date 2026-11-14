@@ -584,16 +584,6 @@
       "subject": "mechanical-behavior",
       "relation": "is-a",
       "object": "process"
-    },
-    {
-      "subject": "tensile-load",
-      "relation": "is-a",
-      "object": "mechanical-load"
-    },
-    {
-      "subject": "transverse-load",
-      "relation": "is-a",
-      "object": "mechanical-load"
     }
   ],
   "dataProperties": [],
