@@ -630,7 +630,7 @@
     },
     {
       "id": "dolly-023",
-      "status": "partial",
+      "status": "represented",
       "areas": [
         "film",
         "comedy",
@@ -649,7 +649,7 @@
         "has-genre",
         "released-during"
       ],
-      "limitations": "Representative films are linked to comedy and the 1980s. 'Best' is subjective and no ranking is encoded."
+      "limitations": "The runtime intersects graph assertions for film genre and release period, returning only films typed as films that match both constraints. 'Best' is subjective; no ranking is encoded, so the output explicitly presents examples rather than a ranked list."
     },
     {
       "id": "dolly-024",
