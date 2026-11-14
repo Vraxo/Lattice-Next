@@ -32,7 +32,7 @@ The latest fully executed integrated run is PR #212's head `aadf0acb20fe1c53e037
 - .NET tests: 900 passed, 0 failed
 - External Python tool tests: passed
 - Assistant benchmark: 34 prompts, 8 substantive answers, 11 answered, 12 handled, 22 unhandled, 0 runner errors
-- Average latency: 322 ms (single run; stability not measured)
+- Average latency: 343 ms (single run; stability not measured)
 
 Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. The separate `substantive_answer_reviewed` metadata count is 9; it is a review count, not a runtime capability score.
 
