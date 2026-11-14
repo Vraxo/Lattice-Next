@@ -48,8 +48,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainEventOutcome(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.HighestPointQuery =>
                 TryHighestPointQuery(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
-            SemanticWorldModelQuestionKind.IngredientListQuery =>
-                TryListIngredients(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RegionalTerminologyQuery =>
+                TryRegionalTerminologyQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
                 TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
@@ -203,6 +203,179 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryRegionalTerminologyQuery(
+        string termId,
+        string sportId,
+        string regionId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var term = model.FindConcept(termId, SemanticConceptKind.Individual);
+        var sport = model.FindConcept(sportId, SemanticConceptKind.Type);
+        var region = model.FindConcept(regionId, SemanticConceptKind.Individual);
+
+        var regionalRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "regional-equivalent-of" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var regionRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "used-in-region" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var sportRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "used-in-sport" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Type)
+            .ToArray();
+        var scoreRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "has-score-meaning" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+
+        if (term is null ||
+            sport is null ||
+            region is null ||
+            regionalRelations.Length != 1 ||
+            regionRelations.Length != 1 ||
+            sportRelations.Length != 1 ||
+            scoreRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var regionalRelation = regionalRelations[0];
+        var regionRelation = regionRelations[0];
+        var sportRelation = sportRelations[0];
+        var scoreRelation = scoreRelations[0];
+
+        if (regionalRelation.DomainType is null ||
+            regionalRelation.RangeType is null ||
+            regionRelation.DomainType is null ||
+            regionRelation.RangeType is null ||
+            sportRelation.DomainType is null ||
+            scoreRelation.DomainType is null ||
+            scoreRelation.RangeType is null ||
+            !reasoner.IsSubtypeOf(regionalRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(regionalRelation.RangeType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(regionRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(sportRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(scoreRelation.DomainType, "golf-scoring-term") ||
+            !reasoner.IsSubtypeOf(scoreRelation.RangeType, "score-meaning") ||
+            !reasoner.IsInstanceOf(term.Id, regionalRelation.RangeType) ||
+            !reasoner.IsInstanceOf(term.Id, sportRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(sport.Id, "sport") ||
+            !reasoner.IsInstanceOf(region.Id, regionRelation.RangeType))
+        {
+            return false;
+        }
+
+        var termSportAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == term.Id &&
+                assertion.Relation == sportRelation.Id &&
+                assertion.Object == sport.Id)
+            .ToArray();
+        var termScores = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == term.Id &&
+                assertion.Relation == scoreRelation.Id)
+            .ToArray();
+
+        if (termSportAssertions.Length != 1 || termScores.Length != 1)
+        {
+            return false;
+        }
+
+        var candidates = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == regionalRelation.Id &&
+                assertion.Object == term.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Candidate = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Candidate is not null &&
+                reasoner.IsInstanceOf(candidate.Candidate.Id, regionalRelation.DomainType) &&
+                reasoner.IsInstanceOf(candidate.Candidate.Id, sportRelation.DomainType))
+            .Select(candidate => new
+            {
+                candidate.Assertion,
+                Candidate = candidate.Candidate!,
+                RegionAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == regionRelation.Id &&
+                        assertion.Object == region.Id)
+                    .ToArray(),
+                SportAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == sportRelation.Id &&
+                        assertion.Object == sport.Id)
+                    .ToArray(),
+                ScoreAssertions = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == candidate.Candidate!.Id &&
+                        assertion.Relation == scoreRelation.Id)
+                    .ToArray()
+            })
+            .Where(candidate =>
+                candidate.RegionAssertions.Length == 1 &&
+                candidate.SportAssertions.Length == 1 &&
+                candidate.ScoreAssertions.Length == 1 &&
+                candidate.ScoreAssertions[0].Object == termScores[0].Object)
+            .ToArray();
+
+        if (candidates.Length != 1)
+        {
+            return false;
+        }
+
+        var match = candidates[0];
+        var alias = match.Candidate;
+        var scoreMeaning = model.FindConcept(termScores[0].Object, SemanticConceptKind.Individual);
+        if (scoreMeaning is null ||
+            !reasoner.IsInstanceOf(scoreMeaning.Id, scoreRelation.RangeType))
+        {
+            return false;
+        }
+
+        var sources = new List<SemanticWorldModelSource>
+        {
+            match.Assertion.Source,
+            match.RegionAssertions[0].Source,
+            match.SportAssertions[0].Source,
+            match.ScoreAssertions[0].Source,
+            termSportAssertions[0].Source,
+            termScores[0].Source
+        };
+        sources.AddRange(reasoner.GetMembershipEvidence(term.Id, regionalRelation.RangeType));
+        sources.AddRange(reasoner.GetMembershipEvidence(alias.Id, regionalRelation.DomainType));
+        sources.AddRange(reasoner.GetMembershipEvidence(region.Id, regionRelation.RangeType));
+        sources.AddRange(reasoner.GetMembershipEvidence(scoreMeaning.Id, scoreRelation.RangeType));
+
+        message =
+            $"In {sport.Label} in the {region.Label}, {IndefinitePhrase(term.Label)} is also called {IndefinitePhrase(alias.Label)}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryHighestPointQuery(
@@ -998,86 +1171,6 @@ internal static class SemanticWorldModelResponder
         evidence = ImmutableArray.Create(ToEvidence(
             supported[0].Evidence,
             LatticeEvidenceKind.Derived));
-        return true;
-    }
-
-    private static bool TryListIngredients(
-        string dishId,
-        SemanticWorldModel model,
-        SemanticWorldModelReasoner reasoner,
-        out string message,
-        out ImmutableArray<LatticeEvidence> evidence)
-    {
-        message = string.Empty;
-        evidence = ImmutableArray<LatticeEvidence>.Empty;
-
-        var dish = model.FindConcept(dishId, SemanticConceptKind.Individual);
-        var foodType = model.FindConcept("food", SemanticConceptKind.Type);
-        if (dish is null || foodType is null)
-        {
-            return false;
-        }
-
-        var ingredientRelations = model.Relations
-            .Where(relation =>
-                relation.Id == "has-ingredient" &&
-                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
-            .Select(relation => new
-            {
-                Relation = relation,
-                Domain = model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
-                Range = model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
-            })
-            .Where(candidate =>
-                candidate.Domain is not null &&
-                candidate.Range is not null &&
-                reasoner.IsInstanceOf(dish.Id, candidate.Domain.Id) &&
-                reasoner.IsSubtypeOf(foodType.Id, candidate.Range.Id))
-            .ToArray();
-
-        if (ingredientRelations.Length != 1)
-        {
-            return false;
-        }
-
-        var ingredientRelation = ingredientRelations[0].Relation;
-        var assertions = model.RelationAssertions
-            .Where(assertion =>
-                assertion.Subject == dish.Id &&
-                assertion.Relation == ingredientRelation.Id)
-            .Select(assertion => new
-            {
-                Assertion = assertion,
-                Ingredient = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
-            })
-            .Where(candidate =>
-                candidate.Ingredient is not null &&
-                reasoner.IsInstanceOf(candidate.Ingredient.Id, foodType.Id) &&
-                reasoner.IsInstanceOf(candidate.Ingredient.Id, ingredientRelations[0].Range!.Id))
-            .GroupBy(candidate => candidate.Ingredient!.Id, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .ToArray();
-
-        if (assertions.Length == 0)
-        {
-            return false;
-        }
-
-        var ingredients = assertions
-            .Select(candidate => candidate.Ingredient!)
-            .ToArray();
-        message =
-            $"Common ingredients of {IndefinitePhrase(dish.Label)} include {JoinNames(ingredients.Select(item => item.Label).ToArray())}.";
-
-        var sources = assertions
-            .Select(candidate => candidate.Assertion.Source)
-            .Concat(reasoner.GetMembershipEvidence(dish.Id, ingredientRelations[0].Domain!.Id))
-            .Concat(ingredients.SelectMany(item =>
-                reasoner.GetMembershipEvidence(item.Id, foodType.Id)))
-            .Distinct()
-            .ToImmutableArray();
-        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 

@@ -11,32 +11,30 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 559 concepts: 321 types and 238 individuals
-- 136 relation signatures
-- 855 graph assertions
-- 569 lexical forms
+- 560 concepts: 321 types and 239 individuals
+- 139 relation signatures
+- 861 graph assertions
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 17 represented at the ontology level
-- 16 partially represented
+- 18 represented at the ontology level
+- 15 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #220's head `24c72e4627f7483c5416ab1c02272f4694e8308c` (CI run 832):
+The latest fully executed integrated run is PR #223's tested head `3420b66897f9d688b905620807a4396f93245c7a`:
 
 - .NET build: passed
-- .NET tests: 919 passed, 0 failed
-- External Python tool tests: passed
+- .NET tests: 918 passed, 0 failed
+- External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
 - Assistant benchmark: 34 prompts, 15 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
-- Average latency: 265 ms (single run; stability not measured)
+- Average latency: 262 ms (single run; stability not measured)
 
-The runtime benchmark score is **15/34 (44.1%)**, up from 14/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer. Sixteen records have been reviewed; Dolly-021 is reviewed but still returns `InformationUnavailable`, so it does not count as substantive.
-
-Dolly-025's answer was inspected in the benchmark artifact: it lists eight modeled ingredients and cites all eight `has-ingredient` assertions, plus the dish's inherited dish membership and each ingredient's food membership. It is framed as common components, not a mandatory recipe.
+The runtime benchmark score is **15/34 (44.1%)**. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
 
 ## Cross-domain structure
 
@@ -131,3 +129,15 @@ Grounding:
 - [Federal Register, Executive Order 14172](https://www.govinfo.gov/content/pkg/FR-2025-01-31/pdf/2025-02096.pdf) reinstates Mount McKinley as the federal name; the mountain is also widely known as Denali.
 
 The knowledge graph records the current federal name and retains Denali as an alternate lexical form.
+
+
+## Regional golf terminology
+
+The golf graph represents an albatross as a score of three strokes under par. It also represents double eagle as a regional equivalent used in the United States. Both terms point to the same score meaning, and the regional term has explicit golf and United States usage assertions. The responder requires all of those graph paths before answering; it does not rely on a stored answer sentence.
+
+Grounding:
+- [USGA, Golf History Questions](https://www.usga.org/history/faq--golf-history-questions-232994f0.html) describes albatross as a term for a double eagle.
+- [The Double Eagle Club, FAQ](https://www.doubleeagleclub.org/frequently-asked-questions) identifies double eagle as the term used most often by American golfers.
+- [International Golf Federation, Golf Glossary](https://www.igfgolf.org/pdf/media-centre/golf-glossary-for-website.pdf) cross-references albatross and double eagle.
+
+The answer is a terminology distinction, not a claim that the terms denote different scores.

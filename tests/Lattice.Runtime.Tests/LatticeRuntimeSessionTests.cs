@@ -7,42 +7,52 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
-    public async Task Lists_full_English_breakfast_ingredients_from_food_relations()
+    public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "What are common ingredients of a full english breakfast?");
+            "In golf what do the Americans call an albatross");
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "Common ingredients of a full English breakfast include egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
+            "In golf in the United States, an albatross is also called a double eagle.",
             answer.Message);
         Assert.Equal(
-            "ask(world-model-ingredients(full-english-breakfast))",
+            "ask(world-model-regional-terminology(albatross, golf, americans))",
             answer.Meaning);
         var evidence = Assert.Single(answer.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
-        Assert.Equal(
-            8,
-            evidence.Sources.Count(source =>
-                source.SourceId.Contains(":has-ingredient:", StringComparison.Ordinal)));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:regional-equivalent-of:albatross", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:used-in-region:united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:has-score-meaning:three-under-par", StringComparison.Ordinal));
     }
 
-    [Theory]
-    [InlineData("What are common ingredients of the moon?")]
-    [InlineData("What are common ingredients of a piano?")]
-    public async Task Abstains_when_subject_has_no_typed_ingredient_assertions(string prompt)
+    [Fact]
+    public async Task Does_not_apply_a_regional_golf_term_to_an_unsupported_sport_or_region()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var result = await session.SubmitAsync(prompt);
+        var unsupportedSport = await session.SubmitAsync(
+            "In tennis what do the Americans call an albatross");
+        var unsupportedRegion = await session.SubmitAsync(
+            "In golf what do Canadians call an albatross");
 
-        var answer = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedSport.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedRegion.Utterances).Kind);
     }
 
     [Fact]

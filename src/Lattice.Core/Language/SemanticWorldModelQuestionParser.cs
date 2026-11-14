@@ -46,12 +46,12 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?!(?:is|are|of|one)\b)(?<type>[A-Za-z][A-Za-z -]*) (?!(?:is|are)\b)(?<verb>[A-Za-z]+) (?<object>.+?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex IngredientListPattern = new(
-        @"^What are (?:some )?common ingredients of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static readonly Regex HighestPointPattern = new(
         @"^What is the (?:tallest|highest) (?<type>[A-Za-z][A-Za-z -]*?) in (?<region>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RegionalTerminologyPattern = new(
+        @"^In (?<sport>[A-Za-z][A-Za-z -]*?) what do (?<region>[A-Za-z][A-Za-z0-9'’ -]*?) call (?:a |an |the )?(?<term>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
@@ -211,16 +211,6 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
-        var ingredientList = IngredientListPattern.Match(text);
-        if (ingredientList.Success)
-        {
-            utterance = Create(
-                SemanticWorldModelQuestionKind.IngredientListQuery,
-                subject: Normalize(ingredientList.Groups["subject"].Value),
-                sourceText: source);
-            return true;
-        }
-
         var highestPoint = HighestPointPattern.Match(text);
         if (highestPoint.Success)
         {
@@ -228,6 +218,18 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.HighestPointQuery,
                 subject: Normalize(highestPoint.Groups["region"].Value),
                 concept: NormalizeType(highestPoint.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var regionalTerminology = RegionalTerminologyPattern.Match(text);
+        if (regionalTerminology.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RegionalTerminologyQuery,
+                subject: Normalize(regionalTerminology.Groups["term"].Value),
+                concept: Normalize(regionalTerminology.Groups["sport"].Value),
+                otherSubject: Normalize(regionalTerminology.Groups["region"].Value),
                 sourceText: source);
             return true;
         }
