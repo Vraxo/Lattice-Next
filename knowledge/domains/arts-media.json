@@ -246,6 +246,11 @@
       "partOfSpeech": "proper-noun"
     },
     {
+      "form": "season four of Game of Thrones",
+      "concept": "game-of-thrones-season-four",
+      "partOfSpeech": "proper-noun"
+    },
+    {
       "form": "Oathkeeper",
       "concept": "oathkeeper",
       "partOfSpeech": "proper-noun"
