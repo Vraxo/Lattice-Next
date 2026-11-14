@@ -43,7 +43,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TypedObjectRelationPattern = new(
-        @"^Which (?<type>[A-Za-z][A-Za-z -]*?) (?<verb>[A-Za-z]+) (?<object>.+?)\??$",
+        @"^Which (?<type>[A-Za-z][A-Za-z -]*) (?<verb>[A-Za-z]+) (?<object>.+?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
