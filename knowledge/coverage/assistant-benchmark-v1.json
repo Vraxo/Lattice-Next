@@ -697,7 +697,7 @@
       "relations": [
         "has-ingredient"
       ],
-      "limitations": "Common ingredients are represented; regional variations remain possible."
+      "limitations": "The runtime lists explicitly asserted food individuals through the typed has-ingredient relation. The list describes common modeled components, not a mandatory fixed recipe; full English breakfasts vary by region and preference."
     },
     {
       "id": "dolly-026",
