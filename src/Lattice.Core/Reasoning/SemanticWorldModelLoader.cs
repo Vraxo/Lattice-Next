@@ -452,7 +452,7 @@ public sealed class SemanticWorldModelLoader
         var nodeCount = 0;
         if (!ValidateExpression(expression, 0, ref nodeCount, relations, concepts, collected))
         {
-            error = $"Type definition '{ownerType}' contains an invalid class expression. Use some restrictions combined with and/or.";
+            error = $"Type definition '{ownerType}' contains an invalid class expression. Use valid some, all, cycle, and/or expressions.";
             return false;
         }
 
@@ -474,7 +474,7 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
-        if (expression.Kind == SemanticClassExpressionKind.Some)
+        if (expression.Kind is SemanticClassExpressionKind.Some or SemanticClassExpressionKind.All)
         {
             if (string.IsNullOrWhiteSpace(expression.Relation) ||
                 !relations.TryGetValue(expression.Relation, out var relation) ||
@@ -485,6 +485,10 @@ public sealed class SemanticWorldModelLoader
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
                 !IsType(concepts, expression.TargetType) ||
                 !expression.Operands.IsDefaultOrEmpty ||
+                expression.StartRelation is not null ||
+                expression.MinimumLength != 0 ||
+                expression.SourceConnectionRelation is not null ||
+                expression.TargetConnectionRelation is not null ||
                 (expression.Filler is not null &&
                  !ValidateExpression(expression.Filler, depth + 1, ref nodeCount, relations, concepts, restrictions)))
             {
@@ -495,9 +499,38 @@ public sealed class SemanticWorldModelLoader
             return true;
         }
 
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            return !string.IsNullOrWhiteSpace(expression.Relation) &&
+                relations.TryGetValue(expression.Relation, out var traversalRelation) &&
+                traversalRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                traversalRelation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                traversalRelation.DomainType is not null &&
+                traversalRelation.RangeType is not null &&
+                !string.IsNullOrWhiteSpace(expression.StartRelation) &&
+                relations.TryGetValue(expression.StartRelation, out var startRelation) &&
+                startRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                startRelation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                startRelation.DomainType is not null &&
+                startRelation.RangeType is not null &&
+                !string.IsNullOrWhiteSpace(expression.TargetType) &&
+                IsType(concepts, expression.TargetType) &&
+                expression.MinimumLength is >= 2 and <= 64 &&
+                ((expression.SourceConnectionRelation is null &&
+                  expression.TargetConnectionRelation is null) ||
+                 (IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
+                  IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
+                expression.Filler is null &&
+                expression.Operands.IsDefaultOrEmpty;
+        }
+
         if (expression.Kind is not (SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or) ||
             expression.Relation is not null ||
+            expression.StartRelation is not null ||
             expression.TargetType is not null ||
+            expression.MinimumLength != 0 ||
+            expression.SourceConnectionRelation is not null ||
+            expression.TargetConnectionRelation is not null ||
             expression.Filler is not null ||
             expression.Operands.IsDefault ||
             expression.Operands.Length < 2)
@@ -811,12 +844,22 @@ public sealed class SemanticWorldModelLoader
         return true;
     }
 
+    private static bool IsValidConnectionRelation(
+        string? relationId,
+        IReadOnlyDictionary<string, SemanticRelationDefinition> relations) =>
+        !string.IsNullOrWhiteSpace(relationId) &&
+        relations.TryGetValue(relationId, out var relation) &&
+        relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+        relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+        relation.DomainType is not null &&
+        relation.RangeType is not null;
+
     private static bool IsExpressionWellTyped(
         SemanticClassExpression expression,
         string subjectType,
         SemanticWorldModel model)
     {
-        if (expression.Kind == SemanticClassExpressionKind.Some)
+        if (expression.Kind is SemanticClassExpressionKind.Some or SemanticClassExpressionKind.All)
         {
             var relation = model.FindRelation(expression.Relation!)!;
             return relation.DomainType is not null &&
@@ -827,8 +870,52 @@ public sealed class SemanticWorldModelLoader
                  IsExpressionWellTyped(expression.Filler, expression.TargetType!, model));
         }
 
-        return expression.Operands.All(operand =>
-            IsExpressionWellTyped(operand, subjectType, model));
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var startRelation = model.FindRelation(expression.StartRelation!)!;
+            var traversalRelation = model.FindRelation(expression.Relation!)!;
+            return startRelation.DomainType is not null &&
+                startRelation.RangeType is not null &&
+                traversalRelation.DomainType is not null &&
+                traversalRelation.RangeType is not null &&
+                IsSubtype(model, subjectType, startRelation.DomainType) &&
+                IsSubtype(model, expression.TargetType!, startRelation.RangeType) &&
+                IsSubtype(model, expression.TargetType!, traversalRelation.DomainType) &&
+                IsSubtype(model, expression.TargetType!, traversalRelation.RangeType) &&
+                AreConnectionRelationsWellTyped(expression, model);
+        }
+
+        return expression.Kind is SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or &&
+            expression.Operands.All(operand =>
+                IsExpressionWellTyped(operand, subjectType, model));
+    }
+
+    private static bool AreConnectionRelationsWellTyped(
+        SemanticClassExpression expression,
+        SemanticWorldModel model)
+    {
+        if (expression.SourceConnectionRelation is null &&
+            expression.TargetConnectionRelation is null)
+        {
+            return true;
+        }
+
+        if (expression.SourceConnectionRelation is null ||
+            expression.TargetConnectionRelation is null)
+        {
+            return false;
+        }
+
+        var source = model.FindRelation(expression.SourceConnectionRelation)!;
+        var target = model.FindRelation(expression.TargetConnectionRelation)!;
+        return source.DomainType is not null &&
+            source.RangeType is not null &&
+            target.DomainType is not null &&
+            target.RangeType is not null &&
+            IsSubtype(model, expression.TargetType!, source.DomainType) &&
+            IsSubtype(model, expression.TargetType!, target.DomainType) &&
+            (IsSubtype(model, source.RangeType, target.RangeType) ||
+             IsSubtype(model, target.RangeType, source.RangeType));
     }
 
     private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)

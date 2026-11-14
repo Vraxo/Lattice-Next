@@ -3,6 +3,8 @@ namespace Lattice.Core.Reasoning;
 public enum SemanticClassExpressionKind
 {
     Some,
+    All,
     And,
-    Or
+    Or,
+    Cycle
 }

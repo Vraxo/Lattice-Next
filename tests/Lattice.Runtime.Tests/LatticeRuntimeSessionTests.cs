@@ -125,7 +125,7 @@ public sealed class LatticeRuntimeSessionTests
 
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, result.Utterances[0].Kind);
         Assert.Equal(
-            "A polygon is a plane figure that has a closed boundary.",
+            "A polygon is a plane figure that has a closed boundary that contains a line segment and contains only elements of type line segment.",
             result.Utterances[0].Message);
         Assert.Equal("ask(definition(polygon))", result.Utterances[0].Meaning);
         var definitionEvidence = Assert.Single(result.Utterances[0].SupportingEvidence);
@@ -166,7 +166,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
         Assert.Equal(237, status.SemanticConceptCount);
-        Assert.Equal(55, status.SemanticRelationCount);
+        Assert.Equal(57, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -191,10 +191,10 @@ public sealed class LatticeRuntimeSessionTests
         var verb = await session.SubmitAsync("What is a verb?");
 
         Assert.Equal(
-            "A polygon is a plane figure that has a closed boundary.",
+            "A polygon is a plane figure that has a closed boundary that contains a line segment and contains only elements of type line segment.",
             Assert.Single(polygon.Utterances).Message);
         Assert.Equal(
-            "A boundary is a geometric structure that contains a line segment.",
+            "A boundary is a geometric structure that contains a geometric element.",
             Assert.Single(boundary.Utterances).Message);
         Assert.Equal(
             "A line segment is a geometric element that has a geometric point as its start point, has a geometric point as its end point, and has straightness.",

@@ -468,6 +468,83 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        if (expression.Kind == SemanticClassExpressionKind.All)
+        {
+            var relation = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            if (relation is null || target is null)
+            {
+                return false;
+            }
+
+            var assertionSources = ImmutableArray.CreateBuilder<SemanticWorldModelSource>();
+            foreach (var candidate in reasoner.GetRelations(individual, expression.Relation))
+            {
+                if (!reasoner.IsInstanceOf(candidate.Object, expression.TargetType!))
+                {
+                    return false;
+                }
+
+                assertionSources.Add(candidate.Source);
+                assertionSources.AddRange(reasoner.GetMembershipEvidence(candidate.Object, expression.TargetType!));
+                if (expression.Filler is not null)
+                {
+                    if (!TryExplainExpression(candidate.Object, expression.Filler, model, reasoner,
+                        out _, out var nestedSources))
+                    {
+                        return false;
+                    }
+
+                    assertionSources.AddRange(nestedSources);
+                }
+            }
+
+            var phrase = $"{relation.Verb} only elements of type {target.Label}";
+            if (expression.Filler is not null)
+            {
+                var fillerPhrase = FormatExpression(expression.Filler, model);
+                if (fillerPhrase is null)
+                {
+                    return false;
+                }
+
+                phrase += $" that {fillerPhrase}";
+            }
+
+            phrases = [phrase];
+            sources = assertionSources.Distinct().ToImmutableArray();
+            return true;
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var startRelation = model.FindRelation(expression.StartRelation!);
+            var traversalRelation = model.FindRelation(expression.Relation!);
+            var targetType = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            var sourceConnection = expression.SourceConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.SourceConnectionRelation);
+            var targetConnection = expression.TargetConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.TargetConnectionRelation);
+            var cycleSources = reasoner.GetCycleEvidence(individual, expression);
+            if (startRelation is null || traversalRelation is null ||
+                targetType is null || cycleSources.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            phrases =
+            [
+                $"{startRelation.Verb} {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element" +
+                (sourceConnection is null || targetConnection is null
+                    ? string.Empty
+                    : $", with each transition matching {sourceConnection.Verb} to {targetConnection.Verb} by identity")
+            ];
+            sources = cycleSources;
+            return true;
+        }
+
         if (expression.Kind == SemanticClassExpressionKind.Or)
         {
             foreach (var operand in expression.Operands)
@@ -764,6 +841,44 @@ internal static class SemanticWorldModelResponder
 
             var filler = FormatExpression(expression.Filler, model);
             return filler is null ? null : $"{phrase} that {filler}";
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.All)
+        {
+            var relation = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            if (relation is null || target is null)
+            {
+                return null;
+            }
+
+            var phrase = $"{relation.Verb} only elements of type {target.Label}";
+            if (expression.Filler is null)
+            {
+                return phrase;
+            }
+
+            var filler = FormatExpression(expression.Filler, model);
+            return filler is null ? null : $"{phrase} that {filler}";
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var start = model.FindRelation(expression.StartRelation!);
+            var traversal = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            var sourceConnection = expression.SourceConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.SourceConnectionRelation);
+            var targetConnection = expression.TargetConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.TargetConnectionRelation);
+            return start is null || traversal is null || target is null
+                ? null
+                : $"{start.Verb} {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element" +
+                  (sourceConnection is null || targetConnection is null
+                      ? string.Empty
+                      : $", with each transition matching {sourceConnection.Verb} to {targetConnection.Verb} by identity");
         }
 
         var phrases = expression.Operands

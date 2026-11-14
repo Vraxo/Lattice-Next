@@ -7,4 +7,8 @@ public sealed record SemanticClassExpression(
     string? Relation = null,
     string? TargetType = null,
     ImmutableArray<SemanticClassExpression> Operands = default,
-    SemanticClassExpression? Filler = null);
+    SemanticClassExpression? Filler = null,
+    string? StartRelation = null,
+    int MinimumLength = 0,
+    string? SourceConnectionRelation = null,
+    string? TargetConnectionRelation = null);
