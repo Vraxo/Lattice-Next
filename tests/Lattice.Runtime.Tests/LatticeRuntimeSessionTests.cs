@@ -1006,6 +1006,45 @@ public sealed class LatticeRuntimeSessionTests
 
 
     [Fact]
+    public async Task Identifies_the_holder_of_the_most_Olympic_gold_medals_record()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What individual has won the most Olympic gold medals in the history of the games?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Michael Phelps holds the record for the most Olympic gold medals.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-record-holder(olympic-gold-medals))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(
+                ":michael-phelps:holds-record:most-olympic-gold-medals-record",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Abstains_when_the_requested_record_is_not_in_the_model()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What individual has won the most Olympic silver medals in the history of the games?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Categorizes_seven_instruments_into_string_and_keyboard_families()
     {
         var client = new LatticeRuntimeClient();
