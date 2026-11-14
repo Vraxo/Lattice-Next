@@ -332,6 +332,46 @@
       "id": "piano-hammer-action",
       "label": "piano hammer action",
       "kind": "Type"
+    },
+    {
+      "id": "elongated-component",
+      "label": "elongated component",
+      "kind": "Type"
+    },
+    {
+      "id": "flexible-component",
+      "label": "flexible component",
+      "kind": "Type"
+    },
+    {
+      "id": "mechanical-behavior",
+      "label": "mechanical behavior",
+      "kind": "Type"
+    },
+    {
+      "id": "bending-response",
+      "label": "bending response",
+      "kind": "Type"
+    },
+    {
+      "id": "piano-string-form",
+      "label": "piano string form",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-longitudinal-extent",
+      "label": "piano string longitudinal extent",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-cross-sectional-extent",
+      "label": "piano string cross-sectional extent",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-bending",
+      "label": "piano string bending response",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -664,6 +704,46 @@
       "form": "piano hammer action",
       "concept": "piano-hammer-action",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "elongated component",
+      "concept": "elongated-component",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "flexible component",
+      "concept": "flexible-component",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mechanical behavior",
+      "concept": "mechanical-behavior",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bending response",
+      "concept": "bending-response",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "piano string form",
+      "concept": "piano-string-form",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string longitudinal extent",
+      "concept": "piano-string-longitudinal-extent",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string cross-sectional extent",
+      "concept": "piano-string-cross-sectional-extent",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string bending response",
+      "concept": "piano-string-bending",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -792,6 +872,24 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "has-geometric-form",
+      "domain": "physical-component",
+      "range": "geometric-object",
+      "verb": "has the geometric form",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "exhibits-mechanical-behavior",
+      "domain": "physical-component",
+      "range": "mechanical-behavior",
+      "verb": "exhibits mechanical behavior",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -905,8 +1003,23 @@
         "operands": [
           {
             "kind": "some",
+            "relation": "has-geometric-form",
+            "targetType": "elongated-shape"
+          },
+          {
+            "kind": "some",
+            "relation": "exhibits-mechanical-behavior",
+            "targetType": "bending-response"
+          },
+          {
+            "kind": "some",
             "relation": "has-mechanical-state",
             "targetType": "tensioned-state"
+          },
+          {
+            "kind": "some",
+            "relation": "vibrates-to-produce",
+            "targetType": "sound-event"
           },
           {
             "kind": "some",
@@ -1094,6 +1207,38 @@
           }
         ]
       }
+    },
+    {
+      "concept": "elongated-component",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "has-geometric-form",
+        "targetType": "elongated-shape"
+      }
+    },
+    {
+      "concept": "flexible-component",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "exhibits-mechanical-behavior",
+        "targetType": "bending-response"
+      }
+    },
+    {
+      "concept": "mechanical-behavior",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "bending-response",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -1586,6 +1731,81 @@
       "subject": "hammer-component",
       "relation": "is-a",
       "object": "physical-component"
+    },
+    {
+      "subject": "elongated-component",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "flexible-component",
+      "relation": "is-a",
+      "object": "physical-component"
+    },
+    {
+      "subject": "string-component",
+      "relation": "is-a",
+      "object": "elongated-component"
+    },
+    {
+      "subject": "string-component",
+      "relation": "is-a",
+      "object": "flexible-component"
+    },
+    {
+      "subject": "mechanical-behavior",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "bending-response",
+      "relation": "is-a",
+      "object": "mechanical-behavior"
+    },
+    {
+      "subject": "piano-strings",
+      "relation": "has-geometric-form",
+      "object": "piano-string-form"
+    },
+    {
+      "subject": "piano-string-form",
+      "relation": "has-longitudinal-extent",
+      "object": "piano-string-longitudinal-extent"
+    },
+    {
+      "subject": "piano-string-longitudinal-extent",
+      "relation": "exceeds-in-extent",
+      "object": "piano-string-cross-sectional-extent"
+    },
+    {
+      "subject": "piano-strings",
+      "relation": "exhibits-mechanical-behavior",
+      "object": "piano-string-bending"
+    },
+    {
+      "subject": "piano-strings",
+      "relation": "vibrates-to-produce",
+      "object": "acoustic-sound"
+    },
+    {
+      "subject": "piano-string-form",
+      "relation": "instance-of",
+      "object": "geometric-object"
+    },
+    {
+      "subject": "piano-string-longitudinal-extent",
+      "relation": "instance-of",
+      "object": "longitudinal-extent"
+    },
+    {
+      "subject": "piano-string-cross-sectional-extent",
+      "relation": "instance-of",
+      "object": "cross-sectional-extent"
+    },
+    {
+      "subject": "piano-string-bending",
+      "relation": "instance-of",
+      "object": "bending-response"
     }
   ],
   "dataProperties": [],
