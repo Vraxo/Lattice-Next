@@ -7,7 +7,7 @@ namespace Lattice.Core.Language;
 internal static class SemanticWorldModelQuestionParser
 {
     private static readonly Regex RelationPathPattern = new(
-        @"^How is (?<subject>[A-Za-z][A-Za-z -]*?) connected to (?<other>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^How (?:is|are) (?<subject>[A-Za-z][A-Za-z -]*?) connected to (?<other>[A-Za-z][A-Za-z -]*)\\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
