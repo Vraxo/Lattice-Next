@@ -172,6 +172,11 @@
       "id": "golf-sport-example",
       "label": "golf sport example",
       "kind": "Individual"
+    },
+    {
+      "id": "double-eagle",
+      "label": "double eagle",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -344,6 +349,11 @@
       "form": "golf sport example",
       "concept": "golf-sport-example",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "double eagle",
+      "concept": "double-eagle",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -418,6 +428,39 @@
       "domain": "organization",
       "range": "artifact",
       "verb": "manufactures",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "regional-equivalent-of",
+      "domain": "golf-scoring-term",
+      "range": "golf-scoring-term",
+      "verb": "is a regional equivalent of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "used-in-region",
+      "domain": "golf-scoring-term",
+      "range": "geographic-region",
+      "verb": "is used in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "used-in-sport",
+      "domain": "golf-scoring-term",
+      "range": "sport",
+      "verb": "is used in",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
@@ -754,6 +797,36 @@
     {
       "subject": "golf-sport-example",
       "relation": "instance-of",
+      "object": "golf"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "instance-of",
+      "object": "golf-scoring-term"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "has-score-meaning",
+      "object": "three-under-par"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "regional-equivalent-of",
+      "object": "albatross"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "used-in-region",
+      "object": "united-states"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "used-in-sport",
+      "object": "golf"
+    },
+    {
+      "subject": "albatross",
+      "relation": "used-in-sport",
       "object": "golf"
     }
   ],
