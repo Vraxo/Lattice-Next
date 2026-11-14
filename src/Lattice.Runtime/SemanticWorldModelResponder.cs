@@ -481,14 +481,24 @@ internal static class SemanticWorldModelResponder
                     ? ImmutableArray<SemanticWorldModelSource>.Empty
                     : model.RelationAssertions
                         .Where(contextAssertion =>
-                            (contextAssertion.Subject == context.Id && contextAssertion.Object == assertion.Subject) ||
-                            (contextAssertion.Subject == assertion.Subject && contextAssertion.Object == context.Id))
+                            contextAssertion.Subject == context.Id &&
+                            contextAssertion.Object == assertion.Subject)
                         .Where(contextAssertion =>
                         {
                             var contextRelation = model.FindRelation(contextAssertion.Relation);
-                            return contextRelation is not null &&
-                                contextRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                                contextRelation.ObjectKind == SemanticRelationArgumentKind.Individual;
+                            if (contextRelation is null ||
+                                contextRelation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                                contextRelation.ObjectKind != SemanticRelationArgumentKind.Individual)
+                            {
+                                return false;
+                            }
+
+                            var domain = model.FindConcept(contextRelation.Domain, SemanticConceptKind.Type);
+                            var range = model.FindConcept(contextRelation.Range, SemanticConceptKind.Type);
+                            return domain is not null &&
+                                range is not null &&
+                                reasoner.IsInstanceOf(context.Id, domain.Id) &&
+                                reasoner.IsInstanceOf(assertion.Subject, range.Id);
                         })
                         .Select(contextAssertion => contextAssertion.Source)
                         .ToImmutableArray()
