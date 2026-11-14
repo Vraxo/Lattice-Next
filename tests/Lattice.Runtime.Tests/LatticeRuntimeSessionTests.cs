@@ -21,7 +21,7 @@ public sealed class LatticeRuntimeSessionTests
             "Mount McKinley is the tallest mountain in the continental United States. If you mean the contiguous United States, Mount Whitney is the tallest mountain there.",
             answer.Message);
         Assert.Equal(
-            "ask(world-model-highest-point(continental-united-states, mountain))",
+            "ask(world-model-highest-point(continental-us, mountain))",
             answer.Meaning);
         var evidence = Assert.Single(answer.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
