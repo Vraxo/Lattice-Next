@@ -1061,9 +1061,18 @@
     },
     {
       "concept": "piano-hammer-action",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "actuates-hammer",
+        "targetType": "hammer-component",
+        "filler": {
+          "kind": "some",
+          "relation": "strikes",
+          "targetType": "string-component"
+        }
+      }
     },
     {
       "concept": "piano-keyboard-interface",
@@ -1591,16 +1600,6 @@
       "subject": "piano-action",
       "relation": "actuates-hammer",
       "object": "piano-hammers"
-    },
-    {
-      "subject": "piano-action",
-      "relation": "instance-of",
-      "object": "piano-hammer-action"
-    },
-    {
-      "subject": "piano-example",
-      "relation": "instance-of",
-      "object": "piano"
     }
   ],
   "dataProperties": [],
