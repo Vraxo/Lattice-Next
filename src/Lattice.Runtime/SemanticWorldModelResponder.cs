@@ -30,6 +30,10 @@ internal static class SemanticWorldModelResponder
                 TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Membership =>
+                TryMembership(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.InverseRelation =>
+                TryInverseRelation(request.Subject, request.Concept ?? string.Empty, model, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
