@@ -662,12 +662,18 @@
         "albatross",
         "three-under-par",
         "golf-scoring-term",
-        "score-meaning"
+        "score-meaning",
+        "double-eagle",
+        "united-states"
       ],
       "relations": [
-        "has-score-meaning"
+        "has-score-meaning",
+        "regional-equivalent-of",
+        "used-in-region",
+        "used-in-sport",
+        "instance-of"
       ],
-      "limitations": "Albatross is linked to a score of three strokes under par."
+      "limitations": "The runtime resolves the requested sport, regional term, and source term through lexical entries, then requires a regional-equivalence assertion, shared score meaning, and matching sport and region usage assertions. It does not infer regional terminology without those graph paths."
     },
     {
       "id": "dolly-025",
