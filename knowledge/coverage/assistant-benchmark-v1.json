@@ -196,7 +196,8 @@
         "organization",
         "site",
         "new-york-city-government",
-        "land-parcel"
+        "land-parcel",
+        "headquarters-site"
       ],
       "relations": [
         "funded-acquisition-of",
