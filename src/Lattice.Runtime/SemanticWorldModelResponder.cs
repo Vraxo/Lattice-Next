@@ -474,17 +474,34 @@ internal static class SemanticWorldModelResponder
             var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
             if (relation is null || target is null)
             {
-                return null;
+                return false;
             }
 
-            var phrase = $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
-            if (expression.Filler is null)
+            var assertionSources = ImmutableArray.CreateBuilder<SemanticWorldModelSource>();
+            foreach (var candidate in reasoner.GetRelations(individual, expression.Relation))
             {
-                return phrase;
+                if (!reasoner.IsInstanceOf(candidate.Object, expression.TargetType!))
+                {
+                    return false;
+                }
+
+                assertionSources.Add(candidate.Source);
+                assertionSources.AddRange(reasoner.GetMembershipEvidence(candidate.Object, expression.TargetType!));
+                if (expression.Filler is not null)
+                {
+                    if (!TryExplainExpression(candidate.Object, expression.Filler, model, reasoner,
+                        out var nestedPhrases, out var nestedSources))
+                    {
+                        return false;
+                    }
+
+                    assertionSources.AddRange(nestedSources);
+                }
             }
 
-            var filler = FormatExpression(expression.Filler, model);
-            return filler is null ? null : $"{phrase} that {filler}";
+            phrases = [$"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}"];
+            sources = assertionSources.Distinct().ToImmutableArray();
+            return true;
         }
 
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
@@ -812,6 +829,18 @@ internal static class SemanticWorldModelResponder
 
             var filler = FormatExpression(expression.Filler, model);
             return filler is null ? null : $"{phrase} that {filler}";
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.All)
+        {
+            var relation = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            if (relation is null || target is null)
+            {
+                return null;
+            }
+
+            return $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
         }
 
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
