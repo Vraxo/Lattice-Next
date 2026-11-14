@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #216's head `d8ef1eea75cc1f2529f491c9806a7c583713963d`:
+The latest fully executed integrated run is PR #217's head `e1904d948d9f3754dc82b5b01ea237a050d35f3e`:
 
 - .NET build: passed
-- .NET tests: 910 passed, 0 failed
+- .NET tests: 913 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 12 substantive answers, 14 answered, 15 handled, 19 unhandled, 0 runner errors
-- Average latency: 250 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 13 substantive answers, 15 answered, 16 handled, 18 unhandled, 0 runner errors
+- Average latency: 388 ms (single run; stability not measured)
 
-The runtime benchmark score is **12/34 (35.3%)**. Dolly-014's sunset answer was individually inspected in the benchmark output: it composes nighttime, Earth's rotation, apparent solar motion, and the day-night cycle from explicit graph assertions and includes those supporting relations as evidence. The separate `substantive_answer_reviewed` metadata count is 13; it is a review count, not the runtime score.
+The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer was manually inspected: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation. The response cites all four relations and the supporting type memberships. The distractor options are not declared unsuitable; the system returns only positively supported choices.
 
 ## Cross-domain structure
 
