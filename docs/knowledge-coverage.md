@@ -18,23 +18,23 @@ The ontology now contains:
 
 The 34 benchmark prompts are currently mapped as:
 
-- 18 represented at the ontology level
-- 15 partially represented
+- 17 represented at the ontology level
+- 16 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #217's head `bab1c961be1414ed9616d026f90da398d8d3405b`:
+The latest fully executed integrated run is PR #220's head `f15da179b637ec6d422c23d2c1f9d78cce8ec331` (CI run 825):
 
 - .NET build: passed
-- .NET tests: 913 passed, 0 failed
+- .NET tests: 919 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 13 substantive answers, 15 answered, 16 handled, 18 unhandled, 0 runner errors
-- Average latency: 257 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 14 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
+- Average latency: 259 ms (single run; stability not measured)
 
-The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer was manually inspected: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation. The response cites all four relations and the supporting type memberships. The distractor options are not declared unsuitable; the system returns only positively supported choices.
+The runtime benchmark score is **14/34 (41.2%)**, up from 13/34 on the previous integrated run. Dolly-025's answer was inspected in the benchmark artifact: it lists eight modeled ingredients and cites all eight `has-ingredient` assertions, plus the dish's inherited dish membership and each ingredient's food membership. It is framed as common components, not a mandatory recipe. The separate `substantive_answer_reviewed` metadata count is 16; it is a review count, not the runtime score.
 
 ## Cross-domain structure
 
