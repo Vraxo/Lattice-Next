@@ -279,7 +279,7 @@ internal static class SemanticWorldModelResponder
             !reasoner.IsSubtypeOf(scoreRelation.RangeType, "score-meaning") ||
             !reasoner.IsInstanceOf(term.Id, regionalRelation.RangeType) ||
             !reasoner.IsInstanceOf(term.Id, sportRelation.DomainType) ||
-            !reasoner.IsInstanceOf(sport.Id, sportRelation.RangeType) ||
+            !reasoner.IsSubtypeOf(sport.Id, sportRelation.RangeType) ||
             !reasoner.IsInstanceOf(region.Id, regionRelation.RangeType))
         {
             return false;
