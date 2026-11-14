@@ -7,44 +7,52 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
-    public async Task Resolves_contextual_neighbor_from_character_and_family_relations()
+    public async Task Lists_comedy_films_from_the_requested_decade_without_claiming_a_ranking()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "What is the name of the Winslow's nerdy next-door neighbor on the TV show \"Family Matters\"?");
+            "What are some of the best comedy movies of the 1980's?");
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "Steve Urkel is the next-door neighbor of the Winslow family in Family Matters.",
+            "Some comedy films from the 1980s include A Fish Called Wanda, Airplane!, Coming to America, Ferris Bueller's Day Off, and Ghostbusters. These are examples, not a ranked 'best' list.",
             answer.Message);
         Assert.Equal(
-            "ask(world-model-contextual-role(winslow, nerdy-next-door-neighbor, family-matters))",
+            "ask(world-model-media-examples(comedy, 1980s))",
             answer.Meaning);
         var evidence = Assert.Single(answer.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
         Assert.Contains(
             evidence.Sources,
-            source => source.SourceId.Contains(":steve-urkel:neighbor-of:winslow-family", StringComparison.Ordinal));
+            source => source.SourceId.Contains(":airplane-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
         Assert.Contains(
             evidence.Sources,
-            source => source.SourceId.Contains(":steve-urkel:character-in:family-matters", StringComparison.Ordinal));
+            source => source.SourceId.Contains(":airplane-film:released-during:decade-1980s", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":ghostbusters-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
     }
 
-    [Theory]
-    [InlineData("What is the name of the Winslow's nerdy next-door neighbor on the TV show \"Family Ties\"?")]
-    [InlineData("What is the name of the Anderson's nerdy next-door neighbor on the TV show \"Family Matters\"?")]
-    public async Task Abstains_when_contextual_role_or_context_is_not_supported(string prompt)
+    [Fact]
+    public async Task Does_not_return_films_when_genre_or_period_constraints_are_unsupported()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var result = await session.SubmitAsync(prompt);
+        var unsupportedGenre = await session.SubmitAsync(
+            "What are some of the best horror movies of the 1980's?");
+        var unsupportedPeriod = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1970's?");
 
-        var answer = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedGenre.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedPeriod.Utterances).Kind);
     }
 
     [Fact]

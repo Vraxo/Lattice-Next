@@ -346,6 +346,6 @@ The construction `In <sport> what do <region> call <term>?` resolves the sport, 
 The construction `What are common <type> of <subject>?` is parsed into a typed relation query. It resolves the requested type and subject through the semantic model, finds a unique compatible relation, and returns only asserted targets that are instances of the requested type. When the relation verb ends with its declared target-type label, the responder removes that label and composes a concise list sentence. Supporting relation assertions and type memberships are retained as evidence.
 
 
-### Contextual relation-role questions
+### Media examples by genre and period
 
-The construction `What is the name of the <possessor>'s <role phrase> on the TV show <context>?` resolves the possessor and context as individuals. The responder matches the role phrase to a typed relation signature, follows the asserted relation to candidate individuals, and requires a second asserted relation connecting the candidate to the requested context. Both paths must satisfy their declared domain and range types. The answer and evidence are composed from those graph assertions; unknown subjects, contexts, ambiguous roles, and unsupported contextual paths cause abstention.
+The construction `What are some of the best <genre> movies of the <decade>?` is interpreted as a conjunctive retrieval request, not a ranking request. The responder intersects films with asserted genre membership and release-period relations, verifies the film type, and returns only candidates satisfying both constraints. Because the model contains no ranking evidence, the response explicitly labels the results as examples rather than a ranked best-of list.

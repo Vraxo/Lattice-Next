@@ -60,8 +60,8 @@ internal static class SemanticWorldModelResponder
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: false, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CommonTypedRelationQuery =>
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
-            SemanticWorldModelQuestionKind.ContextualRelationRoleQuery =>
-                TryContextualRelationRoleQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery =>
+                TryMediaExamplesByGenreAndPeriod(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -209,10 +209,9 @@ internal static class SemanticWorldModelResponder
         return IndefinitePhrase(type.Label);
     }
 
-    private static bool TryContextualRelationRoleQuery(
-        string subjectId,
-        string rolePhrase,
-        string contextId,
+    private static bool TryMediaExamplesByGenreAndPeriod(
+        string genreId,
+        string periodId,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
         out string message,
@@ -221,118 +220,98 @@ internal static class SemanticWorldModelResponder
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
 
-        var subject = model.FindConcept(subjectId, SemanticConceptKind.Individual);
-        var context = model.FindConcept(contextId, SemanticConceptKind.Individual);
-        if (subject is null || context is null)
-        {
-            return false;
-        }
-
-        var normalizedRole = rolePhrase.Replace(' ', '-');
-        var roleRelations = model.Relations
+        var genre = model.FindConcept(genreId, SemanticConceptKind.Type);
+        var period = model.FindConcept(periodId, SemanticConceptKind.Individual);
+        var filmType = model.FindConcept("film", SemanticConceptKind.Type);
+        var genreRelations = model.Relations
             .Where(relation =>
-                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
-                relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
-                relation.Verb.EndsWith(" of", StringComparison.OrdinalIgnoreCase))
-            .Select(relation => new
-            {
-                Relation = relation,
-                Domain = relation.DomainType is null ? null : model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
-                Range = relation.RangeType is null ? null : model.FindConcept(relation.RangeType, SemanticConceptKind.Type),
-                Role = relation.Verb[3..^3].Replace(' ', '-')
-            })
-            .Where(candidate =>
-                candidate.Domain is not null &&
-                candidate.Range is not null &&
-                normalizedRole.EndsWith(candidate.Role, StringComparison.OrdinalIgnoreCase) &&
-                reasoner.IsInstanceOf(subject.Id, candidate.Range.Id))
-            .ToArray();
-
-        if (roleRelations.Length != 1)
-        {
-            return false;
-        }
-
-        var roleRelation = roleRelations[0];
-        var candidates = model.RelationAssertions
-            .Where(assertion =>
-                assertion.Relation == roleRelation.Relation.Id &&
-                assertion.Object == subject.Id)
-            .Select(assertion => new
-            {
-                Assertion = assertion,
-                Candidate = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
-            })
-            .Where(candidate =>
-                candidate.Candidate is not null &&
-                reasoner.IsInstanceOf(candidate.Candidate.Id, roleRelation.Domain!.Id))
-            .ToArray();
-
-        var contextRelations = model.Relations
-            .Where(relation =>
+                relation.Id == "has-genre" &&
                 relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.ObjectKind == SemanticRelationArgumentKind.Individual)
-            .Select(relation => new
-            {
-                Relation = relation,
-                Domain = relation.DomainType is null ? null : model.FindConcept(relation.DomainType, SemanticConceptKind.Type),
-                Range = relation.RangeType is null ? null : model.FindConcept(relation.RangeType, SemanticConceptKind.Type)
-            })
-            .Where(candidate =>
-                candidate.Domain is not null &&
-                candidate.Range is not null &&
-                reasoner.IsInstanceOf(context.Id, candidate.Range.Id))
+            .ToArray();
+        var periodRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "released-during" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
             .ToArray();
 
-        var matches = candidates
-            .Select(candidate => new
-            {
-                candidate.Assertion,
-                Candidate = candidate.Candidate!,
-                ContextMatches = contextRelations
-                    .Where(contextRelation =>
-                        reasoner.IsInstanceOf(candidate.Candidate!.Id, contextRelation.Domain!.Id))
-                    .SelectMany(contextRelation => model.RelationAssertions
-                        .Where(assertion =>
-                            assertion.Subject == candidate.Candidate!.Id &&
-                            assertion.Relation == contextRelation.Relation.Id &&
-                            assertion.Object == context.Id)
-                        .Select(assertion => new
-                        {
-                            Assertion = assertion,
-                            Relation = contextRelation
-                        }))
-                    .ToArray()
-            })
-            .Where(candidate => candidate.ContextMatches.Length == 1)
-            .ToArray();
-
-        if (matches.Length != 1)
+        if (genre is null ||
+            period is null ||
+            filmType is null ||
+            genreRelations.Length != 1 ||
+            periodRelations.Length != 1)
         {
             return false;
         }
 
-        var match = matches[0];
-        var contextMatch = match.ContextMatches[0];
-        var roleText = roleRelation.Relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase)
-            ? $"is the {roleRelation.Relation.Verb[3..]}"
-            : roleRelation.Relation.Verb;
-        message =
-            $"{match.Candidate.Label} {roleText} the {subject.Label} in {context.Label}.";
-
-        var sources = new List<SemanticWorldModelSource>
+        var genreRelation = genreRelations[0];
+        var periodRelation = periodRelations[0];
+        if (genreRelation.DomainType is null ||
+            genreRelation.RangeType is null ||
+            periodRelation.DomainType is null ||
+            periodRelation.RangeType is null ||
+            !reasoner.IsSubtypeOf(filmType.Id, genreRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(filmType.Id, periodRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(genre.Id, genreRelation.RangeType) ||
+            !reasoner.IsInstanceOf(period.Id, periodRelation.RangeType))
         {
-            match.Assertion.Source,
-            contextMatch.Assertion.Source
-        };
-        sources.AddRange(reasoner.GetMembershipEvidence(match.Candidate.Id, roleRelation.Domain!.Id));
-        sources.AddRange(reasoner.GetMembershipEvidence(subject.Id, roleRelation.Range!.Id));
-        sources.AddRange(reasoner.GetMembershipEvidence(match.Candidate.Id, contextMatch.Relation.Domain!.Id));
-        sources.AddRange(reasoner.GetMembershipEvidence(context.Id, contextMatch.Relation.Range!.Id));
-        evidence = ImmutableArray.Create(ToEvidence(
-            sources.Distinct().ToImmutableArray(),
-            LatticeEvidenceKind.Derived));
+            return false;
+        }
+
+        var genreAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == genreRelation.Id &&
+                reasoner.IsInstanceOf(assertion.Object, genre.Id))
+            .ToArray();
+        var periodAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == periodRelation.Id &&
+                assertion.Object == period.Id)
+            .ToArray();
+
+        var periodFilmIds = periodAssertions
+            .Select(assertion => assertion.Subject)
+            .ToHashSet(StringComparer.Ordinal);
+        var candidates = genreAssertions
+            .Where(assertion => periodFilmIds.Contains(assertion.Subject))
+            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Where(candidate =>
+                candidate is not null &&
+                reasoner.IsInstanceOf(candidate.Id, filmType.Id))
+            .DistinctBy(candidate => candidate!.Id)
+            .OrderBy(candidate => candidate!.Label, StringComparer.Ordinal)
+            .ToArray();
+
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        var candidateIds = candidates
+            .Select(candidate => candidate!.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var matchingGenreAssertions = genreAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+        var matchingPeriodAssertions = periodAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+
+        var sources = matchingGenreAssertions
+            .Select(assertion => assertion.Source)
+            .Concat(matchingPeriodAssertions.Select(assertion => assertion.Source))
+            .Concat(candidates.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate!.Id, filmType.Id)))
+            .Concat(matchingGenreAssertions.SelectMany(assertion =>
+                reasoner.GetMembershipEvidence(assertion.Object, genre.Id)))
+            .Concat(reasoner.GetMembershipEvidence(period.Id, periodRelation.RangeType))
+            .Distinct()
+            .ToImmutableArray();
+
+        message =
+            $"Some {genre.Label} films from the {period.Label} include {JoinNames(candidates.Select(candidate => candidate!.Label).ToArray())}. These are examples, not a ranked 'best' list.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 

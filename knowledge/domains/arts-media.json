@@ -326,13 +326,18 @@
       "partOfSpeech": "noun"
     },
     {
-      "form": "Winslow",
-      "concept": "winslow-family",
-      "partOfSpeech": "proper-noun"
+      "form": "movie",
+      "concept": "film",
+      "partOfSpeech": "noun"
     },
     {
-      "form": "Winslows",
-      "concept": "winslow-family",
+      "form": "movies",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "1980's",
+      "concept": "decade-1980s",
       "partOfSpeech": "proper-noun"
     }
   ],

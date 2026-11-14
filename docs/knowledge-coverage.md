@@ -14,7 +14,7 @@ The ontology now contains:
 - 560 concepts: 321 types and 239 individuals
 - 139 relation signatures
 - 861 graph assertions
-- 573 lexical forms
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -26,15 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #228's head `59e570ef1499bf5f097f84d0cff0d549bfe3b7a7` (CI run 849):
+The latest fully executed integrated run is PR #225's head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (CI run 845):
 
 - .NET build: passed
-- .NET tests: 923 passed, 0 failed
+- .NET tests: 920 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 16 substantive answers at execution time, 19 answered, 20 handled, 14 unhandled, 0 runner errors
-- Average latency: 363 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 15 substantive answers at execution time, 18 answered, 19 handled, 15 unhandled, 0 runner errors
+- Average latency: 346 ms (single run; stability not measured)
 
-Dolly-029's benchmark output was manually inspected. It returns Steve Urkel and includes both the `neighbor-of` assertion linking him to the Winslow family and the `character-in` assertion linking him to Family Matters, with supporting type memberships. The record is now marked substantively reviewed. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Applying that review to the captured result gives **17 substantive answers (17/34, 50.0%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+Dolly-025's benchmark output was manually inspected after that run. It answered with the eight modeled ingredients and included all eight `has-ingredient` assertions plus the dish and ingredient type-membership evidence. The record's `substantive_answer_reviewed` flag is now true. The benchmark's substantive-answer predicate requires a reviewed record, an answered status, and a non-empty answer. Therefore the reviewed result set now contains **16 substantive answers (16/34, 47.1%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+
+Dolly-024's regional golf terminology answer and Dolly-022's continental/contiguous mountain distinction are also represented in that same integrated run. The substantive count is based on reviewed, answered outputs—not the ontology coverage count.
 
 ## Cross-domain structure
 
@@ -151,3 +153,13 @@ The full English breakfast is represented as a dish with eight asserted food-ing
 Grounding for the full English breakfast ingredient list:
 - [BBC Good Food — What is a full English breakfast?](https://www.bbcgoodfood.com/howto/guide/what-is-a-full-english-breakfast) identifies eggs, bacon, toast, tomatoes, baked beans, and sausages as essentials, with mushrooms and black pudding among common additions. It also notes that modern plates vary and do not always contain every component.
 - [English Breakfast Society — Reference Guide](https://englishbreakfastsociety.com/reference/) describes the core components and recognises regional variation.
+
+
+## 1980s comedy-film examples
+
+The media graph already contains five film individuals with both a comedy-genre assertion and a 1980s release-period assertion. The runtime now intersects those two relations and checks that each candidate is a film. It returns examples, not a ranking: the graph has no objective quality or popularity scores.
+
+Grounding:
+- [AFI Catalog — Airplane! (1980)](https://catalog.afi.com/Film/53895-AIRPLANE) identifies the film as a comedy released in 1980.
+- [Filmsite — Comedy Films](https://www.filmsite.org/comedyfilms7.html) lists 1980s examples including Ghostbusters, Ferris Bueller's Day Off, Coming to America, and A Fish Called Wanda.
+- [MyShows — Comedy Movies 1980–1989](https://en.myshows.me/movies/catalog/y-1980-1989/g-comedy/) independently lists all five modeled titles in its 1980s comedy catalog.
