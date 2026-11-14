@@ -11,10 +11,10 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 555 concepts: 320 types and 235 individuals
+- 559 concepts: 321 types and 238 individuals
 - 136 relation signatures
-- 844 graph assertions
-- 562 lexical forms
+- 855 graph assertions
+- 569 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -114,3 +114,18 @@ The event graph links sunset to the start of nighttime, and connects that event 
 - [Lunar and Planetary Institute: Day and Night](https://www.lpi.usra.edu/education/skytellers/day_night.shtml) explains that the side of Earth facing the Sun experiences day, while the side facing away experiences night.
 
 The model represents the general sunset-to-nighttime transition; it does not calculate local sunset times or account for latitude, season, atmospheric refraction, or polar-day conditions.
+
+
+## Continental versus contiguous United States
+
+The geographic graph distinguishes the continental United States (49 states, including Alaska) from the contiguous United States (the lower 48). The highest-point relations identify Mount McKinley (also known as Denali) for the 49-state continental region and Mount Whitney for the contiguous region.
+
+The query responder follows those relations instead of comparing unmodeled elevation numbers. It explicitly notes the contiguous-state answer when a question uses the ambiguous phrase "continental US".
+
+Grounding:
+- [USGS, Elevations and Distances](https://pubs.usgs.gov/gip/Elevations-Distances/elvadist.html) lists Alaska's Mount McKinley and California's Mount Whitney as their respective state high points.
+- [USGS, Mount Whitney Quadrangle](https://pubs.usgs.gov/bul/1760/report.pdf) identifies Mount Whitney as the highest point in the conterminous United States.
+- [USGS, Extreme and Mean Altitudes](https://pubs.usgs.gov/bul/0817/report.pdf) distinguishes the continental United States (49 states) from the conterminous United States (48 states).
+- [Federal Register, Executive Order 14172](https://www.govinfo.gov/content/pkg/FR-2025-01-31/pdf/2025-02096.pdf) reinstates Mount McKinley as the federal name; the mountain is also widely known as Denali.
+
+The knowledge graph records the current federal name and retains Denali as an alternate lexical form.
