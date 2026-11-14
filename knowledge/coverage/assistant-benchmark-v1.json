@@ -600,7 +600,7 @@
         "instance-of",
         "has-sound-production-mechanism"
       ],
-      "limitations": "The instrument taxonomy supports both string and keyboard classifications."
+      "limitations": "The runtime classifies both individual and type concepts. Piano is a type with explicit is-a paths to keyboard-instrument and struck-string-instrument (a subtype of string-instrument), so it is correctly returned as both rather than forced into one exclusive category."
     },
     {
       "id": "dolly-022",
