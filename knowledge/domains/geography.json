@@ -107,6 +107,11 @@
       "id": "new-york-city-government",
       "label": "City of New York",
       "kind": "Individual"
+    },
+    {
+      "id": "land-parcel",
+      "label": "land parcel",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -224,6 +229,16 @@
       "form": "City of New York",
       "concept": "new-york-city-government",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "land",
+      "concept": "land-parcel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "land parcel",
+      "concept": "land-parcel",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -328,6 +343,12 @@
     },
     {
       "concept": "governmental-organization",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "land-parcel",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -498,6 +519,16 @@
       "subject": "new-york-city-government",
       "relation": "contributed-property-to",
       "object": "united-nations-headquarters-site"
+    },
+    {
+      "subject": "land-parcel",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "united-nations-headquarters-site",
+      "relation": "instance-of",
+      "object": "land-parcel"
     }
   ],
   "dataProperties": [],
