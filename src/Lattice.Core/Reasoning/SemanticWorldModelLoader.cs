@@ -495,9 +495,32 @@ public sealed class SemanticWorldModelLoader
             return true;
         }
 
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            return !string.IsNullOrWhiteSpace(expression.Relation) &&
+                relations.TryGetValue(expression.Relation, out var traversalRelation) &&
+                traversalRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                traversalRelation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                traversalRelation.DomainType is not null &&
+                traversalRelation.RangeType is not null &&
+                !string.IsNullOrWhiteSpace(expression.StartRelation) &&
+                relations.TryGetValue(expression.StartRelation, out var startRelation) &&
+                startRelation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                startRelation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                startRelation.DomainType is not null &&
+                startRelation.RangeType is not null &&
+                !string.IsNullOrWhiteSpace(expression.TargetType) &&
+                IsType(concepts, expression.TargetType) &&
+                expression.MinimumLength is >= 2 and <= 64 &&
+                expression.Filler is null &&
+                expression.Operands.IsDefaultOrEmpty;
+        }
+
         if (expression.Kind is not (SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or) ||
             expression.Relation is not null ||
+            expression.StartRelation is not null ||
             expression.TargetType is not null ||
+            expression.MinimumLength != 0 ||
             expression.Filler is not null ||
             expression.Operands.IsDefault ||
             expression.Operands.Length < 2)
