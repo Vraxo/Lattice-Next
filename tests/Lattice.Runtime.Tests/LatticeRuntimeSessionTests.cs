@@ -7,6 +7,55 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Lists_comedy_films_from_the_requested_decade_without_claiming_a_ranking()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1980's?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Some comedy films from the 1980s include A Fish Called Wanda, Airplane!, Coming to America, Ferris Bueller's Day Off, and Ghostbusters. These are examples, not a ranked 'best' list.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-media-examples(comedy, 1980s))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:released-during:decade-1980s", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":ghostbusters-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_return_films_when_genre_or_period_constraints_are_unsupported()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedGenre = await session.SubmitAsync(
+            "What are some of the best horror movies of the 1980's?");
+        var unsupportedPeriod = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1970's?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedGenre.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedPeriod.Utterances).Kind);
+    }
+
+    [Fact]
     public async Task Answers_common_ingredient_queries_through_typed_relation_lookup()
     {
         var client = new LatticeRuntimeClient();
