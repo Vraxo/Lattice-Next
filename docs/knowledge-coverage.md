@@ -11,15 +11,15 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 540 concepts: 310 types and 230 individuals
-- 131 relation signatures
-- 811 graph assertions
-- 534 lexical forms
+- 544 concepts: 312 types and 232 individuals
+- 133 relation signatures
+- 820 graph assertions
+- 542 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 15 represented at the ontology level
-- 17 partially represented
+- 16 represented at the ontology level
+- 16 partially represented
 - 2 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
@@ -66,3 +66,19 @@ The graph intentionally does not invent missing information or encode unstable r
 Future ontology work should be selected by benchmark coverage gaps and cross-domain reuse. New concepts should connect to existing semantic structures wherever appropriate. Avoid expanding one narrow domain deeply unless a concrete prompt or reusable inference requires it.
 
 The next milestone is not simply adding more nodes. It is making the language and reasoning layers reliably navigate these connected subgraphs, compose answers, preserve uncertainty, and request evidence or clarification when the graph is insufficient.
+
+
+## United Nations headquarters site
+
+The headquarters-site graph distinguishes two contributions:
+
+- John D. Rockefeller Jr. provided the financial gift that made the United Nations' acquisition of the Manhattan site possible.
+- The City of New York contributed additional property, including parcels and property rights needed to complete the site.
+
+Primary and institutional references:
+
+- [United Nations, History of the UN Headquarters](https://www.un.org/sites/un2.un.org/files/1.history_of_unhq_english_2023.pdf) — records Rockefeller Jr.'s $8.5 million offer for the purchase and the City's additional property gifts.
+- [United Nations document A/55/117](https://documents.un.org/api/symbol/access?l=en&s=A%2F55%2F117&t=pdf) — states that Rockefeller's $8.5 million gift enabled the UN to purchase land from private owners, while New York City contributed property rights, access, and land.
+- [UN General Assembly resolution 100 (I)](https://mandates.un.org/mandate/A/RES/100%28I%29?end_year=1947&start_year=1947) — records the $8.5 million gift for acquisition of the New York tract.
+
+The benchmark wording “Who gave the UN the land” is therefore answered with the contribution roles separated, rather than treating the cash gift and municipal land contributions as the same act.
