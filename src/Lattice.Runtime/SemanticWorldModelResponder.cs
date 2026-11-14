@@ -138,9 +138,11 @@ internal static class SemanticWorldModelResponder
             .ToArray();
         var relation = matches[0].Relation!;
         var subjectPhrase = JoinNames(subjects.Select(subject => $"the {subject.Label}").ToArray());
-        var verb = subjects.Length == 1
-            ? relation.Verb
-            : NormalizeVerb(relation.Verb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0]);
+        var pluralSubject = subjects.Length > 1 ||
+            subjects[0].Label.EndsWith("s", StringComparison.OrdinalIgnoreCase);
+        var verb = pluralSubject
+            ? NormalizeVerb(relation.Verb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0])
+            : relation.Verb;
         message = $"{Capitalize(subjectPhrase)} {verb} the {target.Label}.";
         evidence = ImmutableArray.Create(ToEvidence(
             matches.Select(match => match.Source).Distinct().ToImmutableArray(),
