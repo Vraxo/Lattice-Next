@@ -485,6 +485,8 @@ public sealed class SemanticWorldModelLoader
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
                 !IsType(concepts, expression.TargetType) ||
                 !expression.Operands.IsDefaultOrEmpty ||
+                expression.StartRelation is not null ||
+                expression.MinimumLength != 0 ||
                 (expression.Filler is not null &&
                  !ValidateExpression(expression.Filler, depth + 1, ref nodeCount, relations, concepts, restrictions)))
             {
