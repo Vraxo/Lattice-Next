@@ -153,3 +153,13 @@ The full English breakfast is represented as a dish with eight asserted food-ing
 Grounding for the full English breakfast ingredient list:
 - [BBC Good Food — What is a full English breakfast?](https://www.bbcgoodfood.com/howto/guide/what-is-a-full-english-breakfast) identifies eggs, bacon, toast, tomatoes, baked beans, and sausages as essentials, with mushrooms and black pudding among common additions. It also notes that modern plates vary and do not always contain every component.
 - [English Breakfast Society — Reference Guide](https://englishbreakfastsociety.com/reference/) describes the core components and recognises regional variation.
+
+
+## 1980s comedy-film examples
+
+The media graph already contains five film individuals with both a comedy-genre assertion and a 1980s release-period assertion. The runtime now intersects those two relations and checks that each candidate is a film. It returns examples, not a ranking: the graph has no objective quality or popularity scores.
+
+Grounding:
+- [AFI Catalog — Airplane! (1980)](https://catalog.afi.com/Film/53895-AIRPLANE) identifies the film as a comedy released in 1980.
+- [Filmsite — Comedy Films](https://www.filmsite.org/comedyfilms7.html) lists 1980s examples including Ghostbusters, Ferris Bueller's Day Off, Coming to America, and A Fish Called Wanda.
+- [MyShows — Comedy Movies 1980–1989](https://en.myshows.me/movies/catalog/y-1980-1989/g-comedy/) independently lists all five modeled titles in its 1980s comedy catalog.

@@ -344,3 +344,8 @@ The construction `In <sport> what do <region> call <term>?` resolves the sport, 
 ### Common typed-relation lists
 
 The construction `What are common <type> of <subject>?` is parsed into a typed relation query. It resolves the requested type and subject through the semantic model, finds a unique compatible relation, and returns only asserted targets that are instances of the requested type. When the relation verb ends with its declared target-type label, the responder removes that label and composes a concise list sentence. Supporting relation assertions and type memberships are retained as evidence.
+
+
+### Media examples by genre and period
+
+The construction `What are some of the best <genre> movies of the <decade>?` is interpreted as a conjunctive retrieval request, not a ranking request. The responder intersects films with asserted genre membership and release-period relations, verifies the film type, and returns only candidates satisfying both constraints. Because the model contains no ranking evidence, the response explicitly labels the results as examples rather than a ranked best-of list.

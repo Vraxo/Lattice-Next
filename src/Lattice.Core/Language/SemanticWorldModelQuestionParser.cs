@@ -18,6 +18,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Where is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex MediaExamplesByGenreAndPeriodPattern = new(
+        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) (?:movies|films) of (?:the )?(?<period>[0-9]{4}'?s)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CommonTypedRelationPattern = new(
         @"^What are (?:the )?common (?<type>[A-Za-z][A-Za-z -]*?) of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -113,6 +117,17 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationLocation.Groups["subject"].Value),
                 concept: Normalize(relationLocation.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var mediaExamples = MediaExamplesByGenreAndPeriodPattern.Match(text);
+        if (mediaExamples.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery,
+                subject: Normalize(mediaExamples.Groups["genre"].Value),
+                otherSubject: Normalize(mediaExamples.Groups["period"].Value).Replace("'", string.Empty, StringComparison.Ordinal),
                 sourceText: source);
             return true;
         }

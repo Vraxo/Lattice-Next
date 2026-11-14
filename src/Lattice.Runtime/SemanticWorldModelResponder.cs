@@ -60,6 +60,8 @@ internal static class SemanticWorldModelResponder
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: false, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CommonTypedRelationQuery =>
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, formatAsList: true, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery =>
+                TryMediaExamplesByGenreAndPeriod(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -205,6 +207,112 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryMediaExamplesByGenreAndPeriod(
+        string genreId,
+        string periodId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var genre = model.FindConcept(genreId, SemanticConceptKind.Type);
+        var period = model.FindConcept(periodId, SemanticConceptKind.Individual);
+        var filmType = model.FindConcept("film", SemanticConceptKind.Type);
+        var genreRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "has-genre" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+        var periodRelations = model.Relations
+            .Where(relation =>
+                relation.Id == "released-during" &&
+                relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                relation.ObjectKind == SemanticRelationArgumentKind.Individual)
+            .ToArray();
+
+        if (genre is null ||
+            period is null ||
+            filmType is null ||
+            genreRelations.Length != 1 ||
+            periodRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var genreRelation = genreRelations[0];
+        var periodRelation = periodRelations[0];
+        if (genreRelation.DomainType is null ||
+            genreRelation.RangeType is null ||
+            periodRelation.DomainType is null ||
+            periodRelation.RangeType is null ||
+            !reasoner.IsSubtypeOf(filmType.Id, genreRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(filmType.Id, periodRelation.DomainType) ||
+            !reasoner.IsSubtypeOf(genre.Id, genreRelation.RangeType) ||
+            !reasoner.IsInstanceOf(period.Id, periodRelation.RangeType))
+        {
+            return false;
+        }
+
+        var genreAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == genreRelation.Id &&
+                reasoner.IsInstanceOf(assertion.Object, genre.Id))
+            .ToArray();
+        var periodAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == periodRelation.Id &&
+                assertion.Object == period.Id)
+            .ToArray();
+
+        var periodFilmIds = periodAssertions
+            .Select(assertion => assertion.Subject)
+            .ToHashSet(StringComparer.Ordinal);
+        var candidates = genreAssertions
+            .Where(assertion => periodFilmIds.Contains(assertion.Subject))
+            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Where(candidate =>
+                candidate is not null &&
+                reasoner.IsInstanceOf(candidate.Id, filmType.Id))
+            .DistinctBy(candidate => candidate!.Id)
+            .OrderBy(candidate => candidate!.Label, StringComparer.Ordinal)
+            .ToArray();
+
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        var candidateIds = candidates
+            .Select(candidate => candidate!.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var matchingGenreAssertions = genreAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+        var matchingPeriodAssertions = periodAssertions
+            .Where(assertion => candidateIds.Contains(assertion.Subject))
+            .ToArray();
+
+        var sources = matchingGenreAssertions
+            .Select(assertion => assertion.Source)
+            .Concat(matchingPeriodAssertions.Select(assertion => assertion.Source))
+            .Concat(candidates.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate!.Id, filmType.Id)))
+            .Concat(matchingGenreAssertions.SelectMany(assertion =>
+                reasoner.GetMembershipEvidence(assertion.Object, genre.Id)))
+            .Concat(reasoner.GetMembershipEvidence(period.Id, periodRelation.RangeType))
+            .Distinct()
+            .ToImmutableArray();
+
+        message =
+            $"Some {genre.Label} films from the {period.Label} include {JoinNames(candidates.Select(candidate => candidate!.Label).ToArray())}. These are examples, not a ranked 'best' list.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryRegionalTerminologyQuery(
