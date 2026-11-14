@@ -793,9 +793,18 @@
     },
     {
       "concept": "struck-string-mechanism",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "actuates",
+        "targetType": "physical-component",
+        "filler": {
+          "kind": "some",
+          "relation": "strikes",
+          "targetType": "string-component"
+        }
+      }
     },
     {
       "concept": "plucked-string-mechanism",
@@ -845,18 +854,23 @@
     },
     {
       "concept": "string-component",
-      "definitionKind": "primitive",
-      "necessaryConditions": [
-        {
-          "relation": "has-mechanical-state",
-          "targetType": "tensioned-state"
-        },
-        {
-          "relation": "transmits-vibration-to",
-          "targetType": "resonator"
-        }
-      ],
-      "sufficientExpression": null
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-mechanical-state",
+            "targetType": "tensioned-state"
+          },
+          {
+            "kind": "some",
+            "relation": "transmits-vibration-to",
+            "targetType": "resonator"
+          }
+        ]
+      }
     },
     {
       "concept": "resonator",
@@ -1318,16 +1332,6 @@
       "subject": "piano-keyboard",
       "relation": "instance-of",
       "object": "keyboard-interface"
-    },
-    {
-      "subject": "piano-action",
-      "relation": "instance-of",
-      "object": "struck-string-mechanism"
-    },
-    {
-      "subject": "piano-strings",
-      "relation": "instance-of",
-      "object": "string-component"
     },
     {
       "subject": "acoustic-sound",
