@@ -709,6 +709,20 @@ public sealed class SemanticWorldModelLoader
                 return false;
             }
 
+            var unitDimension = string.Empty;
+            if (valueKind == SemanticDataValueKind.Decimal &&
+                !SemanticUnit.TryGetDimension(item.DimensionUnit, out unitDimension))
+            {
+                error = $"Decimal data property '{item.Id}' requires a supported dimensionUnit.";
+                return false;
+            }
+
+            if (valueKind == SemanticDataValueKind.Uri && item.DimensionUnit is not null)
+            {
+                error = $"URI data property '{item.Id}' cannot declare a dimensionUnit.";
+                return false;
+            }
+
             builder.Add(new SemanticDataPropertyDefinition(item.Id, item.DomainType, valueKind,
                 valueKind == SemanticDataValueKind.Decimal ? unitDimension : null));
         }
