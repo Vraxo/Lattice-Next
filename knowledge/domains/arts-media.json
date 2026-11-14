@@ -339,6 +339,16 @@
       "form": "1980's",
       "concept": "decade-1980s",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslow",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslows",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [

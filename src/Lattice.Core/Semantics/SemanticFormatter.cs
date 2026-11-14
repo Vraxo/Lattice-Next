@@ -69,6 +69,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.RegionalTerminologyQuery => $"world-model-regional-terminology({question.Subject}, {question.Concept}, {question.OtherSubject})",
             SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery => $"world-model-media-examples({question.Subject}, {question.OtherSubject})",
             SemanticWorldModelQuestionKind.CommonTypedRelationQuery => $"world-model-common-relation-list({question.Subject}, {question.Concept ?? "any"}, target-type={question.TargetType})",
+            SemanticWorldModelQuestionKind.ContextualRelationRoleQuery => $"world-model-contextual-role({question.Subject}, {question.Concept}, {question.OtherSubject})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",

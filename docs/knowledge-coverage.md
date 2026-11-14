@@ -14,7 +14,7 @@ The ontology now contains:
 - 560 concepts: 321 types and 239 individuals
 - 139 relation signatures
 - 861 graph assertions
-- 571 lexical forms
+- 573 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -26,15 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
+The latest fully executed integrated run is PR #228's head `4b98eab09adf0157685dae661cc519a2f4b13f56` (CI run 874):
 
 - .NET build: passed
-- .NET tests: 922 passed, 0 failed
+- .NET tests: 925 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
-- Average latency: 262 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 18 substantive answers, 20 answered, 21 handled, 13 unhandled, 0 runner errors
+- Average latency: 381 ms (single run; stability not measured)
 
-Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
+The runtime benchmark score is **18/34 (52.9%)**, up from 16/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer.
+
+Dolly-029's output was inspected: Steve Urkel is returned with both the `neighbor-of` and `character-in` assertions, plus candidate, family, and show type-membership evidence. Dolly-023's five film examples each have both a comedy-genre assertion and a 1980s release-period assertion; the response explicitly avoids claiming an unsupported ranking. Dolly-025's ingredient list is supported by its eight ingredient assertions.
 
 ## Cross-domain structure
 
