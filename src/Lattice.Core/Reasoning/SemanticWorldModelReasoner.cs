@@ -174,6 +174,11 @@ public sealed class SemanticWorldModelReasoner
                     allTypes.TryGetValue(assertion.Object, out var types) &&
                     types.Contains(expression.TargetType!)))
                 {
+                    if (!HasMatchingConnection(current, edge.Object))
+                    {
+                        continue;
+                    }
+
                     if (edge.Object == target)
                     {
                         if (path.Count + 1 >= expression.MinimumLength)
@@ -202,6 +207,28 @@ public sealed class SemanticWorldModelReasoner
 
                 return false;
             }
+
+            bool HasMatchingConnection(string source, string destination)
+            {
+                if (expression.SourceConnectionRelation is null &&
+                    expression.TargetConnectionRelation is null)
+                {
+                    return true;
+                }
+
+                var sourceConnections = model.RelationAssertions
+                    .Where(assertion =>
+                        assertion.Subject == source &&
+                        assertion.Relation == expression.SourceConnectionRelation)
+                    .Select(assertion => assertion.Object)
+                    .ToHashSet(StringComparer.Ordinal);
+
+                return model.RelationAssertions.Any(assertion =>
+                    assertion.Subject == destination &&
+                    assertion.Relation == expression.TargetConnectionRelation &&
+                    sourceConnections.Contains(assertion.Object));
+            }
+
         }
 
         return false;
