@@ -1465,6 +1465,26 @@
       "subject": "year-2024",
       "relation": "instance-of",
       "object": "calendar-year"
+    },
+    {
+      "subject": "person",
+      "relation": "is-a",
+      "object": "agent"
+    },
+    {
+      "subject": "market-participant",
+      "relation": "is-a",
+      "object": "agent"
+    },
+    {
+      "subject": "research-publication",
+      "relation": "is-a",
+      "object": "creative-work"
+    },
+    {
+      "subject": "geographic-area",
+      "relation": "is-a",
+      "object": "geographic-region"
     }
   ],
   "dataProperties": [],

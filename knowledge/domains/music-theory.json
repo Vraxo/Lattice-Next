@@ -1,0 +1,460 @@
+{
+  "formatVersion": 3,
+  "id": "core-music-theory",
+  "name": "Music theory and composition",
+  "concepts": [
+    {
+      "id": "music-theory",
+      "label": "music theory",
+      "kind": "Type"
+    },
+    {
+      "id": "musical-concept",
+      "label": "musical concept",
+      "kind": "Type"
+    },
+    {
+      "id": "melody",
+      "label": "melody",
+      "kind": "Type"
+    },
+    {
+      "id": "harmony",
+      "label": "harmony",
+      "kind": "Type"
+    },
+    {
+      "id": "rhythm",
+      "label": "rhythm",
+      "kind": "Type"
+    },
+    {
+      "id": "meter",
+      "label": "meter",
+      "kind": "Type"
+    },
+    {
+      "id": "pitch",
+      "label": "pitch",
+      "kind": "Type"
+    },
+    {
+      "id": "musical-interval",
+      "label": "musical interval",
+      "kind": "Type"
+    },
+    {
+      "id": "scale",
+      "label": "musical scale",
+      "kind": "Type"
+    },
+    {
+      "id": "chord",
+      "label": "chord",
+      "kind": "Type"
+    },
+    {
+      "id": "musical-key",
+      "label": "musical key",
+      "kind": "Type"
+    },
+    {
+      "id": "musical-notation",
+      "label": "musical notation",
+      "kind": "Type"
+    },
+    {
+      "id": "musical-composition",
+      "label": "musical composition",
+      "kind": "Type"
+    },
+    {
+      "id": "composition-activity",
+      "label": "musical composition activity",
+      "kind": "Type"
+    },
+    {
+      "id": "simple-musical-composition",
+      "label": "simple musical composition",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-melody",
+      "label": "simple melody",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-harmony",
+      "label": "simple harmony",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-rhythm",
+      "label": "simple rhythm",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-composition-activity",
+      "label": "simple composition activity",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "music theory",
+      "concept": "music-theory",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical concept",
+      "concept": "musical-concept",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "melody",
+      "concept": "melody",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "harmony",
+      "concept": "harmony",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rhythm",
+      "concept": "rhythm",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "meter",
+      "concept": "meter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "pitch",
+      "concept": "pitch",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical interval",
+      "concept": "musical-interval",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical scale",
+      "concept": "scale",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "chord",
+      "concept": "chord",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical key",
+      "concept": "musical-key",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical notation",
+      "concept": "musical-notation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical composition",
+      "concept": "musical-composition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "musical composition activity",
+      "concept": "composition-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "simple musical composition",
+      "concept": "simple-musical-composition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "simple melody",
+      "concept": "simple-melody",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "simple harmony",
+      "concept": "simple-harmony",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "simple rhythm",
+      "concept": "simple-rhythm",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "simple composition activity",
+      "concept": "simple-composition-activity",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "uses-musical-concept",
+      "domain": "composition-activity",
+      "range": "musical-concept",
+      "verb": "uses musical concept",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "contains-melody",
+      "domain": "musical-composition",
+      "range": "melody",
+      "verb": "contains melody",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "contains-harmony",
+      "domain": "musical-composition",
+      "range": "harmony",
+      "verb": "contains harmony",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "contains-rhythm",
+      "domain": "musical-composition",
+      "range": "rhythm",
+      "verb": "contains rhythm",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "music-theory",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "musical-concept",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "melody",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "harmony",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "rhythm",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "meter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "pitch",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "musical-interval",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "scale",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "chord",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "musical-key",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "musical-notation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "musical-composition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "composition-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "music-theory",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "musical-concept",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "melody",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "harmony",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "rhythm",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "meter",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "pitch",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "musical-interval",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "scale",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "chord",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "musical-key",
+      "relation": "is-a",
+      "object": "musical-concept"
+    },
+    {
+      "subject": "musical-notation",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "musical-composition",
+      "relation": "is-a",
+      "object": "creative-work"
+    },
+    {
+      "subject": "composition-activity",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "simple-musical-composition",
+      "relation": "instance-of",
+      "object": "musical-composition"
+    },
+    {
+      "subject": "simple-melody",
+      "relation": "instance-of",
+      "object": "melody"
+    },
+    {
+      "subject": "simple-harmony",
+      "relation": "instance-of",
+      "object": "harmony"
+    },
+    {
+      "subject": "simple-rhythm",
+      "relation": "instance-of",
+      "object": "rhythm"
+    },
+    {
+      "subject": "simple-composition-activity",
+      "relation": "instance-of",
+      "object": "composition-activity"
+    },
+    {
+      "subject": "simple-musical-composition",
+      "relation": "contains-melody",
+      "object": "simple-melody"
+    },
+    {
+      "subject": "simple-musical-composition",
+      "relation": "contains-harmony",
+      "object": "simple-harmony"
+    },
+    {
+      "subject": "simple-musical-composition",
+      "relation": "contains-rhythm",
+      "object": "simple-rhythm"
+    },
+    {
+      "subject": "simple-composition-activity",
+      "relation": "uses-musical-concept",
+      "object": "simple-melody"
+    },
+    {
+      "subject": "simple-composition-activity",
+      "relation": "uses-musical-concept",
+      "object": "simple-harmony"
+    },
+    {
+      "subject": "simple-composition-activity",
+      "relation": "uses-musical-concept",
+      "object": "simple-rhythm"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

@@ -1,0 +1,69 @@
+{
+  "formatVersion": 3,
+  "id": "core-astronomy",
+  "name": "Astronomy",
+  "concepts": [
+    {
+      "id": "solar-radiation",
+      "label": "solar radiation",
+      "kind": "Type"
+    },
+    {
+      "id": "sunlight",
+      "label": "sunlight",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "solar radiation",
+      "concept": "solar-radiation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sunlight",
+      "concept": "sunlight",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "emits-solar-radiation",
+      "domain": "star",
+      "range": "solar-radiation",
+      "verb": "emits",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "solar-radiation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "solar-radiation",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "sunlight",
+      "relation": "instance-of",
+      "object": "solar-radiation"
+    },
+    {
+      "subject": "sun",
+      "relation": "emits-solar-radiation",
+      "object": "sunlight"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

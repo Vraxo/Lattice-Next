@@ -1,0 +1,711 @@
+{
+  "formatVersion": 3,
+  "id": "core-arts-media",
+  "name": "Arts and media",
+  "concepts": [
+    {
+      "id": "artist",
+      "label": "artist",
+      "kind": "Type"
+    },
+    {
+      "id": "director",
+      "label": "director",
+      "kind": "Type"
+    },
+    {
+      "id": "character",
+      "label": "fictional character",
+      "kind": "Type"
+    },
+    {
+      "id": "family",
+      "label": "family",
+      "kind": "Type"
+    },
+    {
+      "id": "painting",
+      "label": "painting",
+      "kind": "Type"
+    },
+    {
+      "id": "film",
+      "label": "film",
+      "kind": "Type"
+    },
+    {
+      "id": "television-series",
+      "label": "television series",
+      "kind": "Type"
+    },
+    {
+      "id": "episode",
+      "label": "television episode",
+      "kind": "Type"
+    },
+    {
+      "id": "season",
+      "label": "television season",
+      "kind": "Type"
+    },
+    {
+      "id": "comedy-genre",
+      "label": "comedy",
+      "kind": "Type"
+    },
+    {
+      "id": "action-comedy-film",
+      "label": "action comedy film",
+      "kind": "Type"
+    },
+    {
+      "id": "production-hub",
+      "label": "film production hub",
+      "kind": "Type"
+    },
+    {
+      "id": "film-production",
+      "label": "film production",
+      "kind": "Type"
+    },
+    {
+      "id": "johannes-vermeer",
+      "label": "Johannes Vermeer",
+      "kind": "Individual"
+    },
+    {
+      "id": "girl-with-pearl-earring",
+      "label": "Girl with a Pearl Earring",
+      "kind": "Individual"
+    },
+    {
+      "id": "michelle-maclaren",
+      "label": "Michelle MacLaren",
+      "kind": "Individual"
+    },
+    {
+      "id": "game-of-thrones",
+      "label": "Game of Thrones",
+      "kind": "Individual"
+    },
+    {
+      "id": "game-of-thrones-season-four",
+      "label": "Game of Thrones season four",
+      "kind": "Individual"
+    },
+    {
+      "id": "oathkeeper",
+      "label": "Oathkeeper",
+      "kind": "Individual"
+    },
+    {
+      "id": "first-of-his-name",
+      "label": "First of His Name",
+      "kind": "Individual"
+    },
+    {
+      "id": "family-matters",
+      "label": "Family Matters",
+      "kind": "Individual"
+    },
+    {
+      "id": "steve-urkel",
+      "label": "Steve Urkel",
+      "kind": "Individual"
+    },
+    {
+      "id": "winslow-family",
+      "label": "Winslow family",
+      "kind": "Individual"
+    },
+    {
+      "id": "decade-1980s",
+      "label": "1980s",
+      "kind": "Individual"
+    },
+    {
+      "id": "airplane-film",
+      "label": "Airplane!",
+      "kind": "Individual"
+    },
+    {
+      "id": "ghostbusters-film",
+      "label": "Ghostbusters",
+      "kind": "Individual"
+    },
+    {
+      "id": "coming-to-america-film",
+      "label": "Coming to America",
+      "kind": "Individual"
+    },
+    {
+      "id": "ferris-bueller-film",
+      "label": "Ferris Bueller's Day Off",
+      "kind": "Individual"
+    },
+    {
+      "id": "fish-called-wanda-film",
+      "label": "A Fish Called Wanda",
+      "kind": "Individual"
+    },
+    {
+      "id": "comedy-genre-example",
+      "label": "comedy genre example",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "artist",
+      "concept": "artist",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "director",
+      "concept": "director",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fictional character",
+      "concept": "character",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "family",
+      "concept": "family",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "painting",
+      "concept": "painting",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "film",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "television series",
+      "concept": "television-series",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "television episode",
+      "concept": "episode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "television season",
+      "concept": "season",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "comedy",
+      "concept": "comedy-genre",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "action comedy film",
+      "concept": "action-comedy-film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "film production hub",
+      "concept": "production-hub",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "film production",
+      "concept": "film-production",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Johannes Vermeer",
+      "concept": "johannes-vermeer",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Girl with a Pearl Earring",
+      "concept": "girl-with-pearl-earring",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Michelle MacLaren",
+      "concept": "michelle-maclaren",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Game of Thrones",
+      "concept": "game-of-thrones",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Game of Thrones season four",
+      "concept": "game-of-thrones-season-four",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Oathkeeper",
+      "concept": "oathkeeper",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "First of His Name",
+      "concept": "first-of-his-name",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Family Matters",
+      "concept": "family-matters",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Steve Urkel",
+      "concept": "steve-urkel",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslow family",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "1980s",
+      "concept": "decade-1980s",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Airplane!",
+      "concept": "airplane-film",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Ghostbusters",
+      "concept": "ghostbusters-film",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Coming to America",
+      "concept": "coming-to-america-film",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Ferris Bueller's Day Off",
+      "concept": "ferris-bueller-film",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "A Fish Called Wanda",
+      "concept": "fish-called-wanda-film",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "comedy genre example",
+      "concept": "comedy-genre-example",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-season",
+      "domain": "television-series",
+      "range": "season",
+      "verb": "has season",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-episode",
+      "domain": "season",
+      "range": "episode",
+      "verb": "has episode",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "episode-of",
+      "domain": "episode",
+      "range": "television-series",
+      "verb": "is an episode of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "character-in",
+      "domain": "character",
+      "range": "media-work",
+      "verb": "appears in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "neighbor-of",
+      "domain": "character",
+      "range": "family",
+      "verb": "is next-door neighbor of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "released-during",
+      "domain": "media-work",
+      "range": "time-interval",
+      "verb": "was released during",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "artist",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "director",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "character",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "family",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "painting",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "film",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "television-series",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "episode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "season",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "comedy-genre",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "action-comedy-film",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "production-hub",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "film-production",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "artist",
+      "relation": "is-a",
+      "object": "person"
+    },
+    {
+      "subject": "director",
+      "relation": "is-a",
+      "object": "person"
+    },
+    {
+      "subject": "character",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "family",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "painting",
+      "relation": "is-a",
+      "object": "media-work"
+    },
+    {
+      "subject": "film",
+      "relation": "is-a",
+      "object": "media-work"
+    },
+    {
+      "subject": "television-series",
+      "relation": "is-a",
+      "object": "media-work"
+    },
+    {
+      "subject": "episode",
+      "relation": "is-a",
+      "object": "media-work"
+    },
+    {
+      "subject": "season",
+      "relation": "is-a",
+      "object": "time-period"
+    },
+    {
+      "subject": "comedy-genre",
+      "relation": "is-a",
+      "object": "genre"
+    },
+    {
+      "subject": "action-comedy-film",
+      "relation": "is-a",
+      "object": "film"
+    },
+    {
+      "subject": "production-hub",
+      "relation": "is-a",
+      "object": "place"
+    },
+    {
+      "subject": "film-production",
+      "relation": "is-a",
+      "object": "production-activity"
+    },
+    {
+      "subject": "johannes-vermeer",
+      "relation": "instance-of",
+      "object": "artist"
+    },
+    {
+      "subject": "girl-with-pearl-earring",
+      "relation": "instance-of",
+      "object": "painting"
+    },
+    {
+      "subject": "michelle-maclaren",
+      "relation": "instance-of",
+      "object": "director"
+    },
+    {
+      "subject": "game-of-thrones",
+      "relation": "instance-of",
+      "object": "television-series"
+    },
+    {
+      "subject": "game-of-thrones-season-four",
+      "relation": "instance-of",
+      "object": "season"
+    },
+    {
+      "subject": "oathkeeper",
+      "relation": "instance-of",
+      "object": "episode"
+    },
+    {
+      "subject": "first-of-his-name",
+      "relation": "instance-of",
+      "object": "episode"
+    },
+    {
+      "subject": "family-matters",
+      "relation": "instance-of",
+      "object": "television-series"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "instance-of",
+      "object": "character"
+    },
+    {
+      "subject": "winslow-family",
+      "relation": "instance-of",
+      "object": "family"
+    },
+    {
+      "subject": "decade-1980s",
+      "relation": "instance-of",
+      "object": "time-period"
+    },
+    {
+      "subject": "airplane-film",
+      "relation": "instance-of",
+      "object": "film"
+    },
+    {
+      "subject": "ghostbusters-film",
+      "relation": "instance-of",
+      "object": "film"
+    },
+    {
+      "subject": "coming-to-america-film",
+      "relation": "instance-of",
+      "object": "film"
+    },
+    {
+      "subject": "ferris-bueller-film",
+      "relation": "instance-of",
+      "object": "film"
+    },
+    {
+      "subject": "fish-called-wanda-film",
+      "relation": "instance-of",
+      "object": "film"
+    },
+    {
+      "subject": "girl-with-pearl-earring",
+      "relation": "created-by",
+      "object": "johannes-vermeer"
+    },
+    {
+      "subject": "game-of-thrones",
+      "relation": "has-season",
+      "object": "game-of-thrones-season-four"
+    },
+    {
+      "subject": "game-of-thrones-season-four",
+      "relation": "has-episode",
+      "object": "oathkeeper"
+    },
+    {
+      "subject": "game-of-thrones-season-four",
+      "relation": "has-episode",
+      "object": "first-of-his-name"
+    },
+    {
+      "subject": "oathkeeper",
+      "relation": "episode-of",
+      "object": "game-of-thrones"
+    },
+    {
+      "subject": "first-of-his-name",
+      "relation": "episode-of",
+      "object": "game-of-thrones"
+    },
+    {
+      "subject": "oathkeeper",
+      "relation": "directed-by",
+      "object": "michelle-maclaren"
+    },
+    {
+      "subject": "first-of-his-name",
+      "relation": "directed-by",
+      "object": "michelle-maclaren"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "character-in",
+      "object": "family-matters"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "neighbor-of",
+      "object": "winslow-family"
+    },
+    {
+      "subject": "airplane-film",
+      "relation": "has-genre",
+      "object": "comedy-genre-example"
+    },
+    {
+      "subject": "airplane-film",
+      "relation": "released-during",
+      "object": "decade-1980s"
+    },
+    {
+      "subject": "ghostbusters-film",
+      "relation": "has-genre",
+      "object": "comedy-genre-example"
+    },
+    {
+      "subject": "ghostbusters-film",
+      "relation": "released-during",
+      "object": "decade-1980s"
+    },
+    {
+      "subject": "coming-to-america-film",
+      "relation": "has-genre",
+      "object": "comedy-genre-example"
+    },
+    {
+      "subject": "coming-to-america-film",
+      "relation": "released-during",
+      "object": "decade-1980s"
+    },
+    {
+      "subject": "ferris-bueller-film",
+      "relation": "has-genre",
+      "object": "comedy-genre-example"
+    },
+    {
+      "subject": "ferris-bueller-film",
+      "relation": "released-during",
+      "object": "decade-1980s"
+    },
+    {
+      "subject": "fish-called-wanda-film",
+      "relation": "has-genre",
+      "object": "comedy-genre-example"
+    },
+    {
+      "subject": "fish-called-wanda-film",
+      "relation": "released-during",
+      "object": "decade-1980s"
+    },
+    {
+      "subject": "comedy-genre-example",
+      "relation": "instance-of",
+      "object": "comedy-genre"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

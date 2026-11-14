@@ -1,0 +1,762 @@
+{
+  "formatVersion": 3,
+  "id": "core-sports-food",
+  "name": "Sports and food",
+  "concepts": [
+    {
+      "id": "sport",
+      "label": "sport",
+      "kind": "Type"
+    },
+    {
+      "id": "golf",
+      "label": "golf",
+      "kind": "Type"
+    },
+    {
+      "id": "golf-scoring-term",
+      "label": "golf scoring term",
+      "kind": "Type"
+    },
+    {
+      "id": "score-meaning",
+      "label": "score meaning",
+      "kind": "Type"
+    },
+    {
+      "id": "athlete",
+      "label": "athlete",
+      "kind": "Type"
+    },
+    {
+      "id": "swimmer",
+      "label": "swimmer",
+      "kind": "Type"
+    },
+    {
+      "id": "sports-record",
+      "label": "sports record",
+      "kind": "Type"
+    },
+    {
+      "id": "golf-equipment",
+      "label": "golf equipment",
+      "kind": "Type"
+    },
+    {
+      "id": "dish",
+      "label": "dish",
+      "kind": "Type"
+    },
+    {
+      "id": "breakfast-dish",
+      "label": "breakfast dish",
+      "kind": "Type"
+    },
+    {
+      "id": "ingredient",
+      "label": "food ingredient",
+      "kind": "Type"
+    },
+    {
+      "id": "annual-produce-list",
+      "label": "annual produce list",
+      "kind": "Type"
+    },
+    {
+      "id": "albatross",
+      "label": "albatross",
+      "kind": "Individual"
+    },
+    {
+      "id": "three-under-par",
+      "label": "three strokes under par",
+      "kind": "Individual"
+    },
+    {
+      "id": "michael-phelps",
+      "label": "Michael Phelps",
+      "kind": "Individual"
+    },
+    {
+      "id": "most-olympic-gold-medals-record",
+      "label": "most Olympic gold medals record",
+      "kind": "Individual"
+    },
+    {
+      "id": "full-english-breakfast",
+      "label": "full English breakfast",
+      "kind": "Individual"
+    },
+    {
+      "id": "egg",
+      "label": "egg",
+      "kind": "Individual"
+    },
+    {
+      "id": "bacon",
+      "label": "bacon",
+      "kind": "Individual"
+    },
+    {
+      "id": "sausage",
+      "label": "sausage",
+      "kind": "Individual"
+    },
+    {
+      "id": "baked-beans",
+      "label": "baked beans",
+      "kind": "Individual"
+    },
+    {
+      "id": "mushrooms",
+      "label": "mushrooms",
+      "kind": "Individual"
+    },
+    {
+      "id": "tomatoes",
+      "label": "tomatoes",
+      "kind": "Individual"
+    },
+    {
+      "id": "toast",
+      "label": "toast",
+      "kind": "Individual"
+    },
+    {
+      "id": "black-pudding",
+      "label": "black pudding",
+      "kind": "Individual"
+    },
+    {
+      "id": "environmental-working-group",
+      "label": "Environmental Working Group",
+      "kind": "Individual"
+    },
+    {
+      "id": "dirty-dozen-list",
+      "label": "EWG Dirty Dozen list",
+      "kind": "Individual"
+    },
+    {
+      "id": "titleist",
+      "label": "Titleist",
+      "kind": "Individual"
+    },
+    {
+      "id": "callaway",
+      "label": "Callaway",
+      "kind": "Individual"
+    },
+    {
+      "id": "taylormade",
+      "label": "TaylorMade",
+      "kind": "Individual"
+    },
+    {
+      "id": "ping",
+      "label": "PING",
+      "kind": "Individual"
+    },
+    {
+      "id": "cobra-golf",
+      "label": "Cobra Golf",
+      "kind": "Individual"
+    },
+    {
+      "id": "golf-equipment-company",
+      "label": "golf equipment company",
+      "kind": "Type"
+    },
+    {
+      "id": "golf-sport-example",
+      "label": "golf sport example",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "sport",
+      "concept": "sport",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "golf",
+      "concept": "golf",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "golf scoring term",
+      "concept": "golf-scoring-term",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "score meaning",
+      "concept": "score-meaning",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "athlete",
+      "concept": "athlete",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "swimmer",
+      "concept": "swimmer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sports record",
+      "concept": "sports-record",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "golf equipment",
+      "concept": "golf-equipment",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "dish",
+      "concept": "dish",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "breakfast dish",
+      "concept": "breakfast-dish",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "food ingredient",
+      "concept": "ingredient",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "annual produce list",
+      "concept": "annual-produce-list",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "albatross",
+      "concept": "albatross",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "three strokes under par",
+      "concept": "three-under-par",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Michael Phelps",
+      "concept": "michael-phelps",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "most Olympic gold medals record",
+      "concept": "most-olympic-gold-medals-record",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "full English breakfast",
+      "concept": "full-english-breakfast",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "egg",
+      "concept": "egg",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bacon",
+      "concept": "bacon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sausage",
+      "concept": "sausage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "baked beans",
+      "concept": "baked-beans",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mushrooms",
+      "concept": "mushrooms",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "tomatoes",
+      "concept": "tomatoes",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "toast",
+      "concept": "toast",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "black pudding",
+      "concept": "black-pudding",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Environmental Working Group",
+      "concept": "environmental-working-group",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "EWG Dirty Dozen list",
+      "concept": "dirty-dozen-list",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Titleist",
+      "concept": "titleist",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Callaway",
+      "concept": "callaway",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "TaylorMade",
+      "concept": "taylormade",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "PING",
+      "concept": "ping",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Cobra Golf",
+      "concept": "cobra-golf",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "golf equipment company",
+      "concept": "golf-equipment-company",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "golf sport example",
+      "concept": "golf-sport-example",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-score-meaning",
+      "domain": "golf-scoring-term",
+      "range": "score-meaning",
+      "verb": "has score meaning",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "holds-record",
+      "domain": "athlete",
+      "range": "sports-record",
+      "verb": "holds record",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-ingredient",
+      "domain": "dish",
+      "range": "food",
+      "verb": "has ingredient",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "compiled-by",
+      "domain": "annual-produce-list",
+      "range": "organization",
+      "verb": "is compiled by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "appears-on-list",
+      "domain": "food",
+      "range": "annual-produce-list",
+      "verb": "appears on list",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "makes-equipment-for",
+      "domain": "company",
+      "range": "sport",
+      "verb": "makes equipment for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "manufactures",
+      "domain": "organization",
+      "range": "artifact",
+      "verb": "manufactures",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "sport",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf-scoring-term",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "score-meaning",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "athlete",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "swimmer",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sports-record",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf-equipment",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dish",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "breakfast-dish",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "ingredient",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "annual-produce-list",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf-equipment-company",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "sport",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "golf",
+      "relation": "is-a",
+      "object": "sport"
+    },
+    {
+      "subject": "golf-scoring-term",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "score-meaning",
+      "relation": "is-a",
+      "object": "abstract-entity"
+    },
+    {
+      "subject": "athlete",
+      "relation": "is-a",
+      "object": "person"
+    },
+    {
+      "subject": "swimmer",
+      "relation": "is-a",
+      "object": "athlete"
+    },
+    {
+      "subject": "sports-record",
+      "relation": "is-a",
+      "object": "record"
+    },
+    {
+      "subject": "golf-equipment",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "dish",
+      "relation": "is-a",
+      "object": "food"
+    },
+    {
+      "subject": "breakfast-dish",
+      "relation": "is-a",
+      "object": "dish"
+    },
+    {
+      "subject": "ingredient",
+      "relation": "is-a",
+      "object": "food"
+    },
+    {
+      "subject": "annual-produce-list",
+      "relation": "is-a",
+      "object": "information-object"
+    },
+    {
+      "subject": "albatross",
+      "relation": "instance-of",
+      "object": "golf-scoring-term"
+    },
+    {
+      "subject": "three-under-par",
+      "relation": "instance-of",
+      "object": "score-meaning"
+    },
+    {
+      "subject": "michael-phelps",
+      "relation": "instance-of",
+      "object": "swimmer"
+    },
+    {
+      "subject": "most-olympic-gold-medals-record",
+      "relation": "instance-of",
+      "object": "sports-record"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "instance-of",
+      "object": "breakfast-dish"
+    },
+    {
+      "subject": "egg",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "bacon",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "sausage",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "baked-beans",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "mushrooms",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "tomatoes",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "toast",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "black-pudding",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "environmental-working-group",
+      "relation": "instance-of",
+      "object": "organization"
+    },
+    {
+      "subject": "dirty-dozen-list",
+      "relation": "instance-of",
+      "object": "annual-produce-list"
+    },
+    {
+      "subject": "titleist",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "callaway",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "taylormade",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "ping",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "cobra-golf",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "albatross",
+      "relation": "has-score-meaning",
+      "object": "three-under-par"
+    },
+    {
+      "subject": "michael-phelps",
+      "relation": "holds-record",
+      "object": "most-olympic-gold-medals-record"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "egg"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "bacon"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "sausage"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "baked-beans"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "mushrooms"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "tomatoes"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "toast"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-ingredient",
+      "object": "black-pudding"
+    },
+    {
+      "subject": "dirty-dozen-list",
+      "relation": "compiled-by",
+      "object": "environmental-working-group"
+    },
+    {
+      "subject": "titleist",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
+    },
+    {
+      "subject": "callaway",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
+    },
+    {
+      "subject": "taylormade",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
+    },
+    {
+      "subject": "ping",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
+    },
+    {
+      "subject": "cobra-golf",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
+    },
+    {
+      "subject": "golf-equipment-company",
+      "relation": "is-a",
+      "object": "company"
+    },
+    {
+      "subject": "golf-sport-example",
+      "relation": "instance-of",
+      "object": "golf"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

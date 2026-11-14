@@ -66,6 +66,11 @@
       "subject": "tope",
       "relation": "instance-of",
       "object": "fish"
+    },
+    {
+      "subject": "animal",
+      "relation": "is-a",
+      "object": "living-organism"
     }
   ],
   "dataProperties": [],

@@ -574,6 +574,26 @@
       "subject": "bending-deformation",
       "relation": "is-a",
       "object": "deformation"
+    },
+    {
+      "subject": "mechanical-state",
+      "relation": "is-a",
+      "object": "state"
+    },
+    {
+      "subject": "mechanical-behavior",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "tensile-load",
+      "relation": "is-a",
+      "object": "mechanical-load"
+    },
+    {
+      "subject": "transverse-load",
+      "relation": "is-a",
+      "object": "mechanical-load"
     }
   ],
   "dataProperties": [],

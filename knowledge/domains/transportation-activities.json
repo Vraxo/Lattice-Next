@@ -1,0 +1,1619 @@
+{
+  "formatVersion": 3,
+  "id": "core-transportation-activities",
+  "name": "Transportation, everyday objects, and activities",
+  "concepts": [
+    {
+      "id": "train",
+      "label": "train",
+      "kind": "Type"
+    },
+    {
+      "id": "aircraft",
+      "label": "aircraft",
+      "kind": "Type"
+    },
+    {
+      "id": "plane",
+      "label": "plane",
+      "kind": "Type"
+    },
+    {
+      "id": "bicycle",
+      "label": "bicycle",
+      "kind": "Type"
+    },
+    {
+      "id": "scooter",
+      "label": "scooter",
+      "kind": "Type"
+    },
+    {
+      "id": "car",
+      "label": "car",
+      "kind": "Type"
+    },
+    {
+      "id": "transmission",
+      "label": "transmission",
+      "kind": "Type"
+    },
+    {
+      "id": "manual-transmission",
+      "label": "manual transmission",
+      "kind": "Type"
+    },
+    {
+      "id": "clutch",
+      "label": "clutch",
+      "kind": "Type"
+    },
+    {
+      "id": "gear-lever",
+      "label": "gear lever",
+      "kind": "Type"
+    },
+    {
+      "id": "gear",
+      "label": "gear",
+      "kind": "Type"
+    },
+    {
+      "id": "engine",
+      "label": "engine",
+      "kind": "Type"
+    },
+    {
+      "id": "running",
+      "label": "running",
+      "kind": "Type"
+    },
+    {
+      "id": "warm-up-process",
+      "label": "warm-up",
+      "kind": "Type"
+    },
+    {
+      "id": "easy-run-process",
+      "label": "easy run",
+      "kind": "Type"
+    },
+    {
+      "id": "recovery-process",
+      "label": "recovery",
+      "kind": "Type"
+    },
+    {
+      "id": "road-trip",
+      "label": "road trip",
+      "kind": "Type"
+    },
+    {
+      "id": "curtain",
+      "label": "curtain",
+      "kind": "Type"
+    },
+    {
+      "id": "curtain-tieback",
+      "label": "curtain tieback",
+      "kind": "Type"
+    },
+    {
+      "id": "pencil-holder",
+      "label": "pencil holder",
+      "kind": "Type"
+    },
+    {
+      "id": "small-planter",
+      "label": "small planter",
+      "kind": "Type"
+    },
+    {
+      "id": "desk-organizer",
+      "label": "desk organizer",
+      "kind": "Type"
+    },
+    {
+      "id": "mobile-phone",
+      "label": "mobile phone",
+      "kind": "Type"
+    },
+    {
+      "id": "smartphone",
+      "label": "smartphone",
+      "kind": "Type"
+    },
+    {
+      "id": "screen-time",
+      "label": "screen time",
+      "kind": "Type"
+    },
+    {
+      "id": "sleep-disruption",
+      "label": "sleep disruption",
+      "kind": "Type"
+    },
+    {
+      "id": "attention-disruption",
+      "label": "attention disruption",
+      "kind": "Type"
+    },
+    {
+      "id": "reduced-physical-activity",
+      "label": "reduced physical activity",
+      "kind": "Type"
+    },
+    {
+      "id": "social-disconnection",
+      "label": "social disconnection",
+      "kind": "Type"
+    },
+    {
+      "id": "craft-activity",
+      "label": "craft activity",
+      "kind": "Type"
+    },
+    {
+      "id": "pencil-storage",
+      "label": "pencil storage",
+      "kind": "Type"
+    },
+    {
+      "id": "plant-growing",
+      "label": "plant growing",
+      "kind": "Type"
+    },
+    {
+      "id": "ribbon",
+      "label": "ribbon",
+      "kind": "Type"
+    },
+    {
+      "id": "rope",
+      "label": "rope",
+      "kind": "Type"
+    },
+    {
+      "id": "fabric",
+      "label": "fabric",
+      "kind": "Type"
+    },
+    {
+      "id": "bead",
+      "label": "bead",
+      "kind": "Type"
+    },
+    {
+      "id": "aluminum",
+      "label": "aluminum",
+      "kind": "Type"
+    },
+    {
+      "id": "transportation-example",
+      "label": "transportation activity example",
+      "kind": "Individual"
+    },
+    {
+      "id": "train-example",
+      "label": "train example",
+      "kind": "Individual"
+    },
+    {
+      "id": "plane-example",
+      "label": "plane example",
+      "kind": "Individual"
+    },
+    {
+      "id": "bicycle-example",
+      "label": "bicycle example",
+      "kind": "Individual"
+    },
+    {
+      "id": "scooter-example",
+      "label": "scooter example",
+      "kind": "Individual"
+    },
+    {
+      "id": "manual-car-example",
+      "label": "manual transmission car",
+      "kind": "Individual"
+    },
+    {
+      "id": "manual-transmission-example",
+      "label": "manual transmission example",
+      "kind": "Individual"
+    },
+    {
+      "id": "clutch-example",
+      "label": "clutch example",
+      "kind": "Individual"
+    },
+    {
+      "id": "gear-lever-example",
+      "label": "gear lever example",
+      "kind": "Individual"
+    },
+    {
+      "id": "gear-example",
+      "label": "gear example",
+      "kind": "Individual"
+    },
+    {
+      "id": "engine-example",
+      "label": "engine example",
+      "kind": "Individual"
+    },
+    {
+      "id": "running-example",
+      "label": "running activity",
+      "kind": "Individual"
+    },
+    {
+      "id": "running-shoes-example",
+      "label": "running shoes",
+      "kind": "Individual"
+    },
+    {
+      "id": "beginner-running-plan",
+      "label": "beginner running plan",
+      "kind": "Individual"
+    },
+    {
+      "id": "warm-up-step",
+      "label": "warm-up step",
+      "kind": "Individual"
+    },
+    {
+      "id": "easy-run-step",
+      "label": "easy run step",
+      "kind": "Individual"
+    },
+    {
+      "id": "recovery-step",
+      "label": "recovery step",
+      "kind": "Individual"
+    },
+    {
+      "id": "three-day-road-trip",
+      "label": "three-day road trip",
+      "kind": "Individual"
+    },
+    {
+      "id": "westfield-new-jersey",
+      "label": "Westfield, New Jersey",
+      "kind": "Individual"
+    },
+    {
+      "id": "curtain-example",
+      "label": "curtain example",
+      "kind": "Individual"
+    },
+    {
+      "id": "ribbon-tieback",
+      "label": "ribbon curtain tieback",
+      "kind": "Individual"
+    },
+    {
+      "id": "rope-tieback",
+      "label": "rope curtain tieback",
+      "kind": "Individual"
+    },
+    {
+      "id": "fabric-tieback",
+      "label": "fabric curtain tieback",
+      "kind": "Individual"
+    },
+    {
+      "id": "beaded-tieback",
+      "label": "beaded curtain tieback",
+      "kind": "Individual"
+    },
+    {
+      "id": "empty-aluminum-can",
+      "label": "empty aluminum can",
+      "kind": "Individual"
+    },
+    {
+      "id": "pencil-holder-example",
+      "label": "pencil holder made from a can",
+      "kind": "Individual"
+    },
+    {
+      "id": "small-planter-example",
+      "label": "small planter made from a can",
+      "kind": "Individual"
+    },
+    {
+      "id": "desk-organizer-example",
+      "label": "desk organizer made from a can",
+      "kind": "Individual"
+    },
+    {
+      "id": "smartphone-example",
+      "label": "smartphone example",
+      "kind": "Individual"
+    },
+    {
+      "id": "sleep-disruption-example",
+      "label": "possible sleep disruption",
+      "kind": "Individual"
+    },
+    {
+      "id": "attention-disruption-example",
+      "label": "possible attention disruption",
+      "kind": "Individual"
+    },
+    {
+      "id": "reduced-activity-example",
+      "label": "reduced physical activity effect",
+      "kind": "Individual"
+    },
+    {
+      "id": "social-disconnection-example",
+      "label": "possible social disconnection",
+      "kind": "Individual"
+    },
+    {
+      "id": "greystone-inc",
+      "label": "Greystone Inc.",
+      "kind": "Individual"
+    },
+    {
+      "id": "ribbon-material",
+      "label": "ribbon material",
+      "kind": "Individual"
+    },
+    {
+      "id": "rope-material",
+      "label": "rope material",
+      "kind": "Individual"
+    },
+    {
+      "id": "fabric-material",
+      "label": "fabric material",
+      "kind": "Individual"
+    },
+    {
+      "id": "bead-material",
+      "label": "bead material",
+      "kind": "Individual"
+    },
+    {
+      "id": "aluminum-material",
+      "label": "aluminum material",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "train",
+      "concept": "train",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "aircraft",
+      "concept": "aircraft",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "plane",
+      "concept": "plane",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bicycle",
+      "concept": "bicycle",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "scooter",
+      "concept": "scooter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "car",
+      "concept": "car",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transmission",
+      "concept": "transmission",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "manual transmission",
+      "concept": "manual-transmission",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "clutch",
+      "concept": "clutch",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "gear lever",
+      "concept": "gear-lever",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "gear",
+      "concept": "gear",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "engine",
+      "concept": "engine",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "running",
+      "concept": "running",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "warm-up",
+      "concept": "warm-up-process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "easy run",
+      "concept": "easy-run-process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "recovery",
+      "concept": "recovery-process",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "road trip",
+      "concept": "road-trip",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "curtain",
+      "concept": "curtain",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "curtain tieback",
+      "concept": "curtain-tieback",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "pencil holder",
+      "concept": "pencil-holder",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "small planter",
+      "concept": "small-planter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "desk organizer",
+      "concept": "desk-organizer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobile phone",
+      "concept": "mobile-phone",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "smartphone",
+      "concept": "smartphone",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "screen time",
+      "concept": "screen-time",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sleep disruption",
+      "concept": "sleep-disruption",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "attention disruption",
+      "concept": "attention-disruption",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "reduced physical activity",
+      "concept": "reduced-physical-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "social disconnection",
+      "concept": "social-disconnection",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "craft activity",
+      "concept": "craft-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "pencil storage",
+      "concept": "pencil-storage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "plant growing",
+      "concept": "plant-growing",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "ribbon",
+      "concept": "ribbon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rope",
+      "concept": "rope",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fabric",
+      "concept": "fabric",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bead",
+      "concept": "bead",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "aluminum",
+      "concept": "aluminum",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transportation activity example",
+      "concept": "transportation-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "train example",
+      "concept": "train-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "plane example",
+      "concept": "plane-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bicycle example",
+      "concept": "bicycle-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "scooter example",
+      "concept": "scooter-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "manual transmission car",
+      "concept": "manual-car-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "manual transmission example",
+      "concept": "manual-transmission-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "clutch example",
+      "concept": "clutch-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "gear lever example",
+      "concept": "gear-lever-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "gear example",
+      "concept": "gear-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "engine example",
+      "concept": "engine-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "running activity",
+      "concept": "running-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "running shoes",
+      "concept": "running-shoes-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "beginner running plan",
+      "concept": "beginner-running-plan",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "warm-up step",
+      "concept": "warm-up-step",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "easy run step",
+      "concept": "easy-run-step",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "recovery step",
+      "concept": "recovery-step",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "three-day road trip",
+      "concept": "three-day-road-trip",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Westfield, New Jersey",
+      "concept": "westfield-new-jersey",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "curtain example",
+      "concept": "curtain-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "ribbon curtain tieback",
+      "concept": "ribbon-tieback",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rope curtain tieback",
+      "concept": "rope-tieback",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fabric curtain tieback",
+      "concept": "fabric-tieback",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "beaded curtain tieback",
+      "concept": "beaded-tieback",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "empty aluminum can",
+      "concept": "empty-aluminum-can",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "pencil holder made from a can",
+      "concept": "pencil-holder-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "small planter made from a can",
+      "concept": "small-planter-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "desk organizer made from a can",
+      "concept": "desk-organizer-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "smartphone example",
+      "concept": "smartphone-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "possible sleep disruption",
+      "concept": "sleep-disruption-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "possible attention disruption",
+      "concept": "attention-disruption-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "reduced physical activity effect",
+      "concept": "reduced-activity-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "possible social disconnection",
+      "concept": "social-disconnection-example",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Greystone Inc.",
+      "concept": "greystone-inc",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "ribbon material",
+      "concept": "ribbon-material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "rope material",
+      "concept": "rope-material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fabric material",
+      "concept": "fabric-material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bead material",
+      "concept": "bead-material",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "aluminum material",
+      "concept": "aluminum-material",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "uses-transmission",
+      "domain": "vehicle",
+      "range": "transmission",
+      "verb": "uses transmission",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "clutch-engages",
+      "domain": "clutch",
+      "range": "transmission",
+      "verb": "engages",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "gear-lever-selects",
+      "domain": "gear-lever",
+      "range": "gear",
+      "verb": "selects",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-step",
+      "domain": "plan",
+      "range": "process",
+      "verb": "has step",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "precedes",
+      "domain": "process",
+      "range": "process",
+      "verb": "precedes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "starts-in",
+      "domain": "travel-trip",
+      "range": "place",
+      "verb": "starts in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "requires-equipment",
+      "domain": "activity",
+      "range": "physical-entity",
+      "verb": "requires equipment",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "can-serve-as",
+      "domain": "physical-entity",
+      "range": "artifact",
+      "verb": "can serve as",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "may-contribute-to",
+      "domain": "communication-device",
+      "range": "effect",
+      "verb": "may contribute to",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-possible-effect",
+      "domain": "communication-device",
+      "range": "effect",
+      "verb": "may have effect",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "train",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "aircraft",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "plane",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "bicycle",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "scooter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "car",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "transmission",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "manual-transmission",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "clutch",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "gear-lever",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "gear",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "engine",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "running",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "warm-up-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "easy-run-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "recovery-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "road-trip",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "curtain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "curtain-tieback",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "pencil-holder",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "small-planter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "desk-organizer",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mobile-phone",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "smartphone",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "screen-time",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sleep-disruption",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "attention-disruption",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "reduced-physical-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "social-disconnection",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "craft-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "pencil-storage",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "plant-growing",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "ribbon",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "rope",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "fabric",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "bead",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "aluminum",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "train",
+      "relation": "is-a",
+      "object": "vehicle"
+    },
+    {
+      "subject": "aircraft",
+      "relation": "is-a",
+      "object": "vehicle"
+    },
+    {
+      "subject": "plane",
+      "relation": "is-a",
+      "object": "aircraft"
+    },
+    {
+      "subject": "bicycle",
+      "relation": "is-a",
+      "object": "vehicle"
+    },
+    {
+      "subject": "scooter",
+      "relation": "is-a",
+      "object": "vehicle"
+    },
+    {
+      "subject": "car",
+      "relation": "is-a",
+      "object": "vehicle"
+    },
+    {
+      "subject": "transmission",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "is-a",
+      "object": "transmission"
+    },
+    {
+      "subject": "clutch",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "gear-lever",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "gear",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "engine",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "running",
+      "relation": "is-a",
+      "object": "exercise"
+    },
+    {
+      "subject": "warm-up-process",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "easy-run-process",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "recovery-process",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "road-trip",
+      "relation": "is-a",
+      "object": "travel-trip"
+    },
+    {
+      "subject": "curtain",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "curtain-tieback",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "pencil-holder",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "small-planter",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "desk-organizer",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "mobile-phone",
+      "relation": "is-a",
+      "object": "communication-device"
+    },
+    {
+      "subject": "smartphone",
+      "relation": "is-a",
+      "object": "communication-device"
+    },
+    {
+      "subject": "screen-time",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "sleep-disruption",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "attention-disruption",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "social-disconnection",
+      "relation": "is-a",
+      "object": "effect"
+    },
+    {
+      "subject": "craft-activity",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "pencil-storage",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "plant-growing",
+      "relation": "is-a",
+      "object": "activity"
+    },
+    {
+      "subject": "ribbon",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "rope",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "fabric",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "bead",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "aluminum",
+      "relation": "is-a",
+      "object": "material"
+    },
+    {
+      "subject": "transportation-example",
+      "relation": "instance-of",
+      "object": "transportation-activity"
+    },
+    {
+      "subject": "train-example",
+      "relation": "instance-of",
+      "object": "train"
+    },
+    {
+      "subject": "plane-example",
+      "relation": "instance-of",
+      "object": "plane"
+    },
+    {
+      "subject": "bicycle-example",
+      "relation": "instance-of",
+      "object": "bicycle"
+    },
+    {
+      "subject": "scooter-example",
+      "relation": "instance-of",
+      "object": "scooter"
+    },
+    {
+      "subject": "manual-car-example",
+      "relation": "instance-of",
+      "object": "car"
+    },
+    {
+      "subject": "manual-transmission-example",
+      "relation": "instance-of",
+      "object": "manual-transmission"
+    },
+    {
+      "subject": "clutch-example",
+      "relation": "instance-of",
+      "object": "clutch"
+    },
+    {
+      "subject": "gear-lever-example",
+      "relation": "instance-of",
+      "object": "gear-lever"
+    },
+    {
+      "subject": "gear-example",
+      "relation": "instance-of",
+      "object": "gear"
+    },
+    {
+      "subject": "engine-example",
+      "relation": "instance-of",
+      "object": "engine"
+    },
+    {
+      "subject": "running-example",
+      "relation": "instance-of",
+      "object": "running"
+    },
+    {
+      "subject": "running-shoes-example",
+      "relation": "instance-of",
+      "object": "physical-object"
+    },
+    {
+      "subject": "beginner-running-plan",
+      "relation": "instance-of",
+      "object": "plan"
+    },
+    {
+      "subject": "warm-up-step",
+      "relation": "instance-of",
+      "object": "warm-up-process"
+    },
+    {
+      "subject": "easy-run-step",
+      "relation": "instance-of",
+      "object": "easy-run-process"
+    },
+    {
+      "subject": "recovery-step",
+      "relation": "instance-of",
+      "object": "recovery-process"
+    },
+    {
+      "subject": "three-day-road-trip",
+      "relation": "instance-of",
+      "object": "road-trip"
+    },
+    {
+      "subject": "westfield-new-jersey",
+      "relation": "instance-of",
+      "object": "place"
+    },
+    {
+      "subject": "curtain-example",
+      "relation": "instance-of",
+      "object": "curtain"
+    },
+    {
+      "subject": "ribbon-tieback",
+      "relation": "instance-of",
+      "object": "curtain-tieback"
+    },
+    {
+      "subject": "rope-tieback",
+      "relation": "instance-of",
+      "object": "curtain-tieback"
+    },
+    {
+      "subject": "fabric-tieback",
+      "relation": "instance-of",
+      "object": "curtain-tieback"
+    },
+    {
+      "subject": "beaded-tieback",
+      "relation": "instance-of",
+      "object": "curtain-tieback"
+    },
+    {
+      "subject": "empty-aluminum-can",
+      "relation": "instance-of",
+      "object": "reusable-container"
+    },
+    {
+      "subject": "pencil-holder-example",
+      "relation": "instance-of",
+      "object": "pencil-holder"
+    },
+    {
+      "subject": "small-planter-example",
+      "relation": "instance-of",
+      "object": "small-planter"
+    },
+    {
+      "subject": "desk-organizer-example",
+      "relation": "instance-of",
+      "object": "desk-organizer"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "instance-of",
+      "object": "smartphone"
+    },
+    {
+      "subject": "sleep-disruption-example",
+      "relation": "instance-of",
+      "object": "sleep-disruption"
+    },
+    {
+      "subject": "attention-disruption-example",
+      "relation": "instance-of",
+      "object": "attention-disruption"
+    },
+    {
+      "subject": "reduced-activity-example",
+      "relation": "instance-of",
+      "object": "reduced-physical-activity"
+    },
+    {
+      "subject": "social-disconnection-example",
+      "relation": "instance-of",
+      "object": "social-disconnection"
+    },
+    {
+      "subject": "greystone-inc",
+      "relation": "instance-of",
+      "object": "organization"
+    },
+    {
+      "subject": "train-example",
+      "relation": "used-for",
+      "object": "transportation-example"
+    },
+    {
+      "subject": "plane-example",
+      "relation": "used-for",
+      "object": "transportation-example"
+    },
+    {
+      "subject": "bicycle-example",
+      "relation": "used-for",
+      "object": "transportation-example"
+    },
+    {
+      "subject": "scooter-example",
+      "relation": "used-for",
+      "object": "transportation-example"
+    },
+    {
+      "subject": "manual-car-example",
+      "relation": "uses-transmission",
+      "object": "manual-transmission-example"
+    },
+    {
+      "subject": "clutch-example",
+      "relation": "clutch-engages",
+      "object": "manual-transmission-example"
+    },
+    {
+      "subject": "gear-lever-example",
+      "relation": "gear-lever-selects",
+      "object": "gear-example"
+    },
+    {
+      "subject": "beginner-running-plan",
+      "relation": "has-step",
+      "object": "warm-up-step"
+    },
+    {
+      "subject": "beginner-running-plan",
+      "relation": "has-step",
+      "object": "easy-run-step"
+    },
+    {
+      "subject": "beginner-running-plan",
+      "relation": "has-step",
+      "object": "recovery-step"
+    },
+    {
+      "subject": "warm-up-step",
+      "relation": "precedes",
+      "object": "easy-run-step"
+    },
+    {
+      "subject": "easy-run-step",
+      "relation": "precedes",
+      "object": "recovery-step"
+    },
+    {
+      "subject": "running-example",
+      "relation": "requires-equipment",
+      "object": "running-shoes-example"
+    },
+    {
+      "subject": "three-day-road-trip",
+      "relation": "starts-in",
+      "object": "westfield-new-jersey"
+    },
+    {
+      "subject": "ribbon-tieback",
+      "relation": "made-of",
+      "object": "ribbon-material"
+    },
+    {
+      "subject": "rope-tieback",
+      "relation": "made-of",
+      "object": "rope-material"
+    },
+    {
+      "subject": "fabric-tieback",
+      "relation": "made-of",
+      "object": "fabric-material"
+    },
+    {
+      "subject": "beaded-tieback",
+      "relation": "made-of",
+      "object": "bead-material"
+    },
+    {
+      "subject": "empty-aluminum-can",
+      "relation": "made-of",
+      "object": "aluminum-material"
+    },
+    {
+      "subject": "empty-aluminum-can",
+      "relation": "can-serve-as",
+      "object": "pencil-holder-example"
+    },
+    {
+      "subject": "empty-aluminum-can",
+      "relation": "can-serve-as",
+      "object": "small-planter-example"
+    },
+    {
+      "subject": "empty-aluminum-can",
+      "relation": "can-serve-as",
+      "object": "desk-organizer-example"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "may-contribute-to",
+      "object": "sleep-disruption-example"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "may-contribute-to",
+      "object": "attention-disruption-example"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "may-contribute-to",
+      "object": "reduced-activity-example"
+    },
+    {
+      "subject": "smartphone-example",
+      "relation": "may-contribute-to",
+      "object": "social-disconnection-example"
+    },
+    {
+      "subject": "ribbon-material",
+      "relation": "instance-of",
+      "object": "ribbon"
+    },
+    {
+      "subject": "rope-material",
+      "relation": "instance-of",
+      "object": "rope"
+    },
+    {
+      "subject": "fabric-material",
+      "relation": "instance-of",
+      "object": "fabric"
+    },
+    {
+      "subject": "bead-material",
+      "relation": "instance-of",
+      "object": "bead"
+    },
+    {
+      "subject": "aluminum-material",
+      "relation": "instance-of",
+      "object": "aluminum"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

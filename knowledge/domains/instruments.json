@@ -1927,6 +1927,71 @@
       "subject": "piano-string-bending-deformation",
       "relation": "deforms-component",
       "object": "piano-strings"
+    },
+    {
+      "subject": "physical-object",
+      "relation": "is-a",
+      "object": "physical-entity"
+    },
+    {
+      "subject": "physical-process",
+      "relation": "is-a",
+      "object": "process"
+    },
+    {
+      "subject": "sound-production-mechanism",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "playing-interface",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "physical-component",
+      "relation": "is-a",
+      "object": "physical-object"
+    },
+    {
+      "subject": "musical-instrument",
+      "relation": "is-a",
+      "object": "artifact"
+    },
+    {
+      "subject": "sound-event",
+      "relation": "is-a",
+      "object": "event"
+    },
+    {
+      "subject": "harmonium-action",
+      "relation": "instance-of",
+      "object": "free-reed-mechanism"
+    },
+    {
+      "subject": "accordion-action",
+      "relation": "instance-of",
+      "object": "free-reed-mechanism"
+    },
+    {
+      "subject": "harmonium-reeds",
+      "relation": "instance-of",
+      "object": "free-reed-component"
+    },
+    {
+      "subject": "accordion-reeds",
+      "relation": "instance-of",
+      "object": "free-reed-component"
+    },
+    {
+      "subject": "piano-string-tensile-load",
+      "relation": "instance-of",
+      "object": "tensile-load"
+    },
+    {
+      "subject": "piano-string-transverse-load",
+      "relation": "instance-of",
+      "object": "transverse-load"
     }
   ],
   "dataProperties": [],

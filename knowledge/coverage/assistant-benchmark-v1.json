@@ -1,0 +1,783 @@
+{
+  "schema_version": 1,
+  "title": "Assistant benchmark v1 — semantic knowledge map",
+  "purpose": "Maps each benchmark prompt to the concepts and relations represented in the foundational world model. This measures ontology coverage, not end-to-end runtime answer capability or factual verification.",
+  "coverage_status_definitions": {
+    "represented": "The graph contains the central concepts and relationships needed for the core factual or classification answer.",
+    "partial": "Some relevant structure exists, but evidence, detail, ambiguity handling, or reasoning capabilities remain incomplete.",
+    "not-represented": "The relevant knowledge or task structure is not yet represented in the ontology."
+  },
+  "entries": [
+    {
+      "id": "oasst1-6ab24d72-0181-4594-a9cd-deaf170242fb",
+      "status": "partial",
+      "areas": [
+        "economics",
+        "labour markets",
+        "research"
+      ],
+      "concepts": [
+        "monopsony",
+        "labor-market",
+        "market-power",
+        "wage-markdown",
+        "employer-concentration",
+        "job-differentiation",
+        "search-frictions",
+        "research-publication",
+        "manning-2021-publication",
+        "azar-marinescu-2024-publication",
+        "yeh-macaluso-hershbein-2022-publication"
+      ],
+      "relations": [
+        "has-mechanism",
+        "has-market-power-effect",
+        "has-research-reference",
+        "authored-by",
+        "published-in",
+        "published-in-year"
+      ],
+      "limitations": "The economic structure and example mechanisms are represented. Research citations and up-to-date evidence must come from the separate evidence/retrieval layer."
+    },
+    {
+      "id": "oasst1-c522beae-5a33-48c1-aee3-19f32fc3f0af",
+      "status": "partial",
+      "areas": [
+        "scientific software",
+        "process simulation",
+        "optimization"
+      ],
+      "concepts": [
+        "idaes",
+        "biosteam",
+        "pyomo",
+        "process-simulation-framework",
+        "optimization-modeling-framework",
+        "capability",
+        "flowsheet-optimization",
+        "unit-operation-modeling",
+        "linear-optimization",
+        "nonlinear-optimization",
+        "mixed-integer-optimization"
+      ],
+      "relations": [
+        "supports-capability",
+        "used-for-domain"
+      ],
+      "limitations": "The package/capability graph is represented. Current package versions, maintenance, compatibility, and recommendation quality require external evidence."
+    },
+    {
+      "id": "oasst1-3b863a2e-f80a-4520-b305-e7836636f2bf",
+      "status": "partial",
+      "areas": [
+        "conversational software",
+        "software comparison"
+      ],
+      "concepts": [
+        "open-assistant",
+        "chatgpt",
+        "chatbot",
+        "conversational-assistant",
+        "software-comparison-criterion",
+        "hosting-model",
+        "open-source-status",
+        "customization-support",
+        "privacy-model",
+        "integration-support"
+      ],
+      "relations": [
+        "has-comparison-criterion"
+      ],
+      "limitations": "The comparison dimensions are represented, but product-specific and version-specific values are intentionally not asserted."
+    },
+    {
+      "id": "oasst1-c8262e6c-978f-4ad7-a849-39a741fb5ae7",
+      "status": "partial",
+      "areas": [
+        "mathematics",
+        "calculus"
+      ],
+      "concepts": [
+        "l-hopital-rule",
+        "limit-problem",
+        "indeterminate-form",
+        "zero-over-zero-form",
+        "infinity-over-infinity-form",
+        "derivative-concept",
+        "differentiable-function",
+        "mathematical-condition"
+      ],
+      "relations": [
+        "applies-to-form",
+        "has-required-condition"
+      ],
+      "limitations": "The mathematical concepts and applicability conditions are represented. Everyday examples require a separate application model and reasoning."
+    },
+    {
+      "id": "dolly-001",
+      "status": "represented",
+      "areas": [
+        "biology",
+        "classification",
+        "materials"
+      ],
+      "concepts": [
+        "tope",
+        "fish",
+        "animal",
+        "rope",
+        "material",
+        "substance"
+      ],
+      "relations": [
+        "is-a",
+        "instance-of"
+      ],
+      "limitations": "Tope is represented as a fish; rope is represented as a material object, not an animal."
+    },
+    {
+      "id": "dolly-002",
+      "status": "partial",
+      "areas": [
+        "biology",
+        "animal physiology",
+        "environment"
+      ],
+      "concepts": [
+        "camel",
+        "mammal",
+        "animal",
+        "water-conservation",
+        "dehydration-tolerance",
+        "desert-environment",
+        "urine-concentration",
+        "fecal-water-reduction",
+        "nasal-water-recovery",
+        "camel-hump",
+        "fat"
+      ],
+      "relations": [
+        "has-adaptation",
+        "supports-survival-in",
+        "includes-physiological-process",
+        "stores-substance"
+      ],
+      "limitations": "The graph captures several water-conservation adaptations and distinguishes hump fat from stored water. A complete physiology account needs further evidence and detail."
+    },
+    {
+      "id": "dolly-003",
+      "status": "not-represented",
+      "areas": [
+        "language understanding",
+        "discourse context",
+        "riddle reasoning"
+      ],
+      "concepts": [
+        "person",
+        "family",
+        "agent"
+      ],
+      "relations": [],
+      "limitations": "This is primarily a contextual inference from the wording of the prompt, not a static world-knowledge lookup. The conversation/context reasoner must resolve it."
+    },
+    {
+      "id": "dolly-004",
+      "status": "partial",
+      "areas": [
+        "institutions",
+        "geography",
+        "history"
+      ],
+      "concepts": [
+        "united-nations",
+        "john-d-rockefeller-jr",
+        "united-nations-headquarters-site",
+        "new-york-city",
+        "organization",
+        "site"
+      ],
+      "relations": [
+        "funded-acquisition-of",
+        "has-hq-in",
+        "situated-in"
+      ],
+      "limitations": "The graph records Rockefeller Jr.'s funding toward acquisition of the headquarters site, not a literal donation of the land. The wording should be answered with that distinction."
+    },
+    {
+      "id": "dolly-005",
+      "status": "partial",
+      "areas": [
+        "technology",
+        "human behavior",
+        "wellbeing"
+      ],
+      "concepts": [
+        "mobile-phone",
+        "smartphone",
+        "screen-time",
+        "sleep-disruption",
+        "attention-disruption",
+        "reduced-physical-activity",
+        "social-disconnection"
+      ],
+      "relations": [
+        "may-contribute-to"
+      ],
+      "limitations": "Potential effects are represented as conditional links, not universal claims that phones are inherently bad. Strength and context need evidence."
+    },
+    {
+      "id": "dolly-006",
+      "status": "represented",
+      "areas": [
+        "mathematics",
+        "geometry"
+      ],
+      "concepts": [
+        "polygon",
+        "plane-figure",
+        "boundary",
+        "closed-boundary",
+        "line-segment",
+        "closed-cycle",
+        "geometric-point"
+      ],
+      "relations": [
+        "has-boundary",
+        "has-topology",
+        "has-boundary-element",
+        "has-start-point",
+        "has-end-point"
+      ],
+      "limitations": "The polygon definition is compositional and uses boundary structure rather than a prose definition."
+    },
+    {
+      "id": "dolly-007",
+      "status": "partial",
+      "areas": [
+        "physical activity",
+        "exercise planning"
+      ],
+      "concepts": [
+        "running",
+        "beginner-running-plan",
+        "warm-up-process",
+        "easy-run-process",
+        "recovery-process",
+        "running-shoes-example"
+      ],
+      "relations": [
+        "has-step",
+        "precedes",
+        "requires-equipment"
+      ],
+      "limitations": "A basic plan structure is represented. Safe progression, individual constraints, and training detail need additional knowledge and context."
+    },
+    {
+      "id": "dolly-008",
+      "status": "represented",
+      "areas": [
+        "television",
+        "media production"
+      ],
+      "concepts": [
+        "game-of-thrones",
+        "game-of-thrones-season-four",
+        "oathkeeper",
+        "first-of-his-name",
+        "michelle-maclaren",
+        "episode",
+        "season"
+      ],
+      "relations": [
+        "has-season",
+        "has-episode",
+        "directed-by",
+        "episode-of"
+      ],
+      "limitations": "Season-four episode and director links are represented."
+    },
+    {
+      "id": "dolly-009",
+      "status": "partial",
+      "areas": [
+        "crafts",
+        "materials",
+        "object function"
+      ],
+      "concepts": [
+        "curtain",
+        "curtain-tieback",
+        "ribbon",
+        "rope",
+        "fabric",
+        "bead",
+        "craft-activity"
+      ],
+      "relations": [
+        "made-of",
+        "has-use-case"
+      ],
+      "limitations": "Materials and object construction are represented; generating varied designs still requires compositional planning."
+    },
+    {
+      "id": "dolly-010",
+      "status": "represented",
+      "areas": [
+        "music",
+        "instrument classification"
+      ],
+      "concepts": [
+        "cantaro",
+        "gudok",
+        "percussion-instrument",
+        "string-instrument",
+        "bowed-string-mechanism"
+      ],
+      "relations": [
+        "has-sound-production-mechanism",
+        "instance-of",
+        "is-a"
+      ],
+      "limitations": "Cantaro and Gudok are connected to their respective sound-production mechanisms."
+    },
+    {
+      "id": "dolly-011",
+      "status": "partial",
+      "areas": [
+        "sports",
+        "companies",
+        "products"
+      ],
+      "concepts": [
+        "golf-equipment-company",
+        "titleist",
+        "callaway",
+        "taylormade",
+        "ping",
+        "cobra-golf",
+        "golf"
+      ],
+      "relations": [
+        "makes-equipment-for"
+      ],
+      "limitations": "Five example golf-equipment companies are represented, but a current 'top five' ranking is not asserted."
+    },
+    {
+      "id": "dolly-012",
+      "status": "represented",
+      "areas": [
+        "sports",
+        "Olympic history"
+      ],
+      "concepts": [
+        "michael-phelps",
+        "swimmer",
+        "athlete",
+        "sports-record",
+        "most-olympic-gold-medals-record"
+      ],
+      "relations": [
+        "holds-record"
+      ],
+      "limitations": "The record-holder relationship is represented; exact medal counts are not currently modeled."
+    },
+    {
+      "id": "dolly-013",
+      "status": "represented",
+      "areas": [
+        "art history",
+        "painting"
+      ],
+      "concepts": [
+        "girl-with-pearl-earring",
+        "johannes-vermeer",
+        "artist",
+        "painting"
+      ],
+      "relations": [
+        "created-by"
+      ],
+      "limitations": "The painting-to-artist relation is represented."
+    },
+    {
+      "id": "dolly-014",
+      "status": "represented",
+      "areas": [
+        "astronomy",
+        "Earth science"
+      ],
+      "concepts": [
+        "sun",
+        "earth",
+        "planet",
+        "star",
+        "rotation",
+        "earth-rotation",
+        "day-night-cycle",
+        "sunset",
+        "sunlight"
+      ],
+      "relations": [
+        "rotates-on-axis",
+        "causes-day-night-cycle",
+        "explains-sunset",
+        "illuminates",
+        "emits-solar-radiation"
+      ],
+      "limitations": "The model connects Earth's rotation, sunlight, day/night, and apparent sunset."
+    },
+    {
+      "id": "dolly-015",
+      "status": "represented",
+      "areas": [
+        "language",
+        "grammar"
+      ],
+      "concepts": [
+        "verb",
+        "part-of-speech",
+        "lexical-item",
+        "semantic-content",
+        "action-or-state",
+        "action",
+        "state"
+      ],
+      "relations": [
+        "expresses-content",
+        "is-a"
+      ],
+      "limitations": "Verb is connected to lexical items and the semantic content they express."
+    },
+    {
+      "id": "dolly-016",
+      "status": "partial",
+      "areas": [
+        "transportation",
+        "object classification"
+      ],
+      "concepts": [
+        "train",
+        "plane",
+        "bicycle",
+        "scooter",
+        "vehicle",
+        "transportation-activity",
+        "transportation-example"
+      ],
+      "relations": [
+        "used-for",
+        "is-a",
+        "instance-of"
+      ],
+      "limitations": "Positive transportation examples are represented. The graph does not yet classify every distractor object in the prompt."
+    },
+    {
+      "id": "dolly-017",
+      "status": "represented",
+      "areas": [
+        "music",
+        "instrument classification"
+      ],
+      "concepts": [
+        "panduri",
+        "zurna",
+        "string-instrument",
+        "woodwind-instrument",
+        "plucked-string-mechanism",
+        "woodwind-mechanism"
+      ],
+      "relations": [
+        "has-sound-production-mechanism",
+        "is-a",
+        "instance-of"
+      ],
+      "limitations": "Instrument mechanisms support the requested classification."
+    },
+    {
+      "id": "dolly-018",
+      "status": "not-represented",
+      "areas": [
+        "organizations",
+        "business ideation"
+      ],
+      "concepts": [
+        "greystone-inc",
+        "organization",
+        "company"
+      ],
+      "relations": [],
+      "limitations": "Only the company entity is known. Its industry, goals, audience, and constraints are unspecified; inventing them would be unjustified."
+    },
+    {
+      "id": "dolly-019",
+      "status": "partial",
+      "areas": [
+        "food",
+        "produce",
+        "annual lists"
+      ],
+      "concepts": [
+        "dirty-dozen-list",
+        "annual-produce-list",
+        "environmental-working-group",
+        "food"
+      ],
+      "relations": [
+        "compiled-by",
+        "appears-on-list"
+      ],
+      "limitations": "The list structure is represented, but the prompt omits the foods and year. Membership is annual and requires current evidence."
+    },
+    {
+      "id": "dolly-020",
+      "status": "partial",
+      "areas": [
+        "music theory",
+        "composition"
+      ],
+      "concepts": [
+        "music-theory",
+        "musical-concept",
+        "melody",
+        "harmony",
+        "rhythm",
+        "meter",
+        "pitch",
+        "musical-interval",
+        "scale",
+        "chord",
+        "musical-key",
+        "musical-notation",
+        "musical-composition",
+        "composition-activity"
+      ],
+      "relations": [
+        "uses-musical-concept",
+        "contains-melody",
+        "contains-harmony",
+        "contains-rhythm"
+      ],
+      "limitations": "Core theory concepts are connected to composition. The model does not yet represent a full theory curriculum or skill progression."
+    },
+    {
+      "id": "dolly-021",
+      "status": "represented",
+      "areas": [
+        "music",
+        "instrument classification"
+      ],
+      "concepts": [
+        "guitar",
+        "violin",
+        "piano",
+        "harmonium",
+        "cello",
+        "accordion",
+        "banjo",
+        "string-instrument",
+        "keyboard-instrument"
+      ],
+      "relations": [
+        "is-a",
+        "instance-of",
+        "has-sound-production-mechanism"
+      ],
+      "limitations": "The instrument taxonomy supports both string and keyboard classifications."
+    },
+    {
+      "id": "dolly-022",
+      "status": "represented",
+      "areas": [
+        "geography",
+        "mountains"
+      ],
+      "concepts": [
+        "mount-whitney",
+        "contiguous-united-states",
+        "california",
+        "sierra-nevada",
+        "mountain",
+        "geographic-region"
+      ],
+      "relations": [
+        "highest-point-of",
+        "part-of-geographic-region"
+      ],
+      "limitations": "Mount Whitney is linked as the highest point of the contiguous United States."
+    },
+    {
+      "id": "dolly-023",
+      "status": "partial",
+      "areas": [
+        "film",
+        "comedy",
+        "1980s"
+      ],
+      "concepts": [
+        "airplane-film",
+        "ghostbusters-film",
+        "coming-to-america-film",
+        "ferris-bueller-film",
+        "fish-called-wanda-film",
+        "comedy-genre",
+        "decade-1980s"
+      ],
+      "relations": [
+        "has-genre",
+        "released-during"
+      ],
+      "limitations": "Representative films are linked to comedy and the 1980s. 'Best' is subjective and no ranking is encoded."
+    },
+    {
+      "id": "dolly-024",
+      "status": "represented",
+      "areas": [
+        "golf",
+        "scoring"
+      ],
+      "concepts": [
+        "albatross",
+        "three-under-par",
+        "golf-scoring-term",
+        "score-meaning"
+      ],
+      "relations": [
+        "has-score-meaning"
+      ],
+      "limitations": "Albatross is linked to a score of three strokes under par."
+    },
+    {
+      "id": "dolly-025",
+      "status": "represented",
+      "areas": [
+        "food",
+        "breakfast"
+      ],
+      "concepts": [
+        "full-english-breakfast",
+        "egg",
+        "bacon",
+        "sausage",
+        "baked-beans",
+        "mushrooms",
+        "tomatoes",
+        "toast",
+        "black-pudding",
+        "ingredient"
+      ],
+      "relations": [
+        "has-ingredient"
+      ],
+      "limitations": "Common ingredients are represented; regional variations remain possible."
+    },
+    {
+      "id": "dolly-026",
+      "status": "partial",
+      "areas": [
+        "travel",
+        "geography",
+        "planning"
+      ],
+      "concepts": [
+        "three-day-road-trip",
+        "westfield-new-jersey",
+        "road-trip",
+        "travel-trip",
+        "plan",
+        "time-interval"
+      ],
+      "relations": [
+        "starts-in",
+        "has-time",
+        "has-step"
+      ],
+      "limitations": "The origin, trip type, and duration structure are represented. Actual destinations and route planning require preferences and current geographic data."
+    },
+    {
+      "id": "dolly-027",
+      "status": "partial",
+      "areas": [
+        "transportation",
+        "mechanical systems"
+      ],
+      "concepts": [
+        "manual-car-example",
+        "manual-transmission",
+        "transmission",
+        "clutch",
+        "gear-lever",
+        "gear",
+        "engine"
+      ],
+      "relations": [
+        "uses-transmission",
+        "clutch-engages",
+        "gear-lever-selects"
+      ],
+      "limitations": "The main components and some interactions are represented. A complete operating sequence and safety conditions remain to be modeled."
+    },
+    {
+      "id": "dolly-028",
+      "status": "represented",
+      "areas": [
+        "materials",
+        "reuse",
+        "object function"
+      ],
+      "concepts": [
+        "empty-aluminum-can",
+        "reusable-container",
+        "aluminum",
+        "pencil-holder-example",
+        "small-planter-example",
+        "desk-organizer-example"
+      ],
+      "relations": [
+        "made-of",
+        "can-serve-as"
+      ],
+      "limitations": "Several reuse functions are connected to the can and example objects."
+    },
+    {
+      "id": "dolly-029",
+      "status": "represented",
+      "areas": [
+        "television",
+        "fictional characters"
+      ],
+      "concepts": [
+        "family-matters",
+        "steve-urkel",
+        "winslow-family",
+        "character",
+        "family"
+      ],
+      "relations": [
+        "character-in",
+        "neighbor-of"
+      ],
+      "limitations": "Steve Urkel is linked to Family Matters and the Winslow family."
+    },
+    {
+      "id": "dolly-030",
+      "status": "partial",
+      "areas": [
+        "film industry",
+        "geography",
+        "public policy"
+      ],
+      "concepts": [
+        "georgia-us",
+        "georgia-film-tax-credit",
+        "film-production-in-georgia",
+        "production-activity",
+        "economic-incentive"
+      ],
+      "relations": [
+        "has-tax-incentive",
+        "attracts-production"
+      ],
+      "limitations": "The tax-incentive connection is represented. Crew availability, studios, locations, infrastructure, and other causal factors are not yet modeled."
+    }
+  ]
+}
