@@ -30,6 +30,14 @@ internal static class SemanticWorldModelQuestionParser
         @"^Who (?<verb>[A-Za-z]+) (?<subject>[A-Za-z][A-Za-z0-9'’! -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypedInverseRelationWithContextPattern = new(
+        @"^Which (?<type>[A-Za-z][A-Za-z -]*?) of (?<context>[A-Za-z][A-Za-z0-9'’! -]*?) did (?<agent>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex TypedInverseRelationPattern = new(
+        @"^Which (?<type>[A-Za-z][A-Za-z -]*?) did (?<agent>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -96,6 +104,31 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationAction.Groups["subject"].Value),
                 concept: Normalize(relationAction.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typedInverseWithContext = TypedInverseRelationWithContextPattern.Match(text);
+        if (typedInverseWithContext.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.InverseRelation,
+                subject: Normalize(typedInverseWithContext.Groups["agent"].Value),
+                concept: Normalize(typedInverseWithContext.Groups["verb"].Value),
+                otherSubject: Normalize(typedInverseWithContext.Groups["context"].Value),
+                targetType: NormalizeType(typedInverseWithContext.Groups["type"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var typedInverse = TypedInverseRelationPattern.Match(text);
+        if (typedInverse.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.InverseRelation,
+                subject: Normalize(typedInverse.Groups["agent"].Value),
+                concept: Normalize(typedInverse.Groups["verb"].Value),
+                targetType: NormalizeType(typedInverse.Groups["type"].Value),
                 sourceText: source);
             return true;
         }
@@ -188,6 +221,19 @@ internal static class SemanticWorldModelQuestionParser
             UtteranceKind.Question,
             new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType),
             sourceText ?? string.Empty);
+
+    private static string NormalizeType(string value)
+    {
+        var normalized = Normalize(value);
+        if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
+        {
+            return normalized[..^3] + "y";
+        }
+
+        return normalized.EndsWith('s') && !normalized.EndsWith("ss", StringComparison.Ordinal)
+            ? normalized[..^1]
+            : normalized;
+    }
 
     private static string Normalize(string value)
     {
