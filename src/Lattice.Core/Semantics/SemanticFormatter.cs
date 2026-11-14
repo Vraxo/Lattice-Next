@@ -66,6 +66,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery => $"world-model-typed-object-relation({question.Subject}, {question.Concept}, {question.TargetType})",
             SemanticWorldModelQuestionKind.EventOutcomeExplanation => $"world-model-event-outcome({question.Subject})",
             SemanticWorldModelQuestionKind.HighestPointQuery => $"world-model-highest-point({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.IngredientListQuery => $"world-model-ingredients({question.Subject})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
