@@ -7,6 +7,65 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Distinguishes_continental_and_contiguous_US_highest_mountains()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in the continental US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount McKinley is the tallest mountain in the continental United States. If you mean the contiguous United States, Mount Whitney is the tallest mountain there.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-highest-point(continental-united-states, mountain))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:continental-united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Answers_highest_mountain_in_contiguous_US_from_regional_relation()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the highest mountain in the contiguous US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount Whitney is the tallest mountain in the contiguous United States.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(item => item.Sources),
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Abstains_when_region_has_no_supported_highest_point()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in Canada?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Selects_transportation_items_from_explicit_activity_relations()
     {
         var client = new LatticeRuntimeClient();
