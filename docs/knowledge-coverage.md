@@ -18,23 +18,23 @@ The ontology now contains:
 
 The 34 benchmark prompts are currently mapped as:
 
-- 16 represented at the ontology level
-- 17 partially represented
+- 17 represented at the ontology level
+- 16 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #215's head `78316eb22e80915db90edac00fad0de89efa5867`:
+The latest fully executed integrated run is PR #216's head `d8ef1eea75cc1f2529f491c9806a7c583713963d`:
 
 - .NET build: passed
-- .NET tests: 908 passed, 0 failed
+- .NET tests: 910 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 11 substantive answers, 13 answered, 14 handled, 20 unhandled, 0 runner errors
-- Average latency: 378 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 12 substantive answers, 14 answered, 15 handled, 19 unhandled, 0 runner errors
+- Average latency: 250 ms (single run; stability not measured)
 
-Dolly-003, Dolly-004, Dolly-005, and Dolly-013 have been individually inspected and marked as substantively reviewed. Their answers are composed from graph relations and explicit premises; they are not stored answer sentences. The runtime benchmark score is **11/34 (32.4%)**. The separate `substantive_answer_reviewed` metadata count is 12; it is a review count, not a runtime capability score.
+The runtime benchmark score is **12/34 (35.3%)**. Dolly-014's sunset answer was individually inspected in the benchmark output: it composes nighttime, Earth's rotation, apparent solar motion, and the day-night cycle from explicit graph assertions and includes those supporting relations as evidence. The separate `substantive_answer_reviewed` metadata count is 13; it is a review count, not the runtime score.
 
 ## Cross-domain structure
 
