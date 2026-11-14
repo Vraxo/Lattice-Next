@@ -292,3 +292,8 @@ This is still a deliberately limited slice of English, not unrestricted language
 ## Typed inverse relation questions
 
 Questions of the form "Which <type> did <agent> <verb>?" query relation assertions in the inverse direction and filter the returned subjects by the requested type. An optional "of <context>" phrase further restricts results to subjects directly connected to that context by a declared individual-to-individual relation. The answer is composed from the matching graph assertions and includes evidence for both the requested relation and context constraint. Missing or ambiguous relation signatures remain unanswered.
+
+
+## Capability explanations from adaptation graphs
+
+The capability-explanation question form accepts "Why can <subject> <verb> ...?" and currently supports the survival predicate. The subject resolves to a type; the responder finds its known individuals, their adaptations, and the physiological processes linked to water-loss reduction. It answers only when the graph also connects the relevant adaptations to the explicit water-deprivation condition and includes dehydration-tolerance evidence. The response is composed from these graph paths rather than a stored explanation. It does not infer quantitative survival durations or claim that camels can survive indefinitely without water.

@@ -162,7 +162,7 @@
         "includes-physiological-process",
         "stores-substance"
       ],
-      "limitations": "The graph captures several water-conservation adaptations and distinguishes hump fat from stored water. A complete physiology account needs further evidence and detail."
+      "limitations": "The graph links camel water conservation to urine concentration, reduced fecal water loss, nasal water recovery, and survival under water deprivation; it also distinguishes hump fat from stored water. Quantitative survival duration and species-specific variation are not modeled."
     },
     {
       "id": "dolly-003",

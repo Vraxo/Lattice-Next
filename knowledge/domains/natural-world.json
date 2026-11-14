@@ -69,6 +69,16 @@
       "kind": "Type"
     },
     {
+      "id": "water-deprivation",
+      "label": "water deprivation",
+      "kind": "Type"
+    },
+    {
+      "id": "water-deprivation-condition",
+      "label": "water deprivation condition",
+      "kind": "Individual"
+    },
+    {
       "id": "planet",
       "label": "planet",
       "kind": "Type"
@@ -246,6 +256,16 @@
       "partOfSpeech": "noun"
     },
     {
+      "form": "water deprivation",
+      "concept": "water-deprivation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camels",
+      "concept": "camel",
+      "partOfSpeech": "noun"
+    },
+    {
       "form": "planet",
       "concept": "planet",
       "partOfSpeech": "noun"
@@ -413,6 +433,17 @@
       "objectKind": "Individual"
     },
     {
+      "id": "supports-survival-under",
+      "domain": "biological-adaptation",
+      "range": "condition",
+      "verb": "supports survival under",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
       "id": "reduces-water-loss",
       "domain": "biological-adaptation",
       "range": "physiological-process",
@@ -559,6 +590,12 @@
       "sufficientExpression": null
     },
     {
+      "concept": "water-deprivation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
       "concept": "planet",
       "definitionKind": "primitive",
       "necessaryConditions": [],
@@ -666,6 +703,16 @@
       "subject": "thermoregulation",
       "relation": "is-a",
       "object": "physiological-process"
+    },
+    {
+      "subject": "water-deprivation",
+      "relation": "is-a",
+      "object": "condition"
+    },
+    {
+      "subject": "water-deprivation-condition",
+      "relation": "instance-of",
+      "object": "water-deprivation"
     },
     {
       "subject": "planet",
@@ -811,6 +858,31 @@
       "subject": "camel-water-conservation",
       "relation": "includes-physiological-process",
       "object": "camel-nasal-water-recovery"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "reduces-water-loss",
+      "object": "camel-urine-concentration"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "reduces-water-loss",
+      "object": "camel-fecal-water-reduction"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "reduces-water-loss",
+      "object": "camel-nasal-water-recovery"
+    },
+    {
+      "subject": "camel-water-conservation",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
+    },
+    {
+      "subject": "camel-dehydration-tolerance",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
     },
     {
       "subject": "earth",
