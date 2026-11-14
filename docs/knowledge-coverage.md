@@ -141,3 +141,8 @@ Grounding:
 - [International Golf Federation, Golf Glossary](https://www.igfgolf.org/pdf/media-centre/golf-glossary-for-website.pdf) cross-references albatross and double eagle.
 
 The answer is a terminology distinction, not a claim that the terms denote different scores.
+
+
+## Common ingredient queries
+
+The full English breakfast is represented as a dish with eight asserted food-ingredient relations: egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding. The generic `What are common <type> of <subject>?` query form resolves the requested ingredient type, returns only graph-backed targets, and includes both the ingredient relations and type memberships as evidence. It abstains for unknown dishes and unsupported target types.
