@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #223's tested head `3420b66897f9d688b905620807a4396f93245c7a`:
+The latest fully executed integrated run is PR #225's tested head `f2dd0ccf5be738a75823fce5ad78e8dc651ee241` (run `43610580041`):
 
 - .NET build: passed
-- .NET tests: 918 passed, 0 failed
+- .NET tests: 920 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 15 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
-- Average latency: 262 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 16 substantively reviewed answers, 18 answered, 19 handled, 15 unhandled, 0 runner errors
+- Average latency: 259 ms (single run; stability not measured)
 
-The runtime benchmark score is **15/34 (44.1%)**. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
+The runtime benchmark score is **16/34 (47.1%)**. Dolly-025's current run produced a `QuestionAnswered` result; after manually reviewing its ingredient list against the reference, its substantive-review flag was set to true. Dolly-024 is now substantively answered: the model resolves the regional term through the United States usage assertion, links it to the same three-under-par meaning as albatross, and composes “In golf in the United States, an albatross is also called a double eagle.” Dolly-016's answer remains graph-grounded: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation.
 
 ## Cross-domain structure
 
@@ -146,3 +146,8 @@ The answer is a terminology distinction, not a claim that the terms denote diffe
 ## Common ingredient queries
 
 The full English breakfast is represented as a dish with eight asserted food-ingredient relations: egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding. The generic `What are common <type> of <subject>?` query form resolves the requested ingredient type, returns only graph-backed targets, and includes both the ingredient relations and type memberships as evidence. It abstains for unknown dishes and unsupported target types.
+
+
+Grounding for the full English breakfast ingredient list:
+- [BBC Good Food — What is a full English breakfast?](https://www.bbcgoodfood.com/howto/guide/what-is-a-full-english-breakfast) identifies eggs, bacon, toast, tomatoes, baked beans, and sausages as essentials, with mushrooms and black pudding among common additions. It also notes that modern plates vary and do not always contain every component.
+- [English Breakfast Society — Reference Guide](https://englishbreakfastsociety.com/reference/) describes the core components and recognises regional variation.
