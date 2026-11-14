@@ -748,4 +748,24 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId == "core-world-model:relation:harmonium-action:directs-air-through:harmonium-reeds"));
     }
 
+    [Fact]
+    public async Task Answers_relation_target_questions_from_the_semantic_graph()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var turn = await session.SubmitAsync("What does the piano action actuate?");
+        var utterance = Assert.Single(turn.Utterances);
+
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal("The piano action actuates the piano hammers.", utterance.Message);
+        Assert.Equal(
+            "ask(relation-targets(piano-action, actuate))",
+            utterance.SemanticMeaning);
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano-action:actuates:piano-hammers"));
+    }
+
 }
