@@ -329,3 +329,8 @@ The `What happens when <event>?` construction resolves an event type, follows a 
 ### Activity-based item selection
 
 The construction `Which of the following is useful for <activity>: <items>?` resolves the activity and each listed item as semantic types. The responder selects only item types with modeled individual instances connected to an instance of the requested activity by an asserted `is used for` relation. It composes the selected list from those graph paths and their evidence. Unknown items and items without supporting relations are not treated as proven unsuitable; if no candidate has support, the responder abstains.
+
+
+### Regional highest-point questions
+
+The `What is the tallest/highest <feature type> in <region>?` construction resolves the feature type and region, then follows a typed `highest-point-of` assertion. It requires a unique supported peak and includes its type-membership evidence. When the requested region contains a modeled contiguous subregion, the answer can state that narrower region's highest point as a clarification. Unknown regions or missing/ambiguous highest-point assertions cause abstention.
