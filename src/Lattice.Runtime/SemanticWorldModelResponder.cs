@@ -44,6 +44,8 @@ internal static class SemanticWorldModelResponder
                     reasoner,
                     out message,
                     out evidence),
+            SemanticWorldModelQuestionKind.TypedObjectRelationQuery =>
+                TryTypedObjectRelationQuery(request.Subject, request.Concept ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ImpactExplanation =>
                 TryExplainImpact(request.Subject, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
@@ -195,6 +197,85 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryTypedObjectRelationQuery(
+        string objectId,
+        string activeVerb,
+        string targetTypeId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var knownObject = model.FindConcept(objectId, SemanticConceptKind.Individual);
+        var targetType = model.FindConcept(targetTypeId, SemanticConceptKind.Type);
+        if (knownObject is null || targetType is null)
+        {
+            return false;
+        }
+
+        var matchingRelations = model.Relations
+            .Where(relation =>
+                relation.SubjectKind == SemanticConceptKind.Individual &&
+                relation.ObjectKind == SemanticConceptKind.Individual &&
+                relation.Verb.StartsWith("is ", StringComparison.OrdinalIgnoreCase) &&
+                relation.Verb.EndsWith(" by", StringComparison.OrdinalIgnoreCase) &&
+                MatchesActiveVerb(relation.Verb[3..^3].Trim(), activeVerb))
+            .ToArray();
+        if (matchingRelations.Length != 1)
+        {
+            return false;
+        }
+
+        var relation = matchingRelations[0];
+        if ((relation.DomainType is not null &&
+                !reasoner.IsInstanceOf(knownObject.Id, relation.DomainType)) ||
+            (relation.RangeType is not null &&
+                !reasoner.IsSubtypeOf(targetType.Id, relation.RangeType)))
+        {
+            return false;
+        }
+
+        var matches = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == knownObject.Id &&
+                assertion.Relation == relation.Id)
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Answer = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item =>
+                item.Answer is not null &&
+                reasoner.IsInstanceOf(item.Answer.Id, targetType.Id))
+            .ToArray();
+        if (matches.Length != 1)
+        {
+            return false;
+        }
+
+        var answer = matches[0].Answer!;
+        var objectMembership = relation.DomainType is null
+            ? ImmutableArray<SemanticWorldModelSource>.Empty
+            : reasoner.GetMembershipEvidence(knownObject.Id, relation.DomainType);
+        var answerMembership = reasoner.GetMembershipEvidence(answer.Id, targetType.Id);
+        var sources = ImmutableArray.Create(matches[0].Assertion.Source)
+            .AddRange(objectMembership)
+            .AddRange(answerMembership)
+            .Distinct()
+            .ToImmutableArray();
+
+        var relativePronoun = targetType.Id == "person" ||
+            reasoner.IsSubtypeOf(targetType.Id, "person")
+            ? "who"
+            : "that";
+        message = $"{answer.Label} is the {targetType.Label} {relativePronoun} {activeVerb} {knownObject.Label}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryExplainImpact(
