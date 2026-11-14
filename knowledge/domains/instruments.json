@@ -1424,6 +1424,11 @@
       "object": "woodwind-mechanism"
     },
     {
+      "subject": "piano-strings",
+      "relation": "instance-of",
+      "object": "physical-component"
+    },
+    {
       "subject": "piano-hammers",
       "relation": "instance-of",
       "object": "physical-component"
