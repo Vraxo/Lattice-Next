@@ -24,6 +24,17 @@ The 34 benchmark prompts are currently mapped as:
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
+## Runtime benchmark result
+
+The latest CI run completed successfully:
+
+- .NET test suite: 876 passed, 0 failed
+- External Python tool tests: passed
+- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 8 handled, 26 unhandled, 0 runner errors
+- Average latency: 259 ms (single run; stability not measured)
+
+The benchmark result did not improve relative to the previous run. This is expected from an ontology-only expansion: the new subgraphs are now present and validated, but the current language interpreter and responder still do not reliably navigate many of them. Improving end-to-end coverage requires connecting language understanding and answer composition to these graph structures; it should not be disguised as a knowledge-count improvement.
+
 ## Cross-domain structure
 
 The graph deliberately reuses foundational types and relations:
