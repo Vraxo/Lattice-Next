@@ -11,10 +11,10 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 548 concepts: 315 types and 233 individuals
-- 133 relation signatures
-- 832 graph assertions
-- 551 lexical forms
+- 550 concepts: 316 types and 234 individuals
+- 134 relation signatures
+- 835 graph assertions
+- 552 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
@@ -26,7 +26,7 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #212's head `aadf0acb20fe1c53e0371662343d9bfaac640c5d`:
+The latest fully executed integrated run is PR #213's head `566cf6c6e5fa4e781a15fbbdaeac072958d40af0`:
 
 - .NET build: passed
 - .NET tests: 900 passed, 0 failed
@@ -34,7 +34,7 @@ The latest fully executed integrated run is PR #212's head `aadf0acb20fe1c53e037
 - Assistant benchmark: 34 prompts, 8 substantive answers, 11 answered, 12 handled, 22 unhandled, 0 runner errors
 - Average latency: 343 ms (single run; stability not measured)
 
-Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. The separate `substantive_answer_reviewed` metadata count is 9; it is a review count, not a runtime capability score.
+Dolly-003's response was inspected and marked as substantively reviewed. Its answer is derived from the family-set formula, the user's stated parent/set/cardinality premises, and the model's female-person classification for Alice. The benchmark's substantive answer count is now **8/34 (23.5%)**. Dolly-004's contribution answer has also since been manually reviewed; the separate `substantive_answer_reviewed` metadata count is now 10. That is a review count, not a runtime capability score, and Dolly-004 will only affect the runtime score after the next benchmark execution.
 
 ## Cross-domain structure
 
