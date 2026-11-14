@@ -317,6 +317,21 @@
       "id": "piano-example",
       "label": "example piano",
       "kind": "Individual"
+    },
+    {
+      "id": "hammer-component",
+      "label": "hammer",
+      "kind": "Type"
+    },
+    {
+      "id": "piano-keyboard-interface",
+      "label": "piano keyboard interface",
+      "kind": "Type"
+    },
+    {
+      "id": "piano-hammer-action",
+      "label": "piano hammer action",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -634,6 +649,21 @@
       "form": "example piano",
       "concept": "piano-example",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "hammer",
+      "concept": "hammer-component",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "piano keyboard interface",
+      "concept": "piano-keyboard-interface",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "piano hammer action",
+      "concept": "piano-hammer-action",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -1024,15 +1054,46 @@
           {
             "kind": "some",
             "relation": "has-playing-interface",
-            "targetType": "keyboard-interface"
+            "targetType": "piano-keyboard-interface"
           },
           {
             "kind": "some",
             "relation": "has-sound-production-mechanism",
-            "targetType": "struck-string-mechanism"
+            "targetType": "piano-hammer-action"
           }
         ]
       }
+    },
+    {
+      "concept": "piano-keyboard-interface",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "activates",
+        "targetType": "piano-hammer-action"
+      }
+    },
+    {
+      "concept": "piano-hammer-action",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "actuates",
+        "targetType": "hammer-component",
+        "filler": {
+          "kind": "some",
+          "relation": "strikes",
+          "targetType": "string-component"
+        }
+      }
+    },
+    {
+      "concept": "hammer-component",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -1492,11 +1553,6 @@
       "object": "accordion-bellows"
     },
     {
-      "subject": "piano-example",
-      "relation": "instance-of",
-      "object": "piano"
-    },
-    {
       "subject": "piano",
       "relation": "is-a",
       "object": "keyboard-instrument"
@@ -1505,6 +1561,26 @@
       "subject": "piano",
       "relation": "is-a",
       "object": "struck-string-instrument"
+    },
+    {
+      "subject": "piano-keyboard-interface",
+      "relation": "is-a",
+      "object": "keyboard-interface"
+    },
+    {
+      "subject": "piano-hammer-action",
+      "relation": "is-a",
+      "object": "struck-string-mechanism"
+    },
+    {
+      "subject": "piano-action",
+      "relation": "instance-of",
+      "object": "sound-production-mechanism"
+    },
+    {
+      "subject": "piano-hammers",
+      "relation": "instance-of",
+      "object": "hammer-component"
     }
   ],
   "dataProperties": [],
