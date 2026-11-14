@@ -468,6 +468,26 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var startRelation = model.FindRelation(expression.StartRelation!);
+            var traversalRelation = model.FindRelation(expression.Relation!);
+            var targetType = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            var cycleSources = reasoner.GetCycleEvidence(individual, expression);
+            if (startRelation is null || traversalRelation is null ||
+                targetType is null || cycleSources.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            phrases =
+            [
+                $"starts at {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element"
+            ];
+            sources = cycleSources;
+            return true;
+        }
+
         if (expression.Kind == SemanticClassExpressionKind.Or)
         {
             foreach (var operand in expression.Operands)
@@ -764,6 +784,15 @@ internal static class SemanticWorldModelResponder
 
             var filler = FormatExpression(expression.Filler, model);
             return filler is null ? null : $"{phrase} that {filler}";
+        }
+
+        if (expression.Kind == SemanticClassExpressionKind.Cycle)
+        {
+            var traversal = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            return traversal is null || target is null
+                ? null
+                : $"starts at {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element";
         }
 
         var phrases = expression.Operands
