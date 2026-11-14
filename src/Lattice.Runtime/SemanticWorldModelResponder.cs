@@ -24,6 +24,8 @@ internal static class SemanticWorldModelResponder
                 TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CapabilityExplanation =>
+                TryExplainCapability(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
                 TryExplainMechanism(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Causes =>
@@ -189,6 +191,82 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryExplainCapability(
+        string requestedSubject,
+        string requestedCapability,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (!string.Equals(requestedCapability, "survive", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var subjectType = model.FindConcept(requestedSubject, SemanticConceptKind.Type);
+        if (subjectType is null)
+        {
+            return false;
+        }
+
+        var individuals = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, subjectType.Id))
+            .ToArray();
+        var adaptations = individuals
+            .SelectMany(individual => reasoner.GetRelations(individual.Id, "has-adaptation"))
+            .ToArray();
+        var survivalAssertions = adaptations
+            .SelectMany(adaptation => reasoner.GetRelations(adaptation.Object, "supports-survival-under"))
+            .ToArray();
+        var condition = model.FindConcept("water-deprivation-condition", SemanticConceptKind.Individual);
+        if (condition is null ||
+            !survivalAssertions.Any(assertion => assertion.Object == condition.Id))
+        {
+            return false;
+        }
+
+        var waterConservation = adaptations
+            .Where(adaptation => reasoner.IsInstanceOf(adaptation.Object, "water-conservation"))
+            .ToArray();
+        var processes = waterConservation
+            .SelectMany(adaptation => reasoner.GetRelations(adaptation.Object, "reduces-water-loss"))
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!)
+            .DistinctBy(concept => concept.Id)
+            .ToArray();
+        var dehydrationTolerance = adaptations
+            .Where(adaptation => reasoner.IsInstanceOf(adaptation.Object, "dehydration-tolerance"))
+            .ToArray();
+
+        if (waterConservation.Length == 0 || processes.Length == 0 || dehydrationTolerance.Length == 0)
+        {
+            return false;
+        }
+
+        var processNames = processes
+            .Select(process => process.Label.StartsWith($"{subjectType.Label} ", StringComparison.OrdinalIgnoreCase)
+                ? process.Label[(subjectType.Label.Length + 1)..]
+                : process.Label)
+            .ToArray();
+        var subjectLabel = subjectType.Label;
+        message = $"{Capitalize(subjectLabel)} can survive periods without drinking water because its water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Its dehydration-tolerance adaptation also supports survival during water deprivation.";
+        var sources = adaptations.Select(adaptation => adaptation.Source)
+            .Concat(survivalAssertions.Select(assertion => assertion.Source))
+            .Concat(waterConservation.SelectMany(adaptation =>
+                reasoner.GetRelations(adaptation.Object, "reduces-water-loss").Select(assertion => assertion.Source)))
+            .Concat(dehydrationTolerance.Select(adaptation => adaptation.Source))
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryExplainCauses(
