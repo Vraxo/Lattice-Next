@@ -612,6 +612,12 @@
       "domainType": "physical-component",
       "valueType": "decimal",
       "dimensionUnit": "m"
+    },
+    {
+      "id": "second-moment-of-area",
+      "domainType": "physical-component",
+      "valueType": "decimal",
+      "dimensionUnit": "m4"
     }
   ],
   "dataAssertions": []

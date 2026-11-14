@@ -319,3 +319,22 @@ f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}}
 Here, \(T\) is tension in newtons, \(\mu\) is mass per unit length in kilograms per metre, \(L\) is the vibrating length in metres, \(v\) is transverse wave speed, and \(n\) is a positive integer harmonic number. The fundamental frequency is the case \(n=1\).
 
 This ideal-string model assumes fixed endpoints, uniform tension and linear density, small transverse displacement, and negligible bending stiffness, damping, and coupling to the soundboard. It predicts ideal modal frequencies only; it does not yet predict inharmonicity, decay, loudness, timbre, or radiated sound. No measurements or tuning values are invented for the piano example.
+
+
+## Stiff-string inharmonicity
+
+The stiff-string calculation extends the ideal-string model with Euler–Bernoulli bending stiffness. For a uniform string with fixed endpoints, constant tension, and small transverse displacement, its dimensionless inharmonicity coefficient is:
+
+\[
+B = \frac{\pi^2 E I}{T L^2}
+\]
+
+Here, \(E\) is Young's modulus, \(I\) is the cross-section's second moment of area about the relevant bending axis, \(T\) is tension, and \(L\) is vibrating length. The ideal flexible-string fundamental is \(f_0 = \frac{1}{2L}\sqrt{T/\mu}\). The stiff-string partial frequencies are:
+
+\[
+f_n = n f_0 \sqrt{1 + B n^2}
+\]
+
+The first partial is therefore shifted to \(f_1 = f_0\sqrt{1+B}\), and higher partials rise progressively farther above exact integer multiples. The implementation reports both the ideal fundamental and the stiffness-shifted fundamental, plus the requested partial.
+
+The model assumes a uniform isotropic material, constant cross-section, a constant tensile load, and ideal fixed endpoints. It uses the Euler–Bernoulli approximation and does not yet represent string winding, nonuniform construction, frequency-dependent material behavior, boundary compliance, coupling between multiple strings, damping, or soundboard acoustics. The second moment of area must be supplied for the relevant bending axis; it is not inferred from cross-sectional area alone. No physical measurements are assigned to the piano example.

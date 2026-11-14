@@ -21,6 +21,9 @@ public sealed class MechanicalQuantityCalculatorTests
         Assert.True(SemanticUnit.TryConvertToBase(440m, "Hz", out var frequencyDimension, out var frequency));
         Assert.Equal("frequency", frequencyDimension);
         Assert.Equal(440m, frequency);
+        Assert.True(SemanticUnit.TryConvertToBase(1m, "m4", out var momentDimension, out var moment));
+        Assert.Equal("second-moment-of-area", momentDimension);
+        Assert.Equal(1m, moment);
     }
 
     [Fact]
