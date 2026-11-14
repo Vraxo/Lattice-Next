@@ -223,12 +223,15 @@
         "sleep-disruption",
         "attention-disruption",
         "reduced-physical-activity",
-        "social-disconnection"
+        "social-disconnection",
+        "driving-distraction",
+        "person"
       ],
       "relations": [
-        "may-contribute-to"
+        "may-contribute-to",
+        "affects"
       ],
-      "limitations": "Potential effects are represented as conditional links, not universal claims that phones are inherently bad. Strength and context need evidence."
+      "limitations": "A typed impact query composes possible device-to-effect paths and explicit effect-to-person assertions. It qualifies effects as possible, not inevitable. The model does not quantify risk, establish causality, distinguish age-specific outcomes, or comprehensively represent benefits."
     },
     {
       "id": "dolly-006",
