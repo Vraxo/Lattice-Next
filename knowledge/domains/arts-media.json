@@ -324,6 +324,16 @@
       "form": "Dutch artists",
       "concept": "dutch-artist",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "Winslow",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslows",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
