@@ -1637,12 +1637,36 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = string.Join(
-            " ",
-            targets.Select((target, index) =>
-                FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
+        if (targetType is not null &&
+            selectedRelation.ObjectRole is null &&
+            selectedRelation.Verb.EndsWith(targetType.Label, StringComparison.OrdinalIgnoreCase))
+        {
+            var baseVerb = selectedRelation.Verb[..^targetType.Label.Length].TrimEnd();
+            var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
+                ? InflectPluralSubjectVerb(baseVerb)
+                : baseVerb;
+            message = $"{Capitalize(IndefinitePhrase(subject.Label))} {verb} {JoinNames(targets.Select(target => target!.Label).ToArray())}.";
+        }
+        else
+        {
+            message = string.Join(
+                " ",
+                targets.Select((target, index) =>
+                    FormatQueryRelation(subject, target!, selectedRelation, model, first: index == 0)));
+        }
+
+        var membershipSources = selectedRelation.DomainType is null
+            ? Enumerable.Empty<SemanticWorldModelSource>()
+            : reasoner.GetMembershipEvidence(subject.Id, selectedRelation.DomainType);
+        var targetMembershipSources = targetType is null
+            ? Enumerable.Empty<SemanticWorldModelSource>()
+            : targets.SelectMany(target => reasoner.GetMembershipEvidence(target!.Id, targetType.Id));
         evidence = ImmutableArray.Create(ToEvidence(
-            assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            assertions.Select(assertion => assertion.Source)
+                .Concat(membershipSources)
+                .Concat(targetMembershipSources)
+                .Distinct()
+                .ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
     }
