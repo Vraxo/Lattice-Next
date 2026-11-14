@@ -152,6 +152,11 @@
       "id": "comedy-genre-example",
       "label": "comedy genre example",
       "kind": "Individual"
+    },
+    {
+      "id": "dutch-artist",
+      "label": "Dutch artist",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -309,6 +314,31 @@
       "form": "comedy genre example",
       "concept": "comedy-genre-example",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "Dutch artist",
+      "concept": "dutch-artist",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Dutch artists",
+      "concept": "dutch-artist",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "movie",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "movies",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "1980's",
+      "concept": "decade-1980s",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [
@@ -372,6 +402,17 @@
       "domain": "media-work",
       "range": "time-interval",
       "verb": "was released during",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "painted-by",
+      "domain": "painting",
+      "range": "artist",
+      "verb": "is painted by",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
@@ -454,6 +495,12 @@
     },
     {
       "concept": "film-production",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dutch-artist",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -709,6 +756,21 @@
       "subject": "comedy-genre-example",
       "relation": "instance-of",
       "object": "comedy-genre"
+    },
+    {
+      "subject": "dutch-artist",
+      "relation": "is-a",
+      "object": "artist"
+    },
+    {
+      "subject": "johannes-vermeer",
+      "relation": "instance-of",
+      "object": "dutch-artist"
+    },
+    {
+      "subject": "girl-with-pearl-earring",
+      "relation": "painted-by",
+      "object": "johannes-vermeer"
     }
   ],
   "dataProperties": [],

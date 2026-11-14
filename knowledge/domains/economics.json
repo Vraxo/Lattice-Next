@@ -624,6 +624,21 @@
       "form": "calendar year",
       "concept": "calendar-year",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "human",
+      "concept": "person",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "humans",
+      "concept": "person",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "people",
+      "concept": "person",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [

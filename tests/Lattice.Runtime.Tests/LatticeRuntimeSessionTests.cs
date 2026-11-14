@@ -7,6 +7,385 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Lists_comedy_films_from_the_requested_decade_without_claiming_a_ranking()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1980's?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Some comedy films from the 1980s include A Fish Called Wanda, Airplane!, Coming to America, Ferris Bueller's Day Off, and Ghostbusters. These are examples, not a ranked 'best' list.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-media-examples(comedy, 1980s))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":airplane-film:released-during:decade-1980s", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":ghostbusters-film:has-genre:comedy-genre-example", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_return_films_when_genre_or_period_constraints_are_unsupported()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedGenre = await session.SubmitAsync(
+            "What are some of the best horror movies of the 1980's?");
+        var unsupportedPeriod = await session.SubmitAsync(
+            "What are some of the best comedy movies of the 1970's?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedGenre.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedPeriod.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Answers_common_ingredient_queries_through_typed_relation_lookup()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What are common ingredients of a full english breakfast?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "A full English breakfast has egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-common-relation-list(full-english-breakfast, has, target-type=ingredient))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:egg", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":egg:instance-of:ingredient", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":full-english-breakfast:has-ingredient:black-pudding", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_ingredients_for_unknown_dishes_or_unmatched_types()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unknownDish = await session.SubmitAsync(
+            "What are common ingredients of a moon sandwich?");
+        var unsupportedType = await session.SubmitAsync(
+            "What are common minerals of a full english breakfast?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unknownDish.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedType.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Resolves_regional_golf_terms_from_shared_score_meaning_and_usage()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "In golf what do the Americans call an albatross");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "In golf in the United States, an albatross is also called a double eagle.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-regional-terminology(albatross, golf, americans))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:regional-equivalent-of:albatross", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:used-in-region:united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":double-eagle:has-score-meaning:three-under-par", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_apply_a_regional_golf_term_to_an_unsupported_sport_or_region()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var unsupportedSport = await session.SubmitAsync(
+            "In tennis what do the Americans call an albatross");
+        var unsupportedRegion = await session.SubmitAsync(
+            "In golf what do Canadians call an albatross");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedSport.Utterances).Kind);
+        Assert.Equal(
+            LatticeUtteranceResultKind.InformationUnavailable,
+            Assert.Single(unsupportedRegion.Utterances).Kind);
+    }
+
+    [Fact]
+    public async Task Distinguishes_continental_and_contiguous_US_highest_mountains()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in the continental US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount McKinley is the tallest mountain in the continental United States. If you mean the contiguous United States, Mount Whitney is the tallest mountain there.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-highest-point(continental-us, mountain))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:continental-united-states", StringComparison.Ordinal));
+        Assert.Contains(
+            evidence.Sources,
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Answers_highest_mountain_in_contiguous_US_from_regional_relation()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the highest mountain in the contiguous US?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mount Whitney is the tallest mountain in the contiguous United States.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(item => item.Sources),
+            source => source.SourceId.Contains(":highest-point-of:contiguous-united-states", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Abstains_when_region_has_no_supported_highest_point()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "What is the tallest mountain in Canada?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
+    public async Task Selects_transportation_items_from_explicit_activity_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which of the following is useful for transportation: a glass of wine, a lamp, a train, an iced cube tray, a plane, a bicycle, an apple and a scooter.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Train, plane, bicycle, and scooter are used for transportation.",
+            answer.Message);
+        Assert.Equal(
+            "ask(select-for-activity(transportation, items(glass-of-wine, lamp, train, iced-cube-tray, plane, bicycle, apple, scooter)))",
+            answer.Meaning);
+        var evidence = Assert.Single(answer.SupportingEvidence);
+        Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
+        Assert.Equal(
+            4,
+            evidence.Sources.Count(source =>
+                source.SourceId.Contains(":used-for:", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("Which of the following is useful for transportation: a lamp and an apple?")]
+    [InlineData("Which of the following are useful for running: a train and a bicycle?")]
+    public async Task Abstains_when_no_candidate_has_an_asserted_activity_relation(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
+    public async Task Explains_sunset_outcome_and_earth_rotation_from_event_graph()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What happens when the sun goes down?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Nighttime begins. Earth's rotation explains why the Sun appears to set and causes the day-night cycle.",
+            answer.Message);
+        Assert.Equal("ask(world-model-event-outcome(sun-goes-down))", answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":marks-start-of:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":explains-sunset:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":causes-day-night-cycle:", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Abstains_when_event_outcome_is_not_represented()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What happens when a toaster breaks?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
+    public async Task Answers_typed_artist_painting_query_from_graph_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which Dutch artist painted “Girl with a Pearl Earring”?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Johannes Vermeer is the Dutch artist who painted Girl with a Pearl Earring.",
+            answer.Message);
+        Assert.Equal(
+            "ask(world-model-typed-object-relation(girl-with-a-pearl-earring, painted, dutch-artist))",
+            answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":painted-by:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source =>
+                    source.SourceId.Contains(":instance-of:dutch-artist", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("Which Dutch artist painted “Unknown Painting”?")]
+    [InlineData("Which mountain painted “Girl with a Pearl Earring”?")]
+    public async Task Abstains_when_typed_object_relation_or_answer_type_is_unsupported(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
+    public async Task Explains_mobile_phone_risks_from_typed_effect_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why mobile is bad for human");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Mobile phones are not inherently bad for people. They may contribute to sleep disruption, attention disruption, reduced physical activity, social disconnection, and distraction while driving. These are possible effects, not inevitable outcomes; the impact depends on how and when the phone is used.",
+            answer.Message);
+        Assert.Equal("ask(world-model-impact-explanation(mobile, human))", answer.Meaning);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Kind == LatticeEvidenceKind.Derived &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":may-contribute-to:", StringComparison.Ordinal)) &&
+                evidence.Sources.Any(source => source.SourceId.Contains(":affects:person", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Parses_the_inverted_harm_question_construction()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why is mobile harmful to human?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("not inherently bad for people", answer.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Resolves_plural_mobile_phone_and_human_lexical_forms()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why mobile phones are bad for people?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("sleep disruption", answer.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("Why hoverboards are bad for human")]
+    [InlineData("Why mobile is bad for software")]
+    public async Task Abstains_when_impact_subject_or_target_is_not_supported(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+    }
+
+    [Fact]
     public async Task Completes_a_family_set_from_the_parent_relationship_and_member_type()
     {
         var client = new LatticeRuntimeClient();
