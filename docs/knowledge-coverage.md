@@ -11,15 +11,15 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 554 concepts: 319 types and 235 individuals
+- 555 concepts: 320 types and 235 individuals
 - 136 relation signatures
-- 842 graph assertions
-- 561 lexical forms
+- 844 graph assertions
+- 562 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 17 represented at the ontology level
-- 16 partially represented
+- 18 represented at the ontology level
+- 15 partially represented
 - 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
