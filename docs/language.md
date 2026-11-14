@@ -276,6 +276,14 @@ The first general query slice supports:
 
 These operations use the same relation signatures, concept identities, assertions, and evidence sources as the rest of the world model. They do not store question-specific answers or add per-entity handlers.
 
-When a membership question does not resolve to a foundational individual and type, the parser preserves compatibility by routing it through the ordinary session knowledge-base query path. Inverse-relation questions require a matching relation signature and asserted graph edge; otherwise the runtime reports that structured evidence is unavailable.
+The relation-query form adds three reusable constructions:
 
-This is an initial vertical slice, not unrestricted English understanding. The parser recognizes explicit constructions and the reasoner answers only what the graph supports. Broader question forms should be added by composing reusable semantic query structures, not by adding one handler per benchmark prompt.
+- **Direct relation lookup:** `Where is the rural hospital located?` resolves the subject and matches the requested verb against relation signatures such as `is located in`.
+- **Action relation lookup:** `What does the piano string bending response produce?` matches the base verb `produce` against a signature such as `produces deformation`, then returns its asserted object.
+- **Pairwise relation lookup:** `How is the rural hospital related to the rural town?` checks for a direct asserted edge between the two resolved individuals and expresses the actual direction of that edge.
+
+A direct lookup is accepted only when the requested verb identifies exactly one compatible relation signature. If the verb is ambiguous, either entity is unresolved, or the graph contains no matching assertion, the runtime abstains. Pairwise lookup currently checks direct edges only; it does not infer arbitrary paths or claim that two entities are related merely because they share a type.
+
+When a membership question does not resolve to a foundational individual and type, the parser preserves compatibility by routing it through the ordinary session knowledge-base query path. Inverse-relation and general relation questions require matching relation signatures and asserted graph edges; otherwise the runtime reports that structured evidence is unavailable.
+
+This is still a deliberately limited slice of English, not unrestricted language understanding. The parser maps explicit question constructions to a shared relation-query representation, and the responder answers only what the graph supports. The next reasoning extension should build multi-hop paths and explicit query constraints on top of this representation rather than adding another handler for every wording.
