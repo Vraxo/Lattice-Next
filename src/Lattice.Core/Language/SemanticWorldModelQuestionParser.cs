@@ -47,7 +47,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex IngredientListPattern = new(
-        @"^What are (?:some )?common ingredients of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\\??$",
+        @"^What are (?:some )?common ingredients of (?:a |an |the )?(?<subject>[A-Za-z][A-Za-z0-9'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex HighestPointPattern = new(
