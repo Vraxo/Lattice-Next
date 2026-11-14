@@ -768,4 +768,24 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId == "core-world-model:relation:piano-action:actuates:piano-hammers"));
     }
 
+    [Fact]
+    public async Task Answers_relation_source_questions_from_the_semantic_graph()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var turn = await session.SubmitAsync("What strikes the piano strings?");
+        var utterance = Assert.Single(turn.Utterances);
+
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal("The piano hammers strikes the piano strings.", utterance.Message);
+        Assert.Equal(
+            "ask(relation-sources(piano-strings, strikes))",
+            utterance.Meaning);
+        Assert.Contains(
+            utterance.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
+    }
+
 }
