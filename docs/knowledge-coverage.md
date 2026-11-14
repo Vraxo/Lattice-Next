@@ -26,15 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #220's head `f15da179b637ec6d422c23d2c1f9d78cce8ec331` (CI run 825):
+The latest fully executed integrated run is PR #220's head `24c72e4627f7483c5416ab1c02272f4694e8308c` (CI run 832):
 
 - .NET build: passed
 - .NET tests: 919 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 14 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
-- Average latency: 259 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 15 substantive answers, 17 answered, 18 handled, 16 unhandled, 0 runner errors
+- Average latency: 265 ms (single run; stability not measured)
 
-The runtime benchmark score is **14/34 (41.2%)**, up from 13/34 on the previous integrated run. Dolly-025's answer was inspected in the benchmark artifact: it lists eight modeled ingredients and cites all eight `has-ingredient` assertions, plus the dish's inherited dish membership and each ingredient's food membership. It is framed as common components, not a mandatory recipe. The separate `substantive_answer_reviewed` metadata count is 16; it is a review count, not the runtime score.
+The runtime benchmark score is **15/34 (44.1%)**, up from 14/34 on the preceding integrated run. A run counts as substantive only when its benchmark record has been manually reviewed, the runtime marks it answered, and it returns a non-empty answer. Sixteen records have been reviewed; Dolly-021 is reviewed but still returns `InformationUnavailable`, so it does not count as substantive.
+
+Dolly-025's answer was inspected in the benchmark artifact: it lists eight modeled ingredients and cites all eight `has-ingredient` assertions, plus the dish's inherited dish membership and each ingredient's food membership. It is framed as common components, not a mandatory recipe.
 
 ## Cross-domain structure
 
