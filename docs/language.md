@@ -297,3 +297,8 @@ Questions of the form "Which <type> did <agent> <verb>?" query relation assertio
 ## Capability explanations from adaptation graphs
 
 The capability-explanation question form accepts "Why can <subject> <verb> ...?" and currently supports the survival predicate. The subject resolves to a type; the responder finds its known individuals, their adaptations, and the physiological processes linked to water-loss reduction. It answers only when the graph also connects the relevant adaptations to the explicit water-deprivation condition and includes dehydration-tolerance evidence. The response is composed from these graph paths rather than a stored explanation. It does not infer quantitative survival durations or claim that camels can survive indefinitely without water.
+
+
+### Headquarters-site contribution questions
+
+The recipient–resource–location–purpose question form “Who gave the UN the land in NY to build their HQ?” is resolved through lexical types, the recipient's headquarters location, and a site matching both the resource and facility types. The responder then queries contribution relations on that site and composes each contributor's role from the graph. Financial funding toward acquisition remains distinct from additional property contributed by a municipality. Unsupported resource/facility types, mismatched locations, and ambiguous candidate sites cause abstention.

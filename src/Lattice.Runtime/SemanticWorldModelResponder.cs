@@ -44,6 +44,8 @@ internal static class SemanticWorldModelResponder
                     reasoner,
                     out message,
                     out evidence),
+            SemanticWorldModelQuestionKind.ContributionQuery =>
+                TryContributionQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.RelationQuery =>
                 TryRelationQuery(request.Subject, request.Concept, request.OtherSubject, request.TargetType, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -457,6 +459,112 @@ internal static class SemanticWorldModelResponder
         evidence = ImmutableArray.Create(ToEvidence(
             supported[0].Evidence,
             LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryContributionQuery(
+        string recipientId,
+        string resource,
+        string locationId,
+        string facility,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var resourceType = model.FindConcept(resource, SemanticConceptKind.Type);
+        var facilityType = model.FindConcept(facility, SemanticConceptKind.Type);
+        if (resourceType is null || facilityType is null)
+        {
+            return false;
+        }
+
+        var recipient = model.FindConcept(recipientId, SemanticConceptKind.Individual);
+        var location = model.FindConcept(locationId, SemanticConceptKind.Individual);
+        if (recipient is null || location is null)
+        {
+            return false;
+        }
+
+        var headquartersAssertions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Subject == recipient.Id &&
+                assertion.Relation == "has-hq-in" &&
+                assertion.Object == location.Id)
+            .ToArray();
+        if (headquartersAssertions.Length == 0)
+        {
+            return false;
+        }
+
+        var sites = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Relation == "situated-in" &&
+                assertion.Object == location.Id)
+            .Select(assertion => model.FindConcept(assertion.Subject, SemanticConceptKind.Individual))
+            .Where(site => site is not null &&
+                reasoner.IsInstanceOf(site.Id, "site") &&
+                reasoner.IsInstanceOf(site.Id, resourceType.Id) &&
+                reasoner.IsInstanceOf(site.Id, facilityType.Id))
+            .DistinctBy(site => site!.Id)
+            .ToArray();
+        if (sites.Length != 1)
+        {
+            return false;
+        }
+
+        var site = sites[0]!;
+        var contributions = model.RelationAssertions
+            .Where(assertion =>
+                assertion.Object == site.Id &&
+                assertion.Relation is "funded-acquisition-of" or "contributed-property-to")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Contributor = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Contributor is not null)
+            .ToArray();
+        if (contributions.Length == 0)
+        {
+            return false;
+        }
+
+        var clauses = contributions
+            .Select(item => item.Assertion.Relation switch
+            {
+                "funded-acquisition-of" =>
+                    $"{item.Contributor!.Label} provided funding toward acquisition of the {site.Label}.",
+                "contributed-property-to" =>
+                    $"{item.Contributor!.Label} contributed additional property to the site.",
+                _ => null
+            })
+            .Where(clause => clause is not null)
+            .ToArray();
+        if (clauses.Length == 0)
+        {
+            return false;
+        }
+
+        message = string.Join(" ", clauses);
+        var sources = headquartersAssertions
+            .Select(assertion => assertion.Source)
+            .Concat(model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Relation == "situated-in" &&
+                    assertion.Object == location.Id &&
+                    assertion.Subject == site.Id)
+                .Select(assertion => assertion.Source))
+            .Concat(contributions.Select(item => item.Assertion.Source))
+            .Concat(reasoner.GetMembershipEvidence(site.Id, "site"))
+            .Concat(contributions.SelectMany(item =>
+                reasoner.GetMembershipEvidence(item.Contributor!.Id, "organization")))
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 

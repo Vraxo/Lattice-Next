@@ -26,6 +26,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What does (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) (?<verb>[A-Za-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex HeadquartersContributionPattern = new(
+        @"^Who gave (?:the )?(?<recipient>[A-Za-z][A-Za-z0-9'’ -]*?) the (?<resource>[A-Za-z][A-Za-z -]*?) in (?<location>[A-Za-z][A-Za-z0-9'’ -]*?) to build (?:(?:their|its|the) )?(?<facility>[A-Za-z][A-Za-z -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex InverseRelationPattern = new(
         @"^Who (?<verb>[A-Za-z]+) (?<subject>[A-Za-z][A-Za-z0-9'’! -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -108,6 +112,19 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.RelationQuery,
                 subject: Normalize(relationAction.Groups["subject"].Value),
                 concept: Normalize(relationAction.Groups["verb"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var headquartersContribution = HeadquartersContributionPattern.Match(text);
+        if (headquartersContribution.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ContributionQuery,
+                subject: Normalize(headquartersContribution.Groups["recipient"].Value),
+                concept: Normalize(headquartersContribution.Groups["resource"].Value),
+                otherSubject: Normalize(headquartersContribution.Groups["location"].Value),
+                targetType: Normalize(headquartersContribution.Groups["facility"].Value),
                 sourceText: source);
             return true;
         }

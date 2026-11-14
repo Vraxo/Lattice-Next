@@ -10,7 +10,8 @@ public enum SemanticWorldModelQuestionKind
     Compare,
     Membership,
     InverseRelation,
-    RelationQuery
+    RelationQuery,
+    ContributionQuery
 }
 
 public sealed record SemanticWorldModelQuestionFormula(

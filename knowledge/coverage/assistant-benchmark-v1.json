@@ -182,7 +182,7 @@
     },
     {
       "id": "dolly-004",
-      "status": "partial",
+      "status": "represented",
       "areas": [
         "institutions",
         "geography",
@@ -194,14 +194,18 @@
         "united-nations-headquarters-site",
         "new-york-city",
         "organization",
-        "site"
+        "site",
+        "new-york-city-government",
+        "land-parcel",
+        "headquarters-site"
       ],
       "relations": [
         "funded-acquisition-of",
         "has-hq-in",
-        "situated-in"
+        "situated-in",
+        "contributed-property-to"
       ],
-      "limitations": "The graph records Rockefeller Jr.'s funding toward acquisition of the headquarters site, not a literal donation of the land. The wording should be answered with that distinction."
+      "limitations": "The graph distinguishes Rockefeller Jr.'s financial gift toward acquisition from the City of New York's contribution of additional parcels and property rights. The runtime query composes both roles and does not claim that Rockefeller personally donated the entire site."
     },
     {
       "id": "dolly-005",
