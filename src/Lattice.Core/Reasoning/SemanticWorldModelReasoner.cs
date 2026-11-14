@@ -202,6 +202,26 @@ public sealed class SemanticWorldModelReasoner
         return false;
     }
 
+    public ImmutableArray<SemanticWorldModelSource> GetCycleEvidence(
+        string individual,
+        SemanticClassExpression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+        if (expression.Kind != SemanticClassExpressionKind.Cycle)
+        {
+            return [];
+        }
+
+        var normalized = SemanticWorldModel.Normalize(individual);
+        var types = typeClosure.ToDictionary(
+            pair => pair.Key,
+            pair => pair.Value.ToHashSet(StringComparer.Ordinal),
+            StringComparer.Ordinal);
+        return TryFindCycleAssertions(normalized, expression, types, model, out var assertions)
+            ? assertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray()
+            : [];
+    }
+
     public ImmutableArray<SemanticWorldModelMembership> GetMemberships(string individual)
     {
         var concept = model.FindConcept(individual, SemanticConceptKind.Individual);
