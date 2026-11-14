@@ -13,7 +13,7 @@ The ontology now contains:
 - 17 composable domain modules
 - 542 concepts: 312 types and 230 individuals
 - 131 relation signatures
-- 815 graph assertions
+- 811 graph assertions
 - 536 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
