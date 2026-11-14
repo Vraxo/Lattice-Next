@@ -438,7 +438,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
-                source.SourceId == "core-world-model:relation:piano-action:actuates-hammer:piano-hammers"));
+                source.SourceId == "core-world-model:relation:piano-action:actuates:piano-hammers"));
         Assert.Contains(
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
