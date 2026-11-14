@@ -481,7 +481,22 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
         {
-            return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+            if (semanticQuestion.Kind == SemanticWorldModelQuestionKind.Membership &&
+                (semanticWorldModel.FindConcept(semanticQuestion.Subject, SemanticConceptKind.Individual) is null ||
+                 semanticWorldModel.FindConcept(semanticQuestion.Concept ?? string.Empty, SemanticConceptKind.Type) is null))
+            {
+                parsedUtterance = new SemanticUtterance(
+                    UtteranceKind.Question,
+                    new PredicateApplication(
+                        new SemanticIdentifier(semanticQuestion.Concept ?? string.Empty),
+                        ImmutableArray.Create<SemanticTerm>(
+                            new IndividualTerm(new SemanticIdentifier(semanticQuestion.Subject)))),
+                    parsedUtterance.SourceText);
+            }
+            else
+            {
+                return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+            }
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
