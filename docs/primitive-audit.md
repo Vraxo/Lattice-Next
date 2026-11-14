@@ -27,11 +27,25 @@ Audited at commit `3413245d3165a1d260fc78e9e7c558f86ee2391c`.
 
 This is an inventory of authored type definitions, not a claim that all 79 primitives are equally fundamental or equally well justified.
 
-## Current result on this branch
+## Current result
 
-The current composed inventory is **89 primitive types and 36 defined types** across eight modules. The mechanics module derives tensile and transverse forces from pulling mode and geometry-relative direction; derives tensile/transverse loads from their force and affected component; then derives a tensioned state, bending deformation, and bending response. Instruments reuse those types to derive a piano string's state and behavior. The original baseline table remains tied to its explicitly stated historical commit.
+The current composed inventory is **89 primitive types and 36 defined types** across eight modules.
 
-The piano string example now demonstrates the graph path: its longitudinal extent exceeds its cross-sectional extent; it exhibits a bending response; it is tensioned; it vibrates to produce sound; and it transmits vibration to the soundboard.
+| Module | Primitive | Defined |
+|---|---:|---:|
+| Core | 1 | 0 |
+| Instruments | 13 | 18 |
+| Geometry | 17 | 6 |
+| Mechanics | 8 | 8 |
+| Biology | 2 | 0 |
+| Economics | 28 | 3 |
+| Language | 8 | 1 |
+| Software | 12 | 0 |
+| **Total** | **89** | **36** |
+
+The mechanics module derives tensile and transverse forces from pulling mode and geometry-relative direction; derives tensile/transverse loads from their force and affected component; then derives a tensioned state, bending deformation, and bending response. Instruments reuse those types to derive a piano string's state and behavior. The original baseline table remains tied to its explicitly stated historical commit.
+
+The piano string example now demonstrates the graph path: its longitudinal extent exceeds its cross-sectional extent; its longitudinal direction establishes a perpendicular transverse direction; an axial pulling-mode force creates a tensile load and tensioned state; a transverse load produces a bending deformation and bending response; and the string vibrates to produce sound and transmits vibration to the soundboard.
 
 ## Primitive-by-primitive disposition
 
@@ -60,8 +74,11 @@ The following is a first-pass semantic disposition, not a claim that every liste
 | `physical-component` | Keep for now | A general part/whole and physical-constitution model. The current `contains` relation is not enough to define componenthood without circularity. |
 | `sound-event` | Keep for now | Acoustic properties and propagation: frequency, amplitude, waveform, duration, and medium. |
 
-\n\n
-| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |\n| `string-component` | **Decomposed further in this change** | Its defined structure now combines elongated form, bending response, tension, sound-producing vibration, and vibration transfer to a resonator. |
+
+
+
+| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |
+| `string-component` | **Decomposed further in this change** | Its defined structure now combines elongated form, bending response, tension, sound-producing vibration, and vibration transfer to a resonator. |
 | `piano-hammer-action` | **Decomposed in this change** | Defined by actuating a hammer component that strikes a string component. The example graph supplies both links. |
 
 The piano decomposition uses the general `actuates` and `strikes` relations. No special-purpose `actuates-hammer` relation is introduced. `string-component` now has a richer compositional definition. `elongated-component` is derived from geometric form, and `flexible-component` from a bending response. `hammer-component` remains a clearly marked primitive until head, shank, and assembly structure are represented.
@@ -83,7 +100,14 @@ The piano decomposition uses the general `actuates` and `strikes` relations. No 
 | `geometric-structure` | Keep as an abstract structural category | General composition and incidence semantics beyond the existing boundary slice. |
 | `geometric-element` | Keep as an abstract category | A principled account of geometric constituents, not merely a disjunction of currently known point and segment types. |
 | `geometric-point` | Keep foundational | A point is an idealized primitive in the current geometric formalization. |
-| `geometric-property` | Keep as an abstract property category | Property/value semantics and applicable measurement domains. |\n| `geometric-extent` | Keep as an abstract measure category | A quantitative geometry/measurement model and unit semantics. |\n| `longitudinal-extent` | Keep as an extent role | A formal principal-axis and measurement model. |\n| `cross-sectional-extent` | Keep as an extent role | A formal cross-section and measurement model. |
+| `geometric-property` | Keep as an abstract property category | Property/value semantics and applicable measurement domains. |
+| `geometric-direction` | Keep as an abstract geometric category | A complete account of orientation and object-relative coordinate frames. |
+| `longitudinal-direction` | Keep primitive for now | The direction aligned with an object's longitudinal extent; quantitative axis and coordinate semantics remain open. |
+| `transverse-direction` | **Defined** | A direction perpendicular to a longitudinal direction. |
+
+| `geometric-extent` | Keep as an abstract measure category | A quantitative geometry/measurement model and unit semantics. |
+| `longitudinal-extent` | Keep as an extent role | A formal principal-axis and measurement model. |
+| `cross-sectional-extent` | Keep as an extent role | A formal cross-section and measurement model. |
 | `straightness` | Candidate for formalization, not a prose definition | A geometric predicate or invariant grounded in the formal geometry model. |
 | `topological-configuration` | Keep as an abstract category | Incidence, adjacency, and connectivity relations. |
 | `closed-cycle` | Candidate; missing relations | Ordered/connected path structure and an explicit closure condition. |
