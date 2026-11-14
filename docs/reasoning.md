@@ -215,6 +215,8 @@ means that the subject actuates a physical component, and that same component st
 
 The instrument model uses this to define a struck-string mechanism from its structure rather than asserting that a particular mechanism belongs to that type. It also defines a string component through its mechanical state and its vibration path to a resonator. Consequently, the piano action is classified from the hammer → string → soundboard structure; removing the required nested link prevents that classification.
 
+The free-reed instrument model applies the same principle without nested restrictions: a free-reed component is defined by receiving air from a physical component and vibrating to produce a sound event; a free-reed mechanism is defined by directing air through such a component. Harmonium and accordion actions and reeds are therefore classified from their asserted airflow and vibration relationships. The instruments inherit their free-reed classification through the mechanism they use. The individual reed and mechanism memberships are not manually asserted.
+
 ## Lifetime and boundaries
 
 The CLI owns one in-memory KnowledgeBase for the duration of the interactive process. User assertions and claims loaded from declarative knowledge packs remain available across turns in that process and are discarded when it ends. There is no durable session persistence or pack unloading yet.

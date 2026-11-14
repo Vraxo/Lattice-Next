@@ -701,7 +701,7 @@
     },
     {
       "id": "directs-air-through",
-      "domain": "free-reed-mechanism",
+      "domain": "sound-production-mechanism",
       "range": "free-reed-component",
       "verb": "directs air through",
       "objectRole": null,
@@ -709,17 +709,8 @@
       "comparisonPriority": 0
     },
     {
-      "id": "supplies-air-to",
-      "domain": "physical-component",
-      "range": "free-reed-component",
-      "verb": "supplies air to",
-      "objectRole": null,
-      "order": 1,
-      "comparisonPriority": 0
-    },
-    {
       "id": "vibrates-to-produce",
-      "domain": "free-reed-component",
+      "domain": "physical-component",
       "range": "sound-event",
       "verb": "vibrates to produce",
       "objectRole": null,
@@ -749,6 +740,15 @@
       "domain": "physical-component",
       "range": "mechanical-state",
       "verb": "has mechanical state",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "receives-air-from",
+      "domain": "physical-component",
+      "range": "physical-component",
+      "verb": "receives air from",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0
@@ -820,9 +820,13 @@
     },
     {
       "concept": "free-reed-mechanism",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "directs-air-through",
+        "targetType": "free-reed-component"
+      }
     },
     {
       "concept": "percussion-mechanism",
@@ -894,9 +898,23 @@
     },
     {
       "concept": "free-reed-component",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "receives-air-from",
+            "targetType": "physical-component"
+          },
+          {
+            "kind": "some",
+            "relation": "vibrates-to-produce",
+            "targetType": "sound-event"
+          }
+        ]
+      }
     },
     {
       "concept": "sound-event",
@@ -1044,11 +1062,6 @@
       "object": "harmonium-reeds"
     },
     {
-      "subject": "harmonium-bellows",
-      "relation": "supplies-air-to",
-      "object": "harmonium-reeds"
-    },
-    {
       "subject": "harmonium-keyboard",
       "relation": "opens-valves-for",
       "object": "harmonium-action"
@@ -1071,11 +1084,6 @@
     {
       "subject": "accordion-action",
       "relation": "directs-air-through",
-      "object": "accordion-reeds"
-    },
-    {
-      "subject": "accordion-bellows",
-      "relation": "supplies-air-to",
       "object": "accordion-reeds"
     },
     {
@@ -1346,7 +1354,7 @@
     {
       "subject": "harmonium-action",
       "relation": "instance-of",
-      "object": "free-reed-mechanism"
+      "object": "sound-production-mechanism"
     },
     {
       "subject": "harmonium-bellows",
@@ -1356,7 +1364,7 @@
     {
       "subject": "harmonium-reeds",
       "relation": "instance-of",
-      "object": "free-reed-component"
+      "object": "physical-component"
     },
     {
       "subject": "harmonium-sound",
@@ -1371,7 +1379,7 @@
     {
       "subject": "accordion-action",
       "relation": "instance-of",
-      "object": "free-reed-mechanism"
+      "object": "sound-production-mechanism"
     },
     {
       "subject": "accordion-bellows",
@@ -1381,7 +1389,7 @@
     {
       "subject": "accordion-reeds",
       "relation": "instance-of",
-      "object": "free-reed-component"
+      "object": "physical-component"
     },
     {
       "subject": "accordion-sound",
@@ -1442,6 +1450,16 @@
       "subject": "piano-string-tension",
       "relation": "instance-of",
       "object": "tensioned-state"
+    },
+    {
+      "subject": "harmonium-reeds",
+      "relation": "receives-air-from",
+      "object": "harmonium-bellows"
+    },
+    {
+      "subject": "accordion-reeds",
+      "relation": "receives-air-from",
+      "object": "accordion-bellows"
     }
   ],
   "dataProperties": [],
