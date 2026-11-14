@@ -55,10 +55,10 @@ The following is a first-pass semantic disposition, not a claim that every liste
 | `sound-event` | Keep for now | Acoustic properties and propagation: frequency, amplitude, waveform, duration, and medium. |
 | `mechanical-state` | Keep as an abstract state category | State-bearing entities and state/value semantics. |
 | `tensioned-state` | Candidate; missing property representation | A tension/force property or measurable mechanical condition. |
-| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a hammer action. |
+| `hammer-component` | Candidate; missing internal structure | Hammer head, shank/stem, attachment, and the assembly relation. The current model only identifies it as the component actuated by a sound-production mechanism; its head/shank structure is not represented yet. |
 | `piano-hammer-action` | **Decomposed in this change** | Defined by actuating a hammer component that strikes a string component. The example graph supplies both links. |
 
-The piano decomposition uses the existing `actuates-hammer` and `strikes` relations. It does not claim that the hammer itself is structurally defined; that remains a separate modeling task.
+The piano decomposition uses the general `actuates` and `strikes` relations. No special-purpose `actuates-hammer` relation is introduced. `string-component` already has a compositional definition; `hammer-component` remains a clearly marked primitive until head, shank, and assembly structure are represented.
 
 ### Biology
 
@@ -162,7 +162,7 @@ Its definition is:
   "necessaryConditions": [],
   "sufficientExpression": {
     "kind": "some",
-    "relation": "actuates-hammer",
+    "relation": "actuates",
     "targetType": "hammer-component",
     "filler": {
       "kind": "some",
@@ -173,13 +173,13 @@ Its definition is:
 }
 ```
 
-This means there exists a hammer actuated by the mechanism, and that same hammer strikes a string. The current example graph already asserts both relations and the relevant component types. Therefore the reasoner can derive:
+This means there exists a physical component classified as a hammer, actuated by the mechanism, and that same component strikes a string. The current example graph asserts the generic actuation and striking relations. The string type is defined from its mechanical state and vibration-transfer role; the hammer type is still a primitive classification. Therefore the reasoner can derive:
 
 1. `piano-action` is a `piano-hammer-action`;
 2. `piano-keyboard` activates that action, so it is a `piano-keyboard-interface`;
 3. `piano-example` has that interface and uses that mechanism, so it is a `piano`.
 
-The previous explicit `instance-of piano-hammer-action` and `instance-of piano` assertions are removed. This is a real change from asserted labels to a classification supported by the component graph.
+The previous explicit `instance-of piano-hammer-action` and `instance-of piano` assertions are removed. The special-purpose `actuates-hammer` relation is also removed; the definition uses the general `actuates` relation with the hammer type as its filler.
 
 ## What this audit does not authorize
 
