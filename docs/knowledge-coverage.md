@@ -11,7 +11,7 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 549 concepts: 316 types and 233 individuals
+- 548 concepts: 315 types and 233 individuals
 - 133 relation signatures
 - 826 graph assertions
 - 545 lexical forms
@@ -19,8 +19,8 @@ The ontology now contains:
 The 34 benchmark prompts are currently mapped as:
 
 - 16 represented at the ontology level
-- 16 partially represented
-- 2 not represented as static ontology knowledge
+- 17 partially represented
+- 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
@@ -33,7 +33,7 @@ The latest fully executed integrated run is the PR #208 head, before the later s
 - Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 9 handled, 25 unhandled, 0 runner errors
 - Average latency: 334 ms (single run; stability not measured)
 
-The current PR #211 stack has not had its .NET tests, external Python tests, or full benchmark executed. Its new end-to-end test is added but unverified. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is actually run and the responses are reviewed. Ontology coverage counts above are not runtime capability scores.
+The stacked PRs #209–#212 have not yet had an integrated .NET test run, external Python test run, or full benchmark run. PR #212 adds end-to-end tests for contextual family-set completion, but they remain unverified until CI completes. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is executed and the new response is reviewed. Ontology coverage counts above are not runtime capability scores.
 
 ## Cross-domain structure
 
