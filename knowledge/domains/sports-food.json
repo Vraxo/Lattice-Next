@@ -383,7 +383,7 @@
       "id": "has-ingredient",
       "domain": "dish",
       "range": "food",
-      "verb": "has ingredient",
+      "verb": "has food ingredient",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
