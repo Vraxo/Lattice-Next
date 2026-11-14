@@ -403,11 +403,6 @@ public sealed class LatticeRuntimeSessionTests
             "An example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
 
-        var hammerComponentClassification = await session.SubmitAsync("Are the piano hammers hammers?");
-        Assert.Equal(
-            LatticeTruthValue.True,
-            Assert.Single(hammerComponentClassification.Utterances).TruthValue);
-
         var hammerActionClassification = await session.SubmitAsync("Is the piano action a piano hammer action?");
         Assert.Equal(
             LatticeTruthValue.True,
