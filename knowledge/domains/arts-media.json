@@ -324,6 +324,21 @@
       "form": "Dutch artists",
       "concept": "dutch-artist",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "movie",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "movies",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "1980's",
+      "concept": "decade-1980s",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [

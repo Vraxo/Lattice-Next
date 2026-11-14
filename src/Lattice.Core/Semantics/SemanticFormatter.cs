@@ -33,6 +33,7 @@ public static class SemanticFormatter
             FamilySetCompletionQuestionFormula familySetCompletion => FormatFamilySetCompletion(familySetCompletion),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
+            ActivitySelectionFormula selection => FormatActivitySelection(selection),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
             PredicateApplication predicate => FormatPredicate(predicate),
             Negation negation => $"not({Format(negation.Formula)})",
@@ -64,6 +65,10 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ImpactExplanation => $"world-model-impact-explanation({question.Subject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.TypedObjectRelationQuery => $"world-model-typed-object-relation({question.Subject}, {question.Concept}, {question.TargetType})",
             SemanticWorldModelQuestionKind.EventOutcomeExplanation => $"world-model-event-outcome({question.Subject})",
+            SemanticWorldModelQuestionKind.HighestPointQuery => $"world-model-highest-point({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.RegionalTerminologyQuery => $"world-model-regional-terminology({question.Subject}, {question.Concept}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.MediaExamplesByGenreAndPeriodQuery => $"world-model-media-examples({question.Subject}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.CommonTypedRelationQuery => $"world-model-common-relation-list({question.Subject}, {question.Concept ?? "any"}, target-type={question.TargetType})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
@@ -78,6 +83,9 @@ public static class SemanticFormatter
 
     private static string FormatClassification(MultiItemClassificationFormula classification) =>
         $"classify({classification.ItemType.Value}, categories({string.Join(", ", classification.Categories.Select(category => category.Value))}), items({string.Join(", ", classification.Items.Select(item => item.Value))}))";
+
+    private static string FormatActivitySelection(ActivitySelectionFormula selection) =>
+        $"select-for-activity({selection.Activity.Value}, items({string.Join(", ", selection.Items.Select(item => item.Value))}))";
 
     private static string FormatTaskRequest(TaskRequestFormula taskRequest)
     {
