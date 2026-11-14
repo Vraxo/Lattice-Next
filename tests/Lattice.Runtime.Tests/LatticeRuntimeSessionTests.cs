@@ -592,4 +592,43 @@ public sealed class LatticeRuntimeSessionTests
         Assert.False(result.IsSuccess);
         Assert.Equal("The session has been closed.", result.Error);
     }
+
+    [Fact]
+    public async Task Derives_free_reed_instruments_from_airflow_and_vibrating_reed_structure()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var harmonium = await session.SubmitAsync("Is harmonium a free-reed instrument?");
+        var accordion = await session.SubmitAsync("Is accordion a free-reed instrument?");
+
+        Assert.Equal(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            Assert.Single(harmonium.Utterances).Kind);
+        Assert.Equal(LatticeTruthValue.True, Assert.Single(harmonium.Utterances).TruthValue);
+        Assert.Equal(LatticeTruthValue.True, Assert.Single(accordion.Utterances).TruthValue);
+
+        var evidence = harmonium.Utterances[0].SupportingEvidence;
+        Assert.Contains(
+            evidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:definition:free-reed-component"));
+        Assert.Contains(
+            evidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:definition:free-reed-mechanism"));
+        Assert.Contains(
+            evidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:harmonium-reeds:receives-air-from:harmonium-bellows"));
+        Assert.Contains(
+            evidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:harmonium-reeds:vibrates-to-produce:harmonium-sound"));
+        Assert.Contains(
+            evidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:harmonium-action:directs-air-through:harmonium-reeds"));
+    }
+
 }
