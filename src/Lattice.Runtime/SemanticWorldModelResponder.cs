@@ -474,8 +474,8 @@ internal static class SemanticWorldModelResponder
 
             var connectedAssertions = model.RelationAssertions
                 .Where(assertion =>
-                    assertion.Subject == subject.Id &&
-                    assertion.Object == other.Id)
+                    (assertion.Subject == subject.Id && assertion.Object == other.Id) ||
+                    (assertion.Subject == other.Id && assertion.Object == subject.Id))
                 .ToArray();
             if (connectedAssertions.Length > 0)
             {
@@ -510,8 +510,9 @@ internal static class SemanticWorldModelResponder
             }
 
             var pathSentences = path
-                .Select(assertion =>
+                .Select(step =>
                 {
+                    var assertion = step.Assertion;
                     var relation = model.FindRelation(assertion.Relation);
                     var first = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
                     var second = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
@@ -528,7 +529,7 @@ internal static class SemanticWorldModelResponder
 
             message = string.Join(" ", pathSentences);
             evidence = ImmutableArray.Create(ToEvidence(
-                path.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+                path.Select(step => step.Assertion.Source).Distinct().ToImmutableArray(),
                 LatticeEvidenceKind.Derived));
             return true;
         }
@@ -594,17 +595,17 @@ internal static class SemanticWorldModelResponder
         string start,
         string target,
         SemanticWorldModel model,
-        out ImmutableArray<SemanticRelationAssertion> path)
+        out ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> path)
     {
         const int maximumDepth = 3;
         path = [];
         var pending = new Queue<(
             string Node,
-            ImmutableArray<SemanticRelationAssertion> Path,
+            ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)> Path,
             HashSet<string> Visited)>();
         pending.Enqueue((start, [], new HashSet<string>(StringComparer.Ordinal) { start }));
         int? shortestDepth = null;
-        var shortestPaths = new List<ImmutableArray<SemanticRelationAssertion>>();
+        var shortestPaths = new List<ImmutableArray<(SemanticRelationAssertion Assertion, bool Forward)>>();
 
         while (pending.TryDequeue(out var current))
         {
@@ -615,20 +616,25 @@ internal static class SemanticWorldModelResponder
             }
 
             foreach (var assertion in model.RelationAssertions.Where(assertion =>
-                assertion.Subject == current.Node &&
-                assertion.Relation is not ("is-a" or "instance-of")))
+                assertion.Subject == current.Node || assertion.Object == current.Node))
             {
                 var relation = model.FindRelation(assertion.Relation);
                 if (relation is null ||
                     relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
-                    relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
-                    current.Visited.Contains(assertion.Object))
+                    relation.ObjectKind != SemanticRelationArgumentKind.Individual)
                 {
                     continue;
                 }
 
-                var nextPath = current.Path.Add(assertion);
-                if (assertion.Object == target)
+                var forward = assertion.Subject == current.Node;
+                var nextNode = forward ? assertion.Object : assertion.Subject;
+                if (current.Visited.Contains(nextNode))
+                {
+                    continue;
+                }
+
+                var nextPath = current.Path.Add((assertion, forward));
+                if (nextNode == target)
                 {
                     shortestDepth ??= nextPath.Length;
                     if (nextPath.Length == shortestDepth.Value)
@@ -643,9 +649,9 @@ internal static class SemanticWorldModelResponder
                 {
                     var visited = new HashSet<string>(current.Visited, StringComparer.Ordinal)
                     {
-                        assertion.Object
+                        nextNode
                     };
-                    pending.Enqueue((assertion.Object, nextPath, visited));
+                    pending.Enqueue((nextNode, nextPath, visited));
                 }
             }
         }
