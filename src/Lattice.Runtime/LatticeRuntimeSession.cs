@@ -485,13 +485,13 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 (semanticWorldModel.FindConcept(semanticQuestion.Subject, SemanticConceptKind.Individual) is null ||
                  semanticWorldModel.FindConcept(semanticQuestion.Concept ?? string.Empty, SemanticConceptKind.Type) is null))
             {
-                parsedUtterance = new SemanticUtterance(
-                    UtteranceKind.Question,
-                    new PredicateApplication(
-                        new SemanticIdentifier(semanticQuestion.Concept ?? string.Empty),
-                        ImmutableArray.Create<SemanticTerm>(
-                            new IndividualTerm(new SemanticIdentifier(semanticQuestion.Subject)))),
-                    parsedUtterance.SourceText);
+                var legacyParse = parser.Parse(parsedUtterance.SourceText);
+                if (!legacyParse.IsSuccess || legacyParse.Utterance is null)
+                {
+                    return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+                }
+
+                parsedUtterance = legacyParse.Utterance;
             }
             else
             {
