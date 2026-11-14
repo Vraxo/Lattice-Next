@@ -60,12 +60,10 @@
     { "subject": "camel", "relation": "has-adaptation", "object": "water-extracting-digestive-system" },
     { "subject": "camel", "relation": "has-adaptation", "object": "nasal-moisture-recovery" },
     { "subject": "camel", "relation": "has-adaptation", "object": "dehydration-tolerance" },
-    { "subject": "camel", "relation": "has-adaptation", "object": "hump-fat-storage" },
     { "subject": "water-conserving-kidneys", "relation": "enables-ability", "object": "survive-for-long-without-water" },
     { "subject": "water-extracting-digestive-system", "relation": "enables-ability", "object": "survive-for-long-without-water" },
     { "subject": "nasal-moisture-recovery", "relation": "enables-ability", "object": "survive-for-long-without-water" },
-    { "subject": "dehydration-tolerance", "relation": "enables-ability", "object": "survive-for-long-without-water" },
-    { "subject": "hump-fat-storage", "relation": "enables-ability", "object": "survive-for-long-without-water" }
+    { "subject": "dehydration-tolerance", "relation": "enables-ability", "object": "survive-for-long-without-water" }
   ],
   "dataProperties": [],
   "dataAssertions": []
