@@ -124,6 +124,8 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
   - [x] Add an optional, manifest-discovered DDGS search capability that queries public search providers without requiring an account, API key, or user-hosted service, and returns retrieval timestamps and per-result source URLs, titles, domains, and snippets.
   - [ ] Add bounded page fetching as a separate capability only after URL-safety and content-extraction requirements are defined.
 - [ ] Design a reviewable pipeline for generating and validating knowledge packs.
+- [x] Add a shared mechanics ontology for force modes, geometry-relative directions, load application, tensioned states, and load-induced bending; derive the piano string's mechanical classifications through the graph.
+- [ ] Add quantitative mechanics and constitutive properties (force magnitude, dimensions, stiffness/compliance, elastic recovery) before comparing degrees of flexibility or defining material response thresholds.
 - [ ] Expand programming knowledge and add programming tools only after the generic foundations work.
 
 ## Application interfaces

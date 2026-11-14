@@ -27,7 +27,8 @@ The current expression language does not support universal restrictions, negatio
 
 - `core.json`: shared root concepts and the general `is-a` and `instance-of` relation signatures.
 - `instruments.json`: instrument kinds, mechanisms, components, and examples.
-- `geometry.json`: geometric structures.
+- `geometry.json`: geometric structures and directions.
+- `mechanics.json`: forces, loads, mechanical states, deformation, and behavior.
 - `language.json`: lexical semantics.
 - `economics.json`: economics, labour markets, and research references.
 - `software.json`: scientific software, capabilities, and application domains.
@@ -48,18 +49,19 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all seven modules:
+Counts after composing all eight modules:
 
-- 197 concepts
-- 98 type declarations
-- 38 relation signatures
-- 308 relation assertions:
-  - 102 `is-a`
-  - 117 `instance-of`
-  - 89 ordinary individual-to-individual relations
+- 237 concepts
+- 125 type declarations (89 primitive, 36 defined)
+- 55 relation signatures
+- 373 relation assertions:
+  - 134 `is-a`
+  - 129 `instance-of`
+  - 110 ordinary individual-to-individual relations
+- 231 lexical forms
 
 ## Audit boundary
 
-There are 81 primitive types and 17 defined types. Of the primitive types, 80 currently have no necessary restrictions and remain opaque beyond their taxonomic position; only `string-component` has necessary restrictions so far. This is an explicit backlog, not a claim that these concepts are semantically complete.
+89 concepts are explicitly primitive and 36 have sufficient definitions. Primitive status marks a deliberately incomplete or foundational point in the ontology; it does not imply that the concept is inherently irreducible. The model does not yet represent force magnitudes, dimensions, material constitutive laws, quantitative compliance, yield limits, or elastic recovery.
 
 Relations with positive `order` values participate in sequential mechanism chains; zero-order relations are not traversed as chain steps. Some zero-order links are structural or attribute relations, while others connect a playing interface to its mechanism and remain outside the current chain traversal.

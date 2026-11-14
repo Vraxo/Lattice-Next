@@ -1,0 +1,559 @@
+{
+  "formatVersion": 3,
+  "id": "core-mechanics",
+  "name": "Mechanics",
+  "concepts": [
+    {
+      "id": "mechanical-state",
+      "label": "mechanical state",
+      "kind": "Type"
+    },
+    {
+      "id": "tensioned-state",
+      "label": "tensioned state",
+      "kind": "Type"
+    },
+    {
+      "id": "mechanical-behavior",
+      "label": "mechanical behavior",
+      "kind": "Type"
+    },
+    {
+      "id": "bending-response",
+      "label": "bending response",
+      "kind": "Type"
+    },
+    {
+      "id": "force",
+      "label": "force",
+      "kind": "Type"
+    },
+    {
+      "id": "force-mode",
+      "label": "force mode",
+      "kind": "Type"
+    },
+    {
+      "id": "pulling-mode",
+      "label": "pulling mode",
+      "kind": "Type"
+    },
+    {
+      "id": "mechanical-load",
+      "label": "mechanical load",
+      "kind": "Type"
+    },
+    {
+      "id": "tensile-force",
+      "label": "tensile force",
+      "kind": "Type"
+    },
+    {
+      "id": "transverse-force",
+      "label": "transverse force",
+      "kind": "Type"
+    },
+    {
+      "id": "tensile-load",
+      "label": "tensile load",
+      "kind": "Type"
+    },
+    {
+      "id": "transverse-load",
+      "label": "transverse load",
+      "kind": "Type"
+    },
+    {
+      "id": "deformation",
+      "label": "deformation",
+      "kind": "Type"
+    },
+    {
+      "id": "deformation-mode",
+      "label": "deformation mode",
+      "kind": "Type"
+    },
+    {
+      "id": "bending-mode",
+      "label": "bending mode",
+      "kind": "Type"
+    },
+    {
+      "id": "bending-deformation",
+      "label": "bending deformation",
+      "kind": "Type"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "mechanical state",
+      "concept": "mechanical-state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "tensioned state",
+      "concept": "tensioned-state",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mechanical behavior",
+      "concept": "mechanical-behavior",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bending response",
+      "concept": "bending-response",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "force",
+      "concept": "force",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "force mode",
+      "concept": "force-mode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "pulling mode",
+      "concept": "pulling-mode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mechanical load",
+      "concept": "mechanical-load",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "tensile force",
+      "concept": "tensile-force",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transverse force",
+      "concept": "transverse-force",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "tensile load",
+      "concept": "tensile-load",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "transverse load",
+      "concept": "transverse-load",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "deformation",
+      "concept": "deformation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "deformation mode",
+      "concept": "deformation-mode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bending mode",
+      "concept": "bending-mode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bending deformation",
+      "concept": "bending-deformation",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-load",
+      "domain": "mechanical-state",
+      "range": "mechanical-load",
+      "verb": "has load",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "state-of",
+      "domain": "mechanical-state",
+      "range": "physical-component",
+      "verb": "is state of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-force",
+      "domain": "mechanical-load",
+      "range": "force",
+      "verb": "has force",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "acts-on",
+      "domain": "mechanical-load",
+      "range": "physical-component",
+      "verb": "acts on",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "force-has-mode",
+      "domain": "force",
+      "range": "force-mode",
+      "verb": "has force mode",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "force-has-direction",
+      "domain": "force",
+      "range": "geometric-direction",
+      "verb": "has force direction",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "occurs-under-load",
+      "domain": "mechanical-behavior",
+      "range": "mechanical-load",
+      "verb": "occurs under load",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "response-of",
+      "domain": "mechanical-behavior",
+      "range": "physical-component",
+      "verb": "is response of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "produces-deformation",
+      "domain": "mechanical-behavior",
+      "range": "deformation",
+      "verb": "produces deformation",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-deformation-mode",
+      "domain": "deformation",
+      "range": "deformation-mode",
+      "verb": "has deformation mode",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "deforms-component",
+      "domain": "deformation",
+      "range": "physical-component",
+      "verb": "deforms component",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "mechanical-state",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mechanical-behavior",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "force",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "force-mode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "pulling-mode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "deformation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "deformation-mode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "bending-mode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mechanical-load",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-force",
+            "targetType": "force"
+          },
+          {
+            "kind": "some",
+            "relation": "acts-on",
+            "targetType": "physical-component"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "tensile-force",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "force-has-mode",
+            "targetType": "pulling-mode"
+          },
+          {
+            "kind": "some",
+            "relation": "force-has-direction",
+            "targetType": "longitudinal-direction"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "transverse-force",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "force-has-direction",
+        "targetType": "transverse-direction"
+      }
+    },
+    {
+      "concept": "tensile-load",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-force",
+            "targetType": "tensile-force"
+          },
+          {
+            "kind": "some",
+            "relation": "acts-on",
+            "targetType": "physical-component"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "transverse-load",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-force",
+            "targetType": "transverse-force"
+          },
+          {
+            "kind": "some",
+            "relation": "acts-on",
+            "targetType": "physical-component"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "tensioned-state",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-load",
+            "targetType": "tensile-load"
+          },
+          {
+            "kind": "some",
+            "relation": "state-of",
+            "targetType": "physical-component"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "bending-deformation",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-deformation-mode",
+            "targetType": "bending-mode"
+          },
+          {
+            "kind": "some",
+            "relation": "deforms-component",
+            "targetType": "physical-component"
+          }
+        ]
+      }
+    },
+    {
+      "concept": "bending-response",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "occurs-under-load",
+            "targetType": "transverse-load"
+          },
+          {
+            "kind": "some",
+            "relation": "response-of",
+            "targetType": "physical-component"
+          },
+          {
+            "kind": "some",
+            "relation": "produces-deformation",
+            "targetType": "bending-deformation"
+          }
+        ]
+      }
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "mechanical-state",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "tensioned-state",
+      "relation": "is-a",
+      "object": "mechanical-state"
+    },
+    {
+      "subject": "mechanical-behavior",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "bending-response",
+      "relation": "is-a",
+      "object": "mechanical-behavior"
+    },
+    {
+      "subject": "force",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "force-mode",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "pulling-mode",
+      "relation": "is-a",
+      "object": "force-mode"
+    },
+    {
+      "subject": "mechanical-load",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "tensile-force",
+      "relation": "is-a",
+      "object": "force"
+    },
+    {
+      "subject": "transverse-force",
+      "relation": "is-a",
+      "object": "force"
+    },
+    {
+      "subject": "tensile-load",
+      "relation": "is-a",
+      "object": "mechanical-load"
+    },
+    {
+      "subject": "transverse-load",
+      "relation": "is-a",
+      "object": "mechanical-load"
+    },
+    {
+      "subject": "deformation",
+      "relation": "is-a",
+      "object": "physical-process"
+    },
+    {
+      "subject": "deformation-mode",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "bending-mode",
+      "relation": "is-a",
+      "object": "deformation-mode"
+    },
+    {
+      "subject": "bending-deformation",
+      "relation": "is-a",
+      "object": "deformation"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

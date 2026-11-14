@@ -299,16 +299,6 @@
       "kind": "Individual"
     },
     {
-      "id": "mechanical-state",
-      "label": "mechanical state",
-      "kind": "Type"
-    },
-    {
-      "id": "tensioned-state",
-      "label": "tensioned state",
-      "kind": "Type"
-    },
-    {
       "id": "piano-string-tension",
       "label": "piano string tension",
       "kind": "Individual"
@@ -344,16 +334,6 @@
       "kind": "Type"
     },
     {
-      "id": "mechanical-behavior",
-      "label": "mechanical behavior",
-      "kind": "Type"
-    },
-    {
-      "id": "bending-response",
-      "label": "bending response",
-      "kind": "Type"
-    },
-    {
       "id": "piano-string-form",
       "label": "piano string form",
       "kind": "Individual"
@@ -371,6 +351,51 @@
     {
       "id": "piano-string-bending",
       "label": "piano string bending response",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-longitudinal-direction",
+      "label": "piano string longitudinal direction",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-transverse-direction",
+      "label": "piano string transverse direction",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-pulling-mode",
+      "label": "piano string pulling mode",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-tensile-force",
+      "label": "piano string tensile force",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-bending-force",
+      "label": "piano string bending force",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-tensile-load",
+      "label": "piano string tensile load",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-transverse-load",
+      "label": "piano string transverse load",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-bending-deformation",
+      "label": "piano string bending deformation",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-string-bending-mode",
+      "label": "piano string bending mode",
       "kind": "Individual"
     }
   ],
@@ -671,16 +696,6 @@
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "mechanical state",
-      "concept": "mechanical-state",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "tensioned state",
-      "concept": "tensioned-state",
-      "partOfSpeech": "noun"
-    },
-    {
       "form": "piano string tension",
       "concept": "piano-string-tension",
       "partOfSpeech": "proper-noun"
@@ -716,16 +731,6 @@
       "partOfSpeech": "noun"
     },
     {
-      "form": "mechanical behavior",
-      "concept": "mechanical-behavior",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "bending response",
-      "concept": "bending-response",
-      "partOfSpeech": "noun"
-    },
-    {
       "form": "piano string form",
       "concept": "piano-string-form",
       "partOfSpeech": "proper-noun"
@@ -743,6 +748,51 @@
     {
       "form": "piano string bending response",
       "concept": "piano-string-bending",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string longitudinal direction",
+      "concept": "piano-string-longitudinal-direction",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string transverse direction",
+      "concept": "piano-string-transverse-direction",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string pulling mode",
+      "concept": "piano-string-pulling-mode",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string tensile force",
+      "concept": "piano-string-tensile-force",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string bending force",
+      "concept": "piano-string-bending-force",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string tensile load",
+      "concept": "piano-string-tensile-load",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string transverse load",
+      "concept": "piano-string-transverse-load",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string bending deformation",
+      "concept": "piano-string-bending-deformation",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "piano string bending mode",
+      "concept": "piano-string-bending-mode",
       "partOfSpeech": "proper-noun"
     }
   ],
@@ -1146,18 +1196,6 @@
       }
     },
     {
-      "concept": "mechanical-state",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
-      "concept": "tensioned-state",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
       "concept": "hammer-component",
       "definitionKind": "primitive",
       "necessaryConditions": [],
@@ -1227,18 +1265,6 @@
         "relation": "exhibits-mechanical-behavior",
         "targetType": "bending-response"
       }
-    },
-    {
-      "concept": "mechanical-behavior",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
-      "concept": "bending-response",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -1513,11 +1539,6 @@
       "object": "entity"
     },
     {
-      "subject": "tensioned-state",
-      "relation": "is-a",
-      "object": "mechanical-state"
-    },
-    {
       "subject": "piano-example",
       "relation": "instance-of",
       "object": "physical-object"
@@ -1683,11 +1704,6 @@
       "object": "physical-component"
     },
     {
-      "subject": "piano-string-tension",
-      "relation": "instance-of",
-      "object": "tensioned-state"
-    },
-    {
       "subject": "harmonium-reeds",
       "relation": "receives-air-from",
       "object": "harmonium-bellows"
@@ -1758,11 +1774,6 @@
       "object": "entity"
     },
     {
-      "subject": "bending-response",
-      "relation": "is-a",
-      "object": "mechanical-behavior"
-    },
-    {
       "subject": "piano-strings",
       "relation": "has-geometric-form",
       "object": "piano-string-form"
@@ -1803,9 +1814,129 @@
       "object": "cross-sectional-extent"
     },
     {
+      "subject": "piano-string-tension",
+      "relation": "instance-of",
+      "object": "mechanical-state"
+    },
+    {
       "subject": "piano-string-bending",
       "relation": "instance-of",
-      "object": "bending-response"
+      "object": "mechanical-behavior"
+    },
+    {
+      "subject": "piano-string-longitudinal-direction",
+      "relation": "instance-of",
+      "object": "longitudinal-direction"
+    },
+    {
+      "subject": "piano-string-transverse-direction",
+      "relation": "instance-of",
+      "object": "geometric-direction"
+    },
+    {
+      "subject": "piano-string-pulling-mode",
+      "relation": "instance-of",
+      "object": "pulling-mode"
+    },
+    {
+      "subject": "piano-string-tensile-force",
+      "relation": "instance-of",
+      "object": "force"
+    },
+    {
+      "subject": "piano-string-bending-force",
+      "relation": "instance-of",
+      "object": "force"
+    },
+    {
+      "subject": "piano-string-bending-deformation",
+      "relation": "instance-of",
+      "object": "deformation"
+    },
+    {
+      "subject": "piano-string-bending-mode",
+      "relation": "instance-of",
+      "object": "bending-mode"
+    },
+    {
+      "subject": "piano-string-form",
+      "relation": "has-longitudinal-direction",
+      "object": "piano-string-longitudinal-direction"
+    },
+    {
+      "subject": "piano-string-transverse-direction",
+      "relation": "perpendicular-to",
+      "object": "piano-string-longitudinal-direction"
+    },
+    {
+      "subject": "piano-string-tensile-force",
+      "relation": "force-has-mode",
+      "object": "piano-string-pulling-mode"
+    },
+    {
+      "subject": "piano-string-tensile-force",
+      "relation": "force-has-direction",
+      "object": "piano-string-longitudinal-direction"
+    },
+    {
+      "subject": "piano-string-bending-force",
+      "relation": "force-has-direction",
+      "object": "piano-string-transverse-direction"
+    },
+    {
+      "subject": "piano-string-tensile-load",
+      "relation": "has-force",
+      "object": "piano-string-tensile-force"
+    },
+    {
+      "subject": "piano-string-tensile-load",
+      "relation": "acts-on",
+      "object": "piano-strings"
+    },
+    {
+      "subject": "piano-string-transverse-load",
+      "relation": "has-force",
+      "object": "piano-string-bending-force"
+    },
+    {
+      "subject": "piano-string-transverse-load",
+      "relation": "acts-on",
+      "object": "piano-strings"
+    },
+    {
+      "subject": "piano-string-tension",
+      "relation": "has-load",
+      "object": "piano-string-tensile-load"
+    },
+    {
+      "subject": "piano-string-tension",
+      "relation": "state-of",
+      "object": "piano-strings"
+    },
+    {
+      "subject": "piano-string-bending",
+      "relation": "occurs-under-load",
+      "object": "piano-string-transverse-load"
+    },
+    {
+      "subject": "piano-string-bending",
+      "relation": "response-of",
+      "object": "piano-strings"
+    },
+    {
+      "subject": "piano-string-bending",
+      "relation": "produces-deformation",
+      "object": "piano-string-bending-deformation"
+    },
+    {
+      "subject": "piano-string-bending-deformation",
+      "relation": "has-deformation-mode",
+      "object": "piano-string-bending-mode"
+    },
+    {
+      "subject": "piano-string-bending-deformation",
+      "relation": "deforms-component",
+      "object": "piano-strings"
     }
   ],
   "dataProperties": [],
