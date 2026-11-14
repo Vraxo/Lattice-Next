@@ -174,7 +174,9 @@
       "verb": "has load",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "state-of",
@@ -183,7 +185,9 @@
       "verb": "is state of",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-force",
@@ -192,7 +196,9 @@
       "verb": "has force",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "acts-on",
@@ -201,7 +207,9 @@
       "verb": "acts on",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "force-has-mode",
@@ -210,7 +218,9 @@
       "verb": "has force mode",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "force-has-direction",
@@ -219,7 +229,9 @@
       "verb": "has force direction",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "occurs-under-load",
@@ -228,7 +240,9 @@
       "verb": "occurs under load",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "response-of",
@@ -237,7 +251,9 @@
       "verb": "is response of",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "produces-deformation",
@@ -246,7 +262,9 @@
       "verb": "produces deformation",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-deformation-mode",
@@ -255,7 +273,9 @@
       "verb": "has deformation mode",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "deforms-component",
@@ -264,7 +284,9 @@
       "verb": "deforms component",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [

@@ -354,7 +354,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-boundary-element",
@@ -363,7 +365,9 @@
       "verb": "contains",
       "objectRole": null,
       "order": 1,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-topology",
@@ -372,7 +376,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 2,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-start-point",
@@ -381,7 +387,9 @@
       "verb": "has",
       "objectRole": "as its start point",
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-end-point",
@@ -390,7 +398,9 @@
       "verb": "has",
       "objectRole": "as its end point",
       "order": 1,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-geometric-property",
@@ -399,7 +409,9 @@
       "verb": "has",
       "objectRole": null,
       "order": 2,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-longitudinal-extent",
@@ -408,7 +420,9 @@
       "verb": "has longitudinal extent",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "exceeds-in-extent",
@@ -417,7 +431,9 @@
       "verb": "exceeds in extent",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "has-longitudinal-direction",
@@ -426,7 +442,9 @@
       "verb": "has longitudinal direction",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "perpendicular-to",
@@ -435,7 +453,9 @@
       "verb": "is perpendicular to",
       "objectRole": null,
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
