@@ -442,4 +442,26 @@ public sealed class NativeEnglishGrammarTests
         Assert.Equal("dog(fido)", SemanticFormatter.Format(result.Utterances[1]));
         Assert.Equal("ask(animal(fido))", SemanticFormatter.Format(result.Utterances[2]));
     }
+
+    [Theory]
+    [InlineData("Why can camels survive for long without water?", "camels", "survive-for-long-without-water")]
+    [InlineData("Why can bats fly?", "bats", "fly")]
+    public void Parses_why_can_ability_questions_as_semantic_requests(
+        string sentence,
+        string expectedSubject,
+        string expectedAbility)
+    {
+        var result = parser.ParseText(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(Assert.Single(result.Utterances));
+        Assert.Equal(UtteranceKind.Question, utterance.Kind);
+        var question = Assert.IsType<SemanticWorldModelQuestionFormula>(utterance.Meaning);
+        Assert.Equal(SemanticWorldModelQuestionKind.Ability, question.Kind);
+        Assert.Equal(expectedSubject, question.Subject);
+        Assert.Equal(expectedAbility, question.Concept);
+        Assert.Equal($"ask(world-model-ability({expectedSubject}, {expectedAbility}))", SemanticFormatter.Format(utterance));
+        Assert.Equal(sentence, utterance.SourceText);
+    }
+
 }

@@ -55,6 +55,7 @@ public static class SemanticFormatter
         {
             SemanticWorldModelQuestionKind.Definition => $"world-model-definition({question.Concept})",
             SemanticWorldModelQuestionKind.WhyClassification => $"world-model-why({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.Ability => $"world-model-ability({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.Mechanism => $"world-model-mechanism({question.Subject})",
             SemanticWorldModelQuestionKind.Causes => $"world-model-causes({question.Subject})",
             SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
