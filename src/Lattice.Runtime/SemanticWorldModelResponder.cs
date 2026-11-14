@@ -473,6 +473,12 @@ internal static class SemanticWorldModelResponder
             var startRelation = model.FindRelation(expression.StartRelation!);
             var traversalRelation = model.FindRelation(expression.Relation!);
             var targetType = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            var sourceConnection = expression.SourceConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.SourceConnectionRelation);
+            var targetConnection = expression.TargetConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.TargetConnectionRelation);
             var cycleSources = reasoner.GetCycleEvidence(individual, expression);
             if (startRelation is null || traversalRelation is null ||
                 targetType is null || cycleSources.IsDefaultOrEmpty)
@@ -482,7 +488,10 @@ internal static class SemanticWorldModelResponder
 
             phrases =
             [
-                $"{startRelation.Verb} {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element"
+                $"{startRelation.Verb} {IndefinitePhrase(targetType.Label)} and follows {traversalRelation.Verb} links for at least {expression.MinimumLength} elements before returning to that same element" +
+                (sourceConnection is null || targetConnection is null
+                    ? string.Empty
+                    : $", with each transition matching {sourceConnection.Verb} to {targetConnection.Verb} by identity")
             ];
             sources = cycleSources;
             return true;
@@ -791,9 +800,18 @@ internal static class SemanticWorldModelResponder
             var start = model.FindRelation(expression.StartRelation!);
             var traversal = model.FindRelation(expression.Relation!);
             var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            var sourceConnection = expression.SourceConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.SourceConnectionRelation);
+            var targetConnection = expression.TargetConnectionRelation is null
+                ? null
+                : model.FindRelation(expression.TargetConnectionRelation);
             return start is null || traversal is null || target is null
                 ? null
-                : $"{start.Verb} {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element";
+                : $"{start.Verb} {IndefinitePhrase(target.Label)} and follows {traversal.Verb} links for at least {expression.MinimumLength} elements before returning to that same element" +
+                  (sourceConnection is null || targetConnection is null
+                      ? string.Empty
+                      : $", with each transition matching {sourceConnection.Verb} to {targetConnection.Verb} by identity");
         }
 
         var phrases = expression.Operands
