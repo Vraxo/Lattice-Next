@@ -29,14 +29,12 @@ public sealed class SemanticRelationPathQueryTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.EndsWith(
-                    StringComparison.Ordinal) &&
-                (source.SourceId.Contains(
+                source.SourceId.Contains(
                     ":relation:piano-strings:transmits-vibration-to:piano-soundboard",
                     StringComparison.Ordinal) ||
-                 source.SourceId.Contains(
+                source.SourceId.Contains(
                     ":relation:piano-soundboard:receives-vibration-from:piano-strings",
-                    StringComparison.Ordinal))));
+                    StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -46,7 +44,7 @@ public sealed class SemanticRelationPathQueryTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "How is the piano hammers connected to the golf course?");
+            "How are the piano hammers connected to the golf course?");
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
