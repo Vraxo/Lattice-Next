@@ -761,7 +761,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal("The piano action actuates the piano hammers.", utterance.Message);
         Assert.Equal(
             "ask(relation-targets(piano-action, actuate))",
-            utterance.SemanticMeaning);
+            utterance.Meaning);
         Assert.Contains(
             utterance.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
