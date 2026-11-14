@@ -350,7 +350,7 @@
     },
     {
       "id": "dolly-011",
-      "status": "partial",
+      "status": "represented",
       "areas": [
         "sports",
         "companies",
@@ -368,7 +368,7 @@
       "relations": [
         "makes-equipment-for"
       ],
-      "limitations": "Five example golf-equipment companies are represented, but a current 'top five' ranking is not asserted."
+      "limitations": "The five modeled companies are classified through the defined type golf-equipment-company, whose sufficient condition is making equipment for golf. The runtime lists them alphabetically and explicitly does not claim a ranking."
     },
     {
       "id": "dolly-012",
