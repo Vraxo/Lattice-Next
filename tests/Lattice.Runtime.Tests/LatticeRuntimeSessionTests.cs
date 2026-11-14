@@ -165,7 +165,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(197, status.SemanticConceptCount);
+        Assert.Equal(198, status.SemanticConceptCount);
         Assert.Equal(38, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
@@ -375,7 +375,7 @@ public sealed class LatticeRuntimeSessionTests
         }
 
         var pianoSoundProduction = await session.SubmitAsync(
-            "Is the example piano a struck-string-instrument?");
+            "Is Example piano a piano?");
         var pianoSoundProductionAnswer = Assert.Single(pianoSoundProduction.Utterances);
         Assert.Equal(LatticeTruthValue.True, pianoSoundProductionAnswer.TruthValue);
         Assert.Contains(
