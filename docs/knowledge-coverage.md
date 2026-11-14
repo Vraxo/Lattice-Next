@@ -26,15 +26,17 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #230's head `dd61d3646357fadebe7cbe1c16c1ea3d1e9ff319` (CI run 876):
+The latest fully executed integrated run is PR #230's head `e669fec120b89dfbca4aba12ca97ee0d5f740359` (CI run 877):
 
 - .NET build: passed
 - .NET tests: 922 passed, 0 failed
 - External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
-- Assistant benchmark: 34 prompts, 17 substantive answers at execution time, 20 answered, 20 handled, 14 unhandled, 0 runner errors
-- Average latency: 264 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 18 substantive answers, 20 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 354 ms (single run; stability not measured)
 
-Dolly-021's benchmark output was manually inspected: guitar, violin, cello, and banjo are classified as string instruments; harmonium and accordion as keyboard instruments; and piano as both. The evidence includes the piano's explicit `is-a` paths to keyboard and struck-string instrument, plus the `struck-string-instrument is-a string-instrument` path. The record is now marked substantively reviewed. Applying that review to the captured result gives **18 substantive answers (18/34, 52.9%)**. This is a recalculation over the completed run's captured outputs after review, not a second execution of the benchmark.
+The runtime benchmark score on this branch is **18/34 (52.9%)**. Dolly-021's answer was manually inspected: piano is classified through explicit type hierarchy paths to both keyboard and string instruments, while the other six instruments are classified through their modeled membership evidence. The record is marked substantively reviewed.
+
+This branch does not include the sibling PR #228 contextual-neighbor implementation. Its Dolly-029 answer is therefore not counted here. The Dolly-021 and Dolly-029 additions should not be summed until their branches are integrated and the combined benchmark is run.
 
 ## Cross-domain structure
 
