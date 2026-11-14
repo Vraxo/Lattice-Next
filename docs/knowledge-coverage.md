@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #217's head `bab1c961be1414ed9616d026f90da398d8d3405b`:
+The latest fully executed integrated run is PR #217's head `ba52010a29920432e6a0d4c9a5e3d5e3d9a482ad` (CI run 819):
 
 - .NET build: passed
 - .NET tests: 913 passed, 0 failed
 - External Python tool tests: passed
 - Assistant benchmark: 34 prompts, 13 substantive answers, 15 answered, 16 handled, 18 unhandled, 0 runner errors
-- Average latency: 257 ms (single run; stability not measured)
+- Average latency: 355 ms (single run; stability not measured)
 
-The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer was manually inspected: the selected train, plane, bicycle, and scooter each have a typed instance connected to the transportation activity by an asserted `used-for` relation. The response cites all four relations and the supporting type memberships. The distractor options are not declared unsuitable; the system returns only positively supported choices.
+The runtime benchmark score is **13/34 (38.2%)**. Dolly-016's answer is supported by four explicit `used-for` assertions and the corresponding instance/type evidence. The distractor options are not declared unsuitable; the system returns only positively supported choices. The separate `substantive_answer_reviewed` metadata count is 14; it is a review count, not the runtime score.
 
 ## Cross-domain structure
 
