@@ -1045,6 +1045,37 @@
       "sufficientExpression": null
     },
     {
+      "concept": "hammer-component",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "piano-hammer-action",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "actuates",
+        "targetType": "hammer-component",
+        "filler": {
+          "kind": "some",
+          "relation": "strikes",
+          "targetType": "string-component"
+        }
+      }
+    },
+    {
+      "concept": "piano-keyboard-interface",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "activates",
+        "targetType": "piano-hammer-action"
+      }
+    },
+    {
       "concept": "piano",
       "definitionKind": "defined",
       "necessaryConditions": [],
@@ -1063,37 +1094,6 @@
           }
         ]
       }
-    },
-    {
-      "concept": "piano-keyboard-interface",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "sufficientExpression": {
-        "kind": "some",
-        "relation": "activates",
-        "targetType": "piano-hammer-action"
-      }
-    },
-    {
-      "concept": "piano-hammer-action",
-      "definitionKind": "defined",
-      "necessaryConditions": [],
-      "sufficientExpression": {
-        "kind": "some",
-        "relation": "actuates",
-        "targetType": "hammer-component",
-        "filler": {
-          "kind": "some",
-          "relation": "strikes",
-          "targetType": "string-component"
-        }
-      }
-    },
-    {
-      "concept": "hammer-component",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
