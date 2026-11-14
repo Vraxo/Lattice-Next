@@ -264,7 +264,7 @@ internal static class SemanticWorldModelResponder
 
         foreach (var requestedItem in request.Items)
         {
-            var item = model.FindConcept(requestedItem.Value, SemanticConceptKind.Individual);
+            var item = model.FindConcept(requestedItem.Value);
             if (item is null)
             {
                 return false;
@@ -281,7 +281,14 @@ internal static class SemanticWorldModelResponder
                     continue;
                 }
 
-                var sources = reasoner.GetMembershipEvidence(item.Id, categoryType.Id);
+                var sources = item.Kind switch
+                {
+                    SemanticConceptKind.Individual =>
+                        reasoner.GetMembershipEvidence(item.Id, categoryType.Id),
+                    SemanticConceptKind.Type =>
+                        GetSubtypeEvidence(item.Id, categoryType.Id, model),
+                    _ => ImmutableArray<SemanticWorldModelSource>.Empty
+                };
                 if (!sources.IsDefaultOrEmpty)
                 {
                     matching.Add((category.Value, sources));
@@ -312,6 +319,55 @@ internal static class SemanticWorldModelResponder
             .Select(result => ToEvidence(result.Sources, LatticeEvidenceKind.Derived))
             .ToImmutableArray();
         return true;
+    }
+
+    private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
+        string candidate,
+        string expected,
+        SemanticWorldModel model)
+    {
+        if (candidate == expected)
+        {
+            return [];
+        }
+
+        var pending = new Queue<string>();
+        var visited = new HashSet<string>(StringComparer.Ordinal) { candidate };
+        var previous = new Dictionary<string, SemanticRelationAssertion>(StringComparer.Ordinal);
+        pending.Enqueue(candidate);
+
+        while (pending.TryDequeue(out var current))
+        {
+            foreach (var assertion in model.RelationAssertions.Where(assertion =>
+                assertion.Subject == current &&
+                assertion.Relation == "is-a"))
+            {
+                if (!visited.Add(assertion.Object))
+                {
+                    continue;
+                }
+
+                previous[assertion.Object] = assertion;
+                if (assertion.Object == expected)
+                {
+                    var sources = new List<SemanticWorldModelSource>();
+                    var type = expected;
+                    while (type != candidate)
+                    {
+                        var step = previous[type];
+                        sources.Add(step.Source);
+                        type = step.Subject;
+                    }
+
+                    sources.Reverse();
+                    return sources.ToImmutableArray();
+                }
+
+                pending.Enqueue(assertion.Object);
+            }
+        }
+
+        return [];
     }
 
     internal static bool TryChoice(
