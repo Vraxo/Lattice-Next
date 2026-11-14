@@ -301,4 +301,4 @@ The capability-explanation question form accepts "Why can <subject> <verb> ...?"
 
 ### Headquarters-site contribution questions
 
-The question form “Who gave the UN the land in NY to build their HQ?” is resolved through the recipient's headquarters location, the site situated in that location, and graph assertions describing contributions to acquire or complete the site. The response distinguishes financial funding toward acquisition from additional property contributed by a municipality. It does not collapse those contribution roles into a claim that one person donated the entire site.
+The recipient–resource–location–purpose question form “Who gave the UN the land in NY to build their HQ?” is resolved through lexical types, the recipient's headquarters location, and a site matching both the resource and facility types. The responder then queries contribution relations on that site and composes each contributor's role from the graph. Financial funding toward acquisition remains distinct from additional property contributed by a municipality. Unsupported resource/facility types, mismatched locations, and ambiguous candidate sites cause abstention.
