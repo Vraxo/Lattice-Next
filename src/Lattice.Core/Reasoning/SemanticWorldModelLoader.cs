@@ -452,7 +452,7 @@ public sealed class SemanticWorldModelLoader
         var nodeCount = 0;
         if (!ValidateExpression(expression, 0, ref nodeCount, relations, concepts, collected))
         {
-            error = $"Type definition '{ownerType}' contains an invalid class expression. Use valid some, cycle, and/or expressions.";
+            error = $"Type definition '{ownerType}' contains an invalid class expression. Use valid some, all, cycle, and/or expressions.";
             return false;
         }
 
@@ -474,7 +474,7 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
-        if (expression.Kind == SemanticClassExpressionKind.Some)
+        if (expression.Kind is SemanticClassExpressionKind.Some or SemanticClassExpressionKind.All)
         {
             if (string.IsNullOrWhiteSpace(expression.Relation) ||
                 !relations.TryGetValue(expression.Relation, out var relation) ||
@@ -859,7 +859,7 @@ public sealed class SemanticWorldModelLoader
         string subjectType,
         SemanticWorldModel model)
     {
-        if (expression.Kind == SemanticClassExpressionKind.Some)
+        if (expression.Kind is SemanticClassExpressionKind.Some or SemanticClassExpressionKind.All)
         {
             var relation = model.FindRelation(expression.Relation!)!;
             return relation.DomainType is not null &&
