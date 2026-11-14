@@ -177,6 +177,16 @@ public sealed class LatticeRuntimeSessionTests
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
+
+        var mountain = await session.SubmitAsync("Is Mount Whitney a mountain?");
+        var mountainAnswer = Assert.Single(mountain.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, mountainAnswer.Kind);
+        Assert.Equal(LatticeTruthValue.True, mountainAnswer.TruthValue);
+
+        var athlete = await session.SubmitAsync("Is Michael Phelps a swimmer?");
+        var athleteAnswer = Assert.Single(athlete.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, athleteAnswer.Kind);
+        Assert.Equal(LatticeTruthValue.True, athleteAnswer.TruthValue);
     }
 
     [Fact]
