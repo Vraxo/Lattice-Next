@@ -468,6 +468,25 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        if (expression.Kind == SemanticClassExpressionKind.All)
+        {
+            var relation = model.FindRelation(expression.Relation!);
+            var target = model.FindConcept(expression.TargetType!, SemanticConceptKind.Type);
+            if (relation is null || target is null)
+            {
+                return null;
+            }
+
+            var phrase = $"{relation.Verb} no element other than {IndefinitePhrase(target.Label)}";
+            if (expression.Filler is null)
+            {
+                return phrase;
+            }
+
+            var filler = FormatExpression(expression.Filler, model);
+            return filler is null ? null : $"{phrase} that {filler}";
+        }
+
         if (expression.Kind == SemanticClassExpressionKind.Cycle)
         {
             var startRelation = model.FindRelation(expression.StartRelation!);
