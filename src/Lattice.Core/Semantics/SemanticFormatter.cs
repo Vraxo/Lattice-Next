@@ -61,6 +61,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Membership => $"world-model-membership({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.InverseRelation => $"world-model-inverse-relation({question.Concept}, {question.Subject})",
             SemanticWorldModelQuestionKind.ContributionQuery => $"world-model-contribution({question.Subject}, {question.Concept}, {question.OtherSubject}, {question.TargetType})",
+            SemanticWorldModelQuestionKind.ImpactExplanation => $"world-model-impact-explanation({question.Subject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.RelationQuery => question.TargetType is null
                 ? $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"})"
                 : $"world-model-relation({question.Subject}, {question.Concept ?? "any"}, {question.OtherSubject ?? "any"}, target-type={question.TargetType})",
