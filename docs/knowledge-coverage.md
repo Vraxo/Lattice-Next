@@ -26,15 +26,15 @@ These are **knowledge-graph coverage counts**, not benchmark answer scores. A co
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is PR #214's head `5e97ca82dd67d09b42804f4f20652d00d7c7aa40`:
+The latest fully executed integrated run is PR #215's head `78316eb22e80915db90edac00fad0de89efa5867`:
 
 - .NET build: passed
-- .NET tests: 905 passed, 0 failed
+- .NET tests: 908 passed, 0 failed
 - External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 10 substantive answers, 12 answered, 13 handled, 21 unhandled, 0 runner errors
-- Average latency: 374 ms (single run; stability not measured)
+- Assistant benchmark: 34 prompts, 11 substantive answers, 13 answered, 14 handled, 20 unhandled, 0 runner errors
+- Average latency: 378 ms (single run; stability not measured)
 
-Dolly-003, Dolly-004, and Dolly-005 have been individually inspected and marked as substantively reviewed. Their answers are composed from graph relations and explicit premises; they are not stored answer sentences. The runtime benchmark score is **10/34 (29.4%)**. The separate `substantive_answer_reviewed` metadata count is 11; it is a review count, not a runtime capability score.
+Dolly-003, Dolly-004, Dolly-005, and Dolly-013 have been individually inspected and marked as substantively reviewed. Their answers are composed from graph relations and explicit premises; they are not stored answer sentences. The runtime benchmark score is **11/34 (32.4%)**. The separate `substantive_answer_reviewed` metadata count is 12; it is a review count, not a runtime capability score.
 
 ## Cross-domain structure
 
