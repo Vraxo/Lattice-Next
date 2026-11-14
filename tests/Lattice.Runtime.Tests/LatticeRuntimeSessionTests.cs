@@ -170,6 +170,11 @@ public sealed class LatticeRuntimeSessionTests
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:mount-whitney:instance-of:mountain"));
+
+        var unsupportedMembership = await session.SubmitAsync("Is Mount Whitney a mountain range?");
+        var unavailable = Assert.Single(unsupportedMembership.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, unavailable.Kind);
+        Assert.Null(unavailable.TruthValue);
     }
 
     [Theory]
