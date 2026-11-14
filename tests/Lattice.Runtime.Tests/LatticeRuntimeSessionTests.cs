@@ -40,6 +40,19 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("not inherently bad for people", answer.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Resolves_plural_mobile_phone_and_human_lexical_forms()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why mobile phones are bad for people?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("sleep disruption", answer.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("Why hoverboards are bad for human")]
     [InlineData("Why mobile is bad for software")]
