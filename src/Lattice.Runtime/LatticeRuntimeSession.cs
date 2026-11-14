@@ -472,6 +472,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance parsedUtterance,
         bool deferObjectiveEvaluation)
     {
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is FamilySetCompletionQuestionFormula familySetCompletion)
+        {
+            return ProcessFamilySetCompletionQuestion(parsedUtterance, familySetCompletion);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.TaskRequest &&
             parsedUtterance.Meaning is TaskRequestFormula taskRequest)
         {
@@ -666,6 +672,32 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             },
             SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
+    }
+
+    private LatticeUtteranceResult ProcessFamilySetCompletionQuestion(
+        SemanticUtterance utterance,
+        FamilySetCompletionQuestionFormula question)
+    {
+        if (!FamilySetCompletionResponder.TryRespond(
+            question,
+            utterance.SourceText,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I cannot complete that family set from the stated relationships and available type knowledge.",
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
     }
 
     private LatticeUtteranceResult ProcessTaskRequest(
