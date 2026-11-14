@@ -24,11 +24,6 @@
       "kind": "Type"
     },
     {
-      "id": "mathematical-function-type",
-      "label": "mathematical function",
-      "kind": "Type"
-    },
-    {
       "id": "differentiable-function",
       "label": "differentiable function",
       "kind": "Type"
@@ -41,11 +36,6 @@
     {
       "id": "limit-problem",
       "label": "limit problem",
-      "kind": "Type"
-    },
-    {
-      "id": "mathematical-expression-type",
-      "label": "mathematical expression",
       "kind": "Type"
     },
     {
@@ -121,11 +111,6 @@
       "partOfSpeech": "noun"
     },
     {
-      "form": "mathematical function",
-      "concept": "mathematical-function-type",
-      "partOfSpeech": "noun"
-    },
-    {
       "form": "differentiable function",
       "concept": "differentiable-function",
       "partOfSpeech": "noun"
@@ -138,11 +123,6 @@
     {
       "form": "limit problem",
       "concept": "limit-problem",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "mathematical expression",
-      "concept": "mathematical-expression-type",
       "partOfSpeech": "noun"
     },
     {
@@ -301,12 +281,6 @@
       "sufficientExpression": null
     },
     {
-      "concept": "mathematical-function-type",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
       "concept": "differentiable-function",
       "definitionKind": "primitive",
       "necessaryConditions": [],
@@ -320,12 +294,6 @@
     },
     {
       "concept": "limit-problem",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
-      "concept": "mathematical-expression-type",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -413,11 +381,6 @@
       "object": "calculus-concept"
     },
     {
-      "subject": "mathematical-function-type",
-      "relation": "is-a",
-      "object": "mathematical-function"
-    },
-    {
       "subject": "differentiable-function",
       "relation": "is-a",
       "object": "mathematical-function"
@@ -431,11 +394,6 @@
       "subject": "limit-problem",
       "relation": "is-a",
       "object": "mathematical-problem"
-    },
-    {
-      "subject": "mathematical-expression-type",
-      "relation": "is-a",
-      "object": "mathematical-expression"
     },
     {
       "subject": "ratio-expression",
