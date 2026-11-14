@@ -491,6 +491,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is SemanticRelationSourceQueryFormula relationSourceQuery)
+        {
+            return ProcessRelationSourceQueryQuestion(parsedUtterance, relationSourceQuery);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is MultiItemClassificationFormula classification)
         {
             return ProcessClassificationQuestion(parsedUtterance, classification);
@@ -834,6 +840,32 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private LatticeUtteranceResult ProcessRelationQueryQuestion(
         SemanticUtterance utterance,
         SemanticRelationQueryFormula question)
+    {
+        var meaning = SemanticFormatter.Format(utterance);
+        if (!SemanticWorldModelResponder.TryRespond(
+            question,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough structured semantic knowledge to answer that question.",
+                meaning,
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            meaning,
+            SupportingEvidence: evidence);
+    }
+
+    private LatticeUtteranceResult ProcessRelationSourceQueryQuestion(
+        SemanticUtterance utterance,
+        SemanticRelationSourceQueryFormula question)
     {
         var meaning = SemanticFormatter.Format(utterance);
         if (!SemanticWorldModelResponder.TryRespond(
