@@ -11,29 +11,30 @@ The machine-readable mapping is maintained in [assistant-benchmark-v1.json](../k
 The ontology now contains:
 
 - 17 composable domain modules
-- 545 concepts: 313 types and 232 individuals
-- 133 relation signatures
-- 822 graph assertions
-- 544 lexical forms
+- 560 concepts: 321 types and 239 individuals
+- 139 relation signatures
+- 861 graph assertions
+- 571 lexical forms
 
 The 34 benchmark prompts are currently mapped as:
 
-- 16 represented at the ontology level
-- 16 partially represented
-- 2 not represented as static ontology knowledge
+- 18 represented at the ontology level
+- 15 partially represented
+- 1 not represented as static ontology knowledge
 
 These are **knowledge-graph coverage counts**, not benchmark answer scores. A concept being present does not guarantee that the current language interpreter or responder can retrieve and explain it correctly.
 
 ## Runtime benchmark result
 
-The latest fully executed integrated run is the PR #208 head, before the later stacked changes in PRs #209–#211:
+The latest fully executed integrated run is PR #229's tested head `6ab2d268008620e01294870bb2faea2f1f65b98c` (CI run 850):
 
-- .NET test suite: 887 passed, 0 failed
-- External Python tool tests: passed
-- Assistant benchmark: 34 prompts, 7 substantive answers, 7 answered, 9 handled, 25 unhandled, 0 runner errors
-- Average latency: 334 ms (single run; stability not measured)
+- .NET build: passed
+- .NET tests: 922 passed, 0 failed
+- External Python tool tests: 22 passed (8 web-search and 14 web-page-fetch)
+- Assistant benchmark: 34 prompts, 17 substantive answers, 19 answered, 20 handled, 14 unhandled, 0 runner errors
+- Average latency: 262 ms (single run; stability not measured)
 
-The current PR #211 stack has not had its .NET tests, external Python tests, or full benchmark executed. Its new end-to-end test is added but unverified. The benchmark's substantive answer count therefore remains **7/34** until the integrated stack is actually run and the responses are reviewed. Ontology coverage counts above are not runtime capability scores.
+Dolly-023's answer was manually reviewed and is now included in the benchmark artifact as substantive. It returned five comedy films whose graph assertions support both the genre and 1980s release-period constraints, and explicitly declined to treat them as a ranked "best" list. Dolly-025's ingredient answer, Dolly-024's regional golf terminology answer, and Dolly-022's continental/contiguous mountain distinction are also represented in the reviewed result set.
 
 ## Cross-domain structure
 
@@ -82,3 +83,81 @@ Primary and institutional references:
 - [UN General Assembly resolution 100 (I)](https://mandates.un.org/mandate/A/RES/100%28I%29?end_year=1947&start_year=1947) — records the $8.5 million gift for acquisition of the New York tract.
 
 The benchmark wording “Who gave the UN the land” is therefore answered with the contribution roles separated, rather than treating the cash gift and municipal land contributions as the same act.
+
+
+## Mobile-phone impact coverage
+
+The mobile-phone graph distinguishes the device type from the possible effects of a smartphone example. Smartphones are classified as mobile phones; the example links through `may-contribute-to` to typed effects, and each effect is explicitly related to people through `affects`. The runtime query requires both the device-to-effect path and the target-type relation before composing an answer.
+
+Evidence and interpretation notes:
+
+- [JAMA Network Open (2025)](https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2831993) reports an association between daily pre-bed screen use and poorer sleep outcomes in a large adult sample. This is cross-sectional evidence, not proof that every phone use causes sleep problems.
+- [National Sleep Foundation consensus statement (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC13181348/) describes how engaging screen content and pre-bedtime exposure may delay or disrupt sleep.
+- [NHTSA distracted-driving guidance](https://www.nhtsa.gov/risky-driving/distracted-driving) documents the visual, manual, and cognitive distraction involved in phone use while driving.
+- [Preventive Medicine Reports systematic review (2025)](https://pmc.ncbi.nlm.nih.gov/articles/PMC12304691/) reports an association between problematic smartphone use and lower physical activity among university students, while noting the predominance of correlational studies.
+
+The answer therefore corrects the absolute premise: mobile phones are not inherently harmful. The graph represents potential risks whose likelihood and importance depend on use patterns; it does not model risk magnitude or prove causation.
+
+
+## Dutch artist painting query
+
+The benchmark's Dutch-artist question is represented with a typed artist hierarchy and a specific `painted-by` relation. Johannes Vermeer is classified as a Dutch artist; the artwork is classified as a painting; and the relation connects the painting to Vermeer.
+
+Historical grounding: the [Mauritshuis collection record](https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring) identifies the painting as a work by Johannes Vermeer and describes him as a Dutch painter. The runtime query does not retrieve a stored answer sentence; it resolves the typed relation and composes the answer from the graph.
+
+
+## Sunset and nighttime outcome
+
+The event graph links sunset to the start of nighttime, and connects that event to Earth's rotation, apparent solar motion, and the day-night cycle. The answer is derived from those relations rather than stored as a sentence.
+
+- [U.S. Naval Observatory: Rise, Set, and Twilight Definitions](https://aa.usno.navy.mil/faq/RST_defs) explains that Earth's rotation causes the phenomena of rising and setting.
+- [Lunar and Planetary Institute: Day and Night](https://www.lpi.usra.edu/education/skytellers/day_night.shtml) explains that the side of Earth facing the Sun experiences day, while the side facing away experiences night.
+
+The model represents the general sunset-to-nighttime transition; it does not calculate local sunset times or account for latitude, season, atmospheric refraction, or polar-day conditions.
+
+
+## Continental versus contiguous United States
+
+The geographic graph distinguishes the continental United States (49 states, including Alaska) from the contiguous United States (the lower 48). The highest-point relations identify Mount McKinley (also known as Denali) for the 49-state continental region and Mount Whitney for the contiguous region.
+
+The query responder follows those relations instead of comparing unmodeled elevation numbers. It explicitly notes the contiguous-state answer when a question uses the ambiguous phrase "continental US".
+
+Grounding:
+- [USGS, Elevations and Distances](https://pubs.usgs.gov/gip/Elevations-Distances/elvadist.html) lists Alaska's Mount McKinley and California's Mount Whitney as their respective state high points.
+- [USGS, Mount Whitney Quadrangle](https://pubs.usgs.gov/bul/1760/report.pdf) identifies Mount Whitney as the highest point in the conterminous United States.
+- [USGS, Extreme and Mean Altitudes](https://pubs.usgs.gov/bul/0817/report.pdf) distinguishes the continental United States (49 states) from the conterminous United States (48 states).
+- [Federal Register, Executive Order 14172](https://www.govinfo.gov/content/pkg/FR-2025-01-31/pdf/2025-02096.pdf) reinstates Mount McKinley as the federal name; the mountain is also widely known as Denali.
+
+The knowledge graph records the current federal name and retains Denali as an alternate lexical form.
+
+
+## Regional golf terminology
+
+The golf graph represents an albatross as a score of three strokes under par. It also represents double eagle as a regional equivalent used in the United States. Both terms point to the same score meaning, and the regional term has explicit golf and United States usage assertions. The responder requires all of those graph paths before answering; it does not rely on a stored answer sentence.
+
+Grounding:
+- [USGA, Golf History Questions](https://www.usga.org/history/faq--golf-history-questions-232994f0.html) describes albatross as a term for a double eagle.
+- [The Double Eagle Club, FAQ](https://www.doubleeagleclub.org/frequently-asked-questions) identifies double eagle as the term used most often by American golfers.
+- [International Golf Federation, Golf Glossary](https://www.igfgolf.org/pdf/media-centre/golf-glossary-for-website.pdf) cross-references albatross and double eagle.
+
+The answer is a terminology distinction, not a claim that the terms denote different scores.
+
+
+## Common ingredient queries
+
+The full English breakfast is represented as a dish with eight asserted food-ingredient relations: egg, bacon, sausage, baked beans, mushrooms, tomatoes, toast, and black pudding. The generic `What are common <type> of <subject>?` query form resolves the requested ingredient type, returns only graph-backed targets, and includes both the ingredient relations and type memberships as evidence. It abstains for unknown dishes and unsupported target types.
+
+
+Grounding for the full English breakfast ingredient list:
+- [BBC Good Food — What is a full English breakfast?](https://www.bbcgoodfood.com/howto/guide/what-is-a-full-english-breakfast) identifies eggs, bacon, toast, tomatoes, baked beans, and sausages as essentials, with mushrooms and black pudding among common additions. It also notes that modern plates vary and do not always contain every component.
+- [English Breakfast Society — Reference Guide](https://englishbreakfastsociety.com/reference/) describes the core components and recognises regional variation.
+
+
+## 1980s comedy-film examples
+
+The media graph already contains five film individuals with both a comedy-genre assertion and a 1980s release-period assertion. The runtime now intersects those two relations and checks that each candidate is a film. It returns examples, not a ranking: the graph has no objective quality or popularity scores.
+
+Grounding:
+- [AFI Catalog — Airplane! (1980)](https://catalog.afi.com/Film/53895-AIRPLANE) identifies the film as a comedy released in 1980.
+- [Filmsite — Comedy Films](https://www.filmsite.org/comedyfilms7.html) lists 1980s examples including Ghostbusters, Ferris Bueller's Day Off, Coming to America, and A Fish Called Wanda.
+- [MyShows — Comedy Movies 1980–1989](https://en.myshows.me/movies/catalog/y-1980-1989/g-comedy/) independently lists all five modeled titles in its 1980s comedy catalog.

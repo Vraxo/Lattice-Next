@@ -302,3 +302,50 @@ The capability-explanation question form accepts "Why can <subject> <verb> ...?"
 ### Headquarters-site contribution questions
 
 The recipient–resource–location–purpose question form “Who gave the UN the land in NY to build their HQ?” is resolved through lexical types, the recipient's headquarters location, and a site matching both the resource and facility types. The responder then queries contribution relations on that site and composes each contributor's role from the graph. Financial funding toward acquisition remains distinct from additional property contributed by a municipality. Unsupported resource/facility types, mismatched locations, and ambiguous candidate sites cause abstention.
+
+
+### Family-set completion
+
+A structured family-set completion construction handles prompts such as “Alice's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?” The parser records the anchor, parent relation, member type, stated cardinality, named members, and requested ordinal as a semantic formula. The responder completes the set only when exactly one member is missing, the anchor is not already listed, and the semantic model supports the anchor's required person type. For daughters and sons, the anchor must have the corresponding female-person or male-person classification; for children, it must be a person. Otherwise the responder abstains.
+
+This is a narrow, explicit inference rule over a structured set, not a general English coreference resolver or a stored question/answer pair. The current seed includes Alice as a female-person individual; broader name/gender knowledge is not assumed.
+
+
+### Impact explanations
+
+The `Why <subject> is bad for <target>` and `Why is <subject> harmful to <target>` constructions produce a typed impact query. The responder requires the subject to be a communication-device subtype and the target to be a person subtype, then follows `may-contribute-to` assertions to effects that are explicitly related to that target by `affects`. It composes a qualified explanation from the effect types and their evidence. Unsupported subjects, targets, or missing effect paths cause abstention. The modal relation is preserved in the answer: possible effects are not stated as inevitable outcomes.
+
+
+### Typed object-to-agent relation questions
+
+The construction `Which <type> <verb> <object>?` resolves the known object, the requested answer type, and a passive relation signature such as `is painted by`. The responder checks the relation's declared domain and range, follows assertions from the known object to candidate agents, and filters candidates through the requested type. It composes the answer from the candidate label and graph evidence, abstaining when the object, relation, or unique typed answer cannot be resolved.
+
+
+### Event outcome explanations
+
+The `What happens when <event>?` construction resolves an event type, follows a `marks start of` relation to a time-of-day outcome, then follows an incoming `explains` relation to its cause. It also requires the cause's modeled apparent-motion and causal-consequence relations before composing an explanation. Unsupported events, ambiguous event instances, or incomplete causal paths cause abstention.
+
+
+### Activity-based item selection
+
+The construction `Which of the following is useful for <activity>: <items>?` resolves the activity and each listed item as semantic types. The responder selects only item types with modeled individual instances connected to an instance of the requested activity by an asserted `is used for` relation. It composes the selected list from those graph paths and their evidence. Unknown items and items without supporting relations are not treated as proven unsuitable; if no candidate has support, the responder abstains.
+
+
+### Regional highest-point questions
+
+The `What is the tallest/highest <feature type> in <region>?` construction resolves the feature type and region, then follows a typed `highest-point-of` assertion. It requires a unique supported peak and includes its type-membership evidence. When the requested region contains a modeled contiguous subregion, the answer can state that narrower region's highest point as a clarification. Unknown regions or missing/ambiguous highest-point assertions cause abstention.
+
+
+### Regional terminology questions
+
+The construction `In <sport> what do <region> call <term>?` resolves the sport, regional context, and source term through lexical entries. The responder finds a regional-equivalent term only when the graph supports the equivalence, both terms share a modeled score meaning, and the candidate term has explicit usage assertions for the requested sport and region. The answer is composed from those assertions and type-membership evidence; unknown regions, sports, or unsupported terminology cause abstention.
+
+
+### Common typed-relation lists
+
+The construction `What are common <type> of <subject>?` is parsed into a typed relation query. It resolves the requested type and subject through the semantic model, finds a unique compatible relation, and returns only asserted targets that are instances of the requested type. When the relation verb ends with its declared target-type label, the responder removes that label and composes a concise list sentence. Supporting relation assertions and type memberships are retained as evidence.
+
+
+### Media examples by genre and period
+
+The construction `What are some of the best <genre> movies of the <decade>?` is interpreted as a conjunctive retrieval request, not a ranking request. The responder intersects films with asserted genre membership and release-period relations, verifies the film type, and returns only candidates satisfying both constraints. Because the model contains no ranking evidence, the response explicitly labels the results as examples rather than a ranked best-of list.

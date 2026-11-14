@@ -363,6 +363,16 @@ public sealed class LceParser
 
         var source = input.Trim();
 
+        if (FamilySetCompletionParser.TryParse(source, out var familySetCompletion))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(familySetCompletion!));
+        }
+
+        if (ActivitySelectionParser.TryParse(source, out var activitySelection))
+        {
+            return TextParseResult.Success(ImmutableArray.Create(activitySelection!));
+        }
+
         if (SemanticWorldModelQuestionParser.TryParse(source, out var semanticQuestion))
         {
             return TextParseResult.Success(ImmutableArray.Create(semanticQuestion!));

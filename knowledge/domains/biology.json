@@ -17,6 +17,21 @@
       "id": "tope",
       "label": "Tope",
       "kind": "Individual"
+    },
+    {
+      "id": "female-person",
+      "label": "female person",
+      "kind": "Type"
+    },
+    {
+      "id": "male-person",
+      "label": "male person",
+      "kind": "Type"
+    },
+    {
+      "id": "alice",
+      "label": "Alice",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -34,6 +49,11 @@
       "form": "Tope",
       "concept": "tope",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Alice",
+      "concept": "alice",
+      "partOfSpeech": "proper-noun"
     }
   ],
   "relations": [],
@@ -46,6 +66,18 @@
     },
     {
       "concept": "fish",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "female-person",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "male-person",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -71,6 +103,26 @@
       "subject": "animal",
       "relation": "is-a",
       "object": "living-organism"
+    },
+    {
+      "subject": "person",
+      "relation": "is-a",
+      "object": "animal"
+    },
+    {
+      "subject": "female-person",
+      "relation": "is-a",
+      "object": "person"
+    },
+    {
+      "subject": "male-person",
+      "relation": "is-a",
+      "object": "person"
+    },
+    {
+      "subject": "alice",
+      "relation": "instance-of",
+      "object": "female-person"
     }
   ],
   "dataProperties": [],

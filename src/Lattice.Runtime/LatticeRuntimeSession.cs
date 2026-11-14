@@ -472,10 +472,22 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         SemanticUtterance parsedUtterance,
         bool deferObjectiveEvaluation)
     {
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is FamilySetCompletionQuestionFormula familySetCompletion)
+        {
+            return ProcessFamilySetCompletionQuestion(parsedUtterance, familySetCompletion);
+        }
+
         if (parsedUtterance.Kind == UtteranceKind.TaskRequest &&
             parsedUtterance.Meaning is TaskRequestFormula taskRequest)
         {
             return ProcessTaskRequest(parsedUtterance, taskRequest);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ActivitySelectionFormula activitySelection)
+        {
+            return ProcessActivitySelectionQuestion(parsedUtterance, activitySelection);
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
@@ -668,6 +680,32 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
     }
 
+    private LatticeUtteranceResult ProcessFamilySetCompletionQuestion(
+        SemanticUtterance utterance,
+        FamilySetCompletionQuestionFormula question)
+    {
+        if (!FamilySetCompletionResponder.TryRespond(
+            question,
+            utterance.SourceText,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I cannot complete that family set from the stated relationships and available type knowledge.",
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
+    }
+
     private LatticeUtteranceResult ProcessTaskRequest(
         SemanticUtterance utterance,
         TaskRequestFormula request)
@@ -720,6 +758,31 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
                 "I don't have enough evidence to classify every item into exactly one requested category.",
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: evidence);
+    }
+
+    private LatticeUtteranceResult ProcessActivitySelectionQuestion(
+        SemanticUtterance utterance,
+        ActivitySelectionFormula request)
+    {
+        if (!SemanticWorldModelResponder.TrySelectForActivity(
+            request,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough graph evidence to identify items used for that activity.",
                 SemanticFormatter.Format(utterance),
                 SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
