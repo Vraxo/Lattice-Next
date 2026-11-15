@@ -33,6 +33,26 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
+    public void Parses_a_manual_transmission_operation_question_as_a_structured_task()
+    {
+        const string input = "How do you operate a car with a manual transmission?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
+        Assert.Equal(TaskRequestAction.Explain, request.Action);
+        Assert.Equal("manual-transmission", request.Subject);
+        Assert.Equal("car", request.Context);
+        Assert.Equal("procedure", request.OutputFormat);
+        Assert.Equal(new[] { "operating-procedure" }, request.Requirements);
+        Assert.Equal(input, utterance.SourceText);
+    }
+
+    [Fact]
     public void Parses_a_recommendation_question_with_its_preceding_purpose()
     {
         const string input = "I would like to implement simulations of chemical unit operations using Python and use them to optimize certain outputs. Which open-source packages do you recommend for this purpose?";
