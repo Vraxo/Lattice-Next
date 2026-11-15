@@ -1,0 +1,332 @@
+{
+  "formatVersion": 3,
+  "id": "full-english-breakfast",
+  "name": "Full English breakfast and common ingredients",
+  "concepts": [
+    {
+      "id": "prepared-dish",
+      "label": "prepared dish",
+      "kind": "Type"
+    },
+    {
+      "id": "breakfast-dish",
+      "label": "breakfast dish",
+      "kind": "Type"
+    },
+    {
+      "id": "ingredient",
+      "label": "food ingredient",
+      "kind": "Type"
+    },
+    {
+      "id": "full-english-breakfast",
+      "label": "full English breakfast",
+      "kind": "Individual"
+    },
+    {
+      "id": "egg",
+      "label": "eggs",
+      "kind": "Individual"
+    },
+    {
+      "id": "bacon",
+      "label": "bacon",
+      "kind": "Individual"
+    },
+    {
+      "id": "sausage",
+      "label": "sausages",
+      "kind": "Individual"
+    },
+    {
+      "id": "baked-beans",
+      "label": "baked beans",
+      "kind": "Individual"
+    },
+    {
+      "id": "grilled-tomato",
+      "label": "grilled tomatoes",
+      "kind": "Individual"
+    },
+    {
+      "id": "mushroom",
+      "label": "mushrooms",
+      "kind": "Individual"
+    },
+    {
+      "id": "toast",
+      "label": "toast",
+      "kind": "Individual"
+    },
+    {
+      "id": "black-pudding",
+      "label": "black pudding",
+      "kind": "Individual"
+    },
+    {
+      "id": "fried-bread",
+      "label": "fried bread",
+      "kind": "Individual"
+    },
+    {
+      "id": "hash-brown",
+      "label": "hash browns",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "full English breakfast",
+      "concept": "full-english-breakfast",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "full english",
+      "concept": "full-english-breakfast",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "egg",
+      "concept": "egg",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "eggs",
+      "concept": "egg",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "bacon",
+      "concept": "bacon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "back bacon",
+      "concept": "bacon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sausage",
+      "concept": "sausage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sausages",
+      "concept": "sausage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "baked beans",
+      "concept": "baked-beans",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "grilled tomato",
+      "concept": "grilled-tomato",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "grilled tomatoes",
+      "concept": "grilled-tomato",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mushroom",
+      "concept": "mushroom",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mushrooms",
+      "concept": "mushroom",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "toast",
+      "concept": "toast",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "black pudding",
+      "concept": "black-pudding",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "fried bread",
+      "concept": "fried-bread",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "hash browns",
+      "concept": "hash-brown",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-common-ingredient",
+      "domain": "breakfast-dish",
+      "range": "ingredient",
+      "verb": "commonly includes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "may-include-ingredient",
+      "domain": "breakfast-dish",
+      "range": "ingredient",
+      "verb": "may include",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "prepared-dish",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "breakfast-dish",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "ingredient",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "prepared-dish",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "breakfast-dish",
+      "relation": "is-a",
+      "object": "prepared-dish"
+    },
+    {
+      "subject": "ingredient",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "instance-of",
+      "object": "breakfast-dish"
+    },
+    {
+      "subject": "egg",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "bacon",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "sausage",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "baked-beans",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "grilled-tomato",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "mushroom",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "toast",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "black-pudding",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "fried-bread",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "hash-brown",
+      "relation": "instance-of",
+      "object": "ingredient"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "egg"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "bacon"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "sausage"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "baked-beans"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "grilled-tomato"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "mushroom"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "toast"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "has-common-ingredient",
+      "object": "black-pudding"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "may-include-ingredient",
+      "object": "fried-bread"
+    },
+    {
+      "subject": "full-english-breakfast",
+      "relation": "may-include-ingredient",
+      "object": "hash-brown"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

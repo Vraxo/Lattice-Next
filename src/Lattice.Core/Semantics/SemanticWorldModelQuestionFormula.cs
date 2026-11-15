@@ -21,6 +21,7 @@ public enum SemanticWorldModelQuestionKind
     HighestDataValue,
     NotableExamples,
     RegionalName,
+    Ingredients,
     EventOutcomes
 }
 
