@@ -64,7 +64,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex BestMoviesByDecadePattern = new(
-        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) movies of the (?<decade>[0-9]{4}s)\\??$",
+        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) movies of the (?<decade>[0-9]{4}s)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ListExamplesPattern = new(
@@ -265,7 +265,7 @@ internal static class SemanticWorldModelQuestionParser
                 subject: genre,
                 concept: $"{decade}-{genre}-film",
                 targetType: decade,
-                limit: 10,
+                limit: 12,
                 sourceText: source);
             return true;
         }
