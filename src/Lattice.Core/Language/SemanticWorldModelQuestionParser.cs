@@ -263,7 +263,7 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.NotableExamples,
                 subject: genre,
-                concept: $"{decade}-{genre}-film",
+                concept: $"{genre}-film-{decade}",
                 targetType: decade,
                 limit: 12,
                 sourceText: source);
