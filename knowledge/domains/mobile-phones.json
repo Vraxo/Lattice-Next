@@ -139,6 +139,17 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "affects-person",
+      "domain": "adverse-effect",
+      "range": "person",
+      "verb": "can affect",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
     }
   ],
   "definitions": [
@@ -301,6 +312,36 @@
       "subject": "social-interaction-disruption",
       "relation": "can-arise-through",
       "object": "divided-social-attention"
+    },
+    {
+      "subject": "sleep-disruption",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "attention-fragmentation",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "eye-strain",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "neck-back-discomfort",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "social-interaction-disruption",
+      "relation": "affects-person",
+      "object": "person"
     }
   ],
   "dataProperties": [],
