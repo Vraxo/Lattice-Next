@@ -1,0 +1,467 @@
+{
+  "formatVersion": 3,
+  "id": "georgia-film-production",
+  "name": "Georgia film production advantages",
+  "concepts": [
+    {
+      "id": "production-advantage",
+      "label": "film production advantage",
+      "kind": "Type"
+    },
+    {
+      "id": "production-detail",
+      "label": "film production detail",
+      "kind": "Type"
+    },
+    {
+      "id": "georgia",
+      "label": "Georgia",
+      "kind": "Individual"
+    },
+    {
+      "id": "tax-credit-advantage",
+      "label": "competitive production tax credits",
+      "kind": "Individual"
+    },
+    {
+      "id": "infrastructure-advantage",
+      "label": "established production infrastructure",
+      "kind": "Individual"
+    },
+    {
+      "id": "workforce-advantage",
+      "label": "experienced local crews",
+      "kind": "Individual"
+    },
+    {
+      "id": "location-diversity-advantage",
+      "label": "diverse filming locations",
+      "kind": "Individual"
+    },
+    {
+      "id": "climate-advantage",
+      "label": "a moderate climate",
+      "kind": "Individual"
+    },
+    {
+      "id": "cost-advantage",
+      "label": "lower production costs",
+      "kind": "Individual"
+    },
+    {
+      "id": "local-support-advantage",
+      "label": "local production support",
+      "kind": "Individual"
+    },
+    {
+      "id": "base-credit-detail",
+      "label": "20% base transferable tax credit",
+      "kind": "Individual"
+    },
+    {
+      "id": "promotional-uplift-detail",
+      "label": "additional 10% promotional uplift for eligible projects",
+      "kind": "Individual"
+    },
+    {
+      "id": "no-cap-detail",
+      "label": "no annual cap on earned credits",
+      "kind": "Individual"
+    },
+    {
+      "id": "no-sunset-detail",
+      "label": "no sunset clause",
+      "kind": "Individual"
+    },
+    {
+      "id": "stage-space-detail",
+      "label": "4 million+ square feet of production stage space",
+      "kind": "Individual"
+    },
+    {
+      "id": "vendor-network-detail",
+      "label": "established studios, vendors, and production support services",
+      "kind": "Individual"
+    },
+    {
+      "id": "local-workforce-detail",
+      "label": "experienced local crews and a deep workforce",
+      "kind": "Individual"
+    },
+    {
+      "id": "filming-location-count-detail",
+      "label": "10,000+ filming locations across the state",
+      "kind": "Individual"
+    },
+    {
+      "id": "year-round-climate-detail",
+      "label": "moderate climate that supports year-round filming",
+      "kind": "Individual"
+    },
+    {
+      "id": "lower-cost-detail",
+      "label": "lower operating costs",
+      "kind": "Individual"
+    },
+    {
+      "id": "camera-ready-detail",
+      "label": "Camera Ready local liaisons for location scouting and local support",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "Georgia",
+      "concept": "georgia",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "state of Georgia",
+      "concept": "georgia",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the state of Georgia",
+      "concept": "georgia",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "US Hollywood films",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Hollywood films",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "films",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "film productions",
+      "concept": "film",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "competitive production tax credits",
+      "concept": "tax-credit-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "established production infrastructure",
+      "concept": "infrastructure-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "experienced local crews",
+      "concept": "workforce-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "diverse filming locations",
+      "concept": "location-diversity-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "a moderate climate",
+      "concept": "climate-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "lower production costs",
+      "concept": "cost-advantage",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "local production support",
+      "concept": "local-support-advantage",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-advantage",
+      "domain": "geographic-region",
+      "range": "production-advantage",
+      "verb": "has production advantage",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "advantage-for-activity",
+      "domain": "production-advantage",
+      "range": null,
+      "verb": "attracts production of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
+    },
+    {
+      "id": "advantage-has-detail",
+      "domain": "production-advantage",
+      "range": "production-detail",
+      "verb": "has detail",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "production-advantage",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "production-detail",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "production-advantage",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "production-detail",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "georgia",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "tax-credit-advantage"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "base-credit-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "advantage-has-detail",
+      "object": "base-credit-detail"
+    },
+    {
+      "subject": "promotional-uplift-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "advantage-has-detail",
+      "object": "promotional-uplift-detail"
+    },
+    {
+      "subject": "no-cap-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "advantage-has-detail",
+      "object": "no-cap-detail"
+    },
+    {
+      "subject": "no-sunset-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "tax-credit-advantage",
+      "relation": "advantage-has-detail",
+      "object": "no-sunset-detail"
+    },
+    {
+      "subject": "infrastructure-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "infrastructure-advantage"
+    },
+    {
+      "subject": "infrastructure-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "stage-space-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "infrastructure-advantage",
+      "relation": "advantage-has-detail",
+      "object": "stage-space-detail"
+    },
+    {
+      "subject": "vendor-network-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "infrastructure-advantage",
+      "relation": "advantage-has-detail",
+      "object": "vendor-network-detail"
+    },
+    {
+      "subject": "workforce-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "workforce-advantage"
+    },
+    {
+      "subject": "workforce-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "local-workforce-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "workforce-advantage",
+      "relation": "advantage-has-detail",
+      "object": "local-workforce-detail"
+    },
+    {
+      "subject": "location-diversity-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "location-diversity-advantage"
+    },
+    {
+      "subject": "location-diversity-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "filming-location-count-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "location-diversity-advantage",
+      "relation": "advantage-has-detail",
+      "object": "filming-location-count-detail"
+    },
+    {
+      "subject": "climate-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "climate-advantage"
+    },
+    {
+      "subject": "climate-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "year-round-climate-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "climate-advantage",
+      "relation": "advantage-has-detail",
+      "object": "year-round-climate-detail"
+    },
+    {
+      "subject": "cost-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "cost-advantage"
+    },
+    {
+      "subject": "cost-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "lower-cost-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "cost-advantage",
+      "relation": "advantage-has-detail",
+      "object": "lower-cost-detail"
+    },
+    {
+      "subject": "local-support-advantage",
+      "relation": "instance-of",
+      "object": "production-advantage"
+    },
+    {
+      "subject": "georgia",
+      "relation": "has-advantage",
+      "object": "local-support-advantage"
+    },
+    {
+      "subject": "local-support-advantage",
+      "relation": "advantage-for-activity",
+      "object": "film"
+    },
+    {
+      "subject": "camera-ready-detail",
+      "relation": "instance-of",
+      "object": "production-detail"
+    },
+    {
+      "subject": "local-support-advantage",
+      "relation": "advantage-has-detail",
+      "object": "camera-ready-detail"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
