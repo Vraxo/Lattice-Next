@@ -14,34 +14,59 @@ internal static class MultiItemClassificationParser
         @"^Categorize\s+each\s+of\s+the\s+following\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+as\s+either\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex UsefulForPurposePattern = new(
+        @"^Which\s+of\s+the\s+following\s+is\s+(?<category>[A-Za-z][A-Za-z-]*)\s+for\s+(?<purpose>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>.+?)[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ItemSeparatorPattern = new(
+        @",\s*|\s+and\s+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     internal static bool TryParse(
         string source,
         out SemanticUtterance? utterance)
     {
         var trimmedSource = source.Trim();
-        var match = Pattern.Match(trimmedSource);
-        if (!match.Success)
-        {
-            match = CategorizePattern.Match(trimmedSource);
-        }
+        var purposeMatch = UsefulForPurposePattern.Match(trimmedSource);
 
-        if (!match.Success)
-        {
-            utterance = null;
-            return false;
-        }
+        string itemType;
+        ImmutableArray<SemanticIdentifier> categories;
+        ImmutableArray<SemanticIdentifier> items;
 
-        var itemType = NormalizePluralIdentifier(NormalizeIdentifier(match.Groups["itemType"].Value));
-        var categories = ImmutableArray.Create(
-            new SemanticIdentifier(NormalizeIdentifier(match.Groups["firstCategory"].Value)),
-            new SemanticIdentifier(NormalizeIdentifier(match.Groups["secondCategory"].Value)));
-        var items = match.Groups["items"].Value
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(value => NormalizeIdentifier(value.StartsWith("and ", StringComparison.OrdinalIgnoreCase)
-                ? value[4..]
-                : value))
-            .Select(value => new SemanticIdentifier(value))
-            .ToImmutableArray();
+        if (purposeMatch.Success)
+        {
+            var category = NormalizeIdentifier(purposeMatch.Groups["category"].Value);
+            var purpose = NormalizeIdentifier(purposeMatch.Groups["purpose"].Value);
+            itemType = $"thing-for-{purpose}";
+            categories =
+            [
+                new SemanticIdentifier(category),
+                new SemanticIdentifier($"not-{category}")
+            ];
+            items = ParseItems(purposeMatch.Groups["items"].Value, removeArticles: true);
+        }
+        else
+        {
+            var match = Pattern.Match(trimmedSource);
+            if (!match.Success)
+            {
+                match = CategorizePattern.Match(trimmedSource);
+            }
+
+            if (!match.Success)
+            {
+                utterance = null;
+                return false;
+            }
+
+            itemType = NormalizePluralIdentifier(NormalizeIdentifier(match.Groups["itemType"].Value));
+            categories =
+            [
+                new SemanticIdentifier(NormalizeIdentifier(match.Groups["firstCategory"].Value)),
+                new SemanticIdentifier(NormalizeIdentifier(match.Groups["secondCategory"].Value))
+            ];
+            items = ParseItems(match.Groups["items"].Value, removeArticles: false);
+        }
 
         if (itemType.Length == 0 ||
             categories.Any(category => category.Value.Length == 0) ||
@@ -60,9 +85,21 @@ internal static class MultiItemClassificationParser
                 new SemanticIdentifier(itemType),
                 categories,
                 items),
-            source.Trim());
+            trimmedSource);
         return true;
     }
+
+    private static ImmutableArray<SemanticIdentifier> ParseItems(
+        string value,
+        bool removeArticles) =>
+        ItemSeparatorPattern.Split(value)
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Select(item => removeArticles
+                ? Regex.Replace(item.Trim(), @"^(?:a|an|the)\s+", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                : item.Trim())
+            .Select(NormalizeIdentifier)
+            .Select(item => new SemanticIdentifier(item))
+            .ToImmutableArray();
 
     private static string NormalizeIdentifier(string value) =>
         Regex.Replace(value.Trim(), @"\s+", "-").ToLowerInvariant();
