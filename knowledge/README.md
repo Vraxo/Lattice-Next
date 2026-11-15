@@ -49,6 +49,7 @@ The current expression language does not support universal restrictions, negatio
 - `music-composition-and-theory.json`: music composition, entry-level methods, helpful theory topics, and advanced study areas.
 - `us-mountain-elevations.json`: mountain elevations and the distinction between the contiguous 48 states and the broader continental U.S. including Alaska.
 - `1980s-comedy-films.json`: notable 1980s comedy films, their release years, and their comedy styles.
+- `golf-regional-terms.json`: golf scoring terminology, alternate names by language variety, and score relative to par.
 - `calculus-and-lhopitals-rule.json`: L'Hôpital's Rule, its indeterminate forms and conditions, and its connection to broader calculus applications.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
@@ -66,18 +67,18 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all twenty-four modules:
+Counts after composing all twenty-five modules:
 
-- 487 concepts
-- 199 type declarations (162 primitive, 37 defined)
-- 109 relation signatures
-- 771 relation assertions:
-  - 201 `is-a`
-  - 304 `instance-of`
-  - 266 ordinary individual-to-individual relations
-- 338 lexical forms
-- 3 numeric data properties
-- 26 numeric data assertions
+- 493 concepts
+- 202 type declarations (165 primitive, 37 defined)
+- 111 relation signatures
+- 779 relation assertions:
+  - 204 `is-a`
+  - 307 `instance-of`
+  - 268 ordinary individual-to-individual relations
+- 341 lexical forms
+- 4 numeric data properties
+- 27 numeric data assertions
 
 ## Audit boundary
 

@@ -1,0 +1,154 @@
+{
+  "formatVersion": 3,
+  "id": "golf-regional-terms",
+  "name": "Golf scoring terms and regional names",
+  "concepts": [
+    {
+      "id": "golf-score",
+      "label": "golf score",
+      "kind": "Type"
+    },
+    {
+      "id": "golf-term",
+      "label": "golf scoring term",
+      "kind": "Type"
+    },
+    {
+      "id": "language-variety",
+      "label": "language variety",
+      "kind": "Type"
+    },
+    {
+      "id": "albatross",
+      "label": "albatross",
+      "kind": "Individual"
+    },
+    {
+      "id": "double-eagle",
+      "label": "double eagle",
+      "kind": "Individual"
+    },
+    {
+      "id": "american-english",
+      "label": "American English",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "albatross",
+      "concept": "albatross",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "double eagle",
+      "concept": "double-eagle",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "American English",
+      "concept": "american-english",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-alternate-name",
+      "domain": "golf-score",
+      "range": "golf-term",
+      "verb": "has alternate name",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "term-used-in-variant",
+      "domain": "golf-term",
+      "range": "language-variety",
+      "verb": "is used in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "golf-score",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf-term",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "language-variety",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "golf-score",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "golf-term",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "language-variety",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "albatross",
+      "relation": "instance-of",
+      "object": "golf-score"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "instance-of",
+      "object": "golf-term"
+    },
+    {
+      "subject": "american-english",
+      "relation": "instance-of",
+      "object": "language-variety"
+    },
+    {
+      "subject": "albatross",
+      "relation": "has-alternate-name",
+      "object": "double-eagle"
+    },
+    {
+      "subject": "double-eagle",
+      "relation": "term-used-in-variant",
+      "object": "american-english"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "strokes-relative-to-par",
+      "domainType": "golf-score",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "albatross",
+      "property": "strokes-relative-to-par",
+      "value": "-3"
+    }
+  ]
+}

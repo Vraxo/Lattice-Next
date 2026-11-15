@@ -55,6 +55,8 @@ internal static class SemanticWorldModelResponder
                 TryHighestDataValue(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.NotableExamples =>
                 TryNotableExamples(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RegionalName =>
+                TryRegionalName(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.EventOutcomes =>
                 TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -760,6 +762,74 @@ internal static class SemanticWorldModelResponder
         message = $"There is no single objective ranking, but here are {request.Limit} widely regarded comedy films from the 1980s, spanning several styles:\n{string.Join("\n", entries)}";
         evidence = ImmutableArray.Create(ToEvidence(
             selected.SelectMany(item => item.Sources).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryRegionalName(
+        SemanticWorldModelQuestionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var subject = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        var variant = model.FindConcept(request.TargetType ?? string.Empty, SemanticConceptKind.Individual);
+        if (subject is null || variant is null)
+        {
+            return false;
+        }
+
+        var alternateNames = reasoner.GetRelations(subject.Id, "has-alternate-name");
+        var matches = alternateNames
+            .Select(assertion => (
+                Assertion: assertion,
+                Term: model.FindConcept(assertion.Object, SemanticConceptKind.Individual)))
+            .Where(item =>
+                item.Term is not null &&
+                reasoner.IsInstanceOf(item.Term.Id, "golf-term"))
+            .Select(item => (
+                item.Assertion,
+                Term: item.Term!,
+                VariantAssertions: reasoner.GetRelations(item.Term!.Id, "term-used-in-variant")
+                    .Where(assertion => assertion.Object == variant.Id)
+                    .ToArray()))
+            .Where(item => item.VariantAssertions.Length > 0)
+            .ToArray();
+        if (matches.Length != 1)
+        {
+            return false;
+        }
+
+        var match = matches[0];
+        var sources = new List<SemanticWorldModelSource>
+        {
+            match.Assertion.Source,
+            match.VariantAssertions[0].Source
+        };
+        sources.AddRange(reasoner.GetMembershipEvidence(subject.Id, "golf-score"));
+        sources.AddRange(reasoner.GetMembershipEvidence(match.Term.Id, "golf-term"));
+        sources.AddRange(reasoner.GetMembershipEvidence(variant.Id, "language-variety"));
+
+        var scoreProperty = model.FindDataProperty("strokes-relative-to-par");
+        var scoreAssertions = scoreProperty is null
+            ? []
+            : model.GetDataAssertions(subject.Id, scoreProperty.Id);
+        var scoreContext = string.Empty;
+        if (scoreAssertions.Length == 1 &&
+            decimal.TryParse(scoreAssertions[0].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var score) &&
+            score == -3)
+        {
+            scoreContext = " It refers to a score of three under par on a single hole.";
+            sources.Add(scoreAssertions[0].Source);
+        }
+
+        message = $"In {variant.Label}, {subject.Label} is called {match.Term.Label}.{scoreContext}";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
     }

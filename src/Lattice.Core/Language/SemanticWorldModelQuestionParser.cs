@@ -11,6 +11,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Tell me whether or not these (?<items>[A-Za-z][A-Za-z -]*?) are on (?<list>[A-Za-z][A-Za-z'’ -]*?)(?: list)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RegionalNamePattern = new(
+        @"^In (?<domain>[A-Za-z][A-Za-z -]*?) what do the (?<region>[A-Za-z][A-Za-z -]*?) call an? (?<subject>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DifferenceBetweenPattern = new(
         @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -119,6 +123,17 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var regionalName = RegionalNamePattern.Match(text);
+        if (regionalName.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RegionalName,
+                subject: Normalize(regionalName.Groups["subject"].Value),
+                targetType: NormalizeRegionalVariant(regionalName.Groups["region"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var missingListItems = MissingListItemsPattern.Match(text);
         if (missingListItems.Success)
@@ -581,6 +596,14 @@ internal static class SemanticWorldModelQuestionParser
 
     private static string NormalizeQuotedTerm(string value) =>
         Normalize(value.Trim().Trim('"', '\u201c', '\u201d', '\u0027', '\u2019'));
+
+    private static string NormalizeRegionalVariant(string value) =>
+        Normalize(value) switch
+        {
+            "american" or "americans" or "united-states" => "american-english",
+            "british" or "brits" or "united-kingdom" => "british-english",
+            _ => Normalize(value)
+        };
 
     private static string Normalize(string value)
     {
