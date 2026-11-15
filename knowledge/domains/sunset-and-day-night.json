@@ -95,8 +95,8 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "ends",
@@ -106,8 +106,8 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "begins",
@@ -117,8 +117,8 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "turns-location-away-from",
@@ -128,8 +128,8 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     },
     {
       "id": "appears-below",
@@ -139,8 +139,8 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [],
