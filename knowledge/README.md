@@ -1,6 +1,6 @@
 # Foundational semantic world model
 
-The default ontology is authored in twenty-eight independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
+The default ontology is authored in twenty-nine independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
 
 ## One relation graph
 
@@ -53,6 +53,7 @@ The current expression language does not support universal restrictions, negatio
 - `full-english-breakfast.json`: common and optional ingredients of a full English breakfast.
 - `new-jersey-road-trip.json`: a structured three-day Central New Jersey route, its ordered days, destinations, and activities.
 - `manual-transmission-operation.json`: the controls, ordered operating procedure, and safety guidance for a manual-transmission car.
+- `empty-beverage-can-reuse.json`: beverage-can features, five reusable applications, preparation actions, and handling cautions.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
@@ -69,18 +70,18 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all twenty-eight modules:
+Counts after composing all twenty-nine modules:
 
-- 573 concepts
-- 220 type declarations (183 primitive, 37 defined)
-- 126 relation signatures
-- 924 relation assertions:
-  - 223 `is-a`
-  - 369 `instance-of`
-  - 332 ordinary individual-to-individual relations
-- 365 lexical forms
-- 6 numeric data properties
-- 37 numeric data assertions
+- 612 concepts
+- 229 type declarations (192 primitive, 37 defined)
+- 136 relation signatures
+- 1022 relation assertions:
+  - 232 `is-a`
+  - 399 `instance-of`
+  - 391 ordinary individual-to-individual relations
+- 369 lexical forms
+- 7 numeric data properties
+- 42 numeric data assertions
 
 ## Audit boundary
 
