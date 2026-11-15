@@ -436,8 +436,13 @@ internal static class SemanticWorldModelResponder
         var visited = new HashSet<string>(StringComparer.Ordinal);
         var currentId = firstSteps[0].Object;
 
-        while (visited.Add(currentId))
+        while (true)
         {
+            if (!visited.Add(currentId))
+            {
+                return false;
+            }
+
             var step = model.FindConcept(currentId, SemanticConceptKind.Individual);
             if (step is null || !reasoner.IsInstanceOf(step.Id, "beginner-practice"))
             {
@@ -476,7 +481,7 @@ internal static class SemanticWorldModelResponder
             currentId = nextSteps[0].Object;
         }
 
-        if (steps.Count == 0 || !visited.Contains(currentId))
+        if (steps.Count == 0)
         {
             return false;
         }
