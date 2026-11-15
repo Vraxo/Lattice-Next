@@ -18,6 +18,10 @@ internal static class MultiItemClassificationParser
         @"^Which\s+of\s+the\s+following\s+is\s+(?<category>[A-Za-z][A-Za-z-]*)\s+for\s+(?<purpose>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>.+?)[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ItemSeparatorPattern = new(
+        @",\s*|\s+and\s+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     internal static bool TryParse(
         string source,
         out SemanticUtterance? utterance)
@@ -88,13 +92,11 @@ internal static class MultiItemClassificationParser
     private static ImmutableArray<SemanticIdentifier> ParseItems(
         string value,
         bool removeArticles) =>
-        value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(item => item.StartsWith("and ", StringComparison.OrdinalIgnoreCase)
-                ? item[4..]
-                : item)
+        ItemSeparatorPattern.Split(value)
+            .Where(item => !string.IsNullOrWhiteSpace(item))
             .Select(item => removeArticles
-                ? Regex.Replace(item, @"^(?:a|an|the)\s+", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                : item)
+                ? Regex.Replace(item.Trim(), @"^(?:a|an|the)\s+", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                : item.Trim())
             .Select(NormalizeIdentifier)
             .Select(item => new SemanticIdentifier(item))
             .ToImmutableArray();
