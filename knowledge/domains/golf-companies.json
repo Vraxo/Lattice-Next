@@ -19,11 +19,6 @@
       "kind": "Individual"
     },
     {
-      "id": "cobra-puma-golf",
-      "label": "Cobra Puma Golf",
-      "kind": "Individual"
-    },
-    {
       "id": "ping-inc",
       "label": "PING Inc.",
       "kind": "Individual"
@@ -31,6 +26,11 @@
     {
       "id": "taylormade-golf-company",
       "label": "TaylorMade Golf Company",
+      "kind": "Individual"
+    },
+    {
+      "id": "sumitomo-rubber-industries",
+      "label": "Sumitomo Rubber Industries, Ltd.",
       "kind": "Individual"
     }
   ],
@@ -56,11 +56,6 @@
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "Cobra Puma Golf",
-      "concept": "cobra-puma-golf",
-      "partOfSpeech": "proper-noun"
-    },
-    {
       "form": "PING",
       "concept": "ping-inc",
       "partOfSpeech": "proper-noun"
@@ -68,6 +63,26 @@
     {
       "form": "TaylorMade",
       "concept": "taylormade-golf-company",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Sumitomo Rubber Industries",
+      "concept": "sumitomo-rubber-industries",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "SRI Sports",
+      "concept": "sumitomo-rubber-industries",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Srixon",
+      "concept": "sumitomo-rubber-industries",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Cleveland Golf",
+      "concept": "sumitomo-rubber-industries",
       "partOfSpeech": "proper-noun"
     }
   ],
@@ -92,17 +107,17 @@
       "object": "golf-equipment-company"
     },
     {
-      "subject": "cobra-puma-golf",
-      "relation": "instance-of",
-      "object": "golf-equipment-company"
-    },
-    {
       "subject": "ping-inc",
       "relation": "instance-of",
       "object": "golf-equipment-company"
     },
     {
       "subject": "taylormade-golf-company",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "sumitomo-rubber-industries",
       "relation": "instance-of",
       "object": "golf-equipment-company"
     }
