@@ -23,8 +23,8 @@ public sealed class ListExamplesQuestionTests
         Assert.Contains("Here are 5 prominent golf equipment companies:", answer.Message);
         Assert.Contains("1. Acushnet Holdings Corp.", answer.Message);
         Assert.Contains("2. Callaway Golf Company", answer.Message);
-        Assert.Contains("3. Sumitomo Rubber Industries, Ltd.", answer.Message);
-        Assert.Contains("4. PING Inc.", answer.Message);
+        Assert.Contains("3. PING Inc.", answer.Message);
+        Assert.Contains("4. Sumitomo Rubber Industries, Ltd.", answer.Message);
         Assert.Contains("5. TaylorMade Golf Company", answer.Message);
         Assert.Equal(5, answer.Message!.Split('\n').Count(line => line.Length > 2 && char.IsDigit(line[0]) && line[1] == '.'));
         Assert.NotEmpty(answer.SupportingEvidence);
