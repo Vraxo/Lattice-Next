@@ -27,7 +27,7 @@ public sealed class MaximumDataValueQuestionTests
             answer.Message);
         var evidence = Assert.Single(answer.SupportingEvidence);
         var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(8, status.SemanticDataAssertionCount);
+        Assert.Equal(14, status.SemanticDataAssertionCount);
         Assert.Contains(
             evidence.Sources,
             source => source.SourceId ==
