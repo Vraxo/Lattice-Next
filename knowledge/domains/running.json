@@ -353,6 +353,71 @@
       "subject": "warning-symptoms",
       "relation": "instance-of",
       "object": "safety-guidance"
+    },
+    {
+      "subject": "running-warm-up",
+      "relation": "instance-of",
+      "object": "beginner-practice"
+    },
+    {
+      "subject": "run-walk-intervals",
+      "relation": "instance-of",
+      "object": "beginner-practice"
+    },
+    {
+      "subject": "conversational-pace",
+      "relation": "instance-of",
+      "object": "beginner-practice"
+    },
+    {
+      "subject": "recovery-schedule",
+      "relation": "instance-of",
+      "object": "beginner-practice"
+    },
+    {
+      "subject": "gradual-progression",
+      "relation": "instance-of",
+      "object": "beginner-practice"
+    },
+    {
+      "subject": "warm-up-purpose",
+      "relation": "instance-of",
+      "object": "training-purpose"
+    },
+    {
+      "subject": "run-walk-purpose",
+      "relation": "instance-of",
+      "object": "training-purpose"
+    },
+    {
+      "subject": "easy-pace-purpose",
+      "relation": "instance-of",
+      "object": "training-purpose"
+    },
+    {
+      "subject": "recovery-purpose",
+      "relation": "instance-of",
+      "object": "training-purpose"
+    },
+    {
+      "subject": "progression-purpose",
+      "relation": "instance-of",
+      "object": "training-purpose"
+    },
+    {
+      "subject": "equipment-and-route-safety",
+      "relation": "instance-of",
+      "object": "safety-guidance"
+    },
+    {
+      "subject": "medical-safety",
+      "relation": "instance-of",
+      "object": "safety-guidance"
+    },
+    {
+      "subject": "warning-symptoms",
+      "relation": "instance-of",
+      "object": "safety-guidance"
     }
   ],
   "dataProperties": [],
