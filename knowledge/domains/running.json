@@ -296,11 +296,6 @@
       "object": "medical-safety"
     },
     {
-      "subject": "running",
-      "relation": "has-safety-guidance",
-      "object": "warning-symptoms"
-    },
-    {
       "subject": "running-warm-up",
       "relation": "instance-of",
       "object": "beginner-practice"
