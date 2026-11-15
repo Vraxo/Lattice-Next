@@ -46,6 +46,7 @@ The current expression language does not support universal restrictions, negatio
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
 - `sunset-and-day-night.json`: the causal link between Earth's rotation, sunset, the end of daylight, and the start of night.
 - `calculus-and-lhopitals-rule.json`: L'Hôpital's Rule, its indeterminate forms and conditions, and its connection to broader calculus applications.
+- `calculus-and-lhopitals-rule.json`: L'Hôpital's Rule, its indeterminate forms and conditions, and its connection to broader calculus applications.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
