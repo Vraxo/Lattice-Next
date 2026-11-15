@@ -165,8 +165,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(298, status.SemanticConceptCount);
-        Assert.Equal(74, status.SemanticRelationCount);
+        Assert.Equal(321, status.SemanticConceptCount);
+        Assert.Equal(78, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");

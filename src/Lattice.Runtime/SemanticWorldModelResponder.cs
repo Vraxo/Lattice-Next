@@ -38,6 +38,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainHarmfulness(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.BeginnerGuidance =>
                 TryBeginnerGuidance(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CreativeIdeas =>
+                TryCreativeIdeas(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -442,6 +444,83 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryCreativeIdeas(
+        string requestedCategory,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var category = model.FindConcept(requestedCategory, SemanticConceptKind.Individual);
+        if (category is null)
+        {
+            return false;
+        }
+
+        var ideaAssertions = reasoner.GetRelations(category.Id, "has-diy-idea");
+        if (ideaAssertions.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var ideas = new List<(string Label, string Materials, string Method, string Attachment)>();
+        var sources = new List<SemanticWorldModelSource>();
+        foreach (var assertion in ideaAssertions)
+        {
+            var idea = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+            if (idea is null)
+            {
+                continue;
+            }
+
+            var materials = reasoner.GetRelations(idea.Id, "uses-material")
+                .Select(item => model.FindConcept(item.Object, SemanticConceptKind.Individual))
+                .Where(item => item is not null)
+                .Select(item => item!.Label)
+                .ToArray();
+            var methods = reasoner.GetRelations(idea.Id, "made-by-method")
+                .Select(item => model.FindConcept(item.Object, SemanticConceptKind.Individual))
+                .Where(item => item is not null)
+                .Select(item => item!.Label)
+                .ToArray();
+            var attachments = reasoner.GetRelations(idea.Id, "attaches-with")
+                .Select(item => model.FindConcept(item.Object, SemanticConceptKind.Individual))
+                .Where(item => item is not null)
+                .Select(item => item!.Label)
+                .ToArray();
+            if (materials.Length == 0 || methods.Length == 0 || attachments.Length == 0)
+            {
+                continue;
+            }
+
+            ideas.Add((
+                idea.Label,
+                JoinConditions(materials),
+                JoinConditions(methods),
+                JoinConditions(attachments)));
+            sources.Add(assertion.Source);
+            sources.AddRange(reasoner.GetRelations(idea.Id, "uses-material").Select(item => item.Source));
+            sources.AddRange(reasoner.GetRelations(idea.Id, "made-by-method").Select(item => item.Source));
+            sources.AddRange(reasoner.GetRelations(idea.Id, "attaches-with").Select(item => item.Source));
+        }
+
+        if (ideas.Count == 0)
+        {
+            return false;
+        }
+
+        var suggestions = ideas.Select((idea, index) =>
+            $"{index + 1}. **{Capitalize(idea.Label)}** — Materials: {idea.Materials}. Make it by {idea.Method}; attach it with {IndefinitePhrase(idea.Attachment)}.");
+        message = $"Here are some DIY ideas for {category.Label}:\n{string.Join("\n", suggestions)}";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 

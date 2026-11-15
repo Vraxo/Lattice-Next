@@ -27,6 +27,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CreativeIdeasPattern = new(
+        @"^What are some (?<style>[A-Za-z][A-Za-z -]*?) (?<item>[A-Za-z][A-Za-z -]*?) that you can make yourself\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex BeginnerGuidancePattern = new(
         @"^How do I start (?<activity>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -91,6 +95,16 @@ internal static class SemanticWorldModelQuestionParser
                     source);
                 return true;
             }
+        }
+
+        var creativeIdeas = CreativeIdeasPattern.Match(text);
+        if (creativeIdeas.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.CreativeIdeas,
+                subject: Normalize(creativeIdeas.Groups["item"].Value),
+                sourceText: source);
+            return true;
         }
 
         var beginnerGuidance = BeginnerGuidancePattern.Match(text);

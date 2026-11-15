@@ -38,6 +38,7 @@ The current expression language does not support universal restrictions, negatio
 - `mobile-phones.json`: mobile-phone use, adverse effects, and contributing mechanisms.
 - `running.json`: beginner running practices, their purposes, and safety guidance.
 - `television.json`: a television series, its season-four episodes, and director credits.
+- `diy-curtain-tiebacks.json`: DIY project ideas represented through materials, construction techniques, and fastening methods.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
@@ -54,16 +55,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all twelve modules:
+Counts after composing all fourteen modules:
 
-- 290 concepts
-- 141 type declarations (104 primitive, 37 defined)
-- 71 relation signatures
-- 465 relation assertions:
-  - 143 `is-a`
-  - 165 `instance-of`
-  - 157 ordinary individual-to-individual relations
-- 263 lexical forms
+- 321 concepts
+- 145 type declarations (108 primitive, 37 defined)
+- 78 relation signatures
+- 509 relation assertions:
+  - 147 `is-a`
+  - 184 `instance-of`
+  - 178 ordinary individual-to-individual relations
+- 266 lexical forms
 
 ## Audit boundary
 
