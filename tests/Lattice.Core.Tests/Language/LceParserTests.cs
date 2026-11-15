@@ -651,4 +651,20 @@ public sealed class LceParserTests
         Assert.False(result.IsSuccess);
     }
 
+    [Fact]
+    public void Parses_a_scoped_question_for_the_targets_of_a_known_relation()
+    {
+        var result = new LceParser().Parse(
+            "Which episodes of season four of Game of Thrones did Michelle MacLaren direct?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        var query = Assert.IsType<SemanticRelationQueryFormula>(utterance.Meaning);
+        Assert.Equal("michelle-maclaren", query.Subject);
+        Assert.Equal("direct", query.Verb);
+        Assert.Equal("season-four-of-game-of-thrones", query.Scope);
+        Assert.Equal(
+            "relation-targets(michelle-maclaren, direct, within(season-four-of-game-of-thrones))",
+            SemanticFormatter.Format(utterance));
+    }
 }
