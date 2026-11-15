@@ -16,7 +16,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RequiredKnowledgePattern = new(
-        @"^How much (?<knowledge>[A-Za-z][A-Za-z -]*?) is required to (?<activity>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^How much (?<knowledge>[A-Za-z][A-Za-z -]*?) is required to (?<activity>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex EverydayApplicationsPattern = new(
