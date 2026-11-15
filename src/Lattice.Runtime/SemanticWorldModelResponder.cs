@@ -78,6 +78,38 @@ internal static class SemanticWorldModelResponder
                 match.Assertion.Source))
             .Where(match => match.Target is not null)
             .ToArray();
+        var scopeEvidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (request.Scope is not null)
+        {
+            var scope = model.FindConcept(request.Scope, SemanticConceptKind.Individual);
+            if (scope is null)
+            {
+                return false;
+            }
+
+            var scopeAssertions = model.Relations
+                .SelectMany(relation => reasoner.GetRelations(scope.Id, relation.Id))
+                .ToArray();
+            var scopedTargetIds = scopeAssertions
+                .Select(assertion => assertion.Object)
+                .ToHashSet(StringComparer.Ordinal);
+            matches = matches
+                .Where(match => scopedTargetIds.Contains(match.Target!.Id))
+                .ToArray();
+            if (matches.Length == 0)
+            {
+                return false;
+            }
+
+            scopeEvidence = ImmutableArray.Create(ToEvidence(
+                scopeAssertions
+                    .Where(assertion => matches.Any(match => match.Target!.Id == assertion.Object))
+                    .Select(assertion => assertion.Source)
+                    .Distinct()
+                    .ToImmutableArray(),
+                LatticeEvidenceKind.Derived));
+        }
+
         if (matches.Length == 0)
         {
             return false;
@@ -88,12 +120,18 @@ internal static class SemanticWorldModelResponder
             .Select(match => match.Target!)
             .DistinctBy(target => target.Id)
             .ToArray();
-        var verb = relation.Verb;
-        var targetPhrase = JoinNames(targets.Select(target => $"the {target.Label}").ToArray());
-        message = $"The {subject.Label} {verb} {targetPhrase}.";
-        evidence = ImmutableArray.Create(ToEvidence(
+        var targetPhrase = request.Scope is null
+            ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
+            : JoinNames(targets.Select(target => target.Label).ToArray());
+        message = request.Scope is null
+            ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
+            : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        var relationEvidence = ToEvidence(
             matches.Select(match => match.Source).Distinct().ToImmutableArray(),
-            LatticeEvidenceKind.Derived));
+            LatticeEvidenceKind.Derived);
+        evidence = scopeEvidence.IsDefaultOrEmpty
+            ? ImmutableArray.Create(relationEvidence)
+            : scopeEvidence.Add(relationEvidence);
         return true;
     }
 
@@ -175,6 +213,7 @@ internal static class SemanticWorldModelResponder
             "has" => "have",
             "does" => "do",
             _ when verb.EndsWith("ies", StringComparison.Ordinal) => $"{verb[..^3]}y",
+            _ when verb.EndsWith("ed", StringComparison.Ordinal) => verb[..^2],
             _ when verb.EndsWith("s", StringComparison.Ordinal) => verb[..^1],
             _ => verb
         };

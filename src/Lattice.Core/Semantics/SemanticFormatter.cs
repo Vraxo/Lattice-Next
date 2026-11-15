@@ -31,7 +31,9 @@ public static class SemanticFormatter
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
             EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
-            SemanticRelationQueryFormula relationQuery => $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})",
+            SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
+                ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
+                : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
             SemanticRelationSourceQueryFormula relationQuery => $"relation-sources({relationQuery.Object}, {relationQuery.Verb})",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
