@@ -61,15 +61,15 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all eighteen modules:
+Counts after composing all twenty modules:
 
-- 375 concepts
-- 164 type declarations (127 primitive, 37 defined)
-- 90 relation signatures
-- 596 relation assertions:
-  - 164 `is-a`
-  - 227 `instance-of`
-  - 205 ordinary individual-to-individual relations
+- 404 concepts
+- 173 type declarations (136 primitive, 37 defined)
+- 97 relation signatures
+- 638 relation assertions:
+  - 173 `is-a`
+  - 247 `instance-of`
+  - 218 ordinary individual-to-individual relations
 - 312 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions
