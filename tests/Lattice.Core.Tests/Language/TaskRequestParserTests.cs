@@ -9,6 +9,27 @@ public sealed class TaskRequestParserTests
     private readonly LceParser parser = new();
 
     [Fact]
+    public void Parses_a_counted_potential_uses_request_with_its_object_brand()
+    {
+        const string input = "What are 5 potential uses for an empty La Croix can?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
+        Assert.Equal(TaskRequestAction.Brainstorm, request.Action);
+        Assert.Equal("beverage-can", request.Subject);
+        Assert.Equal("la-croix", request.Context);
+        Assert.Equal("5-ideas", request.OutputFormat);
+        Assert.Equal("potential-uses", request.Scope);
+        Assert.Equal(new[] { "potential-uses" }, request.Requirements);
+        Assert.Equal(input, utterance.SourceText);
+    }
+
+    [Fact]
     public void Parses_a_research_writing_request_as_one_structured_task()
     {
         const string input = "Can you write a short introduction about the relevance of the term \"monopsony\" in economics? Please use examples related to potential monopsonies in the labour market and cite relevant research.";
