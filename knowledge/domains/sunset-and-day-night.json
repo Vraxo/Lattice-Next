@@ -248,11 +248,6 @@
       "subject": "local-horizon",
       "relation": "instance-of",
       "object": "horizon-boundary"
-    },
-    {
-      "subject": "sun",
-      "relation": "instance-of",
-      "object": "celestial-body"
     }
   ],
   "dataProperties": [],
