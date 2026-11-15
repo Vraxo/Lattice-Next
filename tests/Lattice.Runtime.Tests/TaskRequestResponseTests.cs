@@ -23,7 +23,7 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("Seedling starter pot", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Dried-flower display", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Percussion shaker", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("release parking brake", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("drainage holes", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("candle holder", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("sharp rim", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.NotEmpty(utterance.SupportingEvidence);
