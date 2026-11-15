@@ -33,6 +33,10 @@ The current expression language does not support universal restrictions, negatio
 - `economics.json`: economics, labour markets, and research references.
 - `software.json`: scientific software, capabilities, and application domains.
 - `biology.json`: animal and fish classification.
+- `animal-survival.json`: animal adaptations and survival abilities.
+- `un-headquarters.json`: United Nations headquarters location and acquisition contributions.
+- `mobile-phones.json`: mobile-phone use, adverse effects, and contributing mechanisms.
+- `running.json`: beginner running practices, their purposes, and safety guidance.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
@@ -49,16 +53,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all eight modules:
+Counts after composing all twelve modules:
 
-- 237 concepts
-- 125 type declarations (89 primitive, 36 defined)
-- 55 relation signatures
-- 371 relation assertions:
-  - 132 `is-a`
-  - 129 `instance-of`
-  - 110 ordinary individual-to-individual relations
-- 231 lexical forms
+- 290 concepts
+- 141 type declarations (104 primitive, 37 defined)
+- 70 relation signatures
+- 470 relation assertions:
+  - 139 `is-a`
+  - 151 `instance-of`
+  - 180 ordinary individual-to-individual relations
+- 260 lexical forms
 
 ## Audit boundary
 
