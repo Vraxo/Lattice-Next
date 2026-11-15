@@ -18,7 +18,7 @@ public sealed class ProductionLocationQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "ask(world-model-production-location-reasons(film, georgia))",
+            "ask(world-model-production-location-reasons(us-hollywood-films, state-of-georgia))",
             answer.Meaning);
         Assert.Contains("20% base transferable tax credit", answer.Message, StringComparison.Ordinal);
         Assert.Contains("additional 10% promotional uplift", answer.Message, StringComparison.Ordinal);
