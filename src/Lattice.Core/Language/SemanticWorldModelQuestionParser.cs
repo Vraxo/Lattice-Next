@@ -7,6 +7,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex CompanyIntroductionQuestionPattern = new(
+        @"^I\s+(?:started|founded|launched)\s+(?:a\s+)?(?:new\s+)?company\s+named\s+(?<company>[A-Z][A-Za-z0-9&'’ -]*?(?:\s+(?:Inc|Incorporated|Ltd|Limited|LLC|LLP|Corp|Corporation))?)\.\s*What\s+(?:do\s+we|does\s+(?:it|the\s+company))\s+do\?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex EnumerationRemainderPattern = new(
         @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+) (?<group>[A-Za-z][A-Za-z'-]*): (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|[0-9]+(?:st|nd|rd|th)) (?<questionGroup>[A-Za-z][A-Za-z'-]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -83,6 +87,18 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var companyIntroduction = CompanyIntroductionQuestionPattern.Match(text);
+        if (companyIntroduction.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationQueryFormula(
+                    Normalize(companyIntroduction.Groups["company"].Value),
+                    "do"),
+                source);
+            return true;
+        }
 
         var enumerationRemainder = EnumerationRemainderPattern.Match(text);
         if (enumerationRemainder.Success &&

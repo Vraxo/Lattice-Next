@@ -934,7 +934,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.InformationUnavailable,
-                "I don't have enough structured semantic knowledge to answer that question.",
+                question.Verb.Equals("do", StringComparison.OrdinalIgnoreCase) &&
+                utterance.SourceText.Contains("company", StringComparison.OrdinalIgnoreCase)
+                    ? "I don't know what this company does yet. What industry or services does it provide?"
+                    : "I don't have enough structured semantic knowledge to answer that question.",
                 meaning,
                 SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         }
