@@ -12,7 +12,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RegionalNamePattern = new(
-        @"^In (?<domain>[A-Za-z][A-Za-z -]*?) what do the (?<region>[A-Za-z][A-Za-z -]*?) call an? (?<subject>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^In (?<domain>[A-Za-z][A-Za-z -]*?) what do the (?<region>[A-Za-z][A-Za-z -]*?) call an? (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DifferenceBetweenPattern = new(
