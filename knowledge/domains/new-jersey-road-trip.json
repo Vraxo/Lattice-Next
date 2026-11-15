@@ -375,7 +375,7 @@
     {
       "subject": "canal-towpath-walk",
       "relation": "instance-of",
-      "object": "road-trip-place"
+      "object": "activity"
     },
     {
       "subject": "outdoor-activity",
