@@ -19,7 +19,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RoadTripPlanPattern = new(
-        @"^\\s*Plan\\s+for\\s+(?<duration>(?:a\\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\\s+road trip(?:\\s+for\\s+(?<occasion>.+?))?(?:\\s+from\\s+(?<origin>[^.!?]+?))?[.!?]?\\s*$",
+        @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RecommendationRequestPattern = new(
