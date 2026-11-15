@@ -35,7 +35,7 @@
     },
     {
       "id": "run-walk-intervals",
-      "label": "short run-walk intervals",
+      "label": "one-minute easy jogs alternating with 90-second walks",
       "kind": "Individual"
     },
     {
@@ -165,6 +165,17 @@
       "domain": "physical-activity",
       "range": "safety-guidance",
       "verb": "requires consideration of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "stop-and-seek-help-for",
+      "domain": "physical-activity",
+      "range": "safety-guidance",
+      "verb": "requires stopping and seeking medical help for",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
@@ -353,6 +364,11 @@
       "subject": "warning-symptoms",
       "relation": "instance-of",
       "object": "safety-guidance"
+    },
+    {
+      "subject": "running",
+      "relation": "stop-and-seek-help-for",
+      "object": "warning-symptoms"
     }
   ],
   "dataProperties": [],
