@@ -1,0 +1,598 @@
+{
+  "formatVersion": 3,
+  "id": "conversational-ai-assistants",
+  "name": "Conversational AI assistants and projects",
+  "concepts": [
+    {
+      "id": "conversational-ai-assistant",
+      "label": "conversational AI assistant",
+      "kind": "Type"
+    },
+    {
+      "id": "project-status",
+      "label": "project status",
+      "kind": "Type"
+    },
+    {
+      "id": "access-model",
+      "label": "model access arrangement",
+      "kind": "Type"
+    },
+    {
+      "id": "licensing-model",
+      "label": "licensing arrangement",
+      "kind": "Type"
+    },
+    {
+      "id": "assistant-benefit",
+      "label": "assistant project resource",
+      "kind": "Type"
+    },
+    {
+      "id": "demo-status",
+      "label": "demonstration availability status",
+      "kind": "Type"
+    },
+    {
+      "id": "model-quality-status",
+      "label": "model quality status",
+      "kind": "Type"
+    },
+    {
+      "id": "hardware-requirement",
+      "label": "hardware requirement",
+      "kind": "Type"
+    },
+    {
+      "id": "advanced-chatbot",
+      "label": "advanced chatbot",
+      "kind": "Type"
+    },
+    {
+      "id": "open-assistant",
+      "label": "Open Assistant",
+      "kind": "Individual"
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "kind": "Individual"
+    },
+    {
+      "id": "claude",
+      "label": "Claude",
+      "kind": "Individual"
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini",
+      "kind": "Individual"
+    },
+    {
+      "id": "microsoft-copilot",
+      "label": "Microsoft Copilot",
+      "kind": "Individual"
+    },
+    {
+      "id": "huggingchat",
+      "label": "HuggingChat",
+      "kind": "Individual"
+    },
+    {
+      "id": "perplexity",
+      "label": "Perplexity",
+      "kind": "Individual"
+    },
+    {
+      "id": "concluded-research-project",
+      "label": "concluded research project",
+      "kind": "Individual"
+    },
+    {
+      "id": "active-hosted-service",
+      "label": "active hosted AI service",
+      "kind": "Individual"
+    },
+    {
+      "id": "downloadable-model-access",
+      "label": "downloadable model weights with self-hosting",
+      "kind": "Individual"
+    },
+    {
+      "id": "provider-hosted-access",
+      "label": "provider-hosted access",
+      "kind": "Individual"
+    },
+    {
+      "id": "apache-code-data-model-specific-licenses",
+      "label": "open-source code-and-data release under Apache 2.0 with base-model-specific weight licenses",
+      "kind": "Individual"
+    },
+    {
+      "id": "proprietary-hosted-model-service",
+      "label": "proprietary hosted model-and-service offering",
+      "kind": "Individual"
+    },
+    {
+      "id": "released-model-weights",
+      "label": "released model weights",
+      "kind": "Individual"
+    },
+    {
+      "id": "released-research-datasets",
+      "label": "released research datasets",
+      "kind": "Individual"
+    },
+    {
+      "id": "apache-licensed-code",
+      "label": "Apache-2.0-licensed code",
+      "kind": "Individual"
+    },
+    {
+      "id": "public-demo-discontinued",
+      "label": "public demo is no longer available",
+      "kind": "Individual"
+    },
+    {
+      "id": "public-hosted-access",
+      "label": "public hosted access",
+      "kind": "Individual"
+    },
+    {
+      "id": "experimental-models-poor-outputs",
+      "label": "some experimental models may produce poor or undesirable outputs",
+      "kind": "Individual"
+    },
+    {
+      "id": "seven-billion-parameter-models",
+      "label": "smallest models have 7 billion parameters and can challenge consumer hardware",
+      "kind": "Individual"
+    },
+    {
+      "id": "concluded-project-status",
+      "label": "concluded research project",
+      "kind": "Type"
+    },
+    {
+      "id": "active-service-status",
+      "label": "active hosted AI service",
+      "kind": "Type"
+    },
+    {
+      "id": "downloadable-model-access-type",
+      "label": "models available for download and self-hosting",
+      "kind": "Type"
+    },
+    {
+      "id": "provider-hosted-access-type",
+      "label": "hosted service",
+      "kind": "Type"
+    },
+    {
+      "id": "open-source-license-arrangement",
+      "label": "open-source release under Apache 2.0 with base-model-specific weight licenses",
+      "kind": "Type"
+    },
+    {
+      "id": "proprietary-license-arrangement",
+      "label": "proprietary hosted service",
+      "kind": "Type"
+    }
+  ],
+  "lexemes": [],
+  "relations": [
+    {
+      "id": "has-project-status",
+      "domain": "conversational-ai-assistant",
+      "range": "project-status",
+      "verb": "is",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 1,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-access-model",
+      "domain": "conversational-ai-assistant",
+      "range": "access-model",
+      "verb": "offers",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 2,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-licensing-model",
+      "domain": "conversational-ai-assistant",
+      "range": "licensing-model",
+      "verb": "uses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 3,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "offers-benefit",
+      "domain": "conversational-ai-assistant",
+      "range": "assistant-benefit",
+      "verb": "offers",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-demo-status",
+      "domain": "conversational-ai-assistant",
+      "range": "demo-status",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-model-quality",
+      "domain": "conversational-ai-assistant",
+      "range": "model-quality-status",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-hardware-requirement",
+      "domain": "conversational-ai-assistant",
+      "range": "hardware-requirement",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "conversational-ai-assistant",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "project-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "access-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "licensing-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "assistant-benefit",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "demo-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "model-quality-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "hardware-requirement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "advanced-chatbot",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "concluded-project-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "active-service-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "downloadable-model-access-type",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "provider-hosted-access-type",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "open-source-license-arrangement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "proprietary-license-arrangement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "conversational-ai-assistant",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "project-status",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "access-model",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "licensing-model",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "assistant-benefit",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "demo-status",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "model-quality-status",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "hardware-requirement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "advanced-chatbot",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "instance-of",
+      "object": "conversational-ai-assistant"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "instance-of",
+      "object": "conversational-ai-assistant"
+    },
+    {
+      "subject": "claude",
+      "relation": "instance-of",
+      "object": "advanced-chatbot"
+    },
+    {
+      "subject": "gemini",
+      "relation": "instance-of",
+      "object": "advanced-chatbot"
+    },
+    {
+      "subject": "microsoft-copilot",
+      "relation": "instance-of",
+      "object": "advanced-chatbot"
+    },
+    {
+      "subject": "huggingchat",
+      "relation": "instance-of",
+      "object": "advanced-chatbot"
+    },
+    {
+      "subject": "perplexity",
+      "relation": "instance-of",
+      "object": "advanced-chatbot"
+    },
+    {
+      "subject": "concluded-research-project",
+      "relation": "instance-of",
+      "object": "concluded-project-status"
+    },
+    {
+      "subject": "active-hosted-service",
+      "relation": "instance-of",
+      "object": "active-service-status"
+    },
+    {
+      "subject": "downloadable-model-access",
+      "relation": "instance-of",
+      "object": "downloadable-model-access-type"
+    },
+    {
+      "subject": "provider-hosted-access",
+      "relation": "instance-of",
+      "object": "provider-hosted-access-type"
+    },
+    {
+      "subject": "apache-code-data-model-specific-licenses",
+      "relation": "instance-of",
+      "object": "open-source-license-arrangement"
+    },
+    {
+      "subject": "proprietary-hosted-model-service",
+      "relation": "instance-of",
+      "object": "proprietary-license-arrangement"
+    },
+    {
+      "subject": "released-model-weights",
+      "relation": "instance-of",
+      "object": "assistant-benefit"
+    },
+    {
+      "subject": "released-research-datasets",
+      "relation": "instance-of",
+      "object": "assistant-benefit"
+    },
+    {
+      "subject": "apache-licensed-code",
+      "relation": "instance-of",
+      "object": "assistant-benefit"
+    },
+    {
+      "subject": "public-demo-discontinued",
+      "relation": "instance-of",
+      "object": "demo-status"
+    },
+    {
+      "subject": "public-hosted-access",
+      "relation": "instance-of",
+      "object": "demo-status"
+    },
+    {
+      "subject": "experimental-models-poor-outputs",
+      "relation": "instance-of",
+      "object": "model-quality-status"
+    },
+    {
+      "subject": "seven-billion-parameter-models",
+      "relation": "instance-of",
+      "object": "hardware-requirement"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-project-status",
+      "object": "concluded-research-project"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-project-status",
+      "object": "active-hosted-service"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-access-model",
+      "object": "downloadable-model-access"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-access-model",
+      "object": "provider-hosted-access"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-licensing-model",
+      "object": "apache-code-data-model-specific-licenses"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-licensing-model",
+      "object": "proprietary-hosted-model-service"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "offers-benefit",
+      "object": "released-model-weights"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "offers-benefit",
+      "object": "released-research-datasets"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "offers-benefit",
+      "object": "apache-licensed-code"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-demo-status",
+      "object": "public-demo-discontinued"
+    },
+    {
+      "subject": "chatgpt",
+      "relation": "has-demo-status",
+      "object": "public-hosted-access"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-model-quality",
+      "object": "experimental-models-poor-outputs"
+    },
+    {
+      "subject": "open-assistant",
+      "relation": "has-hardware-requirement",
+      "object": "seven-billion-parameter-models"
+    },
+    {
+      "subject": "concluded-project-status",
+      "relation": "is-a",
+      "object": "project-status"
+    },
+    {
+      "subject": "active-service-status",
+      "relation": "is-a",
+      "object": "project-status"
+    },
+    {
+      "subject": "downloadable-model-access-type",
+      "relation": "is-a",
+      "object": "access-model"
+    },
+    {
+      "subject": "provider-hosted-access-type",
+      "relation": "is-a",
+      "object": "access-model"
+    },
+    {
+      "subject": "open-source-license-arrangement",
+      "relation": "is-a",
+      "object": "licensing-model"
+    },
+    {
+      "subject": "proprietary-license-arrangement",
+      "relation": "is-a",
+      "object": "licensing-model"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

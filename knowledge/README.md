@@ -40,6 +40,7 @@ The current expression language does not support universal restrictions, negatio
 - `television.json`: a television series, its season-four episodes, and director credits.
 - `diy-curtain-tiebacks.json`: DIY project ideas represented through materials, construction techniques, and fastening methods.
 - `business-ideas.json`: business venture ideas represented through customer segments, problems, offerings, and revenue models.
+- `conversational-ai-assistants.json`: conversational AI projects, access models, licensing, benefits, and comparable assistants.
 - `golf-companies.json`: prominent golf equipment companies classified under a shared company type.
 - `olympic-records.json`: Olympic athletes and numeric gold-medal counts for maximum-value reasoning.
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
@@ -60,15 +61,15 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all eighteen modules:
+Counts after composing all twenty modules:
 
-- 375 concepts
-- 164 type declarations (127 primitive, 37 defined)
-- 90 relation signatures
-- 596 relation assertions:
-  - 164 `is-a`
-  - 227 `instance-of`
-  - 205 ordinary individual-to-individual relations
+- 410 concepts
+- 179 type declarations (142 primitive, 37 defined)
+- 97 relation signatures
+- 644 relation assertions:
+  - 179 `is-a`
+  - 247 `instance-of`
+  - 218 ordinary individual-to-individual relations
 - 312 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions

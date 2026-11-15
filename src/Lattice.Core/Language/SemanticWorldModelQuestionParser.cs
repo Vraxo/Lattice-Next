@@ -7,6 +7,18 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex DifferenceBetweenPattern = new(
+        @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex WhyShouldUsePattern = new(
+        @"^Why should (?:I|we) use (?<subject>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex SimilarChatbotsPattern = new(
+        @"^(?:And )?(?:can you give me )?some examples of advanced chatbots that are similar to (?<subject>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CompanyPurposeQuestionPattern = new(
         @"^I\s+(?:started|founded|launched)\s+(?:a\s+)?(?:new\s+)?company\s+named\s+(?<company>[A-Z][A-Za-z0-9&'’ -]*?(?:\s+(?:Inc|Incorporated|Ltd|Limited|LLC|LLP|Corp|Corporation))?)\.\s*What\s+(?:do\s+we|does\s+(?:it|the\s+company))\s+do\?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -95,6 +107,38 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.CreativeIdeas,
                 subject: "business-ideas",
                 otherSubject: companyPurpose.Groups["company"].Value.Trim(),
+                sourceText: source);
+            return true;
+        }
+
+        var difference = DifferenceBetweenPattern.Match(text);
+        if (difference.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Compare,
+                subject: Normalize(difference.Groups["subject"].Value),
+                otherSubject: Normalize(difference.Groups["other"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var whyShouldUse = WhyShouldUsePattern.Match(text);
+        if (whyShouldUse.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.WhyUse,
+                subject: Normalize(whyShouldUse.Groups["subject"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var similarChatbots = SimilarChatbotsPattern.Match(text);
+        if (similarChatbots.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ListExamples,
+                subject: "advanced-chatbot",
+                limit: 5,
                 sourceText: source);
             return true;
         }
