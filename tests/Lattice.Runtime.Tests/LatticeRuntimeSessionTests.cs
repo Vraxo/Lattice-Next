@@ -135,15 +135,15 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.EndsWith(":relation:earth-rotation:causes:local-sunset", StringComparison.Ordinal)));
+                source.SourceId.EndsWith(":relation:earth-rotation:causes:sun-goes-down", StringComparison.Ordinal)));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.EndsWith(":relation:local-sunset:ends:daylight", StringComparison.Ordinal)));
+                source.SourceId.EndsWith(":relation:sun-goes-down:ends:daylight", StringComparison.Ordinal)));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.EndsWith(":relation:local-sunset:begins:night", StringComparison.Ordinal)));
+                source.SourceId.EndsWith(":relation:sun-goes-down:begins:night", StringComparison.Ordinal)));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
