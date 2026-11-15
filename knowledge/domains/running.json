@@ -1,0 +1,300 @@
+{
+  "formatVersion": 3,
+  "id": "core-running-guidance",
+  "name": "Beginner running practice",
+  "concepts": [
+    {
+      "id": "physical-activity",
+      "label": "physical activity",
+      "kind": "Type"
+    },
+    {
+      "id": "beginner-practice",
+      "label": "beginner practice",
+      "kind": "Type"
+    },
+    {
+      "id": "training-purpose",
+      "label": "training purpose",
+      "kind": "Type"
+    },
+    {
+      "id": "safety-guidance",
+      "label": "safety guidance",
+      "kind": "Type"
+    },
+    {
+      "id": "running",
+      "label": "running",
+      "kind": "Individual"
+    },
+    {
+      "id": "running-warm-up",
+      "label": "Warm up with five minutes of brisk walking",
+      "kind": "Individual"
+    },
+    {
+      "id": "run-walk-intervals",
+      "label": "Alternate short, easy jogging intervals with walking",
+      "kind": "Individual"
+    },
+    {
+      "id": "conversational-pace",
+      "label": "Keep the jogging pace comfortable enough to speak in full sentences",
+      "kind": "Individual"
+    },
+    {
+      "id": "recovery-schedule",
+      "label": "Begin with two or three sessions per week and leave recovery days between them",
+      "kind": "Individual"
+    },
+    {
+      "id": "gradual-progression",
+      "label": "Increase the jogging intervals gradually as the routine becomes comfortable",
+      "kind": "Individual"
+    },
+    {
+      "id": "warm-up-purpose",
+      "label": "prepare the muscles and gradually raise effort",
+      "kind": "Individual"
+    },
+    {
+      "id": "run-walk-purpose",
+      "label": "build endurance without requiring continuous running at the outset",
+      "kind": "Individual"
+    },
+    {
+      "id": "easy-pace-purpose",
+      "label": "make the effort sustainable and reduce early overexertion",
+      "kind": "Individual"
+    },
+    {
+      "id": "recovery-purpose",
+      "label": "allow the body time to recover and adapt between sessions",
+      "kind": "Individual"
+    },
+    {
+      "id": "progression-purpose",
+      "label": "avoid sudden increases in training load",
+      "kind": "Individual"
+    },
+    {
+      "id": "equipment-and-route-safety",
+      "label": "Choose comfortable running shoes and a safe, level route",
+      "kind": "Individual"
+    },
+    {
+      "id": "medical-safety",
+      "label": "If you have a health condition or have been inactive for a long time, seek individual medical advice before beginning",
+      "kind": "Individual"
+    },
+    {
+      "id": "warning-symptoms",
+      "label": "Stop exercising and seek prompt medical help for chest pain, faintness, or unusual severe breathlessness",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "physical activity",
+      "concept": "physical-activity",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "beginner practice",
+      "concept": "beginner-practice",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "training purpose",
+      "concept": "training-purpose",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "safety guidance",
+      "concept": "safety-guidance",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "running",
+      "concept": "running",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "run",
+      "concept": "running",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "jogging",
+      "concept": "running",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-first-beginner-step",
+      "domain": "physical-activity",
+      "range": "beginner-practice",
+      "verb": "start with",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "followed-by",
+      "domain": "beginner-practice",
+      "range": "beginner-practice",
+      "verb": "is followed by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-practice-purpose",
+      "domain": "beginner-practice",
+      "range": "training-purpose",
+      "verb": "supports",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-safety-guidance",
+      "domain": "physical-activity",
+      "range": "safety-guidance",
+      "verb": "requires consideration of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "physical-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "beginner-practice",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "training-purpose",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "safety-guidance",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "physical-activity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "beginner-practice",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "training-purpose",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "safety-guidance",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "running",
+      "relation": "instance-of",
+      "object": "physical-activity"
+    },
+    {
+      "subject": "running",
+      "relation": "has-first-beginner-step",
+      "object": "running-warm-up"
+    },
+    {
+      "subject": "running-warm-up",
+      "relation": "followed-by",
+      "object": "run-walk-intervals"
+    },
+    {
+      "subject": "run-walk-intervals",
+      "relation": "followed-by",
+      "object": "conversational-pace"
+    },
+    {
+      "subject": "conversational-pace",
+      "relation": "followed-by",
+      "object": "recovery-schedule"
+    },
+    {
+      "subject": "recovery-schedule",
+      "relation": "followed-by",
+      "object": "gradual-progression"
+    },
+    {
+      "subject": "running-warm-up",
+      "relation": "has-practice-purpose",
+      "object": "warm-up-purpose"
+    },
+    {
+      "subject": "run-walk-intervals",
+      "relation": "has-practice-purpose",
+      "object": "run-walk-purpose"
+    },
+    {
+      "subject": "conversational-pace",
+      "relation": "has-practice-purpose",
+      "object": "easy-pace-purpose"
+    },
+    {
+      "subject": "recovery-schedule",
+      "relation": "has-practice-purpose",
+      "object": "recovery-purpose"
+    },
+    {
+      "subject": "gradual-progression",
+      "relation": "has-practice-purpose",
+      "object": "progression-purpose"
+    },
+    {
+      "subject": "running",
+      "relation": "has-safety-guidance",
+      "object": "equipment-and-route-safety"
+    },
+    {
+      "subject": "running",
+      "relation": "has-safety-guidance",
+      "object": "medical-safety"
+    },
+    {
+      "subject": "running",
+      "relation": "has-safety-guidance",
+      "object": "warning-symptoms"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
