@@ -15,7 +15,7 @@ public sealed class LceParserTests
         var result = parser.Parse("Aster 14 costs $900.");
 
         Assert.True(result.IsSuccess, result.Error);
-        var utterance = Assert.Single(result.Utterances);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
         Assert.Equal(UtteranceKind.ObjectiveCandidateInformation, utterance.Kind);
         Assert.Equal(
             "candidate-information(aster 14, total-cost, money($900))",
@@ -658,7 +658,7 @@ public sealed class LceParserTests
         var result = parser.ParseText("Which Dutch artist painted “Girl with a Pearl Earring”?");
 
         Assert.True(result.IsSuccess, result.Error);
-        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        var utterance = Assert.Single(result.Utterances);
         var query = Assert.IsType<SemanticRelationSourceQueryFormula>(utterance.Meaning);
         Assert.Equal("girl-with-a-pearl-earring", query.Object);
         Assert.Equal("painted", query.Verb);
