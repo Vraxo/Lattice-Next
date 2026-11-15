@@ -76,6 +76,7 @@ public static class SemanticFormatter
                 : $"world-model-creative-ideas({question.Subject}, for({question.OtherSubject}))",
             SemanticWorldModelQuestionKind.ListExamples => $"world-model-list-examples({question.Subject}, {question.Limit})",
             SemanticWorldModelQuestionKind.MaximumDataValue => $"world-model-maximum({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.HighestDataValue => $"world-model-highest({question.Subject}, {question.Concept}, within({question.TargetType}))",
             SemanticWorldModelQuestionKind.EventOutcomes => $"world-model-event-outcomes({question.Subject})",
             _ => "world-model-question(unsupported)"
         };

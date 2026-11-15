@@ -55,6 +55,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TallestFeaturePattern = new(
+        @"^What is the tallest (?<feature>[A-Za-z][A-Za-z -]*?) in the (?<scope>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex MaximumDataValuePattern = new(
         @"^What (?<subjectType>individual|person|athlete) has won the most (?<metric>[A-Za-z][A-Za-z -]*?)(?: in the history of (?:the )?(?<scope>games|Olympic games))?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -218,6 +222,20 @@ internal static class SemanticWorldModelQuestionParser
                     source);
                 return true;
             }
+        }
+
+        var tallestFeature = TallestFeaturePattern.Match(text);
+        if (tallestFeature.Success)
+        {
+            var feature = Normalize(tallestFeature.Groups["feature"].Value);
+            utterance = Create(
+                SemanticWorldModelQuestionKind.HighestDataValue,
+                subject: feature,
+                concept: $"{feature}-elevation-feet",
+                otherSubject: "feet above sea level",
+                targetType: Normalize(tallestFeature.Groups["scope"].Value),
+                sourceText: source);
+            return true;
         }
 
         var maximumDataValue = MaximumDataValuePattern.Match(text);
