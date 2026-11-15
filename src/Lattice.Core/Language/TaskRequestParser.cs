@@ -59,9 +59,23 @@ internal static class TaskRequestParser
             return false;
         }
 
-        var duration = match.Groups["duration"].Value
+        var durationToken = match.Groups["duration"].Value
             .Replace("a ", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Replace(' ', '-');
+            .Replace(" days", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace(" day", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Trim();
+        var dayCount = durationToken.ToLowerInvariant() switch
+        {
+            "one" => 1,
+            "two" => 2,
+            "three" => 3,
+            "four" => 4,
+            "five" => 5,
+            "six" => 6,
+            "seven" => 7,
+            _ => int.TryParse(durationToken, out var numericDays) ? numericDays : 0
+        };
+        var duration = $"{dayCount}-day";
         var occasion = match.Groups["occasion"].Success
             ? match.Groups["occasion"].Value.Trim()
             : null;
