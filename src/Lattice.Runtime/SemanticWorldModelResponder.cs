@@ -543,7 +543,7 @@ internal static class SemanticWorldModelResponder
 
         var appearance = model.FindConcept("sun", SemanticConceptKind.Individual);
         var horizon = model.FindConcept("local-horizon", SemanticConceptKind.Individual);
-        var appearanceAssertions = appearance is null || horizon is null
+        SemanticRelationAssertion[] appearanceAssertions = appearance is null || horizon is null
             ? []
             : reasoner.GetRelations(appearance.Id, "appears-below")
                 .Where(assertion => assertion.Object == horizon.Id)
