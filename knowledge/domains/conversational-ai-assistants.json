@@ -105,12 +105,12 @@
     },
     {
       "id": "apache-code-data-model-specific-licenses",
-      "label": "Apache-2.0 code and data with model-specific weight licenses",
+      "label": "open-source code-and-data release with base-model-specific weight licenses",
       "kind": "Individual"
     },
     {
       "id": "proprietary-hosted-model-service",
-      "label": "proprietary hosted models and service",
+      "label": "proprietary hosted model-and-service offering",
       "kind": "Individual"
     },
     {
