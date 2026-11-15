@@ -22,5 +22,6 @@ public sealed class NotableMoviesByDecadeQuestionTests
         Assert.Equal("comedy-film-1980s", question.Concept);
         Assert.Equal("1980s", question.TargetType);
         Assert.Equal(12, question.Limit);
+        Assert.Equal("ask(world-model-notable-examples(comedy-film-1980s, 12))", SemanticFormatter.Format(Assert.Single(result.Utterances)));
     }
 }
