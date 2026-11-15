@@ -421,8 +421,7 @@ internal static class SemanticWorldModelResponder
         if (subject is null ||
             targetType is null ||
             effectType is null ||
-            !reasoner.IsInstanceOf(subject.Id, "technology-use") ||
-            targetType.Id != "person")
+            !reasoner.IsInstanceOf(subject.Id, "technology-use"))
         {
             return false;
         }
@@ -433,7 +432,9 @@ internal static class SemanticWorldModelResponder
                 Assertion: assertion))
             .Where(candidate =>
                 candidate.Effect is not null &&
-                reasoner.IsInstanceOf(candidate.Effect.Id, effectType.Id))
+                reasoner.IsInstanceOf(candidate.Effect.Id, effectType.Id) &&
+                reasoner.GetRelations(candidate.Effect.Id, "affects-person")
+                    .Any(assertion => assertion.Object == targetType.Id))
             .ToArray();
         if (effectAssertions.Length == 0)
         {
@@ -460,6 +461,9 @@ internal static class SemanticWorldModelResponder
                 $"{candidate.Effect.Label} (which can arise through {JoinConditions(mechanisms.Select(item => item.Label).ToArray())})");
             sources.Add(candidate.Assertion.Source);
             sources.AddRange(reasoner.GetMembershipEvidence(candidate.Effect.Id, effectType.Id));
+            sources.AddRange(reasoner.GetRelations(candidate.Effect.Id, "affects-person")
+                .Where(assertion => assertion.Object == targetType.Id)
+                .Select(assertion => assertion.Source));
             sources.AddRange(mechanismAssertions.Select(assertion => assertion.Source));
             sources.AddRange(mechanisms.SelectMany(mechanism =>
                 reasoner.GetMembershipEvidence(mechanism.Id, "adverse-effect-mechanism")));
