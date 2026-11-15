@@ -66,6 +66,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.WhyHarmful => $"world-model-harmfulness({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.BeginnerGuidance => $"world-model-beginner-guidance({question.Subject})",
             SemanticWorldModelQuestionKind.CreativeIdeas => $"world-model-creative-ideas({question.Subject})",
+            SemanticWorldModelQuestionKind.ListExamples => $"world-model-list-examples({question.Subject}, {question.Limit})",
             _ => "world-model-question(unsupported)"
         };
 

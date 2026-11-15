@@ -40,6 +40,8 @@ internal static class SemanticWorldModelResponder
                 TryBeginnerGuidance(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CreativeIdeas =>
                 TryCreativeIdeas(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.ListExamples =>
+                TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -443,6 +445,57 @@ internal static class SemanticWorldModelResponder
             .Concat(reasoner.GetMembershipEvidence(site.Id, facilityType.Id))
             .Distinct()
             .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryListExamples(
+        string requestedType,
+        int limit,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (limit is < 1 or > 10)
+        {
+            return false;
+        }
+
+        var type = model.FindConcept(requestedType, SemanticConceptKind.Type);
+        if (type is null)
+        {
+            return false;
+        }
+
+        var examples = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, type.Id))
+            .OrderBy(concept => concept.Label, StringComparer.OrdinalIgnoreCase)
+            .Take(limit)
+            .ToArray();
+        if (examples.Length < limit)
+        {
+            return false;
+        }
+
+        var sources = examples
+            .SelectMany(example => reasoner.GetMembershipEvidence(example.Id, type.Id))
+            .Distinct()
+            .ToImmutableArray();
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var pluralLabel = type.Label.EndsWith("y", StringComparison.OrdinalIgnoreCase)
+            ? $"{type.Label[..^1]}ies"
+            : $"{type.Label}s";
+        message = $"Here are {limit} prominent {pluralLabel}:\n{string.Join("\n", examples.Select((example, index) => $"{index + 1}. {example.Label}"))}";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }

@@ -11,7 +11,8 @@ public enum SemanticWorldModelQuestionKind
     ContributionQuery,
     WhyHarmful,
     BeginnerGuidance,
-    CreativeIdeas
+    CreativeIdeas,
+    ListExamples
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
@@ -19,4 +20,5 @@ public sealed record SemanticWorldModelQuestionFormula(
     string Subject,
     string? Concept = null,
     string? OtherSubject = null,
-    string? TargetType = null) : SemanticFormula;
+    string? TargetType = null,
+    int Limit = 0) : SemanticFormula;

@@ -27,6 +27,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ListExamplesPattern = new(
+        @"^Give me (?:the )?(?:top )?(?<count>five|four|three|two|one|[0-9]+) (?<category>[A-Za-z][A-Za-z -]*?) names(?: in a numbered list)?(?:\. Names only; no descriptions)?[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CreativeIdeasPattern = new(
         @"^What are some (?<style>[A-Za-z][A-Za-z -]*?) (?<item>[A-Za-z][A-Za-z -]*?) that you can make yourself\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -95,6 +99,17 @@ internal static class SemanticWorldModelQuestionParser
                     source);
                 return true;
             }
+        }
+
+        var listExamples = ListExamplesPattern.Match(text);
+        if (listExamples.Success && TryParseCardinal(listExamples.Groups["count"].Value, out var listLimit))
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ListExamples,
+                subject: NormalizeListCategory(listExamples.Groups["category"].Value),
+                limit: listLimit,
+                sourceText: source);
+            return true;
         }
 
         var creativeIdeas = CreativeIdeasPattern.Match(text);
@@ -250,10 +265,11 @@ internal static class SemanticWorldModelQuestionParser
         string? concept = null,
         string? otherSubject = null,
         string? targetType = null,
+        int limit = 0,
         string? sourceText = null) =>
         new(
             UtteranceKind.Question,
-            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType),
+            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType, limit),
             sourceText ?? string.Empty);
 
     private static bool TryParseCardinal(string value, out int number)
@@ -296,6 +312,14 @@ internal static class SemanticWorldModelQuestionParser
         var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
         return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
     }
+
+    private static string NormalizeListCategory(string value) =>
+        Normalize(value) switch
+        {
+            "golf-equipment-companies" or "golf-equipment-company-names" => "golf-equipment-company",
+            "golf-equipment-company" => "golf-equipment-company",
+            _ => Normalize(value)
+        };
 
     private static string NormalizeBeginnerActivity(string value) =>
         Normalize(value) switch
