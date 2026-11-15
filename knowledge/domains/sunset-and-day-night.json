@@ -1,0 +1,176 @@
+{
+  "formatVersion": 3,
+  "id": "sunset-and-day-night",
+  "name": "Sunset, daylight, and nighttime",
+  "concepts": [
+    {
+      "id": "earth-rotation",
+      "label": "Earth's rotation",
+      "kind": "Individual"
+    },
+    {
+      "id": "local-sunset",
+      "label": "sunset",
+      "kind": "Individual"
+    },
+    {
+      "id": "sun",
+      "label": "the Sun",
+      "kind": "Individual"
+    },
+    {
+      "id": "daylight",
+      "label": "daylight",
+      "kind": "Individual"
+    },
+    {
+      "id": "night",
+      "label": "night",
+      "kind": "Individual"
+    },
+    {
+      "id": "local-horizon",
+      "label": "the local horizon",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "sunset",
+      "concept": "local-sunset",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the sun goes down",
+      "concept": "local-sunset",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "sun goes down",
+      "concept": "local-sunset",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "the sun sets",
+      "concept": "local-sunset",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "sun sets",
+      "concept": "local-sunset",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "daylight",
+      "concept": "daylight",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "night",
+      "concept": "night",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "earth's rotation",
+      "concept": "earth-rotation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the sun",
+      "concept": "sun",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "local horizon",
+      "concept": "local-horizon",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "causes",
+      "domain": null,
+      "range": null,
+      "verb": "causes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "ends",
+      "domain": null,
+      "range": null,
+      "verb": "ends",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "begins",
+      "domain": null,
+      "range": null,
+      "verb": "begins",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "turns-location-away-from",
+      "domain": null,
+      "range": null,
+      "verb": "turns your location away from",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "appears-below",
+      "domain": null,
+      "range": null,
+      "verb": "appears below",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    }
+  ],
+  "definitions": [],
+  "relationAssertions": [
+    {
+      "subject": "earth-rotation",
+      "relation": "causes",
+      "object": "local-sunset"
+    },
+    {
+      "subject": "local-sunset",
+      "relation": "ends",
+      "object": "daylight"
+    },
+    {
+      "subject": "local-sunset",
+      "relation": "begins",
+      "object": "night"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "turns-location-away-from",
+      "object": "sun"
+    },
+    {
+      "subject": "sun",
+      "relation": "appears-below",
+      "object": "local-horizon"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
