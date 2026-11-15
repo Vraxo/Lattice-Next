@@ -39,27 +39,27 @@ public sealed class BeginnerRunningGuidanceTests
         Assert.Equal(5, answer.Message!.Split('\n').Count(line =>
             line.Length > 0 && char.IsDigit(line[0]) && line.Contains('.')));
         Assert.Contains(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":has-first-beginner-step:", StringComparison.Ordinal)));
         Assert.Contains(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":followed-by:", StringComparison.Ordinal)));
         Assert.Contains(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":has-practice-purpose:", StringComparison.Ordinal)));
         Assert.Contains(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":has-safety-guidance:", StringComparison.Ordinal)));
         Assert.Contains(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":stop-and-seek-help-for:", StringComparison.Ordinal)));
         Assert.All(
-            answer.SupportingEvidence,
+            answer.SupportingEvidence!,
             evidence => Assert.Contains(
                 evidence.Sources,
                 source => source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge));
