@@ -10,6 +10,7 @@ public enum SemanticWorldModelQuestionKind
     Compare,
     WhyUse,
     Applications,
+    Clarification,
     ContributionQuery,
     WhyHarmful,
     BeginnerGuidance,
