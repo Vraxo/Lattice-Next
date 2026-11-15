@@ -85,12 +85,12 @@
     },
     {
       "id": "medical-safety",
-      "label": "If you have a health condition or have been inactive for a long time, seek individual medical advice before beginning",
+      "label": "Seek medical advice if you have a health condition or have been inactive for a long time",
       "kind": "Individual"
     },
     {
       "id": "warning-symptoms",
-      "label": "Stop exercising and seek prompt medical help for chest pain, faintness, or unusual severe breathlessness",
+      "label": "Stop and seek medical help for chest pain, faintness, or severe breathlessness",
       "kind": "Individual"
     }
   ],
