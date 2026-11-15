@@ -40,6 +40,7 @@ The current expression language does not support universal restrictions, negatio
 - `television.json`: a television series, its season-four episodes, and director credits.
 - `diy-curtain-tiebacks.json`: DIY project ideas represented through materials, construction techniques, and fastening methods.
 - `business-ideas.json`: business venture ideas represented through customer segments, problems, offerings, and revenue models.
+- `conversational-ai-assistants.json`: conversational AI projects, access models, licensing, benefits, and comparable assistants.
 - `golf-companies.json`: prominent golf equipment companies classified under a shared company type.
 - `olympic-records.json`: Olympic athletes and numeric gold-medal counts for maximum-value reasoning.
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
