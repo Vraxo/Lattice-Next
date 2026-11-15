@@ -58,10 +58,10 @@ Counts after composing all twelve modules:
 - 290 concepts
 - 141 type declarations (104 primitive, 37 defined)
 - 71 relation signatures
-- 466 relation assertions:
+- 465 relation assertions:
   - 143 `is-a`
   - 165 `instance-of`
-  - 158 ordinary individual-to-individual relations
+  - 157 ordinary individual-to-individual relations
 - 263 lexical forms
 
 ## Audit boundary
