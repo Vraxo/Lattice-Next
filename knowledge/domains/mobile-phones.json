@@ -143,7 +143,6 @@
     {
       "id": "affects-person",
       "domain": "adverse-effect",
-      "range": "person",
       "verb": "can affect",
       "objectRole": null,
       "order": 1,
