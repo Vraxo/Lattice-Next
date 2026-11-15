@@ -147,6 +147,36 @@
       "id": "seven-billion-parameter-models",
       "label": "smallest models have 7 billion parameters and can challenge consumer hardware",
       "kind": "Individual"
+    },
+    {
+      "id": "concluded-project-status",
+      "label": "concluded research project",
+      "kind": "Type"
+    },
+    {
+      "id": "active-service-status",
+      "label": "active hosted AI service",
+      "kind": "Type"
+    },
+    {
+      "id": "downloadable-model-access-type",
+      "label": "downloadable model access with self-hosting",
+      "kind": "Type"
+    },
+    {
+      "id": "provider-hosted-access-type",
+      "label": "provider-hosted access",
+      "kind": "Type"
+    },
+    {
+      "id": "open-source-license-arrangement",
+      "label": "open-source code-and-data release under Apache 2.0 with base-model-specific weight licenses",
+      "kind": "Type"
+    },
+    {
+      "id": "proprietary-license-arrangement",
+      "label": "proprietary hosted model-and-service offering",
+      "kind": "Type"
     }
   ],
   "lexemes": [],
@@ -283,6 +313,42 @@
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
+    },
+    {
+      "concept": "concluded-project-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "active-service-status",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "downloadable-model-access-type",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "provider-hosted-access-type",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "open-source-license-arrangement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "proprietary-license-arrangement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -369,32 +435,32 @@
     {
       "subject": "concluded-research-project",
       "relation": "instance-of",
-      "object": "project-status"
+      "object": "concluded-project-status"
     },
     {
       "subject": "active-hosted-service",
       "relation": "instance-of",
-      "object": "project-status"
+      "object": "active-service-status"
     },
     {
       "subject": "downloadable-model-access",
       "relation": "instance-of",
-      "object": "access-model"
+      "object": "downloadable-model-access-type"
     },
     {
       "subject": "provider-hosted-access",
       "relation": "instance-of",
-      "object": "access-model"
+      "object": "provider-hosted-access-type"
     },
     {
       "subject": "apache-code-data-model-specific-licenses",
       "relation": "instance-of",
-      "object": "licensing-model"
+      "object": "open-source-license-arrangement"
     },
     {
       "subject": "proprietary-hosted-model-service",
       "relation": "instance-of",
-      "object": "licensing-model"
+      "object": "proprietary-license-arrangement"
     },
     {
       "subject": "released-model-weights",
@@ -495,6 +561,36 @@
       "subject": "open-assistant",
       "relation": "has-hardware-requirement",
       "object": "seven-billion-parameter-models"
+    },
+    {
+      "subject": "concluded-project-status",
+      "relation": "is-a",
+      "object": "project-status"
+    },
+    {
+      "subject": "active-service-status",
+      "relation": "is-a",
+      "object": "project-status"
+    },
+    {
+      "subject": "downloadable-model-access-type",
+      "relation": "is-a",
+      "object": "access-model"
+    },
+    {
+      "subject": "provider-hosted-access-type",
+      "relation": "is-a",
+      "object": "access-model"
+    },
+    {
+      "subject": "open-source-license-arrangement",
+      "relation": "is-a",
+      "object": "licensing-model"
+    },
+    {
+      "subject": "proprietary-license-arrangement",
+      "relation": "is-a",
+      "object": "licensing-model"
     }
   ],
   "dataProperties": [],
