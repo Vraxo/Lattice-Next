@@ -6,6 +6,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex EnumerationRemainderPattern = new(
+        @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|[0-9]+) daughters?: (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|[0-9]+(?:st|nd|rd|th)) daughter\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DefinitionPattern = new(
         @"^What makes something an? (?<concept>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -42,6 +46,35 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var enumerationRemainder = EnumerationRemainderPattern.Match(text);
+        if (enumerationRemainder.Success &&
+            TryParseCardinal(enumerationRemainder.Groups["count"].Value, out var expectedCount) &&
+            TryParseOrdinal(enumerationRemainder.Groups["ordinal"].Value, out var missingPosition))
+        {
+            var namedMembers = enumerationRemainder.Groups["known"].Value
+                .Split(", ", StringSplitOptions.RemoveEmptyEntries)
+                .Select(Normalize)
+                .ToImmutableArray();
+            var member = Normalize(enumerationRemainder.Groups["member"].Value);
+
+            if (expectedCount > 0 &&
+                missingPosition == expectedCount &&
+                namedMembers.Length == expectedCount - 1 &&
+                !namedMembers.Contains(member, StringComparer.Ordinal))
+            {
+                utterance = new SemanticUtterance(
+                    UtteranceKind.Question,
+                    new EnumerationRemainderQuestionFormula(
+                        member,
+                        "daughters",
+                        expectedCount,
+                        missingPosition,
+                        namedMembers),
+                    source);
+                return true;
+            }
+        }
 
         var definition = DefinitionPattern.Match(text);
         if (definition.Success)
@@ -143,6 +176,47 @@ internal static class SemanticWorldModelQuestionParser
             UtteranceKind.Question,
             new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject),
             sourceText ?? string.Empty);
+
+    private static bool TryParseCardinal(string value, out int number)
+    {
+        if (int.TryParse(value, out number))
+        {
+            return number > 0;
+        }
+
+        number = value.ToLowerInvariant() switch
+        {
+            "one" => 1,
+            "two" => 2,
+            "three" => 3,
+            "four" => 4,
+            "five" => 5,
+            _ => 0
+        };
+
+        return number > 0;
+    }
+
+    private static bool TryParseOrdinal(string value, out int number)
+    {
+        number = value.ToLowerInvariant() switch
+        {
+            "first" => 1,
+            "second" => 2,
+            "third" => 3,
+            "fourth" => 4,
+            "fifth" => 5,
+            _ => 0
+        };
+
+        if (number > 0)
+        {
+            return true;
+        }
+
+        var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
+        return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
+    }
 
     private static string Normalize(string value)
     {
