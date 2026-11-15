@@ -20,7 +20,7 @@ public sealed class TelevisionDirectorQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "relation-targets(michelle-maclaren, direct, within(season-four-of-game-of-thrones))",
+            "ask(relation-targets(michelle-maclaren, direct, within(season-four-of-game-of-thrones)))",
             answer.Meaning);
         Assert.Equal(
             "Michelle MacLaren directed Oathkeeper and First of His Name.",
