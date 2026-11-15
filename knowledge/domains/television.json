@@ -1,0 +1,213 @@
+{
+  "formatVersion": 3,
+  "id": "core-television",
+  "name": "Television series, seasons, episodes, and directing credits",
+  "concepts": [
+    {
+      "id": "television-series",
+      "label": "television series",
+      "kind": "Type"
+    },
+    {
+      "id": "television-season",
+      "label": "television season",
+      "kind": "Type"
+    },
+    {
+      "id": "television-episode",
+      "label": "television episode",
+      "kind": "Type"
+    },
+    {
+      "id": "game-of-thrones",
+      "label": "Game of Thrones",
+      "kind": "Individual"
+    },
+    {
+      "id": "season-four-of-game-of-thrones",
+      "label": "season four of Game of Thrones",
+      "kind": "Individual"
+    },
+    {
+      "id": "oathkeeper",
+      "label": "Oathkeeper",
+      "kind": "Individual"
+    },
+    {
+      "id": "first-of-his-name",
+      "label": "First of His Name",
+      "kind": "Individual"
+    },
+    {
+      "id": "michelle-maclaren",
+      "label": "Michelle MacLaren",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "television series",
+      "concept": "television-series",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "television season",
+      "concept": "television-season",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "television episode",
+      "concept": "television-episode",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Game of Thrones",
+      "concept": "game-of-thrones",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "season four of Game of Thrones",
+      "concept": "season-four-of-game-of-thrones",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Oathkeeper",
+      "concept": "oathkeeper",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "First of His Name",
+      "concept": "first-of-his-name",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Michelle MacLaren",
+      "concept": "michelle-maclaren",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-season",
+      "domain": "television-series",
+      "range": "television-season",
+      "verb": "has",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "includes-episode",
+      "domain": "television-season",
+      "range": "television-episode",
+      "verb": "includes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "directed",
+      "domain": "person",
+      "range": "television-episode",
+      "verb": "directed",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "television-series",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "television-season",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "television-episode",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "television-series",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "television-season",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "television-episode",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "game-of-thrones",
+      "relation": "instance-of",
+      "object": "television-series"
+    },
+    {
+      "subject": "season-four-of-game-of-thrones",
+      "relation": "instance-of",
+      "object": "television-season"
+    },
+    {
+      "subject": "oathkeeper",
+      "relation": "instance-of",
+      "object": "television-episode"
+    },
+    {
+      "subject": "first-of-his-name",
+      "relation": "instance-of",
+      "object": "television-episode"
+    },
+    {
+      "subject": "michelle-maclaren",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "game-of-thrones",
+      "relation": "has-season",
+      "object": "season-four-of-game-of-thrones"
+    },
+    {
+      "subject": "season-four-of-game-of-thrones",
+      "relation": "includes-episode",
+      "object": "oathkeeper"
+    },
+    {
+      "subject": "season-four-of-game-of-thrones",
+      "relation": "includes-episode",
+      "object": "first-of-his-name"
+    },
+    {
+      "subject": "michelle-maclaren",
+      "relation": "directed",
+      "object": "oathkeeper"
+    },
+    {
+      "subject": "michelle-maclaren",
+      "relation": "directed",
+      "object": "first-of-his-name"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
