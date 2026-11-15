@@ -7,15 +7,15 @@ namespace Lattice.Core.Language;
 internal static class MultiItemClassificationParser
 {
     private static readonly Regex Pattern = new(
-        @"^Identify\\s+which\\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\\s+is\\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\\s+or\\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\\s*:\\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\\s*(?:and\\s+)?[A-Za-z][A-Za-z -]*)*)\\.?$",
+        @"^Identify\s+which\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+is\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CategorizePattern = new(
-        @"^Categorize\\s+each\\s+of\\s+the\\s+following\\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\\s+as\\s+either\\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\\s+or\\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\\s*:\\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\\s*(?:and\\s+)?[A-Za-z][A-Za-z -]*)*)\\.?$",
+        @"^Categorize\s+each\s+of\s+the\s+following\s+(?<itemType>[A-Za-z][A-Za-z -]*?)\s+as\s+either\s+(?<firstCategory>[A-Za-z][A-Za-z -]*?)\s+or\s+(?<secondCategory>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>[A-Za-z][A-Za-z -]*(?:,\s*(?:and\s+)?[A-Za-z][A-Za-z -]*)*)\.?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex UsefulForPurposePattern = new(
-        @"^Which\\s+of\\s+the\\s+following\\s+is\\s+(?<category>[A-Za-z][A-Za-z-]*)\\s+for\\s+(?<purpose>[A-Za-z][A-Za-z -]*?)\\s*:\\s*(?<items>.+?)[?.]?$",
+        @"^Which\s+of\s+the\s+following\s+is\s+(?<category>[A-Za-z][A-Za-z-]*)\s+for\s+(?<purpose>[A-Za-z][A-Za-z -]*?)\s*:\s*(?<items>.+?)[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     internal static bool TryParse(
@@ -93,14 +93,14 @@ internal static class MultiItemClassificationParser
                 ? item[4..]
                 : item)
             .Select(item => removeArticles
-                ? Regex.Replace(item, @"^(?:a|an|the)\\s+", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                ? Regex.Replace(item, @"^(?:a|an|the)\s+", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
                 : item)
             .Select(NormalizeIdentifier)
             .Select(item => new SemanticIdentifier(item))
             .ToImmutableArray();
 
     private static string NormalizeIdentifier(string value) =>
-        Regex.Replace(value.Trim(), @"\\s+", "-").ToLowerInvariant();
+        Regex.Replace(value.Trim(), @"\s+", "-").ToLowerInvariant();
 
     private static string NormalizePluralIdentifier(string value) =>
         value is "species" or "series"
