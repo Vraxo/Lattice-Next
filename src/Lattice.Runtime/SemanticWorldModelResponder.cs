@@ -492,7 +492,10 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        message = $"Five prominent {type.Label}s include:\\n{string.Join("\\n", examples.Select((example, index) => $"{index + 1}. {example.Label}"))}";
+        var pluralLabel = type.Label.EndsWith("y", StringComparison.OrdinalIgnoreCase)
+            ? $"{type.Label[..^1]}ies"
+            : $"{type.Label}s";
+        message = $"Here are {limit} prominent {pluralLabel}:\n{string.Join("\n", examples.Select((example, index) => $"{index + 1}. {example.Label}"))}";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
