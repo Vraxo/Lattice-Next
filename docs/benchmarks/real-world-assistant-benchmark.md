@@ -22,7 +22,7 @@ Controlled diagnostic cases live in [assistant-benchmark-diagnostics-v1.json](..
 
 OASST1 is community-contributed and self-selected; it is not a representative sample of ChatGPT users. The dataset is licensed Apache-2.0.
 
-### WildChat-1M — real ChatGPT prompts
+### WildChat — real ChatGPT prompts
 
 [allenai/WildChat](https://huggingface.co/datasets/allenai/WildChat) contains real user conversations with ChatGPT, but its population is self-selected and its collection period is 2023–2024, not 2022. It is a useful source of actual ChatGPT usage, not a reproduction of the early ChatGPT user population.
 
