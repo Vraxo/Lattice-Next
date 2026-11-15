@@ -37,6 +37,7 @@ The current expression language does not support universal restrictions, negatio
 - `un-headquarters.json`: United Nations headquarters location and acquisition contributions.
 - `mobile-phones.json`: mobile-phone use, adverse effects, and contributing mechanisms.
 - `running.json`: beginner running practices, their purposes, and safety guidance.
+- `television.json`: a television series, its season-four episodes, and director credits.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
