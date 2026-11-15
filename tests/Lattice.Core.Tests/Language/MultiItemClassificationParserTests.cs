@@ -53,6 +53,28 @@ public sealed class MultiItemClassificationParserTests
             SemanticFormatter.Format(utterance));
     }
 
+    [Fact]
+    public void Parses_useful_for_purpose_questions_with_articles_and_a_final_conjunction()
+    {
+        const string input = "Which of the following is useful for transportation: a glass of wine, a lamp, a train, an iced cube tray, a plane, a bicycle, an apple and a scooter.";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var classification = Assert.IsType<MultiItemClassificationFormula>(utterance.Meaning);
+
+        Assert.Equal("thing-for-transportation", classification.ItemType.Value);
+        Assert.Equal(new[] { "useful", "not-useful" }, classification.Categories.Select(category => category.Value));
+        Assert.Equal(
+            new[] { "glass-of-wine", "lamp", "train", "iced-cube-tray", "plane", "bicycle", "apple", "scooter" },
+            classification.Items.Select(item => item.Value));
+        Assert.Equal(input, utterance.SourceText);
+        Assert.Equal(
+            "ask(classify(thing-for-transportation, categories(useful, not-useful), items(glass-of-wine, lamp, train, iced-cube-tray, plane, bicycle, apple, scooter)))",
+            SemanticFormatter.Format(utterance));
+    }
+
     [Theory]
     [InlineData("Identify which instrument is string or string: Cantaro, Gudok")]
     [InlineData("Identify which instrument is string or percussion: Cantaro")]
