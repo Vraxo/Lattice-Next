@@ -79,6 +79,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.HighestDataValue => $"world-model-highest({question.Subject}, {question.Concept}, within({question.TargetType}))",
             SemanticWorldModelQuestionKind.NotableExamples => $"world-model-notable-examples({question.Concept}, {question.Limit})",
             SemanticWorldModelQuestionKind.RegionalName => $"world-model-regional-name({question.Subject}, in({question.TargetType}))",
+            SemanticWorldModelQuestionKind.Ingredients => $"world-model-ingredients({question.Subject})",
             SemanticWorldModelQuestionKind.EventOutcomes => $"world-model-event-outcomes({question.Subject})",
             _ => "world-model-question(unsupported)"
         };
