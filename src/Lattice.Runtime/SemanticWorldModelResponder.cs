@@ -497,11 +497,10 @@ internal static class SemanticWorldModelResponder
             reasoner.GetMembershipEvidence(concept.Id, "safety-guidance")));
         sources.AddRange(reasoner.GetMembershipEvidence(activity.Id, "physical-activity"));
 
-        var stepText = string.Join(" ", steps.Select((item, index) =>
-            $"{(index == 0 ? "Start by" : "Then")} {LowercaseFirst(item.Step.Label)}. " +
-            $"The purpose is {item.Purpose.Label}."));
-        var safetyText = string.Join(" ", safetyGuidance.Select(concept => concept.Label));
-        message = $"To start {activity.Label}, {stepText} {safetyText}";
+        var stepText = string.Join("\n", steps.Select((item, index) =>
+            $"{index + 1}. {item.Step.Label}. The goal is to {item.Purpose.Label}."));
+        var safetyText = string.Join(" ", safetyGuidance.Select(concept => $"{concept.Label}."));
+        message = $"To start {activity.Label}, follow a gradual beginner routine:\n{stepText}\nSafety: {safetyText}";
         evidence = ImmutableArray.Create(ToEvidence(
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
