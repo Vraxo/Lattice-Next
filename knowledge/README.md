@@ -46,6 +46,7 @@ The current expression language does not support universal restrictions, negatio
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
 - `sunset-and-day-night.json`: the causal link between Earth's rotation, sunset, the end of daylight, and the start of night.
 - `calculus-and-lhopitals-rule.json`: L'Hôpital's Rule, its indeterminate forms and conditions, and its connection to broader calculus applications.
+- `music-composition-and-theory.json`: music composition, entry-level methods, helpful theory topics, and advanced study areas.
 - `calculus-and-lhopitals-rule.json`: L'Hôpital's Rule, its indeterminate forms and conditions, and its connection to broader calculus applications.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
@@ -63,16 +64,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all twenty-one modules:
+Counts after composing all twenty-two modules:
 
-- 428 concepts
-- 186 type declarations (149 primitive, 37 defined)
-- 101 relation signatures
-- 672 relation assertions:
-  - 186 `is-a`
-  - 258 `instance-of`
-  - 228 ordinary individual-to-individual relations
-- 318 lexical forms
+- 448 concepts
+- 192 type declarations (155 primitive, 37 defined)
+- 105 relation signatures
+- 704 relation assertions:
+  - 193 `is-a`
+  - 272 `instance-of`
+  - 239 ordinary individual-to-individual relations
+- 322 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions
 
