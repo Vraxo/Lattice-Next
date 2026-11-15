@@ -82,6 +82,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Ingredients => $"world-model-ingredients({question.Subject})",
             SemanticWorldModelQuestionKind.EventOutcomes => $"world-model-event-outcomes({question.Subject})",
             SemanticWorldModelQuestionKind.ContextualRelationRoleQuery => $"world-model-contextual-role({question.Subject}, {question.Concept}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.ProductionLocationReasons => $"world-model-production-location-reasons({question.Subject}, {question.OtherSubject})",
             _ => "world-model-question(unsupported)"
         };
 
