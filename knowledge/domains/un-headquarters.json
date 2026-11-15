@@ -1,0 +1,101 @@
+{
+  "formatVersion": 3,
+  "id": "core-un-headquarters",
+  "name": "United Nations headquarters site contributions",
+  "concepts": [
+    { "id": "organization", "label": "organization", "kind": "Type" },
+    { "id": "governmental-organization", "label": "governmental organization", "kind": "Type" },
+    { "id": "place", "label": "place", "kind": "Type" },
+    { "id": "site", "label": "site", "kind": "Type" },
+    { "id": "land-parcel", "label": "land parcel", "kind": "Type" },
+    { "id": "headquarters-site", "label": "headquarters site", "kind": "Type" },
+    { "id": "united-nations", "label": "United Nations", "kind": "Individual" },
+    { "id": "new-york-city", "label": "New York City", "kind": "Individual" },
+    { "id": "new-york-city-government", "label": "City of New York", "kind": "Individual" },
+    { "id": "john-d-rockefeller-jr", "label": "John D. Rockefeller Jr.", "kind": "Individual" },
+    { "id": "united-nations-headquarters-site", "label": "United Nations headquarters site", "kind": "Individual" }
+  ],
+  "lexemes": [
+    { "form": "organization", "concept": "organization", "partOfSpeech": "noun" },
+    { "form": "governmental organization", "concept": "governmental-organization", "partOfSpeech": "noun" },
+    { "form": "place", "concept": "place", "partOfSpeech": "noun" },
+    { "form": "site", "concept": "site", "partOfSpeech": "noun" },
+    { "form": "land", "concept": "land-parcel", "partOfSpeech": "noun" },
+    { "form": "land parcel", "concept": "land-parcel", "partOfSpeech": "noun" },
+    { "form": "headquarters", "concept": "headquarters-site", "partOfSpeech": "noun" },
+    { "form": "HQ", "concept": "headquarters-site", "partOfSpeech": "noun" },
+    { "form": "UN", "concept": "united-nations", "partOfSpeech": "proper-noun" },
+    { "form": "United Nations", "concept": "united-nations", "partOfSpeech": "proper-noun" },
+    { "form": "NY", "concept": "new-york-city", "partOfSpeech": "proper-noun" },
+    { "form": "New York City", "concept": "new-york-city", "partOfSpeech": "proper-noun" },
+    { "form": "City of New York", "concept": "new-york-city-government", "partOfSpeech": "proper-noun" },
+    { "form": "John D. Rockefeller Jr.", "concept": "john-d-rockefeller-jr", "partOfSpeech": "proper-noun" }
+  ],
+  "relations": [
+    {
+      "id": "has-headquarters-in",
+      "domain": "organization",
+      "range": "place",
+      "verb": "has headquarters in",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "situated-in",
+      "domain": "site",
+      "range": "place",
+      "verb": "is situated in",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "funded-acquisition-of",
+      "domain": "person",
+      "range": "land-parcel",
+      "verb": "funded the acquisition of",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "contributed-property-to",
+      "domain": "organization",
+      "range": "land-parcel",
+      "verb": "contributed additional land and property rights to",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    { "concept": "organization", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "governmental-organization", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "place", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "site", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "land-parcel", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "headquarters-site", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }
+  ],
+  "relationAssertions": [
+    { "subject": "governmental-organization", "relation": "is-a", "object": "organization" },
+    { "subject": "site", "relation": "is-a", "object": "land-parcel" },
+    { "subject": "headquarters-site", "relation": "is-a", "object": "site" },
+    { "subject": "land-parcel", "relation": "is-a", "object": "place" },
+    { "subject": "united-nations", "relation": "instance-of", "object": "organization" },
+    { "subject": "new-york-city", "relation": "instance-of", "object": "place" },
+    { "subject": "new-york-city-government", "relation": "instance-of", "object": "governmental-organization" },
+    { "subject": "john-d-rockefeller-jr", "relation": "instance-of", "object": "person" },
+    { "subject": "united-nations-headquarters-site", "relation": "instance-of", "object": "headquarters-site" },
+    { "subject": "united-nations", "relation": "has-headquarters-in", "object": "new-york-city" },
+    { "subject": "united-nations-headquarters-site", "relation": "situated-in", "object": "new-york-city" },
+    { "subject": "john-d-rockefeller-jr", "relation": "funded-acquisition-of", "object": "united-nations-headquarters-site" },
+    { "subject": "new-york-city-government", "relation": "contributed-property-to", "object": "united-nations-headquarters-site" }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
