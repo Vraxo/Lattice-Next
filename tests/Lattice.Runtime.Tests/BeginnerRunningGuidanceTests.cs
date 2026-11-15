@@ -27,7 +27,7 @@ public sealed class BeginnerRunningGuidanceTests
             answer.Message!,
             StringComparison.Ordinal);
         Assert.Contains("five-minute brisk-walking warm-up", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("short run-walk intervals", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("one-minute easy jogs alternating with 90-second walks", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("conversational jogging pace", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("two or three weekly sessions", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("recovery days", answer.Message!, StringComparison.Ordinal);
