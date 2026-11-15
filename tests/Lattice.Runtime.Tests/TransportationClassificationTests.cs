@@ -22,11 +22,9 @@ public sealed class TransportationClassificationTests
         Assert.Equal(
             "ask(classify(thing-for-transportation, categories(useful, not-useful), items(glass-of-wine, lamp, train, iced-cube-tray, plane, bicycle, apple, scooter)))",
             answer.Meaning);
-        Assert.Contains("Glass of wine", answer.Message);
-        Assert.Contains("Train", answer.Message);
-        Assert.Contains("Plane", answer.Message);
-        Assert.Contains("Bicycle", answer.Message);
-        Assert.Contains("Scooter", answer.Message);
+        Assert.Equal(
+            "Glass of wine is not a useful thing for transportation. Lamp is not a useful thing for transportation. Train is a useful thing for transportation. Ice cube tray is not a useful thing for transportation. Plane is a useful thing for transportation. Bicycle is a useful thing for transportation. Apple is not a useful thing for transportation. Scooter is a useful thing for transportation.",
+            answer.Message);
         Assert.NotEmpty(answer.SupportingEvidence);
     }
 }
