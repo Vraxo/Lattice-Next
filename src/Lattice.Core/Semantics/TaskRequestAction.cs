@@ -4,5 +4,6 @@ public enum TaskRequestAction
 {
     Write,
     Recommend,
-    Plan
+    Plan,
+    Explain
 }
