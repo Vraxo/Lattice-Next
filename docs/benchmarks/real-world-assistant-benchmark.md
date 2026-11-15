@@ -10,7 +10,7 @@ The benchmark has three distinct layers:
 2. **2022-era capability** — human-authored instruction examples organized around task categories also represented in the InstructGPT evaluation. Dolly 15k is a useful public proxy, not a copy of InstructGPT's private prompt set.
 3. **Diagnostics** — developer-written paraphrases and controlled changes to constraints, negation, ambiguity, references, and follow-ups. These are never counted as real prompts.
 
-The initial seed file is [assistant-benchmark-v1.json](../../data/benchmarks/assistant-benchmark-v1.json). Its status is **candidate seed, not frozen**. It currently contains 34 source prompts: 4 OASST1 prompts and 30 Dolly prompts. The earlier WildChat sample was removed because its conversation hash was not retained, leaving its source locator too weak for a reproducible benchmark. The source mix remains intentionally disclosed rather than presented as balanced: the public viewer material available during this curation pass was insufficient to build the originally proposed 15/15/10 split without inventing or rewriting source examples. The current set is therefore a practical starting point, not the final held-out evaluation set.
+The initial seed file is [assistant-benchmark-v1.json](../../data/benchmarks/assistant-benchmark-v1.json). Its status is **candidate seed, not frozen**. It now contains 40 source prompts: 8 OASST1 prompts, 30 Dolly prompts, and 2 WildChat prompts. The two WildChat records retain their stable conversation IDs and turn numbers, alongside model, timestamp, language, moderation flags, and license. The source mix remains intentionally disclosed rather than presented as balanced: Dolly still accounts for 75% of the set, so this is a practical development sample, not the final held-out evaluation set.
 
 Controlled diagnostic cases live in [assistant-benchmark-diagnostics-v1.json](../../data/benchmarks/assistant-benchmark-diagnostics-v1.json). They are synthetic and must be scored separately.
 
@@ -24,9 +24,9 @@ OASST1 is community-contributed and self-selected; it is not a representative sa
 
 ### WildChat-1M — real ChatGPT prompts
 
-[allenai/WildChat-1M](https://huggingface.co/datasets/allenai/WildChat-1M) contains real user conversations with ChatGPT, but its population is self-selected and its collection period is 2023–2024, not 2022. It is a useful source of actual ChatGPT usage, not a reproduction of the early ChatGPT user population.
+[allenai/WildChat](https://huggingface.co/datasets/allenai/WildChat) contains real user conversations with ChatGPT, but its population is self-selected and its collection period is 2023–2024, not 2022. It is a useful source of actual ChatGPT usage, not a reproduction of the early ChatGPT user population.
 
-WildChat was investigated as a source, but no record is currently retained in the seed: the sample available during initial curation lacked its conversation hash, so it could not be traced reproducibly. Add WildChat examples only when stable record identifiers and source metadata are captured. Check the dataset card for the current license and release details before redistributing data.
+Two English, non-toxic, non-redacted, single-turn prompts are now retained. Each record stores the stable 32-character conversation ID and turn number, as well as model, timestamp, language, moderation flags, and the dataset's ODC-BY license. This is a small curated sample, not a random or representative draw. Check the dataset card for current release details before redistributing data.
 
 ### Dolly 15k — 2022-era task-category proxy
 
@@ -74,7 +74,7 @@ Do not download entire datasets or all Parquet shards for this benchmark. The in
 
 ## Next curation step
 
-Continue expanding the real-world layer only when we can obtain more traceable English root prompts from OASST1 and stable single-turn records from WildChat. Aim for roughly 30–40 prompts overall, but do not pad the set with weakly sourced or synthetic items merely to hit the target. The current 34-prompt seed is useful for early development, but its source imbalance means it must not yet be treated as a frozen benchmark.
+Review the six newly added records one at a time against actual production CLI output. The set now reaches the 40-prompt development target, but remains a candidate seed: 30 Dolly examples still dominate the mix, and only 2 WildChat records are included. Before freezing a held-out benchmark, expand the traceable OASST1/WildChat portion or explicitly retain and document this source imbalance. Do not pad the set with weakly sourced or synthetic items merely to hit a target.
 
 The long-term objective remains to test general language understanding without a neural translator, not to hardcode the prompts in this file.
 
@@ -108,7 +108,7 @@ The default repeat count is one. Repetitions are useful for detecting instabilit
 - **Answered** counts every `QuestionAnswered` utterance, regardless of whether a human has reviewed its usefulness.
 - **Handled** means the CLI completed a turn without rejecting it. This includes unavailable-knowledge responses and retained objectives, so it is only an execution metric.
 
-At the current checkpoint, **6 of 34 prompts** have been reviewed and accepted as substantive answers: the two OASST1 prompts about monopsony and chemical-process packages, plus Dolly prompts `dolly-001`, `dolly-006`, `dolly-010`, and `dolly-015`. This is a manually reviewed coverage milestone, not a statistically representative capability or accuracy score. The separate diagnostics JSON is not silently mixed into this source-prompt run.
+At the current checkpoint, **34 of 40 prompts** have been reviewed for substantive-answer status. **32** are accepted as substantive answers; the remaining reviewed records include appropriate clarification or unavailable-knowledge outcomes. The six newly added OASST1/WildChat records remain unreviewed until their actual production CLI outputs and supporting evidence are inspected. This is a manually reviewed coverage milestone, not a statistically representative capability or accuracy score. The separate diagnostics JSON is not silently mixed into this source-prompt run.
 
 The runner itself is included in `Lattice.slnx` and has integration tests verifying fresh-session isolation, report generation, filtering, and invalid benchmark rejection.
 
