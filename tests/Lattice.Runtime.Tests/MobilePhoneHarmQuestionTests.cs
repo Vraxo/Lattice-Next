@@ -52,6 +52,9 @@ public sealed class MobilePhoneHarmQuestionTests
     [Theory]
     [InlineData("Why mobile phones are bad for humans?")]
     [InlineData("Why smartphone use is bad for people?")]
+    [InlineData("Why is mobile bad for humans?")]
+    [InlineData("Why are mobile phones bad for humans?")]
+    [InlineData("Why are smartphones bad for people?")]
     public async Task Resolves_common_mobile_phone_and_human_aliases(string prompt)
     {
         var client = new LatticeRuntimeClient();
