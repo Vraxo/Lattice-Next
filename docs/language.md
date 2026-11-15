@@ -269,3 +269,8 @@ This boundary is intentionally separate from the controlled grammar. More aggres
 ### Contextual relation-role questions
 
 The construction `What is the name of the <possessor>'s <role phrase> on the TV show <context>?` is parsed into a contextual relation-role query. The possessor and show are resolved as typed individuals. The role phrase is matched to a typed relation signature, then the reasoner follows that relation to candidate individuals. A candidate is returned only when a second typed relation connects the same individual to the requested show. Both paths must satisfy their declared domain and range types; the answer and evidence are composed from the two assertions and their type memberships. Unknown possessors, contexts, ambiguous roles, and unsupported paths cause abstention.
+
+
+### Production-location reasons
+
+The construction `Why are so many <activity> made in <location>?` is parsed into a production-location-reasons query. The activity resolves to a type and the location to an individual. The responder retrieves only advantages linked to that location and explicitly associated with the requested activity type, then composes the explanation from typed advantage and detail relations. Locations or activities without modeled support are left unanswered. The answer is therefore grounded in the reasons represented in the graph rather than a stored explanation paragraph.
