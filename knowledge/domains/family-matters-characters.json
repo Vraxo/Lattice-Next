@@ -1,0 +1,125 @@
+{
+  "formatVersion": 3,
+  "id": "family-matters-characters",
+  "name": "Family Matters characters and relationships",
+  "concepts": [
+    {
+      "id": "family",
+      "label": "family",
+      "kind": "Type"
+    },
+    {
+      "id": "steve-urkel",
+      "label": "Steve Urkel",
+      "kind": "Individual"
+    },
+    {
+      "id": "winslow-family",
+      "label": "the Winslow family",
+      "kind": "Individual"
+    },
+    {
+      "id": "family-matters",
+      "label": "Family Matters",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "family",
+      "concept": "family",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Steve Urkel",
+      "concept": "steve-urkel",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslow",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslows",
+      "concept": "winslow-family",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Winslow family",
+      "concept": "winslow-family",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Family Matters",
+      "concept": "family-matters",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "neighbor-of",
+      "domain": "person",
+      "range": "family",
+      "verb": "is next-door neighbor of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "character-in",
+      "domain": "person",
+      "range": "television-series",
+      "verb": "appears in",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "family",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "family",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "instance-of",
+      "object": "person"
+    },
+    {
+      "subject": "winslow-family",
+      "relation": "instance-of",
+      "object": "family"
+    },
+    {
+      "subject": "family-matters",
+      "relation": "instance-of",
+      "object": "television-series"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "neighbor-of",
+      "object": "winslow-family"
+    },
+    {
+      "subject": "steve-urkel",
+      "relation": "character-in",
+      "object": "family-matters"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
