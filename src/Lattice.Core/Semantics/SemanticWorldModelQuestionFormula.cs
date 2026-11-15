@@ -9,6 +9,7 @@ public enum SemanticWorldModelQuestionKind
     Causes,
     Compare,
     WhyUse,
+    Applications,
     ContributionQuery,
     WhyHarmful,
     BeginnerGuidance,

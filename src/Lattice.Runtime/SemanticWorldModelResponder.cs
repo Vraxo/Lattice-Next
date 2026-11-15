@@ -35,6 +35,8 @@ internal static class SemanticWorldModelResponder
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyUse =>
                 TryWhyUse(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Applications =>
+                TryExplainApplications(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyHarmful =>
@@ -1654,6 +1656,69 @@ internal static class SemanticWorldModelResponder
             sources.Add(assertion.Source);
             AppendMechanismChain(target.Id, model, reasoner, visited, sentences, sources, depth + 1);
         }
+    }
+
+    private static bool TryExplainApplications(
+        string requestedMethod,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var method = model.FindConcept(requestedMethod, SemanticConceptKind.Individual);
+        if (method is null || !reasoner.IsInstanceOf(method.Id, "limit-evaluation-method"))
+        {
+            return false;
+        }
+
+        var purposeAssertions = reasoner.GetRelations(method.Id, "has-purpose");
+        var formAssertions = reasoner.GetRelations(method.Id, "applies-to-indeterminate-form");
+        var conditionAssertions = reasoner.GetRelations(method.Id, "requires-condition");
+        var applicationAssertions = reasoner.GetRelations(method.Id, "broader-calculus-context");
+        if (purposeAssertions.Length != 1 ||
+            formAssertions.Length != 2 ||
+            conditionAssertions.Length != 3 ||
+            applicationAssertions.Length != 4)
+        {
+            return false;
+        }
+
+        var purpose = model.FindConcept(purposeAssertions[0].Object, SemanticConceptKind.Individual);
+        var forms = formAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        var conditions = conditionAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        var applications = applicationAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        if (purpose is null ||
+            forms.Any(concept => concept is null) ||
+            conditions.Any(concept => concept is null) ||
+            applications.Any(concept => concept is null))
+        {
+            return false;
+        }
+
+        var formNames = forms.Select(concept => concept!.Label).ToArray();
+        var conditionNames = conditions.Select(concept => concept!.Label).ToArray();
+        var applicationNames = applications.Select(concept => concept!.Label).ToArray();
+        var sources = purposeAssertions
+            .Concat(formAssertions)
+            .Concat(conditionAssertions)
+            .Concat(applicationAssertions)
+            .Select(assertion => assertion.Source)
+            .Concat(reasoner.GetMembershipEvidence(method.Id, "limit-evaluation-method"))
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"{method.Label} is a calculus method for {purpose.Label}. It applies when direct substitution gives {JoinNames(formNames)}. The rule requires that {JoinNames(conditionNames)}; when those conditions hold, the limit can be evaluated using the quotient of the derivatives of the numerator and denominator. In day-to-day life, you are unlikely to apply the rule directly. The broader calculus of limits and derivatives supports {JoinNames(applicationNames)}. These calculations are usually handled in mathematical models or by software; ordinary tasks such as working out a bill or an average travel time do not require L'Hôpital's Rule.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryWhyUse(

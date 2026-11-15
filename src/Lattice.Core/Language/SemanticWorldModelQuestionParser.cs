@@ -11,6 +11,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex EverydayApplicationsPattern = new(
+        @"^How can (?<subject>[A-Za-z][A-Za-z'’ -]*?) be used in (?:day to day|everyday) life\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex WhyShouldUsePattern = new(
         @"^Why should (?:I|we) use (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -107,6 +111,16 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.CreativeIdeas,
                 subject: "business-ideas",
                 otherSubject: companyPurpose.Groups["company"].Value.Trim(),
+                sourceText: source);
+            return true;
+        }
+
+        var everydayApplications = EverydayApplicationsPattern.Match(text);
+        if (everydayApplications.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Applications,
+                subject: Normalize(everydayApplications.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }

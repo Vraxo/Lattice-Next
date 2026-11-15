@@ -1,0 +1,360 @@
+{
+  "formatVersion": 3,
+  "id": "calculus-and-lhopitals-rule",
+  "name": "Calculus methods and L'Hôpital's Rule",
+  "concepts": [
+    {
+      "id": "mathematical-method",
+      "label": "mathematical method",
+      "kind": "Type"
+    },
+    {
+      "id": "limit-evaluation-method",
+      "label": "limit-evaluation method",
+      "kind": "Type"
+    },
+    {
+      "id": "indeterminate-form",
+      "label": "indeterminate form",
+      "kind": "Type"
+    },
+    {
+      "id": "calculus-condition",
+      "label": "calculus condition",
+      "kind": "Type"
+    },
+    {
+      "id": "calculus-application",
+      "label": "calculus application",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-purpose",
+      "label": "mathematical purpose",
+      "kind": "Type"
+    },
+    {
+      "id": "mathematical-limit",
+      "label": "mathematical limit",
+      "kind": "Type"
+    },
+    {
+      "id": "lhopitals-rule",
+      "label": "L'Hôpital's Rule",
+      "kind": "Individual"
+    },
+    {
+      "id": "quotient-limit-evaluation",
+      "label": "evaluating a quotient limit by differentiating its numerator and denominator",
+      "kind": "Individual"
+    },
+    {
+      "id": "zero-over-zero-form",
+      "label": "zero divided by zero (0/0)",
+      "kind": "Individual"
+    },
+    {
+      "id": "infinity-over-infinity-form",
+      "label": "infinity divided by infinity (∞/∞)",
+      "kind": "Individual"
+    },
+    {
+      "id": "differentiable-near-limit-point",
+      "label": "the numerator and denominator are differentiable on a punctured interval around the limit point",
+      "kind": "Individual"
+    },
+    {
+      "id": "denominator-derivative-nonzero",
+      "label": "the derivative of the denominator is nonzero on that interval",
+      "kind": "Individual"
+    },
+    {
+      "id": "derivative-quotient-has-limit",
+      "label": "the quotient of the derivatives approaches a limit",
+      "kind": "Individual"
+    },
+    {
+      "id": "instantaneous-speed-analysis",
+      "label": "instantaneous speed and acceleration analysis",
+      "kind": "Individual"
+    },
+    {
+      "id": "marginal-cost-analysis",
+      "label": "marginal cost analysis",
+      "kind": "Individual"
+    },
+    {
+      "id": "long-term-growth-comparison",
+      "label": "comparing long-term growth rates",
+      "kind": "Individual"
+    },
+    {
+      "id": "engineering-limit-model",
+      "label": "engineering models of behavior near limiting conditions",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "L'Hôpital's Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L’Hôpital’s Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L'Hopital's Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L’Hopital’s Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L'Hopital Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "L’Hopital Rule",
+      "concept": "lhopitals-rule",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-purpose",
+      "domain": "limit-evaluation-method",
+      "range": "mathematical-purpose",
+      "verb": "is used for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "applies-to-indeterminate-form",
+      "domain": "limit-evaluation-method",
+      "range": "indeterminate-form",
+      "verb": "applies to",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "requires-condition",
+      "domain": "limit-evaluation-method",
+      "range": "calculus-condition",
+      "verb": "requires",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "broader-calculus-context",
+      "domain": "limit-evaluation-method",
+      "range": "calculus-application",
+      "verb": "connects to broader calculus used in",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "mathematical-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "limit-evaluation-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "indeterminate-form",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "calculus-condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "calculus-application",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-purpose",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mathematical-limit",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "mathematical-method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "limit-evaluation-method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "indeterminate-form",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "calculus-condition",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "calculus-application",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mathematical-purpose",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mathematical-limit",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "limit-evaluation-method",
+      "relation": "is-a",
+      "object": "mathematical-method"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "instance-of",
+      "object": "limit-evaluation-method"
+    },
+    {
+      "subject": "quotient-limit-evaluation",
+      "relation": "instance-of",
+      "object": "mathematical-purpose"
+    },
+    {
+      "subject": "zero-over-zero-form",
+      "relation": "instance-of",
+      "object": "indeterminate-form"
+    },
+    {
+      "subject": "infinity-over-infinity-form",
+      "relation": "instance-of",
+      "object": "indeterminate-form"
+    },
+    {
+      "subject": "differentiable-near-limit-point",
+      "relation": "instance-of",
+      "object": "calculus-condition"
+    },
+    {
+      "subject": "denominator-derivative-nonzero",
+      "relation": "instance-of",
+      "object": "calculus-condition"
+    },
+    {
+      "subject": "derivative-quotient-has-limit",
+      "relation": "instance-of",
+      "object": "calculus-condition"
+    },
+    {
+      "subject": "instantaneous-speed-analysis",
+      "relation": "instance-of",
+      "object": "calculus-application"
+    },
+    {
+      "subject": "marginal-cost-analysis",
+      "relation": "instance-of",
+      "object": "calculus-application"
+    },
+    {
+      "subject": "long-term-growth-comparison",
+      "relation": "instance-of",
+      "object": "calculus-application"
+    },
+    {
+      "subject": "engineering-limit-model",
+      "relation": "instance-of",
+      "object": "calculus-application"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "has-purpose",
+      "object": "quotient-limit-evaluation"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "applies-to-indeterminate-form",
+      "object": "zero-over-zero-form"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "applies-to-indeterminate-form",
+      "object": "infinity-over-infinity-form"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "requires-condition",
+      "object": "differentiable-near-limit-point"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "requires-condition",
+      "object": "denominator-derivative-nonzero"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "requires-condition",
+      "object": "derivative-quotient-has-limit"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "broader-calculus-context",
+      "object": "instantaneous-speed-analysis"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "broader-calculus-context",
+      "object": "marginal-cost-analysis"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "broader-calculus-context",
+      "object": "long-term-growth-comparison"
+    },
+    {
+      "subject": "lhopitals-rule",
+      "relation": "broader-calculus-context",
+      "object": "engineering-limit-model"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
