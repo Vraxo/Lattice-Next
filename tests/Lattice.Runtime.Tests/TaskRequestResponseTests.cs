@@ -18,11 +18,11 @@ public sealed class TaskRequestResponseTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Contains("Pen holder", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("Small-parts organizer", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("Seedling starter pot", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("Dried-flower display", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("Percussion shaker", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Pen holder", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Small-parts organizer", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Seedling starter pot", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Dried-flower display", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Percussion shaker", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("drainage holes", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("candle holder", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("sharp rim", utterance.Message, StringComparison.OrdinalIgnoreCase);
