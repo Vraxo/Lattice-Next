@@ -680,8 +680,8 @@ internal static class SemanticWorldModelResponder
         }
 
         var answerText = answers.Select(answer =>
-            $"{answer.Feature.Label} in {answer.Scope.Label} ({answer.Value.ToString("N0", CultureInfo.InvariantCulture)} {request.OtherSubject})");
-        message = $"The phrase \"{scope.Label}\" can refer to different geographic scopes. {JoinNames(answerText.ToArray())}.";
+            $"For {answer.Scope.Label}, {answer.Feature.Label} is the tallest {featureType.Label}, at {answer.Value.ToString("N0", CultureInfo.InvariantCulture)} {request.OtherSubject}.");
+        message = $"The phrase \"{scope.Label}\" can refer to different geographic scopes. {string.Join(" ", answerText)}";
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
