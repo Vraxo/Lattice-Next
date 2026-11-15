@@ -153,6 +153,11 @@ public sealed class LceParser
             return ParseResult.Success(objectiveUtterance!);
         }
 
+        if (SemanticWorldModelQuestionParser.TryParse(source, out var semanticQuestionUtterance))
+        {
+            return ParseResult.Success(semanticQuestionUtterance!);
+        }
+
         if (NativeEnglishGrammar.TryParse(source, originalSource, out var nativeUtterance))
         {
             return ParseResult.Success(nativeUtterance!);
