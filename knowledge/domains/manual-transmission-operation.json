@@ -1,0 +1,756 @@
+{
+  "formatVersion": 3,
+  "id": "manual-transmission-operation",
+  "name": "Manual transmission operation and safety",
+  "concepts": [
+    {
+      "id": "vehicle-transmission",
+      "label": "vehicle transmission",
+      "kind": "Type"
+    },
+    {
+      "id": "manual-transmission",
+      "label": "manual transmission",
+      "kind": "Type"
+    },
+    {
+      "id": "operating-procedure",
+      "label": "operating procedure",
+      "kind": "Type"
+    },
+    {
+      "id": "procedure-step",
+      "label": "procedure step",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-action",
+      "label": "operation action",
+      "kind": "Type"
+    },
+    {
+      "id": "safety-note",
+      "label": "safety note",
+      "kind": "Type"
+    },
+    {
+      "id": "vehicle-control",
+      "label": "vehicle control",
+      "kind": "Type"
+    },
+    {
+      "id": "mechanical-component",
+      "label": "mechanical component",
+      "kind": "Type"
+    },
+    {
+      "id": "manual-transmission-operation",
+      "label": "manual transmission operation",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-prepare",
+      "label": "Preparation",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-start",
+      "label": "Starting the engine",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-move-off",
+      "label": "Moving off",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-upshift",
+      "label": "Upshifting",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-downshift",
+      "label": "Downshifting",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-stop",
+      "label": "Stopping",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-park",
+      "label": "Parking",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-prepare",
+      "label": "Adjust seat and mirrors, fasten seat belt, and set the parking brake",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-start",
+      "label": "Check neutral; press clutch fully; start engine per the owner's manual",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-move-off",
+      "label": "Clutch in; first; check mirrors; release parking brake; bite point; add throttle; ease out",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-upshift",
+      "label": "Ease off accelerator; press clutch fully; select next gear; release smoothly.",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-downshift",
+      "label": "Brake; press clutch fully; select suitable lower gear; release smoothly.",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-stop",
+      "label": "Brake progressively; press clutch before stalling; select neutral when stopped",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-park",
+      "label": "Set parking brake; follow manual on leaving car in gear; reverse only when stopped",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-practice",
+      "label": "Practise with a qualified instructor or licensed supervisor in a legal, quiet area",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-clutch",
+      "label": "Do not rest your foot on the clutch or hold on hills at the bite point",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-shift",
+      "label": "Do not force gears or look down; learn the shift pattern while stationary",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-coasting",
+      "label": "Avoid coasting with the clutch depressed; use a suitable gear for your speed",
+      "kind": "Individual"
+    },
+    {
+      "id": "clutch-pedal",
+      "label": "clutch pedal",
+      "kind": "Individual"
+    },
+    {
+      "id": "brake-pedal",
+      "label": "brake pedal",
+      "kind": "Individual"
+    },
+    {
+      "id": "accelerator-pedal",
+      "label": "accelerator pedal",
+      "kind": "Individual"
+    },
+    {
+      "id": "gear-lever",
+      "label": "gear lever",
+      "kind": "Individual"
+    },
+    {
+      "id": "parking-brake",
+      "label": "parking brake",
+      "kind": "Individual"
+    },
+    {
+      "id": "clutch",
+      "label": "clutch",
+      "kind": "Individual"
+    },
+    {
+      "id": "engine",
+      "label": "engine",
+      "kind": "Individual"
+    },
+    {
+      "id": "gearbox",
+      "label": "gearbox",
+      "kind": "Individual"
+    },
+    {
+      "id": "foot",
+      "label": "foot",
+      "kind": "Type"
+    },
+    {
+      "id": "left-foot",
+      "label": "left foot",
+      "kind": "Individual"
+    },
+    {
+      "id": "right-foot",
+      "label": "right foot",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "manual transmission",
+      "concept": "manual-transmission",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "manual gearbox",
+      "concept": "manual-transmission",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "stick shift",
+      "concept": "manual-transmission",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "stick-shift transmission",
+      "concept": "manual-transmission",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "procedure-for",
+      "domain": "operating-procedure",
+      "range": null,
+      "verb": "explains how to operate",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
+    },
+    {
+      "id": "procedure-has-step",
+      "domain": "operating-procedure",
+      "range": "procedure-step",
+      "verb": "has step",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "step-action",
+      "domain": "procedure-step",
+      "range": "operation-action",
+      "verb": "requires action",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "procedure-has-safety-note",
+      "domain": "operating-procedure",
+      "range": "safety-note",
+      "verb": "includes safety guidance",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "manual-transmission-uses-control",
+      "domain": null,
+      "range": "vehicle-control",
+      "verb": "uses control",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Type",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "control-operates-component",
+      "domain": "vehicle-control",
+      "range": "mechanical-component",
+      "verb": "operates",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "component-connects-to",
+      "domain": "mechanical-component",
+      "range": "mechanical-component",
+      "verb": "connects to",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "control-operated-by-foot",
+      "domain": "vehicle-control",
+      "range": "foot",
+      "verb": "operated by foot",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "vehicle-transmission",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "manual-transmission",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operating-procedure",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "procedure-step",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-action",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "safety-note",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "vehicle-control",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mechanical-component",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "foot",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "vehicle-transmission",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "operating-procedure",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "procedure-step",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "operation-action",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "safety-note",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "vehicle-control",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mechanical-component",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "instance-of",
+      "object": "operating-procedure"
+    },
+    {
+      "subject": "step-prepare",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-start",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-move-off",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-upshift",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-downshift",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-stop",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "step-park",
+      "relation": "instance-of",
+      "object": "procedure-step"
+    },
+    {
+      "subject": "action-prepare",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-start",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-move-off",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-upshift",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-downshift",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-stop",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "action-park",
+      "relation": "instance-of",
+      "object": "operation-action"
+    },
+    {
+      "subject": "note-practice",
+      "relation": "instance-of",
+      "object": "safety-note"
+    },
+    {
+      "subject": "note-clutch",
+      "relation": "instance-of",
+      "object": "safety-note"
+    },
+    {
+      "subject": "note-shift",
+      "relation": "instance-of",
+      "object": "safety-note"
+    },
+    {
+      "subject": "note-coasting",
+      "relation": "instance-of",
+      "object": "safety-note"
+    },
+    {
+      "subject": "clutch-pedal",
+      "relation": "instance-of",
+      "object": "vehicle-control"
+    },
+    {
+      "subject": "brake-pedal",
+      "relation": "instance-of",
+      "object": "vehicle-control"
+    },
+    {
+      "subject": "accelerator-pedal",
+      "relation": "instance-of",
+      "object": "vehicle-control"
+    },
+    {
+      "subject": "gear-lever",
+      "relation": "instance-of",
+      "object": "vehicle-control"
+    },
+    {
+      "subject": "parking-brake",
+      "relation": "instance-of",
+      "object": "vehicle-control"
+    },
+    {
+      "subject": "clutch",
+      "relation": "instance-of",
+      "object": "mechanical-component"
+    },
+    {
+      "subject": "engine",
+      "relation": "instance-of",
+      "object": "mechanical-component"
+    },
+    {
+      "subject": "gearbox",
+      "relation": "instance-of",
+      "object": "mechanical-component"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "is-a",
+      "object": "vehicle-transmission"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-for",
+      "object": "manual-transmission"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-prepare"
+    },
+    {
+      "subject": "step-prepare",
+      "relation": "step-action",
+      "object": "action-prepare"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-start"
+    },
+    {
+      "subject": "step-start",
+      "relation": "step-action",
+      "object": "action-start"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-move-off"
+    },
+    {
+      "subject": "step-move-off",
+      "relation": "step-action",
+      "object": "action-move-off"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-upshift"
+    },
+    {
+      "subject": "step-upshift",
+      "relation": "step-action",
+      "object": "action-upshift"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-downshift"
+    },
+    {
+      "subject": "step-downshift",
+      "relation": "step-action",
+      "object": "action-downshift"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-stop"
+    },
+    {
+      "subject": "step-stop",
+      "relation": "step-action",
+      "object": "action-stop"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-step",
+      "object": "step-park"
+    },
+    {
+      "subject": "step-park",
+      "relation": "step-action",
+      "object": "action-park"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-safety-note",
+      "object": "note-practice"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-safety-note",
+      "object": "note-clutch"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-safety-note",
+      "object": "note-shift"
+    },
+    {
+      "subject": "manual-transmission-operation",
+      "relation": "procedure-has-safety-note",
+      "object": "note-coasting"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "manual-transmission-uses-control",
+      "object": "clutch-pedal"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "manual-transmission-uses-control",
+      "object": "brake-pedal"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "manual-transmission-uses-control",
+      "object": "accelerator-pedal"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "manual-transmission-uses-control",
+      "object": "gear-lever"
+    },
+    {
+      "subject": "manual-transmission",
+      "relation": "manual-transmission-uses-control",
+      "object": "parking-brake"
+    },
+    {
+      "subject": "clutch-pedal",
+      "relation": "control-operates-component",
+      "object": "clutch"
+    },
+    {
+      "subject": "clutch",
+      "relation": "component-connects-to",
+      "object": "engine"
+    },
+    {
+      "subject": "clutch",
+      "relation": "component-connects-to",
+      "object": "gearbox"
+    },
+    {
+      "subject": "foot",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "left-foot",
+      "relation": "instance-of",
+      "object": "foot"
+    },
+    {
+      "subject": "right-foot",
+      "relation": "instance-of",
+      "object": "foot"
+    },
+    {
+      "subject": "clutch-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "left-foot"
+    },
+    {
+      "subject": "brake-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "right-foot"
+    },
+    {
+      "subject": "accelerator-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "right-foot"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "step-number",
+      "domainType": "procedure-step",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "step-prepare",
+      "property": "step-number",
+      "value": "1"
+    },
+    {
+      "subject": "step-start",
+      "property": "step-number",
+      "value": "2"
+    },
+    {
+      "subject": "step-move-off",
+      "property": "step-number",
+      "value": "3"
+    },
+    {
+      "subject": "step-upshift",
+      "property": "step-number",
+      "value": "4"
+    },
+    {
+      "subject": "step-downshift",
+      "property": "step-number",
+      "value": "5"
+    },
+    {
+      "subject": "step-stop",
+      "property": "step-number",
+      "value": "6"
+    },
+    {
+      "subject": "step-park",
+      "property": "step-number",
+      "value": "7"
+    }
+  ]
+}
