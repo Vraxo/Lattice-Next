@@ -36,6 +36,8 @@ internal static class SemanticWorldModelResponder
                 TryContributionQuery(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyHarmful =>
                 TryExplainHarmfulness(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.BeginnerGuidance =>
+                TryBeginnerGuidance(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -401,6 +403,120 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryBeginnerGuidance(
+        string requestedActivity,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var activity = model.FindConcept(requestedActivity, SemanticConceptKind.Individual);
+        if (activity is null || !reasoner.IsInstanceOf(activity.Id, "physical-activity"))
+        {
+            return false;
+        }
+
+        var firstSteps = reasoner.GetRelations(activity.Id, "has-first-beginner-step");
+        if (firstSteps.Length != 1)
+        {
+            return false;
+        }
+
+        var steps = new List<(SemanticConcept Step, SemanticConcept Purpose)>();
+        var sources = new List<SemanticWorldModelSource>
+        {
+            firstSteps[0].Source
+        };
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        var currentId = firstSteps[0].Object;
+
+        while (true)
+        {
+            if (!visited.Add(currentId))
+            {
+                return false;
+            }
+
+            var step = model.FindConcept(currentId, SemanticConceptKind.Individual);
+            if (step is null || !reasoner.IsInstanceOf(step.Id, "beginner-practice"))
+            {
+                return false;
+            }
+
+            var purposes = reasoner.GetRelations(step.Id, "has-practice-purpose");
+            if (purposes.Length != 1)
+            {
+                return false;
+            }
+
+            var purpose = model.FindConcept(purposes[0].Object, SemanticConceptKind.Individual);
+            if (purpose is null || !reasoner.IsInstanceOf(purpose.Id, "training-purpose"))
+            {
+                return false;
+            }
+
+            steps.Add((step, purpose));
+            sources.AddRange(reasoner.GetMembershipEvidence(step.Id, "beginner-practice"));
+            sources.AddRange(reasoner.GetMembershipEvidence(purpose.Id, "training-purpose"));
+            sources.Add(purposes[0].Source);
+
+            var nextSteps = reasoner.GetRelations(step.Id, "followed-by");
+            if (nextSteps.Length == 0)
+            {
+                break;
+            }
+
+            if (nextSteps.Length != 1)
+            {
+                return false;
+            }
+
+            sources.Add(nextSteps[0].Source);
+            currentId = nextSteps[0].Object;
+        }
+
+        if (steps.Count == 0)
+        {
+            return false;
+        }
+
+        var safetyAssertions = reasoner.GetRelations(activity.Id, "has-safety-guidance");
+        var safetyGuidance = safetyAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!)
+            .ToArray();
+        var warningAssertions = reasoner.GetRelations(activity.Id, "stop-and-seek-help-for");
+        var warningGuidance = warningAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!)
+            .ToArray();
+        if (safetyGuidance.Length == 0 || warningGuidance.Length == 0)
+        {
+            return false;
+        }
+
+        sources.AddRange(safetyAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(warningAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(safetyGuidance.Concat(warningGuidance).SelectMany(concept =>
+            reasoner.GetMembershipEvidence(concept.Id, "safety-guidance")));
+        sources.AddRange(reasoner.GetMembershipEvidence(activity.Id, "physical-activity"));
+
+        var stepText = string.Join("\n", steps.Select((item, index) =>
+            $"{index + 1}. {Capitalize(item.Step.Label)}; purpose: {item.Purpose.Label}."));
+        var safetyText = JoinConditions(safetyGuidance.Select(concept => concept.Label).ToArray());
+        var warningText = JoinConditions(warningGuidance.Select(concept => concept.Label).ToArray());
+        message = $"To start {activity.Label}, use a gradual beginner routine:\n{stepText}\nSafety considerations include {safetyText}. Stop and seek medical help if you experience {warningText}.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 
