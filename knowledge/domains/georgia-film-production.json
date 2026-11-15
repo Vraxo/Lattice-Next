@@ -30,27 +30,27 @@
     },
     {
       "id": "workforce-advantage",
-      "label": "experienced local crews",
+      "label": "a deep local workforce",
       "kind": "Individual"
     },
     {
       "id": "location-diversity-advantage",
-      "label": "diverse filming locations",
+      "label": "a wide range of filming locations",
       "kind": "Individual"
     },
     {
       "id": "climate-advantage",
-      "label": "a moderate climate",
+      "label": "year-round filming conditions",
       "kind": "Individual"
     },
     {
       "id": "cost-advantage",
-      "label": "lower production costs",
+      "label": "cost competitiveness",
       "kind": "Individual"
     },
     {
       "id": "local-support-advantage",
-      "label": "local production support",
+      "label": "local location-scouting and coordination",
       "kind": "Individual"
     },
     {
@@ -85,7 +85,7 @@
     },
     {
       "id": "local-workforce-detail",
-      "label": "experienced local crews and a deep workforce",
+      "label": "experienced crews and established production vendors",
       "kind": "Individual"
     },
     {
@@ -95,7 +95,7 @@
     },
     {
       "id": "year-round-climate-detail",
-      "label": "moderate climate that supports year-round filming",
+      "label": "moderate climate supports filming throughout the year",
       "kind": "Individual"
     },
     {
@@ -105,7 +105,7 @@
     },
     {
       "id": "camera-ready-detail",
-      "label": "Camera Ready local liaisons for location scouting and local support",
+      "label": "Camera Ready liaisons connect productions with local resources and community support",
       "kind": "Individual"
     }
   ],
@@ -156,27 +156,27 @@
       "partOfSpeech": "noun"
     },
     {
-      "form": "experienced local crews",
+      "form": "deep local workforce",
       "concept": "workforce-advantage",
       "partOfSpeech": "noun"
     },
     {
-      "form": "diverse filming locations",
+      "form": "wide range of filming locations",
       "concept": "location-diversity-advantage",
       "partOfSpeech": "noun"
     },
     {
-      "form": "a moderate climate",
+      "form": "year-round filming conditions",
       "concept": "climate-advantage",
       "partOfSpeech": "noun"
     },
     {
-      "form": "lower production costs",
+      "form": "cost competitiveness",
       "concept": "cost-advantage",
       "partOfSpeech": "noun"
     },
     {
-      "form": "local production support",
+      "form": "local location-scouting and coordination",
       "concept": "local-support-advantage",
       "partOfSpeech": "noun"
     }
