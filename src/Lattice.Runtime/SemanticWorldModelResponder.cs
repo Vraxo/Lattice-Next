@@ -812,7 +812,7 @@ internal static class SemanticWorldModelResponder
             : companyName.Trim();
         var suggestions = ideas.Select((idea, index) =>
             $"{index + 1}. **{Capitalize(idea.Name)}** — Customers: {idea.Customer}. Problem: {idea.Problem}. Offer: {idea.Offering}. Revenue: {idea.Revenue}.");
-        message = $"{company} does not have a defined business in the information provided. Here are three possible directions to consider:\n{string.Join("\n", suggestions)}\n\nThese are proposals, not facts about an existing company. The best choice depends on your team's expertise, location, available capital, and evidence of customer demand.";
+        message = $"The prompt does not specify what {company} does yet. Here are some possible directions it could explore:\n{string.Join("\n", suggestions)}\n\nThese are proposals, not facts about an existing company. The best choice depends on your team's expertise, location, available capital, and evidence of customer demand.";
         evidence = ImmutableArray.Create(ToEvidence(
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
