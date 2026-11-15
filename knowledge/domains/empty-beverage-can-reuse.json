@@ -876,7 +876,12 @@
       "object": "note-shaker-seal"
     },
     {
-      "subject": "beverage-can",
+      "subject": "empty-beverage-can",
+      "relation": "object-has-safety-note",
+      "object": "note-no-heat"
+    },
+    {
+      "subject": "empty-la-croix-can",
       "relation": "object-has-safety-note",
       "object": "note-no-heat"
     }
