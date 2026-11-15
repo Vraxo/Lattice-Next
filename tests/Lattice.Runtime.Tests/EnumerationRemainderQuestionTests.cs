@@ -36,7 +36,7 @@ public sealed class EnumerationRemainderQuestionTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The 2nd daughter is Mira.", utterance.Message);
+        Assert.Equal("The second daughter is Mira.", utterance.Message);
         Assert.Equal(
             "ask(enumeration-remainder(mira, daughters, 2, position(2), known(lena)))",
             utterance.Meaning);
