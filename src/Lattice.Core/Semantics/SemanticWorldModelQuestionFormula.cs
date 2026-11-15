@@ -23,7 +23,8 @@ public enum SemanticWorldModelQuestionKind
     RegionalName,
     Ingredients,
     EventOutcomes,
-    ContextualRelationRoleQuery
+    ContextualRelationRoleQuery,
+    ProductionLocationReasons
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
