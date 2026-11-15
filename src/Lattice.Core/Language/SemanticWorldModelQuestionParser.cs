@@ -11,6 +11,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Tell me whether or not these (?<items>[A-Za-z][A-Za-z -]*?) are on (?<list>[A-Za-z][A-Za-z'’ -]*?)(?: list)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CommonIngredientsPattern = new(
+        @"^What are common ingredients of (?:a|the) (?<dish>[A-Za-z][A-Za-z -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RegionalNamePattern = new(
         @"^In (?<domain>[A-Za-z][A-Za-z -]*?) what do the (?<region>[A-Za-z][A-Za-z -]*?) call an? (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -123,6 +127,16 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var commonIngredients = CommonIngredientsPattern.Match(text);
+        if (commonIngredients.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Ingredients,
+                subject: Normalize(commonIngredients.Groups["dish"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var regionalName = RegionalNamePattern.Match(text);
         if (regionalName.Success)
