@@ -98,7 +98,7 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.CreativeIdeas,
                 subject: "business-ideas",
-                otherSubject: Normalize(companyPurpose.Groups["company"].Value),
+                otherSubject: companyPurpose.Groups["company"].Value.Trim(),
                 sourceText: source);
             return true;
         }
