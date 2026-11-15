@@ -40,7 +40,7 @@ internal static class SemanticWorldModelResponder
             SemanticWorldModelQuestionKind.BeginnerGuidance =>
                 TryBeginnerGuidance(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.CreativeIdeas =>
-                TryCreativeIdeas(request.Subject, model, reasoner, out message, out evidence),
+                TryCreativeIdeas(request.Subject, request.OtherSubject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ListExamples =>
                 TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MaximumDataValue =>
@@ -677,6 +677,7 @@ internal static class SemanticWorldModelResponder
 
     private static bool TryCreativeIdeas(
         string requestedCategory,
+        string? companyName,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
         out string message,
@@ -684,6 +685,11 @@ internal static class SemanticWorldModelResponder
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (requestedCategory == "business-ideas")
+        {
+            return TryBusinessIdeas(companyName, model, reasoner, out message, out evidence);
+        }
 
         var category = model.FindConcept(requestedCategory, SemanticConceptKind.Individual);
         if (category is null)
@@ -750,6 +756,92 @@ internal static class SemanticWorldModelResponder
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static bool TryBusinessIdeas(
+        string? companyName,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var category = model.FindConcept("business-ideas", SemanticConceptKind.Individual);
+        if (category is null)
+        {
+            return false;
+        }
+
+        var ideaAssertions = reasoner.GetRelations(category.Id, "has-business-idea");
+        if (ideaAssertions.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var ideas = new List<(string Name, string Customer, string Problem, string Offering, string Revenue)>();
+        var sources = new List<SemanticWorldModelSource>();
+        foreach (var assertion in ideaAssertions)
+        {
+            var idea = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+            if (idea is null ||
+                !TryGetBusinessIdeaDetail(idea.Id, "serves-customer", out var customer, out var customerSource) ||
+                !TryGetBusinessIdeaDetail(idea.Id, "addresses-problem", out var problem, out var problemSource) ||
+                !TryGetBusinessIdeaDetail(idea.Id, "offers-service", out var offering, out var offeringSource) ||
+                !TryGetBusinessIdeaDetail(idea.Id, "earns-revenue-through", out var revenue, out var revenueSource))
+            {
+                continue;
+            }
+
+            ideas.Add((idea.Label, customer, problem, offering, revenue));
+            sources.Add(assertion.Source);
+            sources.Add(customerSource);
+            sources.Add(problemSource);
+            sources.Add(offeringSource);
+            sources.Add(revenueSource);
+        }
+
+        if (ideas.Count == 0)
+        {
+            return false;
+        }
+
+        var company = string.IsNullOrWhiteSpace(companyName)
+            ? "the company"
+            : companyName.Trim();
+        var suggestions = ideas.Select((idea, index) =>
+            $"{index + 1}. **{Capitalize(idea.Name)}** — Customers: {idea.Customer}. Problem: {idea.Problem}. Offer: {idea.Offering}. Revenue: {idea.Revenue}.");
+        message = $"The prompt does not specify what {company} does yet. Here are some possible directions it could explore:\n{string.Join("\n", suggestions)}\n\nThese are proposals, not facts about an existing company. The best choice depends on your team's expertise, location, available capital, and evidence of customer demand.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+
+        bool TryGetBusinessIdeaDetail(
+            string subject,
+            string relation,
+            out string label,
+            out SemanticWorldModelSource source)
+        {
+            label = string.Empty;
+            source = new SemanticWorldModelSource(string.Empty);
+            var assertions = reasoner.GetRelations(subject, relation);
+            if (assertions.Length != 1)
+            {
+                return false;
+            }
+
+            var concept = model.FindConcept(assertions[0].Object, SemanticConceptKind.Individual);
+            if (concept is null)
+            {
+                return false;
+            }
+
+            label = concept.Label;
+            source = assertions[0].Source;
+            return true;
+        }
     }
 
     private static bool TryBeginnerGuidance(

@@ -39,6 +39,7 @@ The current expression language does not support universal restrictions, negatio
 - `running.json`: beginner running practices, their purposes, and safety guidance.
 - `television.json`: a television series, its season-four episodes, and director credits.
 - `diy-curtain-tiebacks.json`: DIY project ideas represented through materials, construction techniques, and fastening methods.
+- `business-ideas.json`: business venture ideas represented through customer segments, problems, offerings, and revenue models.
 - `golf-companies.json`: prominent golf equipment companies classified under a shared company type.
 - `olympic-records.json`: Olympic athletes and numeric gold-medal counts for maximum-value reasoning.
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
@@ -61,14 +62,14 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 Counts after composing all eighteen modules:
 
-- 352 concepts
-- 158 type declarations (121 primitive, 37 defined)
-- 84 relation signatures
-- 557 relation assertions:
-  - 158 `is-a`
-  - 210 `instance-of`
-  - 189 ordinary individual-to-individual relations
-- 311 lexical forms
+- 375 concepts
+- 164 type declarations (127 primitive, 37 defined)
+- 90 relation signatures
+- 596 relation assertions:
+  - 164 `is-a`
+  - 227 `instance-of`
+  - 205 ordinary individual-to-individual relations
+- 312 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions
 
