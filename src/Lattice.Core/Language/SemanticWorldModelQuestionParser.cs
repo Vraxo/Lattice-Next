@@ -256,7 +256,8 @@ internal static class SemanticWorldModelQuestionParser
         Normalize(value) switch
         {
             "mobile" or "mobile phone" or "mobile phones" or
-            "smartphone" or "smartphones" or "phone use" => "mobile-phone-use",
+            "smartphone" or "smartphones" or "smartphone use" or "phone use" or
+            "cell phone" or "cell phones" => "mobile-phone-use",
             "human" or "humans" or "people" => "person",
             _ => Normalize(value)
         };
