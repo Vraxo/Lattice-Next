@@ -129,7 +129,7 @@
       "range": "time-of-day-period",
       "verb": "ends",
       "objectRole": null,
-      "order": 0,
+      "order": 1,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
@@ -140,7 +140,7 @@
       "range": "time-of-day-period",
       "verb": "begins",
       "objectRole": null,
-      "order": 0,
+      "order": 2,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
