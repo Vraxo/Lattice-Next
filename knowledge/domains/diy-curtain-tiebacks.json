@@ -117,6 +117,16 @@
       "id": "decorative-wall-hook",
       "label": "decorative wall hook",
       "kind": "Individual"
+    },
+    {
+      "id": "pair-of-wall-mounted-dowel-brackets",
+      "label": "pair of wall-mounted dowel brackets",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-dowel-horizontally",
+      "label": "mounting the finished dowel horizontally beside the window so the gathered curtain can rest behind it",
+      "kind": "Individual"
     }
   ],
   "lexemes": [],
@@ -404,14 +414,29 @@
       "object": "sand-and-finish-dowel"
     },
     {
-      "subject": "wooden-dowel-tieback",
-      "relation": "attaches-with",
-      "object": "wall-mounted-cup-hook"
-    },
-    {
       "subject": "rope-bead-tieback",
       "relation": "uses-material",
       "object": "wooden-beads"
+    },
+    {
+      "subject": "pair-of-wall-mounted-dowel-brackets",
+      "relation": "instance-of",
+      "object": "fastening-method"
+    },
+    {
+      "subject": "mount-dowel-horizontally",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "made-by-method",
+      "object": "mount-dowel-horizontally"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "attaches-with",
+      "object": "pair-of-wall-mounted-dowel-brackets"
     }
   ],
   "dataProperties": [],
