@@ -479,6 +479,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is EnumerationRemainderQuestionFormula enumerationRemainder)
+        {
+            return ProcessEnumerationRemainderQuestion(parsedUtterance, enumerationRemainder);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
         {
             return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
@@ -809,6 +815,44 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             explanation!.Message,
             meaning,
             SupportingEvidence: explanation.Evidence);
+    }
+
+    private static LatticeUtteranceResult ProcessEnumerationRemainderQuestion(
+        SemanticUtterance utterance,
+        EnumerationRemainderQuestionFormula question)
+    {
+        var ordinal = question.MissingPosition switch
+        {
+            1 => "first",
+            2 => "second",
+            3 => "third",
+            4 => "fourth",
+            5 => "fifth",
+            _ => $"{question.MissingPosition}{GetOrdinalSuffix(question.MissingPosition)}"
+        };
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            $"The {ordinal} {question.Group.TrimEnd('s')} is {char.ToUpperInvariant(question.Member[0])}{question.Member[1..]}.",
+            SemanticFormatter.Format(utterance),
+            SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+    }
+
+    private static string GetOrdinalSuffix(int value)
+    {
+        var lastTwoDigits = value % 100;
+        if (lastTwoDigits is 11 or 12 or 13)
+        {
+            return "th";
+        }
+
+        return value % 10 switch
+        {
+            1 => "st",
+            2 => "nd",
+            3 => "rd",
+            _ => "th"
+        };
     }
 
     private LatticeUtteranceResult ProcessSemanticWorldModelQuestion(
