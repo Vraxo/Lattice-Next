@@ -20,7 +20,7 @@ public sealed class CompanyBusinessQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.StartsWith(
-            "The prompt does not specify what Greystone Inc. does yet. Here are some possible directions it could explore:",
+            "The prompt does not specify what Greystone Inc does yet. Here are some possible directions it could explore:",
             answer.Message);
         Assert.Contains("Property maintenance and renovation coordination", answer.Message);
         Assert.Contains("Reclaimed building materials marketplace", answer.Message);
