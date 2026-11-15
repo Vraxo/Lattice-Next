@@ -119,23 +119,7 @@
       "kind": "Individual"
     }
   ],
-  "lexemes": [
-    {
-      "form": "curtain tie backs",
-      "concept": "curtain-tie-backs",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "curtain tiebacks",
-      "concept": "curtain-tie-backs",
-      "partOfSpeech": "noun"
-    },
-    {
-      "form": "curtain tie-backs",
-      "concept": "curtain-tie-backs",
-      "partOfSpeech": "noun"
-    }
-  ],
+  "lexemes": [],
   "relations": [
     {
       "id": "has-diy-idea",
