@@ -61,6 +61,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Causes => $"world-model-causes({question.Subject})",
             SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
             SemanticWorldModelQuestionKind.ContributionQuery => $"world-model-contribution({question.Subject}, {question.Concept}, {question.OtherSubject}, {question.TargetType})",
+            SemanticWorldModelQuestionKind.WhyHarmful => $"world-model-harmfulness({question.Subject}, {question.Concept})",
             _ => "world-model-question(unsupported)"
         };
 
