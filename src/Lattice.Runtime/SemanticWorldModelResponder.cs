@@ -501,7 +501,7 @@ internal static class SemanticWorldModelResponder
             return effect.Relation.Id switch
             {
                 "ends" => $"daylight ends",
-                "begins" => $"{Capitalize(target)} begins",
+                "begins" => $"{target} begins",
                 "results-in" => $"it results in {target}",
                 "leads-to" => $"it leads to {target}",
                 _ => $"{verb} {target}"
@@ -553,12 +553,12 @@ internal static class SemanticWorldModelResponder
             sources.AddRange(appearanceAssertions.Select(assertion => assertion.Source));
         }
 
-        var outcomeSentence = $"{Capitalize(eventConcept.Label)} occurs: {string.Join(" and ", clauses)}.";
+        var outcomeSentence = $"When {eventConcept.Label} occurs, {string.Join(" and ", clauses)}.";
         var explanation = causeDetails.Count == 0
             ? string.Empty
-            : $" This is due to {string.Join(" and ", causeDetails)}.";
+            : $" This happens because {string.Join(" and ", causeDetails)}.";
         var apparentMotion = appearanceAssertions.Length > 0
-            ? " The Sun appears to move below the local horizon, but it has not gone out or disappeared."
+            ? " The Sun appears to move below the local horizon; it has not gone out or disappeared."
             : string.Empty;
 
         message = outcomeSentence + explanation + apparentMotion;
