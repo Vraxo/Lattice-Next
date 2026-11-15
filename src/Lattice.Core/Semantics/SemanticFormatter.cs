@@ -34,7 +34,9 @@ public static class SemanticFormatter
             SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
                 ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
                 : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
-            SemanticRelationSourceQueryFormula relationQuery => $"relation-sources({relationQuery.Object}, {relationQuery.Verb})",
+            SemanticRelationSourceQueryFormula relationQuery => relationQuery.SubjectType is null
+                ? $"relation-sources({relationQuery.Object}, {relationQuery.Verb})"
+                : $"relation-sources({relationQuery.Object}, {relationQuery.Verb}, subject-type({relationQuery.SubjectType}))",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
