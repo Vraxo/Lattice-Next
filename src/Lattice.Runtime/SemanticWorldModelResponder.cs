@@ -24,6 +24,8 @@ internal static class SemanticWorldModelResponder
                 TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Ability =>
+                TryExplainAbility(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
                 TryExplainMechanism(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Causes =>
@@ -313,6 +315,63 @@ internal static class SemanticWorldModelResponder
         }
 
         return IndefinitePhrase(type.Label);
+    }
+
+    private static bool TryExplainAbility(
+        string requestedSubject,
+        string requestedAbility,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var subject = model.FindConcept(requestedSubject, SemanticConceptKind.Type);
+        var ability = model.FindConcept(requestedAbility, SemanticConceptKind.Individual);
+        if (subject is null || ability is null)
+        {
+            return false;
+        }
+
+        var adaptations = reasoner.GetRelations(subject.Id, "has-adaptation")
+            .Select(assertion => (
+                Concept: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(candidate => candidate.Concept is not null)
+            .Select(candidate => (
+                Concept: candidate.Concept!,
+                Assertion: candidate.Assertion,
+                AbilityAssertion: reasoner.GetRelations(candidate.Concept!.Id, "enables-ability")
+                    .FirstOrDefault(assertion => assertion.Object == ability.Id)))
+            .Where(candidate => candidate.AbilityAssertion is not null)
+            .ToArray();
+
+        if (adaptations.Length == 0)
+        {
+            return false;
+        }
+
+        var labels = adaptations
+            .Select(candidate => candidate.Concept.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var sources = adaptations
+            .SelectMany(candidate => new[]
+            {
+                candidate.Assertion.Source,
+                candidate.AbilityAssertion!.Source
+            })
+            .Concat(adaptations.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate.Concept.Id, "survival-adaptation")))
+            .Concat(reasoner.GetMembershipEvidence(ability.Id, "biological-ability"))
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"{Capitalize(requestedSubject)} can {ability.Label} because {string.Join("; ", labels)}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryExplainCauses(

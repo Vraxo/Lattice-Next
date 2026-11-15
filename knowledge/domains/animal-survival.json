@@ -1,0 +1,68 @@
+{
+  "formatVersion": 3,
+  "id": "core-animal-survival",
+  "name": "Animal survival adaptations",
+  "concepts": [
+    { "id": "camel", "label": "camel", "kind": "Type" },
+    { "id": "biological-ability", "label": "biological ability", "kind": "Type" },
+    { "id": "survival-adaptation", "label": "survival adaptation", "kind": "Type" },
+    { "id": "survive-for-long-without-water", "label": "survive for long without water", "kind": "Individual" },
+    { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, reducing water lost in urine", "kind": "Individual" },
+    { "id": "water-extracting-digestive-system", "label": "their intestines reabsorb water, leaving dry feces and reducing water lost in waste", "kind": "Individual" },
+    { "id": "nasal-moisture-recovery", "label": "their nasal passages recover moisture from exhaled air before it is lost", "kind": "Individual" },
+    { "id": "dehydration-tolerance", "label": "they tolerate dehydration and body-temperature changes, so they need to sweat less", "kind": "Individual" }
+  ],
+  "lexemes": [
+    { "form": "camel", "concept": "camel", "partOfSpeech": "noun" },
+    { "form": "camels", "concept": "camel", "partOfSpeech": "noun" },
+    { "form": "biological ability", "concept": "biological-ability", "partOfSpeech": "noun" },
+    { "form": "survival adaptation", "concept": "survival-adaptation", "partOfSpeech": "noun" },
+    { "form": "survive for long without water", "concept": "survive-for-long-without-water", "partOfSpeech": "verb" }
+  ],
+  "relations": [
+    {
+      "id": "has-adaptation",
+      "domain": null,
+      "range": "survival-adaptation",
+      "verb": "have",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Type",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "enables-ability",
+      "domain": "survival-adaptation",
+      "range": "biological-ability",
+      "verb": "enable",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    { "concept": "camel", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "biological-ability", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "survival-adaptation", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }
+  ],
+  "relationAssertions": [
+    { "subject": "survive-for-long-without-water", "relation": "instance-of", "object": "biological-ability" },
+    { "subject": "water-conserving-kidneys", "relation": "instance-of", "object": "survival-adaptation" },
+    { "subject": "water-extracting-digestive-system", "relation": "instance-of", "object": "survival-adaptation" },
+    { "subject": "nasal-moisture-recovery", "relation": "instance-of", "object": "survival-adaptation" },
+    { "subject": "dehydration-tolerance", "relation": "instance-of", "object": "survival-adaptation" },
+    { "subject": "camel", "relation": "has-adaptation", "object": "water-conserving-kidneys" },
+    { "subject": "camel", "relation": "has-adaptation", "object": "water-extracting-digestive-system" },
+    { "subject": "camel", "relation": "has-adaptation", "object": "nasal-moisture-recovery" },
+    { "subject": "camel", "relation": "has-adaptation", "object": "dehydration-tolerance" },
+    { "subject": "water-conserving-kidneys", "relation": "enables-ability", "object": "survive-for-long-without-water" },
+    { "subject": "water-extracting-digestive-system", "relation": "enables-ability", "object": "survive-for-long-without-water" },
+    { "subject": "nasal-moisture-recovery", "relation": "enables-ability", "object": "survive-for-long-without-water" },
+    { "subject": "dehydration-tolerance", "relation": "enables-ability", "object": "survive-for-long-without-water" }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

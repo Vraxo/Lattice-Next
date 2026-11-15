@@ -165,8 +165,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(237, status.SemanticConceptCount);
-        Assert.Equal(57, status.SemanticRelationCount);
+        Assert.Equal(245, status.SemanticConceptCount);
+        Assert.Equal(59, status.SemanticRelationCount);
         Assert.Equal(0, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
@@ -179,6 +179,30 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId == "core-world-model:relation:tope:instance-of:fish"));
     }
 
+    [Fact]
+    public async Task Explains_an_ability_from_subject_adaptations_and_enabled_ability_relations()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive for long without water?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("highly concentrated urine", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("reducing water lost in urine", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("reabsorb water", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("dry feces", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("recover moisture from exhaled air", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("need to sweat less", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("humps", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(answer.SupportingEvidence);
+        Assert.All(
+            answer.SupportingEvidence,
+            evidence => Assert.Contains(
+                evidence.Sources,
+                source => source.Kind == LatticeKnowledgeSourceKind.FoundationalKnowledge));
+    }
     [Fact]
     public async Task Answers_geometry_and_language_questions_from_typed_structures()
     {
