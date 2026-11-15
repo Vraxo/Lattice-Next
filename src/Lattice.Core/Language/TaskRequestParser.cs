@@ -18,6 +18,10 @@ internal static class TaskRequestParser
         @"\bexamples?\s+related\s+to\s+(?<scope>.+?)(?:\s+and\s+cite\b|[.!?]|$)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RoadTripPlanPattern = new(
+        @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RecommendationRequestPattern = new(
         @"^\s*(?:I would like to|I'd like to)\s+(?<purpose>[^.!?]+)[.!?]\s*(?:Which|What)\s+(?<subject>[^?]+?)\s+(?:do|would)\s+you\s+recommend\s+for\s+this\s+purpose\?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -29,12 +33,67 @@ internal static class TaskRequestParser
     {
         utterance = null;
 
+        if (TryParseRoadTripPlan(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
         if (TryParseWritingRequest(source, sourceText, out utterance))
         {
             return true;
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+    private static bool TryParseRoadTripPlan(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = RoadTripPlanPattern.Match(source);
+
+        if (!match.Success || !match.Groups["origin"].Success)
+        {
+            return false;
+        }
+
+        var durationToken = match.Groups["duration"].Value
+            .Replace("a ", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace(" days", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace(" day", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Trim();
+        var dayCount = durationToken.ToLowerInvariant() switch
+        {
+            "one" => 1,
+            "two" => 2,
+            "three" => 3,
+            "four" => 4,
+            "five" => 5,
+            "six" => 6,
+            "seven" => 7,
+            _ => int.TryParse(durationToken, out var numericDays) ? numericDays : 0
+        };
+        var duration = $"{dayCount}-day";
+        var occasion = match.Groups["occasion"].Success
+            ? match.Groups["occasion"].Value.Trim()
+            : null;
+        var requirements = ImmutableArray.Create("road-trip");
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Plan,
+            "road-trip",
+            match.Groups["origin"].Value.Trim(),
+            duration,
+            occasion,
+            requirements);
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseWritingRequest(

@@ -1,0 +1,545 @@
+{
+  "formatVersion": 3,
+  "id": "new-jersey-road-trip",
+  "name": "Central New Jersey road-trip places and activities",
+  "concepts": [
+    {
+      "id": "road-trip-route",
+      "label": "road trip route",
+      "kind": "Type"
+    },
+    {
+      "id": "town",
+      "label": "town",
+      "kind": "Type"
+    },
+    {
+      "id": "trip-day",
+      "label": "trip day",
+      "kind": "Type"
+    },
+    {
+      "id": "road-trip-place",
+      "label": "road trip place",
+      "kind": "Type"
+    },
+    {
+      "id": "activity",
+      "label": "activity",
+      "kind": "Type"
+    },
+    {
+      "id": "activity-type",
+      "label": "activity type",
+      "kind": "Type"
+    },
+    {
+      "id": "westfield-new-jersey",
+      "label": "Westfield, New Jersey",
+      "kind": "Individual"
+    },
+    {
+      "id": "central-new-jersey-spring-loop",
+      "label": "Central New Jersey spring loop",
+      "kind": "Individual"
+    },
+    {
+      "id": "day-one",
+      "label": "Day 1",
+      "kind": "Individual"
+    },
+    {
+      "id": "day-two",
+      "label": "Day 2",
+      "kind": "Individual"
+    },
+    {
+      "id": "day-three",
+      "label": "Day 3",
+      "kind": "Individual"
+    },
+    {
+      "id": "morristown-national-historical-park",
+      "label": "Morristown National Historical Park",
+      "kind": "Individual"
+    },
+    {
+      "id": "cross-estate-gardens",
+      "label": "Cross Estate Gardens",
+      "kind": "Individual"
+    },
+    {
+      "id": "princeton-university",
+      "label": "Princeton University campus",
+      "kind": "Individual"
+    },
+    {
+      "id": "princeton-battlefield-state-park",
+      "label": "Princeton Battlefield State Park",
+      "kind": "Individual"
+    },
+    {
+      "id": "lambertville",
+      "label": "Lambertville",
+      "kind": "Individual"
+    },
+    {
+      "id": "delaware-raritan-canal-towpath",
+      "label": "Delaware and Raritan Canal Towpath",
+      "kind": "Individual"
+    },
+    {
+      "id": "trail-walk",
+      "label": "wooded trail walk",
+      "kind": "Individual"
+    },
+    {
+      "id": "museum-visit",
+      "label": "history museum visit",
+      "kind": "Individual"
+    },
+    {
+      "id": "garden-walk",
+      "label": "garden walk",
+      "kind": "Individual"
+    },
+    {
+      "id": "campus-stroll",
+      "label": "university campus stroll",
+      "kind": "Individual"
+    },
+    {
+      "id": "battlefield-walk",
+      "label": "battlefield walk",
+      "kind": "Individual"
+    },
+    {
+      "id": "river-town-stroll",
+      "label": "river-town stroll",
+      "kind": "Individual"
+    },
+    {
+      "id": "canal-towpath-walk",
+      "label": "canal towpath walk",
+      "kind": "Individual"
+    },
+    {
+      "id": "outdoor-activity",
+      "label": "outdoor activity",
+      "kind": "Individual"
+    },
+    {
+      "id": "history-activity",
+      "label": "history activity",
+      "kind": "Individual"
+    },
+    {
+      "id": "garden-activity",
+      "label": "garden activity",
+      "kind": "Individual"
+    },
+    {
+      "id": "sightseeing-activity",
+      "label": "sightseeing activity",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "Westfield",
+      "concept": "westfield-new-jersey",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Westfield, NJ",
+      "concept": "westfield-new-jersey",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Westfield, New Jersey",
+      "concept": "westfield-new-jersey",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "route-starts-near",
+      "domain": "road-trip-route",
+      "range": "town",
+      "verb": "starts near",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "route-has-day",
+      "domain": "road-trip-route",
+      "range": "trip-day",
+      "verb": "includes day",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "day-has-stop",
+      "domain": "trip-day",
+      "range": "road-trip-place",
+      "verb": "includes stop",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "place-offers-activity",
+      "domain": "road-trip-place",
+      "range": "activity",
+      "verb": "offers activity",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "activity-kind",
+      "domain": "activity",
+      "range": "activity-type",
+      "verb": "is a kind of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "road-trip-route",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "town",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "trip-day",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "road-trip-place",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "activity-type",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "road-trip-route",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "town",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "trip-day",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "road-trip-place",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "activity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "activity-type",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "westfield-new-jersey",
+      "relation": "instance-of",
+      "object": "town"
+    },
+    {
+      "subject": "central-new-jersey-spring-loop",
+      "relation": "instance-of",
+      "object": "road-trip-route"
+    },
+    {
+      "subject": "day-one",
+      "relation": "instance-of",
+      "object": "trip-day"
+    },
+    {
+      "subject": "day-two",
+      "relation": "instance-of",
+      "object": "trip-day"
+    },
+    {
+      "subject": "day-three",
+      "relation": "instance-of",
+      "object": "trip-day"
+    },
+    {
+      "subject": "morristown-national-historical-park",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "cross-estate-gardens",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "princeton-university",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "princeton-battlefield-state-park",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "lambertville",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "delaware-raritan-canal-towpath",
+      "relation": "instance-of",
+      "object": "road-trip-place"
+    },
+    {
+      "subject": "trail-walk",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "museum-visit",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "garden-walk",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "campus-stroll",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "battlefield-walk",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "river-town-stroll",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "canal-towpath-walk",
+      "relation": "instance-of",
+      "object": "activity"
+    },
+    {
+      "subject": "outdoor-activity",
+      "relation": "instance-of",
+      "object": "activity-type"
+    },
+    {
+      "subject": "history-activity",
+      "relation": "instance-of",
+      "object": "activity-type"
+    },
+    {
+      "subject": "garden-activity",
+      "relation": "instance-of",
+      "object": "activity-type"
+    },
+    {
+      "subject": "sightseeing-activity",
+      "relation": "instance-of",
+      "object": "activity-type"
+    },
+    {
+      "subject": "central-new-jersey-spring-loop",
+      "relation": "route-starts-near",
+      "object": "westfield-new-jersey"
+    },
+    {
+      "subject": "central-new-jersey-spring-loop",
+      "relation": "route-has-day",
+      "object": "day-one"
+    },
+    {
+      "subject": "central-new-jersey-spring-loop",
+      "relation": "route-has-day",
+      "object": "day-two"
+    },
+    {
+      "subject": "central-new-jersey-spring-loop",
+      "relation": "route-has-day",
+      "object": "day-three"
+    },
+    {
+      "subject": "day-one",
+      "relation": "day-has-stop",
+      "object": "morristown-national-historical-park"
+    },
+    {
+      "subject": "day-one",
+      "relation": "day-has-stop",
+      "object": "cross-estate-gardens"
+    },
+    {
+      "subject": "day-two",
+      "relation": "day-has-stop",
+      "object": "princeton-university"
+    },
+    {
+      "subject": "day-two",
+      "relation": "day-has-stop",
+      "object": "princeton-battlefield-state-park"
+    },
+    {
+      "subject": "day-three",
+      "relation": "day-has-stop",
+      "object": "lambertville"
+    },
+    {
+      "subject": "day-three",
+      "relation": "day-has-stop",
+      "object": "delaware-raritan-canal-towpath"
+    },
+    {
+      "subject": "morristown-national-historical-park",
+      "relation": "place-offers-activity",
+      "object": "trail-walk"
+    },
+    {
+      "subject": "morristown-national-historical-park",
+      "relation": "place-offers-activity",
+      "object": "museum-visit"
+    },
+    {
+      "subject": "cross-estate-gardens",
+      "relation": "place-offers-activity",
+      "object": "garden-walk"
+    },
+    {
+      "subject": "princeton-university",
+      "relation": "place-offers-activity",
+      "object": "campus-stroll"
+    },
+    {
+      "subject": "princeton-battlefield-state-park",
+      "relation": "place-offers-activity",
+      "object": "battlefield-walk"
+    },
+    {
+      "subject": "lambertville",
+      "relation": "place-offers-activity",
+      "object": "river-town-stroll"
+    },
+    {
+      "subject": "delaware-raritan-canal-towpath",
+      "relation": "place-offers-activity",
+      "object": "canal-towpath-walk"
+    },
+    {
+      "subject": "trail-walk",
+      "relation": "activity-kind",
+      "object": "outdoor-activity"
+    },
+    {
+      "subject": "museum-visit",
+      "relation": "activity-kind",
+      "object": "history-activity"
+    },
+    {
+      "subject": "garden-walk",
+      "relation": "activity-kind",
+      "object": "garden-activity"
+    },
+    {
+      "subject": "campus-stroll",
+      "relation": "activity-kind",
+      "object": "sightseeing-activity"
+    },
+    {
+      "subject": "battlefield-walk",
+      "relation": "activity-kind",
+      "object": "history-activity"
+    },
+    {
+      "subject": "river-town-stroll",
+      "relation": "activity-kind",
+      "object": "sightseeing-activity"
+    },
+    {
+      "subject": "canal-towpath-walk",
+      "relation": "activity-kind",
+      "object": "outdoor-activity"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "day-number",
+      "domainType": "trip-day",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "day-one",
+      "property": "day-number",
+      "value": "1"
+    },
+    {
+      "subject": "day-two",
+      "property": "day-number",
+      "value": "2"
+    },
+    {
+      "subject": "day-three",
+      "property": "day-number",
+      "value": "3"
+    }
+  ]
+}

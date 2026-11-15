@@ -7,6 +7,43 @@ namespace Lattice.Runtime.Tests;
 public sealed class TaskRequestResponseTests
 {
     [Fact]
+    public async Task Plans_a_three_day_road_trip_from_structured_route_knowledge()
+    {
+        const string input = "Plan for a three day road trip for May long weekend from Westfield, New Jersey";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("Memorial Day", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Day 1", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Day 2", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Day 3", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Morristown National Historical Park", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Princeton University", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Lambertville", utterance.Message, StringComparison.Ordinal);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_a_road_trip_route_for_an_unknown_origin()
+    {
+        const string input = "Plan for a three day road trip for May long weekend from Atlantis";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
     public async Task Writes_a_research_grounded_monopsony_introduction_from_default_knowledge()
     {
         const string input = "Can you write a short introduction about the relevance of the term \"monopsony\" in economics? Please use examples related to potential monopsonies in the labour market and cite relevant research.";
