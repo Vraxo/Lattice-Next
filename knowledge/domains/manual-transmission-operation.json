@@ -177,6 +177,21 @@
       "id": "gearbox",
       "label": "gearbox",
       "kind": "Individual"
+    },
+    {
+      "id": "foot",
+      "label": "foot",
+      "kind": "Type"
+    },
+    {
+      "id": "left-foot",
+      "label": "left foot",
+      "kind": "Individual"
+    },
+    {
+      "id": "right-foot",
+      "label": "right foot",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -278,6 +293,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "control-operated-by-foot",
+      "domain": "vehicle-control",
+      "range": "foot",
+      "verb": "operated by foot",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -325,6 +351,12 @@
     },
     {
       "concept": "mechanical-component",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "foot",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -645,6 +677,36 @@
       "subject": "clutch",
       "relation": "component-connects-to",
       "object": "gearbox"
+    },
+    {
+      "subject": "foot",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "left-foot",
+      "relation": "instance-of",
+      "object": "foot"
+    },
+    {
+      "subject": "right-foot",
+      "relation": "instance-of",
+      "object": "foot"
+    },
+    {
+      "subject": "clutch-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "left-foot"
+    },
+    {
+      "subject": "brake-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "right-foot"
+    },
+    {
+      "subject": "accelerator-pedal",
+      "relation": "control-operated-by-foot",
+      "object": "right-foot"
     }
   ],
   "dataProperties": [
