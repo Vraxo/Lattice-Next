@@ -117,6 +117,8 @@ internal static class TaskRequestResponder
 
             var stopDescriptions = new List<string>();
             sources.AddRange(reasoner.GetMembershipEvidence(day.Day.Id, "trip-day"));
+            sources.AddRange(model.GetDataAssertions(day.Day.Id, "day-number")
+                .Select(assertion => assertion.Source));
             sources.AddRange(reasoner.GetRelations(matchingRoute.Route.Id, "route-has-day")
                 .Where(assertion => assertion.Object == day.Day.Id)
                 .Select(assertion => assertion.Source));
