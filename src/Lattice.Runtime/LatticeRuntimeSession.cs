@@ -846,7 +846,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             return "th";
         }
 
-        return value % 10 switch
+        return (value % 10) switch
         {
             1 => "st",
             2 => "nd",
