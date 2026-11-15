@@ -23,7 +23,7 @@ public sealed class BeginnerRunningGuidanceTests
             "ask(world-model-beginner-guidance(running))",
             answer.Meaning);
         Assert.StartsWith(
-            "To start running, follow a gradual beginner routine:",
+            "To start running, use a gradual beginner routine:",
             answer.Message!,
             StringComparison.Ordinal);
         Assert.Contains("five-minute brisk-walking warm-up", answer.Message!, StringComparison.Ordinal);
@@ -34,6 +34,7 @@ public sealed class BeginnerRunningGuidanceTests
         Assert.Contains("gradual increases in jogging intervals", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("comfortable running shoes", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("chest pain", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("Stop and seek medical help", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("purpose: muscle readiness", answer.Message!, StringComparison.Ordinal);
         Assert.Equal(5, answer.Message!.Split('\n').Count(line =>
             line.Length > 0 && char.IsDigit(line[0]) && line.Contains('.')));
@@ -53,6 +54,10 @@ public sealed class BeginnerRunningGuidanceTests
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
                 source.SourceId.Contains(":has-safety-guidance:", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.Contains(":stop-and-seek-help-for:", StringComparison.Ordinal)));
         Assert.All(
             answer.SupportingEvidence,
             evidence => Assert.Contains(
