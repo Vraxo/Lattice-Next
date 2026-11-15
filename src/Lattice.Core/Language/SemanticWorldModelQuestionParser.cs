@@ -63,6 +63,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What (?<subjectType>individual|person|athlete) has won the most (?<metric>[A-Za-z][A-Za-z -]*?)(?: in the history of (?:the )?(?<scope>games|Olympic games))?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex BestMoviesByDecadePattern = new(
+        @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) movies of the (?<decade>[0-9]{4}'?s)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ListExamplesPattern = new(
         @"^Give me (?:the )?(?:top )?(?<count>five|four|three|two|one|[0-9]+) (?<category>[A-Za-z][A-Za-z -]*?) names(?: in a numbered list)?(?:\. Names only; no descriptions)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -247,6 +251,21 @@ internal static class SemanticWorldModelQuestionParser
                 subject: Normalize(maximumDataValue.Groups["subjectType"].Value),
                 concept: NormalizeMaximumMetric(metric),
                 otherSubject: metric,
+                sourceText: source);
+            return true;
+        }
+
+        var bestMoviesByDecade = BestMoviesByDecadePattern.Match(text);
+        if (bestMoviesByDecade.Success)
+        {
+            var genre = Normalize(bestMoviesByDecade.Groups["genre"].Value);
+            var decade = Normalize(bestMoviesByDecade.Groups["decade"].Value).Replace("'", string.Empty, StringComparison.Ordinal);
+            utterance = Create(
+                SemanticWorldModelQuestionKind.NotableExamples,
+                subject: genre,
+                concept: $"{genre}-film-{decade}",
+                targetType: decade,
+                limit: 12,
                 sourceText: source);
             return true;
         }

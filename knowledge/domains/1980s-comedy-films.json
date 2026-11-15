@@ -1,0 +1,509 @@
+{
+  "formatVersion": 3,
+  "id": "1980s-comedy-films",
+  "name": "Notable comedy films of the 1980s",
+  "concepts": [
+    {
+      "id": "film",
+      "label": "film",
+      "kind": "Type"
+    },
+    {
+      "id": "comedy-film",
+      "label": "comedy film",
+      "kind": "Type"
+    },
+    {
+      "id": "comedy-film-1980s",
+      "label": "1980s comedy film",
+      "kind": "Type"
+    },
+    {
+      "id": "film-genre",
+      "label": "film genre",
+      "kind": "Type"
+    },
+    {
+      "id": "spoof-comedy",
+      "label": "spoof comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "musical-comedy",
+      "label": "musical comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "comedy-drama",
+      "label": "comedy-drama",
+      "kind": "Individual"
+    },
+    {
+      "id": "satirical-comedy",
+      "label": "satirical comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "supernatural-comedy",
+      "label": "supernatural comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "mockumentary-comedy",
+      "label": "mockumentary comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "science-fiction-comedy",
+      "label": "science-fiction comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "teen-comedy",
+      "label": "teen comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "fantasy-comedy",
+      "label": "fantasy comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "crime-comedy",
+      "label": "crime comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "romantic-comedy",
+      "label": "romantic comedy",
+      "kind": "Individual"
+    },
+    {
+      "id": "airplane",
+      "label": "Airplane!",
+      "kind": "Individual"
+    },
+    {
+      "id": "blues-brothers",
+      "label": "The Blues Brothers",
+      "kind": "Individual"
+    },
+    {
+      "id": "tootsie",
+      "label": "Tootsie",
+      "kind": "Individual"
+    },
+    {
+      "id": "trading-places",
+      "label": "Trading Places",
+      "kind": "Individual"
+    },
+    {
+      "id": "ghostbusters",
+      "label": "Ghostbusters",
+      "kind": "Individual"
+    },
+    {
+      "id": "this-is-spinal-tap",
+      "label": "This Is Spinal Tap",
+      "kind": "Individual"
+    },
+    {
+      "id": "back-to-the-future",
+      "label": "Back to the Future",
+      "kind": "Individual"
+    },
+    {
+      "id": "ferris-buellers-day-off",
+      "label": "Ferris Bueller's Day Off",
+      "kind": "Individual"
+    },
+    {
+      "id": "the-princess-bride",
+      "label": "The Princess Bride",
+      "kind": "Individual"
+    },
+    {
+      "id": "a-fish-called-wanda",
+      "label": "A Fish Called Wanda",
+      "kind": "Individual"
+    },
+    {
+      "id": "the-naked-gun",
+      "label": "The Naked Gun: From the Files of Police Squad!",
+      "kind": "Individual"
+    },
+    {
+      "id": "when-harry-met-sally",
+      "label": "When Harry Met Sally...",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "Airplane!",
+      "concept": "airplane",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "The Blues Brothers",
+      "concept": "blues-brothers",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Tootsie",
+      "concept": "tootsie",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Trading Places",
+      "concept": "trading-places",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Ghostbusters",
+      "concept": "ghostbusters",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "This Is Spinal Tap",
+      "concept": "this-is-spinal-tap",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Back to the Future",
+      "concept": "back-to-the-future",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Ferris Bueller's Day Off",
+      "concept": "ferris-buellers-day-off",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "The Princess Bride",
+      "concept": "the-princess-bride",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "A Fish Called Wanda",
+      "concept": "a-fish-called-wanda",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "The Naked Gun: From the Files of Police Squad!",
+      "concept": "the-naked-gun",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "When Harry Met Sally...",
+      "concept": "when-harry-met-sally",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-film-genre",
+      "domain": "film",
+      "range": "film-genre",
+      "verb": "has genre",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "film",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "comedy-film",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "comedy-film-1980s",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "film-genre",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "film",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "comedy-film",
+      "relation": "is-a",
+      "object": "film"
+    },
+    {
+      "subject": "comedy-film-1980s",
+      "relation": "is-a",
+      "object": "comedy-film"
+    },
+    {
+      "subject": "film-genre",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "spoof-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "musical-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "comedy-drama",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "satirical-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "supernatural-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "mockumentary-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "science-fiction-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "teen-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "fantasy-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "crime-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "romantic-comedy",
+      "relation": "instance-of",
+      "object": "film-genre"
+    },
+    {
+      "subject": "airplane",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "airplane",
+      "relation": "has-film-genre",
+      "object": "spoof-comedy"
+    },
+    {
+      "subject": "blues-brothers",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "blues-brothers",
+      "relation": "has-film-genre",
+      "object": "musical-comedy"
+    },
+    {
+      "subject": "tootsie",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "tootsie",
+      "relation": "has-film-genre",
+      "object": "comedy-drama"
+    },
+    {
+      "subject": "trading-places",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "trading-places",
+      "relation": "has-film-genre",
+      "object": "satirical-comedy"
+    },
+    {
+      "subject": "ghostbusters",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "ghostbusters",
+      "relation": "has-film-genre",
+      "object": "supernatural-comedy"
+    },
+    {
+      "subject": "this-is-spinal-tap",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "this-is-spinal-tap",
+      "relation": "has-film-genre",
+      "object": "mockumentary-comedy"
+    },
+    {
+      "subject": "back-to-the-future",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "back-to-the-future",
+      "relation": "has-film-genre",
+      "object": "science-fiction-comedy"
+    },
+    {
+      "subject": "ferris-buellers-day-off",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "ferris-buellers-day-off",
+      "relation": "has-film-genre",
+      "object": "teen-comedy"
+    },
+    {
+      "subject": "the-princess-bride",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "the-princess-bride",
+      "relation": "has-film-genre",
+      "object": "fantasy-comedy"
+    },
+    {
+      "subject": "a-fish-called-wanda",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "a-fish-called-wanda",
+      "relation": "has-film-genre",
+      "object": "crime-comedy"
+    },
+    {
+      "subject": "the-naked-gun",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "the-naked-gun",
+      "relation": "has-film-genre",
+      "object": "spoof-comedy"
+    },
+    {
+      "subject": "when-harry-met-sally",
+      "relation": "instance-of",
+      "object": "comedy-film-1980s"
+    },
+    {
+      "subject": "when-harry-met-sally",
+      "relation": "has-film-genre",
+      "object": "romantic-comedy"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "film-release-year",
+      "domainType": "film",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "airplane",
+      "property": "film-release-year",
+      "value": "1980"
+    },
+    {
+      "subject": "blues-brothers",
+      "property": "film-release-year",
+      "value": "1980"
+    },
+    {
+      "subject": "tootsie",
+      "property": "film-release-year",
+      "value": "1982"
+    },
+    {
+      "subject": "trading-places",
+      "property": "film-release-year",
+      "value": "1983"
+    },
+    {
+      "subject": "ghostbusters",
+      "property": "film-release-year",
+      "value": "1984"
+    },
+    {
+      "subject": "this-is-spinal-tap",
+      "property": "film-release-year",
+      "value": "1984"
+    },
+    {
+      "subject": "back-to-the-future",
+      "property": "film-release-year",
+      "value": "1985"
+    },
+    {
+      "subject": "ferris-buellers-day-off",
+      "property": "film-release-year",
+      "value": "1986"
+    },
+    {
+      "subject": "the-princess-bride",
+      "property": "film-release-year",
+      "value": "1987"
+    },
+    {
+      "subject": "a-fish-called-wanda",
+      "property": "film-release-year",
+      "value": "1988"
+    },
+    {
+      "subject": "the-naked-gun",
+      "property": "film-release-year",
+      "value": "1988"
+    },
+    {
+      "subject": "when-harry-met-sally",
+      "property": "film-release-year",
+      "value": "1989"
+    }
+  ]
+}
