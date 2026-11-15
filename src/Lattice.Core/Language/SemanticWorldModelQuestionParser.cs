@@ -56,7 +56,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex TallestFeaturePattern = new(
-        @"^What is the tallest (?<feature>[A-Za-z][A-Za-z -]*?) in the (?<scope>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^What is the tallest (?<feature>[A-Za-z][A-Za-z -]*?) in the (?<scope>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex MaximumDataValuePattern = new(
