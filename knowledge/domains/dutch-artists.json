@@ -1,0 +1,131 @@
+{
+  "formatVersion": 3,
+  "id": "dutch-artists",
+  "name": "Dutch artists and artworks",
+  "concepts": [
+    {
+      "id": "artist",
+      "label": "artist",
+      "kind": "Type"
+    },
+    {
+      "id": "dutch-artist",
+      "label": "Dutch artist",
+      "kind": "Type"
+    },
+    {
+      "id": "artwork",
+      "label": "artwork",
+      "kind": "Type"
+    },
+    {
+      "id": "johannes-vermeer",
+      "label": "Johannes Vermeer",
+      "kind": "Individual"
+    },
+    {
+      "id": "girl-with-a-pearl-earring",
+      "label": "“Girl with a Pearl Earring”",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "artist",
+      "concept": "artist",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Dutch artist",
+      "concept": "dutch-artist",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "artwork",
+      "concept": "artwork",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Johannes Vermeer",
+      "concept": "johannes-vermeer",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Vermeer",
+      "concept": "johannes-vermeer",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Girl with a Pearl Earring",
+      "concept": "girl-with-a-pearl-earring",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "painted",
+      "domain": "artist",
+      "range": "artwork",
+      "verb": "painted",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "artist",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dutch-artist",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "artwork",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "artist",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "dutch-artist",
+      "relation": "is-a",
+      "object": "artist"
+    },
+    {
+      "subject": "artwork",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "johannes-vermeer",
+      "relation": "instance-of",
+      "object": "dutch-artist"
+    },
+    {
+      "subject": "girl-with-a-pearl-earring",
+      "relation": "instance-of",
+      "object": "artwork"
+    },
+    {
+      "subject": "johannes-vermeer",
+      "relation": "painted",
+      "object": "girl-with-a-pearl-earring"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
