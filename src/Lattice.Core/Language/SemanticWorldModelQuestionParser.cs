@@ -7,7 +7,7 @@ namespace Lattice.Core.Language;
 internal static class SemanticWorldModelQuestionParser
 {
     private static readonly Regex EnumerationRemainderPattern = new(
-        @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|[0-9]+) daughters?: (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|[0-9]+(?:st|nd|rd|th)) daughter\\??$",
+        @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|[0-9]+) daughters?: (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|[0-9]+(?:st|nd|rd|th)) daughter\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
