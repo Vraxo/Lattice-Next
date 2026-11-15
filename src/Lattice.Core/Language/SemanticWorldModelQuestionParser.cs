@@ -99,7 +99,7 @@ internal static class SemanticWorldModelQuestionParser
 
             if (expectedCount > 0 &&
                 missingPosition == expectedCount &&
-                group == questionGroup &&
+                SingularizeEnumerationGroup(group) == SingularizeEnumerationGroup(questionGroup) &&
                 namedMembers.Length == expectedCount - 1 &&
                 namedMembers.Distinct(StringComparer.Ordinal).Count() == namedMembers.Length &&
                 !namedMembers.Contains(member, StringComparer.Ordinal))
@@ -323,6 +323,28 @@ internal static class SemanticWorldModelQuestionParser
             UtteranceKind.Question,
             new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType, limit),
             sourceText ?? string.Empty);
+
+    private static string SingularizeEnumerationGroup(string group) =>
+        group switch
+        {
+            "children" => "child",
+            "people" => "person",
+            "men" => "man",
+            "women" => "woman",
+            "mice" => "mouse",
+            "geese" => "goose",
+            "teeth" => "tooth",
+            "feet" => "foot",
+            _ when group.EndsWith("ies", StringComparison.Ordinal) => $"{group[..^3]}y",
+            _ when group.EndsWith("sses", StringComparison.Ordinal) ||
+                   group.EndsWith("shes", StringComparison.Ordinal) ||
+                   group.EndsWith("ches", StringComparison.Ordinal) ||
+                   group.EndsWith("xes", StringComparison.Ordinal) ||
+                   group.EndsWith("zes", StringComparison.Ordinal) => group[..^2],
+            _ when group.EndsWith("s", StringComparison.Ordinal) &&
+                   !group.EndsWith("ss", StringComparison.Ordinal) => group[..^1],
+            _ => group
+        };
 
     private static bool TryParseCardinal(string value, out int number)
     {
