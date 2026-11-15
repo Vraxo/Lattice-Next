@@ -828,15 +828,54 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             3 => "third",
             4 => "fourth",
             5 => "fifth",
+            6 => "sixth",
+            7 => "seventh",
+            8 => "eighth",
+            9 => "ninth",
+            10 => "tenth",
             _ => $"{question.MissingPosition}{GetOrdinalSuffix(question.MissingPosition)}"
         };
+        var group = SingularizeEnumerationGroup(question.Group);
+        var member = char.ToUpperInvariant(question.Member[0]) + question.Member[1..];
+        var source = new LatticeEvidenceSource(
+            LatticeKnowledgeSourceKind.UserAssertion,
+            utterance.SourceText,
+            SourceId: null,
+            ResolvedReferent: null);
+        var evidence = new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            ImmutableArray.Create(source),
+            ImmutableArray<LatticeEvidence>.Empty);
 
         return new LatticeUtteranceResult(
             LatticeUtteranceResultKind.QuestionAnswered,
-            $"The {ordinal} {question.Group.TrimEnd('s')} is {char.ToUpperInvariant(question.Member[0])}{question.Member[1..]}.",
+            $"The {ordinal} {group} is {member}.",
             SemanticFormatter.Format(utterance),
-            SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+            SupportingEvidence: ImmutableArray.Create(evidence));
     }
+
+    private static string SingularizeEnumerationGroup(string group) =>
+        group switch
+        {
+            "children" => "child",
+            "people" => "person",
+            "men" => "man",
+            "women" => "woman",
+            "mice" => "mouse",
+            "geese" => "goose",
+            "teeth" => "tooth",
+            "feet" => "foot",
+            _ when group.EndsWith("ies", StringComparison.Ordinal) => $"{group[..^3]}y",
+            _ when group.EndsWith("sses", StringComparison.Ordinal) ||
+                   group.EndsWith("shes", StringComparison.Ordinal) ||
+                   group.EndsWith("ches", StringComparison.Ordinal) ||
+                   group.EndsWith("xes", StringComparison.Ordinal) ||
+                   group.EndsWith("zes", StringComparison.Ordinal) => group[..^2],
+            _ when group.EndsWith("s", StringComparison.Ordinal) &&
+                   !group.EndsWith("ss", StringComparison.Ordinal) => group[..^1],
+            _ => group
+        };
 
     private static string GetOrdinalSuffix(int value)
     {
