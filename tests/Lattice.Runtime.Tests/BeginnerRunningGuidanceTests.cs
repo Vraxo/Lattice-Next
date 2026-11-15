@@ -26,12 +26,12 @@ public sealed class BeginnerRunningGuidanceTests
             "To start running, use a gradual beginner routine:",
             answer.Message!,
             StringComparison.Ordinal);
-        Assert.Contains("five-minute brisk-walking warm-up", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("one-minute easy jogs alternating with 90-second walks", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("conversational jogging pace", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("two or three weekly sessions", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("Five-minute brisk-walking warm-up", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("One-minute easy jogs alternating with 90-second walks", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("Conversational jogging pace", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("Two or three weekly sessions", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("recovery days", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("gradual increases in jogging intervals", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("Gradual increases in jogging intervals", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("comfortable running shoes", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("chest pain", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("Stop and seek medical help", answer.Message!, StringComparison.Ordinal);
