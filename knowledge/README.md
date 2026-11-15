@@ -62,18 +62,18 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 Counts after composing all eighteen modules:
 
 - 347 concepts
-- 150 type declarations (113 primitive, 37 defined)
+- 153 type declarations (116 primitive, 37 defined)
 - 84 relation signatures
-- 533 relation assertions:
-  - 150 `is-a`
-  - 199 `instance-of`
-  - 184 ordinary individual-to-individual relations
-- 306 lexical forms
+- 546 relation assertions:
+  - 153 `is-a`
+  - 204 `instance-of`
+  - 189 ordinary individual-to-individual relations
+- 311 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions
 
 ## Audit boundary
 
-93 concepts are explicitly primitive and 36 have sufficient definitions. Primitive status marks a deliberately incomplete or foundational point in the ontology; it does not imply that the concept is inherently irreducible. The model does not yet represent force magnitudes, dimensions, material constitutive laws, quantitative compliance, yield limits, or elastic recovery.
+116 concepts are explicitly primitive and 37 have sufficient definitions. Primitive status marks a deliberately incomplete or foundational point in the ontology; it does not imply that the concept is inherently irreducible. The model does not yet represent force magnitudes, dimensions, material constitutive laws, quantitative compliance, yield limits, or elastic recovery.
 
 Relations with positive `order` values participate in sequential mechanism chains; zero-order relations are not traversed as chain steps. Some zero-order links are structural or attribute relations, while others connect a playing interface to its mechanism and remain outside the current chain traversal.
