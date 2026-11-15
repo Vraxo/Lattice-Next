@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -42,6 +43,8 @@ internal static class SemanticWorldModelResponder
                 TryCreativeIdeas(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ListExamples =>
                 TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.MaximumDataValue =>
+                TryMaximumDataValue(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -446,6 +449,61 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryMaximumDataValue(
+        SemanticWorldModelQuestionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var property = model.FindDataProperty(request.Concept ?? string.Empty);
+        if (property is null || property.ValueKind != SemanticDataValueKind.Number)
+        {
+            return false;
+        }
+
+        var candidates = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, property.DomainType))
+            .SelectMany(concept => model.GetDataAssertions(concept.Id, property.Id)
+                .Where(assertion => decimal.TryParse(
+                    assertion.Value,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out _))
+                .Select(assertion => (
+                    Concept: concept,
+                    Assertion: assertion,
+                    Value: decimal.Parse(
+                        assertion.Value,
+                        NumberStyles.Number,
+                        CultureInfo.InvariantCulture))))
+            .ToArray();
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        var maximum = candidates.Max(candidate => candidate.Value);
+        var winners = candidates
+            .Where(candidate => candidate.Value == maximum)
+            .ToArray();
+        var names = JoinNames(winners.Select(winner => winner.Concept.Label).ToArray());
+        var verb = winners.Length == 1 ? "has" : "have";
+        var metric = string.IsNullOrWhiteSpace(request.OtherSubject)
+            ? property.Id.Replace('-', ' ')
+            : request.OtherSubject;
+        message = $"{names} {verb} won the most {metric} ({maximum.ToString(CultureInfo.InvariantCulture)}).";
+        evidence = ImmutableArray.Create(ToEvidence(
+            winners.Select(winner => winner.Assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 

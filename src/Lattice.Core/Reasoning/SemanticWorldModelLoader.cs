@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -67,8 +68,8 @@ public sealed class SemanticWorldModelLoader
                 document.DataAssertions.Count > MaximumAssertions ||
             (document.FormatVersion == SupportedFormatVersion &&
                 (document.TypeAssertions is not null ||
-                 document.DataProperties.Count > 0 ||
-                 document.DataAssertions.Count > 0)))
+                 document.DataProperties.Any(property => property is not null &&
+                    string.Equals(property.ValueType, "uri", StringComparison.OrdinalIgnoreCase)))))
         {
             error = "The semantic world model metadata, collections, or version-3 semantic fields are invalid.";
             return false;
@@ -766,26 +767,52 @@ public sealed class SemanticWorldModelLoader
             if (item is null ||
                 !IsIndividual(concepts, item.Subject) ||
                 !properties.TryGetValue(item.Property, out var property) ||
-                property.ValueKind != SemanticDataValueKind.Uri ||
-                !Uri.TryCreate(item.Value, UriKind.Absolute, out var uri) ||
-                uri.Scheme is not ("http" or "https") ||
-                string.IsNullOrWhiteSpace(uri.Host) ||
-                !string.IsNullOrEmpty(uri.UserInfo) ||
-                !keys.Add($"{item.Subject}:{item.Property}:{item.Value}"))
+                !IsValidDataValue(property.ValueKind, item.Value, out var normalizedValue) ||
+                !keys.Add($"{item.Subject}:{item.Property}:{normalizedValue}"))
             {
-                error = "Every semantic data assertion must supply a unique typed URI value and a valid subject/property pair.";
+                error = "Every semantic data assertion must supply a unique value matching its declared type and a valid subject/property pair.";
                 return false;
             }
 
             builder.Add(new SemanticDataAssertion(
                 item.Subject,
                 item.Property,
-                uri.AbsoluteUri,
+                normalizedValue,
                 new SemanticWorldModelSource($"{document.Id}:data:{item.Subject}:{item.Property}")));
         }
 
         dataAssertions = builder.ToImmutable();
         return true;
+    }
+
+    private static bool IsValidDataValue(
+        SemanticDataValueKind valueKind,
+        string value,
+        out string normalizedValue)
+    {
+        normalizedValue = string.Empty;
+        if (valueKind == SemanticDataValueKind.Uri)
+        {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+                uri.Scheme is not ("http" or "https") ||
+                string.IsNullOrWhiteSpace(uri.Host) ||
+                !string.IsNullOrEmpty(uri.UserInfo))
+            {
+                return false;
+            }
+
+            normalizedValue = uri.AbsoluteUri;
+            return true;
+        }
+
+        if (valueKind == SemanticDataValueKind.Number &&
+            decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number))
+        {
+            normalizedValue = number.ToString(CultureInfo.InvariantCulture);
+            return true;
+        }
+
+        return false;
     }
 
     private static bool AreAssertionsWellTyped(SemanticWorldModel model)

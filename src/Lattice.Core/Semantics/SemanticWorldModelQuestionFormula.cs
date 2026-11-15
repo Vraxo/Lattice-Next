@@ -12,7 +12,8 @@ public enum SemanticWorldModelQuestionKind
     WhyHarmful,
     BeginnerGuidance,
     CreativeIdeas,
-    ListExamples
+    ListExamples,
+    MaximumDataValue
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
