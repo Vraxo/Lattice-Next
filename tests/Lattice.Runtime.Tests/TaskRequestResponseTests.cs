@@ -7,6 +7,44 @@ namespace Lattice.Runtime.Tests;
 public sealed class TaskRequestResponseTests
 {
     [Fact]
+    public async Task Brainstorms_distinct_beverage_can_uses_from_structured_affordances()
+    {
+        const string input = "What are 5 potential uses for an empty La Croix can?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("Pen holder", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Small-parts organizer", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Seedling starter pot", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Dried-flower display", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Percussion shaker", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("release parking brake", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("candle holder", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("sharp rim", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_uses_for_an_unmodeled_empty_object()
+    {
+        const string input = "What are 5 potential uses for an empty cardboard box?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
     public async Task Explains_manual_transmission_operation_from_structured_procedure_knowledge()
     {
         const string input = "How do you operate a car with a manual transmission?";
