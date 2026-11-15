@@ -492,20 +492,28 @@ internal static class SemanticWorldModelResponder
             .Where(concept => concept is not null)
             .Select(concept => concept!)
             .ToArray();
-        if (safetyGuidance.Length == 0)
+        var warningAssertions = reasoner.GetRelations(activity.Id, "stop-and-seek-help-for");
+        var warningGuidance = warningAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!)
+            .ToArray();
+        if (safetyGuidance.Length == 0 || warningGuidance.Length == 0)
         {
             return false;
         }
 
         sources.AddRange(safetyAssertions.Select(assertion => assertion.Source));
-        sources.AddRange(safetyGuidance.SelectMany(concept =>
+        sources.AddRange(warningAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(safetyGuidance.Concat(warningGuidance).SelectMany(concept =>
             reasoner.GetMembershipEvidence(concept.Id, "safety-guidance")));
         sources.AddRange(reasoner.GetMembershipEvidence(activity.Id, "physical-activity"));
 
         var stepText = string.Join("\n", steps.Select((item, index) =>
             $"{index + 1}. {Capitalize(item.Step.Label)}; purpose: {item.Purpose.Label}."));
         var safetyText = JoinConditions(safetyGuidance.Select(concept => concept.Label).ToArray());
-        message = $"To start {activity.Label}, use a gradual beginner routine:\n{stepText}\nSafety considerations include {safetyText}.";
+        var warningText = JoinConditions(warningGuidance.Select(concept => concept.Label).ToArray());
+        message = $"To start {activity.Label}, use a gradual beginner routine:\n{stepText}\nSafety considerations include {safetyText}. Stop and seek medical help if you experience {warningText}.";
         evidence = ImmutableArray.Create(ToEvidence(
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
