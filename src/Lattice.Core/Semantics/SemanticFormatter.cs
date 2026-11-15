@@ -30,6 +30,7 @@ public static class SemanticFormatter
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
+            EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
             SemanticRelationQueryFormula relationQuery => $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})",
             SemanticRelationSourceQueryFormula relationQuery => $"relation-sources({relationQuery.Object}, {relationQuery.Verb})",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
@@ -61,6 +62,10 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
             _ => "world-model-question(unsupported)"
         };
+
+    private static string FormatEnumerationRemainderQuestion(
+        EnumerationRemainderQuestionFormula remainder) =>
+        $"enumeration-remainder({remainder.Member}, {remainder.Group}, {remainder.ExpectedCount}, position({remainder.MissingPosition}), known({string.Join(", ", remainder.NamedMembers)}))";
 
     private static string FormatChoiceQuestion(ChoiceQuestionFormula choice) =>
         $"choice({choice.Category.Value}, {string.Join(", ", choice.Choices.Select(item => item.Value))})";
