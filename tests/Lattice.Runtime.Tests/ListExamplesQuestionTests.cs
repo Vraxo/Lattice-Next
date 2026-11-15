@@ -12,9 +12,9 @@ public sealed class ListExamplesQuestionTests
     public async Task Lists_requested_number_of_semantic_category_members(string prompt)
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
-        var result = await session.SubmitAsync(prompt);
+        var result = await session.SubmitAsync(prompt, TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -26,7 +26,7 @@ public sealed class ListExamplesQuestionTests
         Assert.Contains("3. Cobra Puma Golf", answer.Message);
         Assert.Contains("4. PING Inc.", answer.Message);
         Assert.Contains("5. TaylorMade Golf Company", answer.Message);
-        Assert.Equal(5, answer.Message.Split('\n').Count(line => line.Length > 2 && char.IsDigit(line[0]) && line[1] == '.'));
+        Assert.Equal(5, answer.Message!.Split('\n').Count(line => line.Length > 2 && char.IsDigit(line[0]) && line[1] == '.'));
         Assert.NotEmpty(answer.SupportingEvidence);
     }
 
@@ -37,7 +37,8 @@ public sealed class ListExamplesQuestionTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Give me five golf equipment company names in a numbered list. Names only; no descriptions.");
+            "Give me five golf equipment company names in a numbered list. Names only; no descriptions.",
+            TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
