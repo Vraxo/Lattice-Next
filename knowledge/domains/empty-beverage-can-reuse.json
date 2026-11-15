@@ -269,7 +269,7 @@
     {
       "id": "idea-for-object",
       "domain": "repurposing-idea",
-      "range": "beverage-can",
+      "range": null,
       "verb": "is a potential use for",
       "objectRole": null,
       "order": 0,
