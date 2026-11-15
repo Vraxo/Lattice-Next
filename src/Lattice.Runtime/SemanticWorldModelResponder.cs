@@ -1706,7 +1706,7 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
 
-        message = $"{assistant.Label} is worth exploring for its {JoinNames(benefits)}. The project is {projectStatus}; its {demoStatus}. Its model access is {accessModel}, and its licensing arrangement is {licensingModel}. {Capitalize(modelQuality)}; {hardwareRequirement}. It is best suited to research and self-hosted experimentation, not as a maintained hosted chatbot.";
+        message = $"{assistant.Label} is worth exploring for its {JoinNames(benefits)}. It is {IndefinitePhrase(projectStatus)}, and its {demoStatus}. You can use its {accessModel}. Its licensing terms: {licensingModel}. {Capitalize(modelQuality)}; {hardwareRequirement}. It is best suited to research and self-hosted experimentation, not as a maintained hosted chatbot.";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
 
