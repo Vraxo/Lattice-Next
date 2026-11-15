@@ -11,10 +11,10 @@
     "substantive_answer_criteria": "Count a prompt only after a human has inspected its current response and confirmed that it directly addresses the requested task with meaningful content. Exclude objective retention, unavailable-knowledge responses, generic acknowledgements, empty responses, and irrelevant output. This is a coverage milestone, not a guarantee that every factual claim is independently verified. New answers remain uncounted until reviewed."
   },
   "counts": {
-    "total": 34,
+    "total": 40,
     "dolly": 30,
-    "oasst1": 4,
-    "wildchat": 0,
+    "oasst1": 8,
+    "wildchat": 2,
     "substantive_answer_reviewed": 34
   },
   "records": [
@@ -94,6 +94,126 @@
       },
       "reference_response": null,
       "substantive_answer_reviewed": true
+    },
+    {
+      "id": "oasst1-7cce4047-8f87-42c4-9d75-a590c02be5b1",
+      "prompt": "I want to start doing astrophotography as a hobby, any suggestions what could i do?",
+      "context": null,
+      "category": "hobby planning / recommendations",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "7cce4047-8f87-42c4-9d75-a590c02be5b1",
+        "message_tree_id": "7cce4047-8f87-42c4-9d75-a590c02be5b1",
+        "created_at": "2023-02-05T13:18:52.133806+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
+    },
+    {
+      "id": "oasst1-91a934ba-cfb8-4ca9-84d0-232b43ad13ab",
+      "prompt": "Can you explain contrastive learning in machine learning in simple terms for someone new to the field of ML?",
+      "context": null,
+      "category": "technical explanation / machine learning",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "91a934ba-cfb8-4ca9-84d0-232b43ad13ab",
+        "message_tree_id": "91a934ba-cfb8-4ca9-84d0-232b43ad13ab",
+        "created_at": "2023-02-04T18:22:03.285526+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
+    },
+    {
+      "id": "oasst1-c866c106-86e0-4d63-97fe-03b896b0473c",
+      "prompt": "How can I learn to optimize my webpage for search engines?",
+      "context": null,
+      "category": "how-to / web publishing",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "c866c106-86e0-4d63-97fe-03b896b0473c",
+        "message_tree_id": "c866c106-86e0-4d63-97fe-03b896b0473c",
+        "created_at": "2023-02-06T23:08:24.646103+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
+    },
+    {
+      "id": "oasst1-ca4d0c93-220b-4861-87c1-bdb44cd13f72",
+      "prompt": "How would I create a script for blender that replaces all of objects with a specific name with a point light?",
+      "context": null,
+      "category": "coding / scripting",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "OpenAssistant/oasst1",
+        "url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+        "message_id": "ca4d0c93-220b-4861-87c1-bdb44cd13f72",
+        "message_tree_id": "ca4d0c93-220b-4861-87c1-bdb44cd13f72",
+        "created_at": "2023-02-07T00:48:22.852939+00:00",
+        "language": "en",
+        "source_kind": "community conversation prompt",
+        "license": "Apache-2.0"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
+    },
+    {
+      "id": "wildchat-e4143a9a093e9d9ee9002b1d6e6dfc8c",
+      "prompt": "A proton moving at 2.5 x 10^4 m/s is accelerated by a potential difference of ‐250 V, what is its\nfinal velocity? ",
+      "context": null,
+      "category": "problem solving / physics",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "allenai/WildChat",
+        "url": "https://huggingface.co/datasets/allenai/WildChat",
+        "conversation_id": "e4143a9a093e9d9ee9002b1d6e6dfc8c",
+        "turn": 1,
+        "model": "gpt-4",
+        "created_at": "2023-04-10T01:44:31Z",
+        "language": "English",
+        "toxic": false,
+        "redacted": false,
+        "source_kind": "single-turn ChatGPT conversation prompt",
+        "license": "ODC-BY"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
+    },
+    {
+      "id": "wildchat-d2ae90cc07eb7dbcbc9c7230eaf0a7ec",
+      "prompt": "What are \"Temperature\" and \"Top-p (nucleus sampling\") in language model? Can you provide an example of what the changes to these parameters would do?",
+      "context": null,
+      "category": "technical explanation / language models",
+      "evaluation_layer": "real-world-instruction",
+      "source": {
+        "dataset": "allenai/WildChat",
+        "url": "https://huggingface.co/datasets/allenai/WildChat",
+        "conversation_id": "d2ae90cc07eb7dbcbc9c7230eaf0a7ec",
+        "turn": 1,
+        "model": "gpt-4",
+        "created_at": "2023-04-10T02:05:42Z",
+        "language": "English",
+        "toxic": false,
+        "redacted": false,
+        "source_kind": "single-turn ChatGPT conversation prompt",
+        "license": "ODC-BY"
+      },
+      "reference_response": null,
+      "substantive_answer_reviewed": false
     },
     {
       "id": "dolly-001",
