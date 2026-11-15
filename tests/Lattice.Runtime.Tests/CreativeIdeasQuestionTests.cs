@@ -20,11 +20,11 @@ public sealed class CreativeIdeasQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal("ask(world-model-creative-ideas(curtain-tie-backs))", answer.Meaning);
-        Assert.Contains("braided fabric tie-back", answer.Message);
-        Assert.Contains("rope and bead tie-back", answer.Message);
-        Assert.Contains("repurposed belt tie-back", answer.Message);
-        Assert.Contains("vintage scarf tie-back", answer.Message);
-        Assert.Contains("wooden dowel tie-back", answer.Message);
+        Assert.Contains("Braided fabric tie-back", answer.Message);
+        Assert.Contains("Rope and bead tie-back", answer.Message);
+        Assert.Contains("Repurposed belt tie-back", answer.Message);
+        Assert.Contains("Vintage scarf tie-back", answer.Message);
+        Assert.Contains("Wooden dowel tie-back", answer.Message);
         Assert.Contains("reclaimed cotton fabric", answer.Message);
         Assert.Contains("large wooden beads", answer.Message);
         Assert.Contains("wall-mounted cup hook", answer.Message);
