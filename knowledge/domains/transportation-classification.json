@@ -1,0 +1,53 @@
+{
+  "formatVersion": 3,
+  "id": "core-transportation-classification",
+  "name": "Transportation suitability examples",
+  "concepts": [
+    { "id": "thing-for-transportation", "label": "thing for transportation", "kind": "Type" },
+    { "id": "useful-thing-for-transportation", "label": "useful thing for transportation", "kind": "Type" },
+    { "id": "not-useful-thing-for-transportation", "label": "not useful thing for transportation", "kind": "Type" },
+    { "id": "glass-of-wine", "label": "glass of wine", "kind": "Individual" },
+    { "id": "lamp", "label": "lamp", "kind": "Individual" },
+    { "id": "train", "label": "train", "kind": "Individual" },
+    { "id": "iced-cube-tray", "label": "ice cube tray", "kind": "Individual" },
+    { "id": "plane", "label": "plane", "kind": "Individual" },
+    { "id": "bicycle", "label": "bicycle", "kind": "Individual" },
+    { "id": "apple", "label": "apple", "kind": "Individual" },
+    { "id": "scooter", "label": "scooter", "kind": "Individual" }
+  ],
+  "lexemes": [
+    { "form": "thing for transportation", "concept": "thing-for-transportation", "partOfSpeech": "noun" },
+    { "form": "useful thing for transportation", "concept": "useful-thing-for-transportation", "partOfSpeech": "noun" },
+    { "form": "not useful thing for transportation", "concept": "not-useful-thing-for-transportation", "partOfSpeech": "noun" },
+    { "form": "glass of wine", "concept": "glass-of-wine", "partOfSpeech": "noun" },
+    { "form": "lamp", "concept": "lamp", "partOfSpeech": "noun" },
+    { "form": "train", "concept": "train", "partOfSpeech": "noun" },
+    { "form": "iced cube tray", "concept": "iced-cube-tray", "partOfSpeech": "noun" },
+    { "form": "ice cube tray", "concept": "iced-cube-tray", "partOfSpeech": "noun" },
+    { "form": "plane", "concept": "plane", "partOfSpeech": "noun" },
+    { "form": "bicycle", "concept": "bicycle", "partOfSpeech": "noun" },
+    { "form": "apple", "concept": "apple", "partOfSpeech": "noun" },
+    { "form": "scooter", "concept": "scooter", "partOfSpeech": "noun" }
+  ],
+  "relations": [],
+  "definitions": [
+    { "concept": "thing-for-transportation", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "useful-thing-for-transportation", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
+    { "concept": "not-useful-thing-for-transportation", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }
+  ],
+  "relationAssertions": [
+    { "subject": "thing-for-transportation", "relation": "is-a", "object": "entity" },
+    { "subject": "useful-thing-for-transportation", "relation": "is-a", "object": "thing-for-transportation" },
+    { "subject": "not-useful-thing-for-transportation", "relation": "is-a", "object": "thing-for-transportation" },
+    { "subject": "glass-of-wine", "relation": "instance-of", "object": "not-useful-thing-for-transportation" },
+    { "subject": "lamp", "relation": "instance-of", "object": "not-useful-thing-for-transportation" },
+    { "subject": "train", "relation": "instance-of", "object": "useful-thing-for-transportation" },
+    { "subject": "iced-cube-tray", "relation": "instance-of", "object": "not-useful-thing-for-transportation" },
+    { "subject": "plane", "relation": "instance-of", "object": "useful-thing-for-transportation" },
+    { "subject": "bicycle", "relation": "instance-of", "object": "useful-thing-for-transportation" },
+    { "subject": "apple", "relation": "instance-of", "object": "not-useful-thing-for-transportation" },
+    { "subject": "scooter", "relation": "instance-of", "object": "useful-thing-for-transportation" }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
