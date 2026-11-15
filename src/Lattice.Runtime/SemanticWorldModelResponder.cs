@@ -1881,9 +1881,13 @@ internal static class SemanticWorldModelResponder
     private static string Indefinite(string phrase) =>
         IsMassNoun(phrase)
             ? string.Empty
-            : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
-                ? "an"
-                : "a";
+            : phrase.StartsWith("useful", StringComparison.OrdinalIgnoreCase) ||
+              phrase.StartsWith("user", StringComparison.OrdinalIgnoreCase) ||
+              phrase.StartsWith("university", StringComparison.OrdinalIgnoreCase)
+                ? "a"
+                : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
+                    ? "an"
+                    : "a";
 
     private static string IndefinitePhrase(string phrase)
     {
