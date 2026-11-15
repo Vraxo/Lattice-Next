@@ -34,6 +34,8 @@ internal static class SemanticWorldModelResponder
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.WhyHarmful =>
+                TryExplainHarmfulness(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -399,6 +401,84 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainHarmfulness(
+        string requestedSubject,
+        string requestedTarget,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var subject = model.FindConcept(requestedSubject, SemanticConceptKind.Individual);
+        var targetType = model.FindConcept(requestedTarget, SemanticConceptKind.Type);
+        var effectType = model.FindConcept("adverse-effect", SemanticConceptKind.Type);
+        if (subject is null ||
+            targetType is null ||
+            effectType is null ||
+            !reasoner.IsInstanceOf(subject.Id, "technology-use"))
+        {
+            return false;
+        }
+
+        var effectAssertions = reasoner.GetRelations(subject.Id, "can-contribute-to")
+            .Select(assertion => (
+                Effect: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(candidate =>
+                candidate.Effect is not null &&
+                reasoner.IsInstanceOf(candidate.Effect.Id, effectType.Id) &&
+                reasoner.GetRelations(candidate.Effect.Id, "affects-person")
+                    .Any(assertion => assertion.Object == targetType.Id))
+            .ToArray();
+        if (effectAssertions.Length == 0)
+        {
+            return false;
+        }
+
+        var descriptions = new List<string>();
+        var sources = new List<SemanticWorldModelSource>();
+        foreach (var candidate in effectAssertions)
+        {
+            var mechanismAssertions = reasoner.GetRelations(candidate.Effect!.Id, "can-arise-through");
+            var mechanisms = mechanismAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .Where(concept => concept is not null)
+                .Select(concept => concept!)
+                .DistinctBy(concept => concept.Id)
+                .ToArray();
+            if (mechanisms.Length == 0)
+            {
+                continue;
+            }
+
+            descriptions.Add(
+                $"{candidate.Effect.Label} (which can arise through {JoinConditions(mechanisms.Select(item => item.Label).ToArray())})");
+            sources.Add(candidate.Assertion.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(candidate.Effect.Id, effectType.Id));
+            sources.AddRange(reasoner.GetRelations(candidate.Effect.Id, "affects-person")
+                .Where(assertion => assertion.Object == targetType.Id)
+                .Select(assertion => assertion.Source));
+            sources.AddRange(mechanismAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(mechanisms.SelectMany(mechanism =>
+                reasoner.GetMembershipEvidence(mechanism.Id, "adverse-effect-mechanism")));
+        }
+
+        if (descriptions.Count == 0)
+        {
+            return false;
+        }
+
+        message =
+            $"{Capitalize(subject.Label)} is not inherently bad for people, but excessive or poorly timed use can contribute to {JoinConditions(descriptions.ToArray())}. These risks depend on usage patterns and can often be reduced through breaks, notification limits, comfortable viewing habits, and keeping phones away from bedtime.";
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 

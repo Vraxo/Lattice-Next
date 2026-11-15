@@ -1,0 +1,348 @@
+{
+  "formatVersion": 3,
+  "id": "core-mobile-phone-use",
+  "name": "Mobile phone use and human impacts",
+  "concepts": [
+    {
+      "id": "technology-use",
+      "label": "technology use",
+      "kind": "Type"
+    },
+    {
+      "id": "adverse-effect",
+      "label": "adverse effect",
+      "kind": "Type"
+    },
+    {
+      "id": "adverse-effect-mechanism",
+      "label": "adverse effect mechanism",
+      "kind": "Type"
+    },
+    {
+      "id": "mobile-phone-use",
+      "label": "mobile phone use",
+      "kind": "Individual"
+    },
+    {
+      "id": "sleep-disruption",
+      "label": "sleep disruption",
+      "kind": "Individual"
+    },
+    {
+      "id": "attention-fragmentation",
+      "label": "attention fragmentation",
+      "kind": "Individual"
+    },
+    {
+      "id": "eye-strain",
+      "label": "eye strain",
+      "kind": "Individual"
+    },
+    {
+      "id": "neck-back-discomfort",
+      "label": "neck and back discomfort",
+      "kind": "Individual"
+    },
+    {
+      "id": "reduced-physical-activity",
+      "label": "reduced physical activity",
+      "kind": "Individual"
+    },
+    {
+      "id": "social-interaction-disruption",
+      "label": "social interaction disruption",
+      "kind": "Individual"
+    },
+    {
+      "id": "nighttime-screen-exposure",
+      "label": "nighttime screen exposure and stimulating content",
+      "kind": "Individual"
+    },
+    {
+      "id": "notifications-task-switching",
+      "label": "notifications and repeated task-switching",
+      "kind": "Individual"
+    },
+    {
+      "id": "prolonged-close-viewing",
+      "label": "prolonged close viewing and reduced blinking",
+      "kind": "Individual"
+    },
+    {
+      "id": "sustained-bent-neck-posture",
+      "label": "sustained bent-neck posture",
+      "kind": "Individual"
+    },
+    {
+      "id": "displaced-movement",
+      "label": "screen time displacing movement",
+      "kind": "Individual"
+    },
+    {
+      "id": "divided-social-attention",
+      "label": "divided attention during face-to-face interaction",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "mobile",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobile phone",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mobile phones",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "smartphone",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "smartphones",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "smartphone use",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "phone use",
+      "concept": "mobile-phone-use",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "can-contribute-to",
+      "domain": "technology-use",
+      "range": "adverse-effect",
+      "verb": "can contribute to",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "can-arise-through",
+      "domain": "adverse-effect",
+      "range": "adverse-effect-mechanism",
+      "verb": "can arise through",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "affects-person",
+      "domain": "adverse-effect",
+      "verb": "can affect",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "technology-use",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "adverse-effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "adverse-effect-mechanism",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "technology-use",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "adverse-effect",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "adverse-effect-mechanism",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "instance-of",
+      "object": "technology-use"
+    },
+    {
+      "subject": "sleep-disruption",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "attention-fragmentation",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "eye-strain",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "neck-back-discomfort",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "social-interaction-disruption",
+      "relation": "instance-of",
+      "object": "adverse-effect"
+    },
+    {
+      "subject": "nighttime-screen-exposure",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "notifications-task-switching",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "prolonged-close-viewing",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "sustained-bent-neck-posture",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "displaced-movement",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "divided-social-attention",
+      "relation": "instance-of",
+      "object": "adverse-effect-mechanism"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "sleep-disruption"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "attention-fragmentation"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "eye-strain"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "neck-back-discomfort"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "reduced-physical-activity"
+    },
+    {
+      "subject": "mobile-phone-use",
+      "relation": "can-contribute-to",
+      "object": "social-interaction-disruption"
+    },
+    {
+      "subject": "sleep-disruption",
+      "relation": "can-arise-through",
+      "object": "nighttime-screen-exposure"
+    },
+    {
+      "subject": "attention-fragmentation",
+      "relation": "can-arise-through",
+      "object": "notifications-task-switching"
+    },
+    {
+      "subject": "eye-strain",
+      "relation": "can-arise-through",
+      "object": "prolonged-close-viewing"
+    },
+    {
+      "subject": "neck-back-discomfort",
+      "relation": "can-arise-through",
+      "object": "sustained-bent-neck-posture"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "can-arise-through",
+      "object": "displaced-movement"
+    },
+    {
+      "subject": "social-interaction-disruption",
+      "relation": "can-arise-through",
+      "object": "divided-social-attention"
+    },
+    {
+      "subject": "sleep-disruption",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "attention-fragmentation",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "eye-strain",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "neck-back-discomfort",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "reduced-physical-activity",
+      "relation": "affects-person",
+      "object": "person"
+    },
+    {
+      "subject": "social-interaction-disruption",
+      "relation": "affects-person",
+      "object": "person"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
