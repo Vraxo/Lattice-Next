@@ -133,7 +133,7 @@
       "range": "customer-segment",
       "verb": "serves",
       "objectRole": null,
-      "order": 1,
+      "order": 0,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
@@ -144,7 +144,7 @@
       "range": "business-problem",
       "verb": "addresses",
       "objectRole": null,
-      "order": 2,
+      "order": 0,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
@@ -155,7 +155,7 @@
       "range": "business-offering",
       "verb": "offers",
       "objectRole": null,
-      "order": 3,
+      "order": 0,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
@@ -166,7 +166,7 @@
       "range": "revenue-model",
       "verb": "can earn revenue through",
       "objectRole": null,
-      "order": 4,
+      "order": 0,
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
