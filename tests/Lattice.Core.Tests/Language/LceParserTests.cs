@@ -644,11 +644,18 @@ public sealed class LceParserTests
     }
 
     [Fact]
-    public void Does_not_treat_a_clause_as_a_relation_object()
+    public void Parses_generic_event_outcome_questions()
     {
         var result = parser.ParseText("What happens when the sun goes down?");
 
-        Assert.False(result.IsSuccess);
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var query = Assert.IsType<SemanticWorldModelQuestionFormula>(utterance.Meaning);
+        Assert.Equal(SemanticWorldModelQuestionKind.EventOutcomes, query.Kind);
+        Assert.Equal("sun-goes-down", query.Subject);
+        Assert.Equal(
+            "ask(world-model-event-outcomes(sun-goes-down))",
+            SemanticFormatter.Format(utterance));
     }
 
 
