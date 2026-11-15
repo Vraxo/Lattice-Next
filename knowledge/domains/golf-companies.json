@@ -1,0 +1,112 @@
+{
+  "formatVersion": 3,
+  "id": "core-golf-companies",
+  "name": "Golf equipment companies",
+  "concepts": [
+    {
+      "id": "golf-equipment-company",
+      "label": "golf equipment company",
+      "kind": "Type"
+    },
+    {
+      "id": "acushnet-holdings",
+      "label": "Acushnet Holdings Corp.",
+      "kind": "Individual"
+    },
+    {
+      "id": "callaway-golf-company",
+      "label": "Callaway Golf Company",
+      "kind": "Individual"
+    },
+    {
+      "id": "cobra-puma-golf",
+      "label": "Cobra Puma Golf",
+      "kind": "Individual"
+    },
+    {
+      "id": "ping-inc",
+      "label": "PING Inc.",
+      "kind": "Individual"
+    },
+    {
+      "id": "taylormade-golf-company",
+      "label": "TaylorMade Golf Company",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "golf equipment company",
+      "concept": "golf-equipment-company",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "golf equipment companies",
+      "concept": "golf-equipment-company",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Acushnet",
+      "concept": "acushnet-holdings",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Callaway",
+      "concept": "callaway-golf-company",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Cobra Puma Golf",
+      "concept": "cobra-puma-golf",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "PING",
+      "concept": "ping-inc",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "TaylorMade",
+      "concept": "taylormade-golf-company",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [],
+  "definitions": [
+    {
+      "concept": "golf-equipment-company",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "acushnet-holdings",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "callaway-golf-company",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "cobra-puma-golf",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "ping-inc",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    },
+    {
+      "subject": "taylormade-golf-company",
+      "relation": "instance-of",
+      "object": "golf-equipment-company"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
