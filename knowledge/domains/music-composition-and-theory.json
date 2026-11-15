@@ -45,7 +45,7 @@
     },
     {
       "id": "no-formal-theory-required",
-      "label": "no formal music-theory training is required to begin",
+      "label": "formal music-theory training",
       "kind": "Individual"
     },
     {
@@ -55,12 +55,12 @@
     },
     {
       "id": "start-with-a-melody",
-      "label": "starting with a melody",
+      "label": "writing a melody",
       "kind": "Individual"
     },
     {
       "id": "start-with-a-rhythm",
-      "label": "starting with a rhythm",
+      "label": "building a rhythm",
       "kind": "Individual"
     },
     {
