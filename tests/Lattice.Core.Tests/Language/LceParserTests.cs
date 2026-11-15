@@ -652,4 +652,20 @@ public sealed class LceParserTests
     }
 
 
+    [Fact]
+    public void Parses_relation_source_questions_with_a_subject_type_constraint()
+    {
+        var result = parser.Parse("Which Dutch artist painted “Girl with a Pearl Earring”?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        var query = Assert.IsType<SemanticRelationSourceQueryFormula>(utterance.Meaning);
+        Assert.Equal("girl-with-a-pearl-earring", query.Object);
+        Assert.Equal("painted", query.Verb);
+        Assert.Equal("dutch-artist", query.SubjectType);
+        Assert.Equal(
+            "ask(relation-sources(girl-with-a-pearl-earring, painted, subject-type(dutch-artist)))",
+            SemanticFormatter.Format(utterance));
+    }
+
 }
