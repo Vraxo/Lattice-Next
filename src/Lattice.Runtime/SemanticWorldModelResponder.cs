@@ -178,7 +178,11 @@ internal static class SemanticWorldModelResponder
                 Subject: model.FindConcept(assertion.Subject, SemanticConceptKind.Individual),
                 Relation: model.FindRelation(assertion.Relation),
                 assertion.Source))
-            .Where(match => match.Subject is not null && match.Relation is not null)
+            .Where(match =>
+                match.Subject is not null &&
+                match.Relation is not null &&
+                (request.SubjectType is null ||
+                 reasoner.IsInstanceOf(match.Subject.Id, request.SubjectType)))
             .ToArray();
         if (matches.Length == 0)
         {
@@ -197,9 +201,15 @@ internal static class SemanticWorldModelResponder
             ? NormalizeVerb(relation.Verb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0])
             : relation.Verb;
         message = $"{Capitalize(subjectPhrase)} {verb} the {target.Label}.";
-        evidence = ImmutableArray.Create(ToEvidence(
-            matches.Select(match => match.Source).Distinct().ToImmutableArray(),
-            LatticeEvidenceKind.Derived));
+        var sources = matches
+            .Select(match => match.Source)
+            .Concat(request.SubjectType is null
+                ? []
+                : subjects.SelectMany(subject =>
+                    reasoner.GetMembershipEvidence(subject.Id, request.SubjectType)))
+            .Distinct()
+            .ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 
