@@ -19,8 +19,8 @@
       "kind": "Type"
     },
     {
-      "id": "place",
-      "label": "place",
+      "id": "road-trip-place",
+      "label": "road trip place",
       "kind": "Type"
     },
     {
@@ -187,7 +187,7 @@
     {
       "id": "day-has-stop",
       "domain": "trip-day",
-      "range": "place",
+      "range": "road-trip-place",
       "verb": "includes stop",
       "objectRole": null,
       "order": 0,
@@ -197,7 +197,7 @@
     },
     {
       "id": "place-offers-activity",
-      "domain": "place",
+      "domain": "road-trip-place",
       "range": "activity",
       "verb": "offers activity",
       "objectRole": null,
@@ -238,7 +238,7 @@
       "sufficientExpression": null
     },
     {
-      "concept": "place",
+      "concept": "road-trip-place",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -273,7 +273,7 @@
       "object": "entity"
     },
     {
-      "subject": "place",
+      "subject": "road-trip-place",
       "relation": "is-a",
       "object": "entity"
     },
@@ -315,32 +315,32 @@
     {
       "subject": "morristown-national-historical-park",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "cross-estate-gardens",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "princeton-university",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "princeton-battlefield-state-park",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "lambertville",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "delaware-raritan-canal-towpath",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "trail-walk",
@@ -375,7 +375,7 @@
     {
       "subject": "canal-towpath-walk",
       "relation": "instance-of",
-      "object": "place"
+      "object": "road-trip-place"
     },
     {
       "subject": "outdoor-activity",
