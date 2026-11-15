@@ -26,6 +26,8 @@ public sealed class MaximumDataValueQuestionTests
             "Michael Phelps has won the most Olympic gold medals (23).",
             answer.Message);
         var evidence = Assert.Single(answer.SupportingEvidence);
+        var status = await session.GetStatusAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(8, status.SemanticDataAssertionCount);
         Assert.Contains(
             evidence.Sources,
             source => source.SourceId ==
