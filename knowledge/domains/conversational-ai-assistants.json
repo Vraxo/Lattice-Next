@@ -105,7 +105,7 @@
     },
     {
       "id": "apache-code-data-model-specific-licenses",
-      "label": "open-source code-and-data release with base-model-specific weight licenses",
+      "label": "open-source code-and-data release under Apache 2.0 with base-model-specific weight licenses",
       "kind": "Individual"
     },
     {
