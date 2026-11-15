@@ -1,0 +1,402 @@
+{
+  "formatVersion": 3,
+  "id": "business-ideas",
+  "name": "General business venture ideas",
+  "concepts": [
+    {
+      "id": "business-idea-category",
+      "label": "business idea category",
+      "kind": "Type"
+    },
+    {
+      "id": "business-idea",
+      "label": "business idea",
+      "kind": "Type"
+    },
+    {
+      "id": "customer-segment",
+      "label": "customer segment",
+      "kind": "Type"
+    },
+    {
+      "id": "business-problem",
+      "label": "business problem",
+      "kind": "Type"
+    },
+    {
+      "id": "business-offering",
+      "label": "business offering",
+      "kind": "Type"
+    },
+    {
+      "id": "revenue-model",
+      "label": "revenue model",
+      "kind": "Type"
+    },
+    {
+      "id": "business-ideas",
+      "label": "business ideas",
+      "kind": "Individual"
+    },
+    {
+      "id": "property-maintenance-coordination",
+      "label": "property maintenance and renovation coordination",
+      "kind": "Individual"
+    },
+    {
+      "id": "reclaimed-building-materials-marketplace",
+      "label": "reclaimed building materials marketplace",
+      "kind": "Individual"
+    },
+    {
+      "id": "small-business-energy-retrofits",
+      "label": "small-business energy-efficiency retrofits",
+      "kind": "Individual"
+    },
+    {
+      "id": "homeowners-and-property-managers",
+      "label": "homeowners and property managers",
+      "kind": "Individual"
+    },
+    {
+      "id": "builders-and-renovation-contractors",
+      "label": "builders and renovation contractors",
+      "kind": "Individual"
+    },
+    {
+      "id": "small-commercial-property-owners",
+      "label": "owners of small commercial properties",
+      "kind": "Individual"
+    },
+    {
+      "id": "fragmented-property-repairs",
+      "label": "fragmented property repairs and unreliable contractor coordination",
+      "kind": "Individual"
+    },
+    {
+      "id": "usable-construction-material-waste",
+      "label": "usable construction materials being discarded during renovations",
+      "kind": "Individual"
+    },
+    {
+      "id": "high-building-energy-costs",
+      "label": "high building energy costs and inefficient insulation",
+      "kind": "Individual"
+    },
+    {
+      "id": "maintenance-planning-and-contractor-coordination",
+      "label": "maintenance planning, vetted contractor coordination, and repair scheduling",
+      "kind": "Individual"
+    },
+    {
+      "id": "salvaged-materials-listings-and-local-matching",
+      "label": "inventory listings and local matching for salvaged construction materials",
+      "kind": "Individual"
+    },
+    {
+      "id": "energy-assessments-and-retrofit-project-management",
+      "label": "energy assessments and managed insulation and efficiency upgrades",
+      "kind": "Individual"
+    },
+    {
+      "id": "coordination-fees-and-maintenance-plans",
+      "label": "project coordination fees and recurring maintenance plans",
+      "kind": "Individual"
+    },
+    {
+      "id": "marketplace-transaction-fees",
+      "label": "transaction fees on completed material sales",
+      "kind": "Individual"
+    },
+    {
+      "id": "assessment-and-project-management-fees",
+      "label": "assessment and project-management fees",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [],
+  "relations": [
+    {
+      "id": "has-business-idea",
+      "domain": "business-idea-category",
+      "range": "business-idea",
+      "verb": "can pursue as",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "serves-customer",
+      "domain": "business-idea",
+      "range": "customer-segment",
+      "verb": "serves",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "addresses-problem",
+      "domain": "business-idea",
+      "range": "business-problem",
+      "verb": "addresses",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "offers-service",
+      "domain": "business-idea",
+      "range": "business-offering",
+      "verb": "offers",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "earns-revenue-through",
+      "domain": "business-idea",
+      "range": "revenue-model",
+      "verb": "can earn revenue through",
+      "objectRole": null,
+      "order": 4,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "business-idea-category",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "business-idea",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "customer-segment",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "business-problem",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "business-offering",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "revenue-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "business-idea-category",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "business-idea",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "customer-segment",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "business-problem",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "business-offering",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "revenue-model",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "business-ideas",
+      "relation": "instance-of",
+      "object": "business-idea-category"
+    },
+    {
+      "subject": "property-maintenance-coordination",
+      "relation": "instance-of",
+      "object": "business-idea"
+    },
+    {
+      "subject": "reclaimed-building-materials-marketplace",
+      "relation": "instance-of",
+      "object": "business-idea"
+    },
+    {
+      "subject": "small-business-energy-retrofits",
+      "relation": "instance-of",
+      "object": "business-idea"
+    },
+    {
+      "subject": "homeowners-and-property-managers",
+      "relation": "instance-of",
+      "object": "customer-segment"
+    },
+    {
+      "subject": "builders-and-renovation-contractors",
+      "relation": "instance-of",
+      "object": "customer-segment"
+    },
+    {
+      "subject": "small-commercial-property-owners",
+      "relation": "instance-of",
+      "object": "customer-segment"
+    },
+    {
+      "subject": "fragmented-property-repairs",
+      "relation": "instance-of",
+      "object": "business-problem"
+    },
+    {
+      "subject": "usable-construction-material-waste",
+      "relation": "instance-of",
+      "object": "business-problem"
+    },
+    {
+      "subject": "high-building-energy-costs",
+      "relation": "instance-of",
+      "object": "business-problem"
+    },
+    {
+      "subject": "maintenance-planning-and-contractor-coordination",
+      "relation": "instance-of",
+      "object": "business-offering"
+    },
+    {
+      "subject": "salvaged-materials-listings-and-local-matching",
+      "relation": "instance-of",
+      "object": "business-offering"
+    },
+    {
+      "subject": "energy-assessments-and-retrofit-project-management",
+      "relation": "instance-of",
+      "object": "business-offering"
+    },
+    {
+      "subject": "coordination-fees-and-maintenance-plans",
+      "relation": "instance-of",
+      "object": "revenue-model"
+    },
+    {
+      "subject": "marketplace-transaction-fees",
+      "relation": "instance-of",
+      "object": "revenue-model"
+    },
+    {
+      "subject": "assessment-and-project-management-fees",
+      "relation": "instance-of",
+      "object": "revenue-model"
+    },
+    {
+      "subject": "business-ideas",
+      "relation": "has-business-idea",
+      "object": "property-maintenance-coordination"
+    },
+    {
+      "subject": "business-ideas",
+      "relation": "has-business-idea",
+      "object": "reclaimed-building-materials-marketplace"
+    },
+    {
+      "subject": "business-ideas",
+      "relation": "has-business-idea",
+      "object": "small-business-energy-retrofits"
+    },
+    {
+      "subject": "property-maintenance-coordination",
+      "relation": "serves-customer",
+      "object": "homeowners-and-property-managers"
+    },
+    {
+      "subject": "property-maintenance-coordination",
+      "relation": "addresses-problem",
+      "object": "fragmented-property-repairs"
+    },
+    {
+      "subject": "property-maintenance-coordination",
+      "relation": "offers-service",
+      "object": "maintenance-planning-and-contractor-coordination"
+    },
+    {
+      "subject": "property-maintenance-coordination",
+      "relation": "earns-revenue-through",
+      "object": "coordination-fees-and-maintenance-plans"
+    },
+    {
+      "subject": "reclaimed-building-materials-marketplace",
+      "relation": "serves-customer",
+      "object": "builders-and-renovation-contractors"
+    },
+    {
+      "subject": "reclaimed-building-materials-marketplace",
+      "relation": "addresses-problem",
+      "object": "usable-construction-material-waste"
+    },
+    {
+      "subject": "reclaimed-building-materials-marketplace",
+      "relation": "offers-service",
+      "object": "salvaged-materials-listings-and-local-matching"
+    },
+    {
+      "subject": "reclaimed-building-materials-marketplace",
+      "relation": "earns-revenue-through",
+      "object": "marketplace-transaction-fees"
+    },
+    {
+      "subject": "small-business-energy-retrofits",
+      "relation": "serves-customer",
+      "object": "small-commercial-property-owners"
+    },
+    {
+      "subject": "small-business-energy-retrofits",
+      "relation": "addresses-problem",
+      "object": "high-building-energy-costs"
+    },
+    {
+      "subject": "small-business-energy-retrofits",
+      "relation": "offers-service",
+      "object": "energy-assessments-and-retrofit-project-management"
+    },
+    {
+      "subject": "small-business-energy-retrofits",
+      "relation": "earns-revenue-through",
+      "object": "assessment-and-project-management-fees"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
