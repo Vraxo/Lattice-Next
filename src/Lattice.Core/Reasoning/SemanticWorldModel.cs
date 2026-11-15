@@ -59,7 +59,8 @@ public sealed record SemanticRelationAssertion(
 
 public enum SemanticDataValueKind
 {
-    Uri
+    Uri,
+    Number
 }
 
 public sealed record SemanticDataPropertyDefinition(
