@@ -63,6 +63,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContextualRelationRoleQuery =>
                 TryContextualRelationRoleQuery(request.Subject, request.Concept ?? string.Empty, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.ProductionLocationReasons =>
+                TryExplainProductionLocationReasons(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -766,6 +768,90 @@ internal static class SemanticWorldModelResponder
         message = $"There is no single objective ranking, but here are {request.Limit} widely regarded comedy films from the 1980s, spanning several styles:\n{string.Join("\n", entries)}";
         evidence = ImmutableArray.Create(ToEvidence(
             selected.SelectMany(item => item.Sources).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainProductionLocationReasons(
+        string activityId,
+        string locationId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var activity = model.FindConcept(activityId, SemanticConceptKind.Type);
+        var location = model.FindConcept(locationId, SemanticConceptKind.Individual);
+        if (activity is null || location is null)
+        {
+            return false;
+        }
+
+        var locationMembership = reasoner.GetMembershipEvidence(location.Id, "geographic-region");
+        var advantages = reasoner.GetRelations(location.Id, "has-advantage")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Advantage = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(candidate =>
+                candidate.Advantage is not null &&
+                reasoner.IsInstanceOf(candidate.Advantage.Id, "production-advantage") &&
+                reasoner.GetRelations(candidate.Advantage.Id, "advantage-for-activity")
+                    .Any(assertion => assertion.Object == activity.Id))
+            .ToArray();
+
+        if (advantages.Length == 0 || locationMembership.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var paragraphs = new List<string>
+        {
+            $"{Capitalize(activity.Label)} productions are often made in {location.Label} because it offers several financial and practical advantages:"
+        };
+        var sources = new List<SemanticWorldModelSource>(locationMembership);
+
+        foreach (var candidate in advantages)
+        {
+            var advantage = candidate.Advantage!;
+            var activityAssertions = reasoner.GetRelations(advantage.Id, "advantage-for-activity")
+                .Where(assertion => assertion.Object == activity.Id)
+                .ToArray();
+            var details = reasoner.GetRelations(advantage.Id, "advantage-has-detail")
+                .Select(assertion => new
+                {
+                    Assertion = assertion,
+                    Detail = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+                })
+                .Where(detail =>
+                    detail.Detail is not null &&
+                    reasoner.IsInstanceOf(detail.Detail.Id, "production-detail"))
+                .ToArray();
+
+            if (activityAssertions.Length == 0 || details.Length == 0)
+            {
+                return false;
+            }
+
+            paragraphs.Add(
+                $"**{Capitalize(advantage.Label)}:** {string.Join("; ", details.Select(detail => detail.Detail!.Label))}.");
+            sources.Add(candidate.Assertion.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(advantage.Id, "production-advantage"));
+            sources.AddRange(activityAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(details.Select(detail => detail.Assertion.Source));
+            foreach (var detail in details)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(detail.Detail!.Id, "production-detail"));
+            }
+        }
+
+        message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
         return true;
     }
