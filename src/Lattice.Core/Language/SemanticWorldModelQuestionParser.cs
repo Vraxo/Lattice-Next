@@ -7,6 +7,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex ProductionLocationReasonsPattern = new(
+        @"^Why are (?:so )?many (?<activity>[A-Za-z][A-Za-z'’ -]*?) made in (?:the )?(?<location>[A-Za-z][A-Za-z'’ -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ContextualRelationRolePattern = new(
         @"^What is the name of (?:the )?(?<possessor>[A-Za-z][A-Za-z'’ -]*?)'s (?<role>[A-Za-z][A-Za-z -]*?) on (?:the )?(?:TV show )?[""“]?(?<context>[A-Za-z][A-Za-z0-9'’ -]*?)[""”]?\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -131,6 +135,17 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var productionLocationReasons = ProductionLocationReasonsPattern.Match(text);
+        if (productionLocationReasons.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ProductionLocationReasons,
+                subject: Normalize(productionLocationReasons.Groups["activity"].Value),
+                otherSubject: Normalize(productionLocationReasons.Groups["location"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var contextualRole = ContextualRelationRolePattern.Match(text);
         if (contextualRole.Success)
