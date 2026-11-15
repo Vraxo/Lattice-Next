@@ -25,10 +25,10 @@ public sealed class OpenAssistantQuestionTests
             Assert.NotEmpty(utterance.SupportingEvidence);
         });
 
-        Assert.Contains("concluded research project", result.Utterances[0].Message);
-        Assert.Contains("active hosted AI service", result.Utterances[0].Message);
-        Assert.Contains("downloadable model access", result.Utterances[0].Message);
-        Assert.Contains("proprietary hosted model-and-service offering", result.Utterances[0].Message);
+        Assert.Contains("Open Assistant is a concluded research project", result.Utterances[0].Message);
+        Assert.Contains("ChatGPT is an active hosted AI service", result.Utterances[0].Message);
+        Assert.Contains("Open Assistant offers models available for download and self-hosting", result.Utterances[0].Message);
+        Assert.Contains("ChatGPT uses a proprietary hosted service", result.Utterances[0].Message);
 
         Assert.Contains("released model weights", result.Utterances[1].Message);
         Assert.Contains("public demo is no longer available", result.Utterances[1].Message);
