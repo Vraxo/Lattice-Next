@@ -37,6 +37,8 @@ internal static class SemanticWorldModelResponder
                 TryWhyUse(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Applications =>
                 TryExplainApplications(request.Subject, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.RequiredKnowledge =>
+                TryExplainRequiredKnowledge(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyHarmful =>
@@ -1656,6 +1658,72 @@ internal static class SemanticWorldModelResponder
             sources.Add(assertion.Source);
             AppendMechanismChain(target.Id, model, reasoner, visited, sentences, sources, depth + 1);
         }
+    }
+
+    private static bool TryExplainRequiredKnowledge(
+        string requestedActivity,
+        string requestedKnowledge,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var activity = model.FindConcept(requestedActivity, SemanticConceptKind.Individual);
+        var knowledge = model.FindConcept(requestedKnowledge, SemanticConceptKind.Individual);
+        if (activity is null ||
+            knowledge is null ||
+            !reasoner.IsInstanceOf(activity.Id, "creative-activity") ||
+            !reasoner.IsInstanceOf(knowledge.Id, "knowledge-domain"))
+        {
+            return false;
+        }
+
+        var entryRequirements = reasoner.GetRelations(activity.Id, "has-entry-requirement");
+        var startingMethods = reasoner.GetRelations(activity.Id, "can-begin-through");
+        var helpfulTopics = reasoner.GetRelations(activity.Id, "benefits-from");
+        var advancedTopics = reasoner.GetRelations(activity.Id, "later-benefits-from");
+        if (entryRequirements.Length != 1 ||
+            startingMethods.Length != 3 ||
+            helpfulTopics.Length != 4 ||
+            advancedTopics.Length != 3)
+        {
+            return false;
+        }
+
+        var entryRequirement = model.FindConcept(entryRequirements[0].Object, SemanticConceptKind.Individual);
+        var starts = startingMethods
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        var helpful = helpfulTopics
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        var advanced = advancedTopics
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .ToArray();
+        if (entryRequirement is null ||
+            starts.Any(concept => concept is null) ||
+            helpful.Any(concept => concept is null) ||
+            advanced.Any(concept => concept is null))
+        {
+            return false;
+        }
+
+        var sources = entryRequirements
+            .Concat(startingMethods)
+            .Concat(helpfulTopics)
+            .Concat(advancedTopics)
+            .Select(assertion => assertion.Source)
+            .Concat(reasoner.GetMembershipEvidence(activity.Id, "creative-activity"))
+            .Concat(reasoner.GetMembershipEvidence(knowledge.Id, "knowledge-domain"))
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"You do not need {entryRequirement.Label} to start {activity.Label}. You can begin with {JoinNames(starts.Select(concept => concept!.Label).ToArray())}. Some basic {knowledge.Label}, such as {JoinNames(helpful.Select(concept => concept!.Label).ToArray())}, can help you understand and develop what you hear. As your compositions become more ambitious, {JoinNames(advanced.Select(concept => concept!.Label).ToArray())} can become useful, but they are tools to learn as needed rather than prerequisites. Start composing and add theory as it helps you solve musical problems.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
     }
 
     private static bool TryExplainApplications(

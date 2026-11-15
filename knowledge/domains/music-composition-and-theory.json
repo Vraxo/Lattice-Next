@@ -1,0 +1,369 @@
+{
+  "formatVersion": 3,
+  "id": "music-composition-and-theory",
+  "name": "Music composition and theory knowledge",
+  "concepts": [
+    {
+      "id": "creative-activity",
+      "label": "creative activity",
+      "kind": "Type"
+    },
+    {
+      "id": "knowledge-domain",
+      "label": "knowledge domain",
+      "kind": "Type"
+    },
+    {
+      "id": "music-theory-topic",
+      "label": "music theory topic",
+      "kind": "Type"
+    },
+    {
+      "id": "advanced-music-theory-topic",
+      "label": "advanced music theory topic",
+      "kind": "Type"
+    },
+    {
+      "id": "entry-level-guidance",
+      "label": "entry-level guidance",
+      "kind": "Type"
+    },
+    {
+      "id": "composition-method",
+      "label": "composition method",
+      "kind": "Type"
+    },
+    {
+      "id": "music-composition",
+      "label": "composing music",
+      "kind": "Individual"
+    },
+    {
+      "id": "music-theory-knowledge",
+      "label": "music theory knowledge",
+      "kind": "Individual"
+    },
+    {
+      "id": "no-formal-theory-required",
+      "label": "formal music-theory training",
+      "kind": "Individual"
+    },
+    {
+      "id": "compose-by-ear",
+      "label": "experimenting by ear",
+      "kind": "Individual"
+    },
+    {
+      "id": "start-with-a-melody",
+      "label": "writing a melody",
+      "kind": "Individual"
+    },
+    {
+      "id": "start-with-a-rhythm",
+      "label": "building a rhythm",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-chord-progression",
+      "label": "trying a simple chord progression",
+      "kind": "Individual"
+    },
+    {
+      "id": "basic-rhythm",
+      "label": "basic rhythm",
+      "kind": "Individual"
+    },
+    {
+      "id": "notes-and-intervals",
+      "label": "notes and intervals",
+      "kind": "Individual"
+    },
+    {
+      "id": "scales-and-keys",
+      "label": "scales and keys",
+      "kind": "Individual"
+    },
+    {
+      "id": "simple-chords-and-harmony",
+      "label": "simple chords and harmony",
+      "kind": "Individual"
+    },
+    {
+      "id": "advanced-harmony",
+      "label": "advanced harmony",
+      "kind": "Individual"
+    },
+    {
+      "id": "counterpoint",
+      "label": "counterpoint",
+      "kind": "Individual"
+    },
+    {
+      "id": "orchestration",
+      "label": "orchestration",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "compose music",
+      "concept": "music-composition",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "composing music",
+      "concept": "music-composition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "music composition",
+      "concept": "music-composition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "music theory knowledge",
+      "concept": "music-theory-knowledge",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-entry-requirement",
+      "domain": "creative-activity",
+      "range": "entry-level-guidance",
+      "verb": "requires",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "can-begin-through",
+      "domain": "creative-activity",
+      "range": "composition-method",
+      "verb": "can begin through",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "benefits-from",
+      "domain": "creative-activity",
+      "range": "music-theory-topic",
+      "verb": "benefits from",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "later-benefits-from",
+      "domain": "creative-activity",
+      "range": "advanced-music-theory-topic",
+      "verb": "can later benefit from",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "creative-activity",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "knowledge-domain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "music-theory-topic",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "advanced-music-theory-topic",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "entry-level-guidance",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "composition-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "creative-activity",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "knowledge-domain",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "music-theory-topic",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "advanced-music-theory-topic",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "entry-level-guidance",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "composition-method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "advanced-music-theory-topic",
+      "relation": "is-a",
+      "object": "music-theory-topic"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "instance-of",
+      "object": "creative-activity"
+    },
+    {
+      "subject": "music-theory-knowledge",
+      "relation": "instance-of",
+      "object": "knowledge-domain"
+    },
+    {
+      "subject": "no-formal-theory-required",
+      "relation": "instance-of",
+      "object": "entry-level-guidance"
+    },
+    {
+      "subject": "compose-by-ear",
+      "relation": "instance-of",
+      "object": "composition-method"
+    },
+    {
+      "subject": "start-with-a-melody",
+      "relation": "instance-of",
+      "object": "composition-method"
+    },
+    {
+      "subject": "start-with-a-rhythm",
+      "relation": "instance-of",
+      "object": "composition-method"
+    },
+    {
+      "subject": "simple-chord-progression",
+      "relation": "instance-of",
+      "object": "composition-method"
+    },
+    {
+      "subject": "basic-rhythm",
+      "relation": "instance-of",
+      "object": "music-theory-topic"
+    },
+    {
+      "subject": "notes-and-intervals",
+      "relation": "instance-of",
+      "object": "music-theory-topic"
+    },
+    {
+      "subject": "scales-and-keys",
+      "relation": "instance-of",
+      "object": "music-theory-topic"
+    },
+    {
+      "subject": "simple-chords-and-harmony",
+      "relation": "instance-of",
+      "object": "music-theory-topic"
+    },
+    {
+      "subject": "advanced-harmony",
+      "relation": "instance-of",
+      "object": "advanced-music-theory-topic"
+    },
+    {
+      "subject": "counterpoint",
+      "relation": "instance-of",
+      "object": "advanced-music-theory-topic"
+    },
+    {
+      "subject": "orchestration",
+      "relation": "instance-of",
+      "object": "advanced-music-theory-topic"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "has-entry-requirement",
+      "object": "no-formal-theory-required"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "can-begin-through",
+      "object": "compose-by-ear"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "can-begin-through",
+      "object": "start-with-a-melody"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "can-begin-through",
+      "object": "start-with-a-rhythm"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "benefits-from",
+      "object": "basic-rhythm"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "benefits-from",
+      "object": "notes-and-intervals"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "benefits-from",
+      "object": "scales-and-keys"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "benefits-from",
+      "object": "simple-chords-and-harmony"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "later-benefits-from",
+      "object": "advanced-harmony"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "later-benefits-from",
+      "object": "counterpoint"
+    },
+    {
+      "subject": "music-composition",
+      "relation": "later-benefits-from",
+      "object": "orchestration"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
