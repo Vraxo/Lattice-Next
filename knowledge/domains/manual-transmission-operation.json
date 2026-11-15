@@ -85,57 +85,57 @@
     },
     {
       "id": "action-prepare",
-      "label": "Adjust seat and mirrors, fasten seat belt, and set the parking brake.",
+      "label": "Adjust seat and mirrors, fasten seat belt, and set the parking brake",
       "kind": "Individual"
     },
     {
       "id": "action-start",
-      "label": "Check neutral, press clutch fully, and start engine per the owner's manual.",
+      "label": "Check neutral; press clutch fully; start engine per the owner's manual",
       "kind": "Individual"
     },
     {
       "id": "action-move-off",
-      "label": "Select first; check surroundings; release brake; find bite point; accelerate gently.",
+      "label": "Press clutch; select first; check mirrors; find bite point; gently accelerate; ease clutch out.",
       "kind": "Individual"
     },
     {
       "id": "action-upshift",
-      "label": "Ease off accelerator, press clutch, select next gear, then release smoothly.",
+      "label": "Ease off accelerator; press clutch fully; select next gear; release smoothly.",
       "kind": "Individual"
     },
     {
       "id": "action-downshift",
-      "label": "Brake to a suitable speed, select a lower gear, and release clutch smoothly.",
+      "label": "Brake; press clutch fully; select suitable lower gear; release smoothly.",
       "kind": "Individual"
     },
     {
       "id": "action-stop",
-      "label": "Brake progressively; press clutch before stalling; select neutral when stopped.",
+      "label": "Brake progressively; press clutch before stalling; select neutral when stopped",
       "kind": "Individual"
     },
     {
       "id": "action-park",
-      "label": "Set parking brake; follow manual on leaving car in gear; reverse only when stopped.",
+      "label": "Set parking brake; follow manual on leaving car in gear; reverse only when stopped",
       "kind": "Individual"
     },
     {
       "id": "note-practice",
-      "label": "Practise first with a qualified instructor or licensed supervisor in a legal, quiet practice area",
+      "label": "Practise with a qualified instructor or licensed supervisor in a legal, quiet area",
       "kind": "Individual"
     },
     {
       "id": "note-clutch",
-      "label": "Do not rest your foot on the clutch or hold on hills at the bite point.",
+      "label": "Do not rest your foot on the clutch or hold on hills at the bite point",
       "kind": "Individual"
     },
     {
       "id": "note-shift",
-      "label": "Do not force gears or look down; learn the shift pattern while stationary.",
+      "label": "Do not force gears or look down; learn the shift pattern while stationary",
       "kind": "Individual"
     },
     {
       "id": "note-coasting",
-      "label": "Avoid coasting with the clutch depressed; keep the car in a suitable gear for its speed",
+      "label": "Avoid coasting with the clutch depressed; use a suitable gear for your speed",
       "kind": "Individual"
     },
     {
