@@ -89,8 +89,8 @@
   "relations": [
     {
       "id": "causes",
-      "domain": null,
-      "range": null,
+      "domain": "entity",
+      "range": "entity",
       "verb": "causes",
       "objectRole": null,
       "order": 0,
@@ -100,8 +100,8 @@
     },
     {
       "id": "ends",
-      "domain": null,
-      "range": null,
+      "domain": "entity",
+      "range": "entity",
       "verb": "ends",
       "objectRole": null,
       "order": 0,
@@ -111,8 +111,8 @@
     },
     {
       "id": "begins",
-      "domain": null,
-      "range": null,
+      "domain": "entity",
+      "range": "entity",
       "verb": "begins",
       "objectRole": null,
       "order": 0,
@@ -122,8 +122,8 @@
     },
     {
       "id": "turns-location-away-from",
-      "domain": null,
-      "range": null,
+      "domain": "entity",
+      "range": "entity",
       "verb": "turns your location away from",
       "objectRole": null,
       "order": 0,
@@ -133,8 +133,8 @@
     },
     {
       "id": "appears-below",
-      "domain": null,
-      "range": null,
+      "domain": "entity",
+      "range": "entity",
       "verb": "appears below",
       "objectRole": null,
       "order": 0,
