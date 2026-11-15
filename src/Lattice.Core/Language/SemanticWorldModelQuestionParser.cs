@@ -265,6 +265,7 @@ internal static class SemanticWorldModelQuestionParser
         string? concept = null,
         string? otherSubject = null,
         string? targetType = null,
+        int limit = 0,
         string? sourceText = null) =>
         new(
             UtteranceKind.Question,
