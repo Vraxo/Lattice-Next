@@ -32,6 +32,7 @@ public sealed class OpenAssistantQuestionTests
 
         Assert.Contains("released model weights", result.Utterances[1].Message);
         Assert.Contains("public demo is no longer available", result.Utterances[1].Message);
+        Assert.Contains("Apache 2.0", result.Utterances[1].Message);
         Assert.Contains("base-model-specific weight licenses", result.Utterances[1].Message);
         Assert.Contains("self-hosted experimentation", result.Utterances[1].Message);
 
