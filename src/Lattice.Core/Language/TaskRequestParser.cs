@@ -19,7 +19,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex BrainstormUsesPattern = new(
-        @"^\\s*What are (?<count>[0-9]+) potential uses for an empty (?<object>[^?]+?)\\??\\s*$",
+        @"^\s*What are (?<count>[0-9]+) potential uses for an empty (?<object>[^?]+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex OperationExplanationPattern = new(
