@@ -84,11 +84,6 @@
       "kind": "Individual"
     },
     {
-      "id": "decorative-cord",
-      "label": "decorative cord",
-      "kind": "Individual"
-    },
-    {
       "id": "braid-fabric-strips",
       "label": "braiding fabric strips",
       "kind": "Individual"
@@ -295,11 +290,6 @@
       "object": "diy-material"
     },
     {
-      "subject": "decorative-cord",
-      "relation": "instance-of",
-      "object": "diy-material"
-    },
-    {
       "subject": "braid-fabric-strips",
       "relation": "instance-of",
       "object": "diy-technique"
@@ -433,6 +423,11 @@
       "subject": "wooden-dowel-tieback",
       "relation": "attaches-with",
       "object": "wall-mounted-cup-hook"
+    },
+    {
+      "subject": "rope-bead-tieback",
+      "relation": "uses-material",
+      "object": "wooden-beads"
     }
   ],
   "dataProperties": [],
