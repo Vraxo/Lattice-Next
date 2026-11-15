@@ -124,7 +124,7 @@ internal static class TaskRequestResponder
             foreach (var stop in stops)
             {
                 var place = model.FindConcept(stop.Object, SemanticConceptKind.Individual);
-                if (place is null || !reasoner.IsInstanceOf(place.Id, "place"))
+                if (place is null || !reasoner.IsInstanceOf(place.Id, "road-trip-place"))
                 {
                     return false;
                 }
@@ -141,7 +141,7 @@ internal static class TaskRequestResponder
 
                 stopDescriptions.Add($"**{place.Label}** for {JoinNames(activities)}");
                 sources.Add(stop.Source);
-                sources.AddRange(reasoner.GetMembershipEvidence(place.Id, "place"));
+                sources.AddRange(reasoner.GetMembershipEvidence(place.Id, "road-trip-place"));
                 sources.AddRange(reasoner.GetRelations(place.Id, "place-offers-activity")
                     .Select(assertion => assertion.Source));
                 foreach (var activity in reasoner.GetRelations(place.Id, "place-offers-activity"))
