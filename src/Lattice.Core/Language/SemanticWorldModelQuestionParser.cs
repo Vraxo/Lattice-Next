@@ -48,7 +48,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex EventOutcomesPattern = new(
-        @"^What happens when (?<event>[A-Za-z][A-Za-z -]*?)\\??$",
+        @"^What happens when (?<event>[A-Za-z][A-Za-z -]*?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CausesPattern = new(
