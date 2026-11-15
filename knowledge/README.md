@@ -42,6 +42,7 @@ The current expression language does not support universal restrictions, negatio
 - `golf-companies.json`: prominent golf equipment companies classified under a shared company type.
 - `olympic-records.json`: Olympic athletes and numeric gold-medal counts for maximum-value reasoning.
 - `dutch-artists.json`: Dutch artists, artworks, and painting relations.
+- `sunset-and-day-night.json`: the causal link between Earth's rotation, sunset, the end of daylight, and the start of night.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
@@ -58,16 +59,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all seventeen modules:
+Counts after composing all eighteen modules:
 
-- 341 concepts
+- 347 concepts
 - 150 type declarations (113 primitive, 37 defined)
-- 79 relation signatures
-- 528 relation assertions:
+- 84 relation signatures
+- 533 relation assertions:
   - 150 `is-a`
   - 199 `instance-of`
-  - 179 ordinary individual-to-individual relations
-- 296 lexical forms
+  - 184 ordinary individual-to-individual relations
+- 306 lexical forms
 - 1 numeric data property
 - 8 numeric data assertions
 
