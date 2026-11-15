@@ -30,67 +30,67 @@
     },
     {
       "id": "running-warm-up",
-      "label": "Warm up with five minutes of brisk walking",
+      "label": "five-minute brisk-walking warm-up",
       "kind": "Individual"
     },
     {
       "id": "run-walk-intervals",
-      "label": "Alternate short, easy jogging intervals with walking",
+      "label": "short run-walk intervals",
       "kind": "Individual"
     },
     {
       "id": "conversational-pace",
-      "label": "Keep the jogging pace comfortable enough to speak in full sentences",
+      "label": "conversational jogging pace",
       "kind": "Individual"
     },
     {
       "id": "recovery-schedule",
-      "label": "Begin with two or three sessions per week and leave recovery days between them",
+      "label": "two or three weekly sessions with recovery days",
       "kind": "Individual"
     },
     {
       "id": "gradual-progression",
-      "label": "Increase the jogging intervals gradually as the routine becomes comfortable",
+      "label": "gradual increases in jogging intervals",
       "kind": "Individual"
     },
     {
       "id": "warm-up-purpose",
-      "label": "prepare the muscles and gradually raise effort",
+      "label": "muscle readiness",
       "kind": "Individual"
     },
     {
       "id": "run-walk-purpose",
-      "label": "build endurance without requiring continuous running at the outset",
+      "label": "endurance development",
       "kind": "Individual"
     },
     {
       "id": "easy-pace-purpose",
-      "label": "make the effort sustainable and reduce early overexertion",
+      "label": "effort regulation",
       "kind": "Individual"
     },
     {
       "id": "recovery-purpose",
-      "label": "allow the body time to recover and adapt between sessions",
+      "label": "recovery and adaptation",
       "kind": "Individual"
     },
     {
       "id": "progression-purpose",
-      "label": "avoid sudden increases in training load",
+      "label": "training-load management",
       "kind": "Individual"
     },
     {
       "id": "equipment-and-route-safety",
-      "label": "Choose comfortable running shoes and a safe, level route",
+      "label": "comfortable running shoes and a safe, level route",
       "kind": "Individual"
     },
     {
       "id": "medical-safety",
-      "label": "Seek medical advice if you have a health condition or have been inactive for a long time",
+      "label": "pre-exercise medical advice for health concerns or prolonged inactivity",
       "kind": "Individual"
     },
     {
       "id": "warning-symptoms",
-      "label": "Stop and seek medical help for chest pain, faintness, or severe breathlessness",
+      "label": "chest pain, faintness, or severe breathlessness",
       "kind": "Individual"
     }
   ],
