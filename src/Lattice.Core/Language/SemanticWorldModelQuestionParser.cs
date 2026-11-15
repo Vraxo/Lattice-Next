@@ -12,7 +12,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex EverydayApplicationsPattern = new(
-        @"^How can (?<subject>[A-Za-z][A-Za-z'’ -]*?) be used in (?:day to day|everyday) life\\??$",
+        @"^How can (?<subject>[A-Za-z][A-Za-z'’ -]*?) be used in (?:day to day|everyday) life\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex WhyShouldUsePattern = new(
