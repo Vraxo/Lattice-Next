@@ -255,9 +255,9 @@ internal static class SemanticWorldModelQuestionParser
     private static string NormalizeHarmTerm(string value) =>
         Normalize(value) switch
         {
-            "mobile" or "mobile phone" or "mobile phones" or
-            "smartphone" or "smartphones" or "smartphone use" or "phone use" or
-            "cell phone" or "cell phones" => "mobile-phone-use",
+            "mobile" or "mobile-phone" or "mobile-phones" or
+            "smartphone" or "smartphones" or "smartphone-use" or "phone-use" or
+            "cell-phone" or "cell-phones" => "mobile-phone-use",
             "human" or "humans" or "people" => "person",
             _ => Normalize(value)
         };
