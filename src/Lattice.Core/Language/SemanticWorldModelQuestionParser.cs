@@ -8,15 +8,15 @@ namespace Lattice.Core.Language;
 internal static class SemanticWorldModelQuestionParser
 {
     private static readonly Regex DifferenceBetweenPattern = new(
-        @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex WhyShouldUsePattern = new(
-        @"^Why should (?:I|we) use (?<subject>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^Why should (?:I|we) use (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex SimilarChatbotsPattern = new(
-        @"^(?:And )?(?:can you give me )?some examples of advanced chatbots that are similar to (?<subject>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^(?:And )?(?:can you give me )?some examples of advanced chatbots that are similar to (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CompanyPurposeQuestionPattern = new(
