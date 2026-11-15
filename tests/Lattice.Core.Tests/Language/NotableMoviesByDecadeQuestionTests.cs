@@ -19,7 +19,7 @@ public sealed class NotableMoviesByDecadeQuestionTests
         var question = Assert.IsType<SemanticWorldModelQuestionFormula>(Assert.Single(result.Utterances).Meaning);
         Assert.Equal(SemanticWorldModelQuestionKind.NotableExamples, question.Kind);
         Assert.Equal("comedy", question.Subject);
-        Assert.Equal("1980s-comedy-film", question.Concept);
+        Assert.Equal("comedy-film-1980s", question.Concept);
         Assert.Equal("1980s", question.TargetType);
         Assert.Equal(12, question.Limit);
     }
