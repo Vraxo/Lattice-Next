@@ -18,6 +18,10 @@ internal static class TaskRequestParser
         @"\bexamples?\s+related\s+to\s+(?<scope>.+?)(?:\s+and\s+cite\b|[.!?]|$)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex BrainstormUsesPattern = new(
+        @"^\s*What are (?<count>[0-9]+) potential uses for an empty (?<object>[^?]+?)\??\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex OperationExplanationPattern = new(
         @"^\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -37,6 +41,11 @@ internal static class TaskRequestParser
     {
         utterance = null;
 
+        if (TryParseBrainstormUses(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
         if (TryParseOperationExplanation(source, sourceText, out utterance))
         {
             return true;
@@ -53,6 +62,61 @@ internal static class TaskRequestParser
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+    private static bool TryParseBrainstormUses(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = BrainstormUsesPattern.Match(source);
+
+        if (!match.Success ||
+            !int.TryParse(match.Groups["count"].Value, out var count) ||
+            count is < 1 or > 10)
+        {
+            return false;
+        }
+
+        var objectPhrase = match.Groups["object"].Value.Trim();
+        var subject = objectPhrase;
+        string? context = null;
+
+        if (objectPhrase.Equals("can", StringComparison.OrdinalIgnoreCase) ||
+            objectPhrase.EndsWith(" can", StringComparison.OrdinalIgnoreCase))
+        {
+            subject = "beverage-can";
+            var brand = objectPhrase[..^3].Trim();
+            if (brand.Length > 0)
+            {
+                context = string.Join(
+                    '-',
+                    brand.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                    .ToLowerInvariant();
+            }
+        }
+        else
+        {
+            subject = string.Join(
+                '-',
+                objectPhrase.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .ToLowerInvariant();
+        }
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Brainstorm,
+            subject,
+            context,
+            $"{count}-ideas",
+            "potential-uses",
+            ImmutableArray.Create("potential-uses"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseOperationExplanation(

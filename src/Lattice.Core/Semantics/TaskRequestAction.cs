@@ -5,5 +5,6 @@ public enum TaskRequestAction
     Write,
     Recommend,
     Plan,
-    Explain
+    Explain,
+    Brainstorm
 }

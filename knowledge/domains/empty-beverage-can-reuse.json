@@ -1,0 +1,923 @@
+{
+  "formatVersion": 3,
+  "id": "empty-beverage-can-reuse",
+  "name": "Repurposing an empty beverage can",
+  "concepts": [
+    {
+      "id": "beverage-can",
+      "label": "beverage can",
+      "kind": "Type"
+    },
+    {
+      "id": "beverage-brand",
+      "label": "beverage brand",
+      "kind": "Type"
+    },
+    {
+      "id": "can-material",
+      "label": "can material",
+      "kind": "Type"
+    },
+    {
+      "id": "object-feature",
+      "label": "object feature",
+      "kind": "Type"
+    },
+    {
+      "id": "container-state",
+      "label": "container state",
+      "kind": "Type"
+    },
+    {
+      "id": "repurposing-idea",
+      "label": "repurposing idea",
+      "kind": "Type"
+    },
+    {
+      "id": "reuse-purpose",
+      "label": "reuse purpose",
+      "kind": "Type"
+    },
+    {
+      "id": "reuse-action",
+      "label": "reuse action",
+      "kind": "Type"
+    },
+    {
+      "id": "reuse-safety-note",
+      "label": "reuse safety note",
+      "kind": "Type"
+    },
+    {
+      "id": "la-croix",
+      "label": "La Croix",
+      "kind": "Individual"
+    },
+    {
+      "id": "aluminum",
+      "label": "aluminum",
+      "kind": "Individual"
+    },
+    {
+      "id": "empty-state",
+      "label": "empty",
+      "kind": "Individual"
+    },
+    {
+      "id": "hollow",
+      "label": "hollow",
+      "kind": "Individual"
+    },
+    {
+      "id": "open-top",
+      "label": "open at the top",
+      "kind": "Individual"
+    },
+    {
+      "id": "cylindrical",
+      "label": "cylindrical",
+      "kind": "Individual"
+    },
+    {
+      "id": "lightweight",
+      "label": "lightweight",
+      "kind": "Individual"
+    },
+    {
+      "id": "thin-metal-wall",
+      "label": "thin metal wall",
+      "kind": "Individual"
+    },
+    {
+      "id": "sharp-rim",
+      "label": "sharp metal rim",
+      "kind": "Individual"
+    },
+    {
+      "id": "empty-beverage-can",
+      "label": "empty beverage can",
+      "kind": "Individual"
+    },
+    {
+      "id": "empty-la-croix-can",
+      "label": "empty La Croix can",
+      "kind": "Individual"
+    },
+    {
+      "id": "pen-holder-use",
+      "label": "pen holder",
+      "kind": "Individual"
+    },
+    {
+      "id": "small-parts-organizer-use",
+      "label": "small-parts organizer",
+      "kind": "Individual"
+    },
+    {
+      "id": "seedling-starter-use",
+      "label": "seedling starter pot",
+      "kind": "Individual"
+    },
+    {
+      "id": "dried-flower-display-use",
+      "label": "dried-flower display",
+      "kind": "Individual"
+    },
+    {
+      "id": "percussion-shaker-use",
+      "label": "percussion shaker",
+      "kind": "Individual"
+    },
+    {
+      "id": "purpose-hold-writing-tools",
+      "label": "hold pens and pencils upright",
+      "kind": "Individual"
+    },
+    {
+      "id": "purpose-store-small-items",
+      "label": "store paper clips, screws, beads, or rubber bands",
+      "kind": "Individual"
+    },
+    {
+      "id": "purpose-start-seedlings",
+      "label": "start a small seedling",
+      "kind": "Individual"
+    },
+    {
+      "id": "purpose-display-dried-flowers",
+      "label": "display dried flowers",
+      "kind": "Individual"
+    },
+    {
+      "id": "purpose-make-percussion",
+      "label": "make a simple percussion shaker",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-rinse-dry",
+      "label": "rinse and dry the can",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-cover-rim",
+      "label": "cover the sharp rim with tape",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-add-drainage-holes",
+      "label": "make small drainage holes in the base",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-add-dry-filling",
+      "label": "add dry beans or rice",
+      "kind": "Individual"
+    },
+    {
+      "id": "action-seal-opening",
+      "label": "seal the opening securely",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-sharp-rim",
+      "label": "Cover the rim before handling; thin metal edges can cut skin",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-seedling-holes",
+      "label": "Make drainage holes carefully and protect hands from the sharp rim",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-shaker-seal",
+      "label": "Seal securely and keep away from young children",
+      "kind": "Individual"
+    },
+    {
+      "id": "note-no-heat",
+      "label": "Do not use the can as a candle holder or near open flames",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "beverage can",
+      "concept": "beverage-can",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "aluminum can",
+      "concept": "beverage-can",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "soda can",
+      "concept": "beverage-can",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "La Croix",
+      "concept": "la-croix",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-material",
+      "domain": "beverage-can",
+      "range": "can-material",
+      "verb": "has material",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-feature",
+      "domain": "beverage-can",
+      "range": "object-feature",
+      "verb": "has feature",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-state",
+      "domain": "beverage-can",
+      "range": "container-state",
+      "verb": "has state",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "has-brand",
+      "domain": "beverage-can",
+      "range": "beverage-brand",
+      "verb": "has brand",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "idea-for-object",
+      "domain": "repurposing-idea",
+      "range": null,
+      "verb": "is a potential use for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Type"
+    },
+    {
+      "id": "idea-has-purpose",
+      "domain": "repurposing-idea",
+      "range": "reuse-purpose",
+      "verb": "serves purpose",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "idea-exploits-feature",
+      "domain": "repurposing-idea",
+      "range": "object-feature",
+      "verb": "uses feature",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "idea-requires-action",
+      "domain": "repurposing-idea",
+      "range": "reuse-action",
+      "verb": "requires preparation",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "idea-has-safety-note",
+      "domain": "repurposing-idea",
+      "range": "reuse-safety-note",
+      "verb": "has safety note",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "object-has-safety-note",
+      "domain": "beverage-can",
+      "range": "reuse-safety-note",
+      "verb": "has safety note",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "beverage-can",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "beverage-brand",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "can-material",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "object-feature",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "container-state",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "repurposing-idea",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "reuse-purpose",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "reuse-action",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "reuse-safety-note",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "beverage-can",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "beverage-brand",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "can-material",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "object-feature",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "container-state",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "repurposing-idea",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "reuse-purpose",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "reuse-action",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "reuse-safety-note",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "la-croix",
+      "relation": "instance-of",
+      "object": "beverage-brand"
+    },
+    {
+      "subject": "aluminum",
+      "relation": "instance-of",
+      "object": "can-material"
+    },
+    {
+      "subject": "empty-state",
+      "relation": "instance-of",
+      "object": "container-state"
+    },
+    {
+      "subject": "hollow",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "open-top",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "cylindrical",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "lightweight",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "thin-metal-wall",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "sharp-rim",
+      "relation": "instance-of",
+      "object": "object-feature"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "instance-of",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "instance-of",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "instance-of",
+      "object": "repurposing-idea"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "instance-of",
+      "object": "repurposing-idea"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "instance-of",
+      "object": "repurposing-idea"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "instance-of",
+      "object": "repurposing-idea"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "instance-of",
+      "object": "repurposing-idea"
+    },
+    {
+      "subject": "purpose-hold-writing-tools",
+      "relation": "instance-of",
+      "object": "reuse-purpose"
+    },
+    {
+      "subject": "purpose-store-small-items",
+      "relation": "instance-of",
+      "object": "reuse-purpose"
+    },
+    {
+      "subject": "purpose-start-seedlings",
+      "relation": "instance-of",
+      "object": "reuse-purpose"
+    },
+    {
+      "subject": "purpose-display-dried-flowers",
+      "relation": "instance-of",
+      "object": "reuse-purpose"
+    },
+    {
+      "subject": "purpose-make-percussion",
+      "relation": "instance-of",
+      "object": "reuse-purpose"
+    },
+    {
+      "subject": "action-rinse-dry",
+      "relation": "instance-of",
+      "object": "reuse-action"
+    },
+    {
+      "subject": "action-cover-rim",
+      "relation": "instance-of",
+      "object": "reuse-action"
+    },
+    {
+      "subject": "action-add-drainage-holes",
+      "relation": "instance-of",
+      "object": "reuse-action"
+    },
+    {
+      "subject": "action-add-dry-filling",
+      "relation": "instance-of",
+      "object": "reuse-action"
+    },
+    {
+      "subject": "action-seal-opening",
+      "relation": "instance-of",
+      "object": "reuse-action"
+    },
+    {
+      "subject": "note-sharp-rim",
+      "relation": "instance-of",
+      "object": "reuse-safety-note"
+    },
+    {
+      "subject": "note-seedling-holes",
+      "relation": "instance-of",
+      "object": "reuse-safety-note"
+    },
+    {
+      "subject": "note-shaker-seal",
+      "relation": "instance-of",
+      "object": "reuse-safety-note"
+    },
+    {
+      "subject": "note-no-heat",
+      "relation": "instance-of",
+      "object": "reuse-safety-note"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-material",
+      "object": "aluminum"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-state",
+      "object": "empty-state"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "cylindrical"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "lightweight"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "thin-metal-wall"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "has-feature",
+      "object": "sharp-rim"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-material",
+      "object": "aluminum"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-state",
+      "object": "empty-state"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "cylindrical"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "lightweight"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "thin-metal-wall"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-feature",
+      "object": "sharp-rim"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "has-brand",
+      "object": "la-croix"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-for-object",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-has-purpose",
+      "object": "purpose-hold-writing-tools"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-exploits-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-exploits-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-exploits-feature",
+      "object": "cylindrical"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-requires-action",
+      "object": "action-rinse-dry"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-requires-action",
+      "object": "action-cover-rim"
+    },
+    {
+      "subject": "pen-holder-use",
+      "relation": "idea-has-safety-note",
+      "object": "note-sharp-rim"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-for-object",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-has-purpose",
+      "object": "purpose-store-small-items"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-exploits-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-exploits-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-exploits-feature",
+      "object": "lightweight"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-requires-action",
+      "object": "action-rinse-dry"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-requires-action",
+      "object": "action-cover-rim"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "relation": "idea-has-safety-note",
+      "object": "note-sharp-rim"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-for-object",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-has-purpose",
+      "object": "purpose-start-seedlings"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-exploits-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-exploits-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-exploits-feature",
+      "object": "lightweight"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-requires-action",
+      "object": "action-add-drainage-holes"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-requires-action",
+      "object": "action-cover-rim"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "relation": "idea-has-safety-note",
+      "object": "note-seedling-holes"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-for-object",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-has-purpose",
+      "object": "purpose-display-dried-flowers"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-exploits-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-exploits-feature",
+      "object": "open-top"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-exploits-feature",
+      "object": "cylindrical"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-requires-action",
+      "object": "action-rinse-dry"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-requires-action",
+      "object": "action-cover-rim"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "relation": "idea-has-safety-note",
+      "object": "note-sharp-rim"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-for-object",
+      "object": "beverage-can"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-has-purpose",
+      "object": "purpose-make-percussion"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-exploits-feature",
+      "object": "hollow"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-exploits-feature",
+      "object": "lightweight"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-exploits-feature",
+      "object": "thin-metal-wall"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-requires-action",
+      "object": "action-add-dry-filling"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-requires-action",
+      "object": "action-seal-opening"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-requires-action",
+      "object": "action-cover-rim"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "relation": "idea-has-safety-note",
+      "object": "note-shaker-seal"
+    },
+    {
+      "subject": "empty-beverage-can",
+      "relation": "object-has-safety-note",
+      "object": "note-no-heat"
+    },
+    {
+      "subject": "empty-la-croix-can",
+      "relation": "object-has-safety-note",
+      "object": "note-no-heat"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "idea-order",
+      "domainType": "repurposing-idea",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "pen-holder-use",
+      "property": "idea-order",
+      "value": "1"
+    },
+    {
+      "subject": "small-parts-organizer-use",
+      "property": "idea-order",
+      "value": "2"
+    },
+    {
+      "subject": "seedling-starter-use",
+      "property": "idea-order",
+      "value": "3"
+    },
+    {
+      "subject": "dried-flower-display-use",
+      "property": "idea-order",
+      "value": "4"
+    },
+    {
+      "subject": "percussion-shaker-use",
+      "property": "idea-order",
+      "value": "5"
+    }
+  ]
+}
