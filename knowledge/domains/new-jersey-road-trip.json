@@ -518,6 +518,28 @@
       "object": "outdoor-activity"
     }
   ],
-  "dataProperties": [],
-  "dataAssertions": []
+  "dataProperties": [
+    {
+      "id": "day-number",
+      "domainType": "trip-day",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "day-one",
+      "property": "day-number",
+      "value": "1"
+    },
+    {
+      "subject": "day-two",
+      "property": "day-number",
+      "value": "2"
+    },
+    {
+      "subject": "day-three",
+      "property": "day-number",
+      "value": "3"
+    }
+  ]
 }
