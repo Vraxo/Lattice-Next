@@ -33,6 +33,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.WhyUse =>
+                TryWhyUse(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ContributionQuery =>
                 TryContributionQuery(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyHarmful =>
@@ -1651,6 +1653,85 @@ internal static class SemanticWorldModelResponder
             sentences.Add(FormatRelation(subject, target, relation, first: false));
             sources.Add(assertion.Source);
             AppendMechanismChain(target.Id, model, reasoner, visited, sentences, sources, depth + 1);
+        }
+    }
+
+    private static bool TryWhyUse(
+        string requestedAssistant,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var assistant = model.FindConcept(requestedAssistant, SemanticConceptKind.Individual);
+        if (assistant is null ||
+            !reasoner.IsInstanceOf(assistant.Id, "conversational-ai-assistant"))
+        {
+            return false;
+        }
+
+        var benefitAssertions = reasoner.GetRelations(assistant.Id, "offers-benefit");
+        if (benefitAssertions.IsDefaultOrEmpty ||
+            !TryGetSingleTarget("has-project-status", out var projectStatus, out var statusSource) ||
+            !TryGetSingleTarget("has-access-model", out var accessModel, out var accessSource) ||
+            !TryGetSingleTarget("has-licensing-model", out var licensingModel, out var licensingSource) ||
+            !TryGetSingleTarget("has-demo-status", out var demoStatus, out var demoSource) ||
+            !TryGetSingleTarget("has-model-quality", out var modelQuality, out var qualitySource) ||
+            !TryGetSingleTarget("has-hardware-requirement", out var hardwareRequirement, out var hardwareSource))
+        {
+            return false;
+        }
+
+        var benefits = benefitAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .ToArray();
+        if (benefits.Length == 0)
+        {
+            return false;
+        }
+
+        var sources = benefitAssertions
+            .Select(assertion => assertion.Source)
+            .Append(statusSource)
+            .Append(accessSource)
+            .Append(licensingSource)
+            .Append(demoSource)
+            .Append(qualitySource)
+            .Append(hardwareSource)
+            .Distinct()
+            .ToImmutableArray();
+
+        message = $"{assistant.Label} is worth exploring for its {JoinNames(benefits)}. The project is {projectStatus}; its {demoStatus}. Its model access is {accessModel}, and its licensing arrangement is {licensingModel}. {Capitalize(modelQuality)}; {hardwareRequirement}. It is best suited to research and self-hosted experimentation, not as a maintained hosted chatbot.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+
+        bool TryGetSingleTarget(
+            string relation,
+            out string label,
+            out SemanticWorldModelSource source)
+        {
+            label = string.Empty;
+            source = new SemanticWorldModelSource(string.Empty);
+            var assertions = reasoner.GetRelations(assistant.Id, relation);
+            if (assertions.Length != 1)
+            {
+                return false;
+            }
+
+            var target = model.FindConcept(assertions[0].Object, SemanticConceptKind.Individual);
+            if (target is null)
+            {
+                return false;
+            }
+
+            label = target.Label;
+            source = assertions[0].Source;
+            return true;
         }
     }
 
