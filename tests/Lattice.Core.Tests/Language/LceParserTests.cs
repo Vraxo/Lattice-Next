@@ -655,7 +655,7 @@ public sealed class LceParserTests
     [Fact]
     public void Parses_relation_source_questions_with_a_subject_type_constraint()
     {
-        var result = parser.Parse("Which Dutch artist painted “Girl with a Pearl Earring”?");
+        var result = parser.ParseText("Which Dutch artist painted “Girl with a Pearl Earring”?");
 
         Assert.True(result.IsSuccess, result.Error);
         var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
