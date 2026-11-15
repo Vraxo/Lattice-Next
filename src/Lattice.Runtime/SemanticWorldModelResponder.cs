@@ -808,7 +808,7 @@ internal static class SemanticWorldModelResponder
         var sources = new List<SemanticWorldModelSource>
         {
             match.Assertion.Source,
-            match.Term is not null ? match.VariantAssertions[0].Source : match.VariantAssertions[0].Source
+            match.VariantAssertions[0].Source
         };
         sources.AddRange(reasoner.GetMembershipEvidence(subject.Id, "golf-score"));
         sources.AddRange(reasoner.GetMembershipEvidence(match.Term.Id, "golf-term"));
