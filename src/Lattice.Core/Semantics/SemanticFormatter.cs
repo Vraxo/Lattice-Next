@@ -67,7 +67,9 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ContributionQuery => $"world-model-contribution({question.Subject}, {question.Concept}, {question.OtherSubject}, {question.TargetType})",
             SemanticWorldModelQuestionKind.WhyHarmful => $"world-model-harmfulness({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.BeginnerGuidance => $"world-model-beginner-guidance({question.Subject})",
-            SemanticWorldModelQuestionKind.CreativeIdeas => $"world-model-creative-ideas({question.Subject})",
+            SemanticWorldModelQuestionKind.CreativeIdeas => question.OtherSubject is null
+                ? $"world-model-creative-ideas({question.Subject})"
+                : $"world-model-creative-ideas({question.Subject}, for({question.OtherSubject}))",
             SemanticWorldModelQuestionKind.ListExamples => $"world-model-list-examples({question.Subject}, {question.Limit})",
             SemanticWorldModelQuestionKind.MaximumDataValue => $"world-model-maximum({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.EventOutcomes => $"world-model-event-outcomes({question.Subject})",
