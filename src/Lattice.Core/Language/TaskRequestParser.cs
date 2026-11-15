@@ -18,6 +18,10 @@ internal static class TaskRequestParser
         @"\bexamples?\s+related\s+to\s+(?<scope>.+?)(?:\s+and\s+cite\b|[.!?]|$)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex OperationExplanationPattern = new(
+        @"^\\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\\??\\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RoadTripPlanPattern = new(
         @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -33,6 +37,11 @@ internal static class TaskRequestParser
     {
         utterance = null;
 
+        if (TryParseOperationExplanation(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
         if (TryParseRoadTripPlan(source, sourceText, out utterance))
         {
             return true;
@@ -44,6 +53,39 @@ internal static class TaskRequestParser
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+    private static bool TryParseOperationExplanation(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = OperationExplanationPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var transmission = string.Join(
+            '-',
+            match.Groups["transmission"].Value.Trim()
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToLowerInvariant();
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Explain,
+            transmission,
+            match.Groups["vehicle"].Value.ToLowerInvariant(),
+            "procedure",
+            null,
+            ImmutableArray.Create("operating-procedure"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseRoadTripPlan(
