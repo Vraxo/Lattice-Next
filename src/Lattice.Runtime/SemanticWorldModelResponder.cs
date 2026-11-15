@@ -698,7 +698,7 @@ internal static class SemanticWorldModelResponder
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
 
-        if (request.Limit is < 1 or > 10)
+        if (request.Limit is < 1 or > 12)
         {
             return false;
         }
