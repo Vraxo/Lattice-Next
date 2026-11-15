@@ -57,6 +57,8 @@ internal static class SemanticWorldModelResponder
                 TryNotableExamples(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.RegionalName =>
                 TryRegionalName(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.Ingredients =>
+                TryIngredients(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.EventOutcomes =>
                 TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -833,6 +835,71 @@ internal static class SemanticWorldModelResponder
             LatticeEvidenceKind.Derived));
         return true;
     }
+
+    private static bool TryIngredients(
+        SemanticWorldModelQuestionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var dish = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        if (dish is null)
+        {
+            return false;
+        }
+
+        var commonAssertions = reasoner.GetRelations(dish.Id, "has-common-ingredient");
+        var optionalAssertions = reasoner.GetRelations(dish.Id, "may-include-ingredient");
+        var common = ResolveIngredients(commonAssertions, model, reasoner);
+        var optional = ResolveIngredients(optionalAssertions, model, reasoner);
+        if (common.Length == 0)
+        {
+            return false;
+        }
+
+        var commonNames = JoinNames(common.Select(item => item.Ingredient.Label).ToArray());
+        var optionalSentence = optional.Length == 0
+            ? string.Empty
+            : $" It may also include {JoinNames(optional.Select(item => item.Ingredient.Label).ToArray())}.";
+        message = $"{Capitalize(dish.Label)} commonly includes {commonNames}.{optionalSentence} Exact combinations vary by region and personal preference.";
+
+        var sources = common.SelectMany(item => new[]
+            {
+                item.Assertion.Source
+            }.Concat(reasoner.GetMembershipEvidence(item.Ingredient.Id, "ingredient")))
+            .Concat(optional.SelectMany(item => new[]
+            {
+                item.Assertion.Source
+            }.Concat(reasoner.GetMembershipEvidence(item.Ingredient.Id, "ingredient"))))
+            .Concat(reasoner.GetMembershipEvidence(dish.Id, "breakfast-dish"))
+            .Distinct()
+            .ToImmutableArray();
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static ImmutableArray<(SemanticConcept Ingredient, SemanticRelationAssertion Assertion)> ResolveIngredients(
+        ImmutableArray<SemanticRelationAssertion> assertions,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner) =>
+        assertions
+            .Select(assertion => (
+                Ingredient: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(item =>
+                item.Ingredient is not null &&
+                reasoner.IsInstanceOf(item.Ingredient.Id, "ingredient"))
+            .Select(item => (item.Ingredient!, item.Assertion))
+            .ToImmutableArray();
 
     private static bool TryMaximumDataValue(
         SemanticWorldModelQuestionFormula request,
