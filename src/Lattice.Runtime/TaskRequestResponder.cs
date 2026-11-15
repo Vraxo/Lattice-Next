@@ -80,6 +80,10 @@ internal static class TaskRequestResponder
             return false;
         }
 
+        var targetFeatureAssertions = reasoner.GetRelations(target.Id, "has-feature");
+        var targetFeatureIds = targetFeatureAssertions
+            .Select(assertion => assertion.Object)
+            .ToHashSet(StringComparer.Ordinal);
         var ideas = model.Concepts
             .Where(concept => concept.Kind == SemanticConceptKind.Individual &&
                 reasoner.IsInstanceOf(concept.Id, "repurposing-idea"))
@@ -141,8 +145,10 @@ internal static class TaskRequestResponder
                 .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
                 .ToArray();
 
-            if (purpose is null || featureAssertions.IsDefaultOrEmpty || actions.Length == 0 ||
-                actions.Any(action => action is null) || safetyNotes.Any(note => note is null))
+            if (purpose is null || featureAssertions.IsDefaultOrEmpty ||
+                featureAssertions.Any(assertion => !targetFeatureIds.Contains(assertion.Object)) ||
+                actions.Length == 0 || actions.Any(action => action is null) ||
+                safetyNotes.Any(note => note is null))
             {
                 return false;
             }
@@ -162,6 +168,9 @@ internal static class TaskRequestResponder
             sources.AddRange(reasoner.GetMembershipEvidence(candidate.Idea.Id, "repurposing-idea"));
             sources.AddRange(reasoner.GetMembershipEvidence(purpose.Id, "reuse-purpose"));
             sources.AddRange(featureAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(targetFeatureAssertions
+                .Where(assertion => featureAssertions.Any(feature => feature.Object == assertion.Object))
+                .Select(assertion => assertion.Source));
             sources.AddRange(actionAssertions.Select(assertion => assertion.Source));
             sources.AddRange(safetyAssertions.Select(assertion => assertion.Source));
             foreach (var featureAssertion in featureAssertions)
