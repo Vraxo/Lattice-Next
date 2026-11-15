@@ -94,7 +94,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.BeginnerGuidance,
-                subject: Normalize(beginnerGuidance.Groups["activity"].Value),
+                subject: NormalizeBeginnerActivity(beginnerGuidance.Groups["activity"].Value),
                 sourceText: source);
             return true;
         }
@@ -265,6 +265,13 @@ internal static class SemanticWorldModelQuestionParser
         var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
         return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
     }
+
+    private static string NormalizeBeginnerActivity(string value) =>
+        Normalize(value) switch
+        {
+            "run" or "running" or "jogging" => "running",
+            _ => Normalize(value)
+        };
 
     private static string NormalizeHarmTerm(string value) =>
         Normalize(value) switch
