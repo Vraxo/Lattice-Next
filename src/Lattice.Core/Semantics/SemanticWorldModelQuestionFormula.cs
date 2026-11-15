@@ -11,6 +11,7 @@ public enum SemanticWorldModelQuestionKind
     WhyUse,
     Applications,
     Clarification,
+    RequiredKnowledge,
     ContributionQuery,
     WhyHarmful,
     BeginnerGuidance,
