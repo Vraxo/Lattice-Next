@@ -47,6 +47,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Why (?<subject>[A-Za-z][A-Za-z -]*?) (?:is|are)? ?bad for (?<target>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex EventOutcomesPattern = new(
+        @"^What happens when (?<event>[A-Za-z][A-Za-z -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CausesPattern = new(
         @"^What causes (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -202,6 +206,16 @@ internal static class SemanticWorldModelQuestionParser
             utterance = Create(
                 SemanticWorldModelQuestionKind.Mechanism,
                 subject: Normalize(mechanism.Groups["subject"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var eventOutcomes = EventOutcomesPattern.Match(text);
+        if (eventOutcomes.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.EventOutcomes,
+                subject: Normalize(eventOutcomes.Groups["event"].Value),
                 sourceText: source);
             return true;
         }

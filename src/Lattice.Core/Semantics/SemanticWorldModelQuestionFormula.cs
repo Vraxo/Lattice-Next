@@ -13,7 +13,8 @@ public enum SemanticWorldModelQuestionKind
     BeginnerGuidance,
     CreativeIdeas,
     ListExamples,
-    MaximumDataValue
+    MaximumDataValue,
+    EventOutcomes
 }
 
 public sealed record SemanticWorldModelQuestionFormula(

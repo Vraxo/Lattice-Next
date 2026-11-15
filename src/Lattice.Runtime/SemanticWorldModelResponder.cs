@@ -45,6 +45,8 @@ internal static class SemanticWorldModelResponder
                 TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MaximumDataValue =>
                 TryMaximumDataValue(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.EventOutcomes =>
+                TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -461,6 +463,109 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainEventOutcomes(
+        string eventId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var eventConcept = model.FindConcept(eventId, SemanticConceptKind.Individual);
+        if (eventConcept is null)
+        {
+            return false;
+        }
+
+        var effects = reasoner.GetRelations(eventConcept.Id)
+            .Where(assertion => assertion.Relation is "ends" or "begins" or "results-in" or "leads-to")
+            .OrderBy(assertion => model.FindRelation(assertion.Relation)?.Order ?? int.MaxValue)
+            .Select(assertion => (
+                Relation: model.FindRelation(assertion.Relation),
+                Target: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                assertion.Source))
+            .Where(effect => effect.Relation is not null && effect.Target is not null)
+            .ToArray();
+        if (effects.Length == 0)
+        {
+            return false;
+        }
+
+        var clauses = effects.Select(effect =>
+        {
+            var verb = effect.Relation!.Verb;
+            var target = effect.Target!.Label;
+            return effect.Relation.Id switch
+            {
+                "ends" => $"daylight ends",
+                "begins" => $"{target} begins",
+                "results-in" => $"it results in {target}",
+                "leads-to" => $"it leads to {target}",
+                _ => $"{verb} {target}"
+            };
+        }).ToArray();
+
+        var causes = model.RelationAssertions
+            .Where(assertion => assertion.Object == eventConcept.Id && assertion.Relation == "causes")
+            .Select(assertion => (
+                Cause: model.FindConcept(assertion.Subject, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(item => item.Cause is not null)
+            .ToArray();
+
+        var causeDetails = new List<string>();
+        var sources = effects.Select(effect => effect.Source).ToList();
+        foreach (var cause in causes)
+        {
+            sources.Add(cause.Assertion.Source);
+            var turning = reasoner.GetRelations(cause.Cause!.Id, "turns-location-away-from");
+            foreach (var assertion in turning)
+            {
+                var target = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                if (target is null)
+                {
+                    continue;
+                }
+
+                var relation = model.FindRelation(assertion.Relation);
+                if (relation is null)
+                {
+                    continue;
+                }
+
+                causeDetails.Add($"{cause.Cause.Label} {relation.Verb} {target.Label}");
+                sources.Add(assertion.Source);
+            }
+        }
+
+        var appearance = model.FindConcept("sun", SemanticConceptKind.Individual);
+        var horizon = model.FindConcept("local-horizon", SemanticConceptKind.Individual);
+        SemanticRelationAssertion[] appearanceAssertions = appearance is null || horizon is null
+            ? []
+            : reasoner.GetRelations(appearance.Id, "appears-below")
+                .Where(assertion => assertion.Object == horizon.Id)
+                .ToArray();
+        if (appearanceAssertions.Length > 0)
+        {
+            sources.AddRange(appearanceAssertions.Select(assertion => assertion.Source));
+        }
+
+        var outcomeSentence = $"When {eventConcept.Label} occurs, {string.Join(" and ", clauses)}.";
+        var explanation = causeDetails.Count == 0
+            ? string.Empty
+            : $" This happens because {string.Join(" and ", causeDetails)}.";
+        var apparentMotion = appearanceAssertions.Length > 0
+            ? " The Sun appears to move below the local horizon; it has not gone out or disappeared."
+            : string.Empty;
+
+        message = outcomeSentence + explanation + apparentMotion;
+        evidence = ImmutableArray.Create(ToEvidence(
+            sources.Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 

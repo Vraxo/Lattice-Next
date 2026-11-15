@@ -1,0 +1,287 @@
+{
+  "formatVersion": 3,
+  "id": "sunset-and-day-night",
+  "name": "Sunset, daylight, and nighttime",
+  "concepts": [
+    {
+      "id": "earth-rotation",
+      "label": "Earth's rotation",
+      "kind": "Individual"
+    },
+    {
+      "id": "sun-goes-down",
+      "label": "sunset",
+      "kind": "Individual"
+    },
+    {
+      "id": "sun",
+      "label": "the Sun",
+      "kind": "Individual"
+    },
+    {
+      "id": "daylight",
+      "label": "daylight",
+      "kind": "Individual"
+    },
+    {
+      "id": "night",
+      "label": "night",
+      "kind": "Individual"
+    },
+    {
+      "id": "local-horizon",
+      "label": "the local horizon",
+      "kind": "Individual"
+    },
+    {
+      "id": "astronomical-event",
+      "label": "astronomical event",
+      "kind": "Type"
+    },
+    {
+      "id": "time-of-day-period",
+      "label": "time-of-day period",
+      "kind": "Type"
+    },
+    {
+      "id": "horizon-boundary",
+      "label": "horizon boundary",
+      "kind": "Type"
+    },
+    {
+      "id": "sunset-physical-process",
+      "label": "sunset-related physical process",
+      "kind": "Type"
+    },
+    {
+      "id": "sunset-celestial-body",
+      "label": "sunset-related celestial body",
+      "kind": "Type"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "sunset",
+      "concept": "sun-goes-down",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the sun goes down",
+      "concept": "sun-goes-down",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "sun goes down",
+      "concept": "sun-goes-down",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "the sun sets",
+      "concept": "sun-goes-down",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "sun sets",
+      "concept": "sun-goes-down",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "daylight",
+      "concept": "daylight",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "night",
+      "concept": "night",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "earth's rotation",
+      "concept": "earth-rotation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "the sun",
+      "concept": "sun",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "local horizon",
+      "concept": "local-horizon",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "causes",
+      "domain": "sunset-physical-process",
+      "range": "astronomical-event",
+      "verb": "causes",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "ends",
+      "domain": "astronomical-event",
+      "range": "time-of-day-period",
+      "verb": "ends",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "begins",
+      "domain": "astronomical-event",
+      "range": "time-of-day-period",
+      "verb": "begins",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "turns-location-away-from",
+      "domain": "sunset-physical-process",
+      "range": "sunset-celestial-body",
+      "verb": "turns your location away from",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "appears-below",
+      "domain": "sunset-celestial-body",
+      "range": "horizon-boundary",
+      "verb": "appears below",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "astronomical-event",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "time-of-day-period",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "horizon-boundary",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sunset-physical-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sunset-celestial-body",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "earth-rotation",
+      "relation": "causes",
+      "object": "sun-goes-down"
+    },
+    {
+      "subject": "sun-goes-down",
+      "relation": "ends",
+      "object": "daylight"
+    },
+    {
+      "subject": "sun-goes-down",
+      "relation": "begins",
+      "object": "night"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "turns-location-away-from",
+      "object": "sun"
+    },
+    {
+      "subject": "sun",
+      "relation": "appears-below",
+      "object": "local-horizon"
+    },
+    {
+      "subject": "astronomical-event",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "time-of-day-period",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "horizon-boundary",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "instance-of",
+      "object": "sunset-physical-process"
+    },
+    {
+      "subject": "sun-goes-down",
+      "relation": "instance-of",
+      "object": "astronomical-event"
+    },
+    {
+      "subject": "sun",
+      "relation": "instance-of",
+      "object": "sunset-celestial-body"
+    },
+    {
+      "subject": "daylight",
+      "relation": "instance-of",
+      "object": "time-of-day-period"
+    },
+    {
+      "subject": "night",
+      "relation": "instance-of",
+      "object": "time-of-day-period"
+    },
+    {
+      "subject": "local-horizon",
+      "relation": "instance-of",
+      "object": "horizon-boundary"
+    },
+    {
+      "subject": "sunset-physical-process",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "sunset-celestial-body",
+      "relation": "is-a",
+      "object": "entity"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

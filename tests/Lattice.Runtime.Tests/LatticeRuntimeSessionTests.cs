@@ -116,6 +116,45 @@ public sealed class LatticeRuntimeSessionTests
     }
 
     [Fact]
+    public async Task Explains_sunset_as_a_result_of_earth_rotation()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("What happens when the sun goes down?");
+        var answer = Assert.Single(result.Utterances);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "ask(world-model-event-outcomes(sun-goes-down))",
+            answer.Meaning);
+        Assert.Equal(
+            "When sunset occurs, daylight ends and night begins. This happens because Earth's rotation turns your location away from the Sun. The Sun appears to move below the local horizon; it has not gone out or disappeared.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:earth-rotation:causes:sun-goes-down", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:sun-goes-down:ends:daylight", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:sun-goes-down:begins:night", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:earth-rotation:turns-location-away-from:sun", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:sun:appears-below:local-horizon", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task Answers_definition_questions_from_the_default_world_model_without_imports()
     {
         var client = new LatticeRuntimeClient();
@@ -165,8 +204,8 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(0, status.FactCount);
         Assert.Equal(0, status.RuleCount);
         Assert.Equal(0, status.LoadedKnowledgePackCount);
-        Assert.Equal(341, status.SemanticConceptCount);
-        Assert.Equal(79, status.SemanticRelationCount);
+        Assert.Equal(352, status.SemanticConceptCount);
+        Assert.Equal(84, status.SemanticRelationCount);
         Assert.Equal(8, status.SemanticDataAssertionCount);
 
         var tope = await session.SubmitAsync("Is Tope a fish?");
