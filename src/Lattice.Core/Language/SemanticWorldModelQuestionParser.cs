@@ -12,7 +12,7 @@ internal static class SemanticWorldModelQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex CommonIngredientsPattern = new(
-        @"^What are common ingredients of (?:a|the) (?<dish>[A-Za-z][A-Za-z -]*)\\??$",
+        @"^What are common ingredients of (?:a|the) (?<dish>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RegionalNamePattern = new(
