@@ -160,22 +160,22 @@
     },
     {
       "id": "downloadable-model-access-type",
-      "label": "downloadable model access with self-hosting",
+      "label": "models available for download and self-hosting",
       "kind": "Type"
     },
     {
       "id": "provider-hosted-access-type",
-      "label": "provider-hosted access",
+      "label": "hosted service",
       "kind": "Type"
     },
     {
       "id": "open-source-license-arrangement",
-      "label": "open-source code-and-data release under Apache 2.0 with base-model-specific weight licenses",
+      "label": "open-source release under Apache 2.0 with base-model-specific weight licenses",
       "kind": "Type"
     },
     {
       "id": "proprietary-license-arrangement",
-      "label": "proprietary hosted model-and-service offering",
+      "label": "proprietary hosted service",
       "kind": "Type"
     }
   ],
@@ -185,7 +185,7 @@
       "id": "has-project-status",
       "domain": "conversational-ai-assistant",
       "range": "project-status",
-      "verb": "has",
+      "verb": "is",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 1,
@@ -196,7 +196,7 @@
       "id": "has-access-model",
       "domain": "conversational-ai-assistant",
       "range": "access-model",
-      "verb": "has",
+      "verb": "offers",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 2,
@@ -207,7 +207,7 @@
       "id": "has-licensing-model",
       "domain": "conversational-ai-assistant",
       "range": "licensing-model",
-      "verb": "has",
+      "verb": "uses",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 3,
