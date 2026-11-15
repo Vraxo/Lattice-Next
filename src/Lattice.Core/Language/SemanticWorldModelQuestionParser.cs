@@ -27,6 +27,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex MaximumDataValuePattern = new(
+        @"^What (?<subjectType>individual|person|athlete) has won the most (?<metric>[A-Za-z][A-Za-z -]*?)(?: in the history of (?:the )?(?<scope>games|Olympic games))?[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ListExamplesPattern = new(
         @"^Give me (?:the )?(?:top )?(?<count>five|four|three|two|one|[0-9]+) (?<category>[A-Za-z][A-Za-z -]*?) names(?: in a numbered list)?(?:\. Names only; no descriptions)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -99,6 +103,19 @@ internal static class SemanticWorldModelQuestionParser
                     source);
                 return true;
             }
+        }
+
+        var maximumDataValue = MaximumDataValuePattern.Match(text);
+        if (maximumDataValue.Success)
+        {
+            var metric = maximumDataValue.Groups["metric"].Value.Trim();
+            utterance = Create(
+                SemanticWorldModelQuestionKind.MaximumDataValue,
+                subject: Normalize(maximumDataValue.Groups["subjectType"].Value),
+                concept: NormalizeMaximumMetric(metric),
+                otherSubject: metric,
+                sourceText: source);
+            return true;
         }
 
         var listExamples = ListExamplesPattern.Match(text);
@@ -312,6 +329,13 @@ internal static class SemanticWorldModelQuestionParser
         var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
         return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
     }
+
+    private static string NormalizeMaximumMetric(string value) =>
+        Normalize(value) switch
+        {
+            "olympic-gold-medal" or "olympic-gold-medals" => "olympic-gold-medal-count",
+            _ => Normalize(value)
+        };
 
     private static string NormalizeListCategory(string value) =>
         Normalize(value) switch
