@@ -1,4 +1,5 @@
 using Lattice.Client;
+using Xunit;
 
 namespace Lattice.Runtime.Tests;
 
