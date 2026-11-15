@@ -2051,16 +2051,29 @@ internal static class SemanticWorldModelResponder
             _ => $"{string.Join(", ", names.Take(names.Count - 1))}, and {names[^1]}"
         };
 
-    private static string Indefinite(string phrase) =>
-        IsMassNoun(phrase)
-            ? string.Empty
-            : phrase.StartsWith("useful", StringComparison.OrdinalIgnoreCase) ||
-              phrase.StartsWith("user", StringComparison.OrdinalIgnoreCase) ||
-              phrase.StartsWith("university", StringComparison.OrdinalIgnoreCase)
-                ? "a"
-                : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
-                    ? "an"
-                    : "a";
+    private static string Indefinite(string phrase)
+    {
+        if (IsMassNoun(phrase) || StartsWithPluralNoun(phrase))
+        {
+            return string.Empty;
+        }
+
+        return phrase.StartsWith("useful", StringComparison.OrdinalIgnoreCase) ||
+               phrase.StartsWith("user", StringComparison.OrdinalIgnoreCase) ||
+               phrase.StartsWith("university", StringComparison.OrdinalIgnoreCase)
+            ? "a"
+            : phrase.Length > 0 && "aeiou".Contains(char.ToLowerInvariant(phrase[0]))
+                ? "an"
+                : "a";
+    }
+
+    private static bool StartsWithPluralNoun(string phrase)
+    {
+        var firstWord = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return firstWord is not null &&
+            firstWord.EndsWith('s') &&
+            firstWord is not ("business" or "status" or "analysis" or "news" or "series" or "species");
+    }
 
     private static string IndefinitePhrase(string phrase)
     {
