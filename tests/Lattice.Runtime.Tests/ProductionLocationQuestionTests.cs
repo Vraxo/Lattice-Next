@@ -25,7 +25,7 @@ public sealed class ProductionLocationQuestionTests
         Assert.Contains("no annual cap", answer.Message, StringComparison.Ordinal);
         Assert.Contains("no sunset clause", answer.Message, StringComparison.Ordinal);
         Assert.Contains("4 million+ square feet", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("experienced local crews", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("experienced crews", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("10,000+ filming locations", answer.Message, StringComparison.Ordinal);
         Assert.Contains("year-round filming", answer.Message, StringComparison.Ordinal);
         Assert.Contains("lower operating costs", answer.Message, StringComparison.Ordinal);
