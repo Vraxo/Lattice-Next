@@ -7,6 +7,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex ContextualRelationRolePattern = new(
+        @"^What is the name of (?:the )?(?<possessor>[A-Za-z][A-Za-z'’ -]*?)'s (?<role>[A-Za-z][A-Za-z -]*?) on (?:the )?(?:TV show )?[""“]?(?<context>[A-Za-z][A-Za-z0-9'’ -]*?)[""”]?\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex MissingListItemsPattern = new(
         @"^Tell me whether or not these (?<items>[A-Za-z][A-Za-z -]*?) are on (?<list>[A-Za-z][A-Za-z'’ -]*?)(?: list)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -127,6 +131,18 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var contextualRole = ContextualRelationRolePattern.Match(text);
+        if (contextualRole.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ContextualRelationRoleQuery,
+                subject: Normalize(contextualRole.Groups["possessor"].Value),
+                concept: Normalize(contextualRole.Groups["role"].Value),
+                otherSubject: Normalize(contextualRole.Groups["context"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var commonIngredients = CommonIngredientsPattern.Match(text);
         if (commonIngredients.Success)

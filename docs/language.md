@@ -264,3 +264,8 @@ This boundary is intentionally separate from the controlled grammar. More aggres
 - Do not interpret a missing predicate as false.
 - Keep original wording and resolved referents separately so explanations do not silently rewrite what the user said.
 - Optional translator adapters must implement `ISemanticsTranslator` and pass through `SemanticTranslationService` and `SemanticUtteranceValidator`; they must not bypass context resolution, knowledge validation, provenance, or user review.
+
+
+### Contextual relation-role questions
+
+The construction `What is the name of the <possessor>'s <role phrase> on the TV show <context>?` is parsed into a contextual relation-role query. The possessor and show are resolved as typed individuals. The role phrase is matched to a typed relation signature, then the reasoner follows that relation to candidate individuals. A candidate is returned only when a second typed relation connects the same individual to the requested show. Both paths must satisfy their declared domain and range types; the answer and evidence are composed from the two assertions and their type memberships. Unknown possessors, contexts, ambiguous roles, and unsupported paths cause abstention.
