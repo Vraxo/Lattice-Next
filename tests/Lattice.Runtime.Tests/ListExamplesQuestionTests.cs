@@ -34,7 +34,7 @@ public sealed class ListExamplesQuestionTests
     public async Task Supports_numbered_names_only_diagnostic_prompt()
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
             "Give me five golf equipment company names in a numbered list. Names only; no descriptions.",
