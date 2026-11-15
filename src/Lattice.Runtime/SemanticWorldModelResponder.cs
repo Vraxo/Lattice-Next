@@ -1721,7 +1721,7 @@ internal static class SemanticWorldModelResponder
             .Distinct()
             .ToImmutableArray();
 
-        message = $"You do not need formal {knowledge.Label} to start {activity.Label}. {Capitalize(entryRequirement.Label)}. You can begin with {JoinNames(starts.Select(concept => concept!.Label).ToArray())}. Learning {knowledge.Label} such as {JoinNames(helpful.Select(concept => concept!.Label).ToArray())} can help you understand and develop what you hear. As your compositions become more ambitious, {JoinNames(advanced.Select(concept => concept!.Label).ToArray())} can become useful, but they are tools to learn as needed rather than prerequisites. Start composing and add theory as it helps you solve musical problems.";
+        message = $"You do not need {entryRequirement.Label} to start {activity.Label}. You can begin with {JoinNames(starts.Select(concept => concept!.Label).ToArray())}. Some basic {knowledge.Label}, such as {JoinNames(helpful.Select(concept => concept!.Label).ToArray())}, can help you understand and develop what you hear. As your compositions become more ambitious, {JoinNames(advanced.Select(concept => concept!.Label).ToArray())} can become useful, but they are tools to learn as needed rather than prerequisites. Start composing and add theory as it helps you solve musical problems.";
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
