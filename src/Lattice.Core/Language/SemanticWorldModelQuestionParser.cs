@@ -8,7 +8,7 @@ namespace Lattice.Core.Language;
 internal static class SemanticWorldModelQuestionParser
 {
     private static readonly Regex EnumerationRemainderPattern = new(
-        @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|[0-9]+) daughters?: (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|[0-9]+(?:st|nd|rd|th)) daughter\??$",
+        @"^(?<member>[A-Z][A-Za-z'-]*)['’]s parents have (?<count>one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+) (?<group>[A-Za-z][A-Za-z'-]*): (?<known>[A-Z][A-Za-z'-]*(?:, [A-Z][A-Za-z'-]*)*), and what(?:'s|’s| is) the name of the (?<ordinal>first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|[0-9]+(?:st|nd|rd|th)) (?<questionGroup>[A-Za-z][A-Za-z'-]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex DefinitionPattern = new(
@@ -94,17 +94,21 @@ internal static class SemanticWorldModelQuestionParser
                 .Select(Normalize)
                 .ToImmutableArray();
             var member = Normalize(enumerationRemainder.Groups["member"].Value);
+            var group = Normalize(enumerationRemainder.Groups["group"].Value);
+            var questionGroup = Normalize(enumerationRemainder.Groups["questionGroup"].Value);
 
             if (expectedCount > 0 &&
                 missingPosition == expectedCount &&
+                group == questionGroup &&
                 namedMembers.Length == expectedCount - 1 &&
+                namedMembers.Distinct(StringComparer.Ordinal).Count() == namedMembers.Length &&
                 !namedMembers.Contains(member, StringComparer.Ordinal))
             {
                 utterance = new SemanticUtterance(
                     UtteranceKind.Question,
                     new EnumerationRemainderQuestionFormula(
                         member,
-                        "daughters",
+                        group,
                         expectedCount,
                         missingPosition,
                         namedMembers),
@@ -334,6 +338,11 @@ internal static class SemanticWorldModelQuestionParser
             "three" => 3,
             "four" => 4,
             "five" => 5,
+            "six" => 6,
+            "seven" => 7,
+            "eight" => 8,
+            "nine" => 9,
+            "ten" => 10,
             _ => 0
         };
 
@@ -349,6 +358,11 @@ internal static class SemanticWorldModelQuestionParser
             "third" => 3,
             "fourth" => 4,
             "fifth" => 5,
+            "sixth" => 6,
+            "seventh" => 7,
+            "eighth" => 8,
+            "ninth" => 9,
+            "tenth" => 10,
             _ => 0
         };
 
