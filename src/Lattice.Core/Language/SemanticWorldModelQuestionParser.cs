@@ -7,6 +7,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex CompanyPurposeQuestionPattern = new(
+        @"^I\\s+(?:started|founded|launched)\\s+(?:a\\s+)?(?:new\\s+)?company\\s+named\\s+(?<company>[A-Z][A-Za-z0-9&'’ -]*?(?:\\s+(?:Inc|Incorporated|Ltd|Limited|LLC|LLP|Corp|Corporation))?)\\.\\s*What\\s+(?:do\\s+we|does\\s+(?:it|the\\s+company))\\s+do\\?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CompanyIntroductionQuestionPattern = new(
         @"^I\s+(?:started|founded|launched)\s+(?:a\s+)?(?:new\s+)?company\s+named\s+(?<company>[A-Z][A-Za-z0-9&'’ -]*?(?:\s+(?:Inc|Incorporated|Ltd|Limited|LLC|LLP|Corp|Corporation))?)\.\s*What\s+(?:do\s+we|does\s+(?:it|the\s+company))\s+do\?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -87,6 +91,17 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var companyPurpose = CompanyPurposeQuestionPattern.Match(text);
+        if (companyPurpose.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.CreativeIdeas,
+                subject: "business-ideas",
+                otherSubject: Normalize(companyPurpose.Groups["company"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var companyIntroduction = CompanyIntroductionQuestionPattern.Match(text);
         if (companyIntroduction.Success)
