@@ -51,6 +51,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What does (?<subject>[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ScopedRelationTargetPattern = new(
+        @"^Which (?<target>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RelationSourcePattern = new(
         @"^(?:Who|What) (?!(?:is|are|was|were|be|being|been|has|have|does|do|did)\b)(?<verb>[a-z]+s) (?<object>(?:(?:the|a|an) )?(?!(?:when|where|why|how|to|for|from|with|by|in|on|at|of|that|which|who|what)\b)[A-Za-z]+(?: [A-Za-z]+){0,2})\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -183,6 +187,19 @@ internal static class SemanticWorldModelQuestionParser
                 subject: Normalize(comparison.Groups["subject"].Value),
                 otherSubject: Normalize(comparison.Groups["other"].Value),
                 sourceText: source);
+            return true;
+        }
+
+        var scopedRelationTarget = ScopedRelationTargetPattern.Match(text);
+        if (scopedRelationTarget.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationQueryFormula(
+                    Normalize(scopedRelationTarget.Groups["subject"].Value),
+                    Normalize(scopedRelationTarget.Groups["verb"].Value),
+                    Normalize(scopedRelationTarget.Groups["scope"].Value)),
+                source);
             return true;
         }
 
