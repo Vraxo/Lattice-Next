@@ -15,6 +15,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RequiredKnowledgePattern = new(
+        @"^How much (?<knowledge>[A-Za-z][A-Za-z -]*?) is required to (?<activity>[A-Za-z][A-Za-z -]*)\\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex EverydayApplicationsPattern = new(
         @"^How can (?<subject>[A-Za-z][A-Za-z'’ -]*?) be used in (?:day to day|everyday) life\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -126,6 +130,17 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.CreativeIdeas,
                 subject: "business-ideas",
                 otherSubject: companyPurpose.Groups["company"].Value.Trim(),
+                sourceText: source);
+            return true;
+        }
+
+        var requiredKnowledge = RequiredKnowledgePattern.Match(text);
+        if (requiredKnowledge.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.RequiredKnowledge,
+                subject: Normalize(requiredKnowledge.Groups["activity"].Value),
+                concept: Normalize(requiredKnowledge.Groups["knowledge"].Value),
                 sourceText: source);
             return true;
         }
