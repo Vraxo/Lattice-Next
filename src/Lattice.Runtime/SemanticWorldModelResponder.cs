@@ -377,7 +377,7 @@ internal static class SemanticWorldModelResponder
                 Relation: model.FindRelation(assertion.Relation),
                 Assertion: assertion))
             .Where(item => item.Contributor is not null && item.Relation is not null)
-            .OrderBy(item => item.Assertion.Relation, StringComparer.Ordinal)
+            .OrderBy(item => item.Assertion.Relation == "funded-acquisition-of" ? 0 : 1)
             .ToArray();
         if (contributions.Length == 0)
         {
