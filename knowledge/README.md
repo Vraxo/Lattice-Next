@@ -62,7 +62,7 @@ Counts after composing all twelve modules:
   - 143 `is-a`
   - 152 `instance-of`
   - 157 ordinary individual-to-individual relations
-- 264 lexical forms
+- 263 lexical forms
 
 ## Audit boundary
 
