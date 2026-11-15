@@ -27,6 +27,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex WhyHarmfulPattern = new(
+        @"^Why (?<subject>[A-Za-z][A-Za-z -]*?) (?:is|are)? ?bad for (?<target>[A-Za-z][A-Za-z -]*)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CausesPattern = new(
         @"^What causes (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -79,6 +83,17 @@ internal static class SemanticWorldModelQuestionParser
                     source);
                 return true;
             }
+        }
+
+        var harmful = WhyHarmfulPattern.Match(text);
+        if (harmful.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.WhyHarmful,
+                subject: NormalizeHarmTerm(harmful.Groups["subject"].Value),
+                concept: NormalizeHarmTerm(harmful.Groups["target"].Value),
+                sourceText: source);
+            return true;
         }
 
         var definition = DefinitionPattern.Match(text);
@@ -236,6 +251,15 @@ internal static class SemanticWorldModelQuestionParser
         var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
         return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
     }
+
+    private static string NormalizeHarmTerm(string value) =>
+        Normalize(value) switch
+        {
+            "mobile" or "mobile phone" or "mobile phones" or
+            "smartphone" or "smartphones" or "phone use" => "mobile-phone-use",
+            "human" or "humans" or "people" => "person",
+            _ => Normalize(value)
+        };
 
     private static string NormalizeContributionTerm(string value) =>
         Normalize(value) switch
