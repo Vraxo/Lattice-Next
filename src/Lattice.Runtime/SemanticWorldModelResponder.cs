@@ -483,6 +483,7 @@ internal static class SemanticWorldModelResponder
 
         var effects = reasoner.GetRelations(eventConcept.Id)
             .Where(assertion => assertion.Relation is "ends" or "begins" or "results-in" or "leads-to")
+            .OrderBy(assertion => model.FindRelation(assertion.Relation)?.Order ?? int.MaxValue)
             .Select(assertion => (
                 Relation: model.FindRelation(assertion.Relation),
                 Target: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
