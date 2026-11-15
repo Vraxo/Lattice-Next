@@ -29,6 +29,11 @@ internal static class TaskRequestResponder
         };
     }
 
+    private static string EnsureSentenceEnding(string value)
+    {
+        return value.TrimEnd().TrimEnd('.', '!', '?') + ".";
+    }
+
     private static bool TryExplainOperation(
         TaskRequestFormula request,
         SemanticWorldModel model,
@@ -136,7 +141,7 @@ internal static class TaskRequestResponder
 
         var paragraphs = new List<string>
         {
-            $"A manual transmission uses {JoinNames(controls.Select(control => control.Label).ToArray())}. The clutch pedal is operated with your {clutchFoot.Label}, while the brake and accelerator are operated with your {brakeFoot.Label}. Pressing the clutch disengages the engine from the gearbox so you can change gears."
+            $"A manual transmission uses the {JoinNames(controls.Select(control => control.Label).ToArray())}. The clutch pedal is operated with your {clutchFoot.Label}, while the brake and accelerator are operated with your {brakeFoot.Label}. Pressing the clutch disengages the engine from the gearbox so you can change gears."
         };
         var sources = new List<SemanticWorldModelSource>
         {
@@ -170,7 +175,7 @@ internal static class TaskRequestResponder
                 return false;
             }
 
-            paragraphs.Add($"**{step.Number}. {step.Step.Label}:** {action.Label}.");
+            paragraphs.Add($"**{step.Number}. {step.Step.Label}:** {EnsureSentenceEnding(action.Label)}");
             sources.Add(step.Assertion.Source);
             sources.AddRange(model.GetDataAssertions(step.Step.Id, "step-number")
                 .Select(assertion => assertion.Source));
@@ -194,7 +199,7 @@ internal static class TaskRequestResponder
                 return false;
             }
 
-            paragraphs.Add($"- {note.Label}.");
+            paragraphs.Add($"- {EnsureSentenceEnding(note.Label)}");
             sources.Add(assertion.Source);
             sources.AddRange(reasoner.GetMembershipEvidence(note.Id, "safety-note"));
         }
