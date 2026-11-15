@@ -65,12 +65,12 @@
     },
     {
       "id": "step-upshift",
-      "label": "Changing up a gear",
+      "label": "Upshifting",
       "kind": "Individual"
     },
     {
       "id": "step-downshift",
-      "label": "Changing down a gear",
+      "label": "Downshifting",
       "kind": "Individual"
     },
     {
