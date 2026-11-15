@@ -901,10 +901,10 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         var meaning = SemanticFormatter.Format(utterance);
         if (question.Kind == SemanticWorldModelQuestionKind.Clarification)
         {
-            var message = $"Which {question.Subject} are you referring to? Please list them, and I'll check each one against {question.OtherSubject}.";
+            var clarificationMessage = $"Which {question.Subject} are you referring to? Please list them, and I'll check each one against {question.OtherSubject}.";
             return new LatticeUtteranceResult(
                 LatticeUtteranceResultKind.ClarificationRequired,
-                message,
+                clarificationMessage,
                 meaning);
         }
 
