@@ -31,6 +31,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What causes (?<subject>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex HeadquartersContributionPattern = new(
+        @"^Who gave (?:the )?(?<recipient>[A-Za-z][A-Za-z0-9'’ -]*?) the (?<resource>[A-Za-z][A-Za-z -]*?) in (?<location>[A-Za-z][A-Za-z0-9'’ -]*?) to build (?:(?:their|its|the) )?(?<facility>[A-Za-z][A-Za-z -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ComparePattern = new(
         @"^What distinguishes (?<subject>[A-Za-z][A-Za-z -]*?) from (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -129,6 +133,19 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
+        var headquartersContribution = HeadquartersContributionPattern.Match(text);
+        if (headquartersContribution.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.ContributionQuery,
+                subject: NormalizeContributionTerm(headquartersContribution.Groups["recipient"].Value),
+                concept: NormalizeContributionTerm(headquartersContribution.Groups["resource"].Value),
+                otherSubject: NormalizeContributionTerm(headquartersContribution.Groups["location"].Value),
+                targetType: NormalizeContributionTerm(headquartersContribution.Groups["facility"].Value),
+                sourceText: source);
+            return true;
+        }
+
         var comparison = ComparePattern.Match(text);
         if (comparison.Success)
         {
@@ -172,10 +189,11 @@ internal static class SemanticWorldModelQuestionParser
         string subject = "",
         string? concept = null,
         string? otherSubject = null,
+        string? targetType = null,
         string? sourceText = null) =>
         new(
             UtteranceKind.Question,
-            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject),
+            new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType),
             sourceText ?? string.Empty);
 
     private static bool TryParseCardinal(string value, out int number)
@@ -218,6 +236,16 @@ internal static class SemanticWorldModelQuestionParser
         var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
         return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
     }
+
+    private static string NormalizeContributionTerm(string value) =>
+        Normalize(value) switch
+        {
+            "un" => "united-nations",
+            "ny" => "new-york-city",
+            "land" => "land-parcel",
+            "hq" or "headquarters" => "headquarters-site",
+            _ => Normalize(value)
+        };
 
     private static string Normalize(string value)
     {
