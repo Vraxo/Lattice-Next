@@ -67,6 +67,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.BeginnerGuidance => $"world-model-beginner-guidance({question.Subject})",
             SemanticWorldModelQuestionKind.CreativeIdeas => $"world-model-creative-ideas({question.Subject})",
             SemanticWorldModelQuestionKind.ListExamples => $"world-model-list-examples({question.Subject}, {question.Limit})",
+            SemanticWorldModelQuestionKind.MaximumDataValue => $"world-model-maximum({question.Subject}, {question.Concept})",
             _ => "world-model-question(unsupported)"
         };
 
