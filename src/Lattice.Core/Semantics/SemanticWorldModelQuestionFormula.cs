@@ -10,7 +10,8 @@ public enum SemanticWorldModelQuestionKind
     Compare,
     ContributionQuery,
     WhyHarmful,
-    BeginnerGuidance
+    BeginnerGuidance,
+    CreativeIdeas
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
