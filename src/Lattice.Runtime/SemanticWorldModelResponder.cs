@@ -51,6 +51,8 @@ internal static class SemanticWorldModelResponder
                 TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MaximumDataValue =>
                 TryMaximumDataValue(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.HighestDataValue =>
+                TryHighestDataValue(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.EventOutcomes =>
                 TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -572,6 +574,115 @@ internal static class SemanticWorldModelResponder
         evidence = ImmutableArray.Create(ToEvidence(
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryHighestDataValue(
+        SemanticWorldModelQuestionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var featureType = model.FindConcept(request.Subject, SemanticConceptKind.Type);
+        var property = model.FindDataProperty(request.Concept ?? string.Empty);
+        var scope = model.FindConcept(request.TargetType ?? string.Empty, SemanticConceptKind.Individual);
+        if (featureType is null ||
+            property is null ||
+            property.ValueKind != SemanticDataValueKind.Number ||
+            property.DomainType != featureType.Id ||
+            scope is null)
+        {
+            return false;
+        }
+
+        var interpretations = reasoner.GetRelations(scope.Id, "has-scope-interpretation");
+        if (interpretations.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var answers = new List<(SemanticConcept Scope, SemanticConcept Feature, decimal Value)>();
+        var sources = new List<SemanticWorldModelSource>();
+        sources.AddRange(interpretations.Select(assertion => assertion.Source));
+
+        foreach (var interpretation in interpretations)
+        {
+            var interpretedScope = model.FindConcept(interpretation.Object, SemanticConceptKind.Individual);
+            if (interpretedScope is null)
+            {
+                return false;
+            }
+
+            var highestAssertions = reasoner.GetRelations(interpretedScope.Id, "has-highest-feature");
+            if (highestAssertions.Length != 1)
+            {
+                return false;
+            }
+
+            var feature = model.FindConcept(highestAssertions[0].Object, SemanticConceptKind.Individual);
+            if (feature is null || !reasoner.IsInstanceOf(feature.Id, featureType.Id))
+            {
+                return false;
+            }
+
+            var featureValues = model.GetDataAssertions(feature.Id, property.Id);
+            if (featureValues.Length != 1 ||
+                !decimal.TryParse(featureValues[0].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+            {
+                return false;
+            }
+
+            var scopedCandidates = model.Concepts
+                .Where(concept =>
+                    concept.Kind == SemanticConceptKind.Individual &&
+                    reasoner.IsInstanceOf(concept.Id, featureType.Id))
+                .SelectMany(concept =>
+                {
+                    var locations = reasoner.GetRelations(concept.Id, "located-in-geographic-region")
+                        .Where(assertion => assertion.Object == interpretedScope.Id)
+                        .ToArray();
+                    var values = model.GetDataAssertions(concept.Id, property.Id);
+                    return locations.SelectMany(location => values.Select(candidateValue => (
+                        Concept: concept,
+                        Location: location,
+                        Assertion: candidateValue)));
+                })
+                .Where(candidate => decimal.TryParse(
+                    candidate.Assertion.Value,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out _))
+                .Select(candidate => (
+                    candidate.Concept,
+                    candidate.Location,
+                    candidate.Assertion,
+                    Value: decimal.Parse(candidate.Assertion.Value, NumberStyles.Number, CultureInfo.InvariantCulture)))
+                .ToArray();
+            if (scopedCandidates.Length == 0 ||
+                scopedCandidates.Max(candidate => candidate.Value) != value ||
+                !scopedCandidates.Any(candidate => candidate.Concept.Id == feature.Id && candidate.Value == value))
+            {
+                return false;
+            }
+
+            answers.Add((interpretedScope, feature, value));
+            sources.Add(highestAssertions[0].Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(feature.Id, featureType.Id));
+            sources.AddRange(scopedCandidates.SelectMany(candidate => new[]
+            {
+                candidate.Location.Source,
+                candidate.Assertion.Source
+            }));
+        }
+
+        var answerText = answers.Select(answer =>
+            $"{answer.Feature.Label} in {answer.Scope.Label} ({answer.Value.ToString("N0", CultureInfo.InvariantCulture)} {request.OtherSubject})");
+        message = $"The phrase \"{scope.Label}\" can refer to different geographic scopes. {JoinNames(answerText.ToArray())}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
         return true;
     }
 
