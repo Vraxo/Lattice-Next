@@ -10,10 +10,11 @@ public sealed class HeadquartersContributionQuestionTests
     public async Task Separates_the_financial_gift_from_the_citys_property_contribution()
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
-            "Who gave the UN the land in NY to build their HQ");
+            "Who gave the UN the land in NY to build their HQ",
+            TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -42,15 +43,16 @@ public sealed class HeadquartersContributionQuestionTests
     public async Task Resolves_full_names_and_expanded_headquarters_wording()
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
-            "Who gave the United Nations the land in New York City to build its headquarters?");
+            "Who gave the United Nations the land in New York City to build its headquarters?",
+            TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
-        Assert.Contains("John D. Rockefeller Jr.", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("City of New York", answer.Message, StringComparison.Ordinal);
+        Assert.Contains("John D. Rockefeller Jr.", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("City of New York", answer.Message!, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -61,9 +63,9 @@ public sealed class HeadquartersContributionQuestionTests
         string prompt)
     {
         var client = new LatticeRuntimeClient();
-        await using var session = await client.CreateSessionAsync();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
-        var result = await session.SubmitAsync(prompt);
+        var result = await session.SubmitAsync(prompt, TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
