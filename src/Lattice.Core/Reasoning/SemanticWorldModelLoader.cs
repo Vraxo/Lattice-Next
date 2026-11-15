@@ -68,7 +68,7 @@ public sealed class SemanticWorldModelLoader
                 document.DataAssertions.Count > MaximumAssertions ||
             (document.FormatVersion == SupportedFormatVersion &&
                 (document.TypeAssertions is not null ||
-                 document.DataProperties.Any(property =>
+                 document.DataProperties.Any(property => property is not null &&
                     string.Equals(property.ValueType, "uri", StringComparison.OrdinalIgnoreCase)))))
         {
             error = "The semantic world model metadata, collections, or version-3 semantic fields are invalid.";
