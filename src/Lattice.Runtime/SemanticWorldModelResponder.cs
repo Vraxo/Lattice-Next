@@ -1137,17 +1137,38 @@ internal static class SemanticWorldModelResponder
 
         message = string.Join(
             " ",
-            results.Select(result => result.Categories.Length switch
-            {
-                1 => $"{Capitalize(result.Item)} is {Indefinite(result.Categories[0])} {result.Categories[0]} {itemType}.",
-                2 => $"{Capitalize(result.Item)} is both a {result.Categories[0]} and a {result.Categories[1]} {itemType}.",
-                _ => $"{Capitalize(result.Item)} belongs to the {JoinNames(result.Categories)} {itemType} categories."
-            }));
+            results.Select(result => FormatClassification(result, itemType)));
 
         evidence = results
             .Select(result => ToEvidence(result.Sources, LatticeEvidenceKind.Derived))
             .ToImmutableArray();
         return true;
+    }
+
+    private static string FormatClassification(
+        (string Item, ImmutableArray<string> Categories, ImmutableArray<SemanticWorldModelSource> Sources) result,
+        string itemType)
+    {
+        var typePhrase = itemType.Replace('-', ' ');
+        var categoryPhrases = result.Categories
+            .Select(category => category.Replace('-', ' '))
+            .ToArray();
+
+        if (categoryPhrases.Length == 1)
+        {
+            var category = categoryPhrases[0];
+            var predicate = category.StartsWith("not ", StringComparison.Ordinal)
+                ? $"not {IndefinitePhrase(category[4..])}"
+                : IndefinitePhrase(category);
+            return $"{Capitalize(result.Item)} is {predicate} {typePhrase}.";
+        }
+
+        if (categoryPhrases.Length == 2)
+        {
+            return $"{Capitalize(result.Item)} is both {IndefinitePhrase(categoryPhrases[0])} and {IndefinitePhrase(categoryPhrases[1])} {typePhrase}.";
+        }
+
+        return $"{Capitalize(result.Item)} belongs to the {JoinNames(categoryPhrases)} {typePhrase} categories.";
     }
 
     private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
