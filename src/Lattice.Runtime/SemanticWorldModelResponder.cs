@@ -511,7 +511,12 @@ internal static class SemanticWorldModelResponder
 
         var stepText = string.Join("\n", steps.Select((item, index) =>
             $"{index + 1}. {Capitalize(item.Step.Label)}; purpose: {item.Purpose.Label}."));
-        var safetyText = JoinConditions(safetyGuidance.Select(concept => concept.Label).ToArray());
+        var warningIds = warningGuidance.Select(concept => concept.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var safetyText = JoinConditions(safetyGuidance
+            .Where(concept => !warningIds.Contains(concept.Id))
+            .Select(concept => concept.Label)
+            .ToArray());
         var warningText = JoinConditions(warningGuidance.Select(concept => concept.Label).ToArray());
         message = $"To start {activity.Label}, use a gradual beginner routine:\n{stepText}\nSafety considerations include {safetyText}. Stop and seek medical help if you experience {warningText}.";
         evidence = ImmutableArray.Create(ToEvidence(
