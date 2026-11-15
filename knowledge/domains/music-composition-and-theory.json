@@ -34,11 +34,6 @@
       "kind": "Type"
     },
     {
-      "id": "music-making-practice",
-      "label": "music-making practice",
-      "kind": "Type"
-    },
-    {
       "id": "music-composition",
       "label": "composing music",
       "kind": "Individual"
@@ -205,12 +200,6 @@
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
-    },
-    {
-      "concept": "music-making-practice",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -241,11 +230,6 @@
     },
     {
       "subject": "composition-method",
-      "relation": "is-a",
-      "object": "entity"
-    },
-    {
-      "subject": "music-making-practice",
       "relation": "is-a",
       "object": "entity"
     },
