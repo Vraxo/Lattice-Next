@@ -51,7 +51,7 @@ public sealed class EnumerationRemainderQuestionTests
         var result = await session.SubmitAsync(
             "Alice's parents have three daughters: Amy, and what’s the name of the third daughter?");
 
-        var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Equal(LatticeTurnStatus.Rejected, result.Status);
+        Assert.Empty(result.Utterances);
     }
 }
