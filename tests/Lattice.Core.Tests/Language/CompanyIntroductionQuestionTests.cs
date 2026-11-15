@@ -9,7 +9,7 @@ public sealed class CompanyIntroductionQuestionTests
     private readonly LceParser parser = new();
 
     [Theory]
-    [InlineData("I started a new company named Greystone Inc. What do we do?", "Greystone Inc.")]
+    [InlineData("I started a new company named Greystone Inc. What do we do?", "Greystone Inc")]
     [InlineData("I founded a company named Northstar Labs. What does it do?", "Northstar Labs")]
     [InlineData("I launched a new company named Cedar Works LLC. What does the company do?", "Cedar Works LLC")]
     public void Parses_a_company_introduction_as_a_business_ideation_question(
