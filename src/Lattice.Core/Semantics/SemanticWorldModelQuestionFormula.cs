@@ -7,11 +7,13 @@ public enum SemanticWorldModelQuestionKind
     Ability,
     Mechanism,
     Causes,
-    Compare
+    Compare,
+    ContributionQuery
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
     SemanticWorldModelQuestionKind Kind,
     string Subject,
     string? Concept = null,
-    string? OtherSubject = null) : SemanticFormula;
+    string? OtherSubject = null,
+    string? TargetType = null) : SemanticFormula;
