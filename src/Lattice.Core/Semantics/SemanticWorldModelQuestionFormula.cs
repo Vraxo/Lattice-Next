@@ -9,7 +9,8 @@ public enum SemanticWorldModelQuestionKind
     Causes,
     Compare,
     ContributionQuery,
-    WhyHarmful
+    WhyHarmful,
+    BeginnerGuidance
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
