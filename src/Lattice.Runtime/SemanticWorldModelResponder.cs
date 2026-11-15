@@ -120,8 +120,12 @@ internal static class SemanticWorldModelResponder
             .Select(match => match.Target!)
             .DistinctBy(target => target.Id)
             .ToArray();
-        var targetPhrase = JoinNames(targets.Select(target => target.Label).ToArray());
-        message = $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        var targetPhrase = request.Scope is null
+            ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
+            : JoinNames(targets.Select(target => target.Label).ToArray());
+        message = request.Scope is null
+            ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
+            : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
         var relationEvidence = ToEvidence(
             matches.Select(match => match.Source).Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived);
