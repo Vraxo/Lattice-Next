@@ -25,6 +25,7 @@ internal static class TaskRequestResponder
             TaskRequestAction.Recommend => TryRecommend(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Plan => TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explain => TryExplainOperation(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Brainstorm => TryBrainstormUses(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -32,6 +33,177 @@ internal static class TaskRequestResponder
     private static string EnsureSentenceEnding(string value)
     {
         return value.TrimEnd().TrimEnd('.', '!', '?') + ".";
+    }
+
+    private static bool TryBrainstormUses(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (request.Scope != "potential-uses" || request.OutputFormat is null)
+        {
+            return false;
+        }
+
+        var separatorIndex = request.OutputFormat.IndexOf('-');
+        if (separatorIndex <= 0 ||
+            !int.TryParse(request.OutputFormat[..separatorIndex], out var requestedCount) ||
+            requestedCount is < 1 or > 10)
+        {
+            return false;
+        }
+
+        var objectType = model.FindConcept(request.Subject, SemanticConceptKind.Type);
+        var requestedBrand = request.Context is null
+            ? null
+            : model.FindConcept(request.Context, SemanticConceptKind.Individual);
+        if (objectType is null || (request.Context is not null && requestedBrand is null))
+        {
+            return false;
+        }
+
+        var target = model.Concepts
+            .Where(concept => concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, objectType.Id))
+            .FirstOrDefault(concept =>
+                reasoner.GetRelations(concept.Id, "has-state")
+                    .Any(assertion => assertion.Object == "empty-state") &&
+                (requestedBrand is null || reasoner.GetRelations(concept.Id, "has-brand")
+                    .Any(assertion => assertion.Object == requestedBrand.Id)));
+        if (target is null)
+        {
+            return false;
+        }
+
+        var ideas = model.Concepts
+            .Where(concept => concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, "repurposing-idea"))
+            .Select(idea => new
+            {
+                Idea = idea,
+                ObjectAssertion = reasoner.GetRelations(idea.Id, "idea-for-object")
+                    .FirstOrDefault(assertion => assertion.Object == objectType.Id),
+                Order = model.GetDataAssertions(idea.Id, "idea-order").FirstOrDefault()?.Value
+            })
+            .Select(candidate => int.TryParse(
+                candidate.Order,
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var order) && candidate.ObjectAssertion is not null
+                    ? new { candidate.Idea, ObjectAssertion = candidate.ObjectAssertion, Order = order }
+                    : null)
+            .Where(candidate => candidate is not null)
+            .OrderBy(candidate => candidate!.Order)
+            .Take(requestedCount)
+            .ToArray();
+
+        if (ideas.Length != requestedCount)
+        {
+            return false;
+        }
+
+        var paragraphs = new List<string>
+        {
+            $"Here are {requestedCount} potential uses for an {target.Label}:"
+        };
+        var sources = new List<SemanticWorldModelSource>();
+        sources.AddRange(reasoner.GetMembershipEvidence(target.Id, objectType.Id));
+        sources.AddRange(reasoner.GetRelations(target.Id, "has-state")
+            .Where(assertion => assertion.Object == "empty-state")
+            .Select(assertion => assertion.Source));
+        if (requestedBrand is not null)
+        {
+            sources.AddRange(reasoner.GetRelations(target.Id, "has-brand")
+                .Where(assertion => assertion.Object == requestedBrand.Id)
+                .Select(assertion => assertion.Source));
+        }
+
+        for (var index = 0; index < ideas.Length; index++)
+        {
+            var candidate = ideas[index]!;
+            var purposeAssertion = reasoner.GetRelations(candidate.Idea.Id, "idea-has-purpose")
+                .FirstOrDefault();
+            var purpose = purposeAssertion is null
+                ? null
+                : model.FindConcept(purposeAssertion.Object, SemanticConceptKind.Individual);
+            var featureAssertions = reasoner.GetRelations(candidate.Idea.Id, "idea-exploits-feature");
+            var actionAssertions = reasoner.GetRelations(candidate.Idea.Id, "idea-requires-action");
+            var safetyAssertions = reasoner.GetRelations(candidate.Idea.Id, "idea-has-safety-note");
+            var actions = actionAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .ToArray();
+            var safetyNotes = safetyAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .ToArray();
+
+            if (purpose is null || featureAssertions.IsDefaultOrEmpty || actions.Length == 0 ||
+                actions.Any(action => action is null) || safetyNotes.Any(note => note is null))
+            {
+                return false;
+            }
+
+            var preparation = string.Join("; ", actions.Select(action => action!.Label));
+            var paragraph = $"**{index + 1}. {candidate.Idea.Label}:** Use the can to {purpose.Label}. Preparation: {EnsureSentenceEnding(preparation)}";
+            if (safetyNotes.Length > 0)
+            {
+                paragraph += " Safety: " + string.Join(" ", safetyNotes.Select(note => EnsureSentenceEnding(note!.Label)));
+            }
+
+            paragraphs.Add(paragraph);
+            sources.Add(candidate.ObjectAssertion!.Source);
+            sources.AddRange(model.GetDataAssertions(candidate.Idea.Id, "idea-order")
+                .Select(assertion => assertion.Source));
+            sources.Add(purposeAssertion!.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(candidate.Idea.Id, "repurposing-idea"));
+            sources.AddRange(reasoner.GetMembershipEvidence(purpose.Id, "reuse-purpose"));
+            sources.AddRange(featureAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(actionAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(safetyAssertions.Select(assertion => assertion.Source));
+            foreach (var featureAssertion in featureAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(featureAssertion.Object, "object-feature"));
+            }
+
+            foreach (var actionAssertion in actionAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(actionAssertion.Object, "reuse-action"));
+            }
+
+            foreach (var safetyAssertion in safetyAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(safetyAssertion.Object, "reuse-safety-note"));
+            }
+        }
+
+        var generalSafetyNotes = reasoner.GetRelations(target.Id, "object-has-safety-note");
+        foreach (var assertion in generalSafetyNotes)
+        {
+            var note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+            if (note is null)
+            {
+                return false;
+            }
+
+            paragraphs.Add($"**General safety:** {EnsureSentenceEnding(note.Label)}");
+            sources.Add(assertion.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(note.Id, "reuse-safety-note"));
+        }
+
+        message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources
+                .DistinctBy(source => source.SourceId)
+                .Select(ToEvidenceSource)
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
     }
 
     private static bool TryExplainOperation(
