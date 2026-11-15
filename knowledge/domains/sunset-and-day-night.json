@@ -4,6 +4,31 @@
   "name": "Sunset, daylight, and nighttime",
   "concepts": [
     {
+      "id": "process",
+      "label": "process",
+      "kind": "Type"
+    },
+    {
+      "id": "event",
+      "label": "event",
+      "kind": "Type"
+    },
+    {
+      "id": "state",
+      "label": "state",
+      "kind": "Type"
+    },
+    {
+      "id": "celestial-body",
+      "label": "celestial body",
+      "kind": "Type"
+    },
+    {
+      "id": "location-reference",
+      "label": "location reference",
+      "kind": "Type"
+    },
+    {
       "id": "earth-rotation",
       "label": "Earth's rotation",
       "kind": "Individual"
@@ -139,8 +164,8 @@
   "relations": [
     {
       "id": "causes",
-      "domain": "physical-process",
-      "range": "astronomical-event",
+      "domain": "process",
+      "range": "event",
       "verb": "causes",
       "objectRole": null,
       "order": 0,
@@ -150,8 +175,8 @@
     },
     {
       "id": "ends",
-      "domain": "astronomical-event",
-      "range": "time-of-day-period",
+      "domain": "event",
+      "range": "state",
       "verb": "ends",
       "objectRole": null,
       "order": 0,
@@ -161,8 +186,8 @@
     },
     {
       "id": "begins",
-      "domain": "astronomical-event",
-      "range": "time-of-day-period",
+      "domain": "event",
+      "range": "state",
       "verb": "begins",
       "objectRole": null,
       "order": 0,
@@ -172,7 +197,7 @@
     },
     {
       "id": "turns-location-away-from",
-      "domain": "physical-process",
+      "domain": "process",
       "range": "celestial-body",
       "verb": "turns your location away from",
       "objectRole": null,
@@ -184,7 +209,7 @@
     {
       "id": "appears-below",
       "domain": "celestial-body",
-      "range": "horizon-boundary",
+      "range": "location-reference",
       "verb": "appears below",
       "objectRole": null,
       "order": 0,
@@ -220,6 +245,36 @@
     },
     {
       "concept": "horizon-boundary",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "event",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "state",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "celestial-body",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "location-reference",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -305,6 +360,36 @@
       "subject": "local-horizon",
       "relation": "instance-of",
       "object": "horizon-boundary"
+    },
+    {
+      "subject": "earth-rotation",
+      "relation": "instance-of",
+      "object": "process"
+    },
+    {
+      "subject": "local-sunset",
+      "relation": "instance-of",
+      "object": "event"
+    },
+    {
+      "subject": "daylight",
+      "relation": "instance-of",
+      "object": "state"
+    },
+    {
+      "subject": "night",
+      "relation": "instance-of",
+      "object": "state"
+    },
+    {
+      "subject": "sun",
+      "relation": "instance-of",
+      "object": "celestial-body"
+    },
+    {
+      "subject": "local-horizon",
+      "relation": "instance-of",
+      "object": "location-reference"
     }
   ],
   "dataProperties": [],
