@@ -1,0 +1,440 @@
+{
+  "formatVersion": 3,
+  "id": "core-diy-curtain-tiebacks",
+  "name": "DIY curtain tie-back ideas",
+  "concepts": [
+    {
+      "id": "diy-project",
+      "label": "DIY project",
+      "kind": "Type"
+    },
+    {
+      "id": "diy-material",
+      "label": "DIY material",
+      "kind": "Type"
+    },
+    {
+      "id": "diy-technique",
+      "label": "DIY technique",
+      "kind": "Type"
+    },
+    {
+      "id": "fastening-method",
+      "label": "fastening method",
+      "kind": "Type"
+    },
+    {
+      "id": "curtain-tie-backs",
+      "label": "curtain tie-backs",
+      "kind": "Individual"
+    },
+    {
+      "id": "braided-fabric-tieback",
+      "label": "braided fabric tie-back",
+      "kind": "Individual"
+    },
+    {
+      "id": "rope-bead-tieback",
+      "label": "rope and bead tie-back",
+      "kind": "Individual"
+    },
+    {
+      "id": "repurposed-belt-tieback",
+      "label": "repurposed belt tie-back",
+      "kind": "Individual"
+    },
+    {
+      "id": "vintage-scarf-tieback",
+      "label": "vintage scarf tie-back",
+      "kind": "Individual"
+    },
+    {
+      "id": "wooden-dowel-tieback",
+      "label": "wooden dowel tie-back",
+      "kind": "Individual"
+    },
+    {
+      "id": "reclaimed-cotton-fabric",
+      "label": "reclaimed cotton fabric",
+      "kind": "Individual"
+    },
+    {
+      "id": "cotton-rope",
+      "label": "cotton rope",
+      "kind": "Individual"
+    },
+    {
+      "id": "wooden-beads",
+      "label": "large wooden beads",
+      "kind": "Individual"
+    },
+    {
+      "id": "narrow-leather-belt",
+      "label": "narrow leather belt",
+      "kind": "Individual"
+    },
+    {
+      "id": "vintage-scarf",
+      "label": "vintage scarf",
+      "kind": "Individual"
+    },
+    {
+      "id": "wooden-dowel",
+      "label": "smooth wooden dowel",
+      "kind": "Individual"
+    },
+    {
+      "id": "decorative-cord",
+      "label": "decorative cord",
+      "kind": "Individual"
+    },
+    {
+      "id": "braid-fabric-strips",
+      "label": "braiding fabric strips",
+      "kind": "Individual"
+    },
+    {
+      "id": "thread-beads-and-knot-cord",
+      "label": "threading beads and knotting cord",
+      "kind": "Individual"
+    },
+    {
+      "id": "buckle-around-curtain",
+      "label": "buckling a belt around gathered fabric",
+      "kind": "Individual"
+    },
+    {
+      "id": "knot-scarf-around-curtain",
+      "label": "knotting a scarf around gathered fabric",
+      "kind": "Individual"
+    },
+    {
+      "id": "sand-and-finish-dowel",
+      "label": "sanding and finishing a wooden dowel",
+      "kind": "Individual"
+    },
+    {
+      "id": "wall-mounted-cup-hook",
+      "label": "wall-mounted cup hook",
+      "kind": "Individual"
+    },
+    {
+      "id": "decorative-wall-hook",
+      "label": "decorative wall hook",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "curtain tie backs",
+      "concept": "curtain-tie-backs",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "curtain tiebacks",
+      "concept": "curtain-tie-backs",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "curtain tie-backs",
+      "concept": "curtain-tie-backs",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-diy-idea",
+      "domain": "diy-project",
+      "range": "diy-project",
+      "verb": "can be made as",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "uses-material",
+      "domain": "diy-project",
+      "range": "diy-material",
+      "verb": "uses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "made-by-method",
+      "domain": "diy-project",
+      "range": "diy-technique",
+      "verb": "is made by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "attaches-with",
+      "domain": "diy-project",
+      "range": "fastening-method",
+      "verb": "attaches with",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "diy-project",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "diy-material",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "diy-technique",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "fastening-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "diy-project",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "diy-material",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "diy-technique",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "fastening-method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "braided-fabric-tieback",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "rope-bead-tieback",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "repurposed-belt-tieback",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "vintage-scarf-tieback",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "instance-of",
+      "object": "diy-project"
+    },
+    {
+      "subject": "reclaimed-cotton-fabric",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "cotton-rope",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "wooden-beads",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "narrow-leather-belt",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "vintage-scarf",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "wooden-dowel",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "decorative-cord",
+      "relation": "instance-of",
+      "object": "diy-material"
+    },
+    {
+      "subject": "braid-fabric-strips",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "thread-beads-and-knot-cord",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "buckle-around-curtain",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "knot-scarf-around-curtain",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "sand-and-finish-dowel",
+      "relation": "instance-of",
+      "object": "diy-technique"
+    },
+    {
+      "subject": "wall-mounted-cup-hook",
+      "relation": "instance-of",
+      "object": "fastening-method"
+    },
+    {
+      "subject": "decorative-wall-hook",
+      "relation": "instance-of",
+      "object": "fastening-method"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "has-diy-idea",
+      "object": "braided-fabric-tieback"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "has-diy-idea",
+      "object": "rope-bead-tieback"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "has-diy-idea",
+      "object": "repurposed-belt-tieback"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "has-diy-idea",
+      "object": "vintage-scarf-tieback"
+    },
+    {
+      "subject": "curtain-tie-backs",
+      "relation": "has-diy-idea",
+      "object": "wooden-dowel-tieback"
+    },
+    {
+      "subject": "braided-fabric-tieback",
+      "relation": "uses-material",
+      "object": "reclaimed-cotton-fabric"
+    },
+    {
+      "subject": "braided-fabric-tieback",
+      "relation": "made-by-method",
+      "object": "braid-fabric-strips"
+    },
+    {
+      "subject": "braided-fabric-tieback",
+      "relation": "attaches-with",
+      "object": "decorative-wall-hook"
+    },
+    {
+      "subject": "rope-bead-tieback",
+      "relation": "uses-material",
+      "object": "cotton-rope"
+    },
+    {
+      "subject": "rope-bead-tieback",
+      "relation": "made-by-method",
+      "object": "thread-beads-and-knot-cord"
+    },
+    {
+      "subject": "rope-bead-tieback",
+      "relation": "attaches-with",
+      "object": "wall-mounted-cup-hook"
+    },
+    {
+      "subject": "repurposed-belt-tieback",
+      "relation": "uses-material",
+      "object": "narrow-leather-belt"
+    },
+    {
+      "subject": "repurposed-belt-tieback",
+      "relation": "made-by-method",
+      "object": "buckle-around-curtain"
+    },
+    {
+      "subject": "repurposed-belt-tieback",
+      "relation": "attaches-with",
+      "object": "decorative-wall-hook"
+    },
+    {
+      "subject": "vintage-scarf-tieback",
+      "relation": "uses-material",
+      "object": "vintage-scarf"
+    },
+    {
+      "subject": "vintage-scarf-tieback",
+      "relation": "made-by-method",
+      "object": "knot-scarf-around-curtain"
+    },
+    {
+      "subject": "vintage-scarf-tieback",
+      "relation": "attaches-with",
+      "object": "decorative-wall-hook"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "uses-material",
+      "object": "wooden-dowel"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "made-by-method",
+      "object": "sand-and-finish-dowel"
+    },
+    {
+      "subject": "wooden-dowel-tieback",
+      "relation": "attaches-with",
+      "object": "wall-mounted-cup-hook"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
