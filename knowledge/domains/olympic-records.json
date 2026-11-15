@@ -1,0 +1,239 @@
+{
+  "formatVersion": 3,
+  "id": "olympic-records",
+  "name": "Olympic gold medal records",
+  "concepts": [
+    {
+      "id": "athlete",
+      "label": "athlete",
+      "kind": "Type"
+    },
+    {
+      "id": "michael-phelps",
+      "label": "Michael Phelps",
+      "kind": "Individual"
+    },
+    {
+      "id": "larisa-latynina",
+      "label": "Larisa Latynina",
+      "kind": "Individual"
+    },
+    {
+      "id": "paavo-nurmi",
+      "label": "Paavo Nurmi",
+      "kind": "Individual"
+    },
+    {
+      "id": "mark-spitz",
+      "label": "Mark Spitz",
+      "kind": "Individual"
+    },
+    {
+      "id": "carl-lewis",
+      "label": "Carl Lewis",
+      "kind": "Individual"
+    },
+    {
+      "id": "katie-ledecky",
+      "label": "Katie Ledecky",
+      "kind": "Individual"
+    },
+    {
+      "id": "birgit-fischer",
+      "label": "Birgit Fischer",
+      "kind": "Individual"
+    },
+    {
+      "id": "isabell-werth",
+      "label": "Isabell Werth",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "athlete",
+      "concept": "athlete",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Michael Phelps",
+      "concept": "michael-phelps",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Phelps",
+      "concept": "michael-phelps",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Larisa Latynina",
+      "concept": "larisa-latynina",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Latynina",
+      "concept": "larisa-latynina",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Paavo Nurmi",
+      "concept": "paavo-nurmi",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Nurmi",
+      "concept": "paavo-nurmi",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Mark Spitz",
+      "concept": "mark-spitz",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Spitz",
+      "concept": "mark-spitz",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Carl Lewis",
+      "concept": "carl-lewis",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Lewis",
+      "concept": "carl-lewis",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Katie Ledecky",
+      "concept": "katie-ledecky",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Ledecky",
+      "concept": "katie-ledecky",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Birgit Fischer",
+      "concept": "birgit-fischer",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Fischer",
+      "concept": "birgit-fischer",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Isabell Werth",
+      "concept": "isabell-werth",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Werth",
+      "concept": "isabell-werth",
+      "partOfSpeech": "proper-noun"
+    }
+  ],
+  "relations": [],
+  "definitions": [
+    {
+      "concept": "athlete",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "michael-phelps",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "larisa-latynina",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "paavo-nurmi",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "mark-spitz",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "carl-lewis",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "katie-ledecky",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "birgit-fischer",
+      "relation": "instance-of",
+      "object": "athlete"
+    },
+    {
+      "subject": "isabell-werth",
+      "relation": "instance-of",
+      "object": "athlete"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "olympic-gold-medal-count",
+      "domainType": "athlete",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "michael-phelps",
+      "property": "olympic-gold-medal-count",
+      "value": "23"
+    },
+    {
+      "subject": "larisa-latynina",
+      "property": "olympic-gold-medal-count",
+      "value": "9"
+    },
+    {
+      "subject": "paavo-nurmi",
+      "property": "olympic-gold-medal-count",
+      "value": "9"
+    },
+    {
+      "subject": "mark-spitz",
+      "property": "olympic-gold-medal-count",
+      "value": "9"
+    },
+    {
+      "subject": "carl-lewis",
+      "property": "olympic-gold-medal-count",
+      "value": "9"
+    },
+    {
+      "subject": "katie-ledecky",
+      "property": "olympic-gold-medal-count",
+      "value": "9"
+    },
+    {
+      "subject": "birgit-fischer",
+      "property": "olympic-gold-medal-count",
+      "value": "8"
+    },
+    {
+      "subject": "isabell-werth",
+      "property": "olympic-gold-medal-count",
+      "value": "8"
+    }
+  ]
+}
