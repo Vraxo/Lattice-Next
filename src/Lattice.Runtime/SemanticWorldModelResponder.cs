@@ -516,8 +516,8 @@ internal static class SemanticWorldModelResponder
         }
 
         var suggestions = ideas.Select((idea, index) =>
-            $"{index + 1}. **{idea.Label}** — use {idea.Materials}; {idea.Method}. Secure it with {idea.Attachment}.");
-        message = $"Here are some DIY {category.Label} ideas:\n{string.Join("\n", suggestions)}";
+            $"{index + 1}. **{Capitalize(idea.Label)}** — Materials: {idea.Materials}. Make it by {idea.Method}; attach it with {IndefinitePhrase(idea.Attachment)}.");
+        message = $"Here are some DIY ideas for {category.Label}:\n{string.Join("\n", suggestions)}";
         evidence = ImmutableArray.Create(ToEvidence(
             sources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
