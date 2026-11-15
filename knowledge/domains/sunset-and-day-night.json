@@ -9,7 +9,7 @@
       "kind": "Individual"
     },
     {
-      "id": "local-sunset",
+      "id": "sun-goes-down",
       "label": "sunset",
       "kind": "Individual"
     },
@@ -52,27 +52,27 @@
   "lexemes": [
     {
       "form": "sunset",
-      "concept": "local-sunset",
+      "concept": "sun-goes-down",
       "partOfSpeech": "noun"
     },
     {
       "form": "the sun goes down",
-      "concept": "local-sunset",
+      "concept": "sun-goes-down",
       "partOfSpeech": "verb"
     },
     {
       "form": "sun goes down",
-      "concept": "local-sunset",
+      "concept": "sun-goes-down",
       "partOfSpeech": "verb"
     },
     {
       "form": "the sun sets",
-      "concept": "local-sunset",
+      "concept": "sun-goes-down",
       "partOfSpeech": "verb"
     },
     {
       "form": "sun sets",
-      "concept": "local-sunset",
+      "concept": "sun-goes-down",
       "partOfSpeech": "verb"
     },
     {
@@ -182,15 +182,15 @@
     {
       "subject": "earth-rotation",
       "relation": "causes",
-      "object": "local-sunset"
+      "object": "sun-goes-down"
     },
     {
-      "subject": "local-sunset",
+      "subject": "sun-goes-down",
       "relation": "ends",
       "object": "daylight"
     },
     {
-      "subject": "local-sunset",
+      "subject": "sun-goes-down",
       "relation": "begins",
       "object": "night"
     },
@@ -225,7 +225,7 @@
       "object": "physical-process"
     },
     {
-      "subject": "local-sunset",
+      "subject": "sun-goes-down",
       "relation": "instance-of",
       "object": "astronomical-event"
     },
