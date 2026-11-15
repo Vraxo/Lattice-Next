@@ -1,0 +1,319 @@
+{
+  "formatVersion": 3,
+  "id": "us-mountain-elevations",
+  "name": "United States mountains and geographic scopes",
+  "concepts": [
+    {
+      "id": "geographic-feature",
+      "label": "geographic feature",
+      "kind": "Type"
+    },
+    {
+      "id": "mountain",
+      "label": "mountain",
+      "kind": "Type"
+    },
+    {
+      "id": "geographic-region",
+      "label": "geographic region",
+      "kind": "Type"
+    },
+    {
+      "id": "continental-us",
+      "label": "continental United States",
+      "kind": "Individual"
+    },
+    {
+      "id": "contiguous-united-states",
+      "label": "the contiguous 48 states",
+      "kind": "Individual"
+    },
+    {
+      "id": "continental-us-including-alaska",
+      "label": "the continental landmass including Alaska",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-whitney",
+      "label": "Mount Whitney",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-elbert",
+      "label": "Mount Elbert",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-massive",
+      "label": "Mount Massive",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-rainier",
+      "label": "Mount Rainier",
+      "kind": "Individual"
+    },
+    {
+      "id": "mount-shasta",
+      "label": "Mount Shasta",
+      "kind": "Individual"
+    },
+    {
+      "id": "denali",
+      "label": "Denali",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "continental US",
+      "concept": "continental-us",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "continental United States",
+      "concept": "continental-us",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "contiguous United States",
+      "concept": "contiguous-united-states",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "lower 48",
+      "concept": "contiguous-united-states",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "has-scope-interpretation",
+      "domain": "geographic-region",
+      "range": "geographic-region",
+      "verb": "can mean",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-highest-feature",
+      "domain": "geographic-region",
+      "range": "geographic-feature",
+      "verb": "has highest feature",
+      "objectRole": null,
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "located-in-geographic-region",
+      "domain": "geographic-feature",
+      "range": "geographic-region",
+      "verb": "is located in",
+      "objectRole": null,
+      "order": 2,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "geographic-feature",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mountain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "geographic-region",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "geographic-feature",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mountain",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "geographic-region",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mountain",
+      "relation": "is-a",
+      "object": "geographic-feature"
+    },
+    {
+      "subject": "continental-us",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "continental-us-including-alaska",
+      "relation": "instance-of",
+      "object": "geographic-region"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "mount-elbert",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "mount-massive",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "mount-rainier",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "mount-shasta",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "denali",
+      "relation": "instance-of",
+      "object": "mountain"
+    },
+    {
+      "subject": "continental-us",
+      "relation": "has-scope-interpretation",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "continental-us",
+      "relation": "has-scope-interpretation",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "contiguous-united-states",
+      "relation": "has-highest-feature",
+      "object": "mount-whitney"
+    },
+    {
+      "subject": "continental-us-including-alaska",
+      "relation": "has-highest-feature",
+      "object": "denali"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "located-in-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-whitney",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "mount-elbert",
+      "relation": "located-in-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-elbert",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "mount-massive",
+      "relation": "located-in-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-massive",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "mount-rainier",
+      "relation": "located-in-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-rainier",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "mount-shasta",
+      "relation": "located-in-geographic-region",
+      "object": "contiguous-united-states"
+    },
+    {
+      "subject": "mount-shasta",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    },
+    {
+      "subject": "denali",
+      "relation": "located-in-geographic-region",
+      "object": "continental-us-including-alaska"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "mountain-elevation-feet",
+      "domainType": "mountain",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "mount-whitney",
+      "property": "mountain-elevation-feet",
+      "value": "14505"
+    },
+    {
+      "subject": "mount-elbert",
+      "property": "mountain-elevation-feet",
+      "value": "14433"
+    },
+    {
+      "subject": "mount-massive",
+      "property": "mountain-elevation-feet",
+      "value": "14421"
+    },
+    {
+      "subject": "mount-rainier",
+      "property": "mountain-elevation-feet",
+      "value": "14411"
+    },
+    {
+      "subject": "mount-shasta",
+      "property": "mountain-elevation-feet",
+      "value": "14162"
+    },
+    {
+      "subject": "denali",
+      "property": "mountain-elevation-feet",
+      "value": "20320"
+    }
+  ]
+}
