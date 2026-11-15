@@ -431,8 +431,15 @@ public sealed class LceParser
 
         if (sentenceStart < source.Length)
         {
-            return TextParseResult.Failure(
-                $"Sentence {utterances.Count + 1} is incomplete. Every sentence must end with a period or question mark.");
+            var finalSentence = source[sentenceStart..].Trim();
+            var finalResult = Parse(finalSentence);
+            if (!finalResult.IsSuccess || finalResult.Utterance is null)
+            {
+                return TextParseResult.Failure(
+                    $"Sentence {utterances.Count + 1} is incomplete. Every sentence must end with a period or question mark unless it is independently recognized.");
+            }
+
+            utterances.Add(finalResult.Utterance);
         }
 
         if (utterances.Count == 0)
