@@ -57,6 +57,11 @@
       "id": "sunset-celestial-body",
       "label": "sunset-related celestial body",
       "kind": "Type"
+    },
+    {
+      "id": "evening-twilight",
+      "label": "evening twilight",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -108,6 +113,11 @@
     {
       "form": "local horizon",
       "concept": "local-horizon",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "evening twilight",
+      "concept": "evening-twilight",
       "partOfSpeech": "noun"
     }
   ],
@@ -166,6 +176,17 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "leads-to",
+      "domain": "astronomical-event",
+      "range": "time-of-day-period",
+      "verb": "leads to",
+      "objectRole": null,
+      "order": 3,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
@@ -210,11 +231,6 @@
       "subject": "sun-goes-down",
       "relation": "ends",
       "object": "daylight"
-    },
-    {
-      "subject": "sun-goes-down",
-      "relation": "begins",
-      "object": "night"
     },
     {
       "subject": "earth-rotation",
@@ -280,6 +296,21 @@
       "subject": "sunset-celestial-body",
       "relation": "is-a",
       "object": "entity"
+    },
+    {
+      "subject": "evening-twilight",
+      "relation": "instance-of",
+      "object": "time-of-day-period"
+    },
+    {
+      "subject": "sun-goes-down",
+      "relation": "begins",
+      "object": "evening-twilight"
+    },
+    {
+      "subject": "sun-goes-down",
+      "relation": "leads-to",
+      "object": "night"
     }
   ],
   "dataProperties": [],
