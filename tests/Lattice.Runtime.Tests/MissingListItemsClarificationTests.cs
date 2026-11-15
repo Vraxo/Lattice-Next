@@ -22,6 +22,6 @@ public sealed class MissingListItemsClarificationTests
         Assert.Equal(
             "Which foods are you referring to? Please list them, and I'll check each one against EWG's dirty dozen list.",
             utterance.Message);
-        Assert.Equal("world-model-clarification(foods, EWG's dirty dozen list)", utterance.Meaning);
+        Assert.Equal("ask(world-model-clarification(foods, EWG's dirty dozen list))", utterance.Meaning);
     }
 }
