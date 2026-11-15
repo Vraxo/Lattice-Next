@@ -8,7 +8,8 @@ public enum SemanticWorldModelQuestionKind
     Mechanism,
     Causes,
     Compare,
-    ContributionQuery
+    ContributionQuery,
+    WhyHarmful
 }
 
 public sealed record SemanticWorldModelQuestionFormula(
