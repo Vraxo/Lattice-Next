@@ -27,7 +27,7 @@ public sealed class ProductionLocationQuestionTests
         Assert.Contains("4 million+ square feet", answer.Message, StringComparison.Ordinal);
         Assert.Contains("experienced crews", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("10,000+ filming locations", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("year-round filming", answer.Message, StringComparison.Ordinal);
+        Assert.Contains("filming throughout the year", answer.Message, StringComparison.Ordinal);
         Assert.Contains("lower operating costs", answer.Message, StringComparison.Ordinal);
         Assert.Contains("Camera Ready", answer.Message, StringComparison.Ordinal);
         var evidence = Assert.Single(answer.SupportingEvidence);
