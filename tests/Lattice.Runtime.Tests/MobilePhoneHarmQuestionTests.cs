@@ -24,16 +24,16 @@ public sealed class MobilePhoneHarmQuestionTests
             answer.Meaning);
         Assert.StartsWith(
             "Mobile phone use is not inherently bad for people, but excessive or poorly timed use can contribute to",
-            answer.Message,
+            answer.Message!,
             StringComparison.Ordinal);
-        Assert.Contains("sleep disruption", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("attention fragmentation", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("eye strain", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("neck and back discomfort", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("reduced physical activity", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("social interaction disruption", answer.Message, StringComparison.Ordinal);
-        Assert.Contains("notification", answer.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("bent-neck posture", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("sleep disruption", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("attention fragmentation", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("eye strain", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("neck and back discomfort", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("reduced physical activity", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("social interaction disruption", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("notification", answer.Message!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("bent-neck posture", answer.Message!, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
