@@ -5,4 +5,5 @@ namespace Lattice.Core.Semantics;
 /// </summary>
 public sealed record SemanticRelationQueryFormula(
     string Subject,
-    string Verb) : SemanticFormula;
+    string Verb,
+    string? Scope = null) : SemanticFormula;
