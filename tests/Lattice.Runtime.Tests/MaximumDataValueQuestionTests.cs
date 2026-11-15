@@ -31,6 +31,6 @@ public sealed class MaximumDataValueQuestionTests
         Assert.Contains(
             evidence.Sources,
             source => source.SourceId ==
-                "olympic-records:data:michael-phelps:olympic-gold-medal-count");
+                "core-world-model:data:michael-phelps:olympic-gold-medal-count");
     }
 }
