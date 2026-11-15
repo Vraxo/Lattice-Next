@@ -194,13 +194,15 @@ internal static class SemanticWorldModelResponder
             .DistinctBy(subject => subject.Id)
             .ToArray();
         var relation = matches[0].Relation!;
-        var subjectPhrase = JoinNames(subjects.Select(subject => $"the {subject.Label}").ToArray());
+        var subjectPhrase = JoinNames(subjects.Select(subject =>
+            request.SubjectType is null ? $"the {subject.Label}" : subject.Label).ToArray());
         var pluralSubject = subjects.Length > 1 ||
             subjects[0].Label.EndsWith("s", StringComparison.OrdinalIgnoreCase);
         var verb = pluralSubject
             ? NormalizeVerb(relation.Verb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0])
             : relation.Verb;
-        message = $"{Capitalize(subjectPhrase)} {verb} the {target.Label}.";
+        var objectPhrase = request.SubjectType is null ? $"the {target.Label}" : target.Label;
+        message = $"{Capitalize(subjectPhrase)} {verb} {objectPhrase}.";
         var sources = matches
             .Select(match => match.Source)
             .Concat(request.SubjectType is null
