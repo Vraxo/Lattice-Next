@@ -28,6 +28,8 @@ public sealed class CreativeIdeasQuestionTests
         Assert.Contains("reclaimed cotton fabric", answer.Message);
         Assert.Contains("large wooden beads", answer.Message);
         Assert.Contains("wall-mounted cup hook", answer.Message);
+        Assert.Contains("mounting the finished dowel horizontally beside the window", answer.Message);
+        Assert.Contains("pair of wall-mounted dowel brackets", answer.Message);
         Assert.NotEmpty(answer.SupportingEvidence);
     }
 
