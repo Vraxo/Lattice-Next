@@ -141,7 +141,7 @@ internal static class TaskRequestResponder
                     return false;
                 }
 
-                stopDescriptions.Add($"**{place.Label}** for {JoinNames(activities)}");
+                stopDescriptions.Add($"**{place.Label}** — {JoinNames(activities)}");
                 sources.Add(stop.Source);
                 sources.AddRange(reasoner.GetMembershipEvidence(place.Id, "road-trip-place"));
                 sources.AddRange(reasoner.GetRelations(place.Id, "place-offers-activity")
@@ -152,10 +152,10 @@ internal static class TaskRequestResponder
                 }
             }
 
-            paragraphs.Add($"**Day {day.Number} — {string.Join("; ", stopDescriptions)}.**");
+            paragraphs.Add($"**Day {day.Number}:** {string.Join("; ", stopDescriptions)}.");
         }
 
-        paragraphs.Add("A practical base is Princeton for both nights, so you only unpack once. Check holiday opening hours and reserve accommodation ahead of time; traffic can be heavier over Memorial Day weekend.");
+        paragraphs.Add("Use Princeton as a base for both nights so you only unpack once. After Day 3, return to Westfield. Check holiday opening hours and reserve accommodation ahead of time; traffic can be heavier over Memorial Day weekend.");
         message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
         evidence = ImmutableArray.Create(new LatticeEvidence(
             LatticeEvidenceKind.Derived,
