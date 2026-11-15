@@ -7,6 +7,44 @@ namespace Lattice.Runtime.Tests;
 public sealed class TaskRequestResponseTests
 {
     [Fact]
+    public async Task Explains_manual_transmission_operation_from_structured_procedure_knowledge()
+    {
+        const string input = "How do you operate a car with a manual transmission?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("left foot", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("right foot", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("bite point", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("neutral", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("upshift", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("downshift", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("parking brake", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("qualified instructor", utterance.Message, StringComparison.Ordinal);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_an_operating_procedure_for_an_unknown_transmission()
+    {
+        const string input = "How do you operate a car with an automatic transmission?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
     public async Task Plans_a_three_day_road_trip_from_structured_route_knowledge()
     {
         const string input = "Plan for a three day road trip for May long weekend from Westfield, New Jersey";
