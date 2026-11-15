@@ -95,7 +95,7 @@
     },
     {
       "id": "action-move-off",
-      "label": "Clutch in; select first; check mirrors; release parking brake; find bite point; add throttle; ease out.",
+      "label": "Clutch in; first; check mirrors; release parking brake; bite point; add throttle; ease out",
       "kind": "Individual"
     },
     {
