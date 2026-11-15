@@ -53,6 +53,8 @@ internal static class SemanticWorldModelResponder
                 TryMaximumDataValue(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.HighestDataValue =>
                 TryHighestDataValue(request, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.NotableExamples =>
+                TryNotableExamples(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.EventOutcomes =>
                 TryExplainEventOutcomes(request.Subject, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -683,6 +685,82 @@ internal static class SemanticWorldModelResponder
             $"For {answer.Scope.Label}, {answer.Feature.Label} is the tallest {featureType.Label}, at {answer.Value.ToString("N0", CultureInfo.InvariantCulture)} {request.OtherSubject}.");
         message = $"The phrase \"{scope.Label}\" can refer to different geographic scopes. {string.Join(" ", answerText)}";
         evidence = ImmutableArray.Create(ToEvidence(sources.Distinct().ToImmutableArray(), LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryNotableExamples(
+        SemanticWorldModelQuestionFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (request.Limit is < 1 or > 10)
+        {
+            return false;
+        }
+
+        var filmType = model.FindConcept(request.Concept ?? string.Empty, SemanticConceptKind.Type);
+        var yearProperty = model.FindDataProperty("film-release-year");
+        if (filmType is null ||
+            yearProperty is null ||
+            yearProperty.ValueKind != SemanticDataValueKind.Number ||
+            !reasoner.IsSubtypeOf(filmType.Id, "comedy-film"))
+        {
+            return false;
+        }
+
+        var films = new List<(SemanticConcept Film, int Year, string Genres, ImmutableArray<SemanticWorldModelSource> Sources)>();
+        foreach (var film in model.Concepts.Where(concept =>
+            concept.Kind == SemanticConceptKind.Individual &&
+            reasoner.IsInstanceOf(concept.Id, filmType.Id)))
+        {
+            var yearAssertions = model.GetDataAssertions(film.Id, yearProperty.Id);
+            var genreAssertions = reasoner.GetRelations(film.Id, "has-film-genre");
+            if (yearAssertions.Length != 1 ||
+                !int.TryParse(yearAssertions[0].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var year) ||
+                genreAssertions.IsDefaultOrEmpty)
+            {
+                continue;
+            }
+
+            var genres = genreAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .Where(concept => concept is not null && reasoner.IsInstanceOf(concept.Id, "film-genre"))
+                .Select(concept => concept!.Label)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (genres.Length == 0)
+            {
+                continue;
+            }
+
+            var sources = reasoner.GetMembershipEvidence(film.Id, filmType.Id)
+                .Concat(yearAssertions.Select(assertion => assertion.Source))
+                .Concat(genreAssertions.Select(assertion => assertion.Source))
+                .ToImmutableArray();
+            films.Add((film, year, JoinNames(genres), sources));
+        }
+
+        if (films.Count < request.Limit)
+        {
+            return false;
+        }
+
+        var selected = films
+            .OrderBy(item => item.Year)
+            .ThenBy(item => item.Film.Label, StringComparer.OrdinalIgnoreCase)
+            .Take(request.Limit)
+            .ToArray();
+        var entries = selected.Select((item, index) =>
+            $"{index + 1}. {item.Film.Label} ({item.Year}) — {item.Genres}");
+        message = $"There is no single objective ranking, but here are {request.Limit} widely regarded comedy films from the 1980s, spanning several styles:\n{string.Join("\n", entries)}";
+        evidence = ImmutableArray.Create(ToEvidence(
+            selected.SelectMany(item => item.Sources).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
         return true;
     }
 
