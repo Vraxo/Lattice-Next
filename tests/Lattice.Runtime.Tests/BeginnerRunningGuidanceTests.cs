@@ -26,14 +26,15 @@ public sealed class BeginnerRunningGuidanceTests
             "To start running, follow a gradual beginner routine:",
             answer.Message!,
             StringComparison.Ordinal);
-        Assert.Contains("five minutes of brisk walking", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("short, easy jogging intervals with walking", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("speak in full sentences", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("two or three sessions per week", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("five-minute brisk-walking warm-up", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("short run-walk intervals", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("conversational jogging pace", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("two or three weekly sessions", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("recovery days", answer.Message!, StringComparison.Ordinal);
-        Assert.Contains("gradually", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("gradual increases in jogging intervals", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("comfortable running shoes", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("chest pain", answer.Message!, StringComparison.Ordinal);
+        Assert.Contains("purpose: muscle readiness", answer.Message!, StringComparison.Ordinal);
         Assert.Equal(5, answer.Message!.Split('\n').Count(line =>
             line.Length > 0 && char.IsDigit(line[0]) && line.Contains('.')));
         Assert.Contains(
