@@ -7,6 +7,10 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex MissingListItemsPattern = new(
+        @"^Tell me whether or not these (?<items>[A-Za-z][A-Za-z -]*?) are on (?<list>[A-Za-z][A-Za-z'’ -]*?)(?: list)?[?.]?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex DifferenceBetweenPattern = new(
         @"^What is the difference between (?<subject>[A-Za-z][A-Za-z -]*?) and (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -103,6 +107,17 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var missingListItems = MissingListItemsPattern.Match(text);
+        if (missingListItems.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.Clarification,
+                subject: Normalize(missingListItems.Groups["items"].Value),
+                otherSubject: $"{missingListItems.Groups["list"].Value.Trim()} list",
+                sourceText: source);
+            return true;
+        }
 
         var companyPurpose = CompanyPurposeQuestionPattern.Match(text);
         if (companyPurpose.Success)
