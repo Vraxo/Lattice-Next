@@ -25,6 +25,6 @@ public sealed class TallestFeatureQuestionTests
         Assert.Contains("14,505 feet above sea level", answer.Message);
         Assert.Contains("including Alaska", answer.Message);
         Assert.Contains("Denali", answer.Message);
-        Assert.Contains("20,320 feet above sea level", answer.Message);
+        Assert.Contains("20,310 feet above sea level", answer.Message);
     }
 }
