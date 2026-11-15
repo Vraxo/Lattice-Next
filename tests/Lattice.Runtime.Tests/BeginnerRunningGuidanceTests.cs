@@ -34,6 +34,7 @@ public sealed class BeginnerRunningGuidanceTests
         Assert.Contains("Gradual increases in jogging intervals", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("comfortable running shoes", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("chest pain", answer.Message!, StringComparison.Ordinal);
+        Assert.Equal(1, answer.Message!.Split("chest pain", StringSplitOptions.None).Length - 1);
         Assert.Contains("Stop and seek medical help", answer.Message!, StringComparison.Ordinal);
         Assert.Contains("purpose: muscle readiness", answer.Message!, StringComparison.Ordinal);
         Assert.Equal(5, answer.Message!.Split('\n').Count(line =>
