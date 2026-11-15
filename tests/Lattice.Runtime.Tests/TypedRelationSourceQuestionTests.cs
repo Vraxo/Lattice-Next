@@ -27,10 +27,10 @@ public sealed class TypedRelationSourceQuestionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "dutch-artists:relation:johannes-vermeer:painted:girl-with-a-pearl-earring"));
+                source.SourceId == "core-world-model:relation:johannes-vermeer:painted:girl-with-a-pearl-earring"));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId == "dutch-artists:relation:johannes-vermeer:instance-of:dutch-artist"));
+                source.SourceId == "core-world-model:relation:johannes-vermeer:instance-of:dutch-artist"));
     }
 }
