@@ -14,7 +14,7 @@
       "kind": "Type"
     },
     {
-      "id": "1980s-comedy-film",
+      "id": "comedy-film-1980s",
       "label": "1980s comedy film",
       "kind": "Type"
     },
@@ -319,7 +319,7 @@
     {
       "subject": "airplane",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "airplane",
@@ -329,7 +329,7 @@
     {
       "subject": "blues-brothers",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "blues-brothers",
@@ -339,7 +339,7 @@
     {
       "subject": "tootsie",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "tootsie",
@@ -349,7 +349,7 @@
     {
       "subject": "trading-places",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "trading-places",
@@ -359,7 +359,7 @@
     {
       "subject": "ghostbusters",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "ghostbusters",
@@ -369,7 +369,7 @@
     {
       "subject": "this-is-spinal-tap",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "this-is-spinal-tap",
@@ -379,7 +379,7 @@
     {
       "subject": "back-to-the-future",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "back-to-the-future",
@@ -389,7 +389,7 @@
     {
       "subject": "ferris-buellers-day-off",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "ferris-buellers-day-off",
@@ -399,7 +399,7 @@
     {
       "subject": "the-princess-bride",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "the-princess-bride",
@@ -409,7 +409,7 @@
     {
       "subject": "a-fish-called-wanda",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "a-fish-called-wanda",
@@ -419,7 +419,7 @@
     {
       "subject": "the-naked-gun",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "the-naked-gun",
@@ -429,7 +429,7 @@
     {
       "subject": "when-harry-met-sally",
       "relation": "instance-of",
-      "object": "1980s-comedy-film"
+      "object": "comedy-film-1980s"
     },
     {
       "subject": "when-harry-met-sally",
