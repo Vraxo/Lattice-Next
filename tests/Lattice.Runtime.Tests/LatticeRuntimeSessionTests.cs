@@ -130,7 +130,7 @@ public sealed class LatticeRuntimeSessionTests
             "ask(world-model-event-outcomes(sun-goes-down))",
             answer.Meaning);
         Assert.Equal(
-            "When sunset occurs, daylight ends and night begins. This happens because Earth's rotation turns your location away from the Sun. The Sun appears to move below the local horizon; it has not gone out or disappeared.",
+            "When sunset occurs, daylight ends and evening twilight begins and it leads to night. This happens because Earth's rotation turns your location away from the Sun. The Sun appears to move below the local horizon; it has not gone out or disappeared.",
             answer.Message);
         Assert.Contains(
             answer.SupportingEvidence,
@@ -143,7 +143,11 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.EndsWith(":relation:sun-goes-down:begins:night", StringComparison.Ordinal)));
+                source.SourceId.EndsWith(":relation:sun-goes-down:begins:evening-twilight", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:sun-goes-down:leads-to:night", StringComparison.Ordinal)));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
