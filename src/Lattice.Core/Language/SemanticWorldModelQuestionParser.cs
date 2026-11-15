@@ -67,6 +67,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?<target>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypedRelationSourcePattern = new(
+        @"^Which (?<subjectType>[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+) (?<object>["“]?[A-Z][A-Za-z0-9'’ -]*?["”]?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RelationSourcePattern = new(
         @"^(?:Who|What) (?!(?:is|are|was|were|be|being|been|has|have|does|do|did)\b)(?<verb>[a-z]+s) (?<object>(?:(?:the|a|an) )?(?!(?:when|where|why|how|to|for|from|with|by|in|on|at|of|that|which|who|what)\b)[A-Za-z]+(?: [A-Za-z]+){0,2})\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -261,6 +265,19 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
+        var typedRelationSource = TypedRelationSourcePattern.Match(text);
+        if (typedRelationSource.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationSourceQueryFormula(
+                    NormalizeQuotedTerm(typedRelationSource.Groups["object"].Value),
+                    Normalize(typedRelationSource.Groups["verb"].Value),
+                    Normalize(typedRelationSource.Groups["subjectType"].Value)),
+                source);
+            return true;
+        }
+
         var relationSource = RelationSourcePattern.Match(text);
         if (relationSource.Success)
         {
@@ -371,6 +388,9 @@ internal static class SemanticWorldModelQuestionParser
             "hq" or "headquarters" => "headquarters-site",
             _ => Normalize(value)
         };
+
+    private static string NormalizeQuotedTerm(string value) =>
+        Normalize(value.Trim().Trim('"', '\u201c', '\u201d', '\u0027', '\u2019'));
 
     private static string Normalize(string value)
     {
