@@ -47,6 +47,16 @@
       "id": "horizon-boundary",
       "label": "horizon boundary",
       "kind": "Type"
+    },
+    {
+      "id": "physical-process",
+      "label": "physical process",
+      "kind": "Type"
+    },
+    {
+      "id": "celestial-body",
+      "label": "celestial body",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -176,6 +186,18 @@
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
+    },
+    {
+      "concept": "physical-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "celestial-body",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
@@ -248,6 +270,16 @@
       "subject": "local-horizon",
       "relation": "instance-of",
       "object": "horizon-boundary"
+    },
+    {
+      "subject": "physical-process",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "celestial-body",
+      "relation": "is-a",
+      "object": "entity"
     }
   ],
   "dataProperties": [],
