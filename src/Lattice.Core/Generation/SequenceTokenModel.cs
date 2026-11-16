@@ -38,7 +38,107 @@ public sealed class SequenceTokenModel
         this.smoothing = smoothing;
     }
 
+    public const string EndToken = "<|lattice.end|>";
+
+    private const int MaximumTrainingTokens = 1_000_000;
+
     public int MaximumContextLength { get; }
+
+    public static bool TryTrain(
+        ImmutableArray<ImmutableArray<string>> sequences,
+        out SequenceTokenModel? model,
+        out string? error,
+        int maximumContextLength = 3,
+        double smoothing = 0.1)
+    {
+        model = null;
+        error = null;
+
+        if (sequences.IsDefaultOrEmpty ||
+            sequences.Length > MaximumObservations ||
+            maximumContextLength is < 0 or > MaxSupportedContextLength ||
+            !double.IsFinite(smoothing) ||
+            smoothing is <= 0 or > 10)
+        {
+            error = "A valid non-empty sequence corpus and supported model settings are required.";
+            return false;
+        }
+
+        var aggregates = new Dictionary<
+            (string ContextKey, string NextToken),
+            (ImmutableArray<string> Context, long Count)>();
+        var totalTokens = 0;
+
+        foreach (var sequence in sequences)
+        {
+            if (sequence.IsDefaultOrEmpty ||
+                sequence.Any(token => !IsValidToken(token) || token == EndToken))
+            {
+                error = "Training sequences must contain valid, non-empty tokens and must not contain the reserved end token.";
+                return false;
+            }
+
+            totalTokens += sequence.Length;
+            if (totalTokens > MaximumTrainingTokens)
+            {
+                error = "The training corpus exceeds the supported token limit.";
+                return false;
+            }
+
+            for (var index = 0; index <= sequence.Length; index++)
+            {
+                var nextToken = index == sequence.Length
+                    ? EndToken
+                    : sequence[index];
+                var maximumContext = Math.Min(maximumContextLength, index);
+
+                for (var contextLength = 0; contextLength <= maximumContext; contextLength++)
+                {
+                    var context = contextLength == 0
+                        ? ImmutableArray<string>.Empty
+                        : sequence
+                            .Skip(index - contextLength)
+                            .Take(contextLength)
+                            .ToImmutableArray();
+                    var key = (BuildContextKey(context), nextToken);
+
+                    if (aggregates.TryGetValue(key, out var existing))
+                    {
+                        try
+                        {
+                            aggregates[key] = (existing.Context, checked(existing.Count + 1));
+                        }
+                        catch (OverflowException)
+                        {
+                            error = "The accumulated training count exceeds the supported range.";
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (aggregates.Count >= MaximumObservations)
+                        {
+                            error = "The training corpus produces too many distinct token observations.";
+                            return false;
+                        }
+
+                        aggregates.Add(key, (context, 1));
+                    }
+                }
+            }
+        }
+
+        var observations = aggregates.Values
+            .Select(item => new SequenceTokenObservation(item.Context, item.NextToken, item.Count))
+            .ToImmutableArray();
+
+        return TryCreate(
+            observations,
+            out model,
+            out error,
+            maximumContextLength,
+            smoothing);
+    }
 
     public static bool TryCreate(
         ImmutableArray<SequenceTokenObservation> observations,
@@ -137,6 +237,32 @@ public sealed class SequenceTokenModel
             maximumContextLength,
             smoothing);
         return true;
+    }
+
+    internal ImmutableArray<string> GetNextTokens(
+        ImmutableArray<string> precedingTokens)
+    {
+        var maximumLength = Math.Min(MaximumContextLength, precedingTokens.Length);
+
+        for (var contextLength = maximumLength; contextLength >= 0; contextLength--)
+        {
+            var context = contextLength == 0
+                ? ImmutableArray<string>.Empty
+                : precedingTokens
+                    .Skip(precedingTokens.Length - contextLength)
+                    .ToImmutableArray();
+
+            if (distributions.TryGetValue(BuildContextKey(context), out var distribution))
+            {
+                return distribution.Counts
+                    .OrderByDescending(item => item.Value)
+                    .ThenBy(item => item.Key, StringComparer.Ordinal)
+                    .Select(item => item.Key)
+                    .ToImmutableArray();
+            }
+        }
+
+        return ImmutableArray<string>.Empty;
     }
 
     internal double GetLogScore(
