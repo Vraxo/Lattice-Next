@@ -158,6 +158,14 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        var targetType = request.TargetType is null
+            ? null
+            : model.FindConcept(request.TargetType, SemanticConceptKind.Type);
+        if (request.TargetType is not null && targetType is null)
+        {
+            return false;
+        }
+
         var matches = matchingRelations
             .SelectMany(relation => reasoner.GetRelations(subject.Id, relation.Id)
                 .Select(assertion => (Relation: relation, Assertion: assertion)))
@@ -165,7 +173,10 @@ internal static class SemanticWorldModelResponder
                 match.Relation,
                 Target: model.FindConcept(match.Assertion.Object, SemanticConceptKind.Individual),
                 match.Assertion.Source))
-            .Where(match => match.Target is not null)
+            .Where(match =>
+                match.Target is not null &&
+                (request.TargetType is null ||
+                 reasoner.IsInstanceOf(match.Target.Id, targetType!.Id)))
             .ToArray();
         var scopeEvidence = ImmutableArray<LatticeEvidence>.Empty;
         if (request.Scope is not null)
@@ -178,6 +189,23 @@ internal static class SemanticWorldModelResponder
 
             var scopeAssertions = model.Relations
                 .SelectMany(relation => reasoner.GetRelations(scope.Id, relation.Id))
+                .Where(assertion =>
+                {
+                    if (request.TargetType is null)
+                    {
+                        return true;
+                    }
+
+                    var relation = model.FindRelation(assertion.Relation);
+                    return relation is not null &&
+                        relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                        relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                        relation.DomainType is not null &&
+                        relation.RangeType is not null &&
+                        reasoner.IsInstanceOf(scope.Id, relation.DomainType) &&
+                        reasoner.IsInstanceOf(assertion.Object, relation.RangeType) &&
+                        reasoner.IsInstanceOf(assertion.Object, targetType!.Id);
+                })
                 .ToArray();
             var scopedTargetIds = scopeAssertions
                 .Select(assertion => assertion.Object)
@@ -209,14 +237,32 @@ internal static class SemanticWorldModelResponder
             .Select(match => match.Target!)
             .DistinctBy(target => target.Id)
             .ToArray();
-        var targetPhrase = request.Scope is null
-            ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
-            : JoinNames(targets.Select(target => target.Label).ToArray());
-        message = request.Scope is null
-            ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
-            : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        if (request.TargetType is not null)
+        {
+            var typePhrase = targets.Length == 1 ? IndefinitePhrase(targetType!.Label) : PluralizeType(targetType!.Label);
+            var names = JoinNames(targets.Select(target => target.Label).ToArray());
+            message = targets.Length == 1
+                ? $"{names} is {typePhrase} {relation.Verb} by {subject.Label}."
+                : $"{names} are {typePhrase} {relation.Verb} by {subject.Label}.";
+        }
+        else
+        {
+            var targetPhrase = request.Scope is null
+                ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
+                : JoinNames(targets.Select(target => target.Label).ToArray());
+            message = request.Scope is null
+                ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
+                : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        }
+        var relationSources = matches.Select(match => match.Source);
+        if (request.TargetType is not null)
+        {
+            relationSources = relationSources.Concat(targets.SelectMany(target =>
+                reasoner.GetMembershipEvidence(target.Id, targetType!.Id)));
+        }
+
         var relationEvidence = ToEvidence(
-            matches.Select(match => match.Source).Distinct().ToImmutableArray(),
+            relationSources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived);
         evidence = scopeEvidence.IsDefaultOrEmpty
             ? ImmutableArray.Create(relationEvidence)
@@ -295,6 +341,19 @@ internal static class SemanticWorldModelResponder
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static string PluralizeType(string value)
+    {
+        if (value.EndsWith('y') && value.Length > 1 &&
+            !"aeiou".Contains(char.ToLowerInvariant(value[^2])))
+        {
+            return $"{value[..^1]}ies";
+        }
+
+        return value.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? $"{value}es"
+            : $"{value}s";
     }
 
     private static bool MatchesVerb(string relationVerb, string requestedVerb)

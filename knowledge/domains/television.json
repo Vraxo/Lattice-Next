@@ -84,6 +84,11 @@
       "form": "Michelle MacLaren",
       "concept": "michelle-maclaren",
       "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "episode",
+      "concept": "television-episode",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [

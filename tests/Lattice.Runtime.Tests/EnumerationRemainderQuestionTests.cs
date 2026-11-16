@@ -26,12 +26,13 @@ public sealed class EnumerationRemainderQuestionTests
             utterance.Meaning);
         var evidence = Assert.Single(utterance.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
-        Assert.Equal(LatticeKnowledgeSourceKind.UserAssertion, Assert.Single(evidence.Sources).Kind);
-        Assert.Equal(prompt, evidence.Sources[0].SourceText);
+        Assert.Equal(2, evidence.Premises.Length);
+        Assert.Contains(evidence.Premises, premise => premise.Sources.Any(source => source.SourceText == prompt));
+        Assert.Contains(evidence.Premises, premise => premise.Sources.Any(source => source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
     }
 
     [Fact]
-    public async Task Resolves_numeric_counts_and_ordinals_for_a_two_member_group()
+    public async Task Abstains_when_the_anchor_has_no_modeled_person_type()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -40,15 +41,12 @@ public sealed class EnumerationRemainderQuestionTests
             "Mira's parents have 2 daughters: Lena, and what's the name of the 2nd daughter?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The second daughter is Mira.", utterance.Message);
-        Assert.Equal(
-            "ask(enumeration-remainder(mira, daughters, 2, position(2), known(lena)))",
-            utterance.Meaning);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
     }
 
     [Fact]
-    public async Task Resolves_irregular_plural_group_names()
+    public async Task Abstains_when_an_unmodeled_anchor_is_used_for_children()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -57,13 +55,13 @@ public sealed class EnumerationRemainderQuestionTests
             "Mira's parents have 2 children: Lena, and what's the name of the 2nd child?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The second child is Mira.", utterance.Message);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
         Assert.Contains("enumeration-remainder(mira, children, 2", utterance.Meaning);
     }
 
     [Fact]
-    public async Task Resolves_a_different_regular_plural_group()
+    public async Task Abstains_when_a_son_anchor_has_no_modeled_person_type()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -72,8 +70,42 @@ public sealed class EnumerationRemainderQuestionTests
             "Noah's parents have three sons: Liam, Oliver, and what is the name of the third son?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The third son is Noah.", utterance.Message);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
+    }
+
+    [Theory]
+    [InlineData("Alex's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?")]
+    [InlineData("Alice's parents have three sons: Amy, Jessy, and what's the name of the third son?")]
+    public async Task Requires_foundational_person_type_for_family_set_completion(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Empty(answer.SupportingEvidence);
+    }
+
+    [Fact]
+    public async Task Resolves_a_child_set_when_the_anchor_has_a_general_person_type()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Alice's parents have three children: Amy, Jessy, and what's the name of the third child?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("The third child is Alice.", answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(evidence => evidence.Premises),
+            premise => premise.Sources.Any(source =>
+                source.SourceId?.EndsWith(":instance-of:person", StringComparison.Ordinal) == true ||
+                source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
     }
 
     [Fact]

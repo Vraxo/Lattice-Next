@@ -6,6 +6,21 @@ namespace Lattice.Runtime.Tests;
 public sealed class TypedRelationSourceQuestionTests
 {
     [Fact]
+    public async Task Does_not_ignore_a_context_constraint_when_no_context_edge_matches()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(
+            "Which episodes of Game of Thrones did Michelle MacLaren direct?",
+            TestContext.Current.CancellationToken);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Empty(answer.SupportingEvidence);
+    }
+
+    [Fact]
     public async Task Identifies_a_painter_using_relation_and_type_membership()
     {
         var client = new LatticeRuntimeClient();

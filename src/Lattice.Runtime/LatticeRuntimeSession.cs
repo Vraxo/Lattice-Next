@@ -823,7 +823,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             SupportingEvidence: explanation.Evidence);
     }
 
-    private static LatticeUtteranceResult ProcessEnumerationRemainderQuestion(
+    private LatticeUtteranceResult ProcessEnumerationRemainderQuestion(
         SemanticUtterance utterance,
         EnumerationRemainderQuestionFormula question)
     {
@@ -843,6 +843,65 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         };
         var group = SingularizeEnumerationGroup(question.Group);
         var member = char.ToUpperInvariant(question.Member[0]) + question.Member[1..];
+        var requiredType = group switch
+        {
+            "daughter" => "female-person",
+            "son" => "male-person",
+            "child" => "person",
+            _ => null
+        };
+
+        if (requiredType is not null)
+        {
+            var anchor = semanticWorldModel.FindConcept(question.Member, SemanticConceptKind.Individual);
+            if (anchor is null ||
+                question.ExpectedCount < 2 ||
+                question.MissingPosition != question.ExpectedCount ||
+                question.NamedMembers.IsDefault ||
+                question.NamedMembers.Length != question.ExpectedCount - 1 ||
+                question.NamedMembers.Distinct(StringComparer.Ordinal).Count() != question.NamedMembers.Length ||
+                question.NamedMembers.Contains(question.Member, StringComparer.Ordinal) ||
+                !semanticWorldModelReasoner.IsInstanceOf(anchor.Id, requiredType))
+            {
+                return new LatticeUtteranceResult(
+                    LatticeUtteranceResultKind.InformationUnavailable,
+                    "I cannot identify the missing family member from the stated relationships and available type knowledge.",
+                    SemanticFormatter.Format(utterance),
+                    SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+            }
+
+            var membershipPremise = new LatticeEvidence(
+                LatticeEvidenceKind.Asserted,
+                LatticeEvidencePolarity.Positive,
+                semanticWorldModelReasoner.GetMembershipEvidence(anchor.Id, requiredType)
+                    .Select(source => new LatticeEvidenceSource(
+                        LatticeKnowledgeSourceKind.FoundationalKnowledge,
+                        $"{anchor.Label} is modeled as a {group}.",
+                        source.SourceId,
+                        null))
+                    .ToImmutableArray(),
+                ImmutableArray<LatticeEvidence>.Empty);
+            var userPremise = new LatticeEvidence(
+                LatticeEvidenceKind.Asserted,
+                LatticeEvidencePolarity.Positive,
+                ImmutableArray.Create(new LatticeEvidenceSource(
+                    LatticeKnowledgeSourceKind.UserAssertion,
+                    utterance.SourceText,
+                    "family-set-description",
+                    null)),
+                ImmutableArray<LatticeEvidence>.Empty);
+            var derivedEvidence = new LatticeEvidence(
+                LatticeEvidenceKind.Derived,
+                LatticeEvidencePolarity.Positive,
+                ImmutableArray<LatticeEvidenceSource>.Empty,
+                ImmutableArray.Create(userPremise, membershipPremise));
+
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.QuestionAnswered,
+                $"The {ordinal} {group} is {member}.",
+                SemanticFormatter.Format(utterance),
+                SupportingEvidence: ImmutableArray.Create(derivedEvidence));
+        }
         var source = new LatticeEvidenceSource(
             LatticeKnowledgeSourceKind.UserAssertion,
             utterance.SourceText,

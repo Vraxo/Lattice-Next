@@ -132,6 +132,14 @@ internal static class SemanticWorldModelQuestionParser
         @"^Which (?<target>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ScopedTypedRelationTargetPattern = new(
+        @"^Which (?<targetType>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex TypedRelationTargetPattern = new(
+        @"^Which (?<targetType>[A-Za-z][A-Za-z -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex TypedRelationSourcePattern = new(
         @"^Which (?<subjectType>(?!(?:is|are|was|were|can|do|does|did)\b)[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+) (?<object>[""“]?[A-Z][A-Za-z0-9'’ -]*?[""”]?)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -498,6 +506,33 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
+        var scopedTypedRelationTarget = ScopedTypedRelationTargetPattern.Match(text);
+        if (scopedTypedRelationTarget.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationQueryFormula(
+                    Normalize(scopedTypedRelationTarget.Groups["subject"].Value),
+                    Normalize(scopedTypedRelationTarget.Groups["verb"].Value),
+                    Normalize(scopedTypedRelationTarget.Groups["scope"].Value),
+                    NormalizeType(scopedTypedRelationTarget.Groups["targetType"].Value)),
+                source);
+            return true;
+        }
+
+        var typedRelationTarget = TypedRelationTargetPattern.Match(text);
+        if (typedRelationTarget.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationQueryFormula(
+                    Normalize(typedRelationTarget.Groups["subject"].Value),
+                    Normalize(typedRelationTarget.Groups["verb"].Value),
+                    TargetType: NormalizeType(typedRelationTarget.Groups["targetType"].Value)),
+                source);
+            return true;
+        }
+
         var scopedRelationTarget = ScopedRelationTargetPattern.Match(text);
         if (scopedRelationTarget.Success)
         {
@@ -703,6 +738,19 @@ internal static class SemanticWorldModelQuestionParser
             "british" or "brits" or "united-kingdom" => "british-english",
             _ => Normalize(value)
         };
+
+    private static string NormalizeType(string value)
+    {
+        var normalized = Normalize(value);
+        if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
+        {
+            return normalized[..^3] + "y";
+        }
+
+        return normalized.EndsWith('s') && !normalized.EndsWith("ss", StringComparison.Ordinal)
+            ? normalized[..^1]
+            : normalized;
+    }
 
     private static string Normalize(string value)
     {

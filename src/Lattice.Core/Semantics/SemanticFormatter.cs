@@ -35,9 +35,7 @@ public static class SemanticFormatter
             ChargedParticleAccelerationFormula acceleration =>
                 $"charged-particle-final-speed({acceleration.Particle}, initial-speed={acceleration.InitialSpeedMetersPerSecond.ToString(CultureInfo.InvariantCulture)} m/s, potential-difference={acceleration.PotentialDifferenceVolts.ToString(CultureInfo.InvariantCulture)} V)",
             EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
-            SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
-                ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
-                : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
+            SemanticRelationQueryFormula relationQuery => FormatRelationQuery(relationQuery),
             SemanticRelationSourceQueryFormula relationQuery => relationQuery.SubjectType is null
                 ? $"relation-sources({relationQuery.Object}, {relationQuery.Verb})"
                 : $"relation-sources({relationQuery.Object}, {relationQuery.Verb}, subject-type({relationQuery.SubjectType}))",
@@ -90,6 +88,13 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ProductionLocationReasons => $"world-model-production-location-reasons({question.Subject}, {question.OtherSubject})",
             _ => "world-model-question(unsupported)"
         };
+
+    private static string FormatRelationQuery(SemanticRelationQueryFormula query)
+    {
+        var scope = query.Scope is null ? string.Empty : $", within({query.Scope})";
+        var targetType = query.TargetType is null ? string.Empty : $", target-type({query.TargetType})";
+        return $"relation-targets({query.Subject}, {query.Verb}{scope}{targetType})";
+    }
 
     private static string FormatEnumerationRemainderQuestion(
         EnumerationRemainderQuestionFormula remainder) =>
