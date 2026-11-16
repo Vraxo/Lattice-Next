@@ -96,6 +96,14 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
+        var targetType = request.TargetType is null
+            ? null
+            : model.FindConcept(request.TargetType, SemanticConceptKind.Type);
+        if (request.TargetType is not null && targetType is null)
+        {
+            return false;
+        }
+
         var matches = matchingRelations
             .SelectMany(relation => reasoner.GetRelations(subject.Id, relation.Id)
                 .Select(assertion => (Relation: relation, Assertion: assertion)))
@@ -106,7 +114,7 @@ internal static class SemanticWorldModelResponder
             .Where(match =>
                 match.Target is not null &&
                 (request.TargetType is null ||
-                 reasoner.IsInstanceOf(match.Target.Id, request.TargetType)))
+                 reasoner.IsInstanceOf(match.Target.Id, targetType!.Id)))
             .ToArray();
         var scopeEvidence = ImmutableArray<LatticeEvidence>.Empty;
         if (request.Scope is not null)
@@ -134,7 +142,7 @@ internal static class SemanticWorldModelResponder
                         relation.RangeType is not null &&
                         reasoner.IsInstanceOf(scope.Id, relation.DomainType) &&
                         reasoner.IsInstanceOf(assertion.Object, relation.RangeType) &&
-                        reasoner.IsInstanceOf(assertion.Object, request.TargetType);
+                        reasoner.IsInstanceOf(assertion.Object, targetType!.Id);
                 })
                 .ToArray();
             var scopedTargetIds = scopeAssertions
@@ -169,13 +177,7 @@ internal static class SemanticWorldModelResponder
             .ToArray();
         if (request.TargetType is not null)
         {
-            var type = model.FindConcept(request.TargetType, SemanticConceptKind.Type);
-            if (type is null)
-            {
-                return false;
-            }
-
-            var typePhrase = targets.Length == 1 ? IndefinitePhrase(type.Label) : PluralizeType(type.Label);
+            var typePhrase = targets.Length == 1 ? IndefinitePhrase(targetType!.Label) : PluralizeType(targetType!.Label);
             var names = JoinNames(targets.Select(target => target.Label).ToArray());
             message = targets.Length == 1
                 ? $"{names} is {typePhrase} {relation.Verb} by {subject.Label}."
@@ -194,7 +196,7 @@ internal static class SemanticWorldModelResponder
         if (request.TargetType is not null)
         {
             relationSources = relationSources.Concat(targets.SelectMany(target =>
-                reasoner.GetMembershipEvidence(target.Id, request.TargetType)));
+                reasoner.GetMembershipEvidence(target.Id, targetType!.Id)));
         }
 
         var relationEvidence = ToEvidence(
