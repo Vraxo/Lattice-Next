@@ -162,6 +162,12 @@ internal static class EnglishSyntaxParser
 
     private static bool TryGetBaseVerb(string value, out string baseVerb)
     {
+        if (Prepositions.Contains(value))
+        {
+            baseVerb = string.Empty;
+            return false;
+        }
+
         foreach (var candidate in AdditionalVerbs)
         {
             if (MatchesVerbForm(value, candidate))
