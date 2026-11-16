@@ -12,6 +12,7 @@ The existing Blender object-replacement example is not general code generation:
 
 - `knowledge/domains/blender-object-replacement-script.json` stores a task entity, ordered task steps, operation IDs, and Blender API labels.
 - `TaskRequestResponder.TryGenerateCode` accepts only the exact combination `python-script` + `blender` + `blender-object-replacement` + `object-to-point-light`.
+- `TaskRequestParser.TryParseBlenderScript` also recognizes one Blender-script request shape and only classifies the task as supported when its text contains the specific replacement/object/name/point-light terms; other tasks become `unsupported-blender-script`.
 - That method contains a dictionary mapping operation IDs directly to complete Python source fragments.
 - It also hardcodes imports, variable setup, regular-expression setup, explanatory prose, and the final script layout.
 
