@@ -700,7 +700,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             SemanticFormatter.Format(utterance),
             SupportingEvidence: evidence.IsDefault
                 ? ImmutableArray<LatticeEvidence>.Empty
-                : evidence);
+                : evidence,
+            OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
     }
 
     private LatticeUtteranceResult ProcessClassificationQuestion(
