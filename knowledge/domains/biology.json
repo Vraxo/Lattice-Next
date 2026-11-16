@@ -19,11 +19,6 @@
       "kind": "Individual"
     },
     {
-      "id": "person",
-      "label": "person",
-      "kind": "Type"
-    },
-    {
       "id": "female-person",
       "label": "female person",
       "kind": "Type"
@@ -56,11 +51,6 @@
       "partOfSpeech": "proper-noun"
     },
     {
-      "form": "person",
-      "concept": "person",
-      "partOfSpeech": "noun"
-    },
-    {
       "form": "female person",
       "concept": "female-person",
       "partOfSpeech": "noun"
@@ -86,12 +76,6 @@
     },
     {
       "concept": "fish",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
-      "concept": "person",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
