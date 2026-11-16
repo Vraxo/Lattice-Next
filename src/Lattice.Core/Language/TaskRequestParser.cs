@@ -22,6 +22,10 @@ internal static class TaskRequestParser
         @"^\s*What are (?<count>[0-9]+) potential uses for an empty (?<object>[^?]+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ConceptExplanationPattern = new(
+        @"^\\s*(?:Can|Could) you explain (?<topic>.+?)(?:\\s+in\\s+(?<context>.+?))?(?:\\s+in simple terms)?(?:\\s+for someone new to (?:the field of )?.+?)?\\??\\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex OperationExplanationPattern = new(
         @"^\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -42,6 +46,11 @@ internal static class TaskRequestParser
         utterance = null;
 
         if (TryParseBrainstormUses(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
+        if (TryParseConceptExplanation(source, sourceText, out utterance))
         {
             return true;
         }
@@ -111,6 +120,47 @@ internal static class TaskRequestParser
             $"{count}-ideas",
             "potential-uses",
             ImmutableArray.Create("potential-uses"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
+    }
+
+    private static bool TryParseConceptExplanation(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = ConceptExplanationPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var subject = string.Join(
+            '-',
+            match.Groups["topic"].Value.Trim()
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToLowerInvariant();
+        if (subject.Length == 0)
+        {
+            return false;
+        }
+
+        var context = match.Groups["context"].Success
+            ? match.Groups["context"].Value.Trim()
+            : null;
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Explain,
+            subject,
+            context,
+            "conceptual-overview",
+            null,
+            ImmutableArray.Create("beginner-friendly"));
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,
