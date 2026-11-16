@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Client;
 using Spectre.Console;
 
@@ -7,16 +8,16 @@ internal static class ReplProofFormatter
 {
     public static void WriteProofGroup(
         string heading,
-        IReadOnlyList<LatticeEvidence> proofs)
+        ImmutableArray<LatticeEvidence> proofs)
     {
-        if (proofs.Count == 0)
+        if (proofs.IsDefaultOrEmpty)
         {
             return;
         }
 
         AnsiConsole.MarkupLine($"[dim]{heading}[/]");
 
-        for (var index = 0; index < proofs.Count; index++)
+        for (var index = 0; index < proofs.Length; index++)
         {
             if (index > 0)
             {
@@ -40,7 +41,9 @@ internal static class ReplProofFormatter
             LatticeEvidence current,
             HashSet<string> emitted)
         {
-            foreach (var premise in current.Premises)
+            foreach (var premise in current.Premises.IsDefault
+                ? ImmutableArray<LatticeEvidence>.Empty
+                : current.Premises)
             {
                 foreach (var statement in Collect(premise, emitted))
                 {
@@ -48,7 +51,9 @@ internal static class ReplProofFormatter
                 }
             }
 
-            foreach (var source in current.Sources)
+            foreach (var source in current.Sources.IsDefault
+                ? ImmutableArray<LatticeEvidenceSource>.Empty
+                : current.Sources)
             {
                 var referent = source.ResolvedReferent is { } resolved
                     ? $" [it resolved to {resolved}]"
