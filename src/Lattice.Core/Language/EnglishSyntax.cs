@@ -25,13 +25,21 @@ internal sealed record EnglishPrepositionalPhrase(
     int StartToken,
     int EndToken);
 
+internal enum EnglishSubjectBinding
+{
+    Explicit,
+    Implicit,
+    Antecedent,
+    PreviousClause
+}
+
 internal sealed record EnglishClause(
     EnglishClauseKind Kind,
     string Verb,
     EnglishNounPhrase? Subject,
     EnglishNounPhrase? Object,
     ImmutableArray<EnglishPrepositionalPhrase> PrepositionalPhrases,
-    bool UsesAntecedent,
+    EnglishSubjectBinding SubjectBinding,
     int VerbTokenIndex);
 
 internal sealed record EnglishSentenceSyntax(
