@@ -695,10 +695,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         return new LatticeUtteranceResult(
-            LatticeUtteranceResultKind.QuestionAnswered,
+            LatticeUtteranceResultKind.TaskCompleted,
             message,
             SemanticFormatter.Format(utterance),
-            SupportingEvidence: evidence);
+            SupportingEvidence: evidence.IsDefault
+                ? ImmutableArray<LatticeEvidence>.Empty
+                : evidence);
     }
 
     private LatticeUtteranceResult ProcessClassificationQuestion(
