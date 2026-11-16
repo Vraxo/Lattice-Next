@@ -24,7 +24,7 @@ internal static class TaskRequestResponder
             TaskRequestAction.Write => TryWrite(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Recommend => TryRecommend(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Plan => TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
-            TaskRequestAction.Explain => TryExplainOperation(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Explain => TryExplain(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Brainstorm => TryBrainstormUses(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
@@ -211,6 +211,148 @@ internal static class TaskRequestResponder
                 .DistinctBy(source => source.SourceId)
                 .Select(ToEvidenceSource)
                 .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    private static bool TryExplain(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        if (request.OutputFormat == "procedure")
+        {
+            return TryExplainOperation(request, model, reasoner, out message, out evidence);
+        }
+
+        if (request.OutputFormat == "conceptual-overview")
+        {
+            return TryExplainLearningMethod(request, model, reasoner, out message, out evidence);
+        }
+
+        return Fail(out message, out evidence);
+    }
+
+    private static bool TryExplainLearningMethod(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var method = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        if (method is null || !reasoner.IsInstanceOf(method.Id, "machine-learning-method"))
+        {
+            return false;
+        }
+
+        var principleAssertions = reasoner.GetRelations(method.Id, "method-has-principle");
+        var representationAssertions = reasoner.GetRelations(method.Id, "method-learns-representation");
+        var objectiveAssertions = reasoner.GetRelations(method.Id, "method-uses-objective");
+        var exampleAssertions = reasoner.GetRelations(method.Id, "method-has-example");
+        var applicationAssertions = reasoner.GetRelations(method.Id, "method-used-for");
+
+        if (principleAssertions.Length == 0 || representationAssertions.Length == 0 ||
+            objectiveAssertions.Length == 0 || exampleAssertions.Length == 0)
+        {
+            return false;
+        }
+
+        var principle = model.FindConcept(principleAssertions[0].Object, SemanticConceptKind.Individual);
+        var representation = model.FindConcept(representationAssertions[0].Object, SemanticConceptKind.Individual);
+        var objective = model.FindConcept(objectiveAssertions[0].Object, SemanticConceptKind.Individual);
+        var example = model.FindConcept(exampleAssertions[0].Object, SemanticConceptKind.Individual);
+        if (principle is null || representation is null || objective is null || example is null)
+        {
+            return false;
+        }
+
+        var pairAssertions = reasoner.GetRelations(principle.Id, "principle-uses-pair");
+        var positivePair = pairAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(pair => pair is not null &&
+                reasoner.GetRelations(pair.Id, "pair-has-role").Any(role =>
+                    model.FindConcept(role.Object, SemanticConceptKind.Individual)?.Id == "same-underlying-item"));
+        var negativePair = pairAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .FirstOrDefault(pair => pair is not null &&
+                reasoner.GetRelations(pair.Id, "pair-has-role").Any(role =>
+                    model.FindConcept(role.Object, SemanticConceptKind.Individual)?.Id == "different-underlying-items"));
+
+        var positiveEffect = reasoner.GetRelations(objective.Id, "objective-pulls-positive-pairs-together");
+        var negativeEffect = reasoner.GetRelations(objective.Id, "objective-pushes-negative-pairs-apart");
+        var examplePositive = reasoner.GetRelations(example.Id, "example-demonstrates-positive-pair");
+        var exampleNegative = reasoner.GetRelations(example.Id, "example-demonstrates-negative-pair");
+        if (positivePair is null || negativePair is null || positiveEffect.IsDefaultOrEmpty ||
+            negativeEffect.IsDefaultOrEmpty || examplePositive.IsDefaultOrEmpty ||
+            exampleNegative.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var positiveExamplePair = model.FindConcept(examplePositive[0].Object, SemanticConceptKind.Individual);
+        var negativeExamplePair = model.FindConcept(exampleNegative[0].Object, SemanticConceptKind.Individual);
+        if (positiveExamplePair is null || negativeExamplePair is null)
+        {
+            return false;
+        }
+
+        var paragraphs = new List<string>
+        {
+            $"{method.Label} is a machine-learning method built around {principle.Label}. The model learns a useful representation of each example, often called an embedding.",
+            $"During training, it compares pairs of examples. A **positive pair** brings together {positivePair.Label}; a **negative pair** brings together {negativePair.Label}.",
+            $"The training objective encourages embeddings from positive pairs to become more similar and embeddings from negative pairs to become less similar. In other words, the model learns what should count as alike or different in the data."
+        };
+
+        var positivePairRole = reasoner.GetRelations(positivePair.Id, "pair-has-role").FirstOrDefault();
+        var negativePairRole = reasoner.GetRelations(negativePair.Id, "pair-has-role").FirstOrDefault();
+        var positiveRole = positivePairRole is null ? null : model.FindConcept(positivePairRole.Object, SemanticConceptKind.Individual);
+        var negativeRole = negativePairRole is null ? null : model.FindConcept(negativePairRole.Object, SemanticConceptKind.Individual);
+        if (positiveRole is null || negativeRole is null)
+        {
+            return false;
+        }
+
+        paragraphs.Add(
+            $"For example, {example.Label}: {positiveExamplePair.Label} form a positive pair because they show {positiveRole.Label}; {negativeExamplePair.Label} form a negative pair because they show {negativeRole.Label}.");
+
+        var applications = applicationAssertions
+            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+            .Where(concept => concept is not null)
+            .Select(concept => concept!.Label)
+            .ToArray();
+        if (applications.Length > 0)
+        {
+            paragraphs.Add($"Once trained, the learned representations can be useful for tasks such as {JoinNames(applications)}.");
+        }
+
+        paragraphs.Add("The key intuition: examples that belong together should end up close in the model's learned representation space, while examples that differ should end up farther apart.");
+
+        var sources = new List<SemanticWorldModelSource>();
+        sources.AddRange(reasoner.GetMembershipEvidence(method.Id, "machine-learning-method"));
+        sources.AddRange(principleAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(representationAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(objectiveAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(exampleAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(applicationAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(pairAssertions.Select(assertion => assertion.Source));
+        sources.AddRange(reasoner.GetRelations(positivePair.Id, "pair-has-role").Select(assertion => assertion.Source));
+        sources.AddRange(reasoner.GetRelations(negativePair.Id, "pair-has-role").Select(assertion => assertion.Source));
+        sources.AddRange(positiveEffect.Select(assertion => assertion.Source));
+        sources.AddRange(negativeEffect.Select(assertion => assertion.Source));
+        sources.AddRange(examplePositive.Select(assertion => assertion.Source));
+        sources.AddRange(exampleNegative.Select(assertion => assertion.Source));
+
+        message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources.DistinctBy(source => source.SourceId).Select(ToEvidenceSource).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty));
         return true;
     }
