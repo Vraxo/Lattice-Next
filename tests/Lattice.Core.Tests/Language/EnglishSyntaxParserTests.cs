@@ -86,4 +86,18 @@ public sealed class EnglishSyntaxParserTests
         Assert.Equal("fish", syntax.Clauses[1].Object!.Head);
     }
 
+    [Fact]
+    public void Retains_an_explicit_subject_in_a_coordinated_clause()
+    {
+        const string input = "Fido likes milk and Rex eats fish.";
+
+        Assert.True(EnglishSyntaxParser.TryParse(input, out var syntax));
+
+        Assert.Equal(2, syntax!.Clauses.Length);
+        Assert.Equal(EnglishClauseKind.Coordinated, syntax.Clauses[1].Kind);
+        Assert.Equal(EnglishSubjectBinding.Explicit, syntax.Clauses[1].SubjectBinding);
+        Assert.Equal("Rex", syntax.Clauses[1].Subject!.Head);
+        Assert.Equal("fish", syntax.Clauses[1].Object!.Head);
+    }
+
 }
