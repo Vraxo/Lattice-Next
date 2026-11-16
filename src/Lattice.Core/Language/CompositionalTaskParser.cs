@@ -17,8 +17,7 @@ internal static class CompositionalTaskParser
 
     private static readonly HashSet<string> OutputVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "print", "prints", "printing", "display", "displays", "show", "shows",
-        "output", "outputs", "say", "says"
+        "print", "display", "show", "output", "say"
     };
 
     internal static bool TryParse(
@@ -28,20 +27,23 @@ internal static class CompositionalTaskParser
     {
         utterance = null;
 
-        var tokens = EnglishLexer.Tokenize(source);
-        var words = tokens
-            .Where(token => !token.IsPunctuation && !token.IsQuoted)
-            .Select(token => token.Value)
-            .ToArray();
-
-        if (!words.Any(CreationVerbs.Contains) ||
-            !words.Any(word => word.Equals("python", StringComparison.OrdinalIgnoreCase)) ||
-            !ContainsCodeIntent(tokens, words))
+        if (!EnglishSyntaxParser.TryParse(source, out var syntax))
         {
             return false;
         }
 
-        if (!TryGetRequestedOutput(source, tokens, out var requestedValue))
+        var mainClause = syntax!.Clauses[0];
+        if (!CreationVerbs.Contains(mainClause.Verb) ||
+            mainClause.Object is null ||
+            !ContainsCodeArtifact(mainClause.Object) ||
+            !syntax.Tokens.Any(token =>
+                !token.IsQuoted &&
+                token.Value.Equals("python", StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        if (!TryGetRequestedOutput(syntax, out var requestedValue))
         {
             return false;
         }
@@ -64,146 +66,38 @@ internal static class CompositionalTaskParser
         return true;
     }
 
-    private static bool ContainsCodeIntent(
-        ImmutableArray<EnglishToken> tokens,
-        string[] words) =>
-        words.Any(CodeArtifacts.Contains) ||
-        tokens.Any(token =>
-            !token.IsQuoted &&
-            !token.IsPunctuation &&
-            OutputVerbs.Contains(token.Value));
+    private static bool ContainsCodeArtifact(EnglishNounPhrase phrase) =>
+        CodeArtifacts.Contains(phrase.Head) ||
+        phrase.Modifiers.Any(CodeArtifacts.Contains);
 
     private static bool TryGetRequestedOutput(
-        string source,
-        ImmutableArray<EnglishToken> tokens,
+        EnglishSentenceSyntax syntax,
         out string value)
     {
-        var quotedOutput = tokens.FirstOrDefault(token => token.IsQuoted);
-        if (quotedOutput.IsQuoted)
+        var outputClause = syntax.Clauses
+            .Skip(1)
+            .FirstOrDefault(clause => OutputVerbs.Contains(clause.Verb));
+
+        if (outputClause?.Object is not null)
         {
-            value = NormalizeOutput(quotedOutput.Value);
+            value = NormalizeOutput(outputClause.Object.Text);
             return value.Length > 0;
         }
 
-        if (FindHelloWorld(tokens) >= 0)
+        for (var index = 0; index < syntax.Tokens.Length - 1; index++)
         {
-            value = "Hello, world!";
-            return true;
-        }
-
-        for (var index = 0; index < tokens.Length; index++)
-        {
-            var token = tokens[index];
-            if (token.IsQuoted || token.IsPunctuation || !OutputVerbs.Contains(token.Value))
+            if (!syntax.Tokens[index].IsQuoted &&
+                !syntax.Tokens[index + 1].IsQuoted &&
+                syntax.Tokens[index].Value.Equals("hello", StringComparison.OrdinalIgnoreCase) &&
+                syntax.Tokens[index + 1].Value.Equals("world", StringComparison.OrdinalIgnoreCase))
             {
-                continue;
+                value = "Hello, world!";
+                return true;
             }
-
-            var outputStart = FindNextWord(tokens, index + 1);
-            if (outputStart < 0)
-            {
-                continue;
-            }
-
-            var outputEnd = FindOutputEnd(tokens, outputStart);
-            if (outputEnd < outputStart)
-            {
-                continue;
-            }
-
-            var firstToken = tokens[outputStart];
-            var lastToken = tokens[outputEnd];
-            var candidate = source[firstToken.Start..(lastToken.Start + lastToken.Length)].Trim();
-            value = NormalizeOutput(RemoveLeadingDeterminer(candidate));
-            return value.Length > 0;
         }
 
         value = string.Empty;
         return false;
-    }
-
-    private static int FindHelloWorld(ImmutableArray<EnglishToken> tokens)
-    {
-        for (var index = 0; index < tokens.Length - 1; index++)
-        {
-            if (!tokens[index].IsQuoted &&
-                !tokens[index + 1].IsQuoted &&
-                tokens[index].Value.Equals("hello", StringComparison.OrdinalIgnoreCase) &&
-                tokens[index + 1].Value.Equals("world", StringComparison.OrdinalIgnoreCase))
-            {
-                return index;
-            }
-        }
-
-        return -1;
-    }
-
-    private static int FindNextWord(ImmutableArray<EnglishToken> tokens, int start)
-    {
-        for (var index = start; index < tokens.Length; index++)
-        {
-            if (!tokens[index].IsPunctuation && !tokens[index].IsQuoted)
-            {
-                return index;
-            }
-        }
-
-        return -1;
-    }
-
-    private static int FindOutputEnd(ImmutableArray<EnglishToken> tokens, int start)
-    {
-        var end = start;
-
-        for (var index = start + 1; index < tokens.Length; index++)
-        {
-            var token = tokens[index];
-            if (token.IsPunctuation)
-            {
-                if (token.Value is "." or "?" or "!")
-                {
-                    break;
-                }
-
-                end = index;
-                continue;
-            }
-
-            if (!token.IsQuoted &&
-                (token.Value.Equals("in", StringComparison.OrdinalIgnoreCase) ||
-                 token.Value.Equals("using", StringComparison.OrdinalIgnoreCase)) &&
-                index + 1 < tokens.Length &&
-                tokens[index + 1].Value.Equals("python", StringComparison.OrdinalIgnoreCase))
-            {
-                break;
-            }
-
-            if (!token.IsQuoted &&
-                token.Value.Equals("to", StringComparison.OrdinalIgnoreCase) &&
-                index + 1 < tokens.Length &&
-                (tokens[index + 1].Value.Equals("the", StringComparison.OrdinalIgnoreCase) ||
-                 tokens[index + 1].Value.Equals("console", StringComparison.OrdinalIgnoreCase)))
-            {
-                break;
-            }
-
-            end = index;
-        }
-
-        return end;
-    }
-
-    private static string RemoveLeadingDeterminer(string value)
-    {
-        foreach (var determiner in new[] { "the ", "a ", "an ", "the text " })
-        {
-            if (value.StartsWith(determiner, StringComparison.OrdinalIgnoreCase))
-            {
-                return value[determiner.Length..].Trim();
-            }
-        }
-
-        return value;
     }
 
     private static string NormalizeOutput(string value)
