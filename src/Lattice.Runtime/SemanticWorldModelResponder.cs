@@ -267,7 +267,9 @@ internal static class SemanticWorldModelResponder
             targetPhrase = $"{targetPhrase} {relation.ObjectRole}";
         }
 
-        var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
+        var verb = subject.Label.EndsWith('s') &&
+            subject.Label.Length > 1 &&
+            !IsProperName(subject.Label)
             ? InflectPluralSubjectVerb(relation.Verb)
             : relation.Verb;
         return $"{subjectPhrase} {verb} {targetPhrase}.";
