@@ -70,10 +70,24 @@ public static class SemanticSequenceBindings
 
     private static bool TryTokenize(string value, out ImmutableArray<string> tokens)
     {
-        tokens = value
-            .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .ToImmutableArray();
+        var parts = ImmutableArray.CreateBuilder<string>();
+        var start = 0;
 
-        return !tokens.IsDefaultOrEmpty;
+        while (start < value.Length)
+        {
+            var isWhitespace = char.IsWhiteSpace(value[start]);
+            var end = start + 1;
+
+            while (end < value.Length && char.IsWhiteSpace(value[end]) == isWhitespace)
+            {
+                end++;
+            }
+
+            parts.Add(value[start..end]);
+            start = end;
+        }
+
+        tokens = parts.ToImmutable();
+        return !tokens.IsDefaultOrEmpty && tokens.All(token => token.Length > 0);
     }
 }
