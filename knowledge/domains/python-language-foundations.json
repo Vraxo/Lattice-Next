@@ -204,7 +204,7 @@
       "kind": "Type"
     },
     {
-      "id": "condition",
+      "id": "program-condition",
       "label": "condition",
       "kind": "Type"
     },
@@ -442,7 +442,7 @@
     },
     {
       "form": "condition",
-      "concept": "condition",
+      "concept": "program-condition",
       "partOfSpeech": "noun"
     },
     {
@@ -1097,7 +1097,7 @@
       "object": "entity"
     },
     {
-      "subject": "condition",
+      "subject": "program-condition",
       "relation": "is-a",
       "object": "entity"
     },
