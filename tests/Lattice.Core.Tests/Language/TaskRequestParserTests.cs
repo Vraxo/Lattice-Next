@@ -54,6 +54,25 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
+    public void Parses_a_beginner_concept_explanation_as_a_structured_task()
+    {
+        const string input = "Can you explain contrastive learning in machine learning in simple terms for someone new to the field of ML?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
+        Assert.Equal(TaskRequestAction.Explain, request.Action);
+        Assert.Equal("contrastive-learning", request.Subject);
+        Assert.Equal("machine learning", request.Context);
+        Assert.Equal("conceptual-overview", request.OutputFormat);
+        Assert.Equal(new[] { "beginner-friendly" }, request.Requirements);
+    }
+
+    [Fact]
     public void Parses_a_manual_transmission_operation_question_as_a_structured_task()
     {
         const string input = "How do you operate a car with a manual transmission?";
