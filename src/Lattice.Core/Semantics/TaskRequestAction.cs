@@ -7,5 +7,6 @@ public enum TaskRequestAction
     Plan,
     Explain,
     Brainstorm,
-    Explore
+    Explore,
+    Code
 }
