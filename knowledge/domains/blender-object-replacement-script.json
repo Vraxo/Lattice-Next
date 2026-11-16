@@ -1,0 +1,533 @@
+{
+  "formatVersion": 3,
+  "id": "blender-object-replacement-script",
+  "name": "Blender object replacement with point lights",
+  "concepts": [
+    {
+      "id": "blender-code-generation-task",
+      "label": "Blender code-generation task",
+      "kind": "Type"
+    },
+    {
+      "id": "blender-script-step",
+      "label": "Blender script step",
+      "kind": "Type"
+    },
+    {
+      "id": "python-code-operation",
+      "label": "Python code operation",
+      "kind": "Type"
+    },
+    {
+      "id": "blender-api",
+      "label": "Blender Python API element",
+      "kind": "Type"
+    },
+    {
+      "id": "blender-object-replacement",
+      "label": "replace matching Blender objects with point lights",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-snapshot-objects",
+      "label": "Snapshot scene objects",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-iterate-objects",
+      "label": "Iterate over the object snapshot",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-match-name",
+      "label": "Match the requested object name",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-create-light-data",
+      "label": "Create point-light data",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-create-light-object",
+      "label": "Create the light object",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-copy-world-position",
+      "label": "Copy the original world position",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-link-collections",
+      "label": "Link the light into the original collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-remove-original",
+      "label": "Remove the original object",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-snapshot-objects",
+      "label": "snapshot object datablocks",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-iterate-objects",
+      "label": "iterate objects",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-match-name",
+      "label": "match object name",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-create-light-data",
+      "label": "create point-light data",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-create-light-object",
+      "label": "create light object",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-copy-world-position",
+      "label": "copy world position",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-link-collections",
+      "label": "link same collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "op-remove-original",
+      "label": "remove original object",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-object-datablocks",
+      "label": "bpy.data.objects",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-object-name",
+      "label": "object.name",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-light-datablocks",
+      "label": "bpy.data.lights",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-object-construction",
+      "label": "bpy.data.objects.new",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-world-matrix",
+      "label": "object.matrix_world.translation",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-object-collections",
+      "label": "object.users_collection",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-collection-link",
+      "label": "collection.objects.link",
+      "kind": "Individual"
+    },
+    {
+      "id": "api-object-removal",
+      "label": "bpy.data.objects.remove",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "Blender object replacement script",
+      "concept": "blender-object-replacement",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "script-has-step",
+      "domain": "blender-code-generation-task",
+      "range": "blender-script-step",
+      "verb": "has script step",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-uses-operation",
+      "domain": "blender-script-step",
+      "range": "python-code-operation",
+      "verb": "uses code operation",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-uses-api",
+      "domain": "blender-script-step",
+      "range": "blender-api",
+      "verb": "uses Blender API element",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "blender-code-generation-task",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "blender-script-step",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "python-code-operation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "blender-api",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "blender-code-generation-task",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "blender-script-step",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "python-code-operation",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "blender-api",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "instance-of",
+      "object": "blender-code-generation-task"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "op-snapshot-objects",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-iterate-objects",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-match-name",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-create-light-data",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-create-light-object",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-copy-world-position",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-link-collections",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "op-remove-original",
+      "relation": "instance-of",
+      "object": "python-code-operation"
+    },
+    {
+      "subject": "api-object-datablocks",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-object-name",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-light-datablocks",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-object-construction",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-world-matrix",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-object-collections",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-collection-link",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "api-object-removal",
+      "relation": "instance-of",
+      "object": "blender-api"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-snapshot-objects"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-uses-operation",
+      "object": "op-snapshot-objects"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-uses-api",
+      "object": "api-object-datablocks"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-iterate-objects"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-uses-operation",
+      "object": "op-iterate-objects"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-uses-api",
+      "object": "api-object-datablocks"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-match-name"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-uses-operation",
+      "object": "op-match-name"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-uses-api",
+      "object": "api-object-name"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-create-light-data"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-uses-operation",
+      "object": "op-create-light-data"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-uses-api",
+      "object": "api-light-datablocks"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-create-light-object"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-uses-operation",
+      "object": "op-create-light-object"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-uses-api",
+      "object": "api-object-construction"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-copy-world-position"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-uses-operation",
+      "object": "op-copy-world-position"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-uses-api",
+      "object": "api-world-matrix"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-link-collections"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-uses-operation",
+      "object": "op-link-collections"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-uses-api",
+      "object": "api-object-collections"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "script-has-step",
+      "object": "step-remove-original"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-uses-operation",
+      "object": "op-remove-original"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-uses-api",
+      "object": "api-object-removal"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "script-step-number",
+      "domainType": "blender-script-step",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "step-snapshot-objects",
+      "property": "script-step-number",
+      "value": "1"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "property": "script-step-number",
+      "value": "2"
+    },
+    {
+      "subject": "step-match-name",
+      "property": "script-step-number",
+      "value": "3"
+    },
+    {
+      "subject": "step-create-light-data",
+      "property": "script-step-number",
+      "value": "4"
+    },
+    {
+      "subject": "step-create-light-object",
+      "property": "script-step-number",
+      "value": "5"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "property": "script-step-number",
+      "value": "6"
+    },
+    {
+      "subject": "step-link-collections",
+      "property": "script-step-number",
+      "value": "7"
+    },
+    {
+      "subject": "step-remove-original",
+      "property": "script-step-number",
+      "value": "8"
+    }
+  ]
+}
