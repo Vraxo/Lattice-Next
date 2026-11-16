@@ -1,0 +1,471 @@
+{
+  "formatVersion": 3,
+  "id": "search-engine-optimization",
+  "name": "Search engine optimization learning path",
+  "concepts": [
+    {
+      "id": "digital-marketing-practice",
+      "label": "digital marketing practice",
+      "kind": "Type"
+    },
+    {
+      "id": "seo-learning-step",
+      "label": "SEO learning step",
+      "kind": "Type"
+    },
+    {
+      "id": "seo-topic",
+      "label": "search optimization topic",
+      "kind": "Type"
+    },
+    {
+      "id": "seo-exercise",
+      "label": "practical SEO exercise",
+      "kind": "Type"
+    },
+    {
+      "id": "search-engine-optimization",
+      "label": "search-engine optimization",
+      "kind": "Individual"
+    },
+    {
+      "id": "discoverability",
+      "label": "search engine discovery and indexing",
+      "kind": "Individual"
+    },
+    {
+      "id": "search-intent",
+      "label": "search intent and query relevance",
+      "kind": "Individual"
+    },
+    {
+      "id": "useful-content",
+      "label": "helpful content that satisfies a search",
+      "kind": "Individual"
+    },
+    {
+      "id": "on-page-elements",
+      "label": "titles, headings, and page descriptions",
+      "kind": "Individual"
+    },
+    {
+      "id": "mobile-usability",
+      "label": "mobile usability and page experience",
+      "kind": "Individual"
+    },
+    {
+      "id": "page-performance",
+      "label": "page loading performance",
+      "kind": "Individual"
+    },
+    {
+      "id": "internal-linking",
+      "label": "internal links and site structure",
+      "kind": "Individual"
+    },
+    {
+      "id": "search-measurement",
+      "label": "search performance measurement",
+      "kind": "Individual"
+    },
+    {
+      "id": "inspect-indexing",
+      "label": "check whether important pages can be crawled and indexed",
+      "kind": "Individual"
+    },
+    {
+      "id": "map-searches",
+      "label": "identify the questions and intent behind relevant searches",
+      "kind": "Individual"
+    },
+    {
+      "id": "improve-content",
+      "label": "rewrite a page to answer the visitor's question clearly and completely",
+      "kind": "Individual"
+    },
+    {
+      "id": "review-page-elements",
+      "label": "write a descriptive title and organize the page with useful headings",
+      "kind": "Individual"
+    },
+    {
+      "id": "test-mobile-page",
+      "label": "test the page on a phone and fix usability problems",
+      "kind": "Individual"
+    },
+    {
+      "id": "measure-performance",
+      "label": "measure loading performance and improve major bottlenecks",
+      "kind": "Individual"
+    },
+    {
+      "id": "connect-related-pages",
+      "label": "add useful internal links between related pages",
+      "kind": "Individual"
+    },
+    {
+      "id": "compare-search-results",
+      "label": "track impressions, clicks, and queries over time",
+      "kind": "Individual"
+    },
+    {
+      "id": "discoverability-step",
+      "label": "Understand crawling and indexing",
+      "kind": "Individual"
+    },
+    {
+      "id": "intent-step",
+      "label": "Understand search intent",
+      "kind": "Individual"
+    },
+    {
+      "id": "content-step",
+      "label": "Create genuinely useful content",
+      "kind": "Individual"
+    },
+    {
+      "id": "on-page-step",
+      "label": "Improve page structure and usability",
+      "kind": "Individual"
+    },
+    {
+      "id": "experience-step",
+      "label": "Improve mobile experience and performance",
+      "kind": "Individual"
+    },
+    {
+      "id": "performance-step",
+      "label": "Measure and improve loading performance",
+      "kind": "Individual"
+    },
+    {
+      "id": "linking-step",
+      "label": "Build a clear internal link structure",
+      "kind": "Individual"
+    },
+    {
+      "id": "measurement-step",
+      "label": "Monitor results and iterate",
+      "kind": "Individual"
+    },
+    {
+      "id": "webpage",
+      "label": "webpage",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "search engine optimization",
+      "concept": "search-engine-optimization",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "SEO",
+      "concept": "search-engine-optimization",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "seo-has-learning-step",
+      "domain": "digital-marketing-practice",
+      "range": "seo-learning-step",
+      "verb": "has learning step",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "step-focuses-on",
+      "domain": "seo-learning-step",
+      "range": "seo-topic",
+      "verb": "focuses on",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "step-has-practice",
+      "domain": "seo-learning-step",
+      "range": "seo-exercise",
+      "verb": "includes practice",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "digital-marketing-practice",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "seo-learning-step",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "seo-topic",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "seo-exercise",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "digital-marketing-practice",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "seo-learning-step",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "seo-topic",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "seo-exercise",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "instance-of",
+      "object": "digital-marketing-practice"
+    },
+    {
+      "subject": "discoverability-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "discoverability-step"
+    },
+    {
+      "subject": "discoverability-step",
+      "relation": "step-focuses-on",
+      "object": "discoverability"
+    },
+    {
+      "subject": "discoverability-step",
+      "relation": "step-has-practice",
+      "object": "inspect-indexing"
+    },
+    {
+      "subject": "intent-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "intent-step"
+    },
+    {
+      "subject": "intent-step",
+      "relation": "step-focuses-on",
+      "object": "search-intent"
+    },
+    {
+      "subject": "intent-step",
+      "relation": "step-has-practice",
+      "object": "map-searches"
+    },
+    {
+      "subject": "content-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "content-step"
+    },
+    {
+      "subject": "content-step",
+      "relation": "step-focuses-on",
+      "object": "useful-content"
+    },
+    {
+      "subject": "content-step",
+      "relation": "step-has-practice",
+      "object": "improve-content"
+    },
+    {
+      "subject": "on-page-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "on-page-step"
+    },
+    {
+      "subject": "on-page-step",
+      "relation": "step-focuses-on",
+      "object": "on-page-elements"
+    },
+    {
+      "subject": "on-page-step",
+      "relation": "step-has-practice",
+      "object": "review-page-elements"
+    },
+    {
+      "subject": "experience-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "experience-step"
+    },
+    {
+      "subject": "experience-step",
+      "relation": "step-focuses-on",
+      "object": "mobile-usability"
+    },
+    {
+      "subject": "experience-step",
+      "relation": "step-has-practice",
+      "object": "test-mobile-page"
+    },
+    {
+      "subject": "performance-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "performance-step"
+    },
+    {
+      "subject": "performance-step",
+      "relation": "step-focuses-on",
+      "object": "page-performance"
+    },
+    {
+      "subject": "performance-step",
+      "relation": "step-has-practice",
+      "object": "measure-performance"
+    },
+    {
+      "subject": "linking-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "linking-step"
+    },
+    {
+      "subject": "linking-step",
+      "relation": "step-focuses-on",
+      "object": "internal-linking"
+    },
+    {
+      "subject": "linking-step",
+      "relation": "step-has-practice",
+      "object": "connect-related-pages"
+    },
+    {
+      "subject": "measurement-step",
+      "relation": "instance-of",
+      "object": "seo-learning-step"
+    },
+    {
+      "subject": "search-engine-optimization",
+      "relation": "seo-has-learning-step",
+      "object": "measurement-step"
+    },
+    {
+      "subject": "measurement-step",
+      "relation": "step-focuses-on",
+      "object": "search-measurement"
+    },
+    {
+      "subject": "measurement-step",
+      "relation": "step-has-practice",
+      "object": "compare-search-results"
+    },
+    {
+      "subject": "webpage",
+      "relation": "instance-of",
+      "object": "entity"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "learning-step-number",
+      "domainType": "seo-learning-step",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "discoverability-step",
+      "property": "learning-step-number",
+      "value": "1"
+    },
+    {
+      "subject": "intent-step",
+      "property": "learning-step-number",
+      "value": "2"
+    },
+    {
+      "subject": "content-step",
+      "property": "learning-step-number",
+      "value": "3"
+    },
+    {
+      "subject": "on-page-step",
+      "property": "learning-step-number",
+      "value": "4"
+    },
+    {
+      "subject": "experience-step",
+      "property": "learning-step-number",
+      "value": "5"
+    },
+    {
+      "subject": "performance-step",
+      "property": "learning-step-number",
+      "value": "6"
+    },
+    {
+      "subject": "linking-step",
+      "property": "learning-step-number",
+      "value": "7"
+    },
+    {
+      "subject": "measurement-step",
+      "property": "learning-step-number",
+      "value": "8"
+    }
+  ]
+}
