@@ -17,7 +17,7 @@ public sealed class EnglishLexerTests
         Assert.Contains(tokens, token => token.Value == "." && token.IsPunctuation);
 
         var quoted = Assert.Single(tokens.Where(token => token.IsQuoted));
-        Assert.Equal(input.IndexOf(''') + 1, quoted.Start + 1);
+        Assert.Equal(input.IndexOf("'"), quoted.Start);
         Assert.Equal("'Hello, world!'".Length, quoted.Length);
     }
 
