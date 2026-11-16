@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Client;
 
 namespace Lattice.Cli;
@@ -22,6 +23,10 @@ internal static class CliTextFormatter
                 case LatticeUtteranceResultKind.StatementStored:
                     standardOutput.WriteLine(
                         $"Stored {(utterance.EntryKind ?? LatticeKnowledgeEntryKind.Fact).ToString().ToLowerInvariant()}: {utterance.Meaning}");
+                    break;
+
+                case LatticeUtteranceResultKind.TaskCompleted:
+                    standardOutput.WriteLine(utterance.Message ?? string.Empty);
                     break;
 
                 case LatticeUtteranceResultKind.QuestionAnswered:
@@ -63,10 +68,10 @@ internal static class CliTextFormatter
 
     private static void WriteEvidenceGroup(
         string heading,
-        IReadOnlyList<LatticeEvidence> evidence,
+        ImmutableArray<LatticeEvidence> evidence,
         TextWriter output)
     {
-        if (evidence.Count == 0)
+        if (evidence.IsDefaultOrEmpty)
         {
             return;
         }
@@ -84,7 +89,9 @@ internal static class CliTextFormatter
 
     private static IEnumerable<string> GetSources(LatticeEvidence evidence)
     {
-        foreach (var premise in evidence.Premises)
+        foreach (var premise in evidence.Premises.IsDefault
+            ? ImmutableArray<LatticeEvidence>.Empty
+            : evidence.Premises)
         {
             foreach (var source in GetSources(premise))
             {
@@ -92,7 +99,9 @@ internal static class CliTextFormatter
             }
         }
 
-        foreach (var source in evidence.Sources)
+        foreach (var source in evidence.Sources.IsDefault
+            ? ImmutableArray<LatticeEvidenceSource>.Empty
+            : evidence.Sources)
         {
             var origin = source.Kind == LatticeKnowledgeSourceKind.UserAssertion
                 ? string.Empty
