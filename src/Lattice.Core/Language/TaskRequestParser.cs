@@ -58,6 +58,11 @@ internal static class TaskRequestParser
     {
         utterance = null;
 
+        if (TryParseBlenderScript(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
         if (TryParseHobbyExploration(source, sourceText, out utterance))
         {
             return true;
