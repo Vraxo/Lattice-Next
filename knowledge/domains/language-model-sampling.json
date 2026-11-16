@@ -106,11 +106,6 @@
       "partOfSpeech": "noun"
     },
     {
-      "form": "top p",
-      "concept": "llm-top-p",
-      "partOfSpeech": "noun"
-    },
-    {
       "form": "nucleus sampling",
       "concept": "llm-top-p",
       "partOfSpeech": "noun"
