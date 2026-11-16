@@ -23,7 +23,9 @@ internal static class TaskRequestResponder
         {
             TaskRequestAction.Write => TryWrite(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Recommend => TryRecommend(request, model, reasoner, out message, out evidence),
-            TaskRequestAction.Plan => TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Plan => request.OutputFormat == "learning-path"
+                ? TryPlanLearningPath(request, model, reasoner, out message, out evidence)
+                : TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explain => TryExplainOperation(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Brainstorm => TryBrainstormUses(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
@@ -393,6 +395,100 @@ internal static class TaskRequestResponder
                 .DistinctBy(source => source.SourceId)
                 .Select(ToEvidenceSource)
                 .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    private static bool TryPlanLearningPath(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (request.Subject != "search-engine-optimization" ||
+            request.OutputFormat != "learning-path" ||
+            request.Context is null ||
+            !request.Context.Contains("webpage", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var skill = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        if (skill is null)
+        {
+            return false;
+        }
+
+        var steps = reasoner.GetRelations(skill.Id, "seo-has-learning-step")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Step = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Step is not null)
+            .Select(item => new
+            {
+                item.Assertion,
+                Step = item.Step!,
+                Number = model.GetDataAssertions(item.Step!.Id, "learning-step-number").FirstOrDefault()?.Value
+            })
+            .Select(item => int.TryParse(
+                item.Number,
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var number)
+                    ? new { item.Assertion, item.Step, Number = number }
+                    : null)
+            .Where(item => item is not null)
+            .OrderBy(item => item!.Number)
+            .ToArray();
+
+        if (steps.Length == 0)
+        {
+            return false;
+        }
+
+        var paragraphs = new List<string>
+        {
+            "A practical way to learn search-engine optimization (SEO) is to work through your own webpage in stages. Start by understanding how search engines discover and index pages; then improve relevance, usability, and measurement."
+        };
+        var sources = new List<SemanticWorldModelSource>(
+            reasoner.GetMembershipEvidence(skill.Id, "digital-marketing-practice"));
+
+        foreach (var item in steps)
+        {
+            var focusAssertion = reasoner.GetRelations(item!.Step.Id, "step-focuses-on").FirstOrDefault();
+            var practiceAssertion = reasoner.GetRelations(item.Step.Id, "step-has-practice").FirstOrDefault();
+            var focus = focusAssertion is null
+                ? null
+                : model.FindConcept(focusAssertion.Object, SemanticConceptKind.Individual);
+            var practice = practiceAssertion is null
+                ? null
+                : model.FindConcept(practiceAssertion.Object, SemanticConceptKind.Individual);
+
+            if (focus is null || practice is null)
+            {
+                return false;
+            }
+
+            paragraphs.Add($"**{item.Number}. {item.Step.Label}:** Learn about {focus.Label}. Practice: {EnsureSentenceEnding(practice.Label)}");
+            sources.Add(item.Assertion.Source);
+            sources.Add(focusAssertion!.Source);
+            sources.Add(practiceAssertion!.Source);
+            sources.AddRange(model.GetDataAssertions(item.Step.Id, "learning-step-number")
+                .Select(assertion => assertion.Source));
+        }
+
+        paragraphs.Add("Use a free search-engine webmaster tool to inspect indexing and search performance. Change one thing at a time, then compare impressions, clicks, and relevant queries over several weeks. Avoid shortcuts such as keyword stuffing or buying links; aim to make the page genuinely useful to the people searching for it.");
+        message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources.DistinctBy(source => source.SourceId).Select(ToEvidenceSource).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty));
         return true;
     }
