@@ -320,7 +320,7 @@ internal static class TaskRequestParser
         var formula = new TaskRequestFormula(
             TaskRequestAction.Plan,
             supportsSeo ? "search-engine-optimization" : "unsupported-learning-path",
-            target,
+            supportsSeo ? "webpage" : target,
             "learning-path",
             null,
             ImmutableArray.Create("beginner", "practical-exercises"));
