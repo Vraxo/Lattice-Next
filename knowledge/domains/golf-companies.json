@@ -156,6 +156,11 @@
       "object": "sport"
     },
     {
+      "subject": "golf-equipment-company",
+      "relation": "is-a",
+      "object": "company"
+    },
+    {
       "subject": "golf-sport-example",
       "relation": "instance-of",
       "object": "golf"
