@@ -57,6 +57,7 @@ The current expression language does not support universal restrictions, negatio
 - `family-matters-characters.json`: Steve Urkel, the Winslow family, Family Matters, and their typed neighbor and character relations.
 - `georgia-film-production.json`: Georgia's film-production incentives, workforce, infrastructure, filming locations, climate, costs, and local support.
 - `transportation-classification.json`: useful and unsuitable objects for transportation.
+- `astrophotography-hobby.json`: beginner astrophotography activities, their goals, equipment, skill levels, and a core optical-safety warning.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
