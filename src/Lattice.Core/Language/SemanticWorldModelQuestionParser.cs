@@ -9,7 +9,7 @@ namespace Lattice.Core.Language;
 internal static class SemanticWorldModelQuestionParser
 {
     private static readonly Regex ChargedParticleAccelerationPattern = new(
-        @"^A (?<particle>[A-Za-z][A-Za-z -]*?) moving at a speed of (?<speed>[0-9]+(?:\.[0-9]+)?(?:\s*(?:[×x]\s*10\^[+-]?[0-9]+|[eE][+-]?[0-9]+))?)\s*m/s is accelerated by a potential difference of (?<potential>[+\-−]?[0-9]+(?:\.[0-9]+)?)\s*V\.?\s*Calculate its final speed\.?$",
+        @"^A (?<particle>[A-Za-z][A-Za-z -]*?) moving at (?:a speed of )?(?<speed>[0-9]+(?:\.[0-9]+)?(?:\s*(?:[×x]\s*10\^[+-]?[0-9]+|[eE][+-]?[0-9]+))?)\s*m/s is accelerated by a potential difference of (?<potential>[+\-−‐‑–—]?[0-9]+(?:\.[0-9]+)?)\s*V(?:\s*,?\s*what is its final (?:speed|velocity)\??|\s*\.?\s*Calculate its final speed\.?)$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex SamplingParametersPattern = new(
@@ -149,7 +149,7 @@ internal static class SemanticWorldModelQuestionParser
         if (chargedParticleAcceleration.Success &&
             TryParseScientificNumber(chargedParticleAcceleration.Groups["speed"].Value, out var initialSpeed) &&
             decimal.TryParse(
-                chargedParticleAcceleration.Groups["potential"].Value.Replace('−', '-'),
+                chargedParticleAcceleration.Groups["potential"].Value.Replace('−', '-').Replace('‐', '-').Replace('‑', '-').Replace('–', '-').Replace('—', '-'),
                 NumberStyles.Float,
                 CultureInfo.InvariantCulture,
                 out var potentialDifference))
