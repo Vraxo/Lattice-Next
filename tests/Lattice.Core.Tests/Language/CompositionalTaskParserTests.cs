@@ -55,4 +55,13 @@ public sealed class CompositionalTaskParserTests
         Assert.False(result.IsSuccess);
     }
 
+    [Fact]
+    public void Does_not_treat_a_python_mention_inside_the_requested_output_as_the_language()
+    {
+        var result = new LceParser().ParseText(
+            "Create a script that prints 'Python'.");
+
+        Assert.False(result.IsSuccess);
+    }
+
 }
