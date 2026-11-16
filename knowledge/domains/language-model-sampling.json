@@ -80,7 +80,7 @@
     },
     {
       "id": "llm-retained-probability-distribution",
-      "label": "a renormalized distribution of retained tokens",
+      "label": "a new probability distribution",
       "kind": "Individual"
     },
     {
