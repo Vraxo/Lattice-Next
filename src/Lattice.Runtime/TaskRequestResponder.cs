@@ -309,8 +309,8 @@ internal static class TaskRequestResponder
             $"The training objective encourages embeddings from positive pairs to become more similar and embeddings from negative pairs to become less similar. In other words, the model learns what should count as alike or different in the data."
         };
 
-        var positivePairRole = reasoner.GetRelations(positivePair.Id, "pair-has-role").FirstOrDefault();
-        var negativePairRole = reasoner.GetRelations(negativePair.Id, "pair-has-role").FirstOrDefault();
+        var positivePairRole = reasoner.GetRelations(positiveExamplePair.Id, "pair-has-role").FirstOrDefault();
+        var negativePairRole = reasoner.GetRelations(negativeExamplePair.Id, "pair-has-role").FirstOrDefault();
         var positiveRole = positivePairRole is null ? null : model.FindConcept(positivePairRole.Object, SemanticConceptKind.Individual);
         var negativeRole = negativePairRole is null ? null : model.FindConcept(negativePairRole.Object, SemanticConceptKind.Individual);
         if (positiveRole is null || negativeRole is null)
@@ -341,8 +341,8 @@ internal static class TaskRequestResponder
         sources.AddRange(exampleAssertions.Select(assertion => assertion.Source));
         sources.AddRange(applicationAssertions.Select(assertion => assertion.Source));
         sources.AddRange(pairAssertions.Select(assertion => assertion.Source));
-        sources.AddRange(reasoner.GetRelations(positivePair.Id, "pair-has-role").Select(assertion => assertion.Source));
-        sources.AddRange(reasoner.GetRelations(negativePair.Id, "pair-has-role").Select(assertion => assertion.Source));
+        sources.AddRange(reasoner.GetRelations(positiveExamplePair.Id, "pair-has-role").Select(assertion => assertion.Source));
+        sources.AddRange(reasoner.GetRelations(negativeExamplePair.Id, "pair-has-role").Select(assertion => assertion.Source));
         sources.AddRange(positiveEffect.Select(assertion => assertion.Source));
         sources.AddRange(negativeEffect.Select(assertion => assertion.Source));
         sources.AddRange(examplePositive.Select(assertion => assertion.Source));
