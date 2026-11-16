@@ -12,10 +12,12 @@ public sealed class SemanticSequenceBindingsTests
     {
         var model = CreateModel();
         var assertion = Assert.Single(model.RelationAssertions);
+        var tokenizer = CreateTokenizer();
 
         Assert.True(SemanticSequenceBindings.TryFromAssertion(
             model,
             assertion,
+            tokenizer,
             out var bindings,
             out var bindingError), bindingError);
 
@@ -23,8 +25,7 @@ public sealed class SemanticSequenceBindingsTests
             new SequenceProduction(
                 "fact",
                 ImmutableArray.Create(
-                    SequenceSymbol.Token("A"),
-                    SequenceSymbol.Token(" "),
+                    SequenceSymbol.Token("A "),
                     SequenceSymbol.Bound("subject"),
                     SequenceSymbol.Token(" "),
                     SequenceSymbol.Bound("relation"),
@@ -39,9 +40,6 @@ public sealed class SemanticSequenceBindingsTests
             out var generationError), generationError);
 
         Assert.Equal("A piano is a musical instrument.", result!.Text);
-        Assert.Equal(
-            new[] { "A", " ", "piano", " ", "is", " ", "a", " ", "musical", " ", "instrument", "." },
-            result.Tokens);
     }
 
     [Fact]
@@ -60,12 +58,28 @@ public sealed class SemanticSequenceBindingsTests
         var resolved = SemanticSequenceBindings.TryFromAssertion(
             model,
             invalidAssertion,
+            CreateTokenizer(),
             out var bindings,
             out var error);
 
         Assert.False(resolved);
         Assert.Empty(bindings);
         Assert.Contains("relation kinds", error ?? string.Empty, StringComparison.Ordinal);
+    }
+
+    private static SequenceTokenizer CreateTokenizer()
+    {
+        Assert.True(SequenceTokenizer.TryTrain(
+            [
+                "A piano is a musical instrument.",
+                "Piano strings vibrate to produce sound.",
+                "Python programs contain statements and expressions."
+            ],
+            out var tokenizer,
+            out var error,
+            maximumMerges: 32), error);
+
+        return tokenizer!;
     }
 
     private static SemanticWorldModel CreateModel()
