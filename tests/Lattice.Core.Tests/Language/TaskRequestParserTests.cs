@@ -95,4 +95,23 @@ public sealed class TaskRequestParserTests
             request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
+    [Fact]
+    public void Parses_a_natural_language_hobby_exploration_request()
+    {
+        const string input = "I want to start doing astrophotography as a hobby, any suggestions what could i do?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
+        Assert.Equal(TaskRequestAction.Explore, request.Action);
+        Assert.Equal("astrophotography", request.Subject);
+        Assert.Equal("hobby", request.Context);
+        Assert.Equal("starter-activities", request.OutputFormat);
+        Assert.Empty(request.Requirements);
+        Assert.Equal(input, utterance.SourceText);
+    }
 }
