@@ -14,22 +14,41 @@ public sealed class SequenceGrammarLoaderTests
               "head": "english-sentence",
               "weight": 0,
               "expansion": [
-                { "kind": "terminal", "value": "A " },
+                { "kind": "nonterminal", "value": "english-clause" },
+                { "kind": "terminal", "value": "." }
+              ]
+            },
+            {
+              "head": "english-clause",
+              "expansion": [
+                { "kind": "terminal", "value": "A" },
+                { "kind": "terminal", "value": " " },
                 { "kind": "binding", "value": "subject" },
                 { "kind": "terminal", "value": " " },
                 { "kind": "binding", "value": "predicate" },
                 { "kind": "terminal", "value": " " },
-                { "kind": "binding", "value": "object" },
-                { "kind": "terminal", "value": "." }
+                { "kind": "binding", "value": "object" }
               ]
             },
             {
               "head": "python-call-expression",
               "expansion": [
+                { "kind": "nonterminal", "value": "python-call" }
+              ]
+            },
+            {
+              "head": "python-call",
+              "expansion": [
                 { "kind": "binding", "value": "callable" },
                 { "kind": "terminal", "value": "(" },
-                { "kind": "binding", "value": "argument" },
+                { "kind": "nonterminal", "value": "python-arguments" },
                 { "kind": "terminal", "value": ")" }
+              ]
+            },
+            {
+              "head": "python-arguments",
+              "expansion": [
+                { "kind": "binding", "value": "argument" }
               ]
             }
           ]
