@@ -1808,7 +1808,11 @@ internal static class SemanticWorldModelResponder
         string itemType)
     {
         var categoryPhrase = category.Replace('-', ' ');
-        var itemNames = JoinNames(items.Select(Capitalize).ToArray());
+        var itemNames = Capitalize(JoinNames(items
+            .Select(item => item.Length == 0
+                ? item
+                : $"{char.ToLowerInvariant(item[0])}{item[1..]}")
+            .ToArray()));
 
         if (itemType.StartsWith("thing-for-", StringComparison.Ordinal))
         {
