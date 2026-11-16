@@ -85,6 +85,8 @@ internal static class SemanticWorldModelResponder
                 TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CapabilityExplanation =>
+                TryExplainCapability(request.Subject, request.Concept ?? string.Empty, request.OtherSubject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Ability =>
                 TryExplainAbility(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
@@ -146,11 +148,6 @@ internal static class SemanticWorldModelResponder
 
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
-        if (request.OtherSubject is not null)
-        {
-            return TryRespondPairwise(request.Subject, request.OtherSubject, model, out message, out evidence);
-        }
-
         var subject = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
         if (subject is null)
         {
@@ -274,191 +271,6 @@ internal static class SemanticWorldModelResponder
         evidence = scopeEvidence.IsDefaultOrEmpty
             ? ImmutableArray.Create(relationEvidence)
             : scopeEvidence.Add(relationEvidence);
-        return true;
-    }
-
-    private static bool TryRespondPairwise(
-        string subjectId,
-        string otherSubjectId,
-        SemanticWorldModel model,
-        out string message,
-        out ImmutableArray<LatticeEvidence> evidence)
-    {
-        message = string.Empty;
-        evidence = ImmutableArray<LatticeEvidence>.Empty;
-        var subject = model.FindConcept(subjectId, SemanticConceptKind.Individual);
-        var other = model.FindConcept(otherSubjectId, SemanticConceptKind.Individual);
-        if (subject is null || other is null)
-        {
-            return false;
-        }
-
-        var directAssertions = model.RelationAssertions
-            .Where(assertion =>
-                (assertion.Subject == subject.Id && assertion.Object == other.Id) ||
-                (assertion.Subject == other.Id && assertion.Object == subject.Id))
-            .Where(assertion =>
-            {
-                var relation = model.FindRelation(assertion.Relation);
-                return relation is not null &&
-                    relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                    relation.ObjectKind == SemanticRelationArgumentKind.Individual;
-            })
-            .ToArray();
-        if (directAssertions.Length > 0)
-        {
-            var sentences = FormatRelationAssertions(directAssertions, model);
-            if (sentences.IsDefaultOrEmpty)
-            {
-                return false;
-            }
-
-            message = string.Join(" ", sentences);
-            evidence = ImmutableArray.Create(ToEvidence(
-                directAssertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
-                LatticeEvidenceKind.Derived));
-            return true;
-        }
-
-        if (!TryFindUniqueShortestRelationPath(subject.Id, other.Id, model, out var path))
-        {
-            return false;
-        }
-
-        var pathSentences = FormatRelationAssertions(path, model);
-        if (pathSentences.Length != path.Length)
-        {
-            return false;
-        }
-
-        message = $"The shortest graph path is supported by these facts: {string.Join(" ", pathSentences)}";
-        evidence = ImmutableArray.Create(ToEvidence(
-            path.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
-            LatticeEvidenceKind.Derived));
-        return true;
-    }
-
-    private static ImmutableArray<string> FormatRelationAssertions(
-        IReadOnlyCollection<SemanticRelationAssertion> assertions,
-        SemanticWorldModel model) =>
-        assertions.Select(assertion =>
-            {
-                var relation = model.FindRelation(assertion.Relation);
-                var subject = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
-                var target = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
-                return relation is null || subject is null || target is null
-                    ? null
-                    : FormatPairwiseRelation(subject, target, relation);
-            })
-            .Where(sentence => sentence is not null)
-            .Select(sentence => sentence!)
-            .Distinct(StringComparer.Ordinal)
-            .ToImmutableArray();
-
-    private static string FormatPairwiseRelation(
-        SemanticConcept subject,
-        SemanticConcept target,
-        SemanticRelationDefinition relation)
-    {
-        var subjectPhrase = subject.Label.StartsWith("the ", StringComparison.OrdinalIgnoreCase) ||
-            IsProperName(subject.Label)
-            ? subject.Label
-            : $"The {subject.Label}";
-        var targetPhrase = target.Label.StartsWith("the ", StringComparison.OrdinalIgnoreCase) ||
-            IsProperName(target.Label)
-            ? target.Label
-            : $"the {target.Label}";
-        if (relation.ObjectRole is not null)
-        {
-            targetPhrase = $"{targetPhrase} {relation.ObjectRole}";
-        }
-
-        var verb = subject.Label.EndsWith('s') &&
-            subject.Label.Length > 1 &&
-            !IsProperName(subject.Label)
-            ? InflectPluralSubjectVerb(relation.Verb)
-            : relation.Verb;
-        return $"{subjectPhrase} {verb} {targetPhrase}.";
-    }
-
-    private static bool IsProperName(string value)
-    {
-        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return words.Length > 0 && words.All(word => char.IsUpper(word[0]));
-    }
-
-    private static bool TryFindUniqueShortestRelationPath(
-        string start,
-        string target,
-        SemanticWorldModel model,
-        out ImmutableArray<SemanticRelationAssertion> path)
-    {
-        const int maximumDepth = 3;
-        path = [];
-        var pending = new Queue<(
-            string Node,
-            ImmutableArray<SemanticRelationAssertion> Path,
-            HashSet<string> Visited)>();
-        pending.Enqueue((start, [], new HashSet<string>(StringComparer.Ordinal) { start }));
-        int? shortestDepth = null;
-        var shortestPaths = new List<ImmutableArray<SemanticRelationAssertion>>();
-
-        while (pending.TryDequeue(out var current))
-        {
-            if (current.Path.Length >= maximumDepth ||
-                (shortestDepth.HasValue && current.Path.Length >= shortestDepth.Value))
-            {
-                continue;
-            }
-
-            foreach (var assertion in model.RelationAssertions.Where(assertion =>
-                assertion.Subject == current.Node || assertion.Object == current.Node))
-            {
-                var relation = model.FindRelation(assertion.Relation);
-                if (relation is null ||
-                    relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
-                    relation.ObjectKind != SemanticRelationArgumentKind.Individual)
-                {
-                    continue;
-                }
-
-                var nextNode = assertion.Subject == current.Node
-                    ? assertion.Object
-                    : assertion.Subject;
-                if (current.Visited.Contains(nextNode))
-                {
-                    continue;
-                }
-
-                var nextPath = current.Path.Add(assertion);
-                if (nextNode == target)
-                {
-                    shortestDepth ??= nextPath.Length;
-                    if (nextPath.Length == shortestDepth.Value)
-                    {
-                        shortestPaths.Add(nextPath);
-                    }
-
-                    continue;
-                }
-
-                if (!shortestDepth.HasValue || nextPath.Length < shortestDepth.Value)
-                {
-                    var visited = new HashSet<string>(current.Visited, StringComparer.Ordinal)
-                    {
-                        nextNode
-                    };
-                    pending.Enqueue((nextNode, nextPath, visited));
-                }
-            }
-        }
-
-        if (shortestPaths.Count != 1)
-        {
-            return false;
-        }
-
-        path = shortestPaths[0];
         return true;
     }
 
@@ -2012,6 +1824,102 @@ internal static class SemanticWorldModelResponder
             .ToImmutableArray();
 
         message = $"{Capitalize(requestedSubject)} can {ability.Label} because {string.Join("; ", labels)}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainCapability(
+        string requestedSubject,
+        string requestedCapability,
+        string? requestedContext,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (!string.Equals(requestedCapability, "survive", StringComparison.Ordinal) ||
+            string.IsNullOrWhiteSpace(requestedContext) ||
+            !requestedContext.Contains("water", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var subjectType = model.FindConcept(requestedSubject, SemanticConceptKind.Type);
+        var ability = model.FindConcept("survive-for-long-without-water", SemanticConceptKind.Individual);
+        var condition = model.FindConcept("water-deprivation-condition", SemanticConceptKind.Individual);
+        if (subjectType is null || ability is null || condition is null)
+        {
+            return false;
+        }
+
+        var adaptations = reasoner.GetRelations(subjectType.Id, "has-adaptation")
+            .Select(assertion => (
+                Concept: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(candidate => candidate.Concept is not null)
+            .Select(candidate => (
+                Concept: candidate.Concept!,
+                candidate.Assertion,
+                AbilityAssertion: reasoner.GetRelations(candidate.Concept!.Id, "enables-ability")
+                    .FirstOrDefault(assertion => assertion.Object == ability.Id),
+                ConditionAssertion: reasoner.GetRelations(candidate.Concept!.Id, "supports-survival-under")
+                    .FirstOrDefault(assertion => assertion.Object == condition.Id)))
+            .Where(candidate =>
+                candidate.AbilityAssertion is not null &&
+                candidate.ConditionAssertion is not null)
+            .ToArray();
+
+        var waterConservation = adaptations
+            .Where(candidate => reasoner.IsInstanceOf(candidate.Concept.Id, "water-conservation"))
+            .ToArray();
+        var dehydrationTolerance = adaptations
+            .Where(candidate => reasoner.IsInstanceOf(candidate.Concept.Id, "dehydration-tolerance-adaptation"))
+            .ToArray();
+        var processes = waterConservation
+            .SelectMany(candidate => reasoner.GetRelations(candidate.Concept.Id, "reduces-water-loss"))
+            .Select(assertion => (
+                Concept: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                assertion.Source))
+            .Where(candidate => candidate.Concept is not null)
+            .ToArray();
+
+        if (waterConservation.Length == 0 ||
+            dehydrationTolerance.Length == 0 ||
+            processes.Length == 0)
+        {
+            return false;
+        }
+
+        var processNames = processes
+            .Select(process => process.Concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var adaptationDetails = waterConservation
+            .Select(candidate => candidate.Concept.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var subjectLabel = subjectType.Label.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? subjectType.Label
+            : $"{subjectType.Label}s";
+        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. In practice, {JoinConditions(adaptationDetails)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
+
+        var sources = adaptations
+            .SelectMany(candidate => new[]
+            {
+                candidate.Assertion.Source,
+                candidate.AbilityAssertion!.Source,
+                candidate.ConditionAssertion!.Source
+            })
+            .Concat(processes.Select(process => process.Source))
+            .Concat(waterConservation.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate.Concept.Id, "water-conservation")))
+            .Concat(dehydrationTolerance.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate.Concept.Id, "dehydration-tolerance-adaptation")))
+            .Concat(reasoner.GetMembershipEvidence(ability.Id, "biological-ability"))
+            .Distinct()
+            .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }

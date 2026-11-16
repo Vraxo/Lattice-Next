@@ -62,6 +62,7 @@ public static class SemanticFormatter
         {
             SemanticWorldModelQuestionKind.Definition => $"world-model-definition({question.Concept})",
             SemanticWorldModelQuestionKind.WhyClassification => $"world-model-why({question.Subject}, {question.Concept})",
+            SemanticWorldModelQuestionKind.CapabilityExplanation => $"world-model-capability-explanation({question.Subject}, {question.Concept}, {question.OtherSubject})",
             SemanticWorldModelQuestionKind.Ability => $"world-model-ability({question.Subject}, {question.Concept})",
             SemanticWorldModelQuestionKind.Mechanism => $"world-model-mechanism({question.Subject})",
             SemanticWorldModelQuestionKind.Causes => $"world-model-causes({question.Subject})",
@@ -92,11 +93,6 @@ public static class SemanticFormatter
 
     private static string FormatRelationQuery(SemanticRelationQueryFormula query)
     {
-        if (query.OtherSubject is not null)
-        {
-            return $"relation-between({query.Subject}, {query.OtherSubject})";
-        }
-
         var scope = query.Scope is null ? string.Empty : $", within({query.Scope})";
         var targetType = query.TargetType is null ? string.Empty : $", target-type({query.TargetType})";
         return $"relation-targets({query.Subject}, {query.Verb}{scope}{targetType})";
