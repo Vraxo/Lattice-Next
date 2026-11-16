@@ -61,11 +61,6 @@ internal static class TaskRequestParser
         if (TryParseHobbyExploration(source, sourceText, out utterance))
         {
             return true;
-        } 
-
-        if (TryParseBlenderScript(source, sourceText, out utterance))
-        {
-            return true;
         }
 
         if (TryParseBrainstormUses(source, sourceText, out utterance))
@@ -101,7 +96,7 @@ internal static class TaskRequestParser
         return TryParseRecommendationRequest(source, sourceText, out utterance);
     }
 
-    private static bool TryParseHobbyExploration( 
+
     private static bool TryParseBlenderScript(
         string source,
         string sourceText,
@@ -136,7 +131,7 @@ internal static class TaskRequestParser
         return true;
     }
 
-
+    private static bool TryParseHobbyExploration(
         string source,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -225,7 +220,7 @@ internal static class TaskRequestParser
         return true;
     }
 
-    private static bool TryParseOperationExplanation( 
+
     private static bool TryParseConceptExplanation(
         string source,
         string sourceText,
@@ -267,7 +262,7 @@ internal static class TaskRequestParser
         return true;
     }
 
-
+    private static bool TryParseOperationExplanation(
         string source,
         string sourceText,
         out SemanticUtterance? utterance)
@@ -300,7 +295,7 @@ internal static class TaskRequestParser
         return true;
     }
 
-    private static bool TryParseRoadTripPlan( 
+
     private static bool TryParseLearningPath(
         string source,
         string sourceText,
@@ -332,7 +327,7 @@ internal static class TaskRequestParser
         return true;
     }
 
-
+    private static bool TryParseRoadTripPlan(
         string source,
         string sourceText,
         out SemanticUtterance? utterance)
