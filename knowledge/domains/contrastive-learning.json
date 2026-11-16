@@ -94,6 +94,16 @@
       "kind": "Individual"
     },
     {
+      "id": "two-augmented-views-of-photograph",
+      "label": "two augmented views of one photograph",
+      "kind": "Individual"
+    },
+    {
+      "id": "different-subject-photograph",
+      "label": "a photograph of a different subject",
+      "kind": "Individual"
+    },
+    {
       "id": "different-image",
       "label": "a photograph of a different subject",
       "kind": "Individual"
@@ -439,16 +449,6 @@
       "object": "two-views-of-one-image"
     },
     {
-      "subject": "two-views-of-one-image",
-      "relation": "example-demonstrates-positive-pair",
-      "object": "positive-pair"
-    },
-    {
-      "subject": "two-views-of-one-image",
-      "relation": "example-demonstrates-negative-pair",
-      "object": "negative-pair"
-    },
-    {
       "subject": "contrastive-learning",
       "relation": "method-used-for",
       "object": "image-retrieval"
@@ -457,6 +457,36 @@
       "subject": "contrastive-learning",
       "relation": "method-used-for",
       "object": "image-classification"
+    },
+    {
+      "subject": "two-augmented-views-of-photograph",
+      "relation": "instance-of",
+      "object": "training-pair"
+    },
+    {
+      "subject": "different-subject-photograph",
+      "relation": "instance-of",
+      "object": "training-pair"
+    },
+    {
+      "subject": "two-views-of-one-image",
+      "relation": "example-demonstrates-positive-pair",
+      "object": "two-augmented-views-of-photograph"
+    },
+    {
+      "subject": "two-views-of-one-image",
+      "relation": "example-demonstrates-negative-pair",
+      "object": "different-subject-photograph"
+    },
+    {
+      "subject": "two-augmented-views-of-photograph",
+      "relation": "pair-has-role",
+      "object": "same-underlying-item"
+    },
+    {
+      "subject": "different-subject-photograph",
+      "relation": "pair-has-role",
+      "object": "different-underlying-items"
     }
   ],
   "dataProperties": [],
