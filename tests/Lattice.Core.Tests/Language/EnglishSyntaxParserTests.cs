@@ -79,7 +79,7 @@ public sealed class EnglishSyntaxParserTests
 
         Assert.Equal(2, syntax!.Clauses.Length);
         Assert.Equal("like", syntax.Clauses[0].Verb);
-        Assert.Equal("fido", syntax.Clauses[0].Subject!.Head);
+        Assert.Equal("Fido", syntax.Clauses[0].Subject!.Head);
         Assert.Equal(EnglishClauseKind.Coordinated, syntax.Clauses[1].Kind);
         Assert.Equal("eat", syntax.Clauses[1].Verb);
         Assert.Equal(EnglishSubjectBinding.PreviousClause, syntax.Clauses[1].SubjectBinding);
