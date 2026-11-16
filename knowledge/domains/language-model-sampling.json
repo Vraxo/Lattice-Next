@@ -80,7 +80,7 @@
     },
     {
       "id": "llm-retained-probability-distribution",
-      "label": "renormalized distribution of retained tokens",
+      "label": "a renormalized distribution of retained tokens",
       "kind": "Individual"
     },
     {
@@ -149,6 +149,17 @@
       "domain": "llm-sampling-mechanism",
       "range": "llm-sampling-input",
       "verb": "acts on",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-rescales",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-input",
+      "verb": "rescales",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
@@ -345,7 +356,7 @@
     },
     {
       "subject": "llm-logit-scaling",
-      "relation": "llm-method-acts-on",
+      "relation": "llm-method-rescales",
       "object": "llm-next-token-logits"
     },
     {
