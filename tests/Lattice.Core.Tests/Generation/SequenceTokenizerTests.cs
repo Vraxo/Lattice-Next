@@ -49,6 +49,17 @@ public sealed class SequenceTokenizerTests
             out var secondEncoding,
             out var secondError), secondError);
         Assert.Equal(firstEncoding, secondEncoding);
+
+        const string unseenText = "if object.location.x < 0:\n    print('π 🐈')";
+        Assert.True(tokenizer.TryTokenize(
+            unseenText,
+            out var unseenTokens,
+            out var unseenError), unseenError);
+        Assert.True(SequenceTokenizer.TryDecode(
+            unseenTokens,
+            out var unseenDecoded,
+            out var unseenDecodeError), unseenDecodeError);
+        Assert.Equal(unseenText, unseenDecoded);
     }
 
     [Fact]
