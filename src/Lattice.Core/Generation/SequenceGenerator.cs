@@ -33,7 +33,8 @@ public sealed record SequenceGenerationRequest(
     ImmutableDictionary<string, ImmutableArray<string>> Bindings,
     int BeamWidth = 8,
     int MaxSteps = 2048,
-    int MaxTokens = 512);
+    int MaxTokens = 512,
+    SequenceTokenModel? TokenModel = null);
 
 public sealed record SequenceGenerationResult(
     ImmutableArray<string> Tokens,
@@ -165,11 +166,10 @@ public static class SequenceGenerator
                             continue;
                         }
 
-                        next.Add(state with
-                        {
-                            Pending = remainder,
-                            Tokens = state.Tokens.Add(current.Value)
-                        });
+                        next.Add(AppendTokens(
+                            state with { Pending = remainder },
+                            [current.Value],
+                            request.TokenModel));
                         break;
 
                     case SequenceSymbolKind.Binding:
@@ -186,11 +186,10 @@ public static class SequenceGenerator
                             continue;
                         }
 
-                        next.Add(state with
-                        {
-                            Pending = remainder,
-                            Tokens = state.Tokens.AddRange(boundTokens)
-                        });
+                        next.Add(AppendTokens(
+                            state with { Pending = remainder },
+                            boundTokens,
+                            request.TokenModel));
                         break;
 
                     case SequenceSymbolKind.Nonterminal:
@@ -265,6 +264,31 @@ public static class SequenceGenerator
             best.Score,
             searchLimitReached);
         return true;
+    }
+
+    private static SequenceGenerationState AppendTokens(
+        SequenceGenerationState state,
+        ImmutableArray<string> tokens,
+        SequenceTokenModel? tokenModel)
+    {
+        var emitted = state.Tokens;
+        var score = state.Score;
+
+        foreach (var token in tokens)
+        {
+            if (tokenModel is not null)
+            {
+                score += tokenModel.GetLogScore(emitted, token);
+            }
+
+            emitted = emitted.Add(token);
+        }
+
+        return state with
+        {
+            Tokens = emitted,
+            Score = score
+        };
     }
 
     private static bool IsValidSymbol(SequenceSymbol? symbol)
