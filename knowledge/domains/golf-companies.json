@@ -129,6 +129,24 @@
         "relation": "makes-equipment-for",
         "targetType": "golf"
       }
+    },
+    {
+      "concept": "company",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sport",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "golf",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
     }
   ],
   "relationAssertions": [
