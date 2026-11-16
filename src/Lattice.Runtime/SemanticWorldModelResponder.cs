@@ -544,12 +544,6 @@ internal static class SemanticWorldModelResponder
             : $"{value}s";
     }
 
-    private static bool IsProperName(string value)
-    {
-        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return words.Length > 0 && words.All(word => char.IsUpper(word[0]));
-    }
-
     private static bool MatchesVerb(string relationVerb, string requestedVerb)
     {
         var relationHead = relationVerb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];

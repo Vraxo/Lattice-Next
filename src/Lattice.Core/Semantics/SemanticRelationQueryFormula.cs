@@ -7,4 +7,5 @@ public sealed record SemanticRelationQueryFormula(
     string Subject,
     string Verb,
     string? Scope = null,
-    string? TargetType = null) : SemanticFormula;
+    string? TargetType = null,
+    string? OtherSubject = null) : SemanticFormula;
