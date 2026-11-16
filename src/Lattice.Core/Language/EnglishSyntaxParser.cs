@@ -151,16 +151,18 @@ internal static class EnglishSyntaxParser
 
     private static bool TryGetBaseVerb(string value, out string baseVerb)
     {
-        if (AdditionalVerbs.Contains(value))
+        foreach (var candidate in AdditionalVerbs)
         {
-            baseVerb = value.ToLowerInvariant();
-            return true;
+            if (MatchesVerbForm(value, candidate))
+            {
+                baseVerb = candidate;
+                return true;
+            }
         }
 
         foreach (var candidate in EnglishLexicon.BaseRelationVerbs)
         {
-            if (value.Equals(candidate, StringComparison.OrdinalIgnoreCase) ||
-                value.Equals(EnglishMorphology.InflectThirdPersonSingular(candidate), StringComparison.OrdinalIgnoreCase))
+            if (MatchesVerbForm(value, candidate))
             {
                 baseVerb = candidate;
                 return true;
@@ -169,6 +171,21 @@ internal static class EnglishSyntaxParser
 
         baseVerb = string.Empty;
         return false;
+    }
+
+    private static bool MatchesVerbForm(string value, string baseVerb)
+    {
+        if (value.Equals(baseVerb, StringComparison.OrdinalIgnoreCase) ||
+            value.Equals(EnglishMorphology.InflectThirdPersonSingular(baseVerb), StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var gerund = baseVerb.EndsWith("e", StringComparison.OrdinalIgnoreCase)
+            ? $"{baseVerb[..^1]}ing"
+            : $"{baseVerb}ing";
+
+        return value.Equals(gerund, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetBaseVerb(string value) =>
