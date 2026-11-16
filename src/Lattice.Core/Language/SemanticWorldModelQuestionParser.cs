@@ -463,7 +463,8 @@ internal static class SemanticWorldModelQuestionParser
 
         var capabilityExplanation = CapabilityExplanationPattern.Match(text);
         if (capabilityExplanation.Success &&
-            string.Equals(capabilityExplanation.Groups["verb"].Value, "survive", StringComparison.OrdinalIgnoreCase))
+            string.Equals(capabilityExplanation.Groups["verb"].Value, "survive", StringComparison.OrdinalIgnoreCase) &&
+            capabilityExplanation.Groups["context"].Value.Contains("water", StringComparison.OrdinalIgnoreCase))
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.CapabilityExplanation,

@@ -923,10 +923,11 @@ public sealed class LatticeRuntimeSessionTests
 
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
-        Assert.Contains("water-conservation adaptation limits water loss", answer.Message);
+        Assert.Contains("water-conservation adaptations limit water loss", answer.Message);
         Assert.Contains("urine concentration", answer.Message);
         Assert.Contains("reduced fecal water loss", answer.Message);
         Assert.Contains("nasal water recovery", answer.Message);
+        Assert.Contains("highly concentrated urine", answer.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("dehydration-tolerance adaptation", answer.Message);
         Assert.Contains(
             answer.SupportingEvidence,
