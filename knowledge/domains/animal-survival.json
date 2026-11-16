@@ -3,21 +3,123 @@
   "id": "core-animal-survival",
   "name": "Animal survival adaptations",
   "concepts": [
-    { "id": "camel", "label": "camel", "kind": "Type" },
-    { "id": "biological-ability", "label": "biological ability", "kind": "Type" },
-    { "id": "survival-adaptation", "label": "survival adaptation", "kind": "Type" },
-    { "id": "survive-for-long-without-water", "label": "survive for long without water", "kind": "Individual" },
-    { "id": "water-conserving-kidneys", "label": "their kidneys produce highly concentrated urine, reducing water lost in urine", "kind": "Individual" },
-    { "id": "water-extracting-digestive-system", "label": "their intestines reabsorb water, leaving dry feces and reducing water lost in waste", "kind": "Individual" },
-    { "id": "nasal-moisture-recovery", "label": "their nasal passages recover moisture from exhaled air before it is lost", "kind": "Individual" },
-    { "id": "dehydration-tolerance", "label": "they tolerate dehydration and body-temperature changes, so they need to sweat less", "kind": "Individual" }
+    {
+      "id": "camel",
+      "label": "camel",
+      "kind": "Type"
+    },
+    {
+      "id": "biological-ability",
+      "label": "biological ability",
+      "kind": "Type"
+    },
+    {
+      "id": "survival-adaptation",
+      "label": "survival adaptation",
+      "kind": "Type"
+    },
+    {
+      "id": "survive-for-long-without-water",
+      "label": "survive for long without water",
+      "kind": "Individual"
+    },
+    {
+      "id": "water-conserving-kidneys",
+      "label": "their kidneys produce highly concentrated urine, reducing water lost in urine",
+      "kind": "Individual"
+    },
+    {
+      "id": "water-extracting-digestive-system",
+      "label": "their intestines reabsorb water, leaving dry feces and reducing water lost in waste",
+      "kind": "Individual"
+    },
+    {
+      "id": "nasal-moisture-recovery",
+      "label": "their nasal passages recover moisture from exhaled air before it is lost",
+      "kind": "Individual"
+    },
+    {
+      "id": "dehydration-tolerance",
+      "label": "they tolerate dehydration and body-temperature changes, so they need to sweat less",
+      "kind": "Individual"
+    },
+    {
+      "id": "condition",
+      "label": "condition",
+      "kind": "Type"
+    },
+    {
+      "id": "water-deprivation",
+      "label": "water deprivation",
+      "kind": "Type"
+    },
+    {
+      "id": "water-deprivation-condition",
+      "label": "water deprivation condition",
+      "kind": "Individual"
+    },
+    {
+      "id": "water-conservation",
+      "label": "water conservation",
+      "kind": "Type"
+    },
+    {
+      "id": "dehydration-tolerance-adaptation",
+      "label": "dehydration tolerance adaptation",
+      "kind": "Type"
+    },
+    {
+      "id": "water-loss-reduction-process",
+      "label": "water-loss reduction process",
+      "kind": "Type"
+    },
+    {
+      "id": "urine-concentration",
+      "label": "urine concentration",
+      "kind": "Individual"
+    },
+    {
+      "id": "reduced-fecal-water-loss",
+      "label": "reduced fecal water loss",
+      "kind": "Individual"
+    },
+    {
+      "id": "nasal-water-recovery",
+      "label": "nasal water recovery",
+      "kind": "Individual"
+    }
   ],
   "lexemes": [
-    { "form": "camel", "concept": "camel", "partOfSpeech": "noun" },
-    { "form": "camels", "concept": "camel", "partOfSpeech": "noun" },
-    { "form": "biological ability", "concept": "biological-ability", "partOfSpeech": "noun" },
-    { "form": "survival adaptation", "concept": "survival-adaptation", "partOfSpeech": "noun" },
-    { "form": "survive for long without water", "concept": "survive-for-long-without-water", "partOfSpeech": "verb" }
+    {
+      "form": "camel",
+      "concept": "camel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "camels",
+      "concept": "camel",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "biological ability",
+      "concept": "biological-ability",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "survival adaptation",
+      "concept": "survival-adaptation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "survive for long without water",
+      "concept": "survive-for-long-without-water",
+      "partOfSpeech": "verb"
+    },
+    {
+      "form": "water deprivation",
+      "concept": "water-deprivation",
+      "partOfSpeech": "noun"
+    }
   ],
   "relations": [
     {
@@ -41,27 +143,226 @@
       "comparisonPriority": 0,
       "subjectKind": "Individual",
       "objectKind": "Individual"
+    },
+    {
+      "id": "supports-survival-under",
+      "domain": "survival-adaptation",
+      "range": "condition",
+      "verb": "supports survival under",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "reduces-water-loss",
+      "domain": "water-conservation",
+      "range": "water-loss-reduction-process",
+      "verb": "reduces water loss through",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
     }
   ],
   "definitions": [
-    { "concept": "camel", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
-    { "concept": "biological-ability", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null },
-    { "concept": "survival-adaptation", "definitionKind": "primitive", "necessaryConditions": [], "sufficientExpression": null }
+    {
+      "concept": "camel",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "biological-ability",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "survival-adaptation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "water-deprivation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "water-conservation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dehydration-tolerance-adaptation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "water-loss-reduction-process",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
   ],
   "relationAssertions": [
-    { "subject": "survive-for-long-without-water", "relation": "instance-of", "object": "biological-ability" },
-    { "subject": "water-conserving-kidneys", "relation": "instance-of", "object": "survival-adaptation" },
-    { "subject": "water-extracting-digestive-system", "relation": "instance-of", "object": "survival-adaptation" },
-    { "subject": "nasal-moisture-recovery", "relation": "instance-of", "object": "survival-adaptation" },
-    { "subject": "dehydration-tolerance", "relation": "instance-of", "object": "survival-adaptation" },
-    { "subject": "camel", "relation": "has-adaptation", "object": "water-conserving-kidneys" },
-    { "subject": "camel", "relation": "has-adaptation", "object": "water-extracting-digestive-system" },
-    { "subject": "camel", "relation": "has-adaptation", "object": "nasal-moisture-recovery" },
-    { "subject": "camel", "relation": "has-adaptation", "object": "dehydration-tolerance" },
-    { "subject": "water-conserving-kidneys", "relation": "enables-ability", "object": "survive-for-long-without-water" },
-    { "subject": "water-extracting-digestive-system", "relation": "enables-ability", "object": "survive-for-long-without-water" },
-    { "subject": "nasal-moisture-recovery", "relation": "enables-ability", "object": "survive-for-long-without-water" },
-    { "subject": "dehydration-tolerance", "relation": "enables-ability", "object": "survive-for-long-without-water" }
+    {
+      "subject": "survive-for-long-without-water",
+      "relation": "instance-of",
+      "object": "biological-ability"
+    },
+    {
+      "subject": "water-conserving-kidneys",
+      "relation": "instance-of",
+      "object": "survival-adaptation"
+    },
+    {
+      "subject": "water-extracting-digestive-system",
+      "relation": "instance-of",
+      "object": "survival-adaptation"
+    },
+    {
+      "subject": "nasal-moisture-recovery",
+      "relation": "instance-of",
+      "object": "survival-adaptation"
+    },
+    {
+      "subject": "dehydration-tolerance",
+      "relation": "instance-of",
+      "object": "survival-adaptation"
+    },
+    {
+      "subject": "camel",
+      "relation": "has-adaptation",
+      "object": "water-conserving-kidneys"
+    },
+    {
+      "subject": "camel",
+      "relation": "has-adaptation",
+      "object": "water-extracting-digestive-system"
+    },
+    {
+      "subject": "camel",
+      "relation": "has-adaptation",
+      "object": "nasal-moisture-recovery"
+    },
+    {
+      "subject": "camel",
+      "relation": "has-adaptation",
+      "object": "dehydration-tolerance"
+    },
+    {
+      "subject": "water-conserving-kidneys",
+      "relation": "enables-ability",
+      "object": "survive-for-long-without-water"
+    },
+    {
+      "subject": "water-extracting-digestive-system",
+      "relation": "enables-ability",
+      "object": "survive-for-long-without-water"
+    },
+    {
+      "subject": "nasal-moisture-recovery",
+      "relation": "enables-ability",
+      "object": "survive-for-long-without-water"
+    },
+    {
+      "subject": "dehydration-tolerance",
+      "relation": "enables-ability",
+      "object": "survive-for-long-without-water"
+    },
+    {
+      "subject": "water-deprivation",
+      "relation": "is-a",
+      "object": "condition"
+    },
+    {
+      "subject": "water-deprivation-condition",
+      "relation": "instance-of",
+      "object": "water-deprivation"
+    },
+    {
+      "subject": "water-conserving-kidneys",
+      "relation": "instance-of",
+      "object": "water-conservation"
+    },
+    {
+      "subject": "water-extracting-digestive-system",
+      "relation": "instance-of",
+      "object": "water-conservation"
+    },
+    {
+      "subject": "nasal-moisture-recovery",
+      "relation": "instance-of",
+      "object": "water-conservation"
+    },
+    {
+      "subject": "dehydration-tolerance",
+      "relation": "instance-of",
+      "object": "dehydration-tolerance-adaptation"
+    },
+    {
+      "subject": "urine-concentration",
+      "relation": "instance-of",
+      "object": "water-loss-reduction-process"
+    },
+    {
+      "subject": "reduced-fecal-water-loss",
+      "relation": "instance-of",
+      "object": "water-loss-reduction-process"
+    },
+    {
+      "subject": "nasal-water-recovery",
+      "relation": "instance-of",
+      "object": "water-loss-reduction-process"
+    },
+    {
+      "subject": "water-conserving-kidneys",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
+    },
+    {
+      "subject": "water-extracting-digestive-system",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
+    },
+    {
+      "subject": "nasal-moisture-recovery",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
+    },
+    {
+      "subject": "dehydration-tolerance",
+      "relation": "supports-survival-under",
+      "object": "water-deprivation-condition"
+    },
+    {
+      "subject": "water-conserving-kidneys",
+      "relation": "reduces-water-loss",
+      "object": "urine-concentration"
+    },
+    {
+      "subject": "water-extracting-digestive-system",
+      "relation": "reduces-water-loss",
+      "object": "reduced-fecal-water-loss"
+    },
+    {
+      "subject": "nasal-moisture-recovery",
+      "relation": "reduces-water-loss",
+      "object": "nasal-water-recovery"
+    }
   ],
   "dataProperties": [],
   "dataAssertions": []

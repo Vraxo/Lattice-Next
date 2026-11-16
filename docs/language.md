@@ -274,3 +274,8 @@ The construction `What is the name of the <possessor>'s <role phrase> on the TV 
 ### Production-location reasons
 
 The construction `Why are so many <activity> made in <location>?` is parsed into a production-location-reasons query. The activity resolves to a type and the location to an individual. The responder retrieves only advantages linked to that location and explicitly associated with the requested activity type, then composes the explanation from typed advantage and detail relations. Locations or activities without modeled support are left unanswered. The answer is therefore grounded in the reasons represented in the graph rather than a stored explanation paragraph.
+
+
+## Capability explanations from adaptation graphs
+
+The construction `Why can <subject> survive ...?` supports the modeled survival predicate when the graph connects the subject's adaptations both to the requested survival ability and to an explicit condition. For water deprivation, the responder requires water-conservation processes and dehydration-tolerance evidence linked to the water-deprivation condition. The response is composed from those graph paths; it does not infer a quantitative survival duration or claim that an animal can survive indefinitely without water.

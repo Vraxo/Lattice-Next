@@ -85,6 +85,8 @@ internal static class SemanticWorldModelResponder
                 TryDefinition(request.Concept ?? request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyClassification =>
                 TryWhy(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.CapabilityExplanation =>
+                TryExplainCapability(request.Subject, request.Concept ?? string.Empty, request.OtherSubject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Ability =>
                 TryExplainAbility(request.Subject, request.Concept ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Mechanism =>
@@ -1767,6 +1769,95 @@ internal static class SemanticWorldModelResponder
             .ToImmutableArray();
 
         message = $"{Capitalize(requestedSubject)} can {ability.Label} because {string.Join("; ", labels)}.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryExplainCapability(
+        string requestedSubject,
+        string requestedCapability,
+        string? requestedContext,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (!string.Equals(requestedCapability, "survive", StringComparison.Ordinal) ||
+            string.IsNullOrWhiteSpace(requestedContext) ||
+            !requestedContext.Contains("water", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var subjectType = model.FindConcept(requestedSubject, SemanticConceptKind.Type);
+        var ability = model.FindConcept("survive-for-long-without-water", SemanticConceptKind.Individual);
+        var condition = model.FindConcept("water-deprivation-condition", SemanticConceptKind.Individual);
+        if (subjectType is null || ability is null || condition is null)
+        {
+            return false;
+        }
+
+        var adaptations = reasoner.GetRelations(subjectType.Id, "has-adaptation")
+            .Select(assertion => (
+                Concept: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Assertion: assertion))
+            .Where(candidate => candidate.Concept is not null)
+            .Select(candidate => (
+                candidate.Concept!,
+                candidate.Assertion,
+                AbilityAssertion: reasoner.GetRelations(candidate.Concept!.Id, "enables-ability")
+                    .FirstOrDefault(assertion => assertion.Object == ability.Id),
+                ConditionAssertion: reasoner.GetRelations(candidate.Concept!.Id, "supports-survival-under")
+                    .FirstOrDefault(assertion => assertion.Object == condition.Id)))
+            .Where(candidate =>
+                candidate.AbilityAssertion is not null &&
+                candidate.ConditionAssertion is not null)
+            .ToArray();
+
+        var waterConservation = adaptations
+            .Where(candidate => reasoner.IsInstanceOf(candidate.Concept.Id, "water-conservation"))
+            .ToArray();
+        var dehydrationTolerance = adaptations
+            .Where(candidate => reasoner.IsInstanceOf(candidate.Concept.Id, "dehydration-tolerance-adaptation"))
+            .ToArray();
+        var processes = waterConservation
+            .SelectMany(candidate => reasoner.GetRelations(candidate.Concept.Id, "reduces-water-loss"))
+            .Select(assertion => (
+                Concept: model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                assertion.Source))
+            .Where(candidate => candidate.Concept is not null)
+            .ToArray();
+
+        if (waterConservation.Length == 0 ||
+            dehydrationTolerance.Length == 0 ||
+            processes.Length == 0)
+        {
+            return false;
+        }
+
+        var processNames = processes
+            .Select(process => process.Concept!.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        message = $"{Pluralize(subjectType.Label)} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
+
+        var sources = adaptations
+            .SelectMany(candidate => new[]
+            {
+                candidate.Assertion.Source,
+                candidate.AbilityAssertion!.Source,
+                candidate.ConditionAssertion!.Source
+            })
+            .Concat(processes.Select(process => process.Source))
+            .Concat(waterConservation.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate.Concept.Id, "water-conservation")))
+            .Concat(dehydrationTolerance.SelectMany(candidate =>
+                reasoner.GetMembershipEvidence(candidate.Concept.Id, "dehydration-tolerance-adaptation")))
+            .Concat(reasoner.GetMembershipEvidence(ability.Id, "biological-ability"))
+            .Distinct()
+            .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }

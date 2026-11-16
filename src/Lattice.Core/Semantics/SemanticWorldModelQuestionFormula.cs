@@ -4,6 +4,7 @@ public enum SemanticWorldModelQuestionKind
 {
     Definition,
     WhyClassification,
+    CapabilityExplanation,
     Ability,
     Mechanism,
     Causes,
