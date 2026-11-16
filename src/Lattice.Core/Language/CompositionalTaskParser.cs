@@ -45,9 +45,7 @@ internal static class CompositionalTaskParser
         if (creationClauseIndex < 0 ||
             syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
             !ContainsCodeArtifact(codeArtifact) ||
-            !syntax.Tokens.Any(token =>
-                !token.IsQuoted &&
-                token.Value.Equals("python", StringComparison.OrdinalIgnoreCase)))
+            !ContainsPythonLanguage(syntax.Clauses[creationClauseIndex]))
         {
             return false;
         }
@@ -79,6 +77,15 @@ internal static class CompositionalTaskParser
         CodeArtifacts.Contains(phrase.Head) ||
         phrase.Modifiers.Any(CodeArtifacts.Contains);
 
+    private static bool ContainsPythonLanguage(EnglishClause clause) =>
+        ContainsWord(clause.Object, "python") ||
+        clause.PrepositionalPhrases.Any(phrase => ContainsWord(phrase.Object, "python"));
+
+    private static bool ContainsWord(EnglishNounPhrase? phrase, string word) =>
+        phrase is not null &&
+        (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
+         phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
+
     private static bool TryGetRequestedOutput(
         EnglishSentenceSyntax syntax,
         int creationClauseIndex,
@@ -94,19 +101,28 @@ internal static class CompositionalTaskParser
             return value.Length > 0;
         }
 
-        for (var index = 0; index < syntax.Tokens.Length - 1; index++)
+        var artifact = syntax.Clauses[creationClauseIndex].Object;
+        if (artifact is not null && ContainsHelloWorld(artifact))
         {
-            if (!syntax.Tokens[index].IsQuoted &&
-                !syntax.Tokens[index + 1].IsQuoted &&
-                syntax.Tokens[index].Value.Equals("hello", StringComparison.OrdinalIgnoreCase) &&
-                syntax.Tokens[index + 1].Value.Equals("world", StringComparison.OrdinalIgnoreCase))
+            value = "Hello, world!";
+            return true;
+        }
+
+        value = string.Empty;
+        return false;
+    }
+
+    private static bool ContainsHelloWorld(EnglishNounPhrase phrase)
+    {
+        for (var index = 0; index < phrase.Modifiers.Length - 1; index++)
+        {
+            if (phrase.Modifiers[index].Equals("hello", StringComparison.OrdinalIgnoreCase) &&
+                phrase.Modifiers[index + 1].Equals("world", StringComparison.OrdinalIgnoreCase))
             {
-                value = "Hello, world!";
                 return true;
             }
         }
 
-        value = string.Empty;
         return false;
     }
 
