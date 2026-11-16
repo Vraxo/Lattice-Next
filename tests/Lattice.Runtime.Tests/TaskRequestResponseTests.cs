@@ -200,7 +200,7 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("Moon", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("deep-sky", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("tracking mount", utterance.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Never look at the Sun", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Never view the Sun", utterance.Message, StringComparison.Ordinal);
         Assert.NotEmpty(utterance.SupportingEvidence);
         Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
     }
