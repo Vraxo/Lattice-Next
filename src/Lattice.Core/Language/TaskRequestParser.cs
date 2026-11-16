@@ -36,7 +36,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex PythonHelloWorldProgramPattern = new(
-        @"^\s*(?:please\s+)?(?:write|create|generate)\s+(?:a\s+|the\s+)?hello[\s-]+world\s+(?:program|script)\s+(?:in|using)\s+python[.!?]?\s*$",
+        @"^\s*(?:please\s+)?(?:write|create|generate)\s+(?:a\s+|the\s+)?(?:(?:python\s+)?hello[\s-]+world\s+(?:program|script)|hello[\s-]+world\s+(?:program|script)\s+(?:in|using)\s+python)[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex PythonPrintProgramPattern = new(
