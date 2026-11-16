@@ -52,6 +52,30 @@ public sealed class SequenceTokenizerTests
     }
 
     [Fact]
+    public void Rejects_malformed_utf16_instead_of_lossily_replacing_it()
+    {
+        Assert.True(SequenceTokenizer.TryTrain(
+            ["valid text"],
+            out var tokenizer,
+            out var trainingError,
+            maximumMerges: 0), trainingError);
+
+        Assert.False(tokenizer!.TryTokenize(
+            "\uD800",
+            out var tokens,
+            out var tokenizationError));
+        Assert.Empty(tokens);
+        Assert.False(string.IsNullOrWhiteSpace(tokenizationError));
+
+        Assert.False(SequenceTokenizer.TryTrain(
+            ["\uD800"],
+            out var invalidTokenizer,
+            out var invalidTrainingError));
+        Assert.Null(invalidTokenizer);
+        Assert.False(string.IsNullOrWhiteSpace(invalidTrainingError));
+    }
+
+    [Fact]
     public void Learns_deterministic_merges_from_the_same_corpus()
     {
         var corpus = ImmutableArray.Create(
