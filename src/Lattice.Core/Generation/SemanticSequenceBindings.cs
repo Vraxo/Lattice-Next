@@ -45,9 +45,20 @@ public static class SemanticSequenceBindings
             return false;
         }
 
-        if (!tokenizer.TryTokenize(subject.Label, out var subjectTokens, out var subjectError) ||
-            !tokenizer.TryTokenize(relation.Verb, out var relationTokens, out var relationError) ||
-            !tokenizer.TryTokenize(target.Label, out var objectTokens, out var objectError))
+        var subjectResolved = tokenizer.TryTokenize(
+            subject.Label,
+            out var subjectTokens,
+            out var subjectError);
+        var relationResolved = tokenizer.TryTokenize(
+            relation.Verb,
+            out var relationTokens,
+            out var relationError);
+        var objectResolved = tokenizer.TryTokenize(
+            target.Label,
+            out var objectTokens,
+            out var objectError);
+
+        if (!subjectResolved || !relationResolved || !objectResolved)
         {
             error = subjectError ?? relationError ?? objectError ??
                 "The assertion concepts and relation must have valid surface labels.";
@@ -78,5 +89,4 @@ public static class SemanticSequenceBindings
             (SemanticConceptKind.Type, SemanticRelationArgumentKind.Type) => true,
             _ => false
         };
-
 }
