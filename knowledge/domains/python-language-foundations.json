@@ -877,7 +877,7 @@
       "sufficientExpression": null
     },
     {
-      "concept": "condition",
+      "concept": "program-condition",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
