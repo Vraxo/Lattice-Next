@@ -1,0 +1,464 @@
+{
+  "formatVersion": 3,
+  "id": "contrastive-learning",
+  "name": "Contrastive learning",
+  "concepts": [
+    {
+      "id": "machine-learning-method",
+      "label": "machine-learning method",
+      "kind": "Type"
+    },
+    {
+      "id": "learning-principle",
+      "label": "learning principle",
+      "kind": "Type"
+    },
+    {
+      "id": "training-pair",
+      "label": "training pair",
+      "kind": "Type"
+    },
+    {
+      "id": "pair-role",
+      "label": "pair role",
+      "kind": "Type"
+    },
+    {
+      "id": "learned-representation",
+      "label": "learned representation",
+      "kind": "Type"
+    },
+    {
+      "id": "training-objective",
+      "label": "training objective",
+      "kind": "Type"
+    },
+    {
+      "id": "illustrative-example",
+      "label": "illustrative example",
+      "kind": "Type"
+    },
+    {
+      "id": "application-domain",
+      "label": "application domain",
+      "kind": "Type"
+    },
+    {
+      "id": "contrastive-learning",
+      "label": "contrastive learning",
+      "kind": "Individual"
+    },
+    {
+      "id": "comparing-examples",
+      "label": "learning by comparing examples",
+      "kind": "Individual"
+    },
+    {
+      "id": "positive-pair",
+      "label": "positive pair",
+      "kind": "Individual"
+    },
+    {
+      "id": "negative-pair",
+      "label": "negative pair",
+      "kind": "Individual"
+    },
+    {
+      "id": "same-underlying-item",
+      "label": "different views of the same underlying item",
+      "kind": "Individual"
+    },
+    {
+      "id": "different-underlying-items",
+      "label": "different underlying items",
+      "kind": "Individual"
+    },
+    {
+      "id": "embedding",
+      "label": "embedding",
+      "kind": "Individual"
+    },
+    {
+      "id": "contrastive-training-objective",
+      "label": "contrastive training objective",
+      "kind": "Individual"
+    },
+    {
+      "id": "two-views-of-one-image",
+      "label": "two views of the same image",
+      "kind": "Individual"
+    },
+    {
+      "id": "same-image-views",
+      "label": "two augmented views of one photograph",
+      "kind": "Individual"
+    },
+    {
+      "id": "different-image",
+      "label": "a photograph of a different subject",
+      "kind": "Individual"
+    },
+    {
+      "id": "image-retrieval",
+      "label": "image retrieval",
+      "kind": "Individual"
+    },
+    {
+      "id": "image-classification",
+      "label": "image classification",
+      "kind": "Individual"
+    },
+    {
+      "id": "image-similarity-search",
+      "label": "finding images with similar content",
+      "kind": "Individual"
+    },
+    {
+      "id": "image-category-prediction",
+      "label": "assigning an image to a category",
+      "kind": "Individual"
+    },
+    {
+      "id": "similarity-space",
+      "label": "learned representation space",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "contrastive learning",
+      "concept": "contrastive-learning",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "method-has-principle",
+      "domain": "machine-learning-method",
+      "range": "learning-principle",
+      "verb": "is based on",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "principle-uses-pair",
+      "domain": "learning-principle",
+      "range": "training-pair",
+      "verb": "compares",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "pair-has-role",
+      "domain": "training-pair",
+      "range": "pair-role",
+      "verb": "represents",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "method-learns-representation",
+      "domain": "machine-learning-method",
+      "range": "learned-representation",
+      "verb": "learns",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "method-uses-objective",
+      "domain": "machine-learning-method",
+      "range": "training-objective",
+      "verb": "uses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "objective-pulls-positive-pairs-together",
+      "domain": "training-objective",
+      "range": "training-pair",
+      "verb": "pulls closer",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "objective-pushes-negative-pairs-apart",
+      "domain": "training-objective",
+      "range": "training-pair",
+      "verb": "pushes farther apart",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "method-has-example",
+      "domain": "machine-learning-method",
+      "range": "illustrative-example",
+      "verb": "can be illustrated by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "example-demonstrates-positive-pair",
+      "domain": "illustrative-example",
+      "range": "training-pair",
+      "verb": "shows positive pair",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "example-demonstrates-negative-pair",
+      "domain": "illustrative-example",
+      "range": "training-pair",
+      "verb": "shows negative pair",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "method-used-for",
+      "domain": "machine-learning-method",
+      "range": "application-domain",
+      "verb": "is useful for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "machine-learning-method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "learning-principle",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "training-pair",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "pair-role",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "learned-representation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "training-objective",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "illustrative-example",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "application-domain",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "machine-learning-method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "learning-principle",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "training-pair",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "pair-role",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "learned-representation",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "training-objective",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "illustrative-example",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "application-domain",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "instance-of",
+      "object": "machine-learning-method"
+    },
+    {
+      "subject": "comparing-examples",
+      "relation": "instance-of",
+      "object": "learning-principle"
+    },
+    {
+      "subject": "positive-pair",
+      "relation": "instance-of",
+      "object": "training-pair"
+    },
+    {
+      "subject": "negative-pair",
+      "relation": "instance-of",
+      "object": "training-pair"
+    },
+    {
+      "subject": "same-underlying-item",
+      "relation": "instance-of",
+      "object": "pair-role"
+    },
+    {
+      "subject": "different-underlying-items",
+      "relation": "instance-of",
+      "object": "pair-role"
+    },
+    {
+      "subject": "embedding",
+      "relation": "instance-of",
+      "object": "learned-representation"
+    },
+    {
+      "subject": "contrastive-training-objective",
+      "relation": "instance-of",
+      "object": "training-objective"
+    },
+    {
+      "subject": "two-views-of-one-image",
+      "relation": "instance-of",
+      "object": "illustrative-example"
+    },
+    {
+      "subject": "image-retrieval",
+      "relation": "instance-of",
+      "object": "application-domain"
+    },
+    {
+      "subject": "image-classification",
+      "relation": "instance-of",
+      "object": "application-domain"
+    },
+    {
+      "subject": "image-similarity-search",
+      "relation": "instance-of",
+      "object": "application-domain"
+    },
+    {
+      "subject": "image-category-prediction",
+      "relation": "instance-of",
+      "object": "application-domain"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-has-principle",
+      "object": "comparing-examples"
+    },
+    {
+      "subject": "comparing-examples",
+      "relation": "principle-uses-pair",
+      "object": "positive-pair"
+    },
+    {
+      "subject": "comparing-examples",
+      "relation": "principle-uses-pair",
+      "object": "negative-pair"
+    },
+    {
+      "subject": "positive-pair",
+      "relation": "pair-has-role",
+      "object": "same-underlying-item"
+    },
+    {
+      "subject": "negative-pair",
+      "relation": "pair-has-role",
+      "object": "different-underlying-items"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-learns-representation",
+      "object": "embedding"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-uses-objective",
+      "object": "contrastive-training-objective"
+    },
+    {
+      "subject": "contrastive-training-objective",
+      "relation": "objective-pulls-positive-pairs-together",
+      "object": "positive-pair"
+    },
+    {
+      "subject": "contrastive-training-objective",
+      "relation": "objective-pushes-negative-pairs-apart",
+      "object": "negative-pair"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-has-example",
+      "object": "two-views-of-one-image"
+    },
+    {
+      "subject": "two-views-of-one-image",
+      "relation": "example-demonstrates-positive-pair",
+      "object": "positive-pair"
+    },
+    {
+      "subject": "two-views-of-one-image",
+      "relation": "example-demonstrates-negative-pair",
+      "object": "negative-pair"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-used-for",
+      "object": "image-retrieval"
+    },
+    {
+      "subject": "contrastive-learning",
+      "relation": "method-used-for",
+      "object": "image-classification"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
