@@ -444,12 +444,13 @@ public sealed class NativeEnglishGrammarTests
     }
 
     [Theory]
-    [InlineData("Why can camels survive for long without water?", "camels", "survive-for-long-without-water")]
-    [InlineData("Why can bats fly?", "bats", "fly")]
+    [InlineData("Why can camels survive for long without water?", "camels", "survive", SemanticWorldModelQuestionKind.CapabilityExplanation)]
+    [InlineData("Why can bats fly?", "bats", "fly", SemanticWorldModelQuestionKind.Ability)]
     public void Parses_why_can_ability_questions_as_semantic_requests(
         string sentence,
         string expectedSubject,
-        string expectedAbility)
+        string expectedAbility,
+        SemanticWorldModelQuestionKind expectedKind)
     {
         var result = parser.ParseText(sentence);
 
@@ -457,10 +458,13 @@ public sealed class NativeEnglishGrammarTests
         var utterance = Assert.IsType<SemanticUtterance>(Assert.Single(result.Utterances));
         Assert.Equal(UtteranceKind.Question, utterance.Kind);
         var question = Assert.IsType<SemanticWorldModelQuestionFormula>(utterance.Meaning);
-        Assert.Equal(SemanticWorldModelQuestionKind.Ability, question.Kind);
+        Assert.Equal(expectedKind, question.Kind);
         Assert.Equal(expectedSubject, question.Subject);
         Assert.Equal(expectedAbility, question.Concept);
-        Assert.Equal($"ask(world-model-ability({expectedSubject}, {expectedAbility}))", SemanticFormatter.Format(utterance));
+        var expectedFormula = expectedKind == SemanticWorldModelQuestionKind.Ability
+            ? $"ask(world-model-ability({expectedSubject}, {expectedAbility}))"
+            : $"ask(world-model-capability-explanation({expectedSubject}, {expectedAbility}, for-long-without-water))";
+        Assert.Equal(expectedFormula, SemanticFormatter.Format(utterance));
         Assert.Equal(sentence, utterance.SourceText);
     }
 

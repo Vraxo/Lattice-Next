@@ -913,4 +913,39 @@ public sealed class LatticeRuntimeSessionTests
             answer.Message);
         Assert.Equal(8, answer.SupportingEvidence.Length);
     }
+    [Fact]
+    public async Task Explains_camel_water_deprivation_tolerance_from_adaptations_and_processes()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive for long without water?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Contains("water-conservation adaptations limit water loss", answer.Message);
+        Assert.Contains("urine concentration", answer.Message);
+        Assert.Contains("reduced fecal water loss", answer.Message);
+        Assert.Contains("nasal water recovery", answer.Message);
+        Assert.Contains("highly concentrated urine", answer.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("dehydration-tolerance adaptation", answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId?.Contains(":supports-survival-under:water-deprivation-condition", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
+    public async Task Does_not_reuse_water_deprivation_explanation_for_an_unmodeled_survival_condition()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync("Why can camels survive in freezing weather?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Empty(answer.SupportingEvidence);
+    }
+
 }

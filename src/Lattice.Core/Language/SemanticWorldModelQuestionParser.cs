@@ -76,6 +76,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^Why can (?<subject>[A-Za-z][A-Za-z -]*?) (?<ability>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CapabilityExplanationPattern = new(
+        @"^Why can (?<subject>[A-Za-z][A-Za-z0-9'’ -]*?) (?<verb>[A-Za-z]+)(?<context>.*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex MechanismPattern = new(
         @"^How does (?<subject>[A-Za-z][A-Za-z -]*?) produce sound\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -470,6 +474,20 @@ internal static class SemanticWorldModelQuestionParser
                 SemanticWorldModelQuestionKind.WhyClassification,
                 subject: Normalize(why.Groups["subject"].Value),
                 concept: Normalize(why.Groups["concept"].Value),
+                sourceText: source);
+            return true;
+        }
+
+        var capabilityExplanation = CapabilityExplanationPattern.Match(text);
+        if (capabilityExplanation.Success &&
+            string.Equals(capabilityExplanation.Groups["verb"].Value, "survive", StringComparison.OrdinalIgnoreCase) &&
+            capabilityExplanation.Groups["context"].Value.Contains("water", StringComparison.OrdinalIgnoreCase))
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.CapabilityExplanation,
+                subject: Normalize(capabilityExplanation.Groups["subject"].Value),
+                concept: "survive",
+                otherSubject: Normalize(capabilityExplanation.Groups["context"].Value),
                 sourceText: source);
             return true;
         }
