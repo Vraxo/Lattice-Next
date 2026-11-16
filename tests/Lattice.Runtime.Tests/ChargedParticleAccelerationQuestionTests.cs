@@ -6,14 +6,16 @@ namespace Lattice.Runtime.Tests;
 
 public sealed class ChargedParticleAccelerationQuestionTests
 {
-    [Fact]
-    public async Task Calculates_proton_final_speed_from_the_potential_difference_sign()
+    [Theory]
+    [InlineData("A proton moving at 2.5 x 10^4 m/s is accelerated by a potential difference of ‐250 V, what is its\nfinal velocity?")]
+    [InlineData("A proton moving at a speed of 2.5 × 10^4 m/s is accelerated by a potential difference of −250 V. Calculate its final speed.")]
+    public async Task Calculates_proton_final_speed_from_the_potential_difference_sign(string prompt)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
 
         var result = await session.SubmitAsync(
-            "A proton moving at a speed of 2.5 × 10^4 m/s is accelerated by a potential difference of −250 V. Calculate its final speed.",
+            prompt,
             TestContext.Current.CancellationToken);
 
         var answer = Assert.Single(result.Utterances);
