@@ -23,6 +23,18 @@ internal static class TaskRequestParser
         @"^\s*What are (?<count>[0-9]+) potential uses for an empty (?<object>[^?]+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ConceptExplanationPattern = new(
+        @"^\s*(?:Can|Could) you explain (?<topic>.+?)(?:\s+in\s+(?<context>.+?))?(?:\s+in simple terms)?(?:\s+for someone new to (?:the field of )?.+?)?\??\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex LearningPathPattern = new(
+        @"^\s*How can I learn to (?<skill>[A-Za-z][A-Za-z-]*) (?<target>.+?)\??\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex BlenderScriptPattern = new(
+        @"^\s*How would I create a script for (?<application>blender) that (?<task>.+?)\??\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex OperationExplanationPattern = new(
         @"^\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -46,6 +58,11 @@ internal static class TaskRequestParser
     {
         utterance = null;
 
+        if (TryParseBlenderScript(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
         if (TryParseHobbyExploration(source, sourceText, out utterance))
         {
             return true;
@@ -54,9 +71,19 @@ internal static class TaskRequestParser
         if (TryParseBrainstormUses(source, sourceText, out utterance))
         {
             return true;
+        } 
+
+        if (TryParseConceptExplanation(source, sourceText, out utterance))
+        {
+            return true;
         }
 
         if (TryParseOperationExplanation(source, sourceText, out utterance))
+        {
+            return true;
+        } 
+
+        if (TryParseLearningPath(source, sourceText, out utterance))
         {
             return true;
         }
@@ -72,6 +99,41 @@ internal static class TaskRequestParser
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+
+    private static bool TryParseBlenderScript(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = BlenderScriptPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var task = match.Groups["task"].Value.Trim().TrimEnd('?');
+        var supportsObjectReplacement =
+            task.Contains("replac", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("object", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("specific name", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("point light", StringComparison.OrdinalIgnoreCase);
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Code,
+            supportsObjectReplacement ? "blender-object-replacement" : "unsupported-blender-script",
+            "blender",
+            "python-script",
+            supportsObjectReplacement ? "object-to-point-light" : task,
+            ImmutableArray.Create("python", "blender-api"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseHobbyExploration(
@@ -163,6 +225,48 @@ internal static class TaskRequestParser
         return true;
     }
 
+
+    private static bool TryParseConceptExplanation(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = ConceptExplanationPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var subject = string.Join(
+            '-',
+            match.Groups["topic"].Value.Trim()
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToLowerInvariant();
+        if (subject.Length == 0)
+        {
+            return false;
+        }
+
+        var context = match.Groups["context"].Success
+            ? match.Groups["context"].Value.Trim()
+            : null;
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Explain,
+            subject,
+            context,
+            "conceptual-overview",
+            null,
+            ImmutableArray.Create("beginner-friendly"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
+    }
+
     private static bool TryParseOperationExplanation(
         string source,
         string sourceText,
@@ -188,6 +292,38 @@ internal static class TaskRequestParser
             "procedure",
             null,
             ImmutableArray.Create("operating-procedure"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
+    }
+
+
+    private static bool TryParseLearningPath(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = LearningPathPattern.Match(source);
+        if (!match.Success ||
+            !match.Groups["skill"].Value.StartsWith("optimiz", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var target = match.Groups["target"].Value.Trim().ToLowerInvariant();
+        var supportsSeo = target.Contains("webpage for search engines", StringComparison.Ordinal);
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Plan,
+            supportsSeo ? "search-engine-optimization" : "unsupported-learning-path",
+            supportsSeo ? "webpage" : target,
+            "learning-path",
+            null,
+            ImmutableArray.Create("beginner", "practical-exercises"));
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,

@@ -1,6 +1,6 @@
 # Foundational semantic world model
 
-The default ontology is authored in thirty-three independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
+The default ontology is authored in thirty-six independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
 
 ## One relation graph
 
@@ -57,6 +57,9 @@ The current expression language does not support universal restrictions, negatio
 - `family-matters-characters.json`: Steve Urkel, the Winslow family, Family Matters, and their typed neighbor and character relations.
 - `georgia-film-production.json`: Georgia's film-production incentives, workforce, infrastructure, filming locations, climate, costs, and local support.
 - `transportation-classification.json`: useful and unsuitable objects for transportation.
+- `contrastive-learning.json`: positive and negative training pairs, embeddings, the contrastive objective, an image example, and applications.
+- `search-engine-optimization.json`: an ordered beginner learning path for improving a webpage's search visibility.
+- `blender-object-replacement-script.json`: semantic steps and Blender APIs for replacing named objects with point lights.
 - `astrophotography-hobby.json`: beginner astrophotography activities, their goals, equipment, skill levels, and a core optical-safety warning.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
@@ -74,18 +77,18 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all thirty-three modules:
+Counts after composing all thirty-six modules:
 
-- 663 concepts
-- 238 type declarations (201 primitive, 37 defined)
-- 146 relation signatures
-- 1121 relation assertions:
-  - 241 `is-a`
-  - 441 `instance-of`
-  - 439 ordinary individual-to-individual relations
-- 395 lexical forms
-- 8 numeric data properties
-- 46 numeric data assertions
+- 742 concepts
+- 254 type declarations (217 primitive, 37 defined)
+- 163 relation signatures
+- 1264 relation assertions:
+  - 257 `is-a`
+  - 504 `instance-of`
+  - 503 ordinary individual-to-individual relations
+- 399 lexical forms
+- 10 numeric data properties
+- 62 numeric data assertions
 
 ## Audit boundary
 

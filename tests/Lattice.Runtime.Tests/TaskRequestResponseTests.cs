@@ -7,6 +7,122 @@ namespace Lattice.Runtime.Tests;
 public sealed class TaskRequestResponseTests
 {
     [Fact]
+    public async Task Explains_contrastive_learning_from_the_semantic_graph_for_a_beginner()
+    {
+        const string input = "Can you explain contrastive learning in machine learning in simple terms for someone new to the field of ML?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("positive pair", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("negative pair", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("embedding", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("similar", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("different", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("image", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_an_explanation_for_an_unmodeled_concept()
+    {
+        const string input = "Can you explain quantum foam in simple terms for someone new to physics?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
+    public async Task Builds_a_practical_search_optimization_learning_path_from_graph_knowledge()
+    {
+        const string input = "How can I learn to optimize my webpage for search engines?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("indexing", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("search intent", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("mobile", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("performance", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("internal links", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("impressions", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_a_learning_path_for_an_unmodeled_skill()
+    {
+        const string input = "How can I learn to optimize a spacecraft trajectory for interstellar travel?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
+    public async Task Generates_a_Blender_script_that_replaces_matching_objects_with_point_lights()
+    {
+        const string input = "How would I create a script for blender that replaces all of objects with a specific name with a point light?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("## Blender object replacement", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### Script", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("```python", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### What it does", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("- Finds every object", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("**Before running:**", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("target_name = \"YourObjectName\"", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("bpy.data.objects", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("bpy.data.lights.new", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("type=\"POINT\"", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("obj.matrix_world.translation.copy()", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("collection.objects.link(light_obj)", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("bpy.data.objects.remove(obj, do_unlink=True)", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains(".001", utterance.Message, StringComparison.Ordinal);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_generate_a_Blender_script_for_an_unmodeled_task()
+    {
+        const string input = "How would I create a script for blender that renames every object?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
     public async Task Brainstorms_distinct_beverage_can_uses_from_structured_affordances()
     {
         const string input = "What are 5 potential uses for an empty La Croix can?";
