@@ -204,6 +204,56 @@ internal static class SemanticWorldModelResponder
                 (request.SubjectType is null ||
                  reasoner.IsInstanceOf(match.Subject.Id, request.SubjectType)))
             .ToArray();
+
+        var contextSources = ImmutableArray<SemanticWorldModelSource>.Empty;
+        if (request.Context is not null)
+        {
+            var context = model.FindConcept(request.Context, SemanticConceptKind.Individual);
+            if (context is null)
+            {
+                return false;
+            }
+
+            var candidateIds = matches
+                .Select(match => match.Subject!.Id)
+                .ToHashSet(StringComparer.Ordinal);
+            var contextAssertions = model.RelationAssertions
+                .Where(assertion =>
+                    assertion.Subject == context.Id &&
+                    candidateIds.Contains(assertion.Object))
+                .Where(assertion =>
+                {
+                    var relation = model.FindRelation(assertion.Relation);
+                    if (relation is null ||
+                        relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                        relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
+                        relation.DomainType is null ||
+                        relation.RangeType is null)
+                    {
+                        return false;
+                    }
+
+                    return reasoner.IsInstanceOf(context.Id, relation.DomainType) &&
+                        reasoner.IsInstanceOf(assertion.Object, relation.RangeType);
+                })
+                .ToArray();
+            var contextualCandidateIds = contextAssertions
+                .Select(assertion => assertion.Object)
+                .ToHashSet(StringComparer.Ordinal);
+            matches = matches
+                .Where(match => contextualCandidateIds.Contains(match.Subject!.Id))
+                .ToArray();
+            if (matches.Length == 0)
+            {
+                return false;
+            }
+
+            contextSources = contextAssertions
+                .Where(assertion => contextualCandidateIds.Contains(assertion.Object))
+                .Select(assertion => assertion.Source)
+                .Distinct()
+                .ToImmutableArray();
+        }
         if (matches.Length == 0)
         {
             return false;
@@ -225,6 +275,7 @@ internal static class SemanticWorldModelResponder
         message = $"{Capitalize(subjectPhrase)} {verb} {objectPhrase}.";
         var sources = matches
             .Select(match => match.Source)
+            .Concat(contextSources)
             .Concat(request.SubjectType is null
                 ? []
                 : subjects.SelectMany(subject =>
