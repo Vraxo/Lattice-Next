@@ -6,6 +6,35 @@ namespace Lattice.Runtime.Tests;
 public sealed class TypedRelationSourceQuestionTests
 {
     [Fact]
+    public async Task Filters_typed_inverse_relation_results_by_a_graph_context()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync(TestContext.Current.CancellationToken);
+
+        var result = await session.SubmitAsync(
+            "Which episodes of season four of Game of Thrones did Michelle MacLaren direct?",
+            TestContext.Current.CancellationToken);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "ask(relation-sources(michelle-maclaren, direct, subject-type(episode), within(season-four-of-game-of-thrones)))",
+            answer.Meaning);
+        Assert.Equal(
+            "Oathkeeper and First of His Name are television episodes directed by Michelle MacLaren.",
+            answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:michelle-maclaren:directed:oathkeeper", StringComparison.Ordinal)));
+        Assert.Contains(
+            answer.SupportingEvidence,
+            evidence => evidence.Sources.Any(source =>
+                source.SourceId.EndsWith(":relation:season-four-of-game-of-thrones:includes-episode:oathkeeper", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task Identifies_a_painter_using_relation_and_type_membership()
     {
         var client = new LatticeRuntimeClient();
