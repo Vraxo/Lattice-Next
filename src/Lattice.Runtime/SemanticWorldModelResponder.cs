@@ -103,7 +103,10 @@ internal static class SemanticWorldModelResponder
                 match.Relation,
                 Target: model.FindConcept(match.Assertion.Object, SemanticConceptKind.Individual),
                 match.Assertion.Source))
-            .Where(match => match.Target is not null)
+            .Where(match =>
+                match.Target is not null &&
+                (request.TargetType is null ||
+                 reasoner.IsInstanceOf(match.Target.Id, request.TargetType)))
             .ToArray();
         var scopeEvidence = ImmutableArray<LatticeEvidence>.Empty;
         if (request.Scope is not null)
@@ -116,6 +119,23 @@ internal static class SemanticWorldModelResponder
 
             var scopeAssertions = model.Relations
                 .SelectMany(relation => reasoner.GetRelations(scope.Id, relation.Id))
+                .Where(assertion =>
+                {
+                    if (request.TargetType is null)
+                    {
+                        return true;
+                    }
+
+                    var relation = model.FindRelation(assertion.Relation);
+                    return relation is not null &&
+                        relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                        relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
+                        relation.DomainType is not null &&
+                        relation.RangeType is not null &&
+                        reasoner.IsInstanceOf(scope.Id, relation.DomainType) &&
+                        reasoner.IsInstanceOf(assertion.Object, relation.RangeType) &&
+                        reasoner.IsInstanceOf(assertion.Object, request.TargetType);
+                })
                 .ToArray();
             var scopedTargetIds = scopeAssertions
                 .Select(assertion => assertion.Object)
@@ -147,14 +167,38 @@ internal static class SemanticWorldModelResponder
             .Select(match => match.Target!)
             .DistinctBy(target => target.Id)
             .ToArray();
-        var targetPhrase = request.Scope is null
-            ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
-            : JoinNames(targets.Select(target => target.Label).ToArray());
-        message = request.Scope is null
-            ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
-            : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        if (request.TargetType is not null)
+        {
+            var type = model.FindConcept(request.TargetType, SemanticConceptKind.Type);
+            if (type is null)
+            {
+                return false;
+            }
+
+            var typePhrase = targets.Length == 1 ? IndefinitePhrase(type.Label) : PluralizeType(type.Label);
+            var names = JoinNames(targets.Select(target => target.Label).ToArray());
+            message = targets.Length == 1
+                ? $"{names} is {typePhrase} {relation.Verb} by {subject.Label}."
+                : $"{names} are {typePhrase} {relation.Verb} by {subject.Label}.";
+        }
+        else
+        {
+            var targetPhrase = request.Scope is null
+                ? JoinNames(targets.Select(target => $"the {target.Label}").ToArray())
+                : JoinNames(targets.Select(target => target.Label).ToArray());
+            message = request.Scope is null
+                ? $"The {subject.Label} {relation.Verb} {targetPhrase}."
+                : $"{Capitalize(subject.Label)} {relation.Verb} {targetPhrase}.";
+        }
+        var relationSources = matches.Select(match => match.Source);
+        if (request.TargetType is not null)
+        {
+            relationSources = relationSources.Concat(targets.SelectMany(target =>
+                reasoner.GetMembershipEvidence(target.Id, request.TargetType)));
+        }
+
         var relationEvidence = ToEvidence(
-            matches.Select(match => match.Source).Distinct().ToImmutableArray(),
+            relationSources.Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived);
         evidence = scopeEvidence.IsDefaultOrEmpty
             ? ImmutableArray.Create(relationEvidence)
@@ -204,56 +248,6 @@ internal static class SemanticWorldModelResponder
                 (request.SubjectType is null ||
                  reasoner.IsInstanceOf(match.Subject.Id, request.SubjectType)))
             .ToArray();
-
-        var contextSources = ImmutableArray<SemanticWorldModelSource>.Empty;
-        if (request.Context is not null)
-        {
-            var context = model.FindConcept(request.Context, SemanticConceptKind.Individual);
-            if (context is null)
-            {
-                return false;
-            }
-
-            var candidateIds = matches
-                .Select(match => match.Subject!.Id)
-                .ToHashSet(StringComparer.Ordinal);
-            var contextAssertions = model.RelationAssertions
-                .Where(assertion =>
-                    assertion.Subject == context.Id &&
-                    candidateIds.Contains(assertion.Object))
-                .Where(assertion =>
-                {
-                    var relation = model.FindRelation(assertion.Relation);
-                    if (relation is null ||
-                        relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
-                        relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
-                        relation.DomainType is null ||
-                        relation.RangeType is null)
-                    {
-                        return false;
-                    }
-
-                    return reasoner.IsInstanceOf(context.Id, relation.DomainType) &&
-                        reasoner.IsInstanceOf(assertion.Object, relation.RangeType);
-                })
-                .ToArray();
-            var contextualCandidateIds = contextAssertions
-                .Select(assertion => assertion.Object)
-                .ToHashSet(StringComparer.Ordinal);
-            matches = matches
-                .Where(match => contextualCandidateIds.Contains(match.Subject!.Id))
-                .ToArray();
-            if (matches.Length == 0)
-            {
-                return false;
-            }
-
-            contextSources = contextAssertions
-                .Where(assertion => contextualCandidateIds.Contains(assertion.Object))
-                .Select(assertion => assertion.Source)
-                .Distinct()
-                .ToImmutableArray();
-        }
         if (matches.Length == 0)
         {
             return false;
@@ -275,7 +269,6 @@ internal static class SemanticWorldModelResponder
         message = $"{Capitalize(subjectPhrase)} {verb} {objectPhrase}.";
         var sources = matches
             .Select(match => match.Source)
-            .Concat(contextSources)
             .Concat(request.SubjectType is null
                 ? []
                 : subjects.SelectMany(subject =>
@@ -284,6 +277,19 @@ internal static class SemanticWorldModelResponder
             .ToImmutableArray();
         evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
+    }
+
+    private static string PluralizeType(string value)
+    {
+        if (value.EndsWith('y') && value.Length > 1 &&
+            !"aeiou".Contains(char.ToLowerInvariant(value[^2])))
+        {
+            return $"{value[..^1]}ies";
+        }
+
+        return value.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? $"{value}es"
+            : $"{value}s";
     }
 
     private static bool MatchesVerb(string relationVerb, string requestedVerb)
