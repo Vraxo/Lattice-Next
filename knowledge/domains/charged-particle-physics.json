@@ -1,0 +1,64 @@
+{
+  "formatVersion": 3,
+  "id": "core-charged-particle-physics",
+  "name": "Charged-particle physics",
+  "concepts": [
+    {
+      "id": "charged-particle",
+      "label": "charged particle",
+      "kind": "Type"
+    },
+    {
+      "id": "proton",
+      "label": "proton",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "proton",
+      "concept": "proton",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [],
+  "definitions": [
+    {
+      "concept": "charged-particle",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "proton",
+      "relation": "instance-of",
+      "object": "charged-particle"
+    }
+  ],
+  "dataProperties": [
+    {
+      "id": "mass-atomic-mass-units",
+      "domainType": "charged-particle",
+      "valueType": "number"
+    },
+    {
+      "id": "charge-elementary-charge-units",
+      "domainType": "charged-particle",
+      "valueType": "number"
+    }
+  ],
+  "dataAssertions": [
+    {
+      "subject": "proton",
+      "property": "mass-atomic-mass-units",
+      "value": "1.007276466621"
+    },
+    {
+      "subject": "proton",
+      "property": "charge-elementary-charge-units",
+      "value": "1"
+    }
+  ]
+}
