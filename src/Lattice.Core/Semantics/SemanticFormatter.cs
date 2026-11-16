@@ -34,9 +34,7 @@ public static class SemanticFormatter
             SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
                 ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
                 : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
-            SemanticRelationSourceQueryFormula relationQuery => relationQuery.SubjectType is null
-                ? $"relation-sources({relationQuery.Object}, {relationQuery.Verb})"
-                : $"relation-sources({relationQuery.Object}, {relationQuery.Verb}, subject-type({relationQuery.SubjectType}))",
+            SemanticRelationSourceQueryFormula relationQuery => FormatRelationSourceQuery(relationQuery),
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
@@ -85,6 +83,13 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.ProductionLocationReasons => $"world-model-production-location-reasons({question.Subject}, {question.OtherSubject})",
             _ => "world-model-question(unsupported)"
         };
+
+    private static string FormatRelationSourceQuery(SemanticRelationSourceQueryFormula query)
+    {
+        var subjectType = query.SubjectType is null ? string.Empty : $", subject-type({query.SubjectType})";
+        var context = query.Context is null ? string.Empty : $", within({query.Context})";
+        return $"relation-sources({query.Object}, {query.Verb}{subjectType}{context})";
+    }
 
     private static string FormatEnumerationRemainderQuestion(
         EnumerationRemainderQuestionFormula remainder) =>
