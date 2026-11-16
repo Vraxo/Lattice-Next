@@ -7,7 +7,7 @@ namespace Lattice.Core.Reasoning;
 
 public sealed class SemanticWorldModelLoader
 {
-    private const int SupportedFormatVersion = 3;
+    private const int SupportedFormatVersion = 4;
     private const int MaximumConcepts = 2000;
     private const int MaximumRelations = 500;
     private const int MaximumDefinitions = 500;
@@ -48,7 +48,7 @@ public sealed class SemanticWorldModelLoader
         }
 
         if (document is null ||
-            document.FormatVersion is not (1 or 2 or SupportedFormatVersion) ||
+            document.FormatVersion is not (1 or 2 or 3 or SupportedFormatVersion) ||
             !IsValidId(document.Id) ||
             string.IsNullOrWhiteSpace(document.Name) ||
             document.Name.Length > 120 ||
@@ -66,12 +66,12 @@ public sealed class SemanticWorldModelLoader
             (document.TypeAssertions?.Count ?? 0) +
                 document.RelationAssertions.Count +
                 document.DataAssertions.Count > MaximumAssertions ||
-            (document.FormatVersion == SupportedFormatVersion &&
-                (document.TypeAssertions is not null ||
-                 document.DataProperties.Any(property => property is not null &&
-                    string.Equals(property.ValueType, "uri", StringComparison.OrdinalIgnoreCase)))))
+            (document.FormatVersion >= 3 && document.TypeAssertions is not null) ||
+            (document.FormatVersion == 3 &&
+                document.DataProperties.Any(property => property is not null &&
+                    string.Equals(property.ValueType, "uri", StringComparison.OrdinalIgnoreCase))))
         {
-            error = "The semantic world model metadata, collections, or version-3 semantic fields are invalid.";
+            error = "The semantic world model metadata, collections, or version-specific fields are invalid.";
             return false;
         }
 
@@ -255,7 +255,7 @@ public sealed class SemanticWorldModelLoader
                 objectKind));
         }
 
-        if (document.FormatVersion < SupportedFormatVersion)
+        if (document.FormatVersion < 3)
         {
             if (!identifiers.Contains("is-a"))
             {
@@ -274,7 +274,7 @@ public sealed class SemanticWorldModelLoader
             }
         }
 
-        if (document.FormatVersion == SupportedFormatVersion &&
+        if (document.FormatVersion >= 3 &&
             (!builder.Any(relation =>
                 relation.Id == "is-a" &&
                 relation.SubjectKind == SemanticRelationArgumentKind.Type &&
@@ -284,7 +284,7 @@ public sealed class SemanticWorldModelLoader
                 relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
                 relation.ObjectKind == SemanticRelationArgumentKind.Type)))
         {
-            error = "Version 3 semantic world models require both is-a (type-to-type) and instance-of (individual-to-type) relations.";
+            error = "Version 3+ semantic world models require both is-a (type-to-type) and instance-of (individual-to-type) relations.";
             return false;
         }
 
@@ -321,7 +321,7 @@ public sealed class SemanticWorldModelLoader
                 !identifiers.Add(item.Concept))
             {
                 error = document.FormatVersion == SupportedFormatVersion
-                    ? "Version 3 type definitions must contain semantic structure only; omit parents and provenance fields."
+                    ? "Version 3+ type definitions must contain semantic structure only; omit parents and provenance fields."
                     : "Every type definition must reference one unique type concept and valid legacy parent types.";
                 return false;
             }
@@ -610,7 +610,7 @@ public sealed class SemanticWorldModelLoader
 
         if (document.FormatVersion == SupportedFormatVersion && document.TypeAssertions is not null)
         {
-            error = "Version 3 models represent membership with instance-of relation assertions, not typeAssertions.";
+            error = "Version 3+ models represent membership with instance-of relation assertions, not typeAssertions.";
             return false;
         }
 
@@ -742,7 +742,24 @@ public sealed class SemanticWorldModelLoader
                 return false;
             }
 
-            builder.Add(new SemanticDataPropertyDefinition(item.Id, item.DomainType, valueKind));
+            string? dimension = null;
+            if (valueKind == SemanticDataValueKind.Decimal)
+            {
+                if (!SemanticUnit.TryGetDimension(item.DimensionUnit, out var resolvedDimension))
+                {
+                    error = $"Decimal data property '{item.Id}' requires a supported dimensionUnit.";
+                    return false;
+                }
+
+                dimension = resolvedDimension;
+            }
+            else if (item.DimensionUnit is not null)
+            {
+                error = $"Only decimal data properties may declare a dimensionUnit ('{item.Id}').";
+                return false;
+            }
+
+            builder.Add(new SemanticDataPropertyDefinition(item.Id, item.DomainType, valueKind, dimension));
         }
 
         dataProperties = builder.ToImmutable();
@@ -767,8 +784,8 @@ public sealed class SemanticWorldModelLoader
             if (item is null ||
                 !IsIndividual(concepts, item.Subject) ||
                 !properties.TryGetValue(item.Property, out var property) ||
-                !IsValidDataValue(property.ValueKind, item.Value, out var normalizedValue) ||
-                !keys.Add($"{item.Subject}:{item.Property}:{normalizedValue}"))
+                !IsValidDataValue(property, item, out var normalizedValue, out var normalizedUnit) ||
+                !keys.Add($"{item.Subject}:{item.Property}:{normalizedValue}:{normalizedUnit}"))
             {
                 error = "Every semantic data assertion must supply a unique value matching its declared type and a valid subject/property pair.";
                 return false;
@@ -778,7 +795,8 @@ public sealed class SemanticWorldModelLoader
                 item.Subject,
                 item.Property,
                 normalizedValue,
-                new SemanticWorldModelSource($"{document.Id}:data:{item.Subject}:{item.Property}")));
+                new SemanticWorldModelSource($"{document.Id}:data:{item.Subject}:{item.Property}"),
+                normalizedUnit));
         }
 
         dataAssertions = builder.ToImmutable();
@@ -786,14 +804,17 @@ public sealed class SemanticWorldModelLoader
     }
 
     private static bool IsValidDataValue(
-        SemanticDataValueKind valueKind,
-        string value,
-        out string normalizedValue)
+        SemanticDataPropertyDefinition property,
+        DataAssertionDocument assertion,
+        out string normalizedValue,
+        out string? normalizedUnit)
     {
         normalizedValue = string.Empty;
-        if (valueKind == SemanticDataValueKind.Uri)
+        normalizedUnit = null;
+        if (property.ValueKind == SemanticDataValueKind.Uri)
         {
-            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+            if (assertion.Unit is not null ||
+                !Uri.TryCreate(assertion.Value, UriKind.Absolute, out var uri) ||
                 uri.Scheme is not ("http" or "https") ||
                 string.IsNullOrWhiteSpace(uri.Host) ||
                 !string.IsNullOrEmpty(uri.UserInfo))
@@ -805,14 +826,36 @@ public sealed class SemanticWorldModelLoader
             return true;
         }
 
-        if (valueKind == SemanticDataValueKind.Number &&
-            decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number))
+        if (!decimal.TryParse(
+            assertion.Value,
+            NumberStyles.Number,
+            CultureInfo.InvariantCulture,
+            out var value))
         {
-            normalizedValue = number.ToString(CultureInfo.InvariantCulture);
+            return false;
+        }
+
+        if (property.ValueKind == SemanticDataValueKind.Number)
+        {
+            if (assertion.Unit is not null)
+            {
+                return false;
+            }
+
+            normalizedValue = value.ToString(CultureInfo.InvariantCulture);
             return true;
         }
 
-        return false;
+        if (property.ValueKind != SemanticDataValueKind.Decimal ||
+            !SemanticUnit.TryConvertToBase(value, assertion.Unit, out var dimension, out var baseValue) ||
+            dimension != property.Dimension)
+        {
+            return false;
+        }
+
+        normalizedValue = baseValue.ToString(CultureInfo.InvariantCulture);
+        normalizedUnit = SemanticUnit.GetBaseUnit(dimension);
+        return true;
     }
 
     private static bool AreAssertionsWellTyped(SemanticWorldModel model)
@@ -1123,6 +1166,7 @@ public sealed class SemanticWorldModelLoader
         public string Id { get; set; } = string.Empty;
         public string DomainType { get; set; } = string.Empty;
         public string ValueType { get; set; } = string.Empty;
+        public string? DimensionUnit { get; set; }
     }
 
     private sealed class DataAssertionDocument
@@ -1131,6 +1175,7 @@ public sealed class SemanticWorldModelLoader
         public string Subject { get; set; } = string.Empty;
         public string Property { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
+        public string? Unit { get; set; }
         public string? SourceText { get; set; }
         public string? SourceUrl { get; set; }
     }
