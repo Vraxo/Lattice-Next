@@ -42,4 +42,19 @@ public sealed class SamplingParameterCalculatorTests
         Assert.InRange(probabilities[1], 0.3332, 0.3334);
         Assert.InRange(probabilities.Sum(), 0.999999, 1.000001);
     }
+    [Fact]
+    public void Top_p_one_keeps_the_full_distribution_in_probability_order()
+    {
+        var success = SamplingParameterCalculator.TrySelectNucleus(
+            [0.1, 0.6, 0.3],
+            1,
+            out var indices,
+            out var probabilities,
+            out var error);
+
+        Assert.True(success, error);
+        Assert.Equal(new[] { 1, 2, 0 }, indices);
+        Assert.Equal(new[] { 0.6, 0.3, 0.1 }, probabilities);
+    }
+
 }
