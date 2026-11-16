@@ -25,10 +25,11 @@ The initial implementation combines bounded deterministic beam search with an op
 - **Grammar-constrained generation:** weighted productions restrict possible sequences; the token model scores each emitted token using the longest available preceding-token context, backing off to shorter contexts when necessary.
 - **Grammar-free continuation:** the same generator can continue a supplied token context directly from the token model, using beam search over observed next-token candidates and a learned end-of-sequence marker.
 - **Corpus training:** token observations can be built from arbitrary token sequences. The training API does not know whether those sequences represent English, Python, Markdown, or another format.
+- **Universal tokenization:** one Unicode subword tokenizer learns pair merges from mixed text/code documents. It starts from Unicode scalar values, preserves whitespace and punctuation, and reconstructs the original input exactly. The same tokenizer is used regardless of output format.
 
 The score is format-agnostic and is applied equally to natural-language words, code symbols, whitespace, and punctuation. The token model learns local continuation frequencies, not meaning. It cannot independently decide what a user is asking, plan an answer, or reliably produce unseen long-range structures. It is a small non-neural baseline, **not** an LLM-equivalent model or a claim of open-ended language ability.
 
-The token corpus is currently supplied as pre-tokenized sequences; there is not yet a universal tokenizer, a large-corpus training workflow, semantic conditioning of next-token choices, a learned semantic content planner, robust morphology, or runtime integration. It does not yet replace the current runtime responders. Those are subsequent milestones.
+The tokenizer and training APIs are currently in-process foundations; there is not yet a curated large-corpus ingest/persistence workflow, semantic conditioning of next-token choices, a learned semantic content planner, robust morphology, or runtime integration. They do not yet replace the current runtime responders. Those are subsequent milestones.
 
 ## Repository audit: current code-generation path
 
