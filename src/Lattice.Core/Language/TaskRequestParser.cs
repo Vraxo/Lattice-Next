@@ -174,10 +174,13 @@ internal static class TaskRequestParser
             return false;
         }
 
+        var target = match.Groups["target"].Value.Trim().ToLowerInvariant();
+        var supportsSeo = target.Contains("webpage for search engines", StringComparison.Ordinal);
+
         var formula = new TaskRequestFormula(
             TaskRequestAction.Plan,
-            "search-engine-optimization",
-            match.Groups["target"].Value.Trim().ToLowerInvariant(),
+            supportsSeo ? "search-engine-optimization" : "unsupported-learning-path",
+            target,
             "learning-path",
             null,
             ImmutableArray.Create("beginner", "practical-exercises"));
