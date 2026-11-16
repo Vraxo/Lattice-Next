@@ -23,7 +23,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex ConceptExplanationPattern = new(
-        @"^\\s*(?:Can|Could) you explain (?<topic>.+?)(?:\\s+in\\s+(?<context>.+?))?(?:\\s+in simple terms)?(?:\\s+for someone new to (?:the field of )?.+?)?\\??\\s*$",
+        @"^\s*(?:Can|Could) you explain (?<topic>.+?)(?:\s+in\s+(?<context>.+?))?(?:\s+in simple terms)?(?:\s+for someone new to (?:the field of )?.+?)?\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex OperationExplanationPattern = new(
