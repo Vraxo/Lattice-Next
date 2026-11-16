@@ -1,6 +1,6 @@
 # Foundational semantic world model
 
-The default ontology is authored in thirty-two independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
+The default ontology is authored in thirty-three independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
 
 ## One relation graph
 
@@ -76,16 +76,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 Counts after composing all thirty-two modules:
 
-- 637 concepts
-- 232 type declarations (195 primitive, 37 defined)
-- 141 relation signatures
-- 1075 relation assertions:
-  - 235 `is-a`
-  - 421 `instance-of`
-  - 419 ordinary individual-to-individual relations
-- 389 lexical forms
-- 7 numeric data properties
-- 42 numeric data assertions
+- 663 concepts
+- 238 type declarations (201 primitive, 37 defined)
+- 146 relation signatures
+- 1121 relation assertions:
+  - 241 `is-a`
+  - 441 `instance-of`
+  - 439 ordinary individual-to-individual relations
+- 395 lexical forms
+- 8 numeric data properties
+- 46 numeric data assertions
 
 ## Audit boundary
 
