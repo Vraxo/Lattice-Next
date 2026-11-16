@@ -150,7 +150,7 @@ public sealed class GenerationLanguagePackLoader
                 !IsIdentifier(operation.Effect) ||
                 !IsIdentifier(operation.ArgumentKind) ||
                 operation.Prerequisites.IsDefault ||
-                operation.Prerequisites.Any(prerequisite => !IsIdentifier(prerequisite)) ||
+                operation.Prerequisites.Any(prerequisite => !IsCapabilityIdentifier(prerequisite)) ||
                 !operationIds.Add(operation.Id))
             {
                 error = "Every generation operation requires a unique identifier, symbol, effect, argument kind, and valid prerequisite list.";
@@ -224,6 +224,17 @@ public sealed class GenerationLanguagePackLoader
 
         packs = builder.ToImmutable();
         return true;
+    }
+
+    private static bool IsCapabilityIdentifier(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > 120)
+        {
+            return false;
+        }
+
+        var segments = value.Split(':');
+        return segments.Length is 1 or 2 && segments.All(IsIdentifier);
     }
 
     private static bool IsIdentifier(string? value) =>
