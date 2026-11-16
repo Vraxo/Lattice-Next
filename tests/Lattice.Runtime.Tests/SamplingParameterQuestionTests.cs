@@ -27,7 +27,7 @@ public sealed class SamplingParameterQuestionTests
         Assert.Contains("is applied before softmax", answer.Message);
         Assert.Contains("is applied after softmax", answer.Message);
         Assert.Contains("86.7%, 11.7%, 1.6%", answer.Message);
-        Assert.Contains("50.7%, 30.7%, 18.6%", answer.Message);
+        Assert.Contains("50.6%, 30.7%, 18.6%", answer.Message);
         Assert.Contains("66.7% and 33.3%", answer.Message);
         Assert.NotEmpty(answer.SupportingEvidence);
     }
