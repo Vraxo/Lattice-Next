@@ -11,11 +11,13 @@ public static class SemanticSequenceBindings
     public static bool TryFromAssertion(
         SemanticWorldModel model,
         SemanticRelationAssertion assertion,
+        SequenceTokenizer tokenizer,
         out ImmutableDictionary<string, ImmutableArray<string>> bindings,
         out string? error)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(assertion);
+        ArgumentNullException.ThrowIfNull(tokenizer);
 
         bindings = ImmutableDictionary<string, ImmutableArray<string>>.Empty;
         error = null;
@@ -43,9 +45,18 @@ public static class SemanticSequenceBindings
             return false;
         }
 
-        if (!TryTokenize(subject.Label, out var subjectTokens) ||
-            !TryTokenize(relation.Verb, out var relationTokens) ||
-            !TryTokenize(target.Label, out var objectTokens))
+        if (!tokenizer.TryTokenize(subject.Label, out var subjectTokens, out var subjectError) ||
+            !tokenizer.TryTokenize(relation.Verb, out var relationTokens, out var relationError) ||
+            !tokenizer.TryTokenize(target.Label, out var objectTokens, out var objectError))
+        {
+            error = subjectError ?? relationError ?? objectError ??
+                "The assertion concepts and relation must have valid surface labels.";
+            return false;
+        }
+
+        if (subjectTokens.IsDefaultOrEmpty ||
+            relationTokens.IsDefaultOrEmpty ||
+            objectTokens.IsDefaultOrEmpty)
         {
             error = "The assertion concepts and relation must have non-empty surface labels.";
             return false;
@@ -68,26 +79,4 @@ public static class SemanticSequenceBindings
             _ => false
         };
 
-    private static bool TryTokenize(string value, out ImmutableArray<string> tokens)
-    {
-        var parts = ImmutableArray.CreateBuilder<string>();
-        var start = 0;
-
-        while (start < value.Length)
-        {
-            var isWhitespace = char.IsWhiteSpace(value[start]);
-            var end = start + 1;
-
-            while (end < value.Length && char.IsWhiteSpace(value[end]) == isWhitespace)
-            {
-                end++;
-            }
-
-            parts.Add(value[start..end]);
-            start = end;
-        }
-
-        tokens = parts.ToImmutable();
-        return !tokens.IsDefaultOrEmpty && tokens.All(token => token.Length > 0);
-    }
 }
