@@ -110,7 +110,7 @@
     {
       "id": "makes-equipment-for",
       "domain": "company",
-      "range": "sport",
+      "range": "golf",
       "verb": "makes equipment for",
       "objectRole": null,
       "order": 0,
