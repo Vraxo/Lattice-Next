@@ -89,22 +89,12 @@
       "kind": "Individual"
     },
     {
-      "id": "same-image-views",
-      "label": "two augmented views of one photograph",
-      "kind": "Individual"
-    },
-    {
       "id": "two-augmented-views-of-photograph",
       "label": "two augmented views of one photograph",
       "kind": "Individual"
     },
     {
       "id": "different-subject-photograph",
-      "label": "a photograph of a different subject",
-      "kind": "Individual"
-    },
-    {
-      "id": "different-image",
       "label": "a photograph of a different subject",
       "kind": "Individual"
     },
@@ -116,21 +106,6 @@
     {
       "id": "image-classification",
       "label": "image classification",
-      "kind": "Individual"
-    },
-    {
-      "id": "image-similarity-search",
-      "label": "finding images with similar content",
-      "kind": "Individual"
-    },
-    {
-      "id": "image-category-prediction",
-      "label": "assigning an image to a category",
-      "kind": "Individual"
-    },
-    {
-      "id": "similarity-space",
-      "label": "learned representation space",
       "kind": "Individual"
     }
   ],
@@ -385,16 +360,6 @@
     },
     {
       "subject": "image-classification",
-      "relation": "instance-of",
-      "object": "application-domain"
-    },
-    {
-      "subject": "image-similarity-search",
-      "relation": "instance-of",
-      "object": "application-domain"
-    },
-    {
-      "subject": "image-category-prediction",
       "relation": "instance-of",
       "object": "application-domain"
     },
