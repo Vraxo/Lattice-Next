@@ -585,6 +585,11 @@
       "subject": "deep-sky-imaging",
       "property": "activity-order",
       "value": "4"
+    },
+    {
+      "subject": "first-night-practice",
+      "property": "activity-order",
+      "value": "5"
     }
   ]
 }
