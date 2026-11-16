@@ -612,11 +612,11 @@
     {
       "id": "library-written-in-language",
       "domain": "library",
-      "range": null,
+      "range": "programming-language",
       "verb": "is written in language",
       "order": 13,
       "comparisonPriority": 0,
-      "objectKind": "type"
+      "objectKind": "individual"
     },
     {
       "id": "call-invokes-callable",
@@ -665,22 +665,6 @@
       "order": 18,
       "comparisonPriority": 0,
       "subjectKind": "type",
-      "objectKind": "type"
-    },
-    {
-      "id": "is-a",
-      "verb": "is a",
-      "order": 0,
-      "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
-    },
-    {
-      "id": "instance-of",
-      "verb": "is an instance of",
-      "order": 0,
-      "comparisonPriority": 0,
-      "subjectKind": "individual",
       "objectKind": "type"
     }
   ],
