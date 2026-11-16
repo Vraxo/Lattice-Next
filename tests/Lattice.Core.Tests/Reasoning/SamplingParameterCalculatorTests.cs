@@ -59,4 +59,22 @@ public sealed class SamplingParameterCalculatorTests
         Assert.InRange(probabilities[2], 0.099999, 0.100001);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1.1)]
+    public void Rejects_top_p_thresholds_outside_the_open_zero_to_one_interval(double topP)
+    {
+        var success = SamplingParameterCalculator.TrySelectNucleus(
+            [0.6, 0.3, 0.1],
+            topP,
+            out var indices,
+            out var probabilities,
+            out var error);
+
+        Assert.False(success);
+        Assert.Empty(indices);
+        Assert.Empty(probabilities);
+        Assert.Contains("threshold in (0, 1]", error);
+    }
+
 }
