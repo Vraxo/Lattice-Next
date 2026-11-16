@@ -32,10 +32,19 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var mainClause = syntax!.Clauses[0];
-        if (!CreationVerbs.Contains(mainClause.Verb) ||
-            mainClause.Object is null ||
-            !ContainsCodeArtifact(mainClause.Object) ||
+        var creationClauseIndex = -1;
+        for (var index = 0; index < syntax!.Clauses.Length; index++)
+        {
+            if (CreationVerbs.Contains(syntax.Clauses[index].Verb))
+            {
+                creationClauseIndex = index;
+                break;
+            }
+        }
+
+        if (creationClauseIndex < 0 ||
+            syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
+            !ContainsCodeArtifact(codeArtifact) ||
             !syntax.Tokens.Any(token =>
                 !token.IsQuoted &&
                 token.Value.Equals("python", StringComparison.OrdinalIgnoreCase)))
@@ -43,7 +52,7 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        if (!TryGetRequestedOutput(syntax, out var requestedValue))
+        if (!TryGetRequestedOutput(syntax, creationClauseIndex, out var requestedValue))
         {
             return false;
         }
@@ -72,10 +81,11 @@ internal static class CompositionalTaskParser
 
     private static bool TryGetRequestedOutput(
         EnglishSentenceSyntax syntax,
+        int creationClauseIndex,
         out string value)
     {
         var outputClause = syntax.Clauses
-            .Skip(1)
+            .Skip(creationClauseIndex + 1)
             .FirstOrDefault(clause => OutputVerbs.Contains(clause.Verb));
 
         if (outputClause?.Object is not null)
