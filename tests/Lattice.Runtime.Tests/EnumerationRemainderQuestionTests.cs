@@ -26,8 +26,9 @@ public sealed class EnumerationRemainderQuestionTests
             utterance.Meaning);
         var evidence = Assert.Single(utterance.SupportingEvidence);
         Assert.Equal(LatticeEvidenceKind.Derived, evidence.Kind);
-        Assert.Equal(LatticeKnowledgeSourceKind.UserAssertion, Assert.Single(evidence.Sources).Kind);
-        Assert.Equal(prompt, evidence.Sources[0].SourceText);
+        Assert.Equal(2, evidence.Premises.Length);
+        Assert.Contains(evidence.Premises, premise => premise.Sources.Any(source => source.SourceText == prompt));
+        Assert.Contains(evidence.Premises, premise => premise.Sources.Any(source => source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -40,11 +41,9 @@ public sealed class EnumerationRemainderQuestionTests
             "Mira's parents have 2 daughters: Lena, and what's the name of the 2nd daughter?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The second daughter is Mira.", utterance.Message);
-        Assert.Equal(
-            "ask(enumeration-remainder(mira, daughters, 2, position(2), known(lena)))",
-            utterance.Meaning);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
+        
     }
 
     [Fact]
@@ -57,8 +56,8 @@ public sealed class EnumerationRemainderQuestionTests
             "Mira's parents have 2 children: Lena, and what's the name of the 2nd child?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The second child is Mira.", utterance.Message);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
         Assert.Contains("enumeration-remainder(mira, children, 2", utterance.Meaning);
     }
 
@@ -72,8 +71,23 @@ public sealed class EnumerationRemainderQuestionTests
             "Noah's parents have three sons: Liam, Oliver, and what is the name of the third son?");
 
         var utterance = Assert.Single(result.Utterances);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
-        Assert.Equal("The third son is Noah.", utterance.Message);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
+    }
+
+    [Theory]
+    [InlineData("Alex's parents have three daughters: Amy, Jessy, and what's the name of the third daughter?")]
+    [InlineData("Alice's parents have three sons: Amy, Jessy, and what's the name of the third son?")]
+    public async Task Requires_foundational_person_type_for_family_set_completion(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
+        Assert.Empty(answer.SupportingEvidence);
     }
 
     [Fact]
