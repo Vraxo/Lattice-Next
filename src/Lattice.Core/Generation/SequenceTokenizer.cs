@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -62,9 +63,9 @@ public sealed class SequenceTokenizer
 
         foreach (var text in corpus)
         {
-            if (text is null || text.Length > MaximumTextLength)
+            if (text is null || text.Length > MaximumTextLength || !IsValidUnicode(text))
             {
-                error = "Every corpus document must be non-null and within the supported text limit.";
+                error = "Every corpus document must contain valid Unicode and be within the supported text limit.";
                 return false;
             }
 
@@ -165,9 +166,9 @@ public sealed class SequenceTokenizer
         tokens = ImmutableArray<string>.Empty;
         error = null;
 
-        if (text is null || text.Length > MaximumTextLength)
+        if (text is null || text.Length > MaximumTextLength || !IsValidUnicode(text))
         {
-            error = "A non-null input within the supported text limit is required.";
+            error = "A valid Unicode input within the supported text limit is required.";
             return false;
         }
 
@@ -200,6 +201,27 @@ public sealed class SequenceTokenizer
         }
 
         tokens = current.ToImmutableArray();
+        return true;
+    }
+
+    private static bool IsValidUnicode(string text)
+    {
+        var index = 0;
+
+        while (index < text.Length)
+        {
+            var status = Rune.DecodeFromUtf16(
+                text.AsSpan(index),
+                out _,
+                out var charsConsumed);
+            if (status != OperationStatus.Done)
+            {
+                return false;
+            }
+
+            index += charsConsumed;
+        }
+
         return true;
     }
 
