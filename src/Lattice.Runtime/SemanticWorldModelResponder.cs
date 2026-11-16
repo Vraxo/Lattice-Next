@@ -1805,7 +1805,7 @@ internal static class SemanticWorldModelResponder
                 Assertion: assertion))
             .Where(candidate => candidate.Concept is not null)
             .Select(candidate => (
-                candidate.Concept!,
+                Concept: candidate.Concept!,
                 candidate.Assertion,
                 AbilityAssertion: reasoner.GetRelations(candidate.Concept!.Id, "enables-ability")
                     .FirstOrDefault(assertion => assertion.Object == ability.Id),
@@ -1841,7 +1841,8 @@ internal static class SemanticWorldModelResponder
             .Select(process => process.Concept!.Label)
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        message = $"{Pluralize(subjectType.Label)} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
+        var subjectLabel = subjectType.Label.EndsWith("s", StringComparison.OrdinalIgnoreCase) ? subjectType.Label : $"{subjectType.Label}s";
+        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
 
         var sources = adaptations
             .SelectMany(candidate => new[]
