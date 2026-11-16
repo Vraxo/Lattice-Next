@@ -2536,7 +2536,7 @@ internal static class SemanticWorldModelResponder
             return false;
         }
 
-        var temperatureInputAssertion = GetFirst(temperatureMethod.Id, "llm-method-acts-on");
+        var temperatureInputAssertion = GetFirst(temperatureMethod.Id, "llm-method-rescales");
         var temperatureStageAssertion = GetFirst(temperatureMethod.Id, "llm-method-before");
         var topPInputAssertion = GetFirst(topPMethod.Id, "llm-method-acts-on");
         var topPStageAssertion = GetFirst(topPMethod.Id, "llm-method-after");
@@ -2602,7 +2602,7 @@ internal static class SemanticWorldModelResponder
         var retainedExample = string.Join(" and ", retainedProbabilities.Select(FormatPercentage));
         var temperatureSentence =
             $"{Capitalize(temperature.Label)} uses {temperatureMethod.Label}. " +
-            $"{Capitalize(temperatureMethod.Label)} {model.FindRelation(temperatureInputAssertion.Relation)!.Verb} {temperatureInput.Label} " +
+            $"{Capitalize(temperatureMethod.Label)} {model.FindRelation(temperatureInputAssertion.Relation)!.Verb} {temperatureInput.Label} by dividing each logit by T " +
             $"and {model.FindRelation(temperatureStageAssertion.Relation)!.Verb} {temperatureStage.Label}. " +
             $"Lower temperature {model.FindRelation(lowerEffectAssertion.Relation)!.Verb} ({lowerEffect.Label}); " +
             $"higher temperature {model.FindRelation(higherEffectAssertion.Relation)!.Verb} ({higherEffect.Label}).";
