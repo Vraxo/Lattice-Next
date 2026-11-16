@@ -2604,8 +2604,8 @@ internal static class SemanticWorldModelResponder
             $"{Capitalize(temperature.Label)} uses {temperatureMethod.Label}. " +
             $"{Capitalize(temperatureMethod.Label)} {model.FindRelation(temperatureInputAssertion.Relation)!.Verb} {temperatureInput.Label} by dividing each logit by T " +
             $"and {model.FindRelation(temperatureStageAssertion.Relation)!.Verb} {temperatureStage.Label}. " +
-            $"Lower temperature {model.FindRelation(lowerEffectAssertion.Relation)!.Verb} ({lowerEffect.Label}); " +
-            $"higher temperature {model.FindRelation(higherEffectAssertion.Relation)!.Verb} ({higherEffect.Label}).";
+            $"Lower temperature {model.FindRelation(lowerEffectAssertion.Relation)!.Verb}; " +
+            $"higher temperature {model.FindRelation(higherEffectAssertion.Relation)!.Verb}.";
         var topPSentence =
             $"{Capitalize(topP.Label)} uses {topPMethod.Label}. " +
             $"{Capitalize(topPMethod.Label)} {model.FindRelation(topPInputAssertion.Relation)!.Verb} {topPInput.Label} " +
