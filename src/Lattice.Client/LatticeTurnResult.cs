@@ -28,6 +28,7 @@ public enum LatticeUtteranceResultKind
     StatementStored,
     StatementRejected,
     QuestionAnswered,
+    TaskCompleted,
     ClarificationRequired,
     ObjectiveReceived,
     ObjectiveInformationReceived,
