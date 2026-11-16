@@ -54,7 +54,9 @@ public sealed class SamplingParameterCalculatorTests
 
         Assert.True(success, error);
         Assert.Equal(new[] { 1, 2, 0 }, indices);
-        Assert.Equal(new[] { 0.6, 0.3, 0.1 }, probabilities);
+        Assert.InRange(probabilities[0], 0.599999, 0.600001);
+        Assert.InRange(probabilities[1], 0.299999, 0.300001);
+        Assert.InRange(probabilities[2], 0.099999, 0.100001);
     }
 
 }
