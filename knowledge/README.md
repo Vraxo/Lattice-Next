@@ -74,7 +74,7 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all thirty-two modules:
+Counts after composing all thirty-three modules:
 
 - 663 concepts
 - 238 type declarations (201 primitive, 37 defined)
