@@ -209,6 +209,11 @@
       "subject": "taylormade-golf-company",
       "relation": "makes-equipment-for",
       "object": "golf-sport-example"
+    },
+    {
+      "subject": "golf-sport-example",
+      "relation": "instance-of",
+      "object": "sport"
     }
   ],
   "dataProperties": [],
