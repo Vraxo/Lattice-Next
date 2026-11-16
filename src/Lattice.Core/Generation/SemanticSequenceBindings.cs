@@ -36,9 +36,8 @@ public static class SemanticSequenceBindings
             return false;
         }
 
-        var expectedSubjectKind = relation.SubjectKind;
-        var expectedObjectKind = relation.ObjectKind;
-        if (subject.Kind != expectedSubjectKind || target.Kind != expectedObjectKind)
+        if (!MatchesKind(subject.Kind, relation.SubjectKind) ||
+            !MatchesKind(target.Kind, relation.ObjectKind))
         {
             error = "The assertion arguments do not match the declared relation kinds.";
             return false;
@@ -58,6 +57,16 @@ public static class SemanticSequenceBindings
             .Add("object", objectTokens);
         return true;
     }
+
+    private static bool MatchesKind(
+        SemanticConceptKind conceptKind,
+        SemanticRelationArgumentKind argumentKind) =>
+        (conceptKind, argumentKind) switch
+        {
+            (SemanticConceptKind.Individual, SemanticRelationArgumentKind.Individual) => true,
+            (SemanticConceptKind.Type, SemanticRelationArgumentKind.Type) => true,
+            _ => false
+        };
 
     private static bool TryTokenize(string value, out ImmutableArray<string> tokens)
     {
