@@ -82,6 +82,11 @@ internal static class SemanticWorldModelResponder
 
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (request.OtherSubject is not null)
+        {
+            return TryRespondPairwise(request.Subject, request.OtherSubject, model, out message, out evidence);
+        }
+
         var subject = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
         if (subject is null)
         {
@@ -159,6 +164,163 @@ internal static class SemanticWorldModelResponder
         evidence = scopeEvidence.IsDefaultOrEmpty
             ? ImmutableArray.Create(relationEvidence)
             : scopeEvidence.Add(relationEvidence);
+        return true;
+    }
+
+    private static bool TryRespondPairwise(
+        string subjectId,
+        string otherSubjectId,
+        SemanticWorldModel model,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var subject = model.FindConcept(subjectId, SemanticConceptKind.Individual);
+        var other = model.FindConcept(otherSubjectId, SemanticConceptKind.Individual);
+        if (subject is null || other is null)
+        {
+            return false;
+        }
+
+        var directAssertions = model.RelationAssertions
+            .Where(assertion =>
+                (assertion.Subject == subject.Id && assertion.Object == other.Id) ||
+                (assertion.Subject == other.Id && assertion.Object == subject.Id))
+            .Where(assertion =>
+            {
+                var relation = model.FindRelation(assertion.Relation);
+                return relation is not null &&
+                    relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
+                    relation.ObjectKind == SemanticRelationArgumentKind.Individual;
+            })
+            .ToArray();
+        if (directAssertions.Length > 0)
+        {
+            var directSentences = FormatRelationAssertions(directAssertions, model);
+            if (directSentences.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            message = string.Join(" ", directSentences);
+            evidence = ImmutableArray.Create(ToEvidence(
+                directAssertions.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+                LatticeEvidenceKind.Derived));
+            return true;
+        }
+
+        if (!TryFindUniqueShortestRelationPath(subject.Id, other.Id, model, out var path))
+        {
+            return false;
+        }
+
+        var pathSentences = FormatRelationAssertions(path, model);
+        if (pathSentences.Length != path.Length)
+        {
+            return false;
+        }
+
+        message = $"The shortest graph path is supported by these facts: {string.Join(" ", pathSentences)}";
+        evidence = ImmutableArray.Create(ToEvidence(
+            path.Select(assertion => assertion.Source).Distinct().ToImmutableArray(),
+            LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static ImmutableArray<string> FormatRelationAssertions(
+        IReadOnlyCollection<SemanticRelationAssertion> assertions,
+        SemanticWorldModel model)
+    {
+        var sentences = assertions
+            .Select(assertion =>
+            {
+                var relation = model.FindRelation(assertion.Relation);
+                var subject = model.FindConcept(assertion.Subject, SemanticConceptKind.Individual);
+                var target = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+                return relation is null || subject is null || target is null
+                    ? null
+                    : FormatRelation(subject, target, relation, first: false);
+            })
+            .Where(sentence => sentence is not null)
+            .Select(sentence => sentence!)
+            .Distinct(StringComparer.Ordinal)
+            .ToImmutableArray();
+        return sentences;
+    }
+
+    private static bool TryFindUniqueShortestRelationPath(
+        string start,
+        string target,
+        SemanticWorldModel model,
+        out ImmutableArray<SemanticRelationAssertion> path)
+    {
+        const int maximumDepth = 3;
+        path = [];
+        var pending = new Queue<(
+            string Node,
+            ImmutableArray<SemanticRelationAssertion> Path,
+            HashSet<string> Visited)>();
+        pending.Enqueue((start, [], new HashSet<string>(StringComparer.Ordinal) { start }));
+        int? shortestDepth = null;
+        var shortestPaths = new List<ImmutableArray<SemanticRelationAssertion>>();
+
+        while (pending.TryDequeue(out var current))
+        {
+            if (current.Path.Length >= maximumDepth ||
+                (shortestDepth.HasValue && current.Path.Length >= shortestDepth.Value))
+            {
+                continue;
+            }
+
+            foreach (var assertion in model.RelationAssertions.Where(assertion =>
+                assertion.Subject == current.Node || assertion.Object == current.Node))
+            {
+                var relation = model.FindRelation(assertion.Relation);
+                if (relation is null ||
+                    relation.SubjectKind != SemanticRelationArgumentKind.Individual ||
+                    relation.ObjectKind != SemanticRelationArgumentKind.Individual)
+                {
+                    continue;
+                }
+
+                var nextNode = assertion.Subject == current.Node
+                    ? assertion.Object
+                    : assertion.Subject;
+                if (current.Visited.Contains(nextNode))
+                {
+                    continue;
+                }
+
+                var nextPath = current.Path.Add(assertion);
+                if (nextNode == target)
+                {
+                    shortestDepth ??= nextPath.Length;
+                    if (nextPath.Length == shortestDepth.Value)
+                    {
+                        shortestPaths.Add(nextPath);
+                    }
+
+                    continue;
+                }
+
+                if (!shortestDepth.HasValue || nextPath.Length < shortestDepth.Value)
+                {
+                    var visited = new HashSet<string>(current.Visited, StringComparer.Ordinal)
+                    {
+                        nextNode
+                    };
+                    pending.Enqueue((nextNode, nextPath, visited));
+                }
+            }
+        }
+
+        if (shortestPaths.Count != 1)
+        {
+            return false;
+        }
+
+        path = shortestPaths[0];
         return true;
     }
 
