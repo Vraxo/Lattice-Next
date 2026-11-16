@@ -39,7 +39,7 @@
       "kind": "Type"
     },
     {
-      "id": "application-domain",
+      "id": "contrastive-application-domain",
       "label": "application domain",
       "kind": "Type"
     },
@@ -210,7 +210,7 @@
     {
       "id": "method-used-for",
       "domain": "machine-learning-method",
-      "range": "application-domain",
+      "range": "contrastive-application-domain",
       "verb": "is useful for",
       "objectRole": null,
       "order": 0,
@@ -261,7 +261,7 @@
       "sufficientExpression": null
     },
     {
-      "concept": "application-domain",
+      "concept": "contrastive-application-domain",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -304,7 +304,7 @@
       "object": "entity"
     },
     {
-      "subject": "application-domain",
+      "subject": "contrastive-application-domain",
       "relation": "is-a",
       "object": "entity"
     },
@@ -356,12 +356,12 @@
     {
       "subject": "image-retrieval",
       "relation": "instance-of",
-      "object": "application-domain"
+      "object": "contrastive-application-domain"
     },
     {
       "subject": "image-classification",
       "relation": "instance-of",
-      "object": "application-domain"
+      "object": "contrastive-application-domain"
     },
     {
       "subject": "contrastive-learning",
