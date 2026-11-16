@@ -98,6 +98,45 @@ public sealed class SequenceGeneratorTests
     }
 
     [Fact]
+    public void Uses_contextual_next_token_frequencies_to_choose_a_continuation()
+    {
+        var grammar = new SequenceGrammar(ImmutableArray.Create(
+            new SequenceProduction(
+                "phrase",
+                ImmutableArray.Create(
+                    SequenceSymbol.Token("the "),
+                    SequenceSymbol.Symbol("noun"))),
+            new SequenceProduction(
+                "noun",
+                ImmutableArray.Create(SequenceSymbol.Token("cat"))),
+            new SequenceProduction(
+                "noun",
+                ImmutableArray.Create(SequenceSymbol.Token("dog")))));
+
+        Assert.True(SequenceTokenModel.TryCreate(
+            ImmutableArray.Create(
+                new SequenceTokenObservation(["the "], "cat", 1),
+                new SequenceTokenObservation(["the "], "dog", 9)),
+            out var tokenModel,
+            out var modelError), modelError);
+
+        var request = new SequenceGenerationRequest(
+            "phrase",
+            ImmutableDictionary<string, ImmutableArray<string>>.Empty,
+            TokenModel: tokenModel);
+
+        var generated = SequenceGenerator.TryGenerate(
+            grammar,
+            request,
+            out var result,
+            out var error);
+
+        Assert.True(generated, error);
+        Assert.Equal("the dog", result!.Text);
+        Assert.True(result.Score < 0);
+    }
+
+    [Fact]
     public void Reports_missing_semantic_bindings_instead_of_emitting_placeholders()
     {
         var grammar = new SequenceGrammar(ImmutableArray.Create(
