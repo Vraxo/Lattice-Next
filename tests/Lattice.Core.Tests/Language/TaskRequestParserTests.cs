@@ -30,6 +30,25 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
+    public void Parses_a_beginner_search_optimization_learning_request()
+    {
+        const string input = "How can I learn to optimize my webpage for search engines?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
+        Assert.Equal(TaskRequestAction.Plan, request.Action);
+        Assert.Equal("search-engine-optimization", request.Subject);
+        Assert.Equal("webpage", request.Context);
+        Assert.Equal("learning-path", request.OutputFormat);
+        Assert.Equal(new[] { "beginner", "practical-exercises" }, request.Requirements);
+    }
+
+    [Fact]
     public void Parses_a_research_writing_request_as_one_structured_task()
     {
         const string input = "Can you write a short introduction about the relevance of the term \"monopsony\" in economics? Please use examples related to potential monopsonies in the labour market and cite relevant research.";
