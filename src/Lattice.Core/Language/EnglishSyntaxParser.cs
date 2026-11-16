@@ -121,7 +121,7 @@ internal static class EnglishSyntaxParser
                 subject,
                 objectPhrase,
                 prepositionalPhrases,
-                kind is EnglishClauseKind.Relative or EnglishClauseKind.Infinitive,
+                kind is EnglishClauseKind.Relative,
                 verbIndex));
         }
 
