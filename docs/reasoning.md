@@ -305,3 +305,51 @@ The piano keyboard interface is defined by activating a piano hammer-action mech
 The piano type combines the piano-specific keyboard interface and piano hammer-action mechanism. For the represented example, the reasoner derives the piano hammer-action from the action → hammer → string structure, derives the piano keyboard interface from the keyboard → action link, and derives the example's membership in the piano type from its playing-interface and sound-production-mechanism links. The example's `instance-of piano` assertion is no longer needed.
 
 The hammer component remains primitive for now: the model does not yet represent the hammer head, shank, and their assembly as reusable structural concepts. This is an acknowledged gap, not a claim that hammers are irreducible. `string-component` is defined from its geometric form, load-induced bending response, tensioned state, sound-producing vibration, and vibration transfer to a resonator. The mechanical model distinguishes axial pulling loads from transverse loads through force modes and geometry-relative directions, but it does not yet calculate numerical forces, compliance, or elastic recovery.
+
+
+## Quantitative measurements and dimensional validation
+
+Version 3 numeric data properties remain supported as unitless values. Version 4 adds dimensional decimal properties: each decimal property declares a `dimensionUnit`, and each decimal assertion supplies a unit. The loader checks that the assertion's unit has the property's declared physical dimension, converts the value to its SI base unit, and retains that canonical unit with the normalized value. URI and unitless numeric data remain supported. Equivalent measurements such as `25 mm` and `0.025 m` normalize to the same value and unit.
+
+The shared unit table currently covers force, length, area, second moment of area, pressure, mass, linear mass density, frequency, and time. Supported prefixed units are converted to SI base units during loading; unsupported units and dimension mismatches are rejected.
+
+## Axial mechanical calculations
+
+The axial mechanics calculator derives three quantities from force, cross-sectional area, Young's modulus, and component length:
+
+\[
+\sigma = \frac{F}{A}, \qquad
+\epsilon = \frac{\sigma}{E}, \qquad
+k = \frac{EA}{L}
+\]
+
+Here, \(\sigma\) is tensile stress, \(\epsilon\) is axial strain, and \(k\) is axial stiffness. The calculator requires non-negative force and positive area, modulus, and length. It returns a calculation result or a validation/overflow error; it does not invent measurements for any modeled component.
+
+## Ideal stretched-string vibration
+
+The ideal transverse-vibration calculation assumes a uniform, flexible string under constant positive tension, with fixed endpoints and small transverse displacement:
+
+\[
+v = \sqrt{\frac{T}{\mu}}, \qquad
+f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}}
+\]
+
+Here, \(T\) is tension in newtons, \(\mu\) is linear mass density in kilograms per metre, \(L\) is vibrating length in metres, \(v\) is wave speed, and \(n\) is a positive integer harmonic number. It predicts ideal modal frequencies only; it does not model damping, string inharmonicity, coupling, loudness, timbre, or radiated sound.
+
+## Stiff-string inharmonicity
+
+The stiff-string extension uses the Euler–Bernoulli approximation for a uniform string with fixed endpoints, constant tension, and small transverse displacement. Its dimensionless inharmonicity coefficient is:
+
+\[
+B = \frac{\pi^2 E I}{T L^2}
+\]
+
+The ideal flexible-string fundamental is \(f_0 = \frac{1}{2L}\sqrt{T/\mu}\). The stiffness-adjusted partial frequencies are:
+
+\[
+f_n = n f_0 \sqrt{1 + B n^2}
+\]
+
+The calculator reports the inharmonicity coefficient, ideal fundamental, stiffness-shifted fundamental, and requested partial. The second moment of area \(I\) must be supplied for the relevant bending axis; it is not inferred from cross-sectional area alone.
+
+These calculations assume positive physical inputs and use decimal arithmetic with explicit validation. They do not yet model nonuniform or wound strings, frequency-dependent material behavior, boundary compliance, multiple-string coupling, damping, soundboard coupling, or acoustic output. No force, mass-density, length, modulus, or cross-section measurements are assigned to the piano example.
