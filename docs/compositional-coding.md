@@ -14,12 +14,15 @@ The generator itself is output-format agnostic:
 
 - It expands grammar symbols into terminal tokens.
 - It resolves semantic binding slots from the supplied generation context.
-- It evaluates alternative continuations using production preferences.
-- It emits the resulting token sequence without interpreting the sequence as Python, English, Markdown, or any other particular format.
+- It expands nonterminal grammar symbols to define the currently permissible continuations.
+- It scores every emitted terminal or semantic binding token with the same optional context-sensitive token model.
+- It emits the resulting sequence without interpreting it as Python, English, Markdown, or any other particular format.
 
-Language and domain knowledge can describe vocabulary, grammar, syntax, and preferred constructions. That knowledge is data consumed by the same engine; it must not become a collection of specialized rendering implementations. Whitespace and punctuation are ordinary emitted surface tokens.
+Language and domain knowledge can describe vocabulary, grammar, syntax, and preferred constructions. A generic token model can provide continuation statistics for any kind of output. Both are data consumed by the same engine; neither becomes a specialized rendering implementation. Whitespace and punctuation are ordinary emitted surface tokens.
 
-The initial implementation uses bounded deterministic beam search over weighted grammar productions. This is an architectural foundation, **not** a neural next-token model or a claim of open-ended language ability. It does not yet learn broad usage probabilities, infer a complete generation context from the semantic graph, or replace the current runtime responders. Those are subsequent milestones.
+The initial implementation combines bounded deterministic beam search over weighted grammar productions with an optional smoothed n-gram continuation model. The grammar constrains possible sequences; the token model scores each next emitted token using the longest available preceding-token context, backing off to shorter contexts when necessary. The score is format-agnostic and is applied equally to natural-language words, code symbols, whitespace, and punctuation.
+
+This is an architectural foundation, **not** a neural next-token model or a claim of open-ended language ability. The current token observations must be supplied explicitly; there is not yet a corpus-training pipeline, learned semantic content planner, robust morphology, or runtime integration. It does not yet replace the current runtime responders. Those are subsequent milestones.
 
 ## Repository audit: current code-generation path
 
