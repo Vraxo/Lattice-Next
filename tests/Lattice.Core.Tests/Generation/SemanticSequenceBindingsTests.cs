@@ -47,12 +47,15 @@ public sealed class SemanticSequenceBindingsTests
     [Fact]
     public void Rejects_relation_assertions_whose_arguments_have_the_wrong_kinds()
     {
-        var model = CreateModel();
         var invalidAssertion = new SemanticRelationAssertion(
             "musical-instrument",
             "instance-of",
             "piano",
             new SemanticWorldModelSource("test:invalid-fact"));
+        var model = CreateModel() with
+        {
+            RelationAssertions = ImmutableArray.Create(invalidAssertion)
+        };
 
         var resolved = SemanticSequenceBindings.TryFromAssertion(
             model,
