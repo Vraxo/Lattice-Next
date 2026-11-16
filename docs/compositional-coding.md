@@ -47,6 +47,8 @@ Continue expanding the graph only where the benchmark demonstrates a missing con
 
 Create a typed, composable representation for programs. Keep construction independent of Python text formatting. Add deterministic rendering and syntax validation. The renderer may contain grammar rules and syntax tokens, but no complete benchmark solutions.
 
+The first language-neutral `ProgramPlan` and Python lowering pass now exist. Plans represent imports, assignments, expression evaluation, returns, iteration, conditions, functions, values, member/index access, calls, and operators without embedding Python source strings. `PythonProgramLowerer` maps those generic structures into the Python syntax model; the existing renderer then emits source. Tests verify both a composed loop/condition program and a generic API invocation. This is a construction pipeline, not yet a semantic task planner: the runtime does not infer a plan from a user's request at this stage.
+
 ### Milestone 4 — Independent Blender knowledge
 
 Model Blender's application concepts, scene/object/collection relationships, object data, transforms, materials, cameras, lights, and a curated subset of its Python API. API facts should include signatures and effects, not task recipes.
