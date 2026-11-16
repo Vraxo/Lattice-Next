@@ -39,4 +39,21 @@ public sealed class ChargedParticleAccelerationCalculatorTests
         Assert.Null(result);
         Assert.Contains("negative final kinetic energy", error);
     }
+    [Fact]
+    public void Neutral_particle_keeps_its_speed_across_a_potential_difference()
+    {
+        var success = ChargedParticleAccelerationCalculator.TryCalculateFinalSpeed(
+            25000,
+            -250,
+            0,
+            1,
+            out var result,
+            out var error);
+
+        Assert.True(success, error);
+        Assert.NotNull(result);
+        Assert.Equal(25000, result.FinalSpeedMetersPerSecond, 8);
+        Assert.Equal(0, result.KineticEnergyChangeElectronVolts);
+    }
+
 }
