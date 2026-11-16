@@ -32,7 +32,7 @@ public sealed class EnumerationRemainderQuestionTests
     }
 
     [Fact]
-    public async Task Resolves_numeric_counts_and_ordinals_for_a_two_member_group()
+    public async Task Abstains_when_the_anchor_has_no_modeled_person_type()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -43,11 +43,10 @@ public sealed class EnumerationRemainderQuestionTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
         Assert.Empty(utterance.SupportingEvidence);
-        
     }
 
     [Fact]
-    public async Task Resolves_irregular_plural_group_names()
+    public async Task Abstains_when_an_unmodeled_anchor_is_used_for_children()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -62,7 +61,7 @@ public sealed class EnumerationRemainderQuestionTests
     }
 
     [Fact]
-    public async Task Resolves_a_different_regular_plural_group()
+    public async Task Abstains_when_a_son_anchor_has_no_modeled_person_type()
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -88,6 +87,25 @@ public sealed class EnumerationRemainderQuestionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, answer.Kind);
         Assert.Empty(answer.SupportingEvidence);
+    }
+
+    [Fact]
+    public async Task Resolves_a_child_set_when_the_anchor_has_a_general_person_type()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Alice's parents have three children: Amy, Jessy, and what's the name of the third child?");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal("The third child is Alice.", answer.Message);
+        Assert.Contains(
+            answer.SupportingEvidence.SelectMany(evidence => evidence.Premises),
+            premise => premise.Sources.Any(source =>
+                source.SourceId?.EndsWith(":instance-of:person", StringComparison.Ordinal) == true ||
+                source.SourceId?.EndsWith(":instance-of:female-person", StringComparison.Ordinal) == true));
     }
 
     [Fact]
