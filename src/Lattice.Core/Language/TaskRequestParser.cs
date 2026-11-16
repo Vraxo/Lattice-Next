@@ -32,7 +32,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex HobbyExplorationPattern = new(
-        @"^\\s*(?:I want to start doing|I would like to start doing|I\\x27d like to start doing|I want to take up)\\s+(?<hobby>[^,.?]+?)(?:\\s+as a hobby)?\\s*,?\\s*(?:any suggestions.*|what could I do.*|what can I do.*)?[?.!]*\\s*$",
+        @"^\s*(?:I want to start doing|I would like to start doing|I'd like to start doing|I want to take up)\s+(?<hobby>[^,.?]+?)(?:\s+as a hobby)?\s*,?\s*(?:any suggestions.*|what could I do.*|what can I do.*)?[?.!]*\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RecommendationRequestPattern = new(
