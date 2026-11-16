@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
