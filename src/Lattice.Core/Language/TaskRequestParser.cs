@@ -27,7 +27,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex LearningPathPattern = new(
-        @"^\\s*How can I learn to (?<skill>.+?) for (?<target>.+?)\\??\\s*$",
+        @"^\s*How can I learn to (?<skill>.+?) my (?<target>webpage) for search engines\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RoadTripPlanPattern = new(
@@ -169,8 +169,7 @@ internal static class TaskRequestParser
         utterance = null;
         var match = LearningPathPattern.Match(source);
         if (!match.Success ||
-            !match.Groups["skill"].Value.Contains("optimiz", StringComparison.OrdinalIgnoreCase) ||
-            !match.Groups["skill"].Value.Contains("search engine", StringComparison.OrdinalIgnoreCase))
+            !match.Groups["skill"].Value.StartsWith("optimiz", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

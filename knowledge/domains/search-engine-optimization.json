@@ -147,11 +147,6 @@
       "id": "measurement-step",
       "label": "Monitor results and iterate",
       "kind": "Individual"
-    },
-    {
-      "id": "webpage",
-      "label": "webpage",
-      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -414,9 +409,84 @@
       "object": "compare-search-results"
     },
     {
-      "subject": "webpage",
+      "subject": "discoverability",
       "relation": "instance-of",
-      "object": "entity"
+      "object": "seo-topic"
+    },
+    {
+      "subject": "inspect-indexing",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "search-intent",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "map-searches",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "useful-content",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "improve-content",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "on-page-elements",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "review-page-elements",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "mobile-usability",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "test-mobile-page",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "page-performance",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "measure-performance",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "internal-linking",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "connect-related-pages",
+      "relation": "instance-of",
+      "object": "seo-exercise"
+    },
+    {
+      "subject": "search-measurement",
+      "relation": "instance-of",
+      "object": "seo-topic"
+    },
+    {
+      "subject": "compare-search-results",
+      "relation": "instance-of",
+      "object": "seo-exercise"
     }
   ],
   "dataProperties": [
