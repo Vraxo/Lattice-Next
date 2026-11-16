@@ -26,6 +26,10 @@ internal static class TaskRequestParser
         @"^\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex LearningPathPattern = new(
+        @"^\\s*How can I learn to (?<skill>.+?) for (?<target>.+?)\\??\\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RoadTripPlanPattern = new(
         @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -47,6 +51,11 @@ internal static class TaskRequestParser
         }
 
         if (TryParseOperationExplanation(source, sourceText, out utterance))
+        {
+            return true;
+        }
+
+        if (TryParseLearningPath(source, sourceText, out utterance))
         {
             return true;
         }
@@ -144,6 +153,35 @@ internal static class TaskRequestParser
             "procedure",
             null,
             ImmutableArray.Create("operating-procedure"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
+    }
+
+    private static bool TryParseLearningPath(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = LearningPathPattern.Match(source);
+        if (!match.Success ||
+            !match.Groups["skill"].Value.Contains("optimiz", StringComparison.OrdinalIgnoreCase) ||
+            !match.Groups["skill"].Value.Contains("search engine", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Plan,
+            "search-engine-optimization",
+            match.Groups["target"].Value.Trim().ToLowerInvariant(),
+            "learning-path",
+            null,
+            ImmutableArray.Create("beginner", "practical-exercises"));
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,
