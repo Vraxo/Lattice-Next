@@ -604,7 +604,7 @@ internal static class TaskRequestResponder
             var loader = new GenerationLanguagePackLoader();
             if (!loader.TryLoadEmbedded(out var packs, out _) ||
                 !packs.TryGetValue(request.Context, out var pack) ||
-                !new SequenceGenerator().TryGenerate(
+                !new OperationSequenceGenerator().TryGenerate(
                     pack,
                     new GenerationGoal(
                         request.Scope,

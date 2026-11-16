@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "id": "lattice-coding-v1",
+  "title": "Lattice Coding Benchmark v1",
+  "purpose": "Measure whether Lattice can understand programming concepts, construct programs compositionally, and combine independently learned Python and Blender knowledge on tasks for which no task-specific solution has been supplied.",
+  "status": "design-baseline",
+  "scoring": {
+    "dimensions": [
+      {
+        "id": "task-understanding",
+        "weight": 1,
+        "description": "Correctly identifies requested behavior and constraints."
+      },
+      {
+        "id": "decomposition",
+        "weight": 1,
+        "description": "Produces a coherent structure of required operations."
+      },
+      {
+        "id": "composition",
+        "weight": 2,
+        "description": "Combines learned concepts without retrieving a task-specific solution."
+      },
+      {
+        "id": "syntax",
+        "weight": 1,
+        "description": "Produces syntactically valid Python."
+      },
+      {
+        "id": "api-correctness",
+        "weight": 1,
+        "description": "Uses supported, semantically appropriate Blender API members."
+      },
+      {
+        "id": "execution",
+        "weight": 2,
+        "description": "Generated program passes task-specific execution checks."
+      },
+      {
+        "id": "generalization",
+        "weight": 2,
+        "description": "Handles changed names, values, collection sizes, and equivalent phrasings without task-specific branches."
+      }
+    ],
+    "scoreRange": "Each dimension is scored 0 (fail), 1 (partial), or 2 (pass); not-applicable dimensions are excluded from that prompt's denominator.",
+    "antiShortcuts": [
+      "A task-specific response template or task-ID branch cannot earn composition or generalization credit.",
+      "A stored complete solution or complete code fragment for a benchmark task invalidates that task as a compositional test.",
+      "A plausible-looking script does not pass execution or API correctness without validation.",
+      "Knowledge packs may describe concepts, language rules, APIs, and reusable operations; they must not contain benchmark-task solutions."
+    ]
+  },
+  "stages": [
+    {
+      "id": "python-fundamentals",
+      "name": "Python fundamentals",
+      "kind": "learned-foundation",
+      "count": 8,
+      "items": [
+        {
+          "id": "py-001",
+          "prompt": "Write the smallest Python program that prints Hello, world!.",
+          "capabilities": [
+            "program",
+            "statement",
+            "function-call",
+            "string-literal",
+            "print"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-002",
+          "prompt": "Write a Python program that stores two numbers in variables, adds them, and prints the result.",
+          "capabilities": [
+            "variable",
+            "assignment",
+            "number",
+            "arithmetic-expression",
+            "function-call"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-003",
+          "prompt": "Write a Python program that reports whether an integer is positive, negative, or zero.",
+          "capabilities": [
+            "integer",
+            "comparison",
+            "conditional",
+            "branch"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-004",
+          "prompt": "Given a list of numbers, write a Python program that calculates their total without using the built-in sum function.",
+          "capabilities": [
+            "list",
+            "iteration",
+            "loop",
+            "accumulator",
+            "assignment"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-005",
+          "prompt": "Write a Python program that prints only the even numbers from a list.",
+          "capabilities": [
+            "list",
+            "loop",
+            "modulo",
+            "condition",
+            "filtering"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-006",
+          "prompt": "Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
+          "capabilities": [
+            "function-definition",
+            "parameter",
+            "return-value",
+            "function-call",
+            "string"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-007",
+          "prompt": "Given a dictionary of product names and prices, print each product with its price.",
+          "capabilities": [
+            "dictionary",
+            "key-value",
+            "iteration",
+            "loop",
+            "formatting"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "py-008",
+          "prompt": "Write a function that converts text to an integer and returns a clear result when the text is not a valid integer.",
+          "capabilities": [
+            "function",
+            "conversion",
+            "exception",
+            "try-except",
+            "return"
+          ],
+          "executionRequired": true
+        }
+      ]
+    },
+    {
+      "id": "compositional-python",
+      "name": "Compositional Python",
+      "kind": "learned-foundation",
+      "count": 8,
+      "items": [
+        {
+          "id": "pyc-001",
+          "prompt": "Write a function that receives a list of numbers and returns a new list containing only values greater than the average.",
+          "capabilities": [
+            "function",
+            "list",
+            "loop",
+            "conditional",
+            "arithmetic",
+            "new-collection"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-002",
+          "prompt": "Given a list of names, create a dictionary that maps each name to the number of characters in it.",
+          "capabilities": [
+            "list",
+            "dictionary",
+            "loop",
+            "len",
+            "assignment"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-003",
+          "prompt": "Write a program that reads a text file and counts how many non-empty lines it contains.",
+          "capabilities": [
+            "file",
+            "context-manager",
+            "iteration",
+            "string",
+            "counting"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-004",
+          "prompt": "Write a program that saves a list of dictionaries to a JSON file and then loads it back.",
+          "capabilities": [
+            "module-import",
+            "json",
+            "list",
+            "dictionary",
+            "file-read",
+            "file-write"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-005",
+          "prompt": "Create a reusable function that accepts a list of records and a field name, then returns the records sorted by that field.",
+          "capabilities": [
+            "function",
+            "parameter",
+            "list",
+            "dictionary",
+            "sorting",
+            "key-function"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-006",
+          "prompt": "Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
+          "capabilities": [
+            "class",
+            "instance",
+            "attribute",
+            "method",
+            "condition",
+            "state-change"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-007",
+          "prompt": "Write a program that accepts a directory path and reports the names and sizes of all files directly inside it, handling a missing directory cleanly.",
+          "capabilities": [
+            "module-import",
+            "path",
+            "filesystem",
+            "iteration",
+            "file-metadata",
+            "exception"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "pyc-008",
+          "prompt": "Write a small program that groups a list of purchase records by customer and calculates each customer's total spending.",
+          "capabilities": [
+            "list",
+            "dictionary",
+            "loop",
+            "aggregation",
+            "nested-data",
+            "arithmetic"
+          ],
+          "executionRequired": true
+        }
+      ]
+    },
+    {
+      "id": "blender-foundations",
+      "name": "Blender conceptual and API foundations",
+      "kind": "learned-foundation",
+      "count": 6,
+      "items": [
+        {
+          "id": "bl-001",
+          "prompt": "Explain what Blender is and distinguish a scene, an object, and a collection.",
+          "capabilities": [
+            "blender-application",
+            "scene",
+            "object",
+            "collection"
+          ],
+          "executionRequired": false
+        },
+        {
+          "id": "bl-002",
+          "prompt": "Explain the difference between a mesh object and the mesh data it references.",
+          "capabilities": [
+            "object-data",
+            "mesh",
+            "datablock",
+            "reference"
+          ],
+          "executionRequired": false
+        },
+        {
+          "id": "bl-003",
+          "prompt": "Explain what an object's location, rotation, scale, and world transform represent.",
+          "capabilities": [
+            "transform",
+            "local-space",
+            "world-space",
+            "location",
+            "rotation",
+            "scale"
+          ],
+          "executionRequired": false
+        },
+        {
+          "id": "bl-004",
+          "prompt": "Explain the roles of cameras, lights, and materials in a Blender scene.",
+          "capabilities": [
+            "camera",
+            "light",
+            "material",
+            "scene"
+          ],
+          "executionRequired": false
+        },
+        {
+          "id": "bl-005",
+          "prompt": "Explain what an application programming interface is, using Blender's Python API as the example.",
+          "capabilities": [
+            "api",
+            "application",
+            "programming-language",
+            "interface"
+          ],
+          "executionRequired": false
+        },
+        {
+          "id": "bl-006",
+          "prompt": "Explain how a Python program can access and modify data owned by Blender, and distinguish Python language features from Blender-specific API features.",
+          "capabilities": [
+            "python",
+            "blender-api",
+            "external-library",
+            "data-model",
+            "separation-of-concerns"
+          ],
+          "executionRequired": false
+        }
+      ]
+    },
+    {
+      "id": "unseen-cross-domain",
+      "name": "Unseen Python + Blender compositions",
+      "kind": "holdout",
+      "count": 8,
+      "rules": [
+        "Do not add these task descriptions, their solutions, or task-specific identifiers to runtime knowledge packs or code-generation branches.",
+        "Only foundational Python concepts and independently curated Blender concepts/API facts may be supplied.",
+        "Vary object names, values, scene contents, and equivalent phrasings during execution.",
+        "A task is not considered passed until generated code is syntax-checked and, where feasible, executed in a controlled Blender process."
+      ],
+      "items": [
+        {
+          "id": "xbl-001",
+          "prompt": "Write a Blender Python script that creates one cube at each of these coordinates: (0, 0, 0), (2, 0, 0), and (4, 0, 0).",
+          "capabilities": [
+            "python-list",
+            "loop",
+            "function-call",
+            "blender-scene",
+            "object-creation",
+            "location"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-002",
+          "prompt": "Write a Blender Python script that visits every mesh object in the current scene and assigns a material based on whether its world-space X coordinate is below or above zero.",
+          "capabilities": [
+            "python-loop",
+            "condition",
+            "blender-scene",
+            "object-type",
+            "world-transform",
+            "material-assignment"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-003",
+          "prompt": "Write a Blender Python script that creates a camera for each collection containing at least one mesh object.",
+          "capabilities": [
+            "python-loop",
+            "condition",
+            "collection",
+            "mesh",
+            "camera-creation",
+            "scene-data"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-004",
+          "prompt": "Write a Blender Python script that renames all mesh objects using the prefix 'Asset_' while ensuring the resulting names are unique.",
+          "capabilities": [
+            "python-loop",
+            "string",
+            "object-type",
+            "object-name",
+            "uniqueness"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-005",
+          "prompt": "Write a Blender Python script that finds objects whose names begin with 'TEMP_' and moves them into a collection named 'Temporary'. Create that collection if it does not exist.",
+          "capabilities": [
+            "python-loop",
+            "string-prefix",
+            "condition",
+            "collection-lookup",
+            "collection-creation",
+            "collection-linking"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-006",
+          "prompt": "Write a Blender Python script that creates a point light above every mesh object, with the light's height determined by the object's dimensions.",
+          "capabilities": [
+            "python-loop",
+            "mesh",
+            "dimensions",
+            "arithmetic",
+            "light-creation",
+            "transform"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-007",
+          "prompt": "Write a Blender Python script that reads object names and target locations from a Python list of dictionaries, then moves the matching scene objects to those locations.",
+          "capabilities": [
+            "python-list",
+            "dictionary",
+            "loop",
+            "lookup",
+            "condition",
+            "transform-assignment"
+          ],
+          "executionRequired": true
+        },
+        {
+          "id": "xbl-008",
+          "prompt": "Write a Blender Python script that groups mesh objects by material name and creates one collection per material, moving each object into the corresponding collection.",
+          "capabilities": [
+            "python-dictionary",
+            "loop",
+            "grouping",
+            "material",
+            "collection-creation",
+            "collection-linking"
+          ],
+          "executionRequired": true
+        }
+      ]
+    }
+  ]
+}
