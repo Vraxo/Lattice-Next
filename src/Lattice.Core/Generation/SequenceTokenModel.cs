@@ -68,7 +68,7 @@ public sealed class SequenceTokenModel
         var aggregates = new Dictionary<
             (string ContextKey, string NextToken),
             (ImmutableArray<string> Context, long Count)>();
-        var totalTokens = 0;
+        long totalTokens = 0;
 
         foreach (var sequence in sequences)
         {
@@ -268,6 +268,11 @@ public sealed class SequenceTokenModel
                 .Take(MaximumCandidatesPerContext))
             {
                 candidates.Add(candidate.Key);
+            }
+
+            if (distribution.Counts.ContainsKey(EndToken))
+            {
+                candidates.Add(EndToken);
             }
         }
 
