@@ -115,6 +115,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What distinguishes (?<subject>[A-Za-z][A-Za-z -]*?) from (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RelationPairPattern = new(
+        @"^How is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) related to (?<other>[A-Za-z][A-Za-z0-9'’! -]*?)\??$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RelationTargetPattern = new(
         @"^What does (?<subject>[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -135,6 +139,19 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var relationPair = RelationPairPattern.Match(text);
+        if (relationPair.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationQueryFormula(
+                    Normalize(relationPair.Groups["subject"].Value),
+                    "related",
+                    OtherSubject: Normalize(relationPair.Groups["other"].Value)),
+                source);
+            return true;
+        }
 
         var productionLocationReasons = ProductionLocationReasonsPattern.Match(text);
         if (productionLocationReasons.Success)
