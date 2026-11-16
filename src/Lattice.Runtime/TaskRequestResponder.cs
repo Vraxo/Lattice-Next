@@ -325,10 +325,18 @@ internal static class TaskRequestResponder
 
         message = string.Join(Environment.NewLine + Environment.NewLine, new[]
         {
-            "Set target_name to the object name you want to replace. Blender keeps object names unique, so duplicates are normally given suffixes such as .001 and .002; the script matches those numbered variants too. Each point light is placed at the original object's world-space position and linked into the same collections before the original object is removed. Run it on a copy of your file first.",
+            "## Blender object replacement",
+            "Set `target_name` to the exact object name you want to replace. The script also matches Blender's numbered duplicates, such as `.001` and `.002`.",
+            "### Script",
             "```python",
             code,
-            "```"
+            "```",
+            "### What it does",
+            "- Finds every object with the selected name, including numbered duplicates.",
+            "- Creates a point light at each object's world-space position.",
+            "- Links each light into the same collections as its original object.",
+            "- Removes the original object after creating and linking its replacement.",
+            "**Before running:** Save a copy of your Blender file. The original objects are removed."
         });
 
         evidence = ImmutableArray.Create(new LatticeEvidence(
