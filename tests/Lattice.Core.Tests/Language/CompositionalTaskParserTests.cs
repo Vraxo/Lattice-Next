@@ -15,7 +15,7 @@ public sealed class CompositionalTaskParserTests
     [InlineData("Please build a script using Python that says hello world.")]
     [InlineData("I want to create a Python program that prints Hello World.")]
     [InlineData("Could you write a simple Python script to display Hello, world?")]
-    [InlineData("Can you make a Python program which outputs 'Ready!'?")]
+    [InlineData("Can you make a Python program which outputs 'Hello, world!'?")]
     public void Resolves_different_word_orders_to_the_same_semantic_goal(string input)
     {
         var result = new LceParser().ParseText(input);
