@@ -130,7 +130,7 @@
     },
     {
       "id": "solar-observation-warning",
-      "label": "Never look at the Sun through a camera, binoculars, or telescope without a purpose-built, securely fitted solar filter rated for the instrument.",
+      "label": "Never view the Sun through optics without a correctly fitted, instrument-rated solar filter.",
       "kind": "Individual"
     }
   ],
