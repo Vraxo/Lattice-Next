@@ -9,6 +9,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Language/Resources/english-lexicon.json"
                       LogicalName="Lattice.Core.Language.english-lexicon.json" />
+    <EmbeddedResource Include="../../knowledge/languages/**/*.json"
+                      LogicalName="Lattice.Core.GenerationKnowledge.%(RecursiveDir)%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="Lattice.Core.Tests" />
   </ItemGroup>
 
