@@ -302,13 +302,6 @@ internal static class TaskRequestResponder
             return false;
         }
 
-        var paragraphs = new List<string>
-        {
-            $"{method.Label} is a machine-learning method built around {principle.Label}. The model learns a useful representation of each example, often called an embedding.",
-            $"During training, it compares pairs of examples. A **positive pair** brings together {positivePair.Label}; a **negative pair** brings together {negativePair.Label}.",
-            $"The training objective encourages embeddings from positive pairs to become more similar and embeddings from negative pairs to become less similar. In other words, the model learns what should count as alike or different in the data."
-        };
-
         var positivePairRole = reasoner.GetRelations(positiveExamplePair.Id, "pair-has-role").FirstOrDefault();
         var negativePairRole = reasoner.GetRelations(negativeExamplePair.Id, "pair-has-role").FirstOrDefault();
         var positiveRole = positivePairRole is null ? null : model.FindConcept(positivePairRole.Object, SemanticConceptKind.Individual);
@@ -318,8 +311,13 @@ internal static class TaskRequestResponder
             return false;
         }
 
-        paragraphs.Add(
-            $"For example, {example.Label}: {positiveExamplePair.Label} form a positive pair because they show {positiveRole.Label}; {negativeExamplePair.Label} form a negative pair because they show {negativeRole.Label}.");
+        var paragraphs = new List<string>
+        {
+            $"{method.Label} is a machine-learning method built around {principle.Label}. It trains a model to turn each example into an {representation.Label}, a numerical representation the model can compare.",
+            $"During training, it compares pairs of examples. A **positive pair** brings together {positiveRole.Label}; a **negative pair** brings together {negativeRole.Label}.",
+            $"The training objective encourages embeddings from positive pairs to become more similar and embeddings from negative pairs to become less similar. In other words, the model learns what should count as alike or different in the data.",
+            $"For an image example, {example.Label}: {positiveExamplePair.Label} can form a positive pair, while {negativeExamplePair.Label} can form a negative pair."
+        };
 
         var applications = applicationAssertions
             .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
@@ -331,7 +329,7 @@ internal static class TaskRequestResponder
             paragraphs.Add($"Once trained, the learned representations can be useful for tasks such as {JoinNames(applications)}.");
         }
 
-        paragraphs.Add("The key intuition: examples that belong together should end up close in the model's learned representation space, while examples that differ should end up farther apart.");
+        paragraphs.Add("The key intuition: examples that belong together should end up close in the embedding space, while examples that differ should end up farther apart.");
 
         var sources = new List<SemanticWorldModelSource>();
         sources.AddRange(reasoner.GetMembershipEvidence(method.Id, "machine-learning-method"));
