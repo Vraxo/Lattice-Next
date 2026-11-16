@@ -258,10 +258,12 @@ public static class SequenceGenerator
             .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
             .First();
 
+        var searchLimitReached = steps >= request.MaxSteps &&
+            frontier.Any(state => !state.Pending.IsDefaultOrEmpty);
         result = new SequenceGenerationResult(
             best.Tokens,
             best.Score,
-            frontier.Count > 0);
+            searchLimitReached);
         return true;
     }
 
