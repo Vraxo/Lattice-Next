@@ -51,6 +51,11 @@ internal sealed class ReplUtteranceProcessor(ILatticeSession session)
                 case LatticeUtteranceResultKind.QuestionAnswered:
                     WriteAnswer(utterance);
                     break;
+
+                case LatticeUtteranceResultKind.TaskCompleted:
+                    AnsiConsole.MarkupLine("[bold green]Lattice[/] [dim]›[/]");
+                    AnsiConsole.WriteLine(utterance.Message ?? string.Empty);
+                    break;
             }
         }
     }
