@@ -128,8 +128,11 @@ public sealed class SequenceTokenModel
             }
         }
 
-        var observations = aggregates.Values
-            .Select(item => new SequenceTokenObservation(item.Context, item.NextToken, item.Count))
+        var observations = aggregates
+            .Select(item => new SequenceTokenObservation(
+                item.Value.Context,
+                item.Key.NextToken,
+                item.Value.Count))
             .ToImmutableArray();
 
         return TryCreate(
