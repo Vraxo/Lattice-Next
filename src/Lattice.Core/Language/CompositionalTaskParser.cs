@@ -18,7 +18,7 @@ internal static class CompositionalTaskParser
     private static readonly HashSet<string> OutputVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
         "print", "prints", "printing", "display", "displays", "show", "shows",
-        "output", "outputs", "say", "says", "write", "writes"
+        "output", "outputs", "say", "says"
     };
 
     internal static bool TryParse(
@@ -41,9 +41,10 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var requestedValue = TryGetRequestedOutput(source, tokens, out var output)
-            ? output
-            : "Hello, world!";
+        if (!TryGetRequestedOutput(source, tokens, out var requestedValue))
+        {
+            return false;
+        }
 
         var formula = new TaskRequestFormula(
             TaskRequestAction.Code,
