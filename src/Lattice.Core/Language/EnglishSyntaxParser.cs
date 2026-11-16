@@ -115,13 +115,23 @@ internal static class EnglishSyntaxParser
                 firstPreposition,
                 clauseEnd + 1);
 
+            var subjectBinding = subject is not null
+                ? EnglishSubjectBinding.Explicit
+                : kind switch
+                {
+                    EnglishClauseKind.Relative => EnglishSubjectBinding.Antecedent,
+                    EnglishClauseKind.Infinitive or EnglishClauseKind.Coordinated or EnglishClauseKind.Subordinate
+                        => EnglishSubjectBinding.PreviousClause,
+                    _ => EnglishSubjectBinding.Implicit
+                };
+
             clauses.Add(new EnglishClause(
                 kind,
                 GetBaseVerb(tokens[verbIndex].Value),
                 subject,
                 objectPhrase,
                 prepositionalPhrases,
-                kind is EnglishClauseKind.Relative,
+                subjectBinding,
                 verbIndex));
         }
 
