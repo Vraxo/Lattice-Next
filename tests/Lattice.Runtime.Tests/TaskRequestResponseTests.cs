@@ -18,7 +18,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("positive pair", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("negative pair", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("embedding", utterance.Message, StringComparison.OrdinalIgnoreCase);
@@ -54,7 +54,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("indexing", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("search intent", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("mobile", utterance.Message, StringComparison.OrdinalIgnoreCase);
@@ -160,7 +160,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("## Blender object replacement", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("### Script", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("```python", utterance.Message, StringComparison.Ordinal);
@@ -204,7 +204,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("Pen holder", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Small-parts organizer", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Seedling starter pot", utterance.Message, StringComparison.OrdinalIgnoreCase);
@@ -242,7 +242,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("left foot", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("right foot", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bite point", utterance.Message, StringComparison.Ordinal);
@@ -280,7 +280,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("Memorial Day", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Day 1", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Day 2", utterance.Message, StringComparison.Ordinal);
@@ -317,7 +317,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("buyer market structure", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("wage-setting power", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("wage markdown", utterance.Message, StringComparison.OrdinalIgnoreCase);
@@ -357,7 +357,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("IDAES", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("BioSTEAM", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("Pyomo", utterance.Message, StringComparison.Ordinal);
@@ -381,7 +381,7 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
         Assert.Contains("constellations", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("wide-field", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Moon", utterance.Message, StringComparison.Ordinal);
