@@ -18,6 +18,7 @@ public enum SemanticWorldModelQuestionKind
     BeginnerGuidance,
     CreativeIdeas,
     ListExamples,
+    TypeInstanceListQuery,
     MaximumDataValue,
     HighestDataValue,
     NotableExamples,
