@@ -27,7 +27,7 @@ public sealed class PairwiseGraphRelationQuestionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":neighbor-of:", StringComparison.Ordinal)));
+                source.SourceId?.Contains(":neighbor-of:", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -48,11 +48,11 @@ public sealed class PairwiseGraphRelationQuestionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":character-in:", StringComparison.Ordinal)));
+                source.SourceId?.Contains(":character-in:", StringComparison.Ordinal) == true));
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":neighbor-of:", StringComparison.Ordinal)));
+                source.SourceId?.Contains(":neighbor-of:", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public sealed class PairwiseGraphRelationQuestionTests
         Assert.Contains(
             answer.SupportingEvidence,
             evidence => evidence.Sources.Any(source =>
-                source.SourceId.Contains(":neighbor-of:", StringComparison.Ordinal)));
+                source.SourceId?.Contains(":neighbor-of:", StringComparison.Ordinal) == true));
     }
 
     [Fact]
