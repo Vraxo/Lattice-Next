@@ -31,9 +31,11 @@ public static class SemanticFormatter
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
             EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
-            SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
-                ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
-                : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
+            SemanticRelationQueryFormula relationQuery => relationQuery.OtherSubject is not null
+                ? $"relation-between({relationQuery.Subject}, {relationQuery.OtherSubject})"
+                : relationQuery.Scope is null
+                    ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
+                    : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
             SemanticRelationSourceQueryFormula relationQuery => relationQuery.SubjectType is null
                 ? $"relation-sources({relationQuery.Object}, {relationQuery.Verb})"
                 : $"relation-sources({relationQuery.Object}, {relationQuery.Verb}, subject-type({relationQuery.SubjectType}))",
