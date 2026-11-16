@@ -240,13 +240,43 @@ internal static class SemanticWorldModelResponder
                 var target = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
                 return relation is null || subject is null || target is null
                     ? null
-                    : FormatRelation(subject, target, relation, first: false);
+                    : FormatPairwiseRelation(subject, target, relation);
             })
             .Where(sentence => sentence is not null)
             .Select(sentence => sentence!)
             .Distinct(StringComparer.Ordinal)
             .ToImmutableArray();
         return sentences;
+    }
+
+    private static string FormatPairwiseRelation(
+        SemanticConcept subject,
+        SemanticConcept target,
+        SemanticRelationDefinition relation)
+    {
+        var subjectPhrase = subject.Label.StartsWith("the ", StringComparison.OrdinalIgnoreCase) ||
+            IsProperName(subject.Label)
+            ? subject.Label
+            : $"The {subject.Label}";
+        var targetPhrase = target.Label.StartsWith("the ", StringComparison.OrdinalIgnoreCase) ||
+            IsProperName(target.Label)
+            ? target.Label
+            : $"the {target.Label}";
+        if (relation.ObjectRole is not null)
+        {
+            targetPhrase = $"{targetPhrase} {relation.ObjectRole}";
+        }
+
+        var verb = subject.Label.EndsWith('s') && subject.Label.Length > 1
+            ? InflectPluralSubjectVerb(relation.Verb)
+            : relation.Verb;
+        return $"{subjectPhrase} {verb} {targetPhrase}.";
+    }
+
+    private static bool IsProperName(string value)
+    {
+        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return words.Length > 0 && words.All(word => char.IsUpper(word[0]));
     }
 
     private static bool TryFindUniqueShortestRelationPath(
