@@ -383,12 +383,6 @@ internal static class SemanticWorldModelResponder
         return $"{subjectPhrase} {verb} {targetPhrase}.";
     }
 
-    private static bool IsProperName(string value)
-    {
-        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return words.Length > 0 && words.All(word => char.IsUpper(word[0]));
-    }
-
     private static bool TryFindUniqueShortestRelationPath(
         string start,
         string target,
