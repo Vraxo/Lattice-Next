@@ -85,12 +85,12 @@
     },
     {
       "id": "camera-or-smartphone",
-      "label": "a camera or smartphone with manual exposure controls",
+      "label": "a camera or smartphone with manual exposure and focus controls",
       "kind": "Individual"
     },
     {
       "id": "sturdy-tripod",
-      "label": "a sturdy tripod",
+      "label": "a stable tripod to prevent camera shake",
       "kind": "Individual"
     },
     {
@@ -132,6 +132,21 @@
       "id": "solar-observation-warning",
       "label": "Never view the Sun through optics without a correctly fitted, instrument-rated solar filter.",
       "kind": "Individual"
+    },
+    {
+      "id": "first-night-practice",
+      "label": "a first night-sky photo session",
+      "kind": "Individual"
+    },
+    {
+      "id": "first-night-practice-goal",
+      "label": "learning a repeatable beginner workflow: choose a bright target, focus carefully, take a short test exposure, and adjust after reviewing it",
+      "kind": "Individual"
+    },
+    {
+      "id": "phone-or-camera-timer",
+      "label": "a camera timer or inexpensive remote shutter release",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -163,6 +178,11 @@
     {
       "form": "deep-sky astrophotography",
       "concept": "deep-sky-imaging",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "first night-sky photo",
+      "concept": "first-night-practice",
       "partOfSpeech": "noun"
     }
   ],
@@ -491,6 +511,51 @@
       "subject": "solar-observation-warning",
       "relation": "instance-of",
       "object": "hobby-safety-note"
+    },
+    {
+      "subject": "astrophotography",
+      "relation": "hobby-has-starter-activity",
+      "object": "first-night-practice"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "instance-of",
+      "object": "hobby-activity"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "activity-has-goal",
+      "object": "first-night-practice-goal"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "activity-uses-equipment",
+      "object": "camera-or-smartphone"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "activity-uses-equipment",
+      "object": "sturdy-tripod"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "activity-uses-equipment",
+      "object": "phone-or-camera-timer"
+    },
+    {
+      "subject": "first-night-practice",
+      "relation": "activity-has-level",
+      "object": "beginner-level"
+    },
+    {
+      "subject": "first-night-practice-goal",
+      "relation": "instance-of",
+      "object": "hobby-goal"
+    },
+    {
+      "subject": "phone-or-camera-timer",
+      "relation": "instance-of",
+      "object": "hobby-equipment"
     }
   ],
   "dataProperties": [
