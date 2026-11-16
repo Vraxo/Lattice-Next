@@ -41,7 +41,7 @@ public sealed class EnglishSyntaxParserTests
         Assert.Contains("Python", main.Object.Modifiers);
         Assert.Equal(EnglishClauseKind.Relative, relative.Kind);
         Assert.Equal("print", relative.Verb);
-        Assert.True(relative.UsesAntecedent);
+        Assert.Equal(EnglishSubjectBinding.Antecedent, relative.SubjectBinding);
         Assert.Equal("Hello, world!", relative.Object!.Text);
     }
 
@@ -70,4 +70,20 @@ public sealed class EnglishSyntaxParserTests
         Assert.Equal("you", syntax!.Clauses[0].Subject!.Head);
         Assert.Equal("create", syntax.Clauses[0].Verb);
     }
+    [Fact]
+    public void Represents_an_omitted_subject_in_a_coordinated_clause_as_inherited()
+    {
+        const string input = "Fido likes milk and eats fish.";
+
+        Assert.True(EnglishSyntaxParser.TryParse(input, out var syntax));
+
+        Assert.Equal(2, syntax!.Clauses.Length);
+        Assert.Equal("like", syntax.Clauses[0].Verb);
+        Assert.Equal("fido", syntax.Clauses[0].Subject!.Head);
+        Assert.Equal(EnglishClauseKind.Coordinated, syntax.Clauses[1].Kind);
+        Assert.Equal("eat", syntax.Clauses[1].Verb);
+        Assert.Equal(EnglishSubjectBinding.PreviousClause, syntax.Clauses[1].SubjectBinding);
+        Assert.Equal("fish", syntax.Clauses[1].Object!.Head);
+    }
+
 }
