@@ -94,7 +94,9 @@ public sealed class TaskRequestResponseTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.Empty(utterance.SupportingEvidence);
+        Assert.Empty(utterance.OpposingEvidence);
 
         var generatedCode = ExtractPythonCode(utterance.Message);
         Assert.Equal(expectedCode, generatedCode);
