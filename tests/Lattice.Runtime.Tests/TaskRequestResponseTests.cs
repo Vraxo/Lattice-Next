@@ -120,6 +120,42 @@ public sealed class TaskRequestResponseTests
     }
 
     [Fact]
+    public async Task Builds_a_practical_search_optimization_learning_path_from_graph_knowledge()
+    {
+        const string input = "How can I learn to optimize my webpage for search engines?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("indexing", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("search intent", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("mobile", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("performance", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("internal links", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("impressions", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_a_learning_path_for_an_unmodeled_skill()
+    {
+        const string input = "How can I learn to optimize a spacecraft trajectory for interstellar travel?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Fact]
     public async Task Writes_a_research_grounded_monopsony_introduction_from_default_knowledge()
     {
         const string input = "Can you write a short introduction about the relevance of the term \"monopsony\" in economics? Please use examples related to potential monopsonies in the labour market and cite relevant research.";
