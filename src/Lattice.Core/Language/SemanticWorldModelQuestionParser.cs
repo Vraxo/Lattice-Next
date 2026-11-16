@@ -462,6 +462,20 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
+        var scopedTypedRelationSource = ScopedTypedRelationSourcePattern.Match(text);
+        if (scopedTypedRelationSource.Success)
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new SemanticRelationSourceQueryFormula(
+                    Normalize(scopedTypedRelationSource.Groups["agent"].Value),
+                    Normalize(scopedTypedRelationSource.Groups["verb"].Value),
+                    NormalizeType(scopedTypedRelationSource.Groups["subjectType"].Value),
+                    Normalize(scopedTypedRelationSource.Groups["scope"].Value)),
+                source);
+            return true;
+        }
+
         var scopedRelationTarget = ScopedRelationTargetPattern.Match(text);
         if (scopedRelationTarget.Success)
         {
@@ -483,20 +497,6 @@ internal static class SemanticWorldModelQuestionParser
                 new SemanticRelationQueryFormula(
                     Normalize(relationTarget.Groups["subject"].Value),
                     Normalize(relationTarget.Groups["verb"].Value)),
-                source);
-            return true;
-        }
-
-        var scopedTypedRelationSource = ScopedTypedRelationSourcePattern.Match(text);
-        if (scopedTypedRelationSource.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationSourceQueryFormula(
-                    Normalize(scopedTypedRelationSource.Groups["agent"].Value),
-                    Normalize(scopedTypedRelationSource.Groups["verb"].Value),
-                    NormalizeType(scopedTypedRelationSource.Groups["subjectType"].Value),
-                    Normalize(scopedTypedRelationSource.Groups["scope"].Value)),
                 source);
             return true;
         }
