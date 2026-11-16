@@ -42,6 +42,11 @@ public sealed class SemanticMeasurementTests
         var assertion = Assert.Single(model!.DataAssertions);
         Assert.Equal("0.025", assertion.Value);
         Assert.Equal("m", assertion.Unit);
+
+        var duplicateJson = json.Replace(
+            "{ \"subject\": \"sample\", \"property\": \"length\", \"value\": \"25\", \"unit\": \"mm\" }",
+            "{ \"subject\": \"sample\", \"property\": \"length\", \"value\": \"25\", \"unit\": \"mm\" },\n            { \"subject\": \"sample\", \"property\": \"length\", \"value\": \"0.025\", \"unit\": \"m\" }");
+        Assert.False(loader.TryLoad(duplicateJson, out _, out _));
     }
 
     [Fact]
