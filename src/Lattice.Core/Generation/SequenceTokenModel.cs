@@ -19,7 +19,7 @@ public sealed record SequenceTokenObservation(
 public sealed class SequenceTokenModel
 {
     private const int MaximumObservations = 250_000;
-    private const int MaximumContextLength = 8;
+    private const int MaxSupportedContextLength = 8;
     private const int MaximumTokenLength = 4096;
 
     private readonly ImmutableDictionary<string, TokenDistribution> distributions;
