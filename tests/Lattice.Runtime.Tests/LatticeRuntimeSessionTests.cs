@@ -403,7 +403,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal(
-            "Cantaro is a percussion instrument. Gudok is a string instrument.",
+            "String instruments: Gudok. Percussion instruments: Cantaro.",
             utterance.Message);
         Assert.Equal(
             "ask(classify(instrument, categories(string, percussion), items(cantaro, gudok)))",
@@ -431,7 +431,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal(
-            "Panduri is a string instrument. Zurna is a woodwind instrument.",
+            "String instruments: Panduri. Woodwind instruments: Zurna.",
             utterance.Message);
         Assert.Equal(
             "ask(classify(instrument, categories(string, woodwind), items(panduri, zurna)))",
@@ -460,7 +460,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
         Assert.Equal(
-            "Guitar is a string instrument. Violin is a string instrument. Piano is both a string and a keyboard instrument. Harmonium is a keyboard instrument. Cello is a string instrument. Accordion is a keyboard instrument. Banjo is a string instrument.",
+            "String instruments: Guitar, violin, piano, cello, and banjo. Keyboard instruments: Piano, harmonium, and accordion.",
             utterance.Message);
         Assert.Equal(
             "ask(classify(instrument, categories(string, keyboard), items(guitar, violin, piano, harmonium, cello, accordion, banjo)))",
@@ -896,4 +896,21 @@ public sealed class LatticeRuntimeSessionTests
                 source.SourceId == "core-world-model:relation:piano-hammers:strikes:piano-strings"));
     }
 
+
+    [Fact]
+    public async Task Groups_transportation_classification_results_by_category()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Which of the following is useful for transportation: a glass of wine, a lamp, a train, an iced cube tray, a plane, a bicycle, an apple and a scooter.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
+        Assert.Equal(
+            "Useful for transportation: Train, plane, bicycle, and scooter. Not useful for transportation: Glass of wine, lamp, ice cube tray, and apple.",
+            answer.Message);
+        Assert.Equal(8, answer.SupportingEvidence.Length);
+    }
 }

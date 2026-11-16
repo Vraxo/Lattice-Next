@@ -1900,9 +1900,22 @@ internal static class SemanticWorldModelResponder
                 matching.SelectMany(item => item.Sources).Distinct().ToImmutableArray()));
         }
 
+        var groups = request.Categories
+            .Select(category => (
+                Category: category.Value,
+                Items: results
+                    .Where(result => result.Categories.Contains(category.Value))
+                    .Select(result => result.Item)
+                    .ToArray()))
+            .Where(group => group.Items.Length > 0)
+            .ToArray();
+
         message = string.Join(
             " ",
-            results.Select(result => FormatClassification(result, itemType)));
+            groups.Select(group => FormatClassificationGroup(
+                group.Category,
+                group.Items,
+                itemType)));
 
         evidence = results
             .Select(result => ToEvidence(result.Sources, LatticeEvidenceKind.Derived))
@@ -1910,30 +1923,30 @@ internal static class SemanticWorldModelResponder
         return true;
     }
 
-    private static string FormatClassification(
-        (string Item, ImmutableArray<string> Categories, ImmutableArray<SemanticWorldModelSource> Sources) result,
+    private static string FormatClassificationGroup(
+        string category,
+        IReadOnlyList<string> items,
         string itemType)
     {
+        var categoryPhrase = category.Replace('-', ' ');
+        var itemNames = Capitalize(JoinNames(items
+            .Select(item => item.Length == 0
+                ? item
+                : $"{char.ToLowerInvariant(item[0])}{item[1..]}")
+            .ToArray()));
+
+        if (itemType.StartsWith("thing-for-", StringComparison.Ordinal))
+        {
+            var purpose = itemType["thing-for-".Length..].Replace('-', ' ');
+            return $"{Capitalize(categoryPhrase)} for {purpose}: {itemNames}.";
+        }
+
         var typePhrase = itemType.Replace('-', ' ');
-        var categoryPhrases = result.Categories
-            .Select(category => category.Replace('-', ' '))
-            .ToArray();
+        var pluralType = typePhrase.EndsWith("s", StringComparison.Ordinal)
+            ? typePhrase
+            : $"{typePhrase}s";
 
-        if (categoryPhrases.Length == 1)
-        {
-            var category = categoryPhrases[0];
-            var predicate = category.StartsWith("not ", StringComparison.Ordinal)
-                ? $"not {IndefinitePhrase(category[4..])}"
-                : IndefinitePhrase(category);
-            return $"{Capitalize(result.Item)} is {predicate} {typePhrase}.";
-        }
-
-        if (categoryPhrases.Length == 2)
-        {
-            return $"{Capitalize(result.Item)} is both {IndefinitePhrase(categoryPhrases[0])} and {IndefinitePhrase(categoryPhrases[1])} {typePhrase}.";
-        }
-
-        return $"{Capitalize(result.Item)} belongs to the {JoinNames(categoryPhrases)} {typePhrase} categories.";
+        return $"{Capitalize(categoryPhrase)} {pluralType}: {itemNames}.";
     }
 
     private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
