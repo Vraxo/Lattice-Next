@@ -105,7 +105,7 @@ public sealed class TaskRequestResponseTests
     {
         var fence = new string((char)96, 3);
         var opening = fence + "python";
-        var lines = message.Split(new[] { "\\r", "\\n" }, StringSplitOptions.None);
+        var lines = message.Split(Environment.NewLine, StringSplitOptions.None);
         var start = Array.IndexOf(lines, opening);
         if (start < 0)
         {
