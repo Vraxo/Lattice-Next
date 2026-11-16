@@ -56,9 +56,9 @@ This remains a useful baseline for measuring the limitation, but it is not the t
 ### Milestone 2 — Universal sequence-generation core
 
 - Add a reusable grammar/production representation made from terminal tokens, nonterminal symbols, and semantic binding slots.
+- Load grammar productions from a strict, versioned JSON format; keep syntax and language distinctions in grammar knowledge, not generator branches.
 - Add one bounded deterministic search algorithm that selects a continuation and emits terminal tokens.
 - Prove that the same engine emits both a natural-language sentence and a Python statement.
-- Keep syntax and language distinctions in grammar knowledge, not generator branches.
 
 ### Milestone 3 — Generation knowledge and semantic grounding
 
