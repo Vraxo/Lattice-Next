@@ -52,11 +52,13 @@ public sealed class TaskRequestParserTests
         Assert.Equal(new[] { "beginner", "practical-exercises" }, request.Requirements);
     }
 
-    [Fact]
-    public void Parses_a_Hello_World_program_as_a_semantic_output_goal()
+    [Theory]
+    [InlineData("Write a Hello World program in Python.")]
+    [InlineData("write a hello world program in python")]
+    [InlineData("write a python hello world program")]
+    [InlineData("Write a Python Hello World program")]
+    public void Parses_a_Hello_World_program_as_a_semantic_output_goal(string input)
     {
-        const string input = "Write a Hello World program in Python.";
-
         var result = parser.ParseText(input);
 
         Assert.True(result.IsSuccess, result.Error);
@@ -70,6 +72,7 @@ public sealed class TaskRequestParserTests
         Assert.Equal("write-standard-output", request.Scope);
         Assert.Equal("Hello, world!", request.RequestedValue);
         Assert.Equal(new[] { "text-output" }, request.Requirements);
+        Assert.Equal(input, utterance.SourceText);
     }
 
     [Fact]
