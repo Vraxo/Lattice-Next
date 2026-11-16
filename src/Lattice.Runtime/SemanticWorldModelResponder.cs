@@ -1900,10 +1900,14 @@ internal static class SemanticWorldModelResponder
             .Select(candidate => candidate.Concept.Label)
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+        var dehydrationDetails = dehydrationTolerance
+            .Select(candidate => candidate.Concept.Label)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
         var subjectLabel = subjectType.Label.EndsWith("s", StringComparison.OrdinalIgnoreCase)
             ? subjectType.Label
             : $"{subjectType.Label}s";
-        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. In practice, {JoinConditions(adaptationDetails)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
+        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. In practice, {JoinConditions(adaptationDetails)}. Their dehydration-tolerance adaptation also supports survival during water deprivation: {JoinConditions(dehydrationDetails)}.";
 
         var sources = adaptations
             .SelectMany(candidate => new[]

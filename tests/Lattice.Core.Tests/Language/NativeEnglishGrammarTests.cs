@@ -463,7 +463,7 @@ public sealed class NativeEnglishGrammarTests
         Assert.Equal(expectedAbility, question.Concept);
         var expectedFormula = expectedKind == SemanticWorldModelQuestionKind.Ability
             ? $"ask(world-model-ability({expectedSubject}, {expectedAbility}))"
-            : $"ask(world-model-capability-explanation({expectedSubject}, {expectedAbility}, for long without water))";
+            : $"ask(world-model-capability-explanation({expectedSubject}, {expectedAbility}, for-long-without-water))";
         Assert.Equal(expectedFormula, SemanticFormatter.Format(utterance));
         Assert.Equal(sentence, utterance.SourceText);
     }
