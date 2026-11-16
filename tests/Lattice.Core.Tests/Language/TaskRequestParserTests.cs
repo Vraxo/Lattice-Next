@@ -53,6 +53,40 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
+    public void Parses_a_Hello_World_program_as_a_semantic_output_goal()
+    {
+        const string input = "Write a Hello World program in Python.";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(TaskRequestAction.Code, request.Action);
+        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("python", request.Context);
+        Assert.Equal("python-source", request.OutputFormat);
+        Assert.Equal("write-standard-output", request.Scope);
+        Assert.Equal("Hello, world!", request.RequestedValue);
+        Assert.Equal(new[] { "text-output" }, request.Requirements);
+    }
+
+    [Fact]
+    public void Parses_a_different_print_request_without_embedding_its_program()
+    {
+        const string input = "Create a Python program that prints 'A second message!'.";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+
+        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("A second message!", request.RequestedValue);
+    }
+
+    [Fact]
     public void Parses_a_Blender_object_replacement_script_request()
     {
         const string input = "How would I create a script for blender that replaces all of objects with a specific name with a point light?";

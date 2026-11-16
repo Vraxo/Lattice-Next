@@ -1,0 +1,116 @@
+{
+  "formatVersion": 1,
+  "language": "python",
+  "startSymbol": "program",
+  "productions": [
+    {
+      "head": "program",
+      "symbols": [
+        {
+          "kind": "nonterminal",
+          "value": "statement"
+        }
+      ]
+    },
+    {
+      "head": "statement",
+      "symbols": [
+        {
+          "kind": "nonterminal",
+          "value": "call-expression"
+        }
+      ]
+    },
+    {
+      "head": "call-expression",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "name": "operation",
+      "source": "selected-operation",
+      "encoding": "none"
+    },
+    {
+      "name": "argument",
+      "source": "goal-argument",
+      "encoding": "string-literal"
+    }
+  ],
+  "operations": [
+    {
+      "id": "python-print",
+      "symbol": "print",
+      "effect": "write-standard-output",
+      "argumentKind": "text",
+      "prerequisites": []
+    },
+    {
+      "id": "python-sys-stdout-write",
+      "symbol": "sys.stdout.write",
+      "effect": "write-standard-output",
+      "argumentKind": "text",
+      "prerequisites": [
+        "module:sys"
+      ]
+    },
+    {
+      "id": "python-input",
+      "symbol": "input",
+      "effect": "read-standard-input",
+      "argumentKind": "prompt-text",
+      "prerequisites": []
+    },
+    {
+      "id": "python-open",
+      "symbol": "open",
+      "effect": "open-file",
+      "argumentKind": "path",
+      "prerequisites": []
+    }
+  ],
+  "stringLiteralFormat": {
+    "openingDelimiter": "\"",
+    "closingDelimiter": "\"",
+    "escapes": [
+      {
+        "character": "\\",
+        "replacement": "\\\\"
+      },
+      {
+        "character": "\"",
+        "replacement": "\\\""
+      },
+      {
+        "character": "\n",
+        "replacement": "\\n"
+      },
+      {
+        "character": "\r",
+        "replacement": "\\r"
+      },
+      {
+        "character": "\t",
+        "replacement": "\\t"
+      }
+    ]
+  }
+}

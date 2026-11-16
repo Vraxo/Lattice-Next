@@ -15,7 +15,7 @@
     "dolly": 30,
     "oasst1": 8,
     "wildchat": 2,
-    "substantive_answer_reviewed": 34
+    "substantive_answer_reviewed": 37
   },
   "records": [
     {
@@ -112,7 +112,7 @@
         "license": "Apache-2.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-91a934ba-cfb8-4ca9-84d0-232b43ad13ab",
@@ -131,7 +131,7 @@
         "license": "Apache-2.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-c866c106-86e0-4d63-97fe-03b896b0473c",
@@ -150,7 +150,7 @@
         "license": "Apache-2.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-ca4d0c93-220b-4861-87c1-bdb44cd13f72",
