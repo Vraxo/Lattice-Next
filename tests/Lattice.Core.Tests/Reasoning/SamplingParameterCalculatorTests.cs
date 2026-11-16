@@ -77,4 +77,20 @@ public sealed class SamplingParameterCalculatorTests
         Assert.Contains("threshold in (0, 1]", error);
     }
 
+    [Fact]
+    public void Rejects_a_distribution_with_no_probability_mass()
+    {
+        var success = SamplingParameterCalculator.TrySelectNucleus(
+            [0, 0, 0],
+            0.8,
+            out var indices,
+            out var probabilities,
+            out var error);
+
+        Assert.False(success);
+        Assert.Empty(indices);
+        Assert.Empty(probabilities);
+        Assert.Contains("positive finite total", error);
+    }
+
 }
