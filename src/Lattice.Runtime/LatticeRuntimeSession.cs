@@ -18,6 +18,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly KnowledgePackLoader knowledgePackLoader = new();
     private readonly ReasoningEngine reasoningEngine = new();
     private readonly ObjectiveEvaluator objectiveEvaluator = new();
+    private static readonly Lazy<SemanticWorldModel> SharedSemanticWorldModel = new(
+        LoadSemanticWorldModel,
+        LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<SemanticWorldModelReasoner> SharedSemanticWorldModelReasoner = new(
+        () => new SemanticWorldModelReasoner(SharedSemanticWorldModel.Value),
+        LazyThreadSafetyMode.ExecutionAndPublication);
     private readonly SemanticWorldModel semanticWorldModel;
     private readonly SemanticWorldModelReasoner semanticWorldModelReasoner;
     private readonly List<KnowledgePack> loadedPacks = [];
@@ -27,6 +33,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private bool isDisposed;
 
     public LatticeRuntimeSession()
+    {
+        semanticWorldModel = SharedSemanticWorldModel.Value;
+        semanticWorldModelReasoner = SharedSemanticWorldModelReasoner.Value;
+    }
+
+    private static SemanticWorldModel LoadSemanticWorldModel()
     {
         var semanticJson = LoadEmbeddedSemanticWorldModel();
         if (!new SemanticWorldModelLoader().TryLoad(
@@ -38,8 +50,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 error ?? "The embedded semantic world model could not be loaded.");
         }
 
-        semanticWorldModel = loadedSemanticWorldModel!;
-        semanticWorldModelReasoner = new SemanticWorldModelReasoner(semanticWorldModel);
+        return loadedSemanticWorldModel!;
     }
 
     private static string LoadEmbeddedSemanticWorldModel()

@@ -1,148 +1,435 @@
 using System.Collections.Immutable;
-using System.Text;
 
 namespace Lattice.Core.Generation;
 
-public sealed class SequenceGenerator
+public enum SequenceSymbolKind
 {
-    private const int MaximumExpansions = 256;
-    private const int MaximumTokens = 256;
+    Terminal,
+    Nonterminal,
+    Binding
+}
 
-    private readonly GenerationOperationSelector operationSelector = new();
+public sealed record SequenceSymbol(SequenceSymbolKind Kind, string Value)
+{
+    public static SequenceSymbol Token(string value) =>
+        new(SequenceSymbolKind.Terminal, value);
 
-    public bool TryGenerate(
-        GenerationLanguagePack pack,
-        GenerationGoal goal,
+    public static SequenceSymbol Symbol(string name) =>
+        new(SequenceSymbolKind.Nonterminal, name);
+
+    public static SequenceSymbol Bound(string name) =>
+        new(SequenceSymbolKind.Binding, name);
+}
+
+public sealed record SequenceProduction(
+    string Head,
+    ImmutableArray<SequenceSymbol> Expansion,
+    double Weight = 0);
+
+public sealed record SequenceGrammar(ImmutableArray<SequenceProduction> Productions);
+
+public sealed record SequenceGenerationRequest(
+    string StartSymbol,
+    ImmutableDictionary<string, ImmutableArray<string>> Bindings,
+    int BeamWidth = 8,
+    int MaxSteps = 2048,
+    int MaxTokens = 512,
+    SequenceTokenModel? TokenModel = null);
+
+public sealed record SequenceContinuationRequest(
+    ImmutableArray<string> ContextTokens,
+    int BeamWidth = 8,
+    int MaxTokens = 128);
+
+public sealed record SequenceGenerationResult(
+    ImmutableArray<string> Tokens,
+    double Score,
+    bool SearchLimitReached)
+{
+    public string Text => string.Concat(Tokens);
+}
+
+internal sealed record SequenceGenerationState(
+    ImmutableArray<SequenceSymbol> Pending,
+    ImmutableArray<string> Tokens,
+    double Score);
+
+internal sealed record SequenceContinuationState(
+    ImmutableArray<string> Context,
+    ImmutableArray<string> Tokens,
+    double Score);
+
+public static class SequenceGenerator
+{
+    public static bool TryGenerate(
+        SequenceGrammar grammar,
+        SequenceGenerationRequest request,
         out SequenceGenerationResult? result,
         out string? error)
     {
-        ArgumentNullException.ThrowIfNull(pack);
-        ArgumentNullException.ThrowIfNull(goal);
+        ArgumentNullException.ThrowIfNull(grammar);
+        ArgumentNullException.ThrowIfNull(request);
 
         result = null;
         error = null;
 
-        if (!operationSelector.TrySelect(
-            pack.Operations,
-            goal,
-            out var selectedOperation,
-            out var candidateAssessments,
-            out error))
+        if (grammar.Productions.IsDefaultOrEmpty ||
+            string.IsNullOrWhiteSpace(request.StartSymbol) ||
+            request.Bindings is null)
         {
+            error = "A grammar, start symbol, and initialized binding map are required.";
             return false;
         }
 
-        var resolvedBindings = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var binding in pack.Bindings)
+        if (request.BeamWidth is < 1 or > 128 ||
+            request.MaxSteps is < 1 or > 10000 ||
+            request.MaxTokens is < 1 or > 8192)
         {
-            var sourceValue = binding.Source switch
-            {
-                "selected-operation" => selectedOperation!.Symbol,
-                "goal-argument" => goal.ArgumentValue,
-                _ => string.Empty
-            };
-            var value = binding.Encoding switch
-            {
-                "none" => sourceValue,
-                "string-literal" => EncodeStringLiteral(sourceValue, pack.StringLiteralFormat),
-                _ => string.Empty
-            };
-
-            if (value.Length == 0 || !resolvedBindings.TryAdd(binding.Name, value))
-            {
-                error = $"The generation binding '{binding.Name}' could not be resolved.";
-                return false;
-            }
+            error = "Generation limits are outside their supported ranges.";
+            return false;
         }
 
-        var productions = pack.Productions.ToDictionary(
-            production => production.Head,
-            StringComparer.Ordinal);
-        var pending = new Stack<GenerationSymbol>();
-        pending.Push(new GenerationSymbol("nonterminal", pack.StartSymbol));
-        var tokens = ImmutableArray.CreateBuilder<string>();
-        var expansions = 0;
-
-        while (pending.Count > 0)
+        var productions = new Dictionary<string, List<SequenceProduction>>(StringComparer.Ordinal);
+        foreach (var production in grammar.Productions)
         {
-            if (tokens.Count >= MaximumTokens)
+            if (production is null ||
+                string.IsNullOrWhiteSpace(production.Head) ||
+                production.Expansion.IsDefault ||
+                !double.IsFinite(production.Weight) ||
+                production.Expansion.Any(symbol => !IsValidSymbol(symbol)))
             {
-                error = "The generated sequence exceeded the token limit.";
+                error = "Every production requires a head, an initialized expansion, valid symbols, and a finite weight.";
                 return false;
             }
 
-            var symbol = pending.Pop();
-            switch (symbol.Kind)
+            if (!productions.TryGetValue(production.Head, out var alternatives))
             {
-                case "terminal":
-                    tokens.Add(symbol.Value);
-                    break;
-                case "binding":
-                    if (!resolvedBindings.TryGetValue(symbol.Value, out var boundValue))
-                    {
-                        error = $"The grammar binding '{symbol.Value}' has no resolved value.";
-                        return false;
-                    }
+                alternatives = [];
+                productions.Add(production.Head, alternatives);
+            }
 
-                    tokens.Add(boundValue);
-                    break;
-                case "nonterminal":
-                    if (++expansions > MaximumExpansions ||
-                        !productions.TryGetValue(symbol.Value, out var production))
-                    {
-                        error = $"The grammar could not expand nonterminal '{symbol.Value}' within the generation limits.";
-                        return false;
-                    }
+            alternatives.Add(production);
+        }
 
-                    for (var index = production.Symbols.Length - 1; index >= 0; index--)
-                    {
-                        pending.Push(production.Symbols[index]);
-                    }
+        if (!productions.ContainsKey(request.StartSymbol))
+        {
+            error = $"The grammar has no production for start symbol '{request.StartSymbol}'.";
+            return false;
+        }
 
-                    break;
-                default:
-                    error = $"The grammar symbol kind '{symbol.Kind}' is unsupported.";
+        foreach (var production in grammar.Productions)
+        {
+            foreach (var symbol in production.Expansion)
+            {
+                if (symbol.Kind == SequenceSymbolKind.Nonterminal &&
+                    !productions.ContainsKey(symbol.Value))
+                {
+                    error = $"The grammar references undefined symbol '{symbol.Value}'.";
                     return false;
+                }
             }
         }
 
-        if (tokens.Count == 0)
+        foreach (var binding in request.Bindings)
         {
-            error = "The grammar generated an empty token sequence.";
+            if (string.IsNullOrWhiteSpace(binding.Key) ||
+                binding.Value.IsDefault ||
+                binding.Value.Any(string.IsNullOrEmpty))
+            {
+                error = $"Binding '{binding.Key}' must contain initialized, non-empty surface tokens.";
+                return false;
+            }
+        }
+
+        var frontier = new List<SequenceGenerationState>
+        {
+            new(
+                ImmutableArray.Create(SequenceSymbol.Symbol(request.StartSymbol)),
+                ImmutableArray<string>.Empty,
+                0)
+        };
+        var completed = new List<SequenceGenerationState>();
+        string? lastError = null;
+        var steps = 0;
+
+        for (; steps < request.MaxSteps && frontier.Count > 0; steps++)
+        {
+            var next = new List<SequenceGenerationState>();
+
+            foreach (var state in frontier)
+            {
+                if (state.Pending.IsDefaultOrEmpty)
+                {
+                    completed.Add(state);
+                    continue;
+                }
+
+                var current = state.Pending[0];
+                var remainder = state.Pending.RemoveAt(0);
+
+                switch (current.Kind)
+                {
+                    case SequenceSymbolKind.Terminal:
+                        if (state.Tokens.Length >= request.MaxTokens)
+                        {
+                            lastError = "The generated sequence exceeded the token limit.";
+                            continue;
+                        }
+
+                        next.Add(AppendTokens(
+                            state with { Pending = remainder },
+                            [current.Value],
+                            request.TokenModel));
+                        break;
+
+                    case SequenceSymbolKind.Binding:
+                        if (!request.Bindings.TryGetValue(current.Value, out var boundTokens) ||
+                            boundTokens.IsDefaultOrEmpty)
+                        {
+                            lastError = $"No surface tokens were supplied for binding '{current.Value}'.";
+                            continue;
+                        }
+
+                        if (state.Tokens.Length + boundTokens.Length > request.MaxTokens)
+                        {
+                            lastError = "The generated sequence exceeded the token limit.";
+                            continue;
+                        }
+
+                        next.Add(AppendTokens(
+                            state with { Pending = remainder },
+                            boundTokens,
+                            request.TokenModel));
+                        break;
+
+                    case SequenceSymbolKind.Nonterminal:
+                        if (!productions.TryGetValue(current.Value, out var alternatives))
+                        {
+                            lastError = $"The grammar has no production for symbol '{current.Value}'.";
+                            continue;
+                        }
+
+                        foreach (var production in alternatives)
+                        {
+                            var score = state.Score + production.Weight;
+                            if (!double.IsFinite(score))
+                            {
+                                lastError = "The accumulated production score is not finite.";
+                                continue;
+                            }
+
+                            next.Add(new SequenceGenerationState(
+                                production.Expansion.AddRange(remainder),
+                                state.Tokens,
+                                score));
+                        }
+
+                        break;
+
+                    default:
+                        lastError = $"Unsupported sequence symbol kind '{current.Kind}'.";
+                        break;
+                }
+            }
+
+            if (completed.Count > request.BeamWidth * 4)
+            {
+                completed = completed
+                    .OrderByDescending(state => state.Score)
+                    .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                    .Take(request.BeamWidth * 4)
+                    .ToList();
+            }
+
+            frontier = next
+                .OrderByDescending(state => state.Score)
+                .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                .ThenBy(state => BuildPendingKey(state.Pending), StringComparer.Ordinal)
+                .Take(request.BeamWidth)
+                .ToList();
+        }
+
+        foreach (var state in frontier.Where(state => state.Pending.IsDefaultOrEmpty))
+        {
+            completed.Add(state);
+        }
+
+        if (completed.Count == 0)
+        {
+            error = steps >= request.MaxSteps
+                ? "Sequence generation reached its step limit without completing a sequence."
+                : lastError ?? "No valid sequence could be generated from the supplied grammar and bindings.";
             return false;
         }
 
+        var best = completed
+            .OrderByDescending(state => state.Score)
+            .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+            .First();
+
+        var searchLimitReached = steps >= request.MaxSteps &&
+            frontier.Any(state => !state.Pending.IsDefaultOrEmpty);
         result = new SequenceGenerationResult(
-            tokens.ToImmutable(),
-            selectedOperation!.Id,
-            candidateAssessments);
+            best.Tokens,
+            best.Score,
+            searchLimitReached);
         return true;
     }
 
-    private static string EncodeStringLiteral(
-        string value,
-        GenerationStringLiteralFormat format)
+    public static bool TryContinue(
+        SequenceTokenModel model,
+        SequenceContinuationRequest request,
+        out SequenceGenerationResult? result,
+        out string? error)
     {
-        var replacements = format.Escapes.ToDictionary(
-            escape => escape.Character[0],
-            escape => escape.Replacement);
-        var builder = new StringBuilder(
-            format.OpeningDelimiter.Length + value.Length + format.ClosingDelimiter.Length);
-        builder.Append(format.OpeningDelimiter);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(request);
 
-        foreach (var character in value)
+        result = null;
+        error = null;
+
+        if (request.ContextTokens.IsDefault ||
+            request.ContextTokens.Length > 8192 ||
+            request.ContextTokens.Any(string.IsNullOrEmpty))
         {
-            if (replacements.TryGetValue(character, out var replacement))
-            {
-                builder.Append(replacement);
-            }
-            else
-            {
-                builder.Append(character);
-            }
+            error = "The continuation context must be initialized and contain valid tokens.";
+            return false;
         }
 
-        builder.Append(format.ClosingDelimiter);
-        return builder.ToString();
+        if (request.BeamWidth is < 1 or > 128 ||
+            request.MaxTokens is < 1 or > 8192)
+        {
+            error = "Continuation limits are outside their supported ranges.";
+            return false;
+        }
+
+        var frontier = new List<SequenceContinuationState>
+        {
+            new(request.ContextTokens, ImmutableArray<string>.Empty, 0)
+        };
+        var completed = new List<SequenceContinuationState>();
+        var steps = 0;
+
+        for (; steps <= request.MaxTokens && frontier.Count > 0; steps++)
+        {
+            var next = new List<SequenceContinuationState>();
+
+            foreach (var state in frontier)
+            {
+                var candidates = model.GetNextTokens(state.Context);
+                foreach (var token in candidates)
+                {
+                    var score = state.Score + model.GetLogScore(state.Context, token);
+                    if (!double.IsFinite(score))
+                    {
+                        continue;
+                    }
+
+                    if (token == SequenceTokenModel.EndToken)
+                    {
+                        completed.Add(state with { Score = score });
+                        continue;
+                    }
+
+                    if (state.Tokens.Length >= request.MaxTokens)
+                    {
+                        continue;
+                    }
+
+                    var context = state.Context.Add(token);
+                    if (context.Length > model.MaximumContextLength)
+                    {
+                        context = model.MaximumContextLength == 0
+                            ? ImmutableArray<string>.Empty
+                            : context
+                                .Skip(context.Length - model.MaximumContextLength)
+                                .ToImmutableArray();
+                    }
+
+                    next.Add(new SequenceContinuationState(
+                        context,
+                        state.Tokens.Add(token),
+                        score));
+                }
+            }
+
+            if (completed.Count > request.BeamWidth * 4)
+            {
+                completed = completed
+                    .OrderByDescending(state => state.Score)
+                    .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                    .Take(request.BeamWidth * 4)
+                    .ToList();
+            }
+
+            frontier = next
+                .OrderByDescending(state => state.Score)
+                .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                .Take(request.BeamWidth)
+                .ToList();
+        }
+
+        if (completed.Count == 0)
+        {
+            error = frontier.Count == 0
+                ? "The token model could not produce a complete sequence."
+                : "Sequence continuation reached its token limit without an end token.";
+            return false;
+        }
+
+        var best = completed
+            .OrderByDescending(state => state.Score)
+            .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+            .First();
+
+        result = new SequenceGenerationResult(
+            best.Tokens,
+            best.Score,
+            frontier.Count > 0);
+        return true;
     }
+
+    private static SequenceGenerationState AppendTokens(
+        SequenceGenerationState state,
+        ImmutableArray<string> tokens,
+        SequenceTokenModel? tokenModel)
+    {
+        var emitted = state.Tokens;
+        var score = state.Score;
+
+        foreach (var token in tokens)
+        {
+            if (tokenModel is not null)
+            {
+                score += tokenModel.GetLogScore(emitted, token);
+            }
+
+            emitted = emitted.Add(token);
+        }
+
+        return state with
+        {
+            Tokens = emitted,
+            Score = score
+        };
+    }
+
+    private static bool IsValidSymbol(SequenceSymbol? symbol)
+    {
+        if (symbol is null || !Enum.IsDefined(symbol.Kind) || string.IsNullOrEmpty(symbol.Value))
+        {
+            return false;
+        }
+
+        return symbol.Kind == SequenceSymbolKind.Terminal ||
+            !string.IsNullOrWhiteSpace(symbol.Value);
+    }
+
+    private static string BuildTokenKey(ImmutableArray<string> tokens) =>
+        string.Join("\u001f", tokens);
+
+    private static string BuildPendingKey(ImmutableArray<SequenceSymbol> symbols) =>
+        string.Join(
+            "\u001f",
+            symbols.Select(symbol => $"{(int)symbol.Kind}:{symbol.Value}"));
 }
