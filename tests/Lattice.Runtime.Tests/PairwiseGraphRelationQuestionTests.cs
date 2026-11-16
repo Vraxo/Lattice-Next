@@ -19,7 +19,7 @@ public sealed class PairwiseGraphRelationQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "ask(relation-between(steve-urkel, winslow-family))",
+            "ask(relation-between(steve-urkel, winslow))",
             answer.Meaning);
         Assert.Equal(
             "Steve Urkel is next-door neighbor of the Winslow family.",
