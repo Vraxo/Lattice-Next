@@ -111,6 +111,8 @@ internal static class SemanticWorldModelResponder
                 TryCreativeIdeas(request.Subject, request.OtherSubject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.ListExamples =>
                 TryListExamples(request.Subject, request.Limit, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.TypeInstanceListQuery =>
+                TryListTypeInstances(request.Subject, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.MaximumDataValue =>
                 TryMaximumDataValue(request, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.HighestDataValue =>
@@ -1294,6 +1296,59 @@ internal static class SemanticWorldModelResponder
         evidence = ImmutableArray.Create(ToEvidence(
             winners.Select(winner => winner.Assertion.Source).Distinct().ToImmutableArray(),
             LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    private static bool TryListTypeInstances(
+        string requestedType,
+        string countText,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        if (!int.TryParse(countText, NumberStyles.None, CultureInfo.InvariantCulture, out var requestedCount) ||
+            requestedCount is < 1 or > 20)
+        {
+            return false;
+        }
+
+        var type = model.FindConcept(requestedType, SemanticConceptKind.Type);
+        if (type is null)
+        {
+            return false;
+        }
+
+        var instances = model.Concepts
+            .Where(concept =>
+                concept.Kind == SemanticConceptKind.Individual &&
+                reasoner.IsInstanceOf(concept.Id, type.Id))
+            .OrderBy(concept => concept.Label, StringComparer.OrdinalIgnoreCase)
+            .Take(requestedCount)
+            .ToArray();
+        if (instances.Length == 0)
+        {
+            return false;
+        }
+
+        var sources = instances
+            .SelectMany(instance => reasoner.GetMembershipEvidence(instance.Id, type.Id))
+            .Distinct()
+            .ToImmutableArray();
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var pluralType = type.Label.EndsWith("y", StringComparison.OrdinalIgnoreCase)
+            ? $"{type.Label[..^1]}ies"
+            : type.Label.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+                ? type.Label
+                : $"{type.Label}s";
+        message = $"The model identifies {instances.Length} {pluralType}: {JoinNames(instances.Select(instance => instance.Label).ToArray())}. The model does not rank them.";
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
         return true;
     }
 

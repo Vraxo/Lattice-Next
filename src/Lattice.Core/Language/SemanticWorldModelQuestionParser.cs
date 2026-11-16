@@ -92,6 +92,10 @@ internal static class SemanticWorldModelQuestionParser
         @"^What are some of the best (?<genre>[A-Za-z][A-Za-z -]*?) movies of the (?<decade>[0-9]{4}'?s)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex TypeInstanceListPattern = new(
+        @"^Give me the top (?<count>[0-9]+) (?<type>[A-Za-z][A-Za-z -]*?) names?\.?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ListExamplesPattern = new(
         @"^Give me (?:the )?(?:top )?(?<count>five|four|three|two|one|[0-9]+) (?<category>[A-Za-z][A-Za-z -]*?) names(?: in a numbered list)?(?:\. Names only; no descriptions)?[?.]?$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -374,6 +378,18 @@ internal static class SemanticWorldModelQuestionParser
                 concept: $"{genre}-film-{decade}",
                 targetType: decade,
                 limit: 12,
+                sourceText: source);
+            return true;
+        }
+
+        var typeInstanceList = TypeInstanceListPattern.Match(text);
+        if (typeInstanceList.Success &&
+            int.TryParse(typeInstanceList.Groups["count"].Value, out var instanceLimit))
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.TypeInstanceListQuery,
+                subject: Normalize(typeInstanceList.Groups["type"].Value),
+                targetType: instanceLimit.ToString(CultureInfo.InvariantCulture),
                 sourceText: source);
             return true;
         }
