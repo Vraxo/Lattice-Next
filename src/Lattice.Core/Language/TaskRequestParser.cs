@@ -30,6 +30,10 @@ internal static class TaskRequestParser
         @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex HobbyExplorationPattern = new(
+        @"^\\s*(?:I want to start doing|I would like to start doing|I\\x27d like to start doing|I want to take up)\\s+(?<hobby>[^,.?]+?)(?:\\s+as a hobby)?\\s*,?\\s*(?:any suggestions.*|what could I do.*|what can I do.*)?[?.!]*\\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RecommendationRequestPattern = new(
         @"^\s*(?:I would like to|I'd like to)\s+(?<purpose>[^.!?]+)[.!?]\s*(?:Which|What)\s+(?<subject>[^?]+?)\s+(?:do|would)\s+you\s+recommend\s+for\s+this\s+purpose\?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -40,6 +44,11 @@ internal static class TaskRequestParser
         out SemanticUtterance? utterance)
     {
         utterance = null;
+
+        if (TryParseHobbyExploration(source, sourceText, out utterance))
+        {
+            return true;
+        }
 
         if (TryParseBrainstormUses(source, sourceText, out utterance))
         {
@@ -62,6 +71,40 @@ internal static class TaskRequestParser
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+    private static bool TryParseHobbyExploration(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = HobbyExplorationPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var hobby = SemanticWorldModel.Normalize(match.Groups["hobby"].Value);
+        if (hobby.Length == 0)
+        {
+            return false;
+        }
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Explore,
+            hobby,
+            "hobby",
+            "starter-activities",
+            null,
+            ImmutableArray<string>.Empty);
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseBrainstormUses(
