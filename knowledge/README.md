@@ -1,6 +1,6 @@
 # Foundational semantic world model
 
-The default ontology is authored in thirty-two independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
+The default ontology is authored in thirty-three independent modules under `knowledge/domains/`. The runtime composes all modules before validating references and reasoning over the graph.
 
 ## One relation graph
 
@@ -57,6 +57,7 @@ The current expression language does not support universal restrictions, negatio
 - `family-matters-characters.json`: Steve Urkel, the Winslow family, Family Matters, and their typed neighbor and character relations.
 - `georgia-film-production.json`: Georgia's film-production incentives, workforce, infrastructure, filming locations, climate, costs, and local support.
 - `transportation-classification.json`: useful and unsuitable objects for transportation.
+- `search-engine-optimization.json`: ordered beginner learning path for improving a webpage's search visibility.
 
 Concept IDs are globally unique. Cross-module references are resolved after composition. Version 3 requires explicit primitive/defined declarations and uses only the common relation graph for asserted facts. Version 1 and 2 documents remain readable: the loader translates their `parents` and `typeAssertions` into `is-a` and `instance-of` relations respectively.
 
@@ -73,16 +74,16 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 ## Model size
 
-Counts after composing all thirty-two modules:
+Counts after composing all thirty-three modules:
 
-- 637 concepts
-- 232 type declarations (195 primitive, 37 defined)
-- 141 relation signatures
-- 1075 relation assertions:
-  - 235 `is-a`
-  - 421 `instance-of`
-  - 419 ordinary individual-to-individual relations
-- 389 lexical forms
+- 657 concepts
+- 236 type declarations (199 primitive, 37 defined)
+- 144 relation signatures
+- 1115 relation assertions:
+  - 239 `is-a`
+  - 437 `instance-of`
+  - 439 ordinary individual-to-individual relations
+- 390 lexical forms
 - 7 numeric data properties
 - 42 numeric data assertions
 
