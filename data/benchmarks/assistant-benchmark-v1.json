@@ -15,7 +15,7 @@
     "dolly": 30,
     "oasst1": 8,
     "wildchat": 2,
-    "substantive_answer_reviewed": 36
+    "substantive_answer_reviewed": 37
   },
   "records": [
     {
@@ -150,7 +150,7 @@
         "license": "Apache-2.0"
       },
       "reference_response": null,
-      "substantive_answer_reviewed": false
+      "substantive_answer_reviewed": true
     },
     {
       "id": "oasst1-ca4d0c93-220b-4861-87c1-bdb44cd13f72",
