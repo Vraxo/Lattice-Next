@@ -9,6 +9,66 @@ namespace Lattice.Runtime;
 internal static class SemanticWorldModelResponder
 {
     internal static bool TryRespond(
+        ChargedParticleAccelerationFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(reasoner);
+
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+        var particle = model.FindConcept(request.Particle, SemanticConceptKind.Individual);
+        if (particle is null)
+        {
+            return false;
+        }
+
+        var massAssertion = model.GetDataAssertions(particle.Id, "mass-atomic-mass-units").FirstOrDefault();
+        var chargeAssertion = model.GetDataAssertions(particle.Id, "charge-elementary-charge-units").FirstOrDefault();
+        if (massAssertion is null ||
+            chargeAssertion is null ||
+            !double.TryParse(massAssertion.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var mass) ||
+            !double.TryParse(chargeAssertion.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var charge) ||
+            !ChargedParticleAccelerationCalculator.TryCalculateFinalSpeed(
+                (double)request.InitialSpeedMetersPerSecond,
+                (double)request.PotentialDifferenceVolts,
+                charge,
+                mass,
+                out var result,
+                out _))
+        {
+            return false;
+        }
+
+        var energyDirection = result!.KineticEnergyChangeElectronVolts >= 0
+            ? "increases"
+            : "decreases";
+        message =
+            $"The {particle.Label}'s final speed is approximately {FormatScientific(result.FinalSpeedMetersPerSecond)} m/s. " +
+            $"Its initial kinetic energy is about {result.InitialKineticEnergyElectronVolts.ToString("0.00", CultureInfo.InvariantCulture)} eV. " +
+            $"Because ΔK = −qΔV, this potential difference {energyDirection} its kinetic energy by " +
+            $"{Math.Abs(result.KineticEnergyChangeElectronVolts).ToString("0.00", CultureInfo.InvariantCulture)} eV, " +
+            $"giving a final kinetic energy of about {result.FinalKineticEnergyElectronVolts.ToString("0.00", CultureInfo.InvariantCulture)} eV.";
+
+        var sources = reasoner.GetMembershipEvidence(particle.Id, "charged-particle")
+            .Add(massAssertion.Source)
+            .Add(chargeAssertion.Source)
+            .Distinct()
+            .ToImmutableArray();
+        if (sources.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
+    internal static bool TryRespond(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -33,6 +93,8 @@ internal static class SemanticWorldModelResponder
                 TryExplainCauses(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Compare =>
                 TryCompare(request.Subject, request.OtherSubject ?? string.Empty, model, reasoner, out message, out evidence),
+            SemanticWorldModelQuestionKind.SamplingParameters =>
+                TryExplainSamplingParameters(request.Subject, request.OtherSubject ?? string.Empty, request.TargetType ?? string.Empty, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.WhyUse =>
                 TryWhyUse(request.Subject, model, reasoner, out message, out evidence),
             SemanticWorldModelQuestionKind.Applications =>
@@ -2414,6 +2476,173 @@ internal static class SemanticWorldModelResponder
         }
     }
 
+    private static bool TryExplainSamplingParameters(
+        string firstParameterId,
+        string secondParameterId,
+        string domainId,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        var first = model.FindConcept(firstParameterId, SemanticConceptKind.Individual);
+        var second = model.FindConcept(secondParameterId, SemanticConceptKind.Individual);
+        var domain = model.FindConcept(domainId, SemanticConceptKind.Type);
+        if (first is null ||
+            second is null ||
+            domain is null ||
+            !reasoner.IsInstanceOf(first.Id, "llm-sampling-parameter") ||
+            !reasoner.IsInstanceOf(second.Id, "llm-sampling-parameter"))
+        {
+            return false;
+        }
+
+        SemanticRelationAssertion? GetFirst(string subject, string relation) =>
+            reasoner.GetRelations(subject, relation).FirstOrDefault();
+
+        var firstModel = GetFirst(first.Id, "llm-parameter-of");
+        var secondModel = GetFirst(second.Id, "llm-parameter-of");
+        if (firstModel is null ||
+            secondModel is null ||
+            firstModel.Object != secondModel.Object ||
+            !reasoner.IsInstanceOf(firstModel.Object, domain.Id))
+        {
+            return false;
+        }
+
+        var firstLowerEffect = GetFirst(first.Id, "llm-lower-setting-effect");
+        var secondLowerEffect = GetFirst(second.Id, "llm-lower-setting-effect");
+        var temperature = firstLowerEffect is not null ? first : second;
+        var topP = firstLowerEffect is not null ? second : first;
+        var lowerEffectAssertion = firstLowerEffect ?? secondLowerEffect;
+        var higherEffectAssertion = GetFirst(temperature.Id, "llm-higher-setting-effect");
+        var temperatureMethodAssertion = GetFirst(temperature.Id, "llm-uses-method");
+        var topPMethodAssertion = GetFirst(topP.Id, "llm-uses-method");
+        if (lowerEffectAssertion is null ||
+            higherEffectAssertion is null ||
+            temperatureMethodAssertion is null ||
+            topPMethodAssertion is null)
+        {
+            return false;
+        }
+
+        var temperatureMethod = model.FindConcept(temperatureMethodAssertion.Object, SemanticConceptKind.Individual);
+        var topPMethod = model.FindConcept(topPMethodAssertion.Object, SemanticConceptKind.Individual);
+        if (temperatureMethod is null || topPMethod is null)
+        {
+            return false;
+        }
+
+        var temperatureInputAssertion = GetFirst(temperatureMethod.Id, "llm-method-rescales");
+        var temperatureStageAssertion = GetFirst(temperatureMethod.Id, "llm-method-before");
+        var topPInputAssertion = GetFirst(topPMethod.Id, "llm-method-acts-on");
+        var topPStageAssertion = GetFirst(topPMethod.Id, "llm-method-after");
+        var topPOrderAssertion = GetFirst(topPMethod.Id, "llm-method-orders-by");
+        var topPNucleusAssertion = GetFirst(topPMethod.Id, "llm-method-retains");
+        var topPRenormalizationAssertion = GetFirst(topPMethod.Id, "llm-method-renormalizes");
+        if (temperatureInputAssertion is null ||
+            temperatureStageAssertion is null ||
+            topPInputAssertion is null ||
+            topPStageAssertion is null ||
+            topPOrderAssertion is null ||
+            topPNucleusAssertion is null ||
+            topPRenormalizationAssertion is null)
+        {
+            return false;
+        }
+
+        var temperatureInput = model.FindConcept(temperatureInputAssertion.Object, SemanticConceptKind.Individual);
+        var temperatureStage = model.FindConcept(temperatureStageAssertion.Object, SemanticConceptKind.Individual);
+        var topPInput = model.FindConcept(topPInputAssertion.Object, SemanticConceptKind.Individual);
+        var topPStage = model.FindConcept(topPStageAssertion.Object, SemanticConceptKind.Individual);
+        var orderedBy = model.FindConcept(topPOrderAssertion.Object, SemanticConceptKind.Individual);
+        var nucleus = model.FindConcept(topPNucleusAssertion.Object, SemanticConceptKind.Individual);
+        var renormalized = model.FindConcept(topPRenormalizationAssertion.Object, SemanticConceptKind.Individual);
+        var lowerEffect = model.FindConcept(lowerEffectAssertion.Object, SemanticConceptKind.Individual);
+        var higherEffect = model.FindConcept(higherEffectAssertion.Object, SemanticConceptKind.Individual);
+        if (temperatureInput is null ||
+            temperatureStage is null ||
+            topPInput is null ||
+            topPStage is null ||
+            orderedBy is null ||
+            nucleus is null ||
+            renormalized is null ||
+            lowerEffect is null ||
+            higherEffect is null)
+        {
+            return false;
+        }
+
+        if (!SamplingParameterCalculator.TryCalculateTemperatureDistribution(
+                [2d, 1d, 0d],
+                0.5d,
+                out var lowTemperature,
+                out _) ||
+            !SamplingParameterCalculator.TryCalculateTemperatureDistribution(
+                [2d, 1d, 0d],
+                2d,
+                out var highTemperature,
+                out _) ||
+            !SamplingParameterCalculator.TrySelectNucleus(
+                [0.6d, 0.3d, 0.1d],
+                0.8d,
+                out var retainedIndices,
+                out var retainedProbabilities,
+                out _))
+        {
+            return false;
+        }
+
+        var retainedTokens = JoinNames(retainedIndices.Select(index => $"token {index + 1}").ToArray());
+        var lowTemperatureExample = string.Join(", ", lowTemperature.Select(FormatPercentage));
+        var highTemperatureExample = string.Join(", ", highTemperature.Select(FormatPercentage));
+        var retainedExample = string.Join(" and ", retainedProbabilities.Select(FormatPercentage));
+        var temperatureSentence =
+            $"{Capitalize(temperature.Label)} uses {temperatureMethod.Label}. " +
+            $"{Capitalize(temperatureMethod.Label)} {model.FindRelation(temperatureInputAssertion.Relation)!.Verb} {temperatureInput.Label} by dividing each logit by T " +
+            $"and {model.FindRelation(temperatureStageAssertion.Relation)!.Verb} {temperatureStage.Label}. " +
+            $"Lower temperature {model.FindRelation(lowerEffectAssertion.Relation)!.Verb}; " +
+            $"higher temperature {model.FindRelation(higherEffectAssertion.Relation)!.Verb}.";
+        var topPSentence =
+            $"{Capitalize(topP.Label)} uses {topPMethod.Label}. " +
+            $"{Capitalize(topPMethod.Label)} {model.FindRelation(topPInputAssertion.Relation)!.Verb} {topPInput.Label} " +
+            $"and {model.FindRelation(topPStageAssertion.Relation)!.Verb} {topPStage.Label}. " +
+            $"It {model.FindRelation(topPOrderAssertion.Relation)!.Verb} {orderedBy.Label}, " +
+            $"{model.FindRelation(topPNucleusAssertion.Relation)!.Verb} {nucleus.Label}, " +
+            $"then {model.FindRelation(topPRenormalizationAssertion.Relation)!.Verb} {renormalized.Label}.";
+
+        message =
+            $"{Capitalize(temperature.Label)} and {topP.Label} are both sampling parameters of a language model, but they affect token selection differently. " +
+            $"{temperatureSentence} {topPSentence} " +
+            $"For example, with next-token logits [2, 1, 0], temperature 0.5 gives probabilities {lowTemperatureExample}, " +
+            $"while temperature 2 gives {highTemperatureExample}. " +
+            $"With token probabilities 0.6, 0.3, and 0.1 and top-p = 0.8, nucleus sampling keeps {retainedTokens} " +
+            $"because their cumulative probability reaches 0.9, then renormalizes them to {retainedExample}. " +
+            "In short, temperature changes how concentrated the probability distribution is; top-p changes which tokens remain eligible.";
+
+        var sources = new[]
+        {
+            firstModel.Source,
+            secondModel.Source,
+            temperatureMethodAssertion.Source,
+            topPMethodAssertion.Source,
+            temperatureInputAssertion.Source,
+            temperatureStageAssertion.Source,
+            topPInputAssertion.Source,
+            topPStageAssertion.Source,
+            topPOrderAssertion.Source,
+            topPNucleusAssertion.Source,
+            topPRenormalizationAssertion.Source,
+            lowerEffectAssertion.Source,
+            higherEffectAssertion.Source
+        }.Distinct().ToImmutableArray();
+        evidence = ImmutableArray.Create(ToEvidence(sources, LatticeEvidenceKind.Derived));
+        return true;
+    }
+
     private static bool TryCompare(
         string firstId,
         string secondId,
@@ -2765,6 +2994,21 @@ internal static class SemanticWorldModelResponder
 
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
+
+    private static string FormatScientific(double value)
+    {
+        if (value == 0)
+        {
+            return "0";
+        }
+
+        var exponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
+        var coefficient = value / Math.Pow(10, exponent);
+        return $"{coefficient.ToString("0.00", CultureInfo.InvariantCulture)} × 10^{exponent}";
+    }
+
+    private static string FormatPercentage(double probability) =>
+        $"{(probability * 100).ToString("0.0", CultureInfo.InvariantCulture)}%";
 
     private static LatticeEvidence ToEvidence(
         ImmutableArray<SemanticWorldModelSource> sources,

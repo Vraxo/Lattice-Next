@@ -1,0 +1,425 @@
+{
+  "formatVersion": 3,
+  "id": "core-language-model-sampling",
+  "name": "Language-model sampling",
+  "concepts": [
+    {
+      "id": "llm-sampling-parameter",
+      "label": "language-model sampling parameter",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-language-model",
+      "label": "language model",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-sampling-mechanism",
+      "label": "sampling mechanism",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-sampling-input",
+      "label": "sampling input",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-sampling-stage",
+      "label": "sampling stage",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-sampling-effect",
+      "label": "sampling effect",
+      "kind": "Type"
+    },
+    {
+      "id": "llm-temperature",
+      "label": "temperature",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-top-p",
+      "label": "top-p (nucleus sampling)",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-language-model-example",
+      "label": "language model",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-logit-scaling",
+      "label": "logit scaling",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-nucleus-filtering",
+      "label": "nucleus filtering",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-next-token-logits",
+      "label": "next-token logits",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-softmax",
+      "label": "softmax",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-token-probabilities",
+      "label": "token probabilities",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-nucleus",
+      "label": "smallest high-probability prefix reaching p",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-retained-probability-distribution",
+      "label": "a new probability distribution",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-sharper-distribution",
+      "label": "sharper probability distribution",
+      "kind": "Individual"
+    },
+    {
+      "id": "llm-flatter-distribution",
+      "label": "flatter probability distribution",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "temperature",
+      "concept": "llm-temperature",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "top-p",
+      "concept": "llm-top-p",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "nucleus sampling",
+      "concept": "llm-top-p",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "language model",
+      "concept": "llm-language-model",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "llm-parameter-of",
+      "domain": "llm-sampling-parameter",
+      "range": "llm-language-model",
+      "verb": "is a parameter of",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-uses-method",
+      "domain": "llm-sampling-parameter",
+      "range": "llm-sampling-mechanism",
+      "verb": "uses",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-acts-on",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-input",
+      "verb": "acts on",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-rescales",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-input",
+      "verb": "rescales",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-before",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-stage",
+      "verb": "is applied before",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-after",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-stage",
+      "verb": "is applied after",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-orders-by",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-input",
+      "verb": "orders candidate tokens by",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-retains",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-effect",
+      "verb": "retains the",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-method-renormalizes",
+      "domain": "llm-sampling-mechanism",
+      "range": "llm-sampling-effect",
+      "verb": "renormalizes the retained token probabilities into",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-lower-setting-effect",
+      "domain": "llm-sampling-parameter",
+      "range": "llm-sampling-effect",
+      "verb": "makes the distribution more concentrated",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-higher-setting-effect",
+      "domain": "llm-sampling-parameter",
+      "range": "llm-sampling-effect",
+      "verb": "makes the distribution flatter",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    },
+    {
+      "id": "llm-stage-produces",
+      "domain": "llm-sampling-stage",
+      "range": "llm-sampling-input",
+      "verb": "produces",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "llm-sampling-parameter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "llm-language-model",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "llm-sampling-mechanism",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "llm-sampling-input",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "llm-sampling-stage",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "llm-sampling-effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "llm-temperature",
+      "relation": "instance-of",
+      "object": "llm-sampling-parameter"
+    },
+    {
+      "subject": "llm-top-p",
+      "relation": "instance-of",
+      "object": "llm-sampling-parameter"
+    },
+    {
+      "subject": "llm-language-model-example",
+      "relation": "instance-of",
+      "object": "llm-language-model"
+    },
+    {
+      "subject": "llm-temperature",
+      "relation": "llm-parameter-of",
+      "object": "llm-language-model-example"
+    },
+    {
+      "subject": "llm-top-p",
+      "relation": "llm-parameter-of",
+      "object": "llm-language-model-example"
+    },
+    {
+      "subject": "llm-logit-scaling",
+      "relation": "instance-of",
+      "object": "llm-sampling-mechanism"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "instance-of",
+      "object": "llm-sampling-mechanism"
+    },
+    {
+      "subject": "llm-temperature",
+      "relation": "llm-uses-method",
+      "object": "llm-logit-scaling"
+    },
+    {
+      "subject": "llm-top-p",
+      "relation": "llm-uses-method",
+      "object": "llm-nucleus-filtering"
+    },
+    {
+      "subject": "llm-next-token-logits",
+      "relation": "instance-of",
+      "object": "llm-sampling-input"
+    },
+    {
+      "subject": "llm-token-probabilities",
+      "relation": "instance-of",
+      "object": "llm-sampling-input"
+    },
+    {
+      "subject": "llm-softmax",
+      "relation": "instance-of",
+      "object": "llm-sampling-stage"
+    },
+    {
+      "subject": "llm-logit-scaling",
+      "relation": "llm-method-rescales",
+      "object": "llm-next-token-logits"
+    },
+    {
+      "subject": "llm-logit-scaling",
+      "relation": "llm-method-before",
+      "object": "llm-softmax"
+    },
+    {
+      "subject": "llm-softmax",
+      "relation": "llm-stage-produces",
+      "object": "llm-token-probabilities"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "llm-method-acts-on",
+      "object": "llm-token-probabilities"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "llm-method-after",
+      "object": "llm-softmax"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "llm-method-orders-by",
+      "object": "llm-token-probabilities"
+    },
+    {
+      "subject": "llm-nucleus",
+      "relation": "instance-of",
+      "object": "llm-sampling-effect"
+    },
+    {
+      "subject": "llm-retained-probability-distribution",
+      "relation": "instance-of",
+      "object": "llm-sampling-effect"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "llm-method-retains",
+      "object": "llm-nucleus"
+    },
+    {
+      "subject": "llm-nucleus-filtering",
+      "relation": "llm-method-renormalizes",
+      "object": "llm-retained-probability-distribution"
+    },
+    {
+      "subject": "llm-sharper-distribution",
+      "relation": "instance-of",
+      "object": "llm-sampling-effect"
+    },
+    {
+      "subject": "llm-flatter-distribution",
+      "relation": "instance-of",
+      "object": "llm-sampling-effect"
+    },
+    {
+      "subject": "llm-temperature",
+      "relation": "llm-lower-setting-effect",
+      "object": "llm-sharper-distribution"
+    },
+    {
+      "subject": "llm-temperature",
+      "relation": "llm-higher-setting-effect",
+      "object": "llm-flatter-distribution"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}

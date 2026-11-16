@@ -8,6 +8,7 @@ public enum SemanticWorldModelQuestionKind
     Mechanism,
     Causes,
     Compare,
+    SamplingParameters,
     WhyUse,
     Applications,
     Clarification,

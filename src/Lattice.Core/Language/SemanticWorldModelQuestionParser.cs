@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -7,6 +8,14 @@ namespace Lattice.Core.Language;
 
 internal static class SemanticWorldModelQuestionParser
 {
+    private static readonly Regex ChargedParticleAccelerationPattern = new(
+        @"^A (?<particle>[A-Za-z][A-Za-z -]*?) moving at (?:a speed of )?(?<speed>[0-9]+(?:\.[0-9]+)?(?:\s*(?:[×x]\s*10\^[+-]?[0-9]+|[eE][+-]?[0-9]+))?)\s*m/s is accelerated by a potential difference of (?<potential>[+\-−‐‑–—]?[0-9]+(?:\.[0-9]+)?)\s*V(?:\s*,?\s*what\s+is\s+its\s+final\s+(?:speed|velocity)\??|\s*\.?\s*Calculate\s+its\s+final\s+speed\.?)\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex SamplingParametersPattern = new(
+        @"^What are [""“]?(?<first>[A-Za-z][A-Za-z -]*?)[""”]?\s+and\s+[""“]?(?<second>[A-Za-z][A-Za-z -]*?)(?:\s*\([^)]*\))?[""”]?\s+in\s+(?:a|the\s+)?(?<domain>[A-Za-z][A-Za-z -]*?)\??(?:\s+Can you provide an example of what the changes to these parameters would do\??)?$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex ProductionLocationReasonsPattern = new(
         @"^Why are (?:so )?many (?<activity>[A-Za-z][A-Za-z'’ -]*?) made in (?:the )?(?<location>[A-Za-z][A-Za-z'’ -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -135,6 +144,37 @@ internal static class SemanticWorldModelQuestionParser
     {
         utterance = null;
         var text = source.Trim();
+
+        var chargedParticleAcceleration = ChargedParticleAccelerationPattern.Match(text);
+        if (chargedParticleAcceleration.Success &&
+            TryParseScientificNumber(chargedParticleAcceleration.Groups["speed"].Value, out var initialSpeed) &&
+            decimal.TryParse(
+                chargedParticleAcceleration.Groups["potential"].Value.Replace('−', '-').Replace('‐', '-').Replace('‑', '-').Replace('–', '-').Replace('—', '-'),
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out var potentialDifference))
+        {
+            utterance = new SemanticUtterance(
+                UtteranceKind.Question,
+                new ChargedParticleAccelerationFormula(
+                    Normalize(chargedParticleAcceleration.Groups["particle"].Value),
+                    initialSpeed,
+                    potentialDifference),
+                source);
+            return true;
+        }
+
+        var samplingParameters = SamplingParametersPattern.Match(text);
+        if (samplingParameters.Success)
+        {
+            utterance = Create(
+                SemanticWorldModelQuestionKind.SamplingParameters,
+                subject: Normalize(samplingParameters.Groups["first"].Value),
+                otherSubject: Normalize(samplingParameters.Groups["second"].Value),
+                targetType: Normalize(samplingParameters.Groups["domain"].Value),
+                sourceText: source);
+            return true;
+        }
 
         var productionLocationReasons = ProductionLocationReasonsPattern.Match(text);
         if (productionLocationReasons.Success)
@@ -509,6 +549,20 @@ internal static class SemanticWorldModelQuestionParser
         }
 
         return false;
+    }
+
+    private static bool TryParseScientificNumber(string value, out decimal number)
+    {
+        var normalized = Regex.Replace(
+            value,
+            @"\s*[×x]\s*10\^",
+            "e",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return decimal.TryParse(
+            normalized,
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            out number);
     }
 
     private static SemanticUtterance Create(
