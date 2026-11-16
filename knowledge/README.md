@@ -76,13 +76,13 @@ External evidence and retrieval metadata belong in a separate evidence/ingestion
 
 Counts after composing all thirty-two modules:
 
-- 661 concepts
+- 663 concepts
 - 240 type declarations (203 primitive, 37 defined)
 - 152 relation signatures
-- 1110 relation assertions:
+- 1114 relation assertions:
   - 243 `is-a`
-  - 434 `instance-of`
-  - 433 ordinary individual-to-individual relations
+  - 436 `instance-of`
+  - 435 ordinary individual-to-individual relations
 - 390 lexical forms
 - 7 numeric data properties
 - 42 numeric data assertions
