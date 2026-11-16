@@ -307,7 +307,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.Definitions)
         {
             var parents = item?.Parents ?? [];
-            var hasValidLegacyParents = document.FormatVersion < SupportedFormatVersion &&
+            var hasValidLegacyParents = document.FormatVersion < 3 &&
                 parents.All(parent => IsType(concepts, parent)) &&
                 parents.Distinct(StringComparer.Ordinal).Count() == parents.Count;
 
@@ -315,12 +315,12 @@ public sealed class SemanticWorldModelLoader
                 !IsType(concepts, item.Concept) ||
                 item.Conditions is null ||
                 item.NecessaryConditions is null ||
-                (document.FormatVersion < SupportedFormatVersion && !hasValidLegacyParents) ||
-                (document.FormatVersion == SupportedFormatVersion &&
+                (document.FormatVersion < 3 && !hasValidLegacyParents) ||
+                (document.FormatVersion >= 3 &&
                     (item.Parents is not null || item.SourceText is not null || item.SourceUrl is not null)) ||
                 !identifiers.Add(item.Concept))
             {
-                error = document.FormatVersion == SupportedFormatVersion
+                error = document.FormatVersion >= 3
                     ? "Version 3+ type definitions must contain semantic structure only; omit parents and provenance fields."
                     : "Every type definition must reference one unique type concept and valid legacy parent types.";
                 return false;
@@ -603,12 +603,12 @@ public sealed class SemanticWorldModelLoader
         var relationBuilder = ImmutableArray.CreateBuilder<SemanticRelationAssertion>(
             document.RelationAssertions.Count +
             legacyTypeAssertions.Count +
-            (document.FormatVersion < SupportedFormatVersion
+            (document.FormatVersion < 3
                 ? document.Definitions.Sum(definition => definition.Parents?.Count ?? 0)
                 : 0));
         var relationKeys = new HashSet<string>(StringComparer.Ordinal);
 
-        if (document.FormatVersion == SupportedFormatVersion && document.TypeAssertions is not null)
+        if (document.FormatVersion >= 3 && document.TypeAssertions is not null)
         {
             error = "Version 3+ models represent membership with instance-of relation assertions, not typeAssertions.";
             return false;
@@ -620,7 +620,7 @@ public sealed class SemanticWorldModelLoader
                 !relations.TryGetValue(item.Relation, out var relation) ||
                 !IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
                 !IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
-                (document.FormatVersion == SupportedFormatVersion &&
+                (document.FormatVersion >= 3 &&
                     (item.SourceText is not null || item.SourceUrl is not null)) ||
                 !relationKeys.Add($"{item.Subject}:{item.Relation}:{item.Object}"))
             {
@@ -638,7 +638,7 @@ public sealed class SemanticWorldModelLoader
 
         foreach (var item in legacyTypeAssertions)
         {
-            if (document.FormatVersion >= SupportedFormatVersion ||
+            if (document.FormatVersion >= 3 ||
                 item is null ||
                 !IsIndividual(concepts, item.Individual) ||
                 !IsType(concepts, item.Type))
@@ -661,7 +661,7 @@ public sealed class SemanticWorldModelLoader
                 new SemanticWorldModelSource($"{document.Id}:instance-of:{item.Individual}:{item.Type}")));
         }
 
-        if (document.FormatVersion < SupportedFormatVersion)
+        if (document.FormatVersion < 3)
         {
             foreach (var definition in document.Definitions)
             {
