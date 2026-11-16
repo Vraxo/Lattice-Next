@@ -41,6 +41,7 @@ public sealed class SequenceTokenModel
     public const string EndToken = "<|lattice.end|>";
 
     private const int MaximumTrainingTokens = 1_000_000;
+    private const int MaximumCandidatesPerContext = 128;
 
     public int MaximumContextLength { get; }
 
@@ -246,6 +247,7 @@ public sealed class SequenceTokenModel
         ImmutableArray<string> precedingTokens)
     {
         var maximumLength = Math.Min(MaximumContextLength, precedingTokens.Length);
+        var candidates = new HashSet<string>(StringComparer.Ordinal);
 
         for (var contextLength = maximumLength; contextLength >= 0; contextLength--)
         {
@@ -255,17 +257,24 @@ public sealed class SequenceTokenModel
                     .Skip(precedingTokens.Length - contextLength)
                     .ToImmutableArray();
 
-            if (distributions.TryGetValue(BuildContextKey(context), out var distribution))
+            if (!distributions.TryGetValue(BuildContextKey(context), out var distribution))
             {
-                return distribution.Counts
-                    .OrderByDescending(item => item.Value)
-                    .ThenBy(item => item.Key, StringComparer.Ordinal)
-                    .Select(item => item.Key)
-                    .ToImmutableArray();
+                continue;
+            }
+
+            foreach (var candidate in distribution.Counts
+                .OrderByDescending(item => item.Value)
+                .ThenBy(item => item.Key, StringComparer.Ordinal)
+                .Take(MaximumCandidatesPerContext))
+            {
+                candidates.Add(candidate.Key);
             }
         }
 
-        return ImmutableArray<string>.Empty;
+        return candidates
+            .OrderByDescending(candidate => GetLogScore(precedingTokens, candidate))
+            .ThenBy(candidate => candidate, StringComparer.Ordinal)
+            .ToImmutableArray();
     }
 
     internal double GetLogScore(
@@ -288,7 +297,11 @@ public sealed class SequenceTokenModel
                 continue;
             }
 
-            distribution.Counts.TryGetValue(nextToken, out var observedCount);
+            if (!distribution.Counts.TryGetValue(nextToken, out var observedCount))
+            {
+                continue;
+            }
+
             var numerator = observedCount + smoothing;
             var denominator = distribution.Total + (smoothing * vocabularySize);
             return Math.Log(numerator / denominator);
