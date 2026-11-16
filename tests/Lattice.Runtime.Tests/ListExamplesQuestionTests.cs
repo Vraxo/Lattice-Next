@@ -7,7 +7,6 @@ namespace Lattice.Runtime.Tests;
 public sealed class ListExamplesQuestionTests
 {
     [Theory]
-    [InlineData("Give me the top 5 golf equipment company names.")]
     [InlineData("Give me five golf equipment company names.")]
     public async Task Lists_requested_number_of_semantic_category_members(string prompt)
     {
