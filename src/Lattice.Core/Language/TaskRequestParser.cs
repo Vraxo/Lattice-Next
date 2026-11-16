@@ -27,7 +27,7 @@ internal static class TaskRequestParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex LearningPathPattern = new(
-        @"^\s*How can I learn to (?<skill>.+?) my (?<target>webpage) for search engines\??\s*$",
+        @"^\s*How can I learn to (?<skill>[A-Za-z][A-Za-z-]*) (?<target>.+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex RoadTripPlanPattern = new(
