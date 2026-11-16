@@ -67,9 +67,10 @@ internal static class EnglishSyntaxParser
         for (var index = 0; index < verbIndexes.Count; index++)
         {
             var verbIndex = verbIndexes[index];
+            var previousVerbIndex = index == 0 ? -1 : verbIndexes[index - 1];
             var markerIndex = index == 0
                 ? -1
-                : FindClauseMarker(tokens, verbIndex);
+                : FindClauseMarker(tokens, verbIndex, previousVerbIndex);
             var kind = index == 0
                 ? EnglishClauseKind.Main
                 : GetClauseKind(tokens, markerIndex);
@@ -81,7 +82,7 @@ internal static class EnglishSyntaxParser
             }
 
             var nextMarker = index + 1 < verbIndexes.Count
-                ? FindClauseMarker(tokens, verbIndexes[index + 1])
+                ? FindClauseMarker(tokens, verbIndexes[index + 1], verbIndex)
                 : tokens.Length;
             if (nextMarker < 0)
             {
@@ -201,22 +202,39 @@ internal static class EnglishSyntaxParser
     private static string GetBaseVerb(string value) =>
         TryGetBaseVerb(value, out var baseVerb) ? baseVerb : value.ToLowerInvariant();
 
-    private static int FindClauseMarker(ImmutableArray<EnglishToken> tokens, int verbIndex)
+    private static int FindClauseMarker(
+        ImmutableArray<EnglishToken> tokens,
+        int verbIndex,
+        int previousVerbIndex)
     {
-        var markerIndex = verbIndex - 1;
-        if (markerIndex < 0)
+        for (var index = verbIndex - 1; index > previousVerbIndex; index--)
         {
-            return -1;
+            var marker = tokens[index].Value;
+            var isMarker = RelativeMarkers.Contains(marker) ||
+                CoordinatingMarkers.Contains(marker) ||
+                SubordinatingMarkers.Contains(marker) ||
+                marker.Equals("to", StringComparison.OrdinalIgnoreCase);
+
+            if (!isMarker)
+            {
+                continue;
+            }
+
+            if (index == verbIndex - 1 || IsExplicitSubjectStart(tokens[index + 1]))
+            {
+                return index;
+            }
         }
 
-        var marker = tokens[markerIndex].Value;
-        return RelativeMarkers.Contains(marker) ||
-            CoordinatingMarkers.Contains(marker) ||
-            SubordinatingMarkers.Contains(marker) ||
-            marker.Equals("to", StringComparison.OrdinalIgnoreCase)
-                ? markerIndex
-                : -1;
+        return -1;
     }
+
+    private static bool IsExplicitSubjectStart(EnglishToken token) =>
+        token.Value is "I" or "you" or "he" or "she" or "it" or "we" or "they" ||
+        (token.Value.Length > 0 && char.IsUpper(token.Value[0])) ||
+        token.Value.Equals("the", StringComparison.OrdinalIgnoreCase) ||
+        token.Value.Equals("a", StringComparison.OrdinalIgnoreCase) ||
+        token.Value.Equals("an", StringComparison.OrdinalIgnoreCase);
 
     private static EnglishClauseKind GetClauseKind(
         ImmutableArray<EnglishToken> tokens,
