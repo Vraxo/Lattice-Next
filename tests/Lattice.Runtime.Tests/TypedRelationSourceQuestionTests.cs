@@ -19,7 +19,7 @@ public sealed class TypedRelationSourceQuestionTests
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, answer.Kind);
         Assert.Equal(
-            "ask(relation-sources(michelle-maclaren, direct, subject-type(episode), within(season-four-of-game-of-thrones)))",
+            "ask(relation-targets(michelle-maclaren, direct, within(season-four-of-game-of-thrones), target-type(episode)))",
             answer.Meaning);
         Assert.Equal(
             "Oathkeeper and First of His Name are television episodes directed by Michelle MacLaren.",
