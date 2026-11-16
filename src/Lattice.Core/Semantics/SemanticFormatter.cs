@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Lattice.Core.Semantics;
 
 public static class SemanticFormatter
@@ -30,6 +32,8 @@ public static class SemanticFormatter
             ObjectiveConditionUpdateFormula update => FormatObjectiveConditionUpdate(update),
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
+            ChargedParticleAccelerationFormula acceleration =>
+                $"charged-particle-final-speed({acceleration.Particle}, initial-speed={acceleration.InitialSpeedMetersPerSecond.ToString(CultureInfo.InvariantCulture)} m/s, potential-difference={acceleration.PotentialDifferenceVolts.ToString(CultureInfo.InvariantCulture)} V)",
             EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
             SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
                 ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
@@ -64,6 +68,7 @@ public static class SemanticFormatter
             SemanticWorldModelQuestionKind.Mechanism => $"world-model-mechanism({question.Subject})",
             SemanticWorldModelQuestionKind.Causes => $"world-model-causes({question.Subject})",
             SemanticWorldModelQuestionKind.Compare => $"world-model-compare({question.Subject}, {question.OtherSubject})",
+            SemanticWorldModelQuestionKind.SamplingParameters => $"world-model-sampling-parameters({question.Subject}, {question.OtherSubject}, in({question.TargetType}))",
             SemanticWorldModelQuestionKind.WhyUse => $"world-model-why-use({question.Subject})",
             SemanticWorldModelQuestionKind.Applications => $"world-model-applications({question.Subject})",
             SemanticWorldModelQuestionKind.Clarification => $"world-model-clarification({question.Subject}, {question.OtherSubject})",
