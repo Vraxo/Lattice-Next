@@ -57,10 +57,10 @@ public sealed class SequenceGeneratorTests
         Assert.Equal("A piano produces sound.", english!.Text);
         Assert.Equal("print(\"Hello, world!\")", python!.Text);
         Assert.Equal(
-            ["A", " ", "piano", " ", "produces", " ", "sound", "."],
+            new[] { "A", " ", "piano", " ", "produces", " ", "sound", "." },
             english.Tokens);
         Assert.Equal(
-            ["print", "(", "\"Hello, world!\"", ")"],
+            new[] { "print", "(", "\"Hello, world!\"", ")" },
             python.Tokens);
     }
 
@@ -117,7 +117,7 @@ public sealed class SequenceGeneratorTests
 
         Assert.False(generated);
         Assert.Null(result);
-        Assert.Contains("subject", error, StringComparison.Ordinal);
+        Assert.Contains("subject", error ?? string.Empty, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -140,6 +140,6 @@ public sealed class SequenceGeneratorTests
 
         Assert.False(generated);
         Assert.Null(result);
-        Assert.Contains("missing-clause", error, StringComparison.Ordinal);
+        Assert.Contains("missing-clause", error ?? string.Empty, StringComparison.Ordinal);
     }
 }
