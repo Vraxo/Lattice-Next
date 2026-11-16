@@ -36,6 +36,11 @@ public sealed record SequenceGenerationRequest(
     int MaxTokens = 512,
     SequenceTokenModel? TokenModel = null);
 
+public sealed record SequenceContinuationRequest(
+    ImmutableArray<string> ContextTokens,
+    int BeamWidth = 8,
+    int MaxTokens = 128);
+
 public sealed record SequenceGenerationResult(
     ImmutableArray<string> Tokens,
     double Score,
@@ -46,6 +51,11 @@ public sealed record SequenceGenerationResult(
 
 internal sealed record SequenceGenerationState(
     ImmutableArray<SequenceSymbol> Pending,
+    ImmutableArray<string> Tokens,
+    double Score);
+
+internal sealed record SequenceContinuationState(
+    ImmutableArray<string> Context,
     ImmutableArray<string> Tokens,
     double Score);
 
@@ -263,6 +273,119 @@ public static class SequenceGenerator
             best.Tokens,
             best.Score,
             searchLimitReached);
+        return true;
+    }
+
+    public static bool TryContinue(
+        SequenceTokenModel model,
+        SequenceContinuationRequest request,
+        out SequenceGenerationResult? result,
+        out string? error)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(request);
+
+        result = null;
+        error = null;
+
+        if (request.ContextTokens.IsDefault ||
+            request.ContextTokens.Length > 8192 ||
+            request.ContextTokens.Any(string.IsNullOrEmpty))
+        {
+            error = "The continuation context must be initialized and contain valid tokens.";
+            return false;
+        }
+
+        if (request.BeamWidth is < 1 or > 128 ||
+            request.MaxTokens is < 1 or > 8192)
+        {
+            error = "Continuation limits are outside their supported ranges.";
+            return false;
+        }
+
+        var frontier = new List<SequenceContinuationState>
+        {
+            new(request.ContextTokens, ImmutableArray<string>.Empty, 0)
+        };
+        var completed = new List<SequenceContinuationState>();
+        var steps = 0;
+
+        for (; steps <= request.MaxTokens && frontier.Count > 0; steps++)
+        {
+            var next = new List<SequenceContinuationState>();
+
+            foreach (var state in frontier)
+            {
+                var candidates = model.GetNextTokens(state.Context);
+                foreach (var token in candidates)
+                {
+                    var score = state.Score + model.GetLogScore(state.Context, token);
+                    if (!double.IsFinite(score))
+                    {
+                        continue;
+                    }
+
+                    if (token == SequenceTokenModel.EndToken)
+                    {
+                        completed.Add(state with { Score = score });
+                        continue;
+                    }
+
+                    if (state.Tokens.Length >= request.MaxTokens)
+                    {
+                        continue;
+                    }
+
+                    var context = state.Context.Add(token);
+                    if (context.Length > model.MaximumContextLength)
+                    {
+                        context = model.MaximumContextLength == 0
+                            ? ImmutableArray<string>.Empty
+                            : context
+                                .Skip(context.Length - model.MaximumContextLength)
+                                .ToImmutableArray();
+                    }
+
+                    next.Add(new SequenceContinuationState(
+                        context,
+                        state.Tokens.Add(token),
+                        score));
+                }
+            }
+
+            if (completed.Count > request.BeamWidth * 4)
+            {
+                completed = completed
+                    .OrderByDescending(state => state.Score)
+                    .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                    .Take(request.BeamWidth * 4)
+                    .ToList();
+            }
+
+            frontier = next
+                .OrderByDescending(state => state.Score)
+                .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+                .Take(request.BeamWidth)
+                .ToList();
+        }
+
+        if (completed.Count == 0)
+        {
+            error = frontier.Count == 0
+                ? "The token model could not produce a complete sequence."
+                : "Sequence continuation reached its token limit without an end token.";
+            return false;
+        }
+
+        var best = completed
+            .OrderByDescending(state => state.Score)
+            .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
+            .First();
+
+        result = new SequenceGenerationResult(
+            best.Tokens,
+            best.Score,
+            frontier.Count > 0);
         return true;
     }
 
