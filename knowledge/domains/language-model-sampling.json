@@ -114,6 +114,11 @@
       "form": "nucleus sampling",
       "concept": "llm-top-p",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "language model",
+      "concept": "llm-language-model",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -187,7 +192,7 @@
       "id": "llm-method-retains",
       "domain": "llm-sampling-mechanism",
       "range": "llm-sampling-effect",
-      "verb": "retains",
+      "verb": "retains the",
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0,
