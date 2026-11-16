@@ -20,6 +20,12 @@ public static class SemanticSequenceBindings
         bindings = ImmutableDictionary<string, ImmutableArray<string>>.Empty;
         error = null;
 
+        if (!model.RelationAssertions.Contains(assertion))
+        {
+            error = "The relation assertion is not part of the supplied semantic model.";
+            return false;
+        }
+
         var subject = model.Concepts.FirstOrDefault(concept => concept.Id == assertion.Subject);
         var relation = model.FindRelation(assertion.Relation);
         var target = model.Concepts.FirstOrDefault(concept => concept.Id == assertion.Object);
