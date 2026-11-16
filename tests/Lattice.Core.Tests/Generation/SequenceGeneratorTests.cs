@@ -137,6 +137,32 @@ public sealed class SequenceGeneratorTests
     }
 
     [Fact]
+    public void Continues_a_sequence_from_a_trained_format_agnostic_token_model()
+    {
+        Assert.True(SequenceTokenModel.TryTrain(
+            ImmutableArray.Create(
+                ImmutableArray.Create("the ", "cat"),
+                ImmutableArray.Create("the ", "cat"),
+                ImmutableArray.Create("the ", "dog")),
+            out var tokenModel,
+            out var modelError,
+            maximumContextLength: 1), modelError);
+
+        var generated = SequenceGenerator.TryContinue(
+            tokenModel!,
+            new SequenceContinuationRequest(
+                ["the "],
+                MaxTokens: 1),
+            out var result,
+            out var error);
+
+        Assert.True(generated, error);
+        Assert.Equal("cat", result!.Text);
+        Assert.DoesNotContain(SequenceTokenModel.EndToken, result.Tokens);
+        Assert.False(result.SearchLimitReached);
+    }
+
+    [Fact]
     public void Reports_missing_semantic_bindings_instead_of_emitting_placeholders()
     {
         var grammar = new SequenceGrammar(ImmutableArray.Create(
