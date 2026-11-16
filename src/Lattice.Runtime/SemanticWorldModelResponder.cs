@@ -1899,7 +1899,7 @@ internal static class SemanticWorldModelResponder
         var subjectLabel = subjectType.Label.EndsWith("s", StringComparison.OrdinalIgnoreCase)
             ? subjectType.Label
             : $"{subjectType.Label}s";
-        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptations limit water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
+        message = $"{subjectLabel} can survive periods without drinking water because their water-conservation adaptation limits water loss through {JoinConditions(processNames)}. Their dehydration-tolerance adaptation also supports survival during water deprivation.";
 
         var sources = adaptations
             .SelectMany(candidate => new[]
