@@ -56,7 +56,7 @@ public sealed class SequenceTokenModel
             return false;
         }
 
-        if (maximumContextLength is < 0 or > MaximumContextLength ||
+        if (maximumContextLength is < 0 or > MaxSupportedContextLength ||
             !double.IsFinite(smoothing) ||
             smoothing is <= 0 or > 10)
         {
