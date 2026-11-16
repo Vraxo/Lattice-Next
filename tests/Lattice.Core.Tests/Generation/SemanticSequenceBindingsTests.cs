@@ -39,7 +39,9 @@ public sealed class SemanticSequenceBindingsTests
             out var generationError), generationError);
 
         Assert.Equal("A piano is a musical instrument.", result!.Text);
-        Assert.DoesNotContain(result.Tokens, token => token.Contains("piano is a musical instrument", StringComparison.Ordinal));
+        Assert.Equal(
+            new[] { "A", " ", "piano", " ", "is", " ", "a", " ", "musical", " ", "instrument", "." },
+            result.Tokens);
     }
 
     [Fact]
