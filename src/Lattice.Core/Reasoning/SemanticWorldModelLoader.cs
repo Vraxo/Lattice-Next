@@ -69,7 +69,7 @@ public sealed class SemanticWorldModelLoader
             (document.FormatVersion >= 3 && document.TypeAssertions is not null) ||
             (document.FormatVersion == 3 &&
                 document.DataProperties.Any(property => property is not null &&
-                    string.Equals(property.ValueType, "uri", StringComparison.OrdinalIgnoreCase))))
+                    !string.Equals(property.ValueType, "number", StringComparison.OrdinalIgnoreCase))))
         {
             error = "The semantic world model metadata, collections, or version-specific fields are invalid.";
             return false;
@@ -745,6 +745,12 @@ public sealed class SemanticWorldModelLoader
             string? dimension = null;
             if (valueKind == SemanticDataValueKind.Decimal)
             {
+                if (document.FormatVersion < 4)
+                {
+                    error = $"Decimal data property '{item.Id}' requires semantic world model version 4.";
+                    return false;
+                }
+
                 if (!SemanticUnit.TryGetDimension(item.DimensionUnit, out var resolvedDimension))
                 {
                     error = $"Decimal data property '{item.Id}' requires a supported dimensionUnit.";
@@ -791,11 +797,14 @@ public sealed class SemanticWorldModelLoader
                 return false;
             }
 
+            var sourceId = property.ValueKind == SemanticDataValueKind.Decimal
+                ? $"{document.Id}:data:{item.Subject}:{item.Property}:{normalizedValue}:{normalizedUnit}"
+                : $"{document.Id}:data:{item.Subject}:{item.Property}";
             builder.Add(new SemanticDataAssertion(
                 item.Subject,
                 item.Property,
                 normalizedValue,
-                new SemanticWorldModelSource($"{document.Id}:data:{item.Subject}:{item.Property}"),
+                new SemanticWorldModelSource(sourceId),
                 normalizedUnit));
         }
 
