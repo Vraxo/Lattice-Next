@@ -384,6 +384,9 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("wide-field", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Moon", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("deep-sky", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("first night-sky photo session", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("choose a bright target", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("remote shutter release", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("tracking mount", utterance.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Never view the Sun", utterance.Message, StringComparison.Ordinal);
         Assert.NotEmpty(utterance.SupportingEvidence);
