@@ -183,4 +183,39 @@ public sealed class TaskRequestResponseTests
             evidence => evidence.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:idaes:instance-of:process-systems-engineering-framework"));
     }
+    [Fact]
+    public async Task Suggests_beginner_astrophotography_activities_from_the_semantic_graph()
+    {
+        const string input = "I want to start doing astrophotography as a hobby, any suggestions what could i do?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("constellations", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("wide-field", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Moon", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("deep-sky", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("tracking mount", utterance.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Never view the Sun", utterance.Message, StringComparison.Ordinal);
+        Assert.NotEmpty(utterance.SupportingEvidence);
+        Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
+    }
+
+    [Fact]
+    public async Task Does_not_invent_hobby_activities_for_an_unmodeled_hobby()
+    {
+        const string input = "I want to start doing underwater basket weaving as a hobby, any suggestions?";
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
 }

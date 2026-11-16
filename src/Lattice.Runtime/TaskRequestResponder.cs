@@ -26,6 +26,7 @@ internal static class TaskRequestResponder
             TaskRequestAction.Plan => TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explain => TryExplainOperation(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Brainstorm => TryBrainstormUses(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Explore => TryExploreHobby(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -33,6 +34,137 @@ internal static class TaskRequestResponder
     private static string EnsureSentenceEnding(string value)
     {
         return value.TrimEnd().TrimEnd('.', '!', '?') + ".";
+    }
+
+    private static bool TryExploreHobby(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (request.Context != "hobby" || request.OutputFormat != "starter-activities")
+        {
+            return false;
+        }
+
+        var hobby = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        if (hobby is null || !reasoner.IsInstanceOf(hobby.Id, "hobby"))
+        {
+            return false;
+        }
+
+        var activityAssertions = reasoner.GetRelations(hobby.Id, "hobby-has-starter-activity");
+        var activities = activityAssertions
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Activity = model.FindConcept(assertion.Object, SemanticConceptKind.Individual),
+                Order = model.GetDataAssertions(assertion.Object, "activity-order").FirstOrDefault()?.Value
+            })
+            .Select(item => int.TryParse(
+                item.Order,
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var order) && item.Activity is not null
+                    ? new { item.Assertion, Activity = item.Activity, Order = order }
+                    : null)
+            .Where(item => item is not null)
+            .OrderBy(item => item!.Order)
+            .ToArray();
+
+        if (activities.Length == 0)
+        {
+            return false;
+        }
+
+        var paragraphs = new List<string>
+        {
+            $"Here are some approachable ways to explore {hobby.Label}, starting with simpler activities:"
+        };
+        var sources = new List<SemanticWorldModelSource>();
+        sources.AddRange(reasoner.GetMembershipEvidence(hobby.Id, "hobby"));
+        sources.AddRange(activityAssertions.Select(assertion => assertion.Source));
+
+        foreach (var item in activities)
+        {
+            var activity = item!.Activity!;
+            var goalAssertions = reasoner.GetRelations(activity.Id, "activity-has-goal");
+            var equipmentAssertions = reasoner.GetRelations(activity.Id, "activity-uses-equipment");
+            var levelAssertions = reasoner.GetRelations(activity.Id, "activity-has-level");
+            var goals = goalAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .ToArray();
+            var equipment = equipmentAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .ToArray();
+            var levels = levelAssertions
+                .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
+                .ToArray();
+
+            if (goals.Length == 0 || goals.Any(goal => goal is null) ||
+                equipment.Length == 0 || equipment.Any(item => item is null) ||
+                levels.Length == 0 || levels.Any(level => level is null))
+            {
+                return false;
+            }
+
+            var goalText = string.Join("; ", goals.Select(goal => goal!.Label));
+            var equipmentText = string.Join(", ", equipment.Select(item => item!.Label));
+            var levelText = string.Join(", ", levels.Select(level => level!.Label));
+            paragraphs.Add(
+                $"**{activity.Label}** ({levelText}): {goalText}. Equipment: {equipmentText}.");
+
+            sources.Add(item.Assertion.Source);
+            sources.AddRange(model.GetDataAssertions(activity.Id, "activity-order")
+                .Select(assertion => assertion.Source));
+            sources.AddRange(reasoner.GetMembershipEvidence(activity.Id, "hobby-activity"));
+            sources.AddRange(goalAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(equipmentAssertions.Select(assertion => assertion.Source));
+            sources.AddRange(levelAssertions.Select(assertion => assertion.Source));
+            foreach (var assertion in goalAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(assertion.Object, "hobby-goal"));
+            }
+
+            foreach (var assertion in equipmentAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(assertion.Object, "hobby-equipment"));
+            }
+
+            foreach (var assertion in levelAssertions)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(assertion.Object, "skill-level"));
+            }
+        }
+
+        var safetyAssertions = reasoner.GetRelations(hobby.Id, "hobby-has-safety-note");
+        foreach (var assertion in safetyAssertions)
+        {
+            var note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual);
+            if (note is null)
+            {
+                return false;
+            }
+
+            paragraphs.Add($"**Safety:** {EnsureSentenceEnding(note.Label)}");
+            sources.Add(assertion.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(note.Id, "hobby-safety-note"));
+        }
+
+        message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources
+                .DistinctBy(source => source.SourceId)
+                .Select(ToEvidenceSource)
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
     }
 
     private static bool TryBrainstormUses(
