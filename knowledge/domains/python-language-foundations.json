@@ -485,154 +485,203 @@
     {
       "id": "language-has-syntax",
       "domain": "programming-language",
-      "range": "python-syntax",
+      "range": null,
       "verb": "has syntax",
       "order": 0,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectKind": "type"
     },
     {
       "id": "program-consists-of-statement",
-      "domain": "program",
-      "range": "statement",
+      "domain": null,
+      "range": null,
       "verb": "consists of statement",
       "order": 1,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "statement-contains-expression",
-      "domain": "statement",
-      "range": "expression",
+      "domain": null,
+      "range": null,
       "verb": "contains expression",
       "order": 2,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "expression-evaluates-to-value",
-      "domain": "expression",
-      "range": "value",
+      "domain": null,
+      "range": null,
       "verb": "evaluates to value",
       "order": 3,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "assignment-stores-in-variable",
-      "domain": "assignment-statement",
-      "range": "variable",
+      "domain": null,
+      "range": null,
       "verb": "stores a value in variable",
       "order": 4,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "variable-refers-to-value",
-      "domain": "variable",
-      "range": "value",
+      "domain": null,
+      "range": null,
       "verb": "refers to value",
       "order": 5,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "function-has-parameter",
-      "domain": "function-definition",
-      "range": "parameter",
+      "domain": null,
+      "range": null,
       "verb": "has parameter",
       "order": 6,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "call-passes-argument",
-      "domain": "function-call",
-      "range": "argument",
+      "domain": null,
+      "range": null,
       "verb": "passes argument",
       "order": 7,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "function-returns-value",
-      "domain": "function-definition",
-      "range": "value",
+      "domain": null,
+      "range": null,
       "verb": "returns value",
       "order": 8,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "import-brings-module-into-scope",
-      "domain": "import-statement",
-      "range": "module",
+      "domain": null,
+      "range": null,
       "verb": "imports module",
       "order": 9,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "handler-handles-exception",
-      "domain": "exception-handler",
-      "range": "exception",
+      "domain": null,
+      "range": null,
       "verb": "handles exception",
       "order": 10,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "interpreter-executes-program",
       "domain": "interpreter",
-      "range": "program",
+      "range": null,
       "verb": "executes program",
       "order": 11,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectKind": "type"
     },
     {
       "id": "library-provides-api",
       "domain": "library",
-      "range": "application-programming-interface",
+      "range": null,
       "verb": "provides API",
       "order": 12,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectKind": "type"
     },
     {
       "id": "library-written-in-language",
       "domain": "library",
-      "range": "programming-language",
+      "range": null,
       "verb": "is written in language",
       "order": 13,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectKind": "type"
     },
     {
       "id": "call-invokes-callable",
-      "domain": "function-call",
-      "range": "callable",
+      "domain": null,
+      "range": null,
       "verb": "invokes callable",
       "order": 14,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "print-produces-output",
       "domain": "built-in-function",
-      "range": "output",
+      "range": null,
       "verb": "produces output",
       "order": 15,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectKind": "type"
     },
     {
       "id": "collection-contains-element",
-      "domain": "collection",
-      "range": "value",
+      "domain": null,
+      "range": null,
       "verb": "contains element",
       "order": 16,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "function-definition-defines-function",
-      "domain": "function-definition",
-      "range": "function",
+      "domain": null,
+      "range": null,
       "verb": "defines function",
       "order": 17,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "class-has-method",
-      "domain": "class",
-      "range": "method",
+      "domain": null,
+      "range": null,
       "verb": "has method",
       "order": 18,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
+    },
+    {
+      "id": "is-a",
+      "verb": "is a",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "type",
+      "objectKind": "type"
+    },
+    {
+      "id": "instance-of",
+      "verb": "is an instance of",
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "type"
     }
   ],
   "definitions": [
