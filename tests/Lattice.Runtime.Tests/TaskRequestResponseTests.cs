@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Lattice.Client;
 using Lattice.Runtime;
 using Xunit;
@@ -76,6 +77,74 @@ public sealed class TaskRequestResponseTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+    }
+
+    [Theory]
+    [InlineData("Write a Hello World program in Python.", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("Create a Python program that prints 'A second message!'.", "A second message!", "print(\"A second message!\")")]
+    public async Task Generates_and_executes_python_from_reusable_generation_knowledge(
+        string input,
+        string expectedOutput,
+        string expectedCode)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+
+        var generatedCode = ExtractPythonCode(utterance.Message);
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonPrints(generatedCode, expectedOutput);
+    }
+
+    private static string ExtractPythonCode(string message)
+    {
+        var fence = new string((char)96, 3);
+        var opening = fence + "python";
+        var lines = message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, opening);
+        if (start < 0)
+        {
+            throw new InvalidOperationException("The response did not contain a Python code block.");
+        }
+
+        var end = Array.IndexOf(lines, fence, start + 1);
+        if (end <= start)
+        {
+            throw new InvalidOperationException("The Python code block was not closed.");
+        }
+
+        return string.Join(Environment.NewLine, lines[(start + 1)..end]);
+    }
+
+    private static async Task AssertPythonPrints(string code, string expectedOutput)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = OperatingSystem.IsWindows() ? "python" : "python3",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+        startInfo.ArgumentList.Add("-c");
+        startInfo.ArgumentList.Add(code);
+
+        using var process = Process.Start(startInfo);
+        Assert.NotNull(process);
+
+        var outputTask = process!.StandardOutput.ReadToEndAsync();
+        var errorTask = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await process.WaitForExitAsync(timeout.Token);
+
+        Assert.Equal(0, process.ExitCode);
+        Assert.Equal(expectedOutput + Environment.NewLine, await outputTask);
+        Assert.Equal(string.Empty, await errorTask);
     }
 
     [Fact]

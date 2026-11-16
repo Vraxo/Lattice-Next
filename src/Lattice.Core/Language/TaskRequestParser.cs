@@ -35,6 +35,14 @@ internal static class TaskRequestParser
         @"^\s*How would I create a script for (?<application>blender) that (?<task>.+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex PythonHelloWorldProgramPattern = new(
+        @"^\s*(?:please\s+)?(?:write|create|generate)\s+(?:a\s+|the\s+)?hello[\s-]+world\s+(?:program|script)\s+(?:in|using)\s+python[.!?]?\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex PythonPrintProgramPattern = new(
+        @"^\s*(?:please\s+)?(?:write|create|generate)\s+(?:the\s+)?(?:(?:smallest|simple|basic)\s+)?(?:a\s+)?python\s+(?:program|script)\s+that\s+(?:prints?|outputs?)\s+(?<message>.+?)\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex OperationExplanationPattern = new(
         @"^\s*How do you operate (?:a|an|the) (?<vehicle>car|vehicle) with (?:a|an|the) (?<transmission>[A-Za-z][A-Za-z -]*?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -57,6 +65,11 @@ internal static class TaskRequestParser
         out SemanticUtterance? utterance)
     {
         utterance = null;
+
+        if (TryParsePythonProgram(source, sourceText, out utterance))
+        {
+            return true;
+        }
 
         if (TryParseBlenderScript(source, sourceText, out utterance))
         {
@@ -101,6 +114,68 @@ internal static class TaskRequestParser
         return TryParseRecommendationRequest(source, sourceText, out utterance);
     }
 
+
+    private static bool TryParsePythonProgram(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+
+        string requestedValue;
+        if (PythonHelloWorldProgramPattern.IsMatch(source))
+        {
+            requestedValue = "Hello, world!";
+        }
+        else
+        {
+            var match = PythonPrintProgramPattern.Match(source);
+            if (!match.Success ||
+                !TryNormalizeRequestedOutput(match.Groups["message"].Value, out requestedValue))
+            {
+                return false;
+            }
+        }
+
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Code,
+            "python-program",
+            "python",
+            "python-source",
+            "write-standard-output",
+            ImmutableArray.Create("text-output"))
+        {
+            RequestedValue = requestedValue
+        };
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
+    }
+
+    private static bool TryNormalizeRequestedOutput(
+        string source,
+        out string value)
+    {
+        value = source.Trim();
+
+        if (value.EndsWith(".", StringComparison.Ordinal))
+        {
+            value = value[..^1].TrimEnd();
+        }
+
+        if (value.Length >= 2 &&
+            ((value[0] == '"' && value[^1] == '"') ||
+             (value[0] == '\'' && value[^1] == '\'')))
+        {
+            value = value[1..^1];
+        }
+
+        value = value.Trim();
+        return value.Length is > 0 and <= 512;
+    }
 
     private static bool TryParseBlenderScript(
         string source,

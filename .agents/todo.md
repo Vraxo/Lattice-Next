@@ -2,6 +2,12 @@
 
 This is the active queue for the clean-slate Lattice repository. Keep it short, ordered, and tied to runnable outcomes.
 
+## Current milestone: symbolic Hello World generation
+
+- Generate a working Python Hello World program by composing semantic output intent, operation knowledge, declarative Python syntax, and a shared token-sequence generator.
+- Keep the complete program out of the knowledge base; verify a changed output value also generates and executes correctly.
+- Do not use corpus training, n-grams, statistical next-token prediction, or a language-specific generation backend for this milestone.
+
 ## Development goal: compounding capability through meaningful tasks
 
 > Lattice should start out doing a few simple things reliably, but its capabilities should compound. Eventually, we should be able to give it a task it wasn't specifically programmed to perform, and have it solve it by combining things it already knows how to do.
