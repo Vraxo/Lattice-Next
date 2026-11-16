@@ -18,6 +18,12 @@ public sealed class TaskRequestResponseTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, utterance.Kind);
+        Assert.Contains("## Blender object replacement", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### Script", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("```python", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### What it does", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("- Finds every object", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("**Before running:**", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("target_name = \"YourObjectName\"", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.objects", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.lights.new", utterance.Message, StringComparison.Ordinal);
