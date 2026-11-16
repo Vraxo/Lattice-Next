@@ -30,6 +30,10 @@ internal static class TaskRequestParser
         @"^\s*Plan\s+for\s+(?<duration>(?:a\s+)?(?:one|two|three|four|five|six|seven|[0-9]+)[ -]days?)\s+road trip(?:\s+for\s+(?<occasion>.+?))?(?:\s+from\s+(?<origin>[^.!?]+?))?[.!?]?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private static readonly Regex BlenderScriptPattern = new(
+        @"^\s*How would I create a script for (?<application>blender) that (?<task>.+?)\??\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex RecommendationRequestPattern = new(
         @"^\s*(?:I would like to|I'd like to)\s+(?<purpose>[^.!?]+)[.!?]\s*(?:Which|What)\s+(?<subject>[^?]+?)\s+(?:do|would)\s+you\s+recommend\s+for\s+this\s+purpose\?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -40,6 +44,11 @@ internal static class TaskRequestParser
         out SemanticUtterance? utterance)
     {
         utterance = null;
+
+        if (TryParseBlenderScript(source, sourceText, out utterance))
+        {
+            return true;
+        }
 
         if (TryParseBrainstormUses(source, sourceText, out utterance))
         {
@@ -62,6 +71,40 @@ internal static class TaskRequestParser
         }
 
         return TryParseRecommendationRequest(source, sourceText, out utterance);
+    }
+
+    private static bool TryParseBlenderScript(
+        string source,
+        string sourceText,
+        out SemanticUtterance? utterance)
+    {
+        utterance = null;
+        var match = BlenderScriptPattern.Match(source);
+
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var task = match.Groups["task"].Value.Trim().TrimEnd('?');
+        var supportsObjectReplacement =
+            task.Contains("replac", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("object", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("specific name", StringComparison.OrdinalIgnoreCase) &&
+            task.Contains("point light", StringComparison.OrdinalIgnoreCase);
+        var formula = new TaskRequestFormula(
+            TaskRequestAction.Code,
+            supportsObjectReplacement ? "blender-object-replacement" : "unsupported-blender-script",
+            "blender",
+            "python-script",
+            supportsObjectReplacement ? "object-to-point-light" : task,
+            ImmutableArray.Create("python", "blender-api"));
+
+        utterance = new SemanticUtterance(
+            UtteranceKind.TaskRequest,
+            formula,
+            sourceText.Trim());
+        return true;
     }
 
     private static bool TryParseBrainstormUses(

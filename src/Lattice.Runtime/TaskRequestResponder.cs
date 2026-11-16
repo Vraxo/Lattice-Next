@@ -26,6 +26,7 @@ internal static class TaskRequestResponder
             TaskRequestAction.Plan => TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explain => TryExplainOperation(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Brainstorm => TryBrainstormUses(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Code => TryGenerateCode(request, model, reasoner, out message, out evidence),
             _ => Fail(out message, out evidence)
         };
     }
@@ -204,6 +205,132 @@ internal static class TaskRequestResponder
         }
 
         message = string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        evidence = ImmutableArray.Create(new LatticeEvidence(
+            LatticeEvidenceKind.Derived,
+            LatticeEvidencePolarity.Positive,
+            sources
+                .DistinctBy(source => source.SourceId)
+                .Select(ToEvidenceSource)
+                .ToImmutableArray(),
+            ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    private static bool TryGenerateCode(
+        TaskRequestFormula request,
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        out string message,
+        out ImmutableArray<LatticeEvidence> evidence)
+    {
+        message = string.Empty;
+        evidence = ImmutableArray<LatticeEvidence>.Empty;
+
+        if (request.OutputFormat != "python-script" ||
+            request.Context != "blender" ||
+            request.Subject != "blender-object-replacement" ||
+            request.Scope != "object-to-point-light")
+        {
+            return false;
+        }
+
+        var task = model.FindConcept("blender-object-replacement", SemanticConceptKind.Individual);
+        if (task is null || !reasoner.IsInstanceOf(task.Id, "blender-code-generation-task"))
+        {
+            return false;
+        }
+
+        var stepAssertions = reasoner.GetRelations(task.Id, "script-has-step");
+        var steps = stepAssertions
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Step = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Step is not null)
+            .Select(item => new
+            {
+                item.Assertion,
+                Step = item.Step!,
+                Number = model.GetDataAssertions(item.Step!.Id, "script-step-number").FirstOrDefault()?.Value,
+                Operation = reasoner.GetRelations(item.Step!.Id, "step-uses-operation").FirstOrDefault(),
+                Api = reasoner.GetRelations(item.Step!.Id, "step-uses-api").FirstOrDefault()
+            })
+            .Select(item => int.TryParse(
+                item.Number,
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var number) && item.Operation is not null && item.Api is not null
+                    ? new { item.Assertion, item.Step, item.Operation, item.Api, Number = number }
+                    : null)
+            .Where(item => item is not null)
+            .OrderBy(item => item!.Number)
+            .ToArray();
+
+        var codeBlocks = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["op-snapshot-objects"] = "objects = list(bpy.data.objects)",
+            ["op-iterate-objects"] = "for obj in objects:",
+            ["op-match-name"] = "    if name_pattern.fullmatch(obj.name) is None:\n        continue",
+            ["op-create-light-data"] = "    light_data = bpy.data.lights.new(name=f\"{obj.name}_Point\", type=\"POINT\")",
+            ["op-create-light-object"] = "    light_obj = bpy.data.objects.new(name=f\"{obj.name}_Point\", object_data=light_data)",
+            ["op-copy-world-position"] = "    light_obj.location = obj.matrix_world.translation.copy()",
+            ["op-link-collections"] = "    collections = list(obj.users_collection)\n    if collections:\n        for collection in collections:\n            collection.objects.link(light_obj)\n    else:\n        bpy.context.scene.collection.objects.link(light_obj)",
+            ["op-remove-original"] = "    bpy.data.objects.remove(obj, do_unlink=True)"
+        };
+
+        if (steps.Length != codeBlocks.Count ||
+            steps.Select(item => item!.Operation!.Object).Distinct(StringComparer.Ordinal).Count() != codeBlocks.Count)
+        {
+            return false;
+        }
+
+        var codeLines = new List<string>();
+        var sources = new List<SemanticWorldModelSource>();
+        sources.AddRange(reasoner.GetMembershipEvidence(task.Id, "blender-code-generation-task"));
+
+        foreach (var step in steps)
+        {
+            var operation = model.FindConcept(step!.Operation!.Object, SemanticConceptKind.Individual);
+            var api = model.FindConcept(step.Api!.Object, SemanticConceptKind.Individual);
+            if (operation is null || api is null ||
+                !reasoner.IsInstanceOf(operation.Id, "python-code-operation") ||
+                !reasoner.IsInstanceOf(api.Id, "blender-api") ||
+                !codeBlocks.TryGetValue(operation.Id, out var block))
+            {
+                return false;
+            }
+
+            codeLines.Add(block);
+            sources.Add(step.Assertion.Source);
+            sources.AddRange(model.GetDataAssertions(step.Step.Id, "script-step-number")
+                .Select(assertion => assertion.Source));
+            sources.Add(step.Operation.Source);
+            sources.Add(step.Api.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "blender-script-step"));
+            sources.AddRange(reasoner.GetMembershipEvidence(operation.Id, "python-code-operation"));
+            sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "blender-api"));
+        }
+
+        var code = string.Join(Environment.NewLine, new[]
+        {
+            "import bpy",
+            "import re",
+            "",
+            "target_name = \"YourObjectName\"",
+            "name_pattern = re.compile(rf\"{re.escape(target_name)}(?:\\.\\d+)?$\")",
+            "",
+            string.Join(Environment.NewLine, codeLines)
+        });
+
+        message = string.Join(Environment.NewLine + Environment.NewLine, new[]
+        {
+            "Set target_name to the object name you want to replace. Blender keeps object names unique, so duplicates are normally given suffixes such as .001 and .002; the script matches those numbered variants too. Each point light is placed at the original object's world-space position and linked into the same collections before the original object is removed. Run it on a copy of your file first.",
+            "```python",
+            code,
+            "```"
+        });
+
         evidence = ImmutableArray.Create(new LatticeEvidence(
             LatticeEvidenceKind.Derived,
             LatticeEvidencePolarity.Positive,
