@@ -77,7 +77,7 @@ This remains a useful baseline for measuring the limitation, but it is not the t
 - Add context-sensitive continuation scoring and structural constraints without adding language-specific generation engines.
 - Separate content selection from surface realization while avoiding task-specific answer templates.
 
-The first semantic bridge now resolves a graph relation assertion into generic `subject`, `relation`, and `object` token bindings. A data-defined grammar can express the fact as a sentence without storing that sentence in the knowledge pack. This is direct assertion lexicalization only; multi-hop reasoning, morphology, discourse planning, and contextual lexical choice are not implemented yet.
+The first semantic bridge resolves a graph relation assertion into generic `subject`, `relation`, and `object` bindings, using the shared tokenizer for all three values. A data-defined grammar can express the fact as a sentence without storing that sentence in the knowledge pack. This is direct assertion lexicalization only; multi-hop reasoning, morphology, discourse planning, and contextual lexical choice are not implemented yet.
 
 ### Milestone 4 — Runtime integration
 
