@@ -44,4 +44,12 @@ public sealed class CompositionalTaskParserTests
 
         Assert.Equal(expected, request.RequestedValue);
     }
+    [Fact]
+    public void Does_not_invent_an_output_goal_for_an_unspecified_program()
+    {
+        var result = new LceParser().ParseText("Create a Python program.");
+
+        Assert.False(result.IsSuccess);
+    }
+
 }
