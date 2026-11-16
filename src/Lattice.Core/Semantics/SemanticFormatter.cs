@@ -31,10 +31,10 @@ public static class SemanticFormatter
             DefinitionQuestionFormula definition => FormatDefinitionQuestion(definition),
             SemanticWorldModelQuestionFormula semanticQuestion => FormatSemanticWorldModelQuestion(semanticQuestion),
             EnumerationRemainderQuestionFormula remainder => FormatEnumerationRemainderQuestion(remainder),
-            SemanticRelationQueryFormula relationQuery => relationQuery.Scope is null
-                ? $"relation-targets({relationQuery.Subject}, {relationQuery.Verb})"
-                : $"relation-targets({relationQuery.Subject}, {relationQuery.Verb}, within({relationQuery.Scope}))",
-            SemanticRelationSourceQueryFormula relationQuery => FormatRelationSourceQuery(relationQuery),
+            SemanticRelationQueryFormula relationQuery => FormatRelationQuery(relationQuery),
+            SemanticRelationSourceQueryFormula relationQuery => relationQuery.SubjectType is null
+                ? $"relation-sources({relationQuery.Object}, {relationQuery.Verb})"
+                : $"relation-sources({relationQuery.Object}, {relationQuery.Verb}, subject-type({relationQuery.SubjectType}))",
             ChoiceQuestionFormula choice => FormatChoiceQuestion(choice),
             MultiItemClassificationFormula classification => FormatClassification(classification),
             TaskRequestFormula taskRequest => FormatTaskRequest(taskRequest),
@@ -84,11 +84,11 @@ public static class SemanticFormatter
             _ => "world-model-question(unsupported)"
         };
 
-    private static string FormatRelationSourceQuery(SemanticRelationSourceQueryFormula query)
+    private static string FormatRelationQuery(SemanticRelationQueryFormula query)
     {
-        var subjectType = query.SubjectType is null ? string.Empty : $", subject-type({query.SubjectType})";
-        var context = query.Context is null ? string.Empty : $", within({query.Context})";
-        return $"relation-sources({query.Object}, {query.Verb}{subjectType}{context})";
+        var scope = query.Scope is null ? string.Empty : $", within({query.Scope})";
+        var targetType = query.TargetType is null ? string.Empty : $", target-type({query.TargetType})";
+        return $"relation-targets({query.Subject}, {query.Verb}{scope}{targetType})";
     }
 
     private static string FormatEnumerationRemainderQuestion(
