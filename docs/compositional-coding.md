@@ -4,14 +4,14 @@
 
 Establish whether Lattice can construct programs from independently learned concepts rather than retrieve complete scripts or select task-specific code fragments.
 
-The coding track is separate from the general assistant benchmark. Its initial benchmark is \`data/benchmarks/coding-benchmark-v1.json\` (30 prompts: 8 Python fundamentals, 8 compositional Python, 6 Blender foundations, and 8 unseen cross-domain holdouts).
+The coding track is separate from the general assistant benchmark. Its initial benchmark is `data/benchmarks/coding-benchmark-v1.json` (30 prompts: 8 Python fundamentals, 8 compositional Python, 6 Blender foundations, and 8 unseen cross-domain holdouts).
 
 ## Repository audit: current code-generation path
 
 The existing Blender object-replacement example is not general code generation:
 
-- \`knowledge/domains/blender-object-replacement-script.json\` stores a task entity, ordered task steps, operation IDs, and Blender API labels.
-- \`TaskRequestResponder.TryGenerateCode\` accepts only the exact combination \`python-script\` + \`blender\` + \`blender-object-replacement\` + \`object-to-point-light\`.
+- `knowledge/domains/blender-object-replacement-script.json` stores a task entity, ordered task steps, operation IDs, and Blender API labels.
+- `TaskRequestResponder.TryGenerateCode` accepts only the exact combination `python-script` + `blender` + `blender-object-replacement` + `object-to-point-light`.
 - That method contains a dictionary mapping operation IDs directly to complete Python source fragments.
 - It also hardcodes imports, variable setup, regular-expression setup, explanatory prose, and the final script layout.
 
@@ -38,7 +38,9 @@ This path is a useful prototype of semantic task decomposition followed by code-
 
 ### Milestone 2 — Python language foundations
 
-Build a language model for Python concepts and a small set of reusable syntax rules. Start with literals, expressions, assignments, function calls, and \`print\`; then add variables, types, collections, conditions, loops, functions, modules, file operations, classes, and exceptions. Each addition must be justified by benchmark coverage.
+The first independent Python pack now models the language, programs, statements, expressions, values, variables, assignments, control flow, functions, parameters, calls, collections, modules, exceptions, classes, objects, interpreters, libraries, APIs, and output. It contains conceptual relationships only; it does not contain complete scripts or benchmark answers.
+
+Continue expanding the graph only where the benchmark demonstrates a missing concept or relationship. Start with literals, expressions, assignments, function calls, and `print`; then add variables, types, collections, conditions, loops, functions, modules, file operations, classes, and exceptions. Each addition must be justified by benchmark coverage.
 
 ### Milestone 3 — General program representation and renderer
 

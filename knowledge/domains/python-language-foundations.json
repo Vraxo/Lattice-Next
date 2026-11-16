@@ -1,0 +1,1204 @@
+{
+  "formatVersion": 3,
+  "id": "python-language-foundations",
+  "name": "Python programming language foundations",
+  "concepts": [
+    {
+      "id": "programming-language",
+      "label": "programming language",
+      "kind": "Type"
+    },
+    {
+      "id": "program",
+      "label": "program",
+      "kind": "Type"
+    },
+    {
+      "id": "statement",
+      "label": "statement",
+      "kind": "Type"
+    },
+    {
+      "id": "expression",
+      "label": "expression",
+      "kind": "Type"
+    },
+    {
+      "id": "value",
+      "label": "value",
+      "kind": "Type"
+    },
+    {
+      "id": "literal",
+      "label": "literal",
+      "kind": "Type"
+    },
+    {
+      "id": "identifier",
+      "label": "identifier",
+      "kind": "Type"
+    },
+    {
+      "id": "variable",
+      "label": "variable",
+      "kind": "Type"
+    },
+    {
+      "id": "assignment-statement",
+      "label": "assignment statement",
+      "kind": "Type"
+    },
+    {
+      "id": "expression-statement",
+      "label": "expression statement",
+      "kind": "Type"
+    },
+    {
+      "id": "conditional-statement",
+      "label": "conditional statement",
+      "kind": "Type"
+    },
+    {
+      "id": "loop-statement",
+      "label": "loop statement",
+      "kind": "Type"
+    },
+    {
+      "id": "function-definition",
+      "label": "function definition",
+      "kind": "Type"
+    },
+    {
+      "id": "function-call",
+      "label": "function call",
+      "kind": "Type"
+    },
+    {
+      "id": "parameter",
+      "label": "parameter",
+      "kind": "Type"
+    },
+    {
+      "id": "argument",
+      "label": "argument",
+      "kind": "Type"
+    },
+    {
+      "id": "return-statement",
+      "label": "return statement",
+      "kind": "Type"
+    },
+    {
+      "id": "collection",
+      "label": "collection",
+      "kind": "Type"
+    },
+    {
+      "id": "sequence",
+      "label": "sequence",
+      "kind": "Type"
+    },
+    {
+      "id": "mapping",
+      "label": "mapping",
+      "kind": "Type"
+    },
+    {
+      "id": "integer",
+      "label": "integer",
+      "kind": "Type"
+    },
+    {
+      "id": "floating-point-number",
+      "label": "floating-point number",
+      "kind": "Type"
+    },
+    {
+      "id": "string",
+      "label": "string",
+      "kind": "Type"
+    },
+    {
+      "id": "boolean",
+      "label": "boolean",
+      "kind": "Type"
+    },
+    {
+      "id": "list",
+      "label": "list",
+      "kind": "Type"
+    },
+    {
+      "id": "dictionary",
+      "label": "dictionary",
+      "kind": "Type"
+    },
+    {
+      "id": "module",
+      "label": "module",
+      "kind": "Type"
+    },
+    {
+      "id": "import-statement",
+      "label": "import statement",
+      "kind": "Type"
+    },
+    {
+      "id": "exception",
+      "label": "exception",
+      "kind": "Type"
+    },
+    {
+      "id": "exception-handler",
+      "label": "exception handler",
+      "kind": "Type"
+    },
+    {
+      "id": "class",
+      "label": "class",
+      "kind": "Type"
+    },
+    {
+      "id": "object",
+      "label": "object",
+      "kind": "Type"
+    },
+    {
+      "id": "method",
+      "label": "method",
+      "kind": "Type"
+    },
+    {
+      "id": "interpreter",
+      "label": "interpreter",
+      "kind": "Type"
+    },
+    {
+      "id": "library",
+      "label": "library",
+      "kind": "Type"
+    },
+    {
+      "id": "application-programming-interface",
+      "label": "application programming interface",
+      "kind": "Type"
+    },
+    {
+      "id": "built-in-function",
+      "label": "built-in function",
+      "kind": "Type"
+    },
+    {
+      "id": "output",
+      "label": "program output",
+      "kind": "Type"
+    },
+    {
+      "id": "python-syntax",
+      "label": "Python syntax",
+      "kind": "Type"
+    },
+    {
+      "id": "iteration",
+      "label": "iteration",
+      "kind": "Type"
+    },
+    {
+      "id": "condition",
+      "label": "condition",
+      "kind": "Type"
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "kind": "Individual"
+    },
+    {
+      "id": "python-interpreter",
+      "label": "Python interpreter",
+      "kind": "Individual"
+    },
+    {
+      "id": "python-standard-library",
+      "label": "Python standard library",
+      "kind": "Individual"
+    },
+    {
+      "id": "print-function",
+      "label": "print function",
+      "kind": "Individual"
+    }
+  ],
+  "lexemes": [
+    {
+      "form": "programming language",
+      "concept": "programming-language",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "program",
+      "concept": "program",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "statement",
+      "concept": "statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "expression",
+      "concept": "expression",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "value",
+      "concept": "value",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "literal",
+      "concept": "literal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "identifier",
+      "concept": "identifier",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "variable",
+      "concept": "variable",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "assignment statement",
+      "concept": "assignment-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "expression statement",
+      "concept": "expression-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "conditional statement",
+      "concept": "conditional-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "loop statement",
+      "concept": "loop-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "function definition",
+      "concept": "function-definition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "function call",
+      "concept": "function-call",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "parameter",
+      "concept": "parameter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "argument",
+      "concept": "argument",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "return statement",
+      "concept": "return-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "collection",
+      "concept": "collection",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sequence",
+      "concept": "sequence",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "mapping",
+      "concept": "mapping",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "integer",
+      "concept": "integer",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "floating-point number",
+      "concept": "floating-point-number",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "string",
+      "concept": "string",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "boolean",
+      "concept": "boolean",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "list",
+      "concept": "list",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "dictionary",
+      "concept": "dictionary",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "module",
+      "concept": "module",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "import statement",
+      "concept": "import-statement",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "exception",
+      "concept": "exception",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "exception handler",
+      "concept": "exception-handler",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "class",
+      "concept": "class",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "object",
+      "concept": "object",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "method",
+      "concept": "method",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "interpreter",
+      "concept": "interpreter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "library",
+      "concept": "library",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "application programming interface",
+      "concept": "application-programming-interface",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "built-in function",
+      "concept": "built-in-function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "program output",
+      "concept": "output",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Python syntax",
+      "concept": "python-syntax",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "iteration",
+      "concept": "iteration",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "condition",
+      "concept": "condition",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Python",
+      "concept": "python",
+      "partOfSpeech": "proper-noun"
+    },
+    {
+      "form": "Python interpreter",
+      "concept": "python-interpreter",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "Python standard library",
+      "concept": "python-standard-library",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "print",
+      "concept": "print-function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "print()",
+      "concept": "print-function",
+      "partOfSpeech": "noun"
+    }
+  ],
+  "relations": [
+    {
+      "id": "language-has-syntax",
+      "domain": "programming-language",
+      "range": "python-syntax",
+      "verb": "has syntax",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "program-consists-of-statement",
+      "domain": "program",
+      "range": "statement",
+      "verb": "consists of statement",
+      "order": 1,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "statement-contains-expression",
+      "domain": "statement",
+      "range": "expression",
+      "verb": "contains expression",
+      "order": 2,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "expression-evaluates-to-value",
+      "domain": "expression",
+      "range": "value",
+      "verb": "evaluates to value",
+      "order": 3,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "assignment-stores-in-variable",
+      "domain": "assignment-statement",
+      "range": "variable",
+      "verb": "stores a value in variable",
+      "order": 4,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "variable-refers-to-value",
+      "domain": "variable",
+      "range": "value",
+      "verb": "refers to value",
+      "order": 5,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "function-has-parameter",
+      "domain": "function-definition",
+      "range": "parameter",
+      "verb": "has parameter",
+      "order": 6,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "call-passes-argument",
+      "domain": "function-call",
+      "range": "argument",
+      "verb": "passes argument",
+      "order": 7,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "function-returns-value",
+      "domain": "function-definition",
+      "range": "value",
+      "verb": "returns value",
+      "order": 8,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "import-brings-module-into-scope",
+      "domain": "import-statement",
+      "range": "module",
+      "verb": "imports module",
+      "order": 9,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "handler-handles-exception",
+      "domain": "exception-handler",
+      "range": "exception",
+      "verb": "handles exception",
+      "order": 10,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "interpreter-executes-program",
+      "domain": "interpreter",
+      "range": "program",
+      "verb": "executes program",
+      "order": 11,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "library-provides-api",
+      "domain": "library",
+      "range": "application-programming-interface",
+      "verb": "provides API",
+      "order": 12,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "library-written-in-language",
+      "domain": "library",
+      "range": "programming-language",
+      "verb": "is written in language",
+      "order": 13,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "call-invokes-built-in-function",
+      "domain": "function-call",
+      "range": "built-in-function",
+      "verb": "invokes built-in function",
+      "order": 14,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "print-produces-output",
+      "domain": "built-in-function",
+      "range": "output",
+      "verb": "produces output",
+      "order": 15,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "collection-contains-element",
+      "domain": "collection",
+      "range": "value",
+      "verb": "contains element",
+      "order": 16,
+      "comparisonPriority": 0
+    }
+  ],
+  "definitions": [
+    {
+      "concept": "programming-language",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "program",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "expression",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "value",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "literal",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "identifier",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "variable",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "assignment-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "expression-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "conditional-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "loop-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "function-definition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "function-call",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "parameter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "argument",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "return-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "collection",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "sequence",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "mapping",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "integer",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "floating-point-number",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "string",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "boolean",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "list",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "dictionary",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "module",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "import-statement",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "exception",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "exception-handler",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "class",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "object",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "method",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "interpreter",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "library",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "application-programming-interface",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "built-in-function",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "output",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "python-syntax",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "iteration",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    }
+  ],
+  "relationAssertions": [
+    {
+      "subject": "programming-language",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "program",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "expression",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "value",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "literal",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "identifier",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "variable",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "assignment-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "expression-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "conditional-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "loop-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "function-definition",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "function-call",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "parameter",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "argument",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "return-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "collection",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "sequence",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "mapping",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "integer",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "floating-point-number",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "string",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "boolean",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "list",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "dictionary",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "module",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "import-statement",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "exception",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "exception-handler",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "class",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "object",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "method",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "interpreter",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "library",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "application-programming-interface",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "built-in-function",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "output",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "python-syntax",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "iteration",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "condition",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "python",
+      "relation": "instance-of",
+      "object": "programming-language"
+    },
+    {
+      "subject": "python-interpreter",
+      "relation": "instance-of",
+      "object": "interpreter"
+    },
+    {
+      "subject": "python-standard-library",
+      "relation": "instance-of",
+      "object": "library"
+    },
+    {
+      "subject": "print-function",
+      "relation": "instance-of",
+      "object": "built-in-function"
+    },
+    {
+      "subject": "literal",
+      "relation": "is-a",
+      "object": "expression"
+    },
+    {
+      "subject": "assignment-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "expression-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "conditional-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "loop-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "function-definition",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "return-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "import-statement",
+      "relation": "is-a",
+      "object": "statement"
+    },
+    {
+      "subject": "function-call",
+      "relation": "is-a",
+      "object": "expression"
+    },
+    {
+      "subject": "integer",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "floating-point-number",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "string",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "boolean",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "list",
+      "relation": "is-a",
+      "object": "collection"
+    },
+    {
+      "subject": "dictionary",
+      "relation": "is-a",
+      "object": "collection"
+    },
+    {
+      "subject": "list",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "dictionary",
+      "relation": "is-a",
+      "object": "value"
+    },
+    {
+      "subject": "sequence",
+      "relation": "is-a",
+      "object": "collection"
+    },
+    {
+      "subject": "mapping",
+      "relation": "is-a",
+      "object": "collection"
+    },
+    {
+      "subject": "method",
+      "relation": "is-a",
+      "object": "function-definition"
+    },
+    {
+      "subject": "python",
+      "relation": "language-has-syntax",
+      "object": "python-syntax"
+    },
+    {
+      "subject": "python-interpreter",
+      "relation": "interpreter-executes-program",
+      "object": "program"
+    },
+    {
+      "subject": "python-standard-library",
+      "relation": "library-written-in-language",
+      "object": "python"
+    },
+    {
+      "subject": "python-standard-library",
+      "relation": "library-provides-api",
+      "object": "application-programming-interface"
+    },
+    {
+      "subject": "print-function",
+      "relation": "print-produces-output",
+      "object": "output"
+    }
+  ],
+  "dataProperties": [],
+  "dataAssertions": []
+}
