@@ -485,6 +485,12 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         }
 
         if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ChargedParticleAccelerationFormula chargedParticleAcceleration)
+        {
+            return ProcessChargedParticleAccelerationQuestion(parsedUtterance, chargedParticleAcceleration);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
             parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
         {
             return ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
@@ -892,6 +898,32 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             3 => "rd",
             _ => "th"
         };
+    }
+
+    private LatticeUtteranceResult ProcessChargedParticleAccelerationQuestion(
+        SemanticUtterance utterance,
+        ChargedParticleAccelerationFormula question)
+    {
+        var meaning = SemanticFormatter.Format(utterance);
+        if (!SemanticWorldModelResponder.TryRespond(
+            question,
+            semanticWorldModel,
+            semanticWorldModelReasoner,
+            out var message,
+            out var evidence))
+        {
+            return new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.InformationUnavailable,
+                "I don't have enough structured physical data to calculate that final speed.",
+                meaning,
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+        }
+
+        return new LatticeUtteranceResult(
+            LatticeUtteranceResultKind.QuestionAnswered,
+            message,
+            meaning,
+            SupportingEvidence: evidence);
     }
 
     private LatticeUtteranceResult ProcessSemanticWorldModelQuestion(
