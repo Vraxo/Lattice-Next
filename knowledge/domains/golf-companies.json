@@ -32,6 +32,26 @@
       "id": "taylormade-golf-company",
       "label": "TaylorMade Golf Company",
       "kind": "Individual"
+    },
+    {
+      "id": "company",
+      "label": "company",
+      "kind": "Type"
+    },
+    {
+      "id": "sport",
+      "label": "sport",
+      "kind": "Type"
+    },
+    {
+      "id": "golf",
+      "label": "golf",
+      "kind": "Type"
+    },
+    {
+      "id": "golf-sport-example",
+      "label": "Golf",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -86,40 +106,91 @@
       "partOfSpeech": "proper-noun"
     }
   ],
-  "relations": [],
+  "relations": [
+    {
+      "id": "makes-equipment-for",
+      "domain": "company",
+      "range": "sport",
+      "verb": "makes equipment for",
+      "objectRole": null,
+      "order": 0,
+      "comparisonPriority": 0,
+      "subjectKind": "Individual",
+      "objectKind": "Individual"
+    }
+  ],
   "definitions": [
     {
       "concept": "golf-equipment-company",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "makes-equipment-for",
+        "targetType": "golf"
+      }
     }
   ],
   "relationAssertions": [
     {
+      "subject": "golf",
+      "relation": "is-a",
+      "object": "sport"
+    },
+    {
+      "subject": "golf-sport-example",
+      "relation": "instance-of",
+      "object": "golf"
+    },
+    {
       "subject": "acushnet-holdings",
       "relation": "instance-of",
-      "object": "golf-equipment-company"
+      "object": "company"
+    },
+    {
+      "subject": "acushnet-holdings",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
     },
     {
       "subject": "callaway-golf-company",
       "relation": "instance-of",
-      "object": "golf-equipment-company"
+      "object": "company"
+    },
+    {
+      "subject": "callaway-golf-company",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
     },
     {
       "subject": "sumitomo-rubber-industries",
       "relation": "instance-of",
-      "object": "golf-equipment-company"
+      "object": "company"
+    },
+    {
+      "subject": "sumitomo-rubber-industries",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
     },
     {
       "subject": "ping-inc",
       "relation": "instance-of",
-      "object": "golf-equipment-company"
+      "object": "company"
+    },
+    {
+      "subject": "ping-inc",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
     },
     {
       "subject": "taylormade-golf-company",
       "relation": "instance-of",
-      "object": "golf-equipment-company"
+      "object": "company"
+    },
+    {
+      "subject": "taylormade-golf-company",
+      "relation": "makes-equipment-for",
+      "object": "golf-sport-example"
     }
   ],
   "dataProperties": [],
