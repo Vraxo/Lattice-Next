@@ -227,6 +227,16 @@
       "id": "print-function",
       "label": "print function",
       "kind": "Individual"
+    },
+    {
+      "id": "function",
+      "label": "function",
+      "kind": "Type"
+    },
+    {
+      "id": "callable",
+      "label": "callable",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -459,6 +469,16 @@
       "form": "print()",
       "concept": "print-function",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "function",
+      "concept": "function",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "callable",
+      "concept": "callable",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -575,10 +595,10 @@
       "comparisonPriority": 0
     },
     {
-      "id": "call-invokes-built-in-function",
+      "id": "call-invokes-callable",
       "domain": "function-call",
-      "range": "built-in-function",
-      "verb": "invokes built-in function",
+      "range": "callable",
+      "verb": "invokes callable",
       "order": 14,
       "comparisonPriority": 0
     },
@@ -596,6 +616,22 @@
       "range": "value",
       "verb": "contains element",
       "order": 16,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "function-definition-defines-function",
+      "domain": "function-definition",
+      "range": "function",
+      "verb": "defines function",
+      "order": 17,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "class-has-method",
+      "domain": "class",
+      "range": "method",
+      "verb": "has method",
+      "order": 18,
       "comparisonPriority": 0
     }
   ],
@@ -842,6 +878,18 @@
     },
     {
       "concept": "condition",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "function",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "callable",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1169,11 +1217,6 @@
       "object": "collection"
     },
     {
-      "subject": "method",
-      "relation": "is-a",
-      "object": "function-definition"
-    },
-    {
       "subject": "python",
       "relation": "language-has-syntax",
       "object": "python-syntax"
@@ -1197,6 +1240,41 @@
       "subject": "print-function",
       "relation": "print-produces-output",
       "object": "output"
+    },
+    {
+      "subject": "function",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "callable",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "function",
+      "relation": "is-a",
+      "object": "callable"
+    },
+    {
+      "subject": "method",
+      "relation": "is-a",
+      "object": "callable"
+    },
+    {
+      "subject": "built-in-function",
+      "relation": "is-a",
+      "object": "callable"
+    },
+    {
+      "subject": "class",
+      "relation": "is-a",
+      "object": "callable"
+    },
+    {
+      "subject": "function-call",
+      "relation": "call-invokes-callable",
+      "object": "callable"
     }
   ],
   "dataProperties": [],
