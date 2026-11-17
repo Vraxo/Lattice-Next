@@ -25,8 +25,12 @@ internal static class CompositionalTaskParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
  
-    private static readonly Regex FunctionCompositionProgramPattern = new(
-        @"\bfunction\s+named\s+(?<firstName>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<firstParameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<firstExpression>.+?),\s*(?:and\s+)?(?:a\s+)?function\s+named\s+(?<secondName>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<secondParameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<secondExpression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
+    private static readonly Regex FunctionDefinitionPattern = new(
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)(?=,\s*(?:and\s+)?(?:a\s+)?function\s+named\b|,\s*then\s+(?:print|display|output)\b)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex FunctionCompositionCallPattern = new(
+        @"\bthen\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionProgramPattern = new(
@@ -273,48 +277,64 @@ internal static class CompositionalTaskParser
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = FunctionCompositionProgramPattern.Match(source);
-        if (!match.Success)
+        var definitions = FunctionDefinitionPattern.Matches(source);
+        var callMatch = FunctionCompositionCallPattern.Match(source);
+        if (definitions.Count < 2 || !callMatch.Success)
         {
             return false;
         }
 
-        var firstName = match.Groups["firstName"].Value;
-        var firstParameters = match.Groups["firstParameters"].Value
-            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var firstExpression = match.Groups["firstExpression"].Value.Trim();
-        var secondName = match.Groups["secondName"].Value;
-        var secondParameters = match.Groups["secondParameters"].Value
-            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var secondExpression = match.Groups["secondExpression"].Value.Trim();
-        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", secondParameters.Length));
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var generatedSteps = ImmutableArray.CreateBuilder<TaskRequestStep>();
+        foreach (Match definition in definitions)
+        {
+            var name = definition.Groups["name"].Value;
+            var parameters = definition.Groups["parameters"].Value
+                .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var expression = definition.Groups["expression"].Value.Trim();
 
-        if (firstName.Equals(secondName, StringComparison.OrdinalIgnoreCase) ||
-            !IsArithmeticExpression(firstExpression) ||
-            !IsArithmeticExpression(secondExpression) ||
-            !Regex.IsMatch(
-                secondExpression,
-                $@"\b{Regex.Escape(firstName)}\s*\(",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) ||
-            !Regex.IsMatch(
-                compactCall,
-                $@"^{Regex.Escape(secondName)}\({numericArguments}\)$",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+            if (!names.Add(name) ||
+                !IsArithmeticExpression(expression) ||
+                !names.Any(previousName =>
+                    !previousName.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                    Regex.IsMatch(
+                        expression,
+                        $@"\b{Regex.Escape(previousName)}\s*\(",
+                        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)))
+            {
+                return false;
+            }
+
+            generatedSteps.Add(new TaskRequestStep(
+                "begin-function",
+                "function-header",
+                $"{name}({string.Join(", ", parameters)})"));
+            generatedSteps.Add(new TaskRequestStep(
+                "return-value-indented-expression",
+                "expression",
+                expression));
+        }
+
+        var finalName = definitions[^1].Groups["name"].Value;
+        var finalParameters = definitions[^1].Groups["parameters"].Value
+            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var compactCall = Regex.Replace(callMatch.Groups["call"].Value, @"\s+", string.Empty);
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", finalParameters.Length));
+        if (!Regex.IsMatch(
+            compactCall,
+            $@"^{Regex.Escape(finalName)}\({numericArguments}\)$",
+            RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
         }
 
         var callName = compactCall[..compactCall.IndexOf('(')];
         var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
-        var call = $"{callName}({string.Join(", ", callArguments)})";
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-function", "function-header", $"{firstName}({string.Join(", ", firstParameters)})"),
-            new TaskRequestStep("return-value-indented-expression", "expression", firstExpression),
-            new TaskRequestStep("begin-function", "function-header", $"{secondName}({string.Join(", ", secondParameters)})"),
-            new TaskRequestStep("return-value-indented-expression", "expression", secondExpression),
-            new TaskRequestStep("write-standard-output", "expression", call));
+        generatedSteps.Add(new TaskRequestStep(
+            "write-standard-output",
+            "expression",
+            $"{callName}({string.Join(", ", callArguments)})"));
+        steps = generatedSteps.ToImmutable();
         return true;
     }
 
