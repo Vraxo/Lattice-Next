@@ -30,7 +30,7 @@ internal static class SemanticWorldModelResponder
     internal static bool TryAskMembership(string individual, string type, SemanticWorldModel model, SemanticWorldModelReasoner reasoner, out ImmutableArray<LatticeEvidence> evidence) =>
         SemanticClassificationResponder.TryAskMembership(individual, type, model, reasoner, out evidence);
 
-internal static bool TryRespond(
+    internal static bool TryRespond(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,

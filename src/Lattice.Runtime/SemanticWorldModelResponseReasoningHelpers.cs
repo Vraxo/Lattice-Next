@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticWorldModelResponseReasoningHelpers
 {
 
-internal static SemanticConcept? GetMostSpecificType(
+    internal static SemanticConcept? GetMostSpecificType(
         string individual,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner)
@@ -25,7 +25,7 @@ internal static SemanticConcept? GetMostSpecificType(
             .FirstOrDefault();
     }
 
-internal static bool IsSubtype(string candidate, string expected, SemanticWorldModel model)
+    internal static bool IsSubtype(string candidate, string expected, SemanticWorldModel model)
     {
         if (candidate == expected)
         {
@@ -58,7 +58,7 @@ internal static bool IsSubtype(string candidate, string expected, SemanticWorldM
         return false;
     }
 
-internal static string? FormatResearchReference(
+    internal static string? FormatResearchReference(
         string publicationId,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner)
@@ -93,7 +93,7 @@ internal static string? FormatResearchReference(
         return citation;
     }
 
-internal static ImmutableArray<SemanticWorldModelSource> GetTypeEvidence(
+    internal static ImmutableArray<SemanticWorldModelSource> GetTypeEvidence(
         string individual,
         string type,
         SemanticWorldModel model) =>
@@ -105,7 +105,7 @@ internal static ImmutableArray<SemanticWorldModelSource> GetTypeEvidence(
             .Select(assertion => assertion.Source)
             .ToImmutableArray();
 
-internal static string? FormatExpression(
+    internal static string? FormatExpression(
         SemanticClassExpression? expression,
         SemanticWorldModel model)
     {

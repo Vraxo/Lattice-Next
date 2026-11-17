@@ -9,7 +9,7 @@ namespace Lattice.Runtime;
 internal static class SemanticResponseFormatting
 {
 
-internal static string PluralizeType(string value)
+    internal static string PluralizeType(string value)
     {
         if (value.EndsWith('y') && value.Length > 1 &&
             !"aeiou".Contains(char.ToLowerInvariant(value[^2])))
@@ -22,7 +22,7 @@ internal static string PluralizeType(string value)
             : $"{value}s";
     }
 
-internal static bool MatchesVerb(string relationVerb, string requestedVerb)
+    internal static bool MatchesVerb(string relationVerb, string requestedVerb)
     {
         var relationHead = relationVerb.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];
         return string.Equals(
@@ -31,7 +31,7 @@ internal static bool MatchesVerb(string relationVerb, string requestedVerb)
             StringComparison.Ordinal);
     }
 
-internal static string NormalizeVerb(string value)
+    internal static string NormalizeVerb(string value)
     {
         var verb = SemanticWorldModel.Normalize(value);
         return verb switch
@@ -45,7 +45,7 @@ internal static string NormalizeVerb(string value)
         };
     }
 
-internal static string JoinAlternatives(IReadOnlyList<string> phrases) =>
+    internal static string JoinAlternatives(IReadOnlyList<string> phrases) =>
         phrases.Count switch
         {
             1 => phrases[0],
@@ -53,7 +53,7 @@ internal static string JoinAlternatives(IReadOnlyList<string> phrases) =>
             _ => $"{string.Join(", ", phrases.Take(phrases.Count - 1))}, or {phrases[^1]}"
         };
 
-internal static string? FormatCondition(SemanticRestriction condition, SemanticWorldModel model)
+    internal static string? FormatCondition(SemanticRestriction condition, SemanticWorldModel model)
     {
         var relation = model.FindRelation(condition.Relation);
         var target = model.FindConcept(condition.TargetType, SemanticConceptKind.Type);
@@ -68,7 +68,7 @@ internal static string? FormatCondition(SemanticRestriction condition, SemanticW
             : $"{phrase} {relation.ObjectRole}";
     }
 
-internal static string FormatRelation(
+    internal static string FormatRelation(
         SemanticConcept subject,
         SemanticConcept target,
         SemanticRelationDefinition relation,
@@ -84,12 +84,12 @@ internal static string FormatRelation(
         return $"{prefix} {verb} {objectPhrase}.";
     }
 
-internal static string FormatRelationTarget(SemanticRelationDefinition relation, string targetLabel) =>
+    internal static string FormatRelationTarget(SemanticRelationDefinition relation, string targetLabel) =>
         relation.ObjectRole is null
             ? $"{relation.Verb} {Indefinite(targetLabel)} {targetLabel}"
             : $"{relation.Verb} {Indefinite(targetLabel)} {targetLabel} {relation.ObjectRole}";
 
-internal static string InflectPluralSubjectVerb(string verbPhrase)
+    internal static string InflectPluralSubjectVerb(string verbPhrase)
     {
         var separator = verbPhrase.IndexOf(' ');
         var verb = separator < 0 ? verbPhrase : verbPhrase[..separator];
@@ -105,7 +105,7 @@ internal static string InflectPluralSubjectVerb(string verbPhrase)
         return $"{baseVerb}{remainder}";
     }
 
-internal static string JoinConditions(IReadOnlyList<string> phrases) =>
+    internal static string JoinConditions(IReadOnlyList<string> phrases) =>
         phrases.Count switch
         {
             1 => phrases[0],
@@ -113,7 +113,7 @@ internal static string JoinConditions(IReadOnlyList<string> phrases) =>
             _ => $"{string.Join(", ", phrases.Take(phrases.Count - 1))}, and {phrases[^1]}"
         };
 
-internal static string JoinNames(IReadOnlyList<string> names) =>
+    internal static string JoinNames(IReadOnlyList<string> names) =>
         names.Count switch
         {
             0 => string.Empty,
@@ -122,7 +122,7 @@ internal static string JoinNames(IReadOnlyList<string> names) =>
             _ => $"{string.Join(", ", names.Take(names.Count - 1))}, and {names[^1]}"
         };
 
-internal static string Indefinite(string phrase)
+    internal static string Indefinite(string phrase)
     {
         if (IsMassNoun(phrase) || StartsWithPluralNoun(phrase))
         {
@@ -138,7 +138,7 @@ internal static string Indefinite(string phrase)
                 : "a";
     }
 
-internal static bool StartsWithPluralNoun(string phrase)
+    internal static bool StartsWithPluralNoun(string phrase)
     {
         var firstWord = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
         return firstWord is not null &&
@@ -146,19 +146,19 @@ internal static bool StartsWithPluralNoun(string phrase)
             firstWord is not ("business" or "status" or "analysis" or "news" or "series" or "species");
     }
 
-internal static string IndefinitePhrase(string phrase)
+    internal static string IndefinitePhrase(string phrase)
     {
         var article = Indefinite(phrase);
         return article.Length == 0 ? phrase : $"{article} {phrase}";
     }
 
-internal static bool IsMassNoun(string phrase) =>
+    internal static bool IsMassNoun(string phrase) =>
         phrase is "monopsony power" or "buyer market power" or "market power" or "software" or "straightness";
 
-internal static string Capitalize(string value) =>
+    internal static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
 
-internal static string FormatScientific(double value)
+    internal static string FormatScientific(double value)
     {
         if (value == 0)
         {
@@ -170,10 +170,10 @@ internal static string FormatScientific(double value)
         return $"{coefficient.ToString("0.00", CultureInfo.InvariantCulture)} × 10^{exponent}";
     }
 
-internal static string FormatPercentage(double probability) =>
+    internal static string FormatPercentage(double probability) =>
         $"{(probability * 100).ToString("0.0", CultureInfo.InvariantCulture)}%";
 
-internal static LatticeEvidence ToEvidence(
+    internal static LatticeEvidence ToEvidence(
         ImmutableArray<SemanticWorldModelSource> sources,
         LatticeEvidenceKind kind) =>
         new(
@@ -187,7 +187,7 @@ internal static LatticeEvidence ToEvidence(
                 null)).ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty);
 
-internal static bool Fail(
+    internal static bool Fail(
         out string message,
         out ImmutableArray<LatticeEvidence> evidence)
     {

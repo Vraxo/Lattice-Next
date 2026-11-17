@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class ChargedParticleAccelerationResponder
 {
 
-internal static bool TryRespond(
+    internal static bool TryRespond(
         ChargedParticleAccelerationFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
