@@ -285,7 +285,7 @@ public sealed class ObjectiveEvaluator
             return CreateAssessment(condition, ObjectiveConditionAssessmentStatus.NotApplicable, []);
         }
 
-        var resolution = ResolveAttributeValue(
+        var resolution = ObjectiveTemporalConditionEvaluator.ResolveAttributeValue(
             candidate,
             condition.TargetAttribute,
             attributes,
