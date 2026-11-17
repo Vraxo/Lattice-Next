@@ -37,6 +37,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex FunctionMultiConditionalProgramPattern = new(
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<condition>.+?),\s*(?:and\s+)?returns\s+(?<elifValue>.+?)\s+when\s+(?<elifCondition>.+?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex FunctionConditionalProgramPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<condition>.+?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -99,6 +103,10 @@ internal static class CompositionalTaskParser
         if (TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
+        }
+        else if (TryGetFunctionMultiConditionalProgram(source, out var multiConditionalFunctionSteps))
+        {
+            formula = formula with { GenerationSteps = multiConditionalFunctionSteps };
         }
         else if (TryGetFunctionConditionalProgram(source, out var conditionalFunctionSteps))
         {
@@ -352,6 +360,52 @@ internal static class CompositionalTaskParser
             "expression",
             $"{callName}({string.Join(", ", callArguments)})"));
         steps = generatedSteps.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetFunctionMultiConditionalProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = FunctionMultiConditionalProgramPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Value;
+        var parameters = match.Groups["parameters"].Value
+            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+        var functionArguments = string.Join(",", Enumerable.Repeat(@"(?:[+-]?\d+(?:\.\d+)?|'[^']*')", parameters.Length));
+
+        if (!TryParseFunctionCondition(match.Groups["condition"].Value, parameters, out var pythonCondition) ||
+            !TryParseFunctionCondition(match.Groups["elifCondition"].Value, parameters, out var pythonElifCondition) ||
+            !Regex.IsMatch(
+                compactCall,
+                $@"^{Regex.Escape(name)}\({functionArguments}\)$",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+        {
+            return false;
+        }
+
+        if (!TryGetFunctionReturnExpression(match.Groups["trueValue"].Value, parameters, out var trueValue) ||
+            !TryGetFunctionReturnExpression(match.Groups["elifValue"].Value, parameters, out var elifValue) ||
+            !TryGetFunctionReturnExpression(match.Groups["falseValue"].Value, parameters, out var falseValue))
+        {
+            return false;
+        }
+
+        var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
+            new TaskRequestStep("begin-conditional-indented", "condition", pythonCondition),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", trueValue),
+            new TaskRequestStep("begin-elif-indented", "condition", pythonElifCondition),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", elifValue),
+            new TaskRequestStep("return-value-indented-expression", "expression", falseValue),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}({string.Join(", ", callArguments)})"));
         return true;
     }
 
