@@ -25,6 +25,10 @@ internal static class CompositionalTaskParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex LoopCollectionOutputPattern = new(
+        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex FunctionDefinitionPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)(?=,\s*(?:and\s+)?(?:a\s+)?function\s+named\b|,\s*then\s+(?:print|display|output)\b)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -849,6 +853,24 @@ internal static class CompositionalTaskParser
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
+        var collectionMatch = LoopCollectionOutputPattern.Match(source);
+        if (collectionMatch.Success &&
+            TryNormalizeNumericList(collectionMatch.Groups["items"].Value, out var items))
+        {
+            var item = collectionMatch.Groups["item"].Value;
+            var variable = item.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+                ? item[..^1]
+                : item;
+
+            steps = ImmutableArray.Create(
+                new TaskRequestStep("begin-loop", "loop-header", $"{variable} in {items}"),
+                new TaskRequestStep(
+                    "write-standard-output-indented-expression",
+                    "expression",
+                    variable));
+            return true;
+        }
+
         var match = LoopRangeOutputPattern.Match(source);
         if (!match.Success ||
             !int.TryParse(match.Groups["start"].Value, out var start) ||
@@ -859,7 +881,7 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var variable = match.Groups["item"].Value.ToLowerInvariant() switch
+        var rangeVariable = match.Groups["item"].Value.ToLowerInvariant() switch
         {
             "numbers" => "number",
             "values" => "value",
@@ -867,14 +889,29 @@ internal static class CompositionalTaskParser
             "counts" => "count",
             var item => item
         };
-        var loopHeader = $"{variable} in range({start}, {inclusiveEnd + 1})";
+        var loopHeader = $"{rangeVariable} in range({start}, {inclusiveEnd + 1})";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-loop", "loop-header", loopHeader),
             new TaskRequestStep(
                 "write-standard-output-indented-expression",
                 "expression",
-                variable));
+                rangeVariable));
+        return true;
+    }
+
+    private static bool TryNormalizeNumericList(string value, out string normalized)
+    {
+        normalized = value.Trim();
+        if (!Regex.IsMatch(
+            normalized,
+            @"^\[\s*[+-]?\d+(?:\.\d+)?(?:\s*,\s*[+-]?\d+(?:\.\d+)?)*\s*\]$",
+            RegexOptions.CultureInvariant))
+        {
+            return false;
+        }
+
+        normalized = Regex.Replace(normalized, @"\s*,\s*", ", ");
         return true;
     }
 
