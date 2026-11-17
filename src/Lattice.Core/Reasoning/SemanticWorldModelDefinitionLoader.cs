@@ -191,7 +191,7 @@ internal static class SemanticWorldModelDefinitionLoader
         return true;
     }
 
-    private static bool TryCreateDefinitions(
+    internal static bool TryCreateDefinitions(
         SemanticWorldModelLoader.SemanticWorldModelDocument document,
         IReadOnlyDictionary<string, SemanticConcept> concepts,
         IReadOnlyDictionary<string, SemanticRelationDefinition> relations,
