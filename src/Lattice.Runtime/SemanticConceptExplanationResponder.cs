@@ -4,7 +4,7 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+using static Lattice.Runtime.SemanticResponseFormatting;
 using static Lattice.Runtime.SemanticWorldModelResponseReasoningHelpers;
 namespace Lattice.Runtime;
 
