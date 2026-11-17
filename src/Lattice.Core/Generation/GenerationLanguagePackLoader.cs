@@ -151,6 +151,8 @@ public sealed class GenerationLanguagePackLoader
                 !IsIdentifier(operation.ArgumentKind) ||
                 operation.Prerequisites.IsDefault ||
                 operation.Prerequisites.Any(prerequisite => !IsCapabilityIdentifier(prerequisite)) ||
+                (operation.StartSymbol is not null &&
+                    (!IsIdentifier(operation.StartSymbol) || !productions.ContainsKey(operation.StartSymbol))) ||
                 !operationIds.Add(operation.Id))
             {
                 error = "Every generation operation requires a unique identifier, symbol, effect, argument kind, and valid prerequisite list.";
