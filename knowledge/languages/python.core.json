@@ -281,6 +281,47 @@
       ]
     },
     {
+      "head": "list-comprehension-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "["
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " if "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
       "head": "indented-except-statement",
       "symbols": [
         {
