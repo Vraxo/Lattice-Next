@@ -905,7 +905,7 @@ internal static class CompositionalTaskParser
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
-            new TaskRequestStep("begin-try-indented", "statement", string.Empty),
+            new TaskRequestStep("begin-try-indented", "statement", "try"),
             new TaskRequestStep("return-value-double-indented-expression", "expression", $"int({parameter})"),
             new TaskRequestStep("begin-except-indented", "exception-type", "ValueError"),
             new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
