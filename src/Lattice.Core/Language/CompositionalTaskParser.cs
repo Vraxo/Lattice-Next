@@ -37,6 +37,10 @@ internal static class CompositionalTaskParser
         @"^[A-Za-z_][A-Za-z0-9_]*\s*=\s*(?:\d+(?:\.\d+)?)$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex VariableExpressionProgramPattern = new(
+        @"\bsets?\s+(?<variable>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<value>\d+(?:\.\d+)?)\s+and\s+(?:prints?|displays?|outputs?)\s+(?<expression>.+?)\s*[.!?]?\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
 
     internal static bool TryParse(
         string source,
@@ -88,7 +92,7 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = conditionalSteps };
         }
-        else if (TryGetVariableProgram(syntax, creationClauseIndex, out var generationSteps))
+        else if (TryGetVariableProgram(source, out var generationSteps))
         {
             formula = formula with { GenerationSteps = generationSteps };
         }
@@ -336,28 +340,21 @@ internal static class CompositionalTaskParser
     }
 
     private static bool TryGetVariableProgram(
-        EnglishSentenceSyntax syntax,
-        int creationClauseIndex,
+        string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
-
-        var clauses = syntax.Clauses.Skip(creationClauseIndex + 1).ToArray();
-        var assignment = clauses.FirstOrDefault(clause => clause.Verb == "set");
-        var output = clauses.FirstOrDefault(clause => clause.Verb == "print");
-
-        if (assignment?.Object is null || output?.Object is null)
+        var match = VariableExpressionProgramPattern.Match(source);
+        if (!match.Success)
         {
             return false;
         }
 
-        var assignedValue = assignment.PrepositionalPhrases
-            .FirstOrDefault(phrase => phrase.Preposition == "to")?.Object.Text;
-        var variable = assignment.Object.Text.Trim();
-        var expression = NormalizeOutput(output.Object.Text);
+        var variable = match.Groups["variable"].Value;
+        var assignedValue = match.Groups["value"].Value;
+        var expression = match.Groups["expression"].Value.Trim().TrimEnd('.', '?', '!');
 
-        if (string.IsNullOrWhiteSpace(assignedValue) ||
-            !AssignmentValuePattern.IsMatch($"{variable} = {assignedValue.Trim()}") ||
+        if (!AssignmentValuePattern.IsMatch($"{variable} = {assignedValue}") ||
             !IsArithmeticExpression(expression))
         {
             return false;
@@ -367,7 +364,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "assign-variable",
                 "assignment",
-                $"{variable} = {assignedValue.Trim()}"),
+                $"{variable} = {assignedValue}"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
