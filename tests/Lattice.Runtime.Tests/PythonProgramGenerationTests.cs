@@ -89,6 +89,14 @@ public sealed class PythonProgramGenerationTests
         "def weighted(base, bonus, factor):\n    return (base + bonus) * (factor - 1)\nprint(weighted(5, 2, 4))",
         "21")]
     [InlineData(
+        "Create a Python program with a function named clamp_floor that takes value and returns max(abs(value), 10) + 2, then print clamp_floor(-4).",
+        "def clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))",
+        "12")]
+    [InlineData(
+        "Build a Python script with a function named rounded_ratio that takes total and count and returns round(total / count, 2), then print rounded_ratio(10, 3).",
+        "def rounded_ratio(total, count):\n    return round(total / count, 2)\nprint(rounded_ratio(10, 3))",
+        "3.33")]
+    [InlineData(
         "Generate a Python program that sets total to 5 and prints (total + 3) * 2.",
         "total = 5\nprint((total + 3) * 2)",
         "16")]
