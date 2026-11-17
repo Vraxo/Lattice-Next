@@ -197,7 +197,8 @@ internal static class CompositionalTaskParser
         }
 
         while (index < tokens.Length && tokens[index] is "*" or "/" or "%")
-        {            index++;
+        {
+            index++;
             if (!TryParseUnaryExpression(tokens, ref index))
             {
                 return false;
@@ -380,6 +381,7 @@ internal static class CompositionalTaskParser
         {
             return false;
         }
+
         if (!TryGetFunctionReturnExpression(match.Groups["trueValue"].Value, parameters, out var trueValue) ||
             !TryGetFunctionReturnExpression(match.Groups["falseValue"].Value, parameters, out var falseValue))
         {
@@ -637,7 +639,8 @@ internal static class CompositionalTaskParser
         };
         var loopHeader = $"{variable} in range({start}, {inclusiveEnd + 1})";
 
-        steps = ImmutableArray.Create(            new TaskRequestStep("begin-loop", "loop-header", loopHeader),
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-loop", "loop-header", loopHeader),
             new TaskRequestStep(
                 "write-standard-output-indented-expression",
                 "expression",
