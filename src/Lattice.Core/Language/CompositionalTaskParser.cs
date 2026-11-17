@@ -29,6 +29,10 @@ internal static class CompositionalTaskParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex LoopFilterPattern = new(
+        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -127,6 +131,10 @@ internal static class CompositionalTaskParser
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
             formula = formula with { GenerationSteps = functionSteps };
+        }
+        else if (TryGetLoopFilterProgram(source, out var filterSteps))
+        {
+            formula = formula with { GenerationSteps = filterSteps };
         }
         else if (TryGetLoopAccumulatorProgram(source, out var accumulatorSteps))
         {
@@ -853,6 +861,39 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
+
+    private static bool TryGetLoopFilterProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = LoopFilterPattern.Match(source);
+        if (!match.Success ||
+            !TryNormalizeNumericListLiteral(match.Groups["items"].Value, out var items))
+        {
+            return false;
+        }
+
+        var item = match.Groups["item"].Value;
+        var variable = item.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? item[..^1]
+            : item;
+        var parity = match.Groups["parity"].Value.Equals("even", StringComparison.OrdinalIgnoreCase)
+            ? "=="
+            : "!=";
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-loop", "loop-header", $"{variable} in {items}"),
+            new TaskRequestStep(
+                "begin-conditional-indented",
+                "condition",
+                $"{variable} % 2 {parity} 0"),
+            new TaskRequestStep(
+                "write-standard-output-double-indented-expression",
+                "expression",
+                variable));
         return true;
     }
 
