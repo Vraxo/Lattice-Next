@@ -5,7 +5,7 @@ namespace Lattice.Core.Reasoning;
 
 internal static class ObjectiveConditionComparison
 {
-        private static ObjectiveConditionAssessment EvaluatePreferences(
+        internal static ObjectiveConditionAssessment EvaluatePreferences(
             ObjectiveCondition condition,
             ObjectiveTextSetValue desiredPreferences,
             (
@@ -93,7 +93,7 @@ internal static class ObjectiveConditionComparison
             };
         }
 
-        private static ObjectiveConditionAssessmentStatus Compare(
+        internal static ObjectiveConditionAssessmentStatus Compare(
             ObjectiveCondition condition,
             ObjectiveConditionValue candidateValue)
         {
