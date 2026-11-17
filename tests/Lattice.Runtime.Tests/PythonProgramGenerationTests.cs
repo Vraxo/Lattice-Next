@@ -145,6 +145,14 @@ public sealed class PythonProgramGenerationTests
         "for value in [1, 3.5, -2]:\n    print(value)",
         "1\n3.5\n-2")]
     [InlineData(
+        "Create a Python program that prints each name in the list ['Ada', 'Grace'].",
+        "for name in ['Ada', 'Grace']:\n    print(name)",
+        "Ada\nGrace")]
+    [InlineData(
+        "Build a Python script that displays each label from [\"red, blue\", 'green'].",
+        "for label in [\"red, blue\", 'green']:\n    print(label)",
+        "red, blue\ngreen")]
+    [InlineData(
         "Create a Python program that prints each number from 1 to 5.",
         "for number in range(1, 6):\n    print(number)",
         "1\n2\n3\n4\n5")]
