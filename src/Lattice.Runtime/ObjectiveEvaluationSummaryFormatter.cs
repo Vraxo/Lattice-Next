@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
@@ -6,7 +7,7 @@ namespace Lattice.Runtime;
 
 internal static class ObjectiveEvaluationSummaryFormatter
 {
-        private static void AppendDecisionSummary(
+        internal static void AppendDecisionSummary(
             StringBuilder output,
             ObjectiveEvaluation evaluation)
         {
@@ -157,7 +158,7 @@ internal static class ObjectiveEvaluationSummaryFormatter
             }
         }
     
-        private static void AppendPlanSummary(StringBuilder output, ObjectiveEvaluation evaluation)
+        internal static void AppendPlanSummary(StringBuilder output, ObjectiveEvaluation evaluation)
         {
             var options = evaluation.Recommendation.ShortlistedCandidates
                 .Select(name => evaluation.Candidates.FirstOrDefault(candidate => candidate.Candidate == name))
@@ -221,7 +222,7 @@ internal static class ObjectiveEvaluationSummaryFormatter
             output.AppendLine("verify live details before acting and complete any required booking yourself. No booking has been made.");
         }
     
-        private static void AppendShortlistedOptions(
+        internal static void AppendShortlistedOptions(
             StringBuilder output,
             ObjectiveRecommendation recommendation,
             IReadOnlyList<CandidateAssessment> candidates)
@@ -330,7 +331,7 @@ internal static class ObjectiveEvaluationSummaryFormatter
             }
         }
     
-        private static void AppendRecommendation(
+        internal static void AppendRecommendation(
             StringBuilder output,
             ObjectiveRecommendation recommendation,
             IReadOnlyList<CandidateAssessment> candidates)
