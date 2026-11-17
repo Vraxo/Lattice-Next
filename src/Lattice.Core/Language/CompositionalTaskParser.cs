@@ -46,7 +46,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
-        @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
+        @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex AssignmentValuePattern = new(
@@ -415,7 +415,7 @@ internal static class CompositionalTaskParser
         {
             var match = Regex.Match(
                 parts[index],
-                @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
+                @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
             if (!match.Success)
             {
@@ -433,6 +433,7 @@ internal static class CompositionalTaskParser
                 "is at most" or "at most" => "<=",
                 "is greater than" or "greater than" => ">",
                 "is less than" or "less than" => "<",
+                "is not equal to" or "not equal to" => "!=",
                 "is equal to" or "equal" or "equals" => "==",
                 _ => string.Empty
             };
@@ -668,6 +669,7 @@ internal static class CompositionalTaskParser
             "is at most" or "at most" => "<=",
             "is greater than" or "greater than" => ">",
             "is less than" or "less than" => "<",
+            "is not equal to" or "not equal to" => "!=",
             "is equal to" or "equal" or "equals" => "==",
             _ => string.Empty
         };
