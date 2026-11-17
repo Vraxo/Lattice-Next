@@ -489,7 +489,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
             parsedUtterance.Meaning is ObjectiveCandidateInformationFormula candidateInformation)
         {
-            return ProcessObjectiveCandidateInformation(
+            return objectiveWorkflow.ProcessCandidateInformation(
                 parsedUtterance,
                 candidateInformation,
                 deferObjectiveEvaluation);
@@ -498,7 +498,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
             parsedUtterance.Meaning is ObjectiveInformationFormula information)
         {
-            return ProcessObjectiveInformation(
+            return objectiveWorkflow.ProcessInformation(
                 parsedUtterance,
                 information,
                 deferObjectiveEvaluation);
@@ -507,7 +507,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveConditionUpdate &&
             parsedUtterance.Meaning is ObjectiveConditionUpdateFormula conditionUpdate)
         {
-            return ProcessObjectiveConditionUpdates(
+            return objectiveWorkflow.ProcessConditionUpdates(
                 parsedUtterance,
                 conditionUpdate,
                 deferObjectiveEvaluation);
@@ -529,7 +529,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
-            var message = AppendObjectiveEvaluation(
+            var message = objectiveWorkflow.AppendObjectiveEvaluation(
                 $"I've retained this objective: {objective.Goal}.",
                 objective,
                 includeMessage: false);
