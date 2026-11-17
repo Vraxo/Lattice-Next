@@ -422,5 +422,5 @@ internal static class ObjectiveTemporalConditionEvaluator
                 (ObjectiveSumValue leftSum, ObjectiveSumValue rightSum) =>
                     leftSum.Attributes.SequenceEqual(rightSum.Attributes, StringComparer.OrdinalIgnoreCase),
                 _ => Equals(left, right)
-            }
+            };
 }
