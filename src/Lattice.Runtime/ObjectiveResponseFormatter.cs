@@ -314,7 +314,7 @@ internal static class ObjectiveResponseFormatter
 
             if (totalCost is not null)
             {
-                details.Add($"total cost {ObjectiveCandidatePresentationFormatter.FormatMoney(totalCost)}");
+                details.Add($"total cost {FormatMoney(totalCost)}");
             }
             else if (hasCostRequest)
             {
@@ -462,7 +462,8 @@ internal static class ObjectiveResponseFormatter
 
 
 
-{money.Amount.ToString("0.##", CultureInfo.InvariantCulture)}";
+    internal static string FormatMoney(ObjectiveMoneyValue money) =>
+        $"{money.CurrencySymbol}{money.Amount.ToString("0.##", CultureInfo.InvariantCulture)}";
 
     private static string FormatAttributeName(string name) =>
         string.Join(' ', name.Split('-', StringSplitOptions.RemoveEmptyEntries));
