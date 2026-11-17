@@ -116,6 +116,28 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
 
 
+
+
+    public ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateMoneyEvidenceAsync(
+        LatticeCandidateMoneyEvidence evidence,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(evidence);
+
+        lock (gate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (isDisposed)
+            {
+                return ValueTask.FromResult(
+                    LatticeCandidateEvidenceResult.Rejected("The session has been closed."));
+            }
+
+            return candidateEvidenceRegistrar.AddMoney(evidence);
+        }
+    }
+
     public ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateAttributeEvidenceAsync(
         LatticeCandidateAttributeEvidence evidence,
         CancellationToken cancellationToken = default)
@@ -132,95 +154,137 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     LatticeCandidateEvidenceResult.Rejected("The session has been closed."));
             }
 
-            if (activeObjective is null)
+            return candidateEvidenceRegistrar.AddAttribute(evidence);
+        }
+    }
+
+    public ValueTask<LatticeSessionStatus> GetStatusAsync(
+        CancellationToken cancellationToken = default)
+    {
+        lock (gate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var evaluation = activeObjective is null
+                ? null
+                : objectiveEvaluator.Evaluate(activeObjective, knowledgeBase);
+
+            return ValueTask.FromResult(new LatticeSessionStatus(
+                knowledgeBase.Facts.Count,
+                knowledgeBase.Rules.Count,
+                conversationContext.KnownIndividualCount,
+                loadedPacks.Count)
             {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("There is no active objective to assess this candidate evidence against."));
-            }
+                ActiveObjective = activeObjective?.Goal,
+                ActiveObjectiveSource = activeObjectiveSource,
+                PendingInformationName = pendingObjectiveCondition?.Name,
+                PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
+                ObjectiveEvaluation = evaluation is null ? null : LatticeRuntimeSessionObjectiveMapper.MapObjectiveEvaluation(evaluation),
+                ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation),
+                SemanticConceptCount = semanticWorldModel.Concepts.Length,
+                SemanticRelationCount = semanticWorldModel.Relations.Length,
+                SemanticDataAssertionCount = semanticWorldModel.DataAssertions.Length
+            });
+        }
+    }
 
-            if (string.IsNullOrWhiteSpace(evidence.Candidate) ||
-                evidence.Candidate.Length > 256 ||
-                string.IsNullOrWhiteSpace(evidence.AttributeName) ||
-                evidence.AttributeName.Length > 64 ||
-                evidence.Value.ValueKind is System.Text.Json.JsonValueKind.Undefined or System.Text.Json.JsonValueKind.Null ||
-                string.IsNullOrWhiteSpace(evidence.SourceText) ||
-                evidence.SourceText.Length > 4000 ||
-                evidence.RetrievedAt == default ||
-                evidence.RetrievedAt > DateTimeOffset.UtcNow.AddMinutes(5) ||
-                (evidence.FreshUntil is { } freshUntil && freshUntil <= DateTimeOffset.UtcNow) ||
-                !Uri.TryCreate(evidence.SourceUrl, UriKind.Absolute, out var sourceUri) ||
-                sourceUri.Scheme is not ("http" or "https") ||
-                string.IsNullOrWhiteSpace(sourceUri.Host) ||
-                !string.IsNullOrEmpty(sourceUri.UserInfo) ||
-                !sourceUri.IsDefaultPort)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The reviewed candidate attribute evidence contains an invalid value or source."));
-            }
+    public ValueTask DisposeAsync()
+    {
+        lock (gate)
+        {
+            isDisposed = true;
+        }
 
-            if (!KnowledgePackLoader.TryParseTypedAttributeValue(
-                    evidence.Value,
-                    out var typedValue,
-                    out var typedValueError) ||
-                typedValue is null)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected(
-                        typedValueError ?? "The reviewed candidate attribute value is invalid."));
-            }
+        return ValueTask.CompletedTask;
+    }
 
-            var candidateAttribute = knowledgeBase.Attributes.FirstOrDefault(attribute =>
-                string.Equals(attribute.Subject.Value, evidence.Candidate, StringComparison.OrdinalIgnoreCase));
+    private LatticeTurnResult Process(string input)
+    {
+        var parseResult = parser.ParseText(input);
 
-            if (candidateAttribute is null)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The reviewed evidence does not identify a known candidate."));
-            }
+        if (!parseResult.IsSuccess)
+        {
+            return LatticeTurnResult.Rejected(
+                parseResult.Error ?? "Input could not be parsed.");
+        }
 
-            var candidate = candidateAttribute.Subject;
-            var matchingConditions = activeObjective.Conditions
-                .Where(condition =>
-                    string.Equals(condition.TargetAttribute, evidence.AttributeName, StringComparison.OrdinalIgnoreCase) &&
-                    condition.Value is not null)
-                .ToArray();
+        var results = ImmutableArray.CreateBuilder<LatticeUtteranceResult>(
+            parseResult.Utterances.Length);
 
-            if (matchingConditions.Length == 0)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The active objective does not use that candidate attribute."));
-            }
+        for (var index = 0; index < parseResult.Utterances.Length; index++)
+        {
+            var parsedUtterance = parseResult.Utterances[index];
+            var deferObjectiveEvaluation = parseResult.Utterances
+                .Skip(index + 1)
+                .Any(IsObjectiveUpdate);
 
-            var expectedTypes = matchingConditions
-                .Select(condition => condition.Value!.GetType())
-                .Distinct()
-                .ToArray();
+            results.Add(ProcessUtterance(parsedUtterance, deferObjectiveEvaluation));
+        }
 
-            if (expectedTypes.Length != 1 || expectedTypes[0] != typedValue!.GetType())
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The reviewed value type does not match the active objective's candidate attribute."));
-            }
+        return LatticeTurnResult.Completed(results.ToImmutable());
+    }
 
-            if (typedValue is ObjectiveMoneyValue money &&
-                matchingConditions
-                    .Select(condition => condition.Value)
-                    .OfType<ObjectiveMoneyValue>()
-                    .Any(expected => !string.Equals(expected.CurrencySymbol, money.CurrencySymbol, StringComparison.Ordinal)))
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The evidence currency does not match the active objective's currency."));
-            }
+    private static bool IsObjectiveUpdate(SemanticUtterance utterance) =>
+        utterance.Kind is UtteranceKind.ObjectiveCandidateInformation
+            or UtteranceKind.ObjectiveInformation
+            or UtteranceKind.ObjectiveConditionUpdate;
 
-            var hasExistingAttribute = knowledgeBase.Attributes.Any(attribute =>
-                attribute.Subject == candidate &&
-                string.Equals(attribute.Name.Value, evidence.AttributeName, StringComparison.OrdinalIgnoreCase));
-            var hasOutstandingRequest = objectiveEvaluator
-                .Evaluate(activeObjective, knowledgeBase)
-                .EvidenceRequests
-                .Any(request =>
-                    string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(request.AttributeName, evidence.AttributeName, StringComparison.OrdinalIgnoreCaefinitionQuestion(parsedUtterance, definition);
+    private LatticeUtteranceResult ProcessUtterance(
+        SemanticUtterance parsedUtterance,
+        bool deferObjectiveEvaluation)
+    {
+        if (parsedUtterance.Kind == UtteranceKind.TaskRequest &&
+            parsedUtterance.Meaning is TaskRequestFormula taskRequest)
+        {
+            return ProcessTaskRequest(parsedUtterance, taskRequest);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is EnumerationRemainderQuestionFormula enumerationRemainder)
+        {
+            return questionProcessor.ProcessEnumerationRemainderQuestion(parsedUtterance, enumerationRemainder);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ChargedParticleAccelerationFormula chargedParticleAcceleration)
+        {
+            return questionProcessor.ProcessChargedParticleAccelerationQuestion(parsedUtterance, chargedParticleAcceleration);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is SemanticWorldModelQuestionFormula semanticQuestion)
+        {
+            return questionProcessor.ProcessSemanticWorldModelQuestion(parsedUtterance, semanticQuestion);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is SemanticRelationQueryFormula relationQuery)
+        {
+            return questionProcessor.ProcessRelationQueryQuestion(parsedUtterance, relationQuery);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is SemanticRelationSourceQueryFormula relationSourceQuery)
+        {
+            return questionProcessor.ProcessRelationSourceQueryQuestion(parsedUtterance, relationSourceQuery);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is MultiItemClassificationFormula classification)
+        {
+            return questionProcessor.ProcessClassificationQuestion(parsedUtterance, classification);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is ChoiceQuestionFormula choiceQuestion)
+        {
+            return questionProcessor.ProcessChoiceQuestion(parsedUtterance, choiceQuestion);
+        }
+
+        if (parsedUtterance.Kind == UtteranceKind.Question &&
+            parsedUtterance.Meaning is DefinitionQuestionFormula definition)
+        {
+            return questionProcessor.ProcessDefinitionQuestion(parsedUtterance, definition);
         }
 
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
@@ -434,44 +498,4 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 "More than one individual is known. Which one do you mean by 'it'? Please name them.",
             _ => "I couldn't resolve that reference. Please name the individual."
         };
-}    public ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateMoneyEvidenceAsync(
-        LatticeCandidateMoneyEvidence evidence,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(evidence);
-
-        lock (gate)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (isDisposed)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The session has been closed."));
-            }
-
-            return candidateEvidenceRegistrar.AddMoney(evidence);
-        }
-    }
-
-    public ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateAttributeEvidenceAsync(
-        LatticeCandidateAttributeEvidence evidence,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(evidence);
-
-        lock (gate)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (isDisposed)
-            {
-                return ValueTask.FromResult(
-                    LatticeCandidateEvidenceResult.Rejected("The session has been closed."));
-            }
-
-            return candidateEvidenceRegistrar.AddAttribute(evidence);
-        }
-    }
-
-
+}
