@@ -741,7 +741,7 @@ public sealed class SemanticWorldModelLoader
         public List<DataAssertionDocument> DataAssertions { get; set; } = [];
     }
 
-    private sealed class ConceptDocument
+    internal sealed class ConceptDocument
     {
         public ConceptDocument() { }
         public string Id { get; set; } = string.Empty;
@@ -749,7 +749,7 @@ public sealed class SemanticWorldModelLoader
         public string Kind { get; set; } = string.Empty;
     }
 
-    private sealed class LexemeDocument
+    internal sealed class LexemeDocument
     {
         public LexemeDocument() { }
         public string Form { get; set; } = string.Empty;
@@ -757,7 +757,7 @@ public sealed class SemanticWorldModelLoader
         public string PartOfSpeech { get; set; } = string.Empty;
     }
 
-    private sealed class RelationDocument
+    internal sealed class RelationDocument
     {
         public RelationDocument() { }
         public string Id { get; set; } = string.Empty;
@@ -771,7 +771,7 @@ public sealed class SemanticWorldModelLoader
         public string ObjectKind { get; set; } = "individual";
     }
 
-    private sealed class TypeDefinitionDocument
+    internal sealed class TypeDefinitionDocument
     {
         public TypeDefinitionDocument() { }
         public string Concept { get; set; } = string.Empty;
@@ -784,7 +784,7 @@ public sealed class SemanticWorldModelLoader
         public string? SourceUrl { get; set; }
     }
 
-    private sealed class RestrictionDocument
+    internal sealed class RestrictionDocument
     {
         public RestrictionDocument() { }
         public string Relation { get; set; } = string.Empty;
@@ -811,7 +811,7 @@ public sealed class SemanticWorldModelLoader
         public string? SourceUrl { get; set; }
     }
 
-    private sealed class TypeAssertionDocument
+    internal sealed class TypeAssertionDocument
     {
         public TypeAssertionDocument() { }
         public string Individual { get; set; } = string.Empty;
@@ -820,7 +820,7 @@ public sealed class SemanticWorldModelLoader
         public string? SourceUrl { get; set; }
     }
 
-    private sealed class RelationAssertionDocument
+    internal sealed class RelationAssertionDocument
     {
         public RelationAssertionDocument() { }
         public string Subject { get; set; } = string.Empty;
