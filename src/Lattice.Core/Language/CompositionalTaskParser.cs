@@ -403,57 +403,167 @@ internal static class CompositionalTaskParser
         string[] parameters,
         out string pythonCondition)
     {
+        return TryParseBooleanCondition(condition, parameters, out pythonCondition);
+    }
+
+    private static bool TryParseBooleanCondition(
+        string condition,
+        string[] parameters,
+        out string pythonCondition)
+    {
         pythonCondition = string.Empty;
-        var parts = Regex.Split(condition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
-        if (parts.Length == 0 || parts.Length % 2 == 0)
+        var expression = condition.Trim();
+        while (HasEnclosingParentheses(expression))
+        {
+            expression = expression[1..^1].Trim();
+        }
+
+        foreach (var operation in new[] { "or", "and" })
+        {
+            var operatorIndex = FindTopLevelBooleanOperator(expression, operation);
+            if (operatorIndex < 0)
+            {
+                continue;
+            }
+
+            var left = expression[..operatorIndex];
+            var right = expression[(operatorIndex + operation.Length)..];
+            if (!TryParseBooleanCondition(left, parameters, out var parsedLeft) ||
+                !TryParseBooleanCondition(right, parameters, out var parsedRight))
+            {
+                return false;
+            }
+
+            pythonCondition = $"({parsedLeft} {operation} {parsedRight})";
+            return true;
+        }
+
+        var match = Regex.Match(
+            expression,
+            @"^\\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\\s+(?<operator>is\\s+at\\s+least|at\\s+least|is\\s+at\\s+most|at\\s+most|is\\s+greater\\s+than|greater\\s+than|is\\s+less\\s+than|less\\s+than|is\\s+not\\s+equal\\s+to|not\\s+equal\\s+to|is\\s+equal\\s+to|equals?)\\s+(?<right>.+?)\\s*$",
+            RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        if (!match.Success)
         {
             return false;
         }
 
-        var comparisons = new List<string>(parts.Length / 2 + 1);
-        for (var index = 0; index < parts.Length; index += 2)
+        var leftOperand = match.Groups["left"].Value;
+        var rightOperand = match.Groups["right"].Value;
+        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\\s+", " ")
+            .Trim()
+            .ToLowerInvariant();
+        var symbol = comparison switch
         {
-            var match = Regex.Match(
-                parts[index],
-                @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-            if (!match.Success)
+            "is at least" or "at least" => ">=",
+            "is at most" or "at most" => "<=",
+            "is greater than" or "greater than" => ">",
+            "is less than" or "less than" => "<",
+            "is not equal to" or "not equal to" => "!=",
+            "is equal to" or "equal" or "equals" => "==",
+            _ => string.Empty
+        };
+
+        if (symbol.Length == 0 ||
+            !parameters.Contains(leftOperand, StringComparer.OrdinalIgnoreCase) ||
+            !TryNormalizeConditionOperand(rightOperand, parameters, out var normalizedRight))
+        {
+            return false;
+        }
+
+        pythonCondition = $"{leftOperand} {symbol} {normalizedRight}";
+        return true;
+    }
+
+    private static int FindTopLevelBooleanOperator(string expression, string operation)
+    {
+        var depth = 0;
+        var quote = '\\0';
+        for (var index = 0; index <= expression.Length - operation.Length; index++)
+        {
+            var character = expression[index];
+            if (quote != '\\0')
             {
-                return false;
+                if (character == quote && (index == 0 || expression[index - 1] != '\\\\'))
+                {
+                    quote = '\\0';
+                }
+
+                continue;
             }
 
-            var left = match.Groups["left"].Value;
-            var right = match.Groups["right"].Value;
-            var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
-                .Trim()
-                .ToLowerInvariant();
-            var symbol = comparison switch
+            if (character is '\\'' or '"')
             {
-                "is at least" or "at least" => ">=",
-                "is at most" or "at most" => "<=",
-                "is greater than" or "greater than" => ">",
-                "is less than" or "less than" => "<",
-                "is not equal to" or "not equal to" => "!=",
-                "is equal to" or "equal" or "equals" => "==",
-                _ => string.Empty
-            };
-
-            if (symbol.Length == 0 ||
-                !parameters.Contains(left, StringComparer.OrdinalIgnoreCase) ||
-                !TryNormalizeConditionOperand(right, parameters, out var normalizedRight))
-            {
-                return false;
+                quote = character;
+                continue;
             }
 
-            comparisons.Add($"{left} {symbol} {normalizedRight}");
-            if (index + 1 < parts.Length)
+            if (character == '(')
             {
-                comparisons.Add(parts[index + 1].ToLowerInvariant());
+                depth++;
+                continue;
+            }
+
+            if (character == ')')
+            {
+                depth--;
+                continue;
+            }
+
+            if (depth == 0 &&
+                string.Compare(expression, index, operation, 0, operation.Length, StringComparison.OrdinalIgnoreCase) == 0 &&
+                index > 0 &&
+                index + operation.Length < expression.Length &&
+                char.IsWhiteSpace(expression[index - 1]) &&
+                char.IsWhiteSpace(expression[index + operation.Length]))
+            {
+                return index;
             }
         }
 
-        pythonCondition = string.Join(" ", comparisons);
-        return true;
+        return -1;
+    }
+
+    private static bool HasEnclosingParentheses(string expression)
+    {
+        if (expression.Length < 2 || expression[0] != '(' || expression[^1] != ')')
+        {
+            return false;
+        }
+
+        var depth = 0;
+        var quote = '\\0';
+        for (var index = 0; index < expression.Length; index++)
+        {
+            var character = expression[index];
+            if (quote != '\\0')
+            {
+                if (character == quote && (index == 0 || expression[index - 1] != '\\\\'))
+                {
+                    quote = '\\0';
+                }
+
+                continue;
+            }
+
+            if (character is '\\'' or '"')
+            {
+                quote = character;
+            }
+            else if (character == '(')
+            {
+                depth++;
+            }
+            else if (character == ')')
+            {
+                depth--;
+                if (depth == 0 && index != expression.Length - 1)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return depth == 0;
     }
 
     private static bool TryNormalizeConditionOperand(
