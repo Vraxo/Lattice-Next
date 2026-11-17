@@ -137,7 +137,7 @@ internal static class SemanticWorldModelQuestionParser
         utterance = null;
         var text = source.Trim();
 
-        if (SemanticWorldModelRelationQuestionParser.TryParse(source, text, out utterance))
+        if (SemanticWorldModelRelationQuestionParser.TryParsePair(source, text, out utterance))
         {
             return true;
         }
@@ -518,6 +518,11 @@ internal static class SemanticWorldModelQuestionParser
                 subject: Normalize(comparison.Groups["subject"].Value),
                 otherSubject: Normalize(comparison.Groups["other"].Value),
                 sourceText: source);
+            return true;
+        }
+
+        if (SemanticWorldModelRelationQuestionParser.TryParse(source, text, out utterance))
+        {
             return true;
         }
 
