@@ -7,4 +7,7 @@ public sealed record GenerationOperation(
     string Symbol,
     string Effect,
     string ArgumentKind,
-    ImmutableArray<string> Prerequisites);
+    ImmutableArray<string> Prerequisites)
+{
+    public string? StartSymbol { get; init; }
+}
