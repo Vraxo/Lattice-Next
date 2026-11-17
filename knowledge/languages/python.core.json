@@ -92,24 +92,48 @@
     {
       "head": "indented-if-statement",
       "symbols": [
-        { "kind": "terminal", "value": "    if " },
-        { "kind": "binding", "value": "argument-expression" },
-        { "kind": "terminal", "value": ":" }
+        {
+          "kind": "terminal",
+          "value": "    if "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
       ]
     },
     {
       "head": "indented-elif-statement",
       "symbols": [
-        { "kind": "terminal", "value": "    elif " },
-        { "kind": "binding", "value": "argument-expression" },
-        { "kind": "terminal", "value": ":" }
+        {
+          "kind": "terminal",
+          "value": "    elif "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
       ]
     },
     {
       "head": "double-indented-return-expression",
       "symbols": [
-        { "kind": "terminal", "value": "        return " },
-        { "kind": "binding", "value": "argument-expression" }
+        {
+          "kind": "terminal",
+          "value": "        return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
       ]
     },
     {
@@ -182,18 +206,39 @@
     {
       "head": "double-indented-expression-call",
       "symbols": [
-        { "kind": "terminal", "value": "        " },
-        { "kind": "binding", "value": "operation" },
-        { "kind": "terminal", "value": "(" },
-        { "kind": "binding", "value": "argument-expression" },
-        { "kind": "terminal", "value": ")" }
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
       ]
     },
     {
       "head": "indented-assignment-statement",
       "symbols": [
-        { "kind": "terminal", "value": "    " },
-        { "kind": "binding", "value": "argument-assignment" }
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-assignment"
+        }
       ]
     },
     {
@@ -219,6 +264,45 @@
         {
           "kind": "terminal",
           "value": "    return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
+    },
+    {
+      "head": "indented-try-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    try:"
+        }
+      ]
+    },
+    {
+      "head": "indented-except-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    except "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-return-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        return "
         },
         {
           "kind": "binding",
@@ -387,6 +471,30 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-return-expression"
+    },
+    {
+      "id": "python-try-indented",
+      "symbol": "try",
+      "effect": "begin-try-indented",
+      "argumentKind": "statement",
+      "prerequisites": [],
+      "startSymbol": "indented-try-statement"
+    },
+    {
+      "id": "python-except-indented",
+      "symbol": "except",
+      "effect": "begin-except-indented",
+      "argumentKind": "exception-type",
+      "prerequisites": [],
+      "startSymbol": "indented-except-statement"
+    },
+    {
+      "id": "python-return-double-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-double-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "double-indented-return-expression"
     }
   ],
   "stringLiteralFormat": {
