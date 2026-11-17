@@ -49,7 +49,7 @@ public sealed class SemanticWorldModelLoader
 
         if (document is null ||
             document.FormatVersion is not (1 or 2 or 3 or SupportedFormatVersion) ||
-            !IsValidId(document.Id) ||
+            !SemanticWorldModelValidation.IsValidId(document.Id) ||
             string.IsNullOrWhiteSpace(document.Name) ||
             document.Name.Length > 120 ||
             document.Concepts is null ||
@@ -102,7 +102,7 @@ public sealed class SemanticWorldModelLoader
             return false;
         }
 
-        if (HasInheritanceCycle(relationAssertions))
+        if (SemanticWorldModelValidation.HasInheritanceCycle(relationAssertions))
         {
             error = "The semantic world model contains a cyclic type hierarchy.";
             return false;
@@ -140,7 +140,7 @@ public sealed class SemanticWorldModelLoader
             dataProperties,
             dataAssertions);
 
-        if (!AreAssertionsWellTyped(candidate))
+        if (!SemanticWorldModelValidation.AreAssertionsWellTyped(candidate))
         {
             error = "A semantic assertion violates the declared relation domain or range.";
             return false;
@@ -163,7 +163,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.Concepts)
         {
             if (item is null ||
-                !IsValidId(item.Id) ||
+                !SemanticWorldModelValidation.IsValidId(item.Id) ||
                 string.IsNullOrWhiteSpace(item.Label) ||
                 item.Label.Length > 100 ||
                 !Enum.TryParse<SemanticConceptKind>(item.Kind, true, out var kind) ||
@@ -194,7 +194,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.Relations)
         {
             if (item is null ||
-                !IsValidId(item.Id) ||
+                !SemanticWorldModelValidation.IsValidId(item.Id) ||
                 !Enum.TryParse<SemanticRelationArgumentKind>(item.SubjectKind, true, out var subjectKind) ||
                 !Enum.IsDefined(subjectKind) ||
                 !Enum.TryParse<SemanticRelationArgumentKind>(item.ObjectKind, true, out var objectKind) ||
@@ -204,8 +204,8 @@ public sealed class SemanticWorldModelLoader
                 (item.ObjectRole is not null && item.ObjectRole.Length > 80) ||
                 item.Order is < 0 or > 1000 ||
                 item.ComparisonPriority is < 0 or > 1000 ||
-                (item.Domain is not null && !IsType(concepts, item.Domain)) ||
-                (item.Range is not null && !IsType(concepts, item.Range)) ||
+                (item.Domain is not null && !SemanticWorldModelValidation.IsType(concepts, item.Domain)) ||
+                (item.Range is not null && !SemanticWorldModelValidation.IsType(concepts, item.Range)) ||
                 (subjectKind == SemanticRelationArgumentKind.Type && item.Domain is not null) ||
                 (objectKind == SemanticRelationArgumentKind.Type && item.Range is not null) ||
                 !identifiers.Add(item.Id))
@@ -218,13 +218,13 @@ public sealed class SemanticWorldModelLoader
                 ? subjectKind == SemanticRelationArgumentKind.Individual && item.Domain is null
                 : subjectKind switch
                 {
-                    SemanticRelationArgumentKind.Individual => IsType(concepts, item.Domain),
+                    SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.IsType(concepts, item.Domain),
                     SemanticRelationArgumentKind.Type => item.Domain is null,
                     _ => false
                 };
             var validRange = objectKind switch
             {
-                SemanticRelationArgumentKind.Individual => IsType(concepts, item.Range),
+                SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.IsType(concepts, item.Range),
                 SemanticRelationArgumentKind.Type => item.Range is null,
                 _ => false
             };
@@ -308,11 +308,11 @@ public sealed class SemanticWorldModelLoader
         {
             var parents = item?.Parents ?? [];
             var hasValidLegacyParents = document.FormatVersion < 3 &&
-                parents.All(parent => IsType(concepts, parent)) &&
+                parents.All(parent => SemanticWorldModelValidation.IsType(concepts, parent)) &&
                 parents.Distinct(StringComparer.Ordinal).Count() == parents.Count;
 
             if (item is null ||
-                !IsType(concepts, item.Concept) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.Concept) ||
                 item.Conditions is null ||
                 item.NecessaryConditions is null ||
                 (document.FormatVersion < 3 && !hasValidLegacyParents) ||
@@ -420,7 +420,7 @@ public sealed class SemanticWorldModelLoader
                 relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
                 relation.DomainType is null ||
                 relation.RangeType is null ||
-                !IsType(concepts, condition.TargetType))
+                !SemanticWorldModelValidation.IsType(concepts, condition.TargetType))
             {
                 error = $"Type definition '{ownerType}' contains an invalid necessary or sufficient relation restriction.";
                 return false;
@@ -484,7 +484,7 @@ public sealed class SemanticWorldModelLoader
                 relation.DomainType is null ||
                 relation.RangeType is null ||
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
-                !IsType(concepts, expression.TargetType) ||
+                !SemanticWorldModelValidation.IsType(concepts, expression.TargetType) ||
                 !expression.Operands.IsDefaultOrEmpty ||
                 expression.StartRelation is not null ||
                 expression.MinimumLength != 0 ||
@@ -515,12 +515,12 @@ public sealed class SemanticWorldModelLoader
                 startRelation.DomainType is not null &&
                 startRelation.RangeType is not null &&
                 !string.IsNullOrWhiteSpace(expression.TargetType) &&
-                IsType(concepts, expression.TargetType) &&
+                SemanticWorldModelValidation.IsType(concepts, expression.TargetType) &&
                 expression.MinimumLength is >= 2 and <= 64 &&
                 ((expression.SourceConnectionRelation is null &&
                   expression.TargetConnectionRelation is null) ||
-                 (IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
-                  IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
+                 (SemanticWorldModelValidation.IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
+                  SemanticWorldModelValidation.IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
                 expression.Filler is null &&
                 expression.Operands.IsDefaultOrEmpty;
         }
@@ -618,8 +618,8 @@ public sealed class SemanticWorldModelLoader
         {
             if (item is null ||
                 !relations.TryGetValue(item.Relation, out var relation) ||
-                !IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
-                !IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
+                !SemanticWorldModelValidation.IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
+                !SemanticWorldModelValidation.IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
                 (document.FormatVersion >= 3 &&
                     (item.SourceText is not null || item.SourceUrl is not null)) ||
                 !relationKeys.Add($"{item.Subject}:{item.Relation}:{item.Object}"))
@@ -640,8 +640,8 @@ public sealed class SemanticWorldModelLoader
         {
             if (document.FormatVersion >= 3 ||
                 item is null ||
-                !IsIndividual(concepts, item.Individual) ||
-                !IsType(concepts, item.Type))
+                !SemanticWorldModelValidation.IsIndividual(concepts, item.Individual) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.Type))
             {
                 error = "Legacy type assertions must reference a declared individual and type.";
                 return false;
@@ -733,8 +733,8 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.DataProperties)
         {
             if (item is null ||
-                !IsValidId(item.Id) ||
-                !IsType(concepts, item.DomainType) ||
+                !SemanticWorldModelValidation.IsValidId(item.Id) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.DomainType) ||
                 !Enum.TryParse<SemanticDataValueKind>(item.ValueType, true, out var valueKind) ||
                 !identifiers.Add(item.Id))
             {
@@ -788,7 +788,7 @@ public sealed class SemanticWorldModelLoader
         foreach (var item in document.DataAssertions)
         {
             if (item is null ||
-                !IsIndividual(concepts, item.Subject) ||
+                !SemanticWorldModelValidation.IsIndividual(concepts, item.Subject) ||
                 !properties.TryGetValue(item.Property, out var property) ||
                 !IsValidDataValue(property, item, out var normalizedValue, out var normalizedUnit) ||
                 !keys.Add($"{item.Subject}:{item.Property}:{normalizedValue}:{normalizedUnit}"))
@@ -866,242 +866,6 @@ public sealed class SemanticWorldModelLoader
         normalizedUnit = SemanticUnit.GetBaseUnit(dimension);
         return true;
     }
-
-    private static bool AreAssertionsWellTyped(SemanticWorldModel model)
-    {
-        var reasoner = new SemanticWorldModelReasoner(model);
-        foreach (var assertion in model.RelationAssertions)
-        {
-            var relation = model.FindRelation(assertion.Relation)!;
-            if ((relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-                    (model.FindConcept(assertion.Subject, SemanticConceptKind.Individual) is null ||
-                     (relation.DomainType is not null &&
-                      !reasoner.IsInstanceOf(assertion.Subject, relation.DomainType)))) ||
-                (relation.SubjectKind == SemanticRelationArgumentKind.Type &&
-                    model.FindConcept(assertion.Subject, SemanticConceptKind.Type) is null) ||
-                (relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
-                    (model.FindConcept(assertion.Object, SemanticConceptKind.Individual) is null ||
-                     (relation.RangeType is not null &&
-                      !reasoner.IsInstanceOf(assertion.Object, relation.RangeType)))) ||
-                (relation.ObjectKind == SemanticRelationArgumentKind.Type &&
-                    model.FindConcept(assertion.Object, SemanticConceptKind.Type) is null))
-            {
-                return false;
-            }
-        }
-
-        foreach (var definition in model.Definitions)
-        {
-            foreach (var condition in definition.NecessaryConditions)
-            {
-                var relation = model.FindRelation(condition.Relation)!;
-                if (relation.DomainType is null ||
-                    relation.RangeType is null ||
-                    !IsSubtype(model, definition.Concept, relation.DomainType) ||
-                    !IsSubtype(model, condition.TargetType, relation.RangeType))
-                {
-                    return false;
-                }
-            }
-
-            if (definition.SufficientExpression is not null &&
-                !IsExpressionWellTyped(definition.SufficientExpression, definition.Concept, model))
-            {
-                return false;
-            }
-        }
-
-        foreach (var assertion in model.DataAssertions)
-        {
-            var property = model.FindDataProperty(assertion.Property)!;
-            if (!reasoner.IsInstanceOf(assertion.Subject, property.DomainType))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static bool IsValidConnectionRelation(
-        string? relationId,
-        IReadOnlyDictionary<string, SemanticRelationDefinition> relations) =>
-        !string.IsNullOrWhiteSpace(relationId) &&
-        relations.TryGetValue(relationId, out var relation) &&
-        relation.SubjectKind == SemanticRelationArgumentKind.Individual &&
-        relation.ObjectKind == SemanticRelationArgumentKind.Individual &&
-        relation.DomainType is not null &&
-        relation.RangeType is not null;
-
-    private static bool IsExpressionWellTyped(
-        SemanticClassExpression expression,
-        string subjectType,
-        SemanticWorldModel model)
-    {
-        if (expression.Kind is SemanticClassExpressionKind.Some or SemanticClassExpressionKind.All)
-        {
-            var relation = model.FindRelation(expression.Relation!)!;
-            return relation.DomainType is not null &&
-                relation.RangeType is not null &&
-                IsSubtype(model, subjectType, relation.DomainType) &&
-                IsSubtype(model, expression.TargetType!, relation.RangeType) &&
-                (expression.Filler is null ||
-                 IsExpressionWellTyped(expression.Filler, expression.TargetType!, model));
-        }
-
-        if (expression.Kind == SemanticClassExpressionKind.Cycle)
-        {
-            var startRelation = model.FindRelation(expression.StartRelation!)!;
-            var traversalRelation = model.FindRelation(expression.Relation!)!;
-            return startRelation.DomainType is not null &&
-                startRelation.RangeType is not null &&
-                traversalRelation.DomainType is not null &&
-                traversalRelation.RangeType is not null &&
-                IsSubtype(model, subjectType, startRelation.DomainType) &&
-                IsSubtype(model, expression.TargetType!, startRelation.RangeType) &&
-                IsSubtype(model, expression.TargetType!, traversalRelation.DomainType) &&
-                IsSubtype(model, expression.TargetType!, traversalRelation.RangeType) &&
-                AreConnectionRelationsWellTyped(expression, model);
-        }
-
-        return expression.Kind is SemanticClassExpressionKind.And or SemanticClassExpressionKind.Or &&
-            expression.Operands.All(operand =>
-                IsExpressionWellTyped(operand, subjectType, model));
-    }
-
-    private static bool AreConnectionRelationsWellTyped(
-        SemanticClassExpression expression,
-        SemanticWorldModel model)
-    {
-        if (expression.SourceConnectionRelation is null &&
-            expression.TargetConnectionRelation is null)
-        {
-            return true;
-        }
-
-        if (expression.SourceConnectionRelation is null ||
-            expression.TargetConnectionRelation is null)
-        {
-            return false;
-        }
-
-        var source = model.FindRelation(expression.SourceConnectionRelation)!;
-        var target = model.FindRelation(expression.TargetConnectionRelation)!;
-        return source.DomainType is not null &&
-            source.RangeType is not null &&
-            target.DomainType is not null &&
-            target.RangeType is not null &&
-            IsSubtype(model, expression.TargetType!, source.DomainType) &&
-            IsSubtype(model, expression.TargetType!, target.DomainType) &&
-            (IsSubtype(model, source.RangeType, target.RangeType) ||
-             IsSubtype(model, target.RangeType, source.RangeType));
-    }
-
-    private static bool IsSubtype(SemanticWorldModel model, string candidate, string expected)
-    {
-        if (candidate == expected)
-        {
-            return true;
-        }
-
-        var pending = new Stack<string>();
-        var visited = new HashSet<string>(StringComparer.Ordinal);
-        pending.Push(candidate);
-
-        while (pending.TryPop(out var current))
-        {
-            if (!visited.Add(current))
-            {
-                continue;
-            }
-
-            foreach (var parent in model.RelationAssertions
-                .Where(assertion => assertion.Subject == current && assertion.Relation == "is-a")
-                .Select(assertion => assertion.Object))
-            {
-                if (parent == expected)
-                {
-                    return true;
-                }
-
-                pending.Push(parent);
-            }
-        }
-
-        return false;
-    }
-
-    private static bool HasInheritanceCycle(
-        ImmutableArray<SemanticRelationAssertion> assertions)
-    {
-        var parentsByType = assertions
-            .Where(assertion => assertion.Relation == "is-a")
-            .GroupBy(assertion => assertion.Subject, StringComparer.Ordinal)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(assertion => assertion.Object).ToArray(),
-                StringComparer.Ordinal);
-        var completed = new HashSet<string>(StringComparer.Ordinal);
-        var active = new HashSet<string>(StringComparer.Ordinal);
-
-        bool Visit(string type)
-        {
-            if (completed.Contains(type))
-            {
-                return false;
-            }
-
-            if (!active.Add(type))
-            {
-                return true;
-            }
-
-            if (parentsByType.TryGetValue(type, out var parents))
-            {
-                foreach (var parent in parents)
-                {
-                    if (Visit(parent))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            active.Remove(type);
-            completed.Add(type);
-            return false;
-        }
-
-        return parentsByType.Keys.Any(Visit);
-    }
-
-    private static bool IsRelationArgument(
-        IReadOnlyDictionary<string, SemanticConcept> concepts,
-        string? id,
-        SemanticRelationArgumentKind kind) =>
-        kind switch
-        {
-            SemanticRelationArgumentKind.Individual => IsIndividual(concepts, id),
-            SemanticRelationArgumentKind.Type => IsType(concepts, id),
-            _ => false
-        };
-
-    private static bool IsType(IReadOnlyDictionary<string, SemanticConcept> concepts, string? id) =>
-        id is not null &&
-        concepts.TryGetValue(id, out var concept) &&
-        concept.Kind == SemanticConceptKind.Type;
-
-    private static bool IsIndividual(IReadOnlyDictionary<string, SemanticConcept> concepts, string? id) =>
-        id is not null &&
-        concepts.TryGetValue(id, out var concept) &&
-        concept.Kind == SemanticConceptKind.Individual;
-
-    private static bool IsValidId(string? value) =>
-        !string.IsNullOrWhiteSpace(value) &&
-        value.Length <= 80 &&
-        value[0] is >= 'a' and <= 'z' &&
-        value.All(character =>
-            character is >= 'a' and <= 'z' or >= '0' and <= '9' or '-');
 
     private sealed class SemanticWorldModelDocument
     {
