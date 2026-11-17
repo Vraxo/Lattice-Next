@@ -38,7 +38,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionConditionalProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<threshold>\d+(?:\.\d+)?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<rightOperand>[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
@@ -370,7 +370,7 @@ internal static class CompositionalTaskParser
         var parameters = match.Groups["parameters"].Value
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var conditionName = match.Groups["conditionName"].Value;
-        var threshold = match.Groups["threshold"].Value;
+        var rightOperand = match.Groups["rightOperand"].Value;
         var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
             .Trim()
             .ToLowerInvariant();
@@ -388,6 +388,7 @@ internal static class CompositionalTaskParser
 
         if (symbol.Length == 0 ||
             !parameters.Contains(conditionName, StringComparer.OrdinalIgnoreCase) ||
+            (char.IsLetter(rightOperand[0]) && !parameters.Contains(rightOperand, StringComparer.OrdinalIgnoreCase)) ||
             !Regex.IsMatch(
                 compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
@@ -405,7 +406,7 @@ internal static class CompositionalTaskParser
         var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
-            new TaskRequestStep("begin-conditional-indented", "condition", $"{conditionName} {symbol} {threshold}"),
+            new TaskRequestStep("begin-conditional-indented", "condition", $"{conditionName} {symbol} {rightOperand}"),
             new TaskRequestStep("return-value-double-indented-expression", "expression", trueValue),
             new TaskRequestStep("return-value-indented-expression", "expression", falseValue),
             new TaskRequestStep("write-standard-output", "expression", $"{name}({string.Join(", ", callArguments)})"));
