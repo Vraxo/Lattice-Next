@@ -137,6 +137,14 @@ public sealed class PythonProgramGenerationTests
         "if 7 == 7:\n    print(\"match\")",
         "match")]
     [InlineData(
+        "Create a Python program that prints each number in the list [2, 4, 6].",
+        "for number in [2, 4, 6]:\\n    print(number)",
+        "2\\n4\\n6")]
+    [InlineData(
+        "Build a Python script that displays each value from [1, 3.5, -2].",
+        "for value in [1, 3.5, -2]:\\n    print(value)",
+        "1\\n3.5\\n-2")]
+    [InlineData(
         "Create a Python program that prints each number from 1 to 5.",
         "for number in range(1, 6):\n    print(number)",
         "1\n2\n3\n4\n5")]
