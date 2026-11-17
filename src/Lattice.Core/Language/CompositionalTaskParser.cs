@@ -293,14 +293,15 @@ internal static class CompositionalTaskParser
                 .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             var expression = definition.Groups["expression"].Value.Trim();
 
-            if (!names.Add(name) ||
-                !IsArithmeticExpression(expression) ||
-                !names.Any(previousName =>
-                    !previousName.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                    Regex.IsMatch(
-                        expression,
-                        $@"\b{Regex.Escape(previousName)}\s*\(",
-                        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)))
+            var composesEarlierFunction = names.Any(previousName =>
+                Regex.IsMatch(
+                    expression,
+                    $@"\b{Regex.Escape(previousName)}\s*\(",
+                    RegexOptions.CultureInvariant | RegexOptions.IgnoreCase));
+
+            if (!IsArithmeticExpression(expression) ||
+                (names.Count > 0 && !composesEarlierFunction) ||
+                !names.Add(name))
             {
                 return false;
             }
