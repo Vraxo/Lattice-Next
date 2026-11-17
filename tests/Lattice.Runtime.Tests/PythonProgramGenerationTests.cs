@@ -80,6 +80,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program with a function named weighted_total that takes base and bonus and penalty and returns base + bonus - penalty, then print weighted_total(20, 7, 3).",
         "def weighted_total(base, bonus, penalty):\n    return base + bonus - penalty\nprint(weighted_total(20, 7, 3))",
         "24")]
+    [InlineData(
+        "Create a Python program with a function named scale that takes value and factor and returns (value + 3) * factor, then print scale(2, 4).",
+        "def scale(value, factor):\\n    return (value + 3) * factor\\nprint(scale(2, 4))",
+        "20")]
+    [InlineData(
+        "Build a Python script with a function named weighted that takes base and bonus and factor and returns (base + bonus) * (factor - 1), then print weighted(5, 2, 4).",
+        "def weighted(base, bonus, factor):\\n    return (base + bonus) * (factor - 1)\\nprint(weighted(5, 2, 4))",
+        "21")]
+    [InlineData(
+        "Generate a Python program that sets total to 5 and prints (total + 3) * 2.",
+        "total = 5\\nprint((total + 3) * 2)",
+        "16")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
