@@ -37,9 +37,6 @@ internal static class CompositionalTaskParser
         @"^[A-Za-z_][A-Za-z0-9_]*\s*=\s*(?:\d+(?:\.\d+)?)$",
         RegexOptions.CultureInvariant);
 
-    private static readonly Regex ArithmeticExpressionPattern = new(
-        @"^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+\-*/%]\s*(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?))*$",
-        RegexOptions.CultureInvariant);
 
     internal static bool TryParse(
         string source,
@@ -124,6 +121,106 @@ internal static class CompositionalTaskParser
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
 
+
+    private static bool IsArithmeticExpression(string expression)
+    {
+        var tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[()+\-*/%]";
+        var tokens = Regex.Matches(expression, tokenPattern)
+            .Select(match => match.Value)
+            .ToArray();
+        var remainder = Regex.Replace(expression, tokenPattern, string.Empty);
+        if (tokens.Length == 0 || remainder.Any(character => !char.IsWhiteSpace(character)))
+        {
+            return false;
+        }
+
+        var index = 0;
+        return TryParseAdditiveExpression(tokens, ref index) && index == tokens.Length;
+    }
+
+    private static bool TryParseAdditiveExpression(string[] tokens, ref int index)
+    {
+        if (!TryParseMultiplicativeExpression(tokens, ref index))
+        {
+            return false;
+        }
+
+        while (index < tokens.Length && tokens[index] is "+" or "-")
+        {
+            index++;
+            if (!TryParseMultiplicativeExpression(tokens, ref index))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryParseMultiplicativeExpression(string[] tokens, ref int index)
+    {
+        if (!TryParseUnaryExpression(tokens, ref index))
+        {
+            return false;
+        }
+
+        while (index < tokens.Length && tokens[index] is "*" or "/" or "%")
+        {
+            index++;
+            if (!TryParseUnaryExpression(tokens, ref index))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryParseUnaryExpression(string[] tokens, ref int index)
+    {
+        if (index < tokens.Length && tokens[index] is "+" or "-")
+        {
+            index++;
+            return TryParseUnaryExpression(tokens, ref index);
+        }
+
+        return TryParsePrimaryExpression(tokens, ref index);
+    }
+
+    private static bool TryParsePrimaryExpression(string[] tokens, ref int index)
+    {
+        if (index >= tokens.Length)
+        {
+            return false;
+        }
+
+        if (tokens[index] == "(")
+        {
+            index++;
+            if (!TryParseAdditiveExpression(tokens, ref index) ||
+                index >= tokens.Length ||
+                tokens[index] != ")")
+            {
+                return false;
+            }
+
+            index++;
+            return true;
+        }
+
+        var token = tokens[index];
+        if (!Regex.IsMatch(
+            token,
+            @"^(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?)$",
+            RegexOptions.CultureInvariant))
+        {
+            return false;
+        }
+
+        index++;
+        return true;
+    }
+
     private static bool TryGetFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -142,7 +239,7 @@ internal static class CompositionalTaskParser
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
         var numericArguments = string.Join(",", Enumerable.Repeat(@"\d+(?:\.\d+)?", parameters.Length));
 
-        if (!ArithmeticExpressionPattern.IsMatch(expression) ||
+        if (!IsArithmeticExpression(expression) ||
             !Regex.IsMatch(
                 compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
@@ -261,7 +358,7 @@ internal static class CompositionalTaskParser
 
         if (string.IsNullOrWhiteSpace(assignedValue) ||
             !AssignmentValuePattern.IsMatch($"{variable} = {assignedValue.Trim()}") ||
-            !ArithmeticExpressionPattern.IsMatch(expression))
+            !IsArithmeticExpression(expression))
         {
             return false;
         }
