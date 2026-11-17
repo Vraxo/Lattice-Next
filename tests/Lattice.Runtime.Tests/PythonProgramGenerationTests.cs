@@ -22,11 +22,11 @@ public sealed class PythonProgramGenerationTests
         "denied")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "def classify(score):\n    if (score >= 10 or (score < 5 and score != 0)):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
+        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
         "accepted")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(0).",
-        "def classify(score):\n    if (score >= 10 or (score < 5 and score != 0)):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(0))",
+        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(0))",
         "rejected")]
     [InlineData(
         "Create a Python program with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(4).",
