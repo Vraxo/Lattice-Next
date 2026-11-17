@@ -38,7 +38,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?)\s+and\s+returns\s+(?<expression>.+?),\s*then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?)(?:\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?))*\s+and\s+returns\s+(?<expression>.+?),\s*then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
@@ -361,19 +361,26 @@ internal static class CompositionalTaskParser
         var name = match.Groups["name"].Value;
         var parameters = match.Groups["parameters"].Value
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var local = match.Groups["local"].Value;
-        var assignment = match.Groups["assignment"].Value.Trim();
+        var locals = match.Groups["local"].Captures
+            .Select(capture => capture.Value)
+            .ToArray();
+        var assignments = match.Groups["assignment"].Captures
+            .Select(capture => capture.Value.Trim())
+            .ToArray();
         var expression = match.Groups["expression"].Value.Trim();
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
         var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
 
-        if (parameters.Contains(local, StringComparer.OrdinalIgnoreCase) ||
-            !IsArithmeticExpression(assignment) ||
+        if (locals.Length == 0 ||
+            locals.Length != assignments.Length ||
+            locals.Distinct(StringComparer.OrdinalIgnoreCase).Count() != locals.Length ||
+            locals.Any(local => parameters.Contains(local, StringComparer.OrdinalIgnoreCase)) ||
+            assignments.Any(assignment => !IsArithmeticExpression(assignment)) ||
             !IsArithmeticExpression(expression) ||
-            !Regex.IsMatch(
+            !locals.Any(local => Regex.IsMatch(
                 expression,
                 $@"\b{Regex.Escape(local)}\b",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) ||
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)) ||
             !Regex.IsMatch(
                 compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
@@ -382,13 +389,53 @@ internal static class CompositionalTaskParser
             return false;
         }
 
+        var availableNames = new HashSet<string>(parameters, StringComparer.OrdinalIgnoreCase);
+        for (var index = 0; index < assignments.Length; index++)
+        {
+            var identifiers = Regex.Matches(assignments[index], @"\b[A-Za-z_][A-Za-z0-9_]*\b")
+                .Select(capture => capture.Value);
+            if (identifiers.Any(identifier => !availableNames.Contains(identifier)))
+            {
+                return false;
+            }
+
+            availableNames.Add(locals[index]);
+        }
+
+        var returnIdentifiers = Regex.Matches(expression, @"\b[A-Za-z_][A-Za-z0-9_]*\b")
+            .Select(capture => capture.Value);
+        if (returnIdentifiers.Any(identifier =>
+                !availableNames.Contains(identifier) &&
+                !Regex.IsMatch(expression, $@"\b{Regex.Escape(identifier)}\s*\(",
+                    RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)))
+        {
+            return false;
+        }
+
         var callName = compactCall[..compactCall.IndexOf('(')];
         var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
-            new TaskRequestStep("assign-variable-indented", "assignment", $"{local} = {assignment}"),
-            new TaskRequestStep("return-value-indented-expression", "expression", expression),
-            new TaskRequestStep("write-standard-output", "expression", $"{callName}({string.Join(", ", callArguments)})"));
+        var generatedSteps = ImmutableArray.CreateBuilder<TaskRequestStep>();
+        generatedSteps.Add(new TaskRequestStep(
+            "begin-function",
+            "function-header",
+            $"{name}({string.Join(", ", parameters)})"));
+        for (var index = 0; index < assignments.Length; index++)
+        {
+            generatedSteps.Add(new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"{locals[index]} = {assignments[index]}"));
+        }
+
+        generatedSteps.Add(new TaskRequestStep(
+            "return-value-indented-expression",
+            "expression",
+            expression));
+        generatedSteps.Add(new TaskRequestStep(
+            "write-standard-output",
+            "expression",
+            $"{callName}({string.Join(", ", callArguments)})"));
+        steps = generatedSteps.ToImmutable();
         return true;
     }
 
