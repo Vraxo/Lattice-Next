@@ -24,7 +24,7 @@ internal static class CompositionalTaskParser
     private static readonly Regex LoopRangeOutputPattern = new(
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
- 
+
     private static readonly Regex FunctionDefinitionPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)(?=,\s*(?:and\s+)?(?:a\s+)?function\s+named\b|,\s*then\s+(?:print|display|output)\b)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -35,6 +35,10 @@ internal static class CompositionalTaskParser
 
     private static readonly Regex FunctionProgramPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex FunctionLocalVariableProgramPattern = new(
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?)\s+and\s+returns\s+(?<expression>.+?),\s*then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
@@ -91,6 +95,10 @@ internal static class CompositionalTaskParser
         if (TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
+        }
+        else if (TryGetFunctionWithLocalVariableProgram(source, out var localVariableSteps))
+        {
+            formula = formula with { GenerationSteps = localVariableSteps };
         }
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
@@ -336,6 +344,51 @@ internal static class CompositionalTaskParser
             "expression",
             $"{callName}({string.Join(", ", callArguments)})"));
         steps = generatedSteps.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetFunctionWithLocalVariableProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = FunctionLocalVariableProgramPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Value;
+        var parameters = match.Groups["parameters"].Value
+            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var local = match.Groups["local"].Value;
+        var assignment = match.Groups["assignment"].Value.Trim();
+        var expression = match.Groups["expression"].Value.Trim();
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
+
+        if (parameters.Contains(local, StringComparer.OrdinalIgnoreCase) ||
+            !IsArithmeticExpression(assignment) ||
+            !IsArithmeticExpression(expression) ||
+            !Regex.IsMatch(
+                expression,
+                $@"\b{Regex.Escape(local)}\b",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) ||
+            !Regex.IsMatch(
+                compactCall,
+                $@"^{Regex.Escape(name)}\({numericArguments}\)$",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+        {
+            return false;
+        }
+
+        var callName = compactCall[..compactCall.IndexOf('(')];
+        var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
+            new TaskRequestStep("assign-variable-indented", "assignment", $"{local} = {assignment}"),
+            new TaskRequestStep("return-value-indented-expression", "expression", expression),
+            new TaskRequestStep("write-standard-output", "expression", $"{callName}({string.Join(", ", callArguments)})"));
         return true;
     }
 

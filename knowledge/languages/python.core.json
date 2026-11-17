@@ -157,6 +157,13 @@
       ]
     },
     {
+      "head": "indented-assignment-statement",
+      "symbols": [
+        { "kind": "terminal", "value": "    " },
+        { "kind": "binding", "value": "argument-assignment" }
+      ]
+    },
+    {
       "head": "function-definition",
       "symbols": [
         {
@@ -291,6 +298,14 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-expression-call"
+    },
+    {
+      "id": "python-assign-variable-indented",
+      "symbol": "=",
+      "effect": "assign-variable-indented",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "indented-assignment-statement"
     },
     {
       "id": "python-function-definition",
