@@ -902,6 +902,12 @@ internal static class CompositionalTaskParser
         var name = match.Groups["name"].Success ? match.Groups["name"].Value : "above_average";
         var parameter = match.Groups["parameter"].Success ? match.Groups["parameter"].Value : "values";
         var item = match.Groups["item"].Value;
+        if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) &&
+            item.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+        {
+            item = item[..^1];
+        }
+
         var averageParameter = match.Groups["averageParameter"].Success
             ? match.Groups["averageParameter"].Value
             : parameter;
