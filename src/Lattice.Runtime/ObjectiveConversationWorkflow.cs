@@ -411,7 +411,7 @@ internal sealed class ObjectiveConversationWorkflow
                 activeObjectiveSource)));
     }
 
-    private string AppendObjectiveEvaluation(
+    public string AppendObjectiveEvaluation(
         string message,
         ObjectiveFormula objective,
         bool includeMessage = true)
