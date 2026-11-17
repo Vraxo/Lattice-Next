@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
@@ -19,6 +20,14 @@ internal static class CompositionalTaskParser
     {
         "print", "display", "show", "output", "say"
     };
+
+    private static readonly Regex AssignmentValuePattern = new(
+        @"^[A-Za-z_][A-Za-z0-9_]*\s*=\s*(?:\d+(?:\.\d+)?)$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex ArithmeticExpressionPattern = new(
+        @"^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+\-*/%]\s*(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?))*$",
+        RegexOptions.CultureInvariant);
 
     internal static bool TryParse(
         string source,
@@ -50,21 +59,26 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        if (!TryGetRequestedOutput(syntax, creationClauseIndex, out var requestedValue))
-        {
-            return false;
-        }
-
         var formula = new TaskRequestFormula(
             TaskRequestAction.Code,
             "python-program",
             "python",
             "python-source",
             "write-standard-output",
-            ImmutableArray.Create("text-output"))
+            ImmutableArray.Create("text-output"));
+
+        if (TryGetVariableProgram(syntax, creationClauseIndex, out var generationSteps))
         {
-            RequestedValue = requestedValue
-        };
+            formula = formula with { GenerationSteps = generationSteps };
+        }
+        else if (TryGetRequestedOutput(syntax, creationClauseIndex, out var requestedValue))
+        {
+            formula = formula with { RequestedValue = requestedValue };
+        }
+        else
+        {
+            return false;
+        }
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,
@@ -85,6 +99,48 @@ internal static class CompositionalTaskParser
         phrase is not null &&
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
+
+    private static bool TryGetVariableProgram(
+        EnglishSentenceSyntax syntax,
+        int creationClauseIndex,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+
+        var clauses = syntax.Clauses.Skip(creationClauseIndex + 1).ToArray();
+        var assignment = clauses.FirstOrDefault(clause => clause.Verb == "set");
+        var output = clauses.FirstOrDefault(clause => clause.Verb == "print");
+
+        if (assignment?.Object is null || output?.Object is null)
+        {
+            return false;
+        }
+
+        var assignedValue = assignment.PrepositionalPhrases
+            .FirstOrDefault(phrase => phrase.Preposition == "to")?.Object.Text;
+        var variable = assignment.Object.Text.Trim();
+        var expression = NormalizeOutput(output.Object.Text);
+
+        if (string.IsNullOrWhiteSpace(assignedValue) ||
+            !AssignmentValuePattern.IsMatch($"{variable} = {assignedValue.Trim()}") ||
+            !ArithmeticExpressionPattern.IsMatch(expression))
+        {
+            return false;
+        }
+
+        steps =
+        [
+            new TaskRequestStep(
+                "assign-variable",
+                "assignment",
+                $"{variable} = {assignedValue.Trim()}"),
+            new TaskRequestStep(
+                "write-standard-output",
+                "expression",
+                expression)
+        ];
+        return true;
+    }
 
     private static bool TryGetRequestedOutput(
         EnglishSentenceSyntax syntax,
