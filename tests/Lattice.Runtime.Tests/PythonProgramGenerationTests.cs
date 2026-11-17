@@ -108,6 +108,14 @@ public sealed class PythonProgramGenerationTests
         "Build a Python script with a function named sum_values that takes left and right and returns left + right, and a function named doubled_sum that takes left and right and returns sum_values(left, right) * 2, then print doubled_sum(3, 5).",
         "def sum_values(left, right):\n    return left + right\ndef doubled_sum(left, right):\n    return sum_values(left, right) * 2\nprint(doubled_sum(3, 5))",
         "16")]
+    [InlineData(
+        "Create a Python program with a function named double that takes value and returns value * 2, a function named add_three that takes value and returns double(value) + 3, and a function named finish that takes value and returns add_three(value) * 2, then print finish(4).",
+        "def double(value):\n    return value * 2\ndef add_three(value):\n    return double(value) + 3\ndef finish(value):\n    return add_three(value) * 2\nprint(finish(4))",
+        "22")]
+    [InlineData(
+        "Build a Python script with a function named add that takes left and right and returns left + right, a function named multiply that takes left and right and returns add(left, right) * 2, and a function named offset that takes left and right and returns multiply(left, right) + 5, then print offset(3, 4).",
+        "def add(left, right):\n    return left + right\ndef multiply(left, right):\n    return add(left, right) * 2\ndef offset(left, right):\n    return multiply(left, right) + 5\nprint(offset(3, 4))",
+        "19")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
