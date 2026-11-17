@@ -19,7 +19,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly ReasoningEngine reasoningEngine = new();
     private readonly ObjectiveEvaluator objectiveEvaluator = new();
     private static readonly Lazy<SemanticWorldModel> SharedSemanticWorldModel = new(
-        LoadSemanticWorldModel,
+        SemanticWorldModelResourceLoader.Load,
         LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<SemanticWorldModelReasoner> SharedSemanticWorldModelReasoner = new(
         () => new SemanticWorldModelReasoner(SharedSemanticWorldModel.Value),
@@ -38,77 +38,9 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         semanticWorldModelReasoner = SharedSemanticWorldModelReasoner.Value;
     }
 
-    private static SemanticWorldModel LoadSemanticWorldModel()
-    {
-        var semanticJson = LoadEmbeddedSemanticWorldModel();
-        if (!new SemanticWorldModelLoader().TryLoad(
-            semanticJson,
-            out var loadedSemanticWorldModel,
-            out var error))
-        {
-            throw new InvalidOperationException(
-                error ?? "The embedded semantic world model could not be loaded.");
-        }
 
-        return loadedSemanticWorldModel!;
-    }
 
-    private static string LoadEmbeddedSemanticWorldModel()
-    {
-        const string resourcePrefix = "Lattice.Runtime.SemanticWorldModel.";
-        var assembly = typeof(LatticeRuntimeSession).Assembly;
-        var resources = assembly.GetManifestResourceNames()
-            .Where(name => name.StartsWith(resourcePrefix, StringComparison.Ordinal) &&
-                name.EndsWith(".json", StringComparison.Ordinal))
-            .OrderBy(name => name.EndsWith(".core.json", StringComparison.Ordinal) ? 0 : 1)
-            .ThenBy(name => name, StringComparer.Ordinal)
-            .ToArray();
 
-        if (resources.Length == 0)
-        {
-            throw new InvalidOperationException("No embedded semantic world model modules were found.");
-        }
-
-        System.Text.Json.Nodes.JsonObject? combined = null;
-        var collectionNames = new[]
-        {
-            "concepts", "lexemes", "relations", "definitions",
-            "relationAssertions", "dataProperties", "dataAssertions"
-        };
-
-        foreach (var resource in resources)
-        {
-            using var stream = assembly.GetManifestResourceStream(resource)
-                ?? throw new InvalidOperationException($"The semantic world model module '{resource}' is missing.");
-            using var reader = new StreamReader(stream);
-            var module = System.Text.Json.Nodes.JsonNode.Parse(reader.ReadToEnd()) as System.Text.Json.Nodes.JsonObject
-                ?? throw new InvalidOperationException($"The semantic world model module '{resource}' is invalid.");
-
-            if (combined is null)
-            {
-                combined = (System.Text.Json.Nodes.JsonObject)module.DeepClone();
-                continue;
-            }
-
-            foreach (var collectionName in collectionNames)
-            {
-                if (module[collectionName] is not System.Text.Json.Nodes.JsonArray source ||
-                    combined[collectionName] is not System.Text.Json.Nodes.JsonArray target)
-                {
-                    throw new InvalidOperationException(
-                        $"The semantic world model module '{resource}' is missing '{collectionName}'.");
-                }
-
-                foreach (var item in source)
-                {
-                    target.Add(item?.DeepClone());
-                }
-            }
-        }
-
-        return combined?.ToJsonString()
-            ?? throw new InvalidOperationException("The embedded semantic world model is empty.");
-    }
 
     public Guid SessionId { get; } = Guid.NewGuid();
 
@@ -429,7 +361,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 ActiveObjectiveSource = activeObjectiveSource,
                 PendingInformationName = pendingObjectiveCondition?.Name,
                 PendingInformationPrompt = pendingObjectiveCondition?.MissingValuePrompt,
-                ObjectiveEvaluation = evaluation is null ? null : MapObjectiveEvaluation(evaluation),
+                ObjectiveEvaluation = evaluation is null ? null : LatticeRuntimeSessionObjectiveMapper.MapObjectiveEvaluation(evaluation),
                 ObjectiveExplanation = evaluation is null ? null : ObjectiveEvaluationFormatter.Format(evaluation),
                 SemanticConceptCount = semanticWorldModel.Concepts.Length,
                 SemanticRelationCount = semanticWorldModel.Relations.Length,
@@ -1516,50 +1448,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             _ => "I couldn't resolve that reference. Please name the individual."
         };
 
-    private static LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
-        new(evaluation.Candidates.Select(candidate => new LatticeCandidateAssessment(
-            candidate.Candidate.Value,
-            candidate.HasHardConstraintViolation,
-            candidate.HasUnresolvedHardConstraint,
-            candidate.Conditions.Select(condition => new LatticeObjectiveConditionAssessment(
-                condition.ConditionName,
-                condition.Role.ToString(),
-                condition.Status.ToString(),
-                condition.Evidence
-                    .SelectMany(attribute => attribute.Sources)
-                    .Distinct()
-                    .Select(source => new LatticeObjectiveEvidenceSource(
-                        source.Kind.ToString(),
-                        source.SourceText,
-                        source.SourceId,
-                        source.RetrievedAt,
-                        source.FreshUntil,
-                        source.RequiresFreshness))
-                    .ToImmutableArray())
-            {
-                TemporalWitness = condition.TemporalWitness.Select(stage => new LatticeObjectiveTemporalStage(
-                    stage.Index,
-                    stage.DurationAttribute,
-                    stage.Start.ToString("HH:mm", CultureInfo.InvariantCulture),
-                    stage.End.ToString("HH:mm", CultureInfo.InvariantCulture),
-                    stage.DurationMinutes))
-                    .ToImmutableArray(),
-                Preferences = condition.Preferences.Select(preference => new LatticeObjectivePreferenceAssessment(
-                    preference.Preference,
-                    preference.Status.ToString(),
-                    preference.Evidence
-                        .SelectMany(attribute => attribute.Sources)
-                        .Distinct()
-                        .Select(source => new LatticeObjectiveEvidenceSource(
-                            source.Kind.ToString(),
-                            source.SourceText,
-                            source.SourceId,
-                            source.RetrievedAt,
-                            source.FreshUntil,
-                            source.RequiresFreshness))
-                        .ToImmutableArray()))
-                    .ToImmutableArray()
-            })
+)
                 .ToImmutableArray())
         {
             Feasibility = candidate.Feasibility.ToString(),
@@ -1593,58 +1482,5 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 .ToImmutableArray()
         };
 
-    private static ImmutableArray<LatticeObjectiveEvidenceSource> MapObjectiveEvidenceSources(
-        IEnumerable<KnowledgeAttribute> attributes) =>
-        attributes
-            .SelectMany(attribute => attribute.Sources)
-            .Distinct()
-            .Select(source => new LatticeObjectiveEvidenceSource(
-                source.Kind.ToString(),
-                source.SourceText,
-                source.SourceId,
-                source.RetrievedAt,
-                source.FreshUntil,
-                source.RequiresFreshness))
-            .ToImmutableArray();
 
-    private static LatticeEvidence MapEvidence(ProofNode proof)
-    {
-        var premises = ImmutableArray.CreateBuilder<LatticeEvidence>();
-
-        if (proof.Premise is not null)
-        {
-            premises.Add(MapEvidence(proof.Premise));
-        }
-
-        if (!proof.AdditionalPremises.IsDefaultOrEmpty)
-        {
-            foreach (var premise in proof.AdditionalPremises)
-            {
-                premises.Add(MapEvidence(premise));
-            }
-        }
-
-        return new LatticeEvidence(
-            proof.Kind switch
-            {
-                ProofNodeKind.Asserted => LatticeEvidenceKind.Asserted,
-                _ => LatticeEvidenceKind.Derived
-            },
-            proof.Polarity switch
-            {
-                EvidencePolarity.Positive => LatticeEvidencePolarity.Positive,
-                _ => LatticeEvidencePolarity.Negative
-            },
-            proof.Sources.Select(source => new LatticeEvidenceSource(
-                source.Kind switch
-                {
-                    KnowledgeSourceKind.UserAssertion => LatticeKnowledgeSourceKind.UserAssertion,
-                    KnowledgeSourceKind.ImportedClaim => LatticeKnowledgeSourceKind.ImportedClaim,
-                    _ => LatticeKnowledgeSourceKind.ExternalObservation
-                },
-                source.SourceText,
-                source.SourceId,
-                source.ResolvedReferent?.Value)).ToImmutableArray(),
-            premises.ToImmutable());
-    }
 }
