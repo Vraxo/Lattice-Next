@@ -20,6 +20,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program that sets result to 9 and prints result - 4.",
         "result = 9\nprint(result - 4)",
         "5")]
+    [InlineData(
+        "Create a Python program that prints 'adult' if 20 is at least 18.",
+        "if 20 >= 18:\n    print(\"adult\")",
+        "adult")]
+    [InlineData(
+        "Build a Python script that displays 'minor' if 16 is less than 18.",
+        "if 16 < 18:\n    print(\"minor\")",
+        "minor")]
+    [InlineData(
+        "Generate a Python program that outputs 'match' if 7 equals 7.",
+        "if 7 == 7:\n    print(\"match\")",
+        "match")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
