@@ -409,8 +409,8 @@ internal static class CompositionalTaskParser
     }
 
     private static string ToPythonStringLiteral(string value) =>
-        "\\"" + value.Replace("\\", "\\\\", StringComparison.Ordinal)
-            .Replace("\\"", "\\\\"", StringComparison.Ordinal) + "\\"";
+        "\"" + value.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
 
     private static bool TryGetFunctionWithLocalVariableProgram(
         string source,
