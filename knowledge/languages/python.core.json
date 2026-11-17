@@ -296,19 +296,6 @@
           "value": ":"
         }
       ]
-    },
-    {
-      "head": "double-indented-return-expression",
-      "symbols": [
-        {
-          "kind": "terminal",
-          "value": "        return "
-        },
-        {
-          "kind": "binding",
-          "value": "argument-expression"
-        }
-      ]
     }
   ],
   "bindings": [
@@ -484,7 +471,7 @@
       "id": "python-except-indented",
       "symbol": "except",
       "effect": "begin-except-indented",
-      "argumentKind": "exception-type",
+      "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-except-statement"
     },
