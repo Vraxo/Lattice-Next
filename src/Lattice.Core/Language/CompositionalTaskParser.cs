@@ -22,7 +22,7 @@ internal static class CompositionalTaskParser
     };
 
     private static readonly Regex LoopRangeOutputPattern = new(
-        @"\\b(?:print|display|output)s?\\s+(?:each\\s+)?(?<item>numbers?|values?|items?|counts?|i)\\s+from\\s+(?<start>\\d+)\\s+(?:to|through)\\s+(?<end>\\d+)\\b",
+        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
