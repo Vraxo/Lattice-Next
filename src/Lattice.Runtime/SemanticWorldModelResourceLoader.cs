@@ -1,3 +1,4 @@
+using Lattice.Core.Intelligence;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Runtime;
