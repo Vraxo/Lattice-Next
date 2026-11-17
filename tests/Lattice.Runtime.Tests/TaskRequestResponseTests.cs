@@ -81,7 +81,14 @@ public sealed class TaskRequestResponseTests
 
     [Theory]
     [InlineData("Write a Hello World program in Python.", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("write a python hello world program", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("Can you generate a program in Python to display Hello, world?", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("Please build a script using Python that says hello world.", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("I want to create a Python program that prints Hello World.", "Hello, world!", "print(\"Hello, world!\")")]
+    [InlineData("Could you write a simple Python script to display Hello, world?", "Hello, world!", "print(\"Hello, world!\")")]
     [InlineData("Create a Python program that prints 'A second message!'.", "A second message!", "print(\"A second message!\")")]
+    [InlineData("Write a script in Python to display 'Keep this: punctuation, please!'.", "Keep this: punctuation, please!", "print(\"Keep this: punctuation, please!\")")]
+    [InlineData("Create a Python program that prints 'She said \\"hello\\".'.", "She said \"hello\".", "print(\"She said \\\"hello\\\".\")")]
     public async Task Generates_and_executes_python_from_reusable_generation_knowledge(
         string input,
         string expectedOutput,
