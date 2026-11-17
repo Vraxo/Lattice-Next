@@ -471,7 +471,7 @@
       "id": "python-except-indented",
       "symbol": "except",
       "effect": "begin-except-indented",
-      "argumentKind": "expression",
+      "argumentKind": "exception-type",
       "prerequisites": [],
       "startSymbol": "indented-except-statement"
     }
