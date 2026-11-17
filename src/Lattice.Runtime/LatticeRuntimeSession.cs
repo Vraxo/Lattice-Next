@@ -30,10 +30,20 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private ObjectiveFormula? activeObjective;
     private string? activeObjectiveSource;
     private ObjectiveCondition? pendingObjectiveCondition;
+    private readonly ObjectiveConversationWorkflow objectiveWorkflow;
     private bool isDisposed;
 
     public LatticeRuntimeSession()
     {
+        objectiveWorkflow = new ObjectiveConversationWorkflow(
+            knowledgeBase,
+            objectiveEvaluator,
+            () => activeObjective,
+            value => activeObjective = value,
+            () => activeObjectiveSource,
+            value => activeObjectiveSource = value,
+            () => pendingObjectiveCondition,
+            value => pendingObjectiveCondition = value);
         semanticWorldModel = SharedSemanticWorldModel.Value;
         semanticWorldModelReasoner = SharedSemanticWorldModelReasoner.Value;
     }
@@ -472,7 +482,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveCandidateInformation &&
             parsedUtterance.Meaning is ObjectiveCandidateInformationFormula candidateInformation)
         {
-            return ProcessObjectiveCandidateInformation(
+            return objectiveWorkflow.ProcessCandidateInformation(
                 parsedUtterance,
                 candidateInformation,
                 deferObjectiveEvaluation);
@@ -481,7 +491,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveInformation &&
             parsedUtterance.Meaning is ObjectiveInformationFormula information)
         {
-            return ProcessObjectiveInformation(
+            return objectiveWorkflow.ProcessInformation(
                 parsedUtterance,
                 information,
                 deferObjectiveEvaluation);
@@ -490,7 +500,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         if (parsedUtterance.Kind == UtteranceKind.ObjectiveConditionUpdate &&
             parsedUtterance.Meaning is ObjectiveConditionUpdateFormula conditionUpdate)
         {
-            return ProcessObjectiveConditionUpdates(
+            return objectiveWorkflow.ProcessConditionUpdates(
                 parsedUtterance,
                 conditionUpdate,
                 deferObjectiveEvaluation);
@@ -501,7 +511,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
         {
             activeObjective = objective;
             activeObjectiveSource = parsedUtterance.SourceText;
-            pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+            pendingObjectiveCondition = ObjectiveConversationWorkflow.FindPendingCondition(objective);
 
             if (pendingObjectiveCondition is not null)
             {
@@ -512,7 +522,7 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                     SemanticFormatter.Format(parsedUtterance));
             }
 
-            var message = AppendObjectiveEvaluation(
+            var message = objectiveWorkflow.AppendObjectiveEvaluation(
                 $"I've retained this objective: {objective.Goal}.",
                 objective,
                 includeMessage: false);
@@ -1018,425 +1028,13 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             SupportingEvidence: evidence);
     }
 
-    private LatticeUtteranceResult ProcessObjectiveCandidateInformation(
-        SemanticUtterance parsedUtterance,
-        ObjectiveCandidateInformationFormula information,
-        bool deferObjectiveEvaluation)
-    {
-        var objective = activeObjective;
 
-        if (objective is null)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no active objective requesting candidate information.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
 
-        var candidate = new SemanticIdentifier(information.Candidate.Value);
-        var attribute = new SemanticIdentifier(information.Attribute.Value);
-        var candidateEvidenceRequests = objectiveEvaluator
-            .Evaluate(objective, knowledgeBase)
-            .EvidenceRequests
-            .Where(request =>
-                string.Equals(request.AttributeName, attribute.Value, StringComparison.OrdinalIgnoreCase))
-            .ToImmutableArray();
 
-        if (candidate.Value.Equals("it", StringComparison.OrdinalIgnoreCase) ||
-            candidate.Value.Equals("that one", StringComparison.OrdinalIgnoreCase) ||
-            candidate.Value.Equals("this one", StringComparison.OrdinalIgnoreCase))
-        {
-            var possibleCandidates = candidateEvidenceRequests
-                .Select(request => request.Candidate)
-                .Distinct()
-                .ToImmutableArray();
 
-            if (possibleCandidates.Length > 1)
-            {
-                var candidateNames = string.Join(
-                    ", ",
-                    possibleCandidates.Select(possibleCandidate => possibleCandidate.Value));
 
-                return new LatticeUtteranceResult(
-                    LatticeUtteranceResultKind.ClarificationRequired,
-                    $"Which candidate do you mean? I still need the {attribute.Value} for {candidateNames}. No candidate information was changed.",
-                    SemanticFormatter.Format(parsedUtterance));
-            }
 
-            if (possibleCandidates.Length == 1)
-            {
-                candidate = possibleCandidates[0];
-            }
-        }
 
-        var matchingRequests = candidateEvidenceRequests
-            .Where(request =>
-                string.Equals(request.Candidate.Value, candidate.Value, StringComparison.OrdinalIgnoreCase))
-            .ToImmutableArray();
-        var existingAttribute = knowledgeBase.Attributes.FirstOrDefault(existing =>
-            string.Equals(existing.Subject.Value, candidate.Value, StringComparison.OrdinalIgnoreCase) &&
-            existing.Name == attribute);
-
-        if (matchingRequests.Length > 1)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                "I have more than one outstanding request for that candidate attribute. Please clarify which value you mean. No candidate information was changed.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        if (matchingRequests.IsDefaultOrEmpty && existingAttribute is null)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                $"I don't currently have an outstanding request for the {attribute.Value} of {candidate.Value}. No candidate information was changed.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var storedCandidate = matchingRequests.IsDefaultOrEmpty
-            ? existingAttribute!.Subject
-            : matchingRequests[0].Candidate;
-        var requestedConditionName = matchingRequests.IsDefaultOrEmpty
-            ? null
-            : matchingRequests[0].ConditionName;
-        var condition = objective.Conditions.FirstOrDefault(candidateCondition =>
-            candidateCondition.Role == ObjectiveConditionRole.HardConstraint &&
-            candidateCondition.TargetAttribute == attribute.Value &&
-            (requestedConditionName is null || candidateCondition.Name == requestedConditionName));
-
-        var hasCompatibleValue = condition is not null &&
-            (condition.Operator switch
-            {
-                ObjectiveConditionOperator.AtMost =>
-                    condition.Value is ObjectiveMoneyValue && information.Value is ObjectiveMoneyValue,
-                ObjectiveConditionOperator.Excludes or ObjectiveConditionOperator.Equals =>
-                    condition.Value is ObjectiveTextValue && information.Value is ObjectiveTextValue,
-                _ => false
-            });
-
-        if (!hasCompatibleValue)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                $"The supplied value type does not match the requested attribute for {candidate.Value}. No candidate information was changed.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        if (!knowledgeBase.TryAddAttribute(
-            new KnowledgeAttribute(
-                storedCandidate,
-                attribute,
-                information.Value,
-                parsedUtterance.SourceText,
-                KnowledgeSourceKind.UserAssertion),
-            out var error))
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.StatementRejected,
-                error ?? "The candidate information could not be stored.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var originalSource = activeObjectiveSource ?? objective.Goal;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
-
-        var message = information.Value switch
-        {
-            ObjectiveMoneyValue money =>
-                $"Recorded {storedCandidate.Value}'s total cost as {money.CurrencySymbol}{money.Amount.ToString(CultureInfo.InvariantCulture)}.",
-            ObjectiveTextValue text =>
-                $"Recorded {storedCandidate.Value}'s {attribute.Value} as {text.Value}.",
-            _ => $"Recorded candidate evidence for {storedCandidate.Value}."
-        };
-        if (!deferObjectiveEvaluation)
-        {
-            message = AppendObjectiveEvaluation(message, objective);
-        }
-
-        return new LatticeUtteranceResult(
-            LatticeUtteranceResultKind.ObjectiveInformationReceived,
-            message,
-            SemanticFormatter.Format(parsedUtterance));
-    }
-
-    private LatticeUtteranceResult ProcessObjectiveInformation(
-        SemanticUtterance parsedUtterance,
-        ObjectiveInformationFormula information,
-        bool deferObjectiveEvaluation)
-    {
-        var objective = activeObjective;
-
-        if (objective is null)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no outstanding objective information request to answer.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var pendingConditions = objective.Conditions
-            .Where(condition =>
-                condition.Role == ObjectiveConditionRole.HardConstraint &&
-                condition.Value is null &&
-                condition.ExpectedValueKind != ObjectiveConditionValueKind.None)
-            .ToImmutableArray();
-        var compatibleConditions = pendingConditions
-            .Where(condition => IsExpectedValue(condition.ExpectedValueKind, information.Value))
-            .ToImmutableArray();
-
-        if (compatibleConditions.Length > 1)
-        {
-            var alternatives = string.Join(
-                "; ",
-                compatibleConditions.Select(condition =>
-                    $"{condition.Name}: {condition.MissingValuePrompt ?? $"provide {condition.Name}"}"));
-
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                $"That value could answer more than one outstanding condition: {alternatives}. Please name the condition you are answering. No objective conditions were changed.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var pendingCondition = compatibleConditions.Length == 1
-            ? compatibleConditions[0]
-            : pendingObjectiveCondition;
-
-        if (pendingCondition is null)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no outstanding objective information request to answer.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        if (!IsExpectedValue(pendingCondition.ExpectedValueKind, information.Value))
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                pendingCondition.MissingValuePrompt ??
-                    $"Please provide a value for {pendingCondition.Name}.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var answeredCondition = pendingCondition with
-        {
-            Value = information.Value,
-            ValueSourceText = parsedUtterance.SourceText
-        };
-
-        objective = objective with
-        {
-            Conditions = objective.Conditions
-                .Select(condition => ReferenceEquals(condition, pendingCondition)
-                    ? answeredCondition
-                    : condition)
-                .ToImmutableArray()
-        };
-        activeObjective = objective;
-        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
-        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
-
-        var message = $"Recorded {parsedUtterance.SourceText} for {answeredCondition.Name}.";
-
-        if (pendingObjectiveCondition is not null)
-        {
-            message = $"{message} {pendingObjectiveCondition.MissingValuePrompt}";
-        }
-        else if (!deferObjectiveEvaluation)
-        {
-            message = AppendObjectiveEvaluation(message, objective);
-        }
-
-        return new LatticeUtteranceResult(
-            LatticeUtteranceResultKind.ObjectiveInformationReceived,
-            message,
-            SemanticFormatter.Format(new SemanticUtterance(
-                UtteranceKind.Objective,
-                objective,
-                activeObjectiveSource)));
-    }
-
-    private LatticeUtteranceResult ProcessObjectiveConditionUpdates(
-        SemanticUtterance parsedUtterance,
-        ObjectiveConditionUpdateFormula update,
-        bool deferObjectiveEvaluation)
-    {
-        var objective = activeObjective;
-
-        if (objective is null)
-        {
-            return new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.ClarificationRequired,
-                "There is no active objective to update.",
-                SemanticFormatter.Format(parsedUtterance));
-        }
-
-        var conditions = objective.Conditions.ToBuilder();
-
-        foreach (var edit in update.PreferenceEdits)
-        {
-            var preferenceIndex = -1;
-
-            for (var index = 0; index < conditions.Count; index++)
-            {
-                if (conditions[index].Name == "preference" &&
-                    conditions[index].Role == ObjectiveConditionRole.Preference &&
-                    conditions[index].Value is ObjectiveTextSetValue)
-                {
-                    preferenceIndex = index;
-                    break;
-                }
-            }
-
-            if (edit.Kind == ObjectivePreferenceEditKind.Add)
-            {
-                if (preferenceIndex < 0)
-                {
-                    conditions.Add(new ObjectiveCondition(
-                        "preference",
-                        ObjectiveConditionRole.Preference,
-                        ObjectiveConditionOperator.Desires,
-                        new ObjectiveTextSetValue(edit.Values),
-                        edit.SourceText)
-                    {
-                        TargetAttribute = "tags"
-                    });
-                }
-                else
-                {
-                    var existing = conditions[preferenceIndex];
-                    var values = ((ObjectiveTextSetValue)existing.Value!).Values
-                        .Concat(edit.Values)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
-                        .ToImmutableArray();
-                    conditions[preferenceIndex] = existing with
-                    {
-                        Value = new ObjectiveTextSetValue(values)
-                    };
-                }
-            }
-            else if (preferenceIndex >= 0)
-            {
-                var existing = conditions[preferenceIndex];
-                var values = ((ObjectiveTextSetValue)existing.Value!).Values
-                    .Where(value => !edit.Values.Contains(value, StringComparer.OrdinalIgnoreCase))
-                    .ToImmutableArray();
-
-                if (values.IsDefaultOrEmpty)
-                {
-                    conditions.RemoveAt(preferenceIndex);
-                }
-                else
-                {
-                    conditions[preferenceIndex] = existing with
-                    {
-                        Value = new ObjectiveTextSetValue(values)
-                    };
-                }
-            }
-        }
-
-        foreach (var condition in update.Conditions)
-        {
-            if (condition.Name == "spending-limit" &&
-                condition.Role == ObjectiveConditionRole.HardConstraint &&
-                !update.IsExplicitCorrection)
-            {
-                var currentBudget = conditions.FirstOrDefault(existing =>
-                    existing.Name == condition.Name &&
-                    existing.Role == ObjectiveConditionRole.HardConstraint);
-
-                if (currentBudget is not null &&
-                    !Equals(currentBudget.Value, condition.Value))
-                {
-                    return new LatticeUtteranceResult(
-                        LatticeUtteranceResultKind.ClarificationRequired,
-                        "That conflicts with the spending limit already in this plan. Do you mean to change the budget? If so, state it as an explicit correction beginning with 'Actually,'. No objective conditions were changed.",
-                        SemanticFormatter.Format(parsedUtterance));
-                }
-            }
-
-            var existingIndex = -1;
-
-            for (var index = 0; index < conditions.Count; index++)
-            {
-                if (conditions[index].Name == condition.Name)
-                {
-                    existingIndex = index;
-                    break;
-                }
-            }
-
-            if (existingIndex >= 0)
-            {
-                conditions[existingIndex] = condition;
-            }
-            else
-            {
-                conditions.Add(condition);
-            }
-        }
-
-        objective = objective with
-        {
-            Conditions = conditions.ToImmutable()
-        };
-        activeObjective = objective;
-        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
-        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
-
-        var names = string.Join(", ", update.Conditions.Select(condition => condition.Name));
-        var message = $"Updated objective conditions: {names}.";
-        if (!deferObjectiveEvaluation)
-        {
-            message = AppendObjectiveEvaluation(message, objective);
-        }
-
-        return new LatticeUtteranceResult(
-            LatticeUtteranceResultKind.ObjectiveInformationReceived,
-            message,
-            SemanticFormatter.Format(new SemanticUtterance(
-                UtteranceKind.Objective,
-                objective,
-                activeObjectiveSource)));
-    }
-
-    private string AppendObjectiveEvaluation(
-        string message,
-        ObjectiveFormula objective,
-        bool includeMessage = true)
-    {
-        var response = ObjectiveResponseFormatter.Format(
-            objectiveEvaluator.Evaluate(objective, knowledgeBase));
-
-        if (string.IsNullOrWhiteSpace(response))
-        {
-            return message;
-        }
-
-        return string.IsNullOrWhiteSpace(message) || !includeMessage
-            ? response
-            : $"{message}{Environment.NewLine}{response}";
-    }
-
-    private static ObjectiveCondition? FindPendingObjectiveCondition(ObjectiveFormula objective) =>
-        objective.Conditions.FirstOrDefault(condition =>
-            condition.Role == ObjectiveConditionRole.HardConstraint &&
-            condition.Value is null &&
-            condition.ExpectedValueKind != ObjectiveConditionValueKind.None);
-
-    private static bool IsExpectedValue(
-        ObjectiveConditionValueKind expectedKind,
-        ObjectiveConditionValue value) =>
-        expectedKind switch
-        {
-            ObjectiveConditionValueKind.Money => value is ObjectiveMoneyValue,
-            ObjectiveConditionValueKind.Text => value is ObjectiveTextValue,
-            ObjectiveConditionValueKind.TimeWindow => value is ObjectiveTimeWindowValue,
-            _ => false
-        };
 
     private static string GetClarificationMessage(ReferenceResolutionStatus status) =>
         status switch
@@ -1447,6 +1045,4 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 "More than one individual is known. Which one do you mean by 'it'? Please name them.",
             _ => "I couldn't resolve that reference. Please name the individual."
         };
-
-
 }
