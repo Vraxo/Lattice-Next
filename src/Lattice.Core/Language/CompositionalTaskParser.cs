@@ -13,7 +13,7 @@ internal static class CompositionalTaskParser
 
     private static readonly HashSet<string> CodeArtifacts = new(StringComparer.OrdinalIgnoreCase)
     {
-        "program", "script", "application", "code"
+        "program", "script", "application", "code", "function"
     };
 
     private static readonly HashSet<string> OutputVerbs = new(StringComparer.OrdinalIgnoreCase)
