@@ -60,9 +60,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     }
 
 
-
-
-
     public Guid SessionId { get; } = Guid.NewGuid();
 
     public ValueTask<LatticeTurnResult> SubmitAsync(
@@ -113,9 +110,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 LatticeKnowledgePackResult.Loaded(pack!.Name, pack.ClaimCount));
         }
     }
-
-
-
 
 
     public ValueTask<LatticeCandidateEvidenceResult> AddReviewedCandidateMoneyEvidenceAsync(
@@ -464,29 +458,6 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 : evidence,
             OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private static string GetClarificationMessage(ReferenceResolutionStatus status) =>
