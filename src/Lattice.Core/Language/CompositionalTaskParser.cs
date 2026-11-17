@@ -440,14 +440,12 @@ internal static class CompositionalTaskParser
 
             if (symbol.Length == 0 ||
                 !parameters.Contains(left, StringComparer.OrdinalIgnoreCase) ||
-                !IsArithmeticExpression(right) ||
-                Regex.Matches(right, @"[A-Za-z_][A-Za-z0-9_]*")
-                    .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase)))
+                !TryNormalizeConditionOperand(right, parameters, out var normalizedRight))
             {
                 return false;
             }
 
-            comparisons.Add($"{left} {symbol} {right}");
+            comparisons.Add($"{left} {symbol} {normalizedRight}");
             if (index + 1 < parts.Length)
             {
                 comparisons.Add(parts[index + 1].ToLowerInvariant());
@@ -455,6 +453,30 @@ internal static class CompositionalTaskParser
         }
 
         pythonCondition = string.Join(" ", comparisons);
+        return true;
+    }
+
+    private static bool TryNormalizeConditionOperand(
+        string operand,
+        string[] parameters,
+        out string normalized)
+    {
+        normalized = operand.Trim();
+        if (normalized.Length >= 2 &&
+            (normalized[0] == 39 || normalized[0] == 34) &&
+            normalized[^1] == normalized[0])
+        {
+            normalized = ToPythonStringLiteral(normalized[1..^1]);
+            return true;
+        }
+
+        if (!IsArithmeticExpression(normalized) ||
+            Regex.Matches(normalized, @"[A-Za-z_][A-Za-z0-9_]*")
+                .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
         return true;
     }
 
