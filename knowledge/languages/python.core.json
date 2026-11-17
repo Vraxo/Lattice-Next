@@ -90,6 +90,21 @@
       ]
     },
     {
+      "head": "indented-if-statement",
+      "symbols": [
+        { "kind": "terminal", "value": "    if " },
+        { "kind": "binding", "value": "argument-expression" },
+        { "kind": "terminal", "value": ":" }
+      ]
+    },
+    {
+      "head": "double-indented-return-expression",
+      "symbols": [
+        { "kind": "terminal", "value": "        return " },
+        { "kind": "binding", "value": "argument-expression" }
+      ]
+    },
+    {
       "head": "indented-call-expression",
       "symbols": [
         {
@@ -248,6 +263,22 @@
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "if-statement"
+    },
+    {
+      "id": "python-if-indented",
+      "symbol": "if",
+      "effect": "begin-conditional-indented",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "indented-if-statement"
+    },
+    {
+      "id": "python-return-double-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-double-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "double-indented-return-expression"
     },
     {
       "id": "python-print-indented",
