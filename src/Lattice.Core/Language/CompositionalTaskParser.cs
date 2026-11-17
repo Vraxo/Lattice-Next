@@ -26,7 +26,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
  
     private static readonly Regex FunctionCompositionProgramPattern = new(
-        @"\\bfunction\\s+named\\s+(?<firstName>[A-Za-z_][A-Za-z0-9_]*)\\s+that\\s+takes\\s+(?<firstParameters>[A-Za-z_][A-Za-z0-9_]*(?:\\s+and\\s+[A-Za-z_][A-Za-z0-9_]*)*)\\s+and\\s+returns\\s+(?<firstExpression>.+?),\\s*(?:and\\s+)?(?:a\\s+)?function\\s+named\\s+(?<secondName>[A-Za-z_][A-Za-z0-9_]*)\\s+that\\s+takes\\s+(?<secondParameters>[A-Za-z_][A-Za-z0-9_]*(?:\\s+and\\s+[A-Za-z_][A-Za-z0-9_]*)*)\\s+and\\s+returns\\s+(?<secondExpression>.+?)\\s*,?\\s+then\\s+(?:print|display|output)\\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*[^()]+\\s*\\))",
+        @"\bfunction\s+named\s+(?<firstName>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<firstParameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<firstExpression>.+?),\s*(?:and\s+)?(?:a\s+)?function\s+named\s+(?<secondName>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<secondParameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<secondExpression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionProgramPattern = new(
@@ -287,19 +287,19 @@ internal static class CompositionalTaskParser
         var secondParameters = match.Groups["secondParameters"].Value
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var secondExpression = match.Groups["secondExpression"].Value.Trim();
-        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\\d+(?:\\.\\d+)?", secondParameters.Length));
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", secondParameters.Length));
 
         if (firstName.Equals(secondName, StringComparison.OrdinalIgnoreCase) ||
             !IsArithmeticExpression(firstExpression) ||
             !IsArithmeticExpression(secondExpression) ||
             !Regex.IsMatch(
                 secondExpression,
-                $@"\\b{Regex.Escape(firstName)}\\s*\\(",
+                $@"\b{Regex.Escape(firstName)}\s*\(",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) ||
             !Regex.IsMatch(
                 compactCall,
-                $@"^{Regex.Escape(secondName)}\\({numericArguments}\\)$",
+                $@"^{Regex.Escape(secondName)}\({numericArguments}\)$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
