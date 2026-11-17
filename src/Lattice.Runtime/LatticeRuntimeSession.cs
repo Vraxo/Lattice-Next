@@ -1448,39 +1448,5 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
             _ => "I couldn't resolve that reference. Please name the individual."
         };
 
-)
-                .ToImmutableArray())
-        {
-            Feasibility = candidate.Feasibility.ToString(),
-            Highlights = candidate.Highlights.Select(highlight =>
-                new LatticeObjectiveCandidateHighlight(
-                    highlight.Name.Value,
-                    MapObjectiveEvidenceSources(new[] { highlight })))
-                .ToImmutableArray()
-        })
-            .ToImmutableArray())
-        {
-            PreferenceTradeOffs = evaluation.PreferenceTradeOffs.Select(tradeOff =>
-                new LatticeObjectivePreferenceTradeOff(
-                    tradeOff.Preference,
-                    tradeOff.CandidateWithPositiveEvidence.Value,
-                    tradeOff.CandidateWithContraryEvidence.Value,
-                    MapObjectiveEvidenceSources(tradeOff.PositiveEvidence),
-                    MapObjectiveEvidenceSources(tradeOff.ContraryEvidence)))
-                .ToImmutableArray(),
-            Recommendation = new LatticeObjectiveRecommendation(
-                evaluation.Recommendation.Status.ToString(),
-                evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
-                evaluation.Recommendation.DominatedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
-                evaluation.Recommendation.HasIncompletePreferenceEvidence),
-            EvidenceRequests = evaluation.EvidenceRequests.Select(request =>
-                new LatticeObjectiveEvidenceRequest(
-                    request.Candidate.Value,
-                    request.ConditionName,
-                    request.AttributeName,
-                    request.Prompt))
-                .ToImmutableArray()
-        };
-
 
 }
