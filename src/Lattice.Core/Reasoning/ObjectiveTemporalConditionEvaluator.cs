@@ -49,7 +49,7 @@ internal static class ObjectiveTemporalConditionEvaluator
             };
         }
 
-        private static (
+        internal static (
             ObjectiveConditionAssessmentStatus Status,
             ObjectiveConditionValue? Value,
             ImmutableArray<KnowledgeAttribute> Evidence) ResolveAttributeValue(
