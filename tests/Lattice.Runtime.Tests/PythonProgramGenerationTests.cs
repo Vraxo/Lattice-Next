@@ -205,7 +205,8 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
-    private static async Task AssertPythonOutput(string code, string expectedOutput)    {
+    private static async Task AssertPythonOutput(string code, string expectedOutput)
+    {
         var startInfo = new ProcessStartInfo
         {
             FileName = OperatingSystem.IsWindows() ? "python" : "python3",
