@@ -31,7 +31,7 @@ internal sealed class ObjectiveConversationWorkflow
         ObjectiveCandidateInformationFormula information,
         bool deferObjectiveEvaluation)
     {
-        var objective = activeObjective;
+        var objective = ActiveObjective;
 
         if (objective is null)
         {
@@ -145,8 +145,8 @@ internal sealed class ObjectiveConversationWorkflow
                 SemanticFormatter.Format(parsedUtterance));
         }
 
-        var originalSource = activeObjectiveSource ?? objective.Goal;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        var originalSource = ActiveObjectiveSource ?? objective.Goal;
+        ActiveObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
 
         var message = information.Value switch
         {
@@ -172,7 +172,7 @@ internal sealed class ObjectiveConversationWorkflow
         ObjectiveInformationFormula information,
         bool deferObjectiveEvaluation)
     {
-        var objective = activeObjective;
+        var objective = ActiveObjective;
 
         if (objective is null)
         {
@@ -207,7 +207,7 @@ internal sealed class ObjectiveConversationWorkflow
 
         var pendingCondition = compatibleConditions.Length == 1
             ? compatibleConditions[0]
-            : pendingObjectiveCondition;
+            : PendingCondition;
 
         if (pendingCondition is null)
         {
@@ -240,16 +240,16 @@ internal sealed class ObjectiveConversationWorkflow
                     : condition)
                 .ToImmutableArray()
         };
-        activeObjective = objective;
-        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
-        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+        ActiveObjective = objective;
+        var originalSource = ActiveObjectiveSource ?? parsedUtterance.SourceText;
+        ActiveObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        PendingCondition = FindPendingCondition(objective);
 
         var message = $"Recorded {parsedUtterance.SourceText} for {answeredCondition.Name}.";
 
-        if (pendingObjectiveCondition is not null)
+        if (PendingCondition is not null)
         {
-            message = $"{message} {pendingObjectiveCondition.MissingValuePrompt}";
+            message = $"{message} {PendingCondition.MissingValuePrompt}";
         }
         else if (!deferObjectiveEvaluation)
         {
@@ -262,7 +262,7 @@ internal sealed class ObjectiveConversationWorkflow
             SemanticFormatter.Format(new SemanticUtterance(
                 UtteranceKind.Objective,
                 objective,
-                activeObjectiveSource)));
+                ActiveObjectiveSource)));
     }
 
     public LatticeUtteranceResult ProcessConditionUpdates(
@@ -270,7 +270,7 @@ internal sealed class ObjectiveConversationWorkflow
         ObjectiveConditionUpdateFormula update,
         bool deferObjectiveEvaluation)
     {
-        var objective = activeObjective;
+        var objective = ActiveObjective;
 
         if (objective is null)
         {
@@ -390,10 +390,10 @@ internal sealed class ObjectiveConversationWorkflow
         {
             Conditions = conditions.ToImmutable()
         };
-        activeObjective = objective;
-        var originalSource = activeObjectiveSource ?? parsedUtterance.SourceText;
-        activeObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
-        pendingObjectiveCondition = FindPendingObjectiveCondition(objective);
+        ActiveObjective = objective;
+        var originalSource = ActiveObjectiveSource ?? parsedUtterance.SourceText;
+        ActiveObjectiveSource = $"{originalSource}{Environment.NewLine}{parsedUtterance.SourceText}";
+        PendingCondition = FindPendingCondition(objective);
 
         var names = string.Join(", ", update.Conditions.Select(condition => condition.Name));
         var message = $"Updated objective conditions: {names}.";
@@ -408,7 +408,7 @@ internal sealed class ObjectiveConversationWorkflow
             SemanticFormatter.Format(new SemanticUtterance(
                 UtteranceKind.Objective,
                 objective,
-                activeObjectiveSource)));
+                ActiveObjectiveSource)));
     }
 
     public string AppendObjectiveEvaluation(
