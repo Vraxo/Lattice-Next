@@ -128,8 +128,7 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        steps =
-        [
+        steps = ImmutableArray.Create(
             new TaskRequestStep(
                 "assign-variable",
                 "assignment",
@@ -137,8 +136,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                expression)
-        ];
+                expression));
         return true;
     }
 
