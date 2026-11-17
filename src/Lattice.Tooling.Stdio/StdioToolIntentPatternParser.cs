@@ -30,7 +30,7 @@ internal static class StdioToolIntentPatternParser
                 "number" => inputType == ToolInputType.Number,
                 "word" or "text" => inputType == ToolInputType.String,
                 _ => false
-            }
+            };
 
         internal static bool TryValidateResponseTemplate(
             string response,
