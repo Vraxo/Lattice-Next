@@ -29,6 +29,10 @@ internal static class CompositionalTaskParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex LoopAccumulatorPattern = new(
+        @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex FunctionDefinitionPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)(?=,\s*(?:and\s+)?(?:a\s+)?function\s+named\b|,\s*then\s+(?:print|display|output)\b)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -123,6 +127,10 @@ internal static class CompositionalTaskParser
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
             formula = formula with { GenerationSteps = functionSteps };
+        }
+        else if (TryGetLoopAccumulatorProgram(source, out var accumulatorSteps))
+        {
+            formula = formula with { GenerationSteps = accumulatorSteps };
         }
         else if (TryGetLoopProgram(source, out var loopSteps))
         {
@@ -845,6 +853,56 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
+
+    private static bool TryGetLoopAccumulatorProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = LoopAccumulatorPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var total = match.Groups["total"].Value;
+        var target = match.Groups["target"].Value;
+        var item = match.Groups["item"].Value;
+        var output = match.Groups["output"].Value;
+        if (!total.Equals(target, StringComparison.OrdinalIgnoreCase) ||
+            !total.Equals(output, StringComparison.OrdinalIgnoreCase) ||
+            total.Equals(item, StringComparison.OrdinalIgnoreCase) ||
+            !TryNormalizeNumericListLiteral(match.Groups["items"].Value, out var items))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", $"{total} = 0"),
+            new TaskRequestStep("begin-loop", "loop-header", $"{item} in {items}"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"{total} = {total} + {item}"),
+            new TaskRequestStep("write-standard-output", "expression", total));
+        return true;
+    }
+
+    private static bool TryNormalizeNumericListLiteral(string value, out string normalized)
+    {
+        normalized = value.Trim();
+        const string number = @"[+-]?\d+(?:\.\d+)?";
+        if (!Regex.IsMatch(
+            normalized,
+            $@"^\[\s*{number}(?:\s*,\s*{number})*\s*\]$",
+            RegexOptions.CultureInvariant))
+        {
+            return false;
+        }
+
+        normalized = Regex.Replace(normalized, @"\s*,\s*", ", ");
         return true;
     }
 

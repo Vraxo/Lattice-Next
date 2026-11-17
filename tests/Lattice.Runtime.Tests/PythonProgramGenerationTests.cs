@@ -137,6 +137,14 @@ public sealed class PythonProgramGenerationTests
         "if 7 == 7:\n    print(\"match\")",
         "match")]
     [InlineData(
+        "Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.",
+        "total = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)",
+        "6")]
+    [InlineData(
+        "Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.",
+        "result = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)",
+        "4.0")]
+    [InlineData(
         "Create a Python program that prints each number in the list [2, 4, 6].",
         "for number in [2, 4, 6]:\n    print(number)",
         "2\n4\n6")]
