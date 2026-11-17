@@ -276,7 +276,7 @@ internal static class CompositionalTaskParser
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var expression = match.Groups["expression"].Value.Trim();
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"\d+(?:\.\d+)?", parameters.Length));
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
 
         if (!IsArithmeticExpression(expression) ||
             !Regex.IsMatch(
