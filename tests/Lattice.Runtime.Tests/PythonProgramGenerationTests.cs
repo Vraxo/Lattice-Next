@@ -9,6 +9,18 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
+        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('admin'))",
+        "allowed")]
+    [InlineData(
+        "Build a Python script with a function named access that takes role and returns 'allowed' when role is not equal to 'admin' and otherwise returns 'denied', then print access('guest').",
+        "def access(role):\n    if role != \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('guest'))",
+        "allowed")]
+    [InlineData(
+        "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('guest').",
+        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('guest'))",
+        "denied")]
+    [InlineData(
         "Create a Python program with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(4).",
         "def nonzero(value):\n    if value != 0:\n        return \"nonzero\"\n    return \"zero\"\nprint(nonzero(4))",
         "nonzero")]
