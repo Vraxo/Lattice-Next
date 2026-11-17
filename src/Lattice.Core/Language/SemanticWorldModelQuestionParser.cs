@@ -132,49 +132,13 @@ internal static class SemanticWorldModelQuestionParser
         @"^What distinguishes (?<subject>[A-Za-z][A-Za-z -]*?) from (?<other>[A-Za-z][A-Za-z -]*)\??$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex RelationPairPattern = new(
-        @"^How is (?<subject>[A-Za-z][A-Za-z0-9'’! -]*?) related to (?<other>[A-Za-z][A-Za-z0-9'’! -]*?)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex RelationTargetPattern = new(
-        @"^What does (?<subject>[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex ScopedRelationTargetPattern = new(
-        @"^Which (?<target>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex ScopedTypedRelationTargetPattern = new(
-        @"^Which (?<targetType>[A-Za-z][A-Za-z -]*?) of (?<scope>[A-Za-z0-9][A-Za-z0-9'’ -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex TypedRelationTargetPattern = new(
-        @"^Which (?<targetType>[A-Za-z][A-Za-z -]*?) did (?<subject>[A-Za-z][A-Za-z'’ -]*?) (?<verb>[a-z]+)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex TypedRelationSourcePattern = new(
-        @"^Which (?<subjectType>(?!(?:is|are|was|were|can|do|does|did)\b)[A-Za-z][A-Za-z -]*?) (?<verb>[a-z]+) (?<object>[""“]?[A-Z][A-Za-z0-9'’ -]*?[""”]?)\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static readonly Regex RelationSourcePattern = new(
-        @"^(?:Who|What) (?!(?:is|are|was|were|be|being|been|has|have|does|do|did)\b)(?<verb>[a-z]+s) (?<object>(?:(?:the|a|an) )?(?!(?:when|where|why|how|to|for|from|with|by|in|on|at|of|that|which|who|what)\b)[A-Za-z]+(?: [A-Za-z]+){0,2})\??$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     internal static bool TryParse(string source, out SemanticUtterance? utterance)
     {
         utterance = null;
         var text = source.Trim();
 
-        var relationPair = RelationPairPattern.Match(text);
-        if (relationPair.Success)
+        if (SemanticWorldModelRelationQuestionParser.TryParsePair(source, text, out utterance))
         {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationQueryFormula(
-                    Normalize(relationPair.Groups["subject"].Value),
-                    "related",
-                    OtherSubject: Normalize(relationPair.Groups["other"].Value)),
-                source);
             return true;
         }
 
@@ -557,80 +521,8 @@ internal static class SemanticWorldModelQuestionParser
             return true;
         }
 
-        var scopedTypedRelationTarget = ScopedTypedRelationTargetPattern.Match(text);
-        if (scopedTypedRelationTarget.Success)
+        if (SemanticWorldModelRelationQuestionParser.TryParse(source, text, out utterance))
         {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationQueryFormula(
-                    Normalize(scopedTypedRelationTarget.Groups["subject"].Value),
-                    Normalize(scopedTypedRelationTarget.Groups["verb"].Value),
-                    Normalize(scopedTypedRelationTarget.Groups["scope"].Value),
-                    NormalizeType(scopedTypedRelationTarget.Groups["targetType"].Value)),
-                source);
-            return true;
-        }
-
-        var typedRelationTarget = TypedRelationTargetPattern.Match(text);
-        if (typedRelationTarget.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationQueryFormula(
-                    Normalize(typedRelationTarget.Groups["subject"].Value),
-                    Normalize(typedRelationTarget.Groups["verb"].Value),
-                    TargetType: NormalizeType(typedRelationTarget.Groups["targetType"].Value)),
-                source);
-            return true;
-        }
-
-        var scopedRelationTarget = ScopedRelationTargetPattern.Match(text);
-        if (scopedRelationTarget.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationQueryFormula(
-                    Normalize(scopedRelationTarget.Groups["subject"].Value),
-                    Normalize(scopedRelationTarget.Groups["verb"].Value),
-                    Normalize(scopedRelationTarget.Groups["scope"].Value)),
-                source);
-            return true;
-        }
-
-        var relationTarget = RelationTargetPattern.Match(text);
-        if (relationTarget.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationQueryFormula(
-                    Normalize(relationTarget.Groups["subject"].Value),
-                    Normalize(relationTarget.Groups["verb"].Value)),
-                source);
-            return true;
-        }
-
-        var typedRelationSource = TypedRelationSourcePattern.Match(text);
-        if (typedRelationSource.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationSourceQueryFormula(
-                    NormalizeQuotedTerm(typedRelationSource.Groups["object"].Value),
-                    Normalize(typedRelationSource.Groups["verb"].Value),
-                    Normalize(typedRelationSource.Groups["subjectType"].Value)),
-                source);
-            return true;
-        }
-
-        var relationSource = RelationSourcePattern.Match(text);
-        if (relationSource.Success)
-        {
-            utterance = new SemanticUtterance(
-                UtteranceKind.Question,
-                new SemanticRelationSourceQueryFormula(
-                    Normalize(relationSource.Groups["object"].Value),
-                    Normalize(relationSource.Groups["verb"].Value)),
-                source);
             return true;
         }
 
@@ -779,7 +671,7 @@ internal static class SemanticWorldModelQuestionParser
             _ => Normalize(value)
         };
 
-    private static string NormalizeQuotedTerm(string value) =>
+    internal static string NormalizeQuotedTerm(string value) =>
         Normalize(value.Trim().Trim('"', '\u201c', '\u201d', '\u0027', '\u2019'));
 
     private static string NormalizeRegionalVariant(string value) =>
@@ -790,7 +682,7 @@ internal static class SemanticWorldModelQuestionParser
             _ => Normalize(value)
         };
 
-    private static string NormalizeType(string value)
+    internal static string NormalizeType(string value)
     {
         var normalized = Normalize(value);
         if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
@@ -803,7 +695,7 @@ internal static class SemanticWorldModelQuestionParser
             : normalized;
     }
 
-    private static string Normalize(string value)
+    internal static string Normalize(string value)
     {
         var normalized = value.Trim();
         foreach (var article in new[] { "a ", "an ", "the " })
