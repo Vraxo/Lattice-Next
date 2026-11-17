@@ -855,7 +855,7 @@ internal static class CompositionalTaskParser
         steps = ImmutableArray<TaskRequestStep>.Empty;
         var collectionMatch = LoopCollectionOutputPattern.Match(source);
         if (collectionMatch.Success &&
-            TryNormalizeNumericList(collectionMatch.Groups["items"].Value, out var items))
+            TryNormalizeListLiteral(collectionMatch.Groups["items"].Value, out var items))
         {
             var item = collectionMatch.Groups["item"].Value;
             var variable = item.EndsWith("s", StringComparison.OrdinalIgnoreCase)
@@ -900,12 +900,16 @@ internal static class CompositionalTaskParser
         return true;
     }
 
-    private static bool TryNormalizeNumericList(string value, out string normalized)
+    private static bool TryNormalizeListLiteral(string value, out string normalized)
     {
         normalized = value.Trim();
+        const string number = @"[+-]?\d+(?:\.\d+)?";
+        const string singleQuotedString = @"'(?:\\.|[^'\\])*'";
+        const string doubleQuotedString = @"""(?:\\.|[^""\\])*""";
+        var item = $@"(?:{number}|{singleQuotedString}|{doubleQuotedString})";
         if (!Regex.IsMatch(
             normalized,
-            @"^\[\s*[+-]?\d+(?:\.\d+)?(?:\s*,\s*[+-]?\d+(?:\.\d+)?)*\s*\]$",
+            $@"^\[\s*{item}(?:\s*,\s*{item})*\s*\]$",
             RegexOptions.CultureInvariant))
         {
             return false;
