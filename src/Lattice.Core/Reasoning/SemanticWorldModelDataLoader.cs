@@ -115,7 +115,7 @@ internal static class SemanticWorldModelDataLoader
         {
             if (item is null ||
                 !SemanticWorldModelValidation.IsValidId(item.Id) ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.DomainType) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.DomainType) ||
                 !Enum.TryParse<SemanticDataValueKind>(item.ValueType, true, out var valueKind) ||
                 !identifiers.Add(item.Id))
             {
