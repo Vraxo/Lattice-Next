@@ -24,6 +24,10 @@ internal static class CompositionalTaskParser
     private static readonly Regex LoopRangeOutputPattern = new(
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+ 
+    private static readonly Regex FunctionProgramPattern = new(
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+returns\s+(?<expression>[^,.;]+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
         @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
@@ -75,7 +79,11 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (TryGetLoopProgram(source, out var loopSteps))
+        if (TryGetFunctionProgram(source, out var functionSteps))
+        {
+            formula = formula with { GenerationSteps = functionSteps };
+        }
+        else if (TryGetLoopProgram(source, out var loopSteps))
         {
             formula = formula with { GenerationSteps = loopSteps };
         }
@@ -115,6 +123,38 @@ internal static class CompositionalTaskParser
         phrase is not null &&
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
+
+    private static bool TryGetFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = FunctionProgramPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Value;
+        var parameter = match.Groups["parameter"].Value;
+        var expression = match.Groups["expression"].Value.Trim();
+        var call = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+
+        if (!ArithmeticExpressionPattern.IsMatch(expression) ||
+            !Regex.IsMatch(
+                call,
+                $@"^{Regex.Escape(name)}\(\d+(?:\.\d+)?\)$",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
+            new TaskRequestStep("return-value-indented-expression", "expression", expression),
+            new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
 
     private static bool TryGetLoopProgram(
         string source,
