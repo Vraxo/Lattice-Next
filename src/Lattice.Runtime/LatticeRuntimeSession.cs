@@ -27,30 +27,23 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
     private readonly SemanticWorldModel semanticWorldModel;
     private readonly SemanticWorldModelReasoner semanticWorldModelReasoner;
     private readonly List<KnowledgePack> loadedPacks = [];
+    private ObjectiveFormula? activeObjective;
+    private string? activeObjectiveSource;
+    private ObjectiveCondition? pendingObjectiveCondition;
     private readonly ObjectiveConversationWorkflow objectiveWorkflow;
-
-    private ObjectiveFormula? activeObjective
-    {
-        get => objectiveWorkflow.ActiveObjective;
-        set => objectiveWorkflow.ActiveObjective = value;
-    }
-
-    private string? activeObjectiveSource
-    {
-        get => objectiveWorkflow.ActiveObjectiveSource;
-        set => objectiveWorkflow.ActiveObjectiveSource = value;
-    }
-
-    private ObjectiveCondition? pendingObjectiveCondition
-    {
-        get => objectiveWorkflow.PendingCondition;
-        set => objectiveWorkflow.PendingCondition = value;
-    }
     private bool isDisposed;
 
     public LatticeRuntimeSession()
     {
-        objectiveWorkflow = new ObjectiveConversationWorkflow(knowledgeBase, objectiveEvaluator);
+        objectiveWorkflow = new ObjectiveConversationWorkflow(
+            knowledgeBase,
+            objectiveEvaluator,
+            () => activeObjective,
+            value => activeObjective = value,
+            () => activeObjectiveSource,
+            value => activeObjectiveSource = value,
+            () => pendingObjectiveCondition,
+            value => pendingObjectiveCondition = value);
         semanticWorldModel = SharedSemanticWorldModel.Value;
         semanticWorldModelReasoner = SharedSemanticWorldModelReasoner.Value;
     }
