@@ -154,7 +154,7 @@ internal static class SemanticDefinitionResponder
         return IndefinitePhrase(type.Label);
     }
 
-    private static bool TryContributionQuery(
+    internal static bool TryContributionQuery(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -237,7 +237,7 @@ internal static class SemanticDefinitionResponder
         return true;
     }
 
-    private static bool TryExplainEventOutcomes(
+    internal static bool TryExplainEventOutcomes(
         string eventId,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
