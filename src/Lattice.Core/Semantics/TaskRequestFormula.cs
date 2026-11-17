@@ -11,5 +11,12 @@ public sealed record TaskRequestFormula(
     ImmutableArray<string> Requirements) : SemanticFormula
 {
     public string? RequestedValue { get; init; }
+
+    public ImmutableArray<TaskRequestStep> GenerationSteps { get; init; } =
+        ImmutableArray<TaskRequestStep>.Empty;
 }
 
+public sealed record TaskRequestStep(
+    string Effect,
+    string ArgumentKind,
+    string ArgumentValue);
