@@ -44,6 +44,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program that outputs each count from 3 to 6.",
         "for count in range(3, 7):\n    print(count)",
         "3\n4\n5\n6")]
+    [InlineData(
+        "Create a Python program with a function named double that takes value and returns value * 2, then print double(4).",
+        "def double(value):\n    return value * 2\nprint(double(4))",
+        "8")]
+    [InlineData(
+        "Build a Python script with a function named triple that takes number and returns number * 3, then print triple(3).",
+        "def triple(number):\n    return number * 3\nprint(triple(3))",
+        "9")]
+    [InlineData(
+        "Generate a Python program with a function named add_five that takes value and returns value + 5, then print add_five(7).",
+        "def add_five(value):\n    return value + 5\nprint(add_five(7))",
+        "12")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
