@@ -38,7 +38,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionConditionalProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<rightOperand>.+?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<condition>.+?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
@@ -197,8 +197,7 @@ internal static class CompositionalTaskParser
         }
 
         while (index < tokens.Length && tokens[index] is "*" or "/" or "%")
-        {
-            index++;
+        {            index++;
             if (!TryParseUnaryExpression(tokens, ref index))
             {
                 return false;
@@ -369,28 +368,11 @@ internal static class CompositionalTaskParser
         var name = match.Groups["name"].Value;
         var parameters = match.Groups["parameters"].Value
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var conditionName = match.Groups["conditionName"].Value;
-        var rightOperand = match.Groups["rightOperand"].Value;
-        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
-            .Trim()
-            .ToLowerInvariant();
-        var symbol = comparison switch
-        {
-            "is at least" or "at least" => ">=",
-            "is at most" or "at most" => "<=",
-            "is greater than" or "greater than" => ">",
-            "is less than" or "less than" => "<",
-            "is equal to" or "equal" or "equals" => "==",
-            _ => string.Empty
-        };
+        var condition = match.Groups["condition"].Value;
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
         var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
 
-        if (symbol.Length == 0 ||
-            !parameters.Contains(conditionName, StringComparer.OrdinalIgnoreCase) ||
-            (!IsArithmeticExpression(rightOperand) ||
-             Regex.Matches(rightOperand, @"[A-Za-z_][A-Za-z0-9_]*")
-                 .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase))) ||
+        if (!TryParseFunctionCondition(condition, parameters, out var pythonCondition) ||
             !Regex.IsMatch(
                 compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
@@ -398,7 +380,6 @@ internal static class CompositionalTaskParser
         {
             return false;
         }
-
         if (!TryGetFunctionReturnExpression(match.Groups["trueValue"].Value, parameters, out var trueValue) ||
             !TryGetFunctionReturnExpression(match.Groups["falseValue"].Value, parameters, out var falseValue))
         {
@@ -408,10 +389,69 @@ internal static class CompositionalTaskParser
         var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
-            new TaskRequestStep("begin-conditional-indented", "condition", $"{conditionName} {symbol} {rightOperand}"),
+            new TaskRequestStep("begin-conditional-indented", "condition", pythonCondition),
             new TaskRequestStep("return-value-double-indented-expression", "expression", trueValue),
             new TaskRequestStep("return-value-indented-expression", "expression", falseValue),
             new TaskRequestStep("write-standard-output", "expression", $"{name}({string.Join(", ", callArguments)})"));
+        return true;
+    }
+
+    private static bool TryParseFunctionCondition(
+        string condition,
+        string[] parameters,
+        out string pythonCondition)
+    {
+        pythonCondition = string.Empty;
+        var parts = Regex.Split(condition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
+        if (parts.Length == 0 || parts.Length % 2 == 0)
+        {
+            return false;
+        }
+
+        var comparisons = new List<string>(parts.Length / 2 + 1);
+        for (var index = 0; index < parts.Length; index += 2)
+        {
+            var match = Regex.Match(
+                parts[index],
+                @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                return false;
+            }
+
+            var left = match.Groups["left"].Value;
+            var right = match.Groups["right"].Value;
+            var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
+                .Trim()
+                .ToLowerInvariant();
+            var symbol = comparison switch
+            {
+                "is at least" or "at least" => ">=",
+                "is at most" or "at most" => "<=",
+                "is greater than" or "greater than" => ">",
+                "is less than" or "less than" => "<",
+                "is equal to" or "equal" or "equals" => "==",
+                _ => string.Empty
+            };
+
+            if (symbol.Length == 0 ||
+                !parameters.Contains(left, StringComparer.OrdinalIgnoreCase) ||
+                !IsArithmeticExpression(right) ||
+                Regex.Matches(right, @"[A-Za-z_][A-Za-z0-9_]*")
+                    .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            comparisons.Add($"{left} {symbol} {right}");
+            if (index + 1 < parts.Length)
+            {
+                comparisons.Add(parts[index + 1].ToLowerInvariant());
+            }
+        }
+
+        pythonCondition = string.Join(" ", comparisons);
         return true;
     }
 
@@ -597,8 +637,7 @@ internal static class CompositionalTaskParser
         };
         var loopHeader = $"{variable} in range({start}, {inclusiveEnd + 1})";
 
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-loop", "loop-header", loopHeader),
+        steps = ImmutableArray.Create(            new TaskRequestStep("begin-loop", "loop-header", loopHeader),
             new TaskRequestStep(
                 "write-standard-output-indented-expression",
                 "expression",
