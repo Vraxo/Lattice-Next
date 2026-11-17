@@ -41,6 +41,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+)?converts?\s+(?:the\s+)?(?<input>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\s+and\s+returns?\s+(?:a\s+)?(?:clear\s+)?(?:result|message)\s+(?:when|if)\s+(?:the\s+)?(?:text|input)\s+is\s+not\s+a\s+valid\s+integer",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex AverageFilterFunctionPattern = new(
+        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+greater\s+than\s+(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -147,6 +151,10 @@ internal static class CompositionalTaskParser
         else if (TryGetIntegerConversionFunctionProgram(source, out var exceptionSteps))
         {
             formula = formula with { GenerationSteps = exceptionSteps };
+        }
+        else if (TryGetAverageFilterFunctionProgram(source, out var averageFilterSteps))
+        {
+            formula = formula with { GenerationSteps = averageFilterSteps };
         }
         else if (TryGetLoopFilterProgram(source, out var filterSteps))
         {
@@ -877,6 +885,46 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
+
+    private static bool TryGetAverageFilterFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = AverageFilterFunctionPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "above_average";
+        var parameter = match.Groups["parameter"].Success ? match.Groups["parameter"].Value : "values";
+        var item = match.Groups["item"].Value;
+        if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) &&
+            item.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+        {
+            item = item[..^1];
+        }
+
+        var averageParameter = match.Groups["averageParameter"].Success
+            ? match.Groups["averageParameter"].Value
+            : parameter;
+
+        if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
+            !averageParameter.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
+            name.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
+            name.Equals(item, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var expression = $"[{item} for {item} in {parameter} if {item} > sum({parameter}) / len({parameter})]";
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
+            new TaskRequestStep("return-value-indented-expression", "expression", expression),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}([1, 2, 3, 4, 5])"));
         return true;
     }
 
