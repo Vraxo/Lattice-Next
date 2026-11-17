@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticDataQueryResponder
 {
 
-internal static bool TryHighestDataValue(
+    internal static bool TryHighestDataValue(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -119,7 +119,7 @@ internal static bool TryHighestDataValue(
         return true;
     }
 
-internal static bool TryNotableExamples(
+    internal static bool TryNotableExamples(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -195,7 +195,7 @@ internal static bool TryNotableExamples(
         return true;
     }
 
-internal static bool TryMaximumDataValue(
+    internal static bool TryMaximumDataValue(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -250,7 +250,7 @@ internal static bool TryMaximumDataValue(
         return true;
     }
 
-internal static bool TryListTypeInstances(
+    internal static bool TryListTypeInstances(
         string requestedType,
         string countText,
         SemanticWorldModel model,
@@ -303,7 +303,7 @@ internal static bool TryListTypeInstances(
         return true;
     }
 
-internal static bool TryListExamples(
+    internal static bool TryListExamples(
         string requestedType,
         int limit,
         SemanticWorldModel model,

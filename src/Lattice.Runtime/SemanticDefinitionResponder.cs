@@ -4,14 +4,14 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
 using static Lattice.Runtime.SemanticWorldModelResponseReasoningHelpers;
+namespace Lattice.Runtime;
 
 internal static class SemanticDefinitionResponder
 {
 
-internal static bool TryDefinition(
+    internal static bool TryDefinition(
         string concept,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -68,7 +68,7 @@ internal static bool TryDefinition(
         return true;
     }
 
-private static bool TryDescribeIndividual(
+    private static bool TryDescribeIndividual(
         SemanticConcept individual,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -144,7 +144,7 @@ private static bool TryDescribeIndividual(
         return true;
     }
 
-private static string DescribeTypeMembership(SemanticConcept type)
+    private static string DescribeTypeMembership(SemanticConcept type)
     {
         if (type.Id == "open-source-software")
         {
@@ -154,7 +154,7 @@ private static string DescribeTypeMembership(SemanticConcept type)
         return IndefinitePhrase(type.Label);
     }
 
-private static bool TryContributionQuery(
+    private static bool TryContributionQuery(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -237,7 +237,7 @@ private static bool TryContributionQuery(
         return true;
     }
 
-private static bool TryExplainEventOutcomes(
+    private static bool TryExplainEventOutcomes(
         string eventId,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,

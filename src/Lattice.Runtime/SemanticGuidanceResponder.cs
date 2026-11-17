@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticGuidanceResponder
 {
 
-internal static bool TryCreativeIdeas(
+    internal static bool TryCreativeIdeas(
         string requestedCategory,
         string? companyName,
         SemanticWorldModel model,
@@ -93,7 +93,7 @@ internal static bool TryCreativeIdeas(
         return true;
     }
 
-private static bool TryBusinessIdeas(
+    private static bool TryBusinessIdeas(
         string? companyName,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -179,7 +179,7 @@ private static bool TryBusinessIdeas(
         }
     }
 
-internal static bool TryBeginnerGuidance(
+    internal static bool TryBeginnerGuidance(
         string requestedActivity,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,

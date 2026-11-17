@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticContextResponder
 {
 
-internal static bool TryExplainProductionLocationReasons(
+    internal static bool TryExplainProductionLocationReasons(
         string activityId,
         string locationId,
         SemanticWorldModel model,
@@ -94,7 +94,7 @@ internal static bool TryExplainProductionLocationReasons(
         return true;
     }
 
-internal static bool TryContextualRelationRoleQuery(
+    internal static bool TryContextualRelationRoleQuery(
         string subjectId,
         string rolePhrase,
         string contextId,
@@ -226,7 +226,7 @@ internal static bool TryContextualRelationRoleQuery(
         return true;
     }
 
-internal static bool TryRegionalName(
+    internal static bool TryRegionalName(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -294,7 +294,7 @@ internal static bool TryRegionalName(
         return true;
     }
 
-internal static bool TryIngredients(
+    internal static bool TryIngredients(
         SemanticWorldModelQuestionFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,

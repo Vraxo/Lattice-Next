@@ -4,14 +4,14 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
 using static Lattice.Runtime.SemanticWorldModelResponseReasoningHelpers;
+namespace Lattice.Runtime;
 
 internal static class SemanticExplanationResponder
 {
 
-internal static bool TryExplainHarmfulness(
+    internal static bool TryExplainHarmfulness(
         string requestedSubject,
         string requestedTarget,
         SemanticWorldModel model,
@@ -89,7 +89,7 @@ internal static bool TryExplainHarmfulness(
         return true;
     }
 
-internal static bool TryExplainAbility(
+    internal static bool TryExplainAbility(
         string requestedSubject,
         string requestedAbility,
         SemanticWorldModel model,
@@ -146,7 +146,7 @@ internal static bool TryExplainAbility(
         return true;
     }
 
-internal static bool TryExplainCapability(
+    internal static bool TryExplainCapability(
         string requestedSubject,
         string requestedCapability,
         string? requestedContext,
@@ -246,7 +246,7 @@ internal static bool TryExplainCapability(
         return true;
     }
 
-internal static bool TryExplainCauses(
+    internal static bool TryExplainCauses(
         string requestedConcept,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
