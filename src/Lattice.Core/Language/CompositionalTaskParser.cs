@@ -13,7 +13,7 @@ internal static class CompositionalTaskParser
 
     private static readonly HashSet<string> CodeArtifacts = new(StringComparer.OrdinalIgnoreCase)
     {
-        "program", "script", "application", "code"
+        "program", "script", "application", "code", "function"
     };
 
     private static readonly HashSet<string> OutputVerbs = new(StringComparer.OrdinalIgnoreCase)
@@ -35,6 +35,10 @@ internal static class CompositionalTaskParser
 
     private static readonly Regex DictionaryIterationPattern = new(
         @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex IntegerConversionFunctionPattern = new(
+        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+)?converts?\s+(?:the\s+)?(?<input>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\s+and\s+returns?\s+(?:a\s+)?(?:clear\s+)?(?:result|message)\s+(?:when|if)\s+(?:the\s+)?(?:text|input)\s+is\s+not\s+a\s+valid\s+integer",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
@@ -139,6 +143,10 @@ internal static class CompositionalTaskParser
         else if (TryGetDictionaryIterationProgram(source, out var dictionarySteps))
         {
             formula = formula with { GenerationSteps = dictionarySteps };
+        }
+        else if (TryGetIntegerConversionFunctionProgram(source, out var exceptionSteps))
+        {
+            formula = formula with { GenerationSteps = exceptionSteps };
         }
         else if (TryGetLoopFilterProgram(source, out var filterSteps))
         {
@@ -869,6 +877,40 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
+
+    private static bool TryGetIntegerConversionFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = IntegerConversionFunctionPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var parameter = match.Groups["parameter"].Success
+            ? match.Groups["parameter"].Value
+            : match.Groups["input"].Value;
+        var name = match.Groups["name"].Success
+            ? match.Groups["name"].Value
+            : "convert_to_integer";
+
+        if (name.Equals(parameter, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
+            new TaskRequestStep("begin-try-indented", "statement", "try"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", $"int({parameter})"),
+            new TaskRequestStep("begin-except-indented", "exception-type", "ValueError"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
         return true;
     }
 
