@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
+        "def above_average(values):\\n    return [value for value in values if value > sum(values) / len(values)]\\nprint(above_average([1, 2, 3, 4, 5]))",
+        "[4, 5]")]
+    [InlineData(
+        "Create a Python function named filter_high that receives a list of numbers named scores and returns a new list containing only score values greater than the average of scores.",
+        "def filter_high(scores):\\n    return [score for score in scores if score > sum(scores) / len(scores)]\\nprint(filter_high([1, 2, 3, 4, 5]))",
+        "[4, 5]")]
+    [InlineData(
         "Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.",
         "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
         "42\nInvalid integer")]
