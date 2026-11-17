@@ -413,8 +413,10 @@ internal static class CompositionalTaskParser
     {
         pythonCondition = string.Empty;
         var expression = condition.Trim();
+        var isExplicitlyGrouped = false;
         while (HasEnclosingParentheses(expression))
         {
+            isExplicitlyGrouped = true;
             expression = expression[1..^1].Trim();
         }
 
@@ -434,7 +436,8 @@ internal static class CompositionalTaskParser
                 return false;
             }
 
-            pythonCondition = $"({parsedLeft} {operation} {parsedRight})";
+            var combined = $"{parsedLeft} {operation} {parsedRight}";
+            pythonCondition = isExplicitlyGrouped ? $"({combined})" : combined;
             return true;
         }
 
@@ -470,7 +473,8 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        pythonCondition = $"{leftOperand} {symbol} {normalizedRight}";
+        var comparisonExpression = $"{leftOperand} {symbol} {normalizedRight}";
+        pythonCondition = isExplicitlyGrouped ? $"({comparisonExpression})" : comparisonExpression;
         return true;
     }
 
