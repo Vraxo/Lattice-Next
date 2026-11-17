@@ -35,7 +35,7 @@ public sealed class PythonProgramCompositionTests
             $"total = 5{Environment.NewLine}print(total + 3)",
             result!.Text);
         Assert.Equal(
-            ["python-assign-variable", "python-print-expression"],
+            new[] { "python-assign-variable", "python-print-expression" },
             result.Statements.Select(statement => statement.SelectedOperationId));
     }
 
