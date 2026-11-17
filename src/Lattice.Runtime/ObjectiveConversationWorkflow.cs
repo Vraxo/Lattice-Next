@@ -446,14 +446,4 @@ internal sealed class ObjectiveConversationWorkflow
             _ => false
         }
 
-    private static bool IsExpectedValue(
-        ObjectiveConditionValueKind expectedKind,
-        ObjectiveConditionValue value) =>
-        expectedKind switch
-        {
-            ObjectiveConditionValueKind.Money => value is ObjectiveMoneyValue,
-            ObjectiveConditionValueKind.Text => value is ObjectiveTextValue,
-            ObjectiveConditionValueKind.TimeWindow => value is ObjectiveTimeWindowValue,
-            _ => false
-        }
 }
