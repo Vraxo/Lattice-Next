@@ -69,7 +69,7 @@ public sealed class SequenceGenerationPipeline
         if (!SequenceGenerator.TryGenerate(
             grammar,
             new SequenceGenerationRequest(
-                pack.StartSymbol,
+                selectedOperation!.StartSymbol ?? pack.StartSymbol,
                 bindings.ToImmutable(),
                 MaxSteps: 256,
                 MaxTokens: 256),
@@ -81,8 +81,46 @@ public sealed class SequenceGenerationPipeline
 
         result = new SequenceGenerationPipelineResult(
             generated!,
-            selectedOperation!.Id,
+            selectedOperation.Id,
             candidateAssessments);
+        return true;
+    }
+
+    public bool TryGenerateProgram(
+        GenerationLanguagePack pack,
+        ImmutableArray<GenerationGoal> goals,
+        out SequenceProgramGenerationResult? result,
+        out string? error)
+    {
+        ArgumentNullException.ThrowIfNull(pack);
+
+        result = null;
+        error = null;
+
+        if (goals.IsDefaultOrEmpty || goals.Length > 64)
+        {
+            error = "A program requires between one and 64 semantic generation steps.";
+            return false;
+        }
+
+        var statements = ImmutableArray.CreateBuilder<SequenceGenerationPipelineResult>(goals.Length);
+        foreach (var goal in goals)
+        {
+            if (!TryGenerate(pack, goal, out var statement, out error))
+            {
+                return false;
+            }
+
+            if (statement!.SearchLimitReached)
+            {
+                error = "A program statement reached the sequence generation search limit.";
+                return false;
+            }
+
+            statements.Add(statement);
+        }
+
+        result = new SequenceProgramGenerationResult(statements.ToImmutable());
         return true;
     }
 
@@ -137,4 +175,10 @@ public sealed record SequenceGenerationPipelineResult(
     public double Score => Generation.Score;
 
     public bool SearchLimitReached => Generation.SearchLimitReached;
+}
+
+public sealed record SequenceProgramGenerationResult(
+    ImmutableArray<SequenceGenerationPipelineResult> Statements)
+{
+    public string Text => string.Join(Environment.NewLine, Statements.Select(statement => statement.Text));
 }
