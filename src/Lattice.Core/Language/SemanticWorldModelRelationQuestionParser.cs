@@ -34,7 +34,7 @@ internal static class SemanticWorldModelRelationQuestionParser
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
 
-    internal static bool TryParse(string source, string text, out SemanticUtterance? utterance)
+    internal static bool TryParsePair(string source, string text, out SemanticUtterance? utterance)
     {
         utterance = null;
         var relationPair = RelationPairPattern.Match(text);
@@ -50,6 +50,12 @@ internal static class SemanticWorldModelRelationQuestionParser
             return true;
         }
 
+        return false;
+    }
+
+    internal static bool TryParse(string source, string text, out SemanticUtterance? utterance)
+    {
+        utterance = null;
         var scopedTypedRelationTarget = ScopedTypedRelationTargetPattern.Match(text);
         if (scopedTypedRelationTarget.Success)
         {
