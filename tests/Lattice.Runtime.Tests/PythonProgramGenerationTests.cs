@@ -56,6 +56,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program with a function named add_five that takes value and returns value + 5, then print add_five(7).",
         "def add_five(value):\n    return value + 5\nprint(add_five(7))",
         "12")]
+    [InlineData(
+        "Create a Python program with a function named add that takes left and right and returns left + right, then print add(3, 5).",
+        "def add(left, right):\n    return left + right\nprint(add(3, 5))",
+        "8")]
+    [InlineData(
+        "Build a Python script with a function named multiply that takes width and height and returns width * height, then print multiply(6, 7).",
+        "def multiply(width, height):\n    return width * height\nprint(multiply(6, 7))",
+        "42")]
+    [InlineData(
+        "Generate a Python program with a function named subtract that takes larger and smaller and returns larger - smaller, then print subtract(15, 4).",
+        "def subtract(larger, smaller):\n    return larger - smaller\nprint(subtract(15, 4))",
+        "11")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
