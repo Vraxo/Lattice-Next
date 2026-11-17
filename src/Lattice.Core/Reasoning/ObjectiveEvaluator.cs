@@ -332,7 +332,6 @@ public sealed class ObjectiveEvaluator
 
 
 
-;
 
     internal static ObjectiveConditionAssessment CreateAssessment(
         ObjectiveCondition condition,
