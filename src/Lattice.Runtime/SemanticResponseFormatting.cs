@@ -196,4 +196,3 @@ internal static class SemanticResponseFormatting
         return false;
     }
 }
-}
