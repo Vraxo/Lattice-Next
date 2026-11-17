@@ -1,4 +1,3 @@
-using System.Globalization;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
@@ -15,17 +14,17 @@ internal static class ObjectiveCandidatePresentationFormatter
             var totalCost = FindMoneyHighlight(candidate, "total-cost");
             if (transportCost is not null)
             {
-                details.Add($"{FormatMoney(transportCost)} return transport");
+                details.Add($"{ObjectiveResponseFormatter.FormatMoney(transportCost)} return transport");
             }
     
             if (entryCost is not null)
             {
-                details.Add(entryCost.Amount == 0m ? "free entry" : $"{FormatMoney(entryCost)} entry");
+                details.Add(entryCost.Amount == 0m ? "free entry" : $"{ObjectiveResponseFormatter.FormatMoney(entryCost)} entry");
             }
     
             if (totalCost is not null && transportCost is null && entryCost is null)
             {
-                details.Add($"total cost {FormatMoney(totalCost)}");
+                details.Add($"total cost {ObjectiveResponseFormatter.FormatMoney(totalCost)}");
             }
     
             var activity = candidate.Highlights
@@ -42,7 +41,7 @@ internal static class ObjectiveCandidatePresentationFormatter
     
             return details.ToArray();
         }
-
+    
         internal static string? FormatSchedule(CandidateAssessment candidate)
         {
             var stages = candidate.Conditions
@@ -85,7 +84,7 @@ internal static class ObjectiveCandidatePresentationFormatter
             return string.Join("; ", stages.Select(stage =>
                 $"{stage.Start:HH:mm}–{stage.End:HH:mm}"));
         }
-
+    
         internal static ObjectiveMoneyValue? FindMoneyHighlight(CandidateAssessment candidate, string name)
         {
             var highlight = candidate.Highlights
@@ -107,7 +106,4 @@ internal static class ObjectiveCandidatePresentationFormatter
                     StringComparison.OrdinalIgnoreCase))
                 ?.Value as ObjectiveMoneyValue;
         }
-
-        internal static string FormatMoney(ObjectiveMoneyValue money) =>
-            $"{money.CurrencySymbol}
 }
