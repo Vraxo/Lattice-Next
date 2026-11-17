@@ -48,7 +48,8 @@ internal static class EnglishSyntaxParser
         syntax = null;
 
         var tokens = EnglishLexer.Tokenize(source)
-            .Where(token => !token.IsPunctuation)
+            .Where(token => !token.IsPunctuation ||
+                token.Value is "+" or "-" or "*" or "/" or "%")
             .ToImmutableArray();
 
         if (tokens.IsDefaultOrEmpty)
