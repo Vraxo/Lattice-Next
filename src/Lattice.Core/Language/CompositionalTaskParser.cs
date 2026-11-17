@@ -26,7 +26,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
  
     private static readonly Regex FunctionProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>[^,.;]+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex ConditionalOutputPattern = new(
@@ -128,7 +128,7 @@ internal static class CompositionalTaskParser
 
     private static bool IsArithmeticExpression(string expression)
     {
-        var tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[()+\-*/%]";
+        var tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[(),+\-*/%]";
         var tokens = Regex.Matches(expression, tokenPattern)
             .Select(match => match.Value)
             .ToArray();
@@ -213,9 +213,44 @@ internal static class CompositionalTaskParser
         }
 
         var token = tokens[index];
+        if (Regex.IsMatch(
+            token,
+            @"^[A-Za-z_][A-Za-z0-9_]*$",
+            RegexOptions.CultureInvariant))
+        {
+            index++;
+            if (index >= tokens.Length || tokens[index] != "(")
+            {
+                return true;
+            }
+
+            index++;
+            if (!TryParseAdditiveExpression(tokens, ref index))
+            {
+                return false;
+            }
+
+            while (index < tokens.Length && tokens[index] == ",")
+            {
+                index++;
+                if (!TryParseAdditiveExpression(tokens, ref index))
+                {
+                    return false;
+                }
+            }
+
+            if (index >= tokens.Length || tokens[index] != ")")
+            {
+                return false;
+            }
+
+            index++;
+            return true;
+        }
+
         if (!Regex.IsMatch(
             token,
-            @"^(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?)$",
+            @"^\d+(?:\.\d+)?$",
             RegexOptions.CultureInvariant))
         {
             return false;
