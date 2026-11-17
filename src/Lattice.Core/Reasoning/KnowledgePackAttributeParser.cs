@@ -9,7 +9,7 @@ internal static class KnowledgePackAttributeParser
 {
     private const int MaximumAttributes = 500;
 
-    private static bool TryParseAttributes(
+    internal static bool TryParseAttributes(
         JsonElement element,
         string packId,
         out ImmutableArray<KnowledgeAttribute> attributes,
@@ -101,6 +101,21 @@ internal static class KnowledgePackAttributeParser
 
         attributes = parsed.ToImmutable();
         return true;
+    }
+
+    internal static bool TryParseTypedAttributeValue(
+        JsonElement element,
+        out ObjectiveConditionValue? value,
+        out string? error)
+    {
+        if (TryParseAttributeValue(element, out value))
+        {
+            error = null;
+            return true;
+        }
+
+        error = "The value must use a supported typed attribute format.";
+        return false;
     }
 
     private static bool TryParseAttributeValue(
