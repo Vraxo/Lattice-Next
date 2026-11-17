@@ -299,7 +299,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             var namedMembers = enumerationRemainder.Groups["known"].Value
                 .Split(", ", StringSplitOptions.RemoveEmptyEntries)
-                .Select(Normalize)
+                .Select(SemanticWorldModelQuestionNormalization.Normalize)
                 .ToImmutableArray();
             var member = SemanticWorldModelQuestionNormalization.Normalize(enumerationRemainder.Groups["member"].Value);
             var group = SemanticWorldModelQuestionNormalization.Normalize(enumerationRemainder.Groups["group"].Value);
