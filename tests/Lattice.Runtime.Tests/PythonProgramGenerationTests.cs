@@ -10,11 +10,11 @@ public sealed class PythonProgramGenerationTests
     [Theory]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit + 5 and otherwise returns price, then print discount(120, 100).",
-        "def discount(price, limit):\\n    if price >= limit + 5:\\n        return price * 0.9\\n    return price\\nprint(discount(120, 100))",
+        "def discount(price, limit):\n    if price >= limit + 5:\n        return price * 0.9\n    return price\nprint(discount(120, 100))",
         "108.0")]
     [InlineData(
         "Build a Python script with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit + 5 and otherwise returns price, then print discount(103, 100).",
-        "def discount(price, limit):\\n    if price >= limit + 5:\\n        return price * 0.9\\n    return price\\nprint(discount(103, 100))",
+        "def discount(price, limit):\n    if price >= limit + 5:\n        return price * 0.9\n    return price\nprint(discount(103, 100))",
         "103")]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
