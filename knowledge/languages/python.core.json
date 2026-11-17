@@ -38,6 +38,24 @@
       "symbols": [
         { "kind": "binding", "value": "argument-assignment" }
       ]
+    },
+    {
+      "head": "if-statement",
+      "symbols": [
+        { "kind": "terminal", "value": "if " },
+        { "kind": "binding", "value": "argument-expression" },
+        { "kind": "terminal", "value": ":" }
+      ]
+    },
+    {
+      "head": "indented-call-expression",
+      "symbols": [
+        { "kind": "terminal", "value": "    " },
+        { "kind": "binding", "value": "operation" },
+        { "kind": "terminal", "value": "(" },
+        { "kind": "binding", "value": "argument-text" },
+        { "kind": "terminal", "value": ")" }
+      ]
     }
   ],
   "bindings": [
@@ -86,6 +104,22 @@
       "argumentKind": "assignment",
       "prerequisites": [],
       "startSymbol": "assignment-statement"
+    },
+    {
+      "id": "python-if",
+      "symbol": "if",
+      "effect": "begin-conditional",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "if-statement"
+    },
+    {
+      "id": "python-print-indented",
+      "symbol": "print",
+      "effect": "write-standard-output-indented",
+      "argumentKind": "text",
+      "prerequisites": [],
+      "startSymbol": "indented-call-expression"
     },
     {
       "id": "python-sys-stdout-write",
