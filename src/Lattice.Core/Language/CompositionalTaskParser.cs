@@ -371,12 +371,12 @@ internal static class CompositionalTaskParser
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var condition = match.Groups["condition"].Value;
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
+        var functionArguments = string.Join(",", Enumerable.Repeat(@"(?:[+-]?\d+(?:\.\d+)?|'[^']*')", parameters.Length));
 
         if (!TryParseFunctionCondition(condition, parameters, out var pythonCondition) ||
             !Regex.IsMatch(
                 compactCall,
-                $@"^{Regex.Escape(name)}\({numericArguments}\)$",
+                $@"^{Regex.Escape(name)}\({functionArguments}\)$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
@@ -440,14 +440,12 @@ internal static class CompositionalTaskParser
 
             if (symbol.Length == 0 ||
                 !parameters.Contains(left, StringComparer.OrdinalIgnoreCase) ||
-                !IsArithmeticExpression(right) ||
-                Regex.Matches(right, @"[A-Za-z_][A-Za-z0-9_]*")
-                    .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase)))
+                !TryNormalizeConditionOperand(right, parameters, out var normalizedRight))
             {
                 return false;
             }
 
-            comparisons.Add($"{left} {symbol} {right}");
+            comparisons.Add($"{left} {symbol} {normalizedRight}");
             if (index + 1 < parts.Length)
             {
                 comparisons.Add(parts[index + 1].ToLowerInvariant());
@@ -455,6 +453,30 @@ internal static class CompositionalTaskParser
         }
 
         pythonCondition = string.Join(" ", comparisons);
+        return true;
+    }
+
+    private static bool TryNormalizeConditionOperand(
+        string operand,
+        string[] parameters,
+        out string normalized)
+    {
+        normalized = operand.Trim();
+        if (normalized.Length >= 2 &&
+            (normalized[0] == 39 || normalized[0] == 34) &&
+            normalized[^1] == normalized[0])
+        {
+            normalized = ToPythonStringLiteral(normalized[1..^1]);
+            return true;
+        }
+
+        if (!IsArithmeticExpression(normalized) ||
+            Regex.Matches(normalized, @"[A-Za-z_][A-Za-z0-9_]*")
+                .Any(identifier => !parameters.Contains(identifier.Value, StringComparer.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
         return true;
     }
 
