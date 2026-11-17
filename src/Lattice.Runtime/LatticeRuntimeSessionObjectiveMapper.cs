@@ -8,7 +8,7 @@ namespace Lattice.Runtime;
 
 internal static class LatticeRuntimeSessionObjectiveMapper
 {
-    public static tic LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
+    public static LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
         new(evaluation.Candidates.Select(candidate => new LatticeCandidateAssessment(
             candidate.Candidate.Value,
             candidate.HasHardConstraintViolation,
