@@ -444,6 +444,6 @@ internal sealed class ObjectiveConversationWorkflow
             ObjectiveConditionValueKind.Text => value is ObjectiveTextValue,
             ObjectiveConditionValueKind.TimeWindow => value is ObjectiveTimeWindowValue,
             _ => false
-        }
+        };
 
 }
