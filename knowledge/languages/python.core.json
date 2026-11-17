@@ -6,40 +6,37 @@
     {
       "head": "program",
       "symbols": [
-        {
-          "kind": "nonterminal",
-          "value": "statement"
-        }
+        { "kind": "nonterminal", "value": "statement" }
       ]
     },
     {
       "head": "statement",
       "symbols": [
-        {
-          "kind": "nonterminal",
-          "value": "call-expression"
-        }
+        { "kind": "nonterminal", "value": "call-expression" }
       ]
     },
     {
       "head": "call-expression",
       "symbols": [
-        {
-          "kind": "binding",
-          "value": "operation"
-        },
-        {
-          "kind": "terminal",
-          "value": "("
-        },
-        {
-          "kind": "binding",
-          "value": "argument"
-        },
-        {
-          "kind": "terminal",
-          "value": ")"
-        }
+        { "kind": "binding", "value": "operation" },
+        { "kind": "terminal", "value": "(" },
+        { "kind": "binding", "value": "argument-text" },
+        { "kind": "terminal", "value": ")" }
+      ]
+    },
+    {
+      "head": "expression-call",
+      "symbols": [
+        { "kind": "binding", "value": "operation" },
+        { "kind": "terminal", "value": "(" },
+        { "kind": "binding", "value": "argument-expression" },
+        { "kind": "terminal", "value": ")" }
+      ]
+    },
+    {
+      "head": "assignment-statement",
+      "symbols": [
+        { "kind": "binding", "value": "argument-assignment" }
       ]
     }
   ],
@@ -50,9 +47,19 @@
       "encoding": "none"
     },
     {
-      "name": "argument",
+      "name": "argument-text",
       "source": "goal-argument",
       "encoding": "string-literal"
+    },
+    {
+      "name": "argument-expression",
+      "source": "goal-argument",
+      "encoding": "none"
+    },
+    {
+      "name": "argument-assignment",
+      "source": "goal-argument",
+      "encoding": "none"
     }
   ],
   "operations": [
@@ -61,56 +68,59 @@
       "symbol": "print",
       "effect": "write-standard-output",
       "argumentKind": "text",
-      "prerequisites": []
+      "prerequisites": [],
+      "startSymbol": "call-expression"
+    },
+    {
+      "id": "python-print-expression",
+      "symbol": "print",
+      "effect": "write-standard-output",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "expression-call"
+    },
+    {
+      "id": "python-assign-variable",
+      "symbol": "=",
+      "effect": "assign-variable",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "assignment-statement"
     },
     {
       "id": "python-sys-stdout-write",
       "symbol": "sys.stdout.write",
       "effect": "write-standard-output",
       "argumentKind": "text",
-      "prerequisites": [
-        "module:sys"
-      ]
+      "prerequisites": ["module:sys"],
+      "startSymbol": "call-expression"
     },
     {
       "id": "python-input",
       "symbol": "input",
       "effect": "read-standard-input",
       "argumentKind": "prompt-text",
-      "prerequisites": []
+      "prerequisites": [],
+      "startSymbol": "call-expression"
     },
     {
       "id": "python-open",
       "symbol": "open",
       "effect": "open-file",
       "argumentKind": "path",
-      "prerequisites": []
+      "prerequisites": [],
+      "startSymbol": "call-expression"
     }
   ],
   "stringLiteralFormat": {
     "openingDelimiter": "\"",
     "closingDelimiter": "\"",
     "escapes": [
-      {
-        "character": "\\",
-        "replacement": "\\\\"
-      },
-      {
-        "character": "\"",
-        "replacement": "\\\""
-      },
-      {
-        "character": "\n",
-        "replacement": "\\n"
-      },
-      {
-        "character": "\r",
-        "replacement": "\\r"
-      },
-      {
-        "character": "\t",
-        "replacement": "\\t"
-      }
+      { "character": "\\", "replacement": "\\\\" },
+      { "character": "\"", "replacement": "\\\"" },
+      { "character": "\n", "replacement": "\\n" },
+      { "character": "\r", "replacement": "\\r" },
+      { "character": "\t", "replacement": "\\t" }
     ]
   }
 }
