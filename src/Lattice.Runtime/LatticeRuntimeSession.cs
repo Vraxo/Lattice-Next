@@ -1043,8 +1043,13 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
 
 
-ldn't resolve that reference. Please name the individual."
+    private static string GetClarificationMessage(ReferenceResolutionStatus status) =>
+        status switch
+        {
+            ReferenceResolutionStatus.MissingReferent =>
+                "I don't know who 'it' refers to yet. Please name the individual.",
+            ReferenceResolutionStatus.AmbiguousReferent =>
+                "More than one individual is known. Which one do you mean by 'it'? Please name them.",
+            _ => "I couldn't resolve that reference. Please name the individual."
         };
-
-
 }
