@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Create a Python program with a function named reward that takes score and returns score * 2 when score is at least 10 and otherwise returns score + 1, then print reward(12).",
+        "def reward(score):\n    if score >= 10:\n        return score * 2\n    return score + 1\nprint(reward(12))",
+        "24")]
+    [InlineData(
+        "Build a Python script with a function named reward that takes score and returns score * 2 when score is at least 10 and otherwise returns score + 1, then print reward(5).",
+        "def reward(score):\n    if score >= 10:\n        return score * 2\n    return score + 1\nprint(reward(5))",
+        "6")]
+    [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(20).",
         "def classify(age):\n    if age >= 18:\n        return \"adult\"\n    return \"minor\"\nprint(classify(20))",
         "adult")]
