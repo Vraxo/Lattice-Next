@@ -118,15 +118,15 @@ public sealed class PythonProgramGenerationTests
         "19")]
     [InlineData(
         "Create a Python program with a function named calculate that takes value and sets doubled to value * 2 and returns doubled, then print calculate(4).",
-        "def calculate(value):\\n    doubled = value * 2\\n    return doubled\\nprint(calculate(4))",
+        "def calculate(value):\n    doubled = value * 2\n    return doubled\nprint(calculate(4))",
         "8")]
     [InlineData(
         "Build a Python script with a function named adjusted that takes amount and sets result to amount + 7 and returns result * 2, then print adjusted(5).",
-        "def adjusted(amount):\\n    result = amount + 7\\n    return result * 2\\nprint(adjusted(5))",
+        "def adjusted(amount):\n    result = amount + 7\n    return result * 2\nprint(adjusted(5))",
         "24")]
     [InlineData(
         "Generate a Python program with a function named combine that takes left and right and sets total to left + right and returns total * 3, then print combine(4, 6).",
-        "def combine(left, right):\\n    total = left + right\\n    return total * 3\\nprint(combine(4, 6))",
+        "def combine(left, right):\n    total = left + right\n    return total * 3\nprint(combine(4, 6))",
         "30")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
