@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
+        "def discount(price, limit):\n    if price >= limit:\n        return price * 0.9\n    return price\nprint(discount(120, 100))",
+        "108.0")]
+    [InlineData(
+        "Build a Python script with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(80, 100).",
+        "def discount(price, limit):\n    if price >= limit:\n        return price * 0.9\n    return price\nprint(discount(80, 100))",
+        "80")]
+    [InlineData(
         "Create a Python program with a function named reward that takes score and returns score * 2 when score is at least 10 and otherwise returns score + 1, then print reward(12).",
         "def reward(score):\n    if score >= 10:\n        return score * 2\n    return score + 1\nprint(reward(12))",
         "24")]
