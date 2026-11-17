@@ -154,7 +154,7 @@ internal static class SemanticWorldModelQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new ChargedParticleAccelerationFormula(
-                    Normalize(chargedParticleAcceleration.Groups["particle"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(chargedParticleAcceleration.Groups["particle"].Value),
                     initialSpeed,
                     potentialDifference),
                 source);
@@ -166,9 +166,9 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.SamplingParameters,
-                subject: Normalize(samplingParameters.Groups["first"].Value),
-                otherSubject: Normalize(samplingParameters.Groups["second"].Value),
-                targetType: Normalize(samplingParameters.Groups["domain"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(samplingParameters.Groups["first"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(samplingParameters.Groups["second"].Value),
+                targetType: SemanticWorldModelQuestionNormalization.Normalize(samplingParameters.Groups["domain"].Value),
                 sourceText: source);
             return true;
         }
@@ -178,8 +178,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.ProductionLocationReasons,
-                subject: Normalize(productionLocationReasons.Groups["activity"].Value),
-                otherSubject: Normalize(productionLocationReasons.Groups["location"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(productionLocationReasons.Groups["activity"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(productionLocationReasons.Groups["location"].Value),
                 sourceText: source);
             return true;
         }
@@ -189,9 +189,9 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.ContextualRelationRoleQuery,
-                subject: Normalize(contextualRole.Groups["possessor"].Value),
-                concept: Normalize(contextualRole.Groups["role"].Value),
-                otherSubject: Normalize(contextualRole.Groups["context"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(contextualRole.Groups["possessor"].Value),
+                concept: SemanticWorldModelQuestionNormalization.Normalize(contextualRole.Groups["role"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(contextualRole.Groups["context"].Value),
                 sourceText: source);
             return true;
         }
@@ -201,7 +201,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Ingredients,
-                subject: Normalize(commonIngredients.Groups["dish"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(commonIngredients.Groups["dish"].Value),
                 sourceText: source);
             return true;
         }
@@ -211,8 +211,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.RegionalName,
-                subject: Normalize(regionalName.Groups["subject"].Value),
-                targetType: NormalizeRegionalVariant(regionalName.Groups["region"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(regionalName.Groups["subject"].Value),
+                targetType: SemanticWorldModelQuestionNormalization.NormalizeRegionalVariant(regionalName.Groups["region"].Value),
                 sourceText: source);
             return true;
         }
@@ -222,7 +222,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Clarification,
-                subject: Normalize(missingListItems.Groups["items"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(missingListItems.Groups["items"].Value),
                 otherSubject: $"{missingListItems.Groups["list"].Value.Trim()} list",
                 sourceText: source);
             return true;
@@ -244,8 +244,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.RequiredKnowledge,
-                subject: Normalize(requiredKnowledge.Groups["activity"].Value),
-                concept: Normalize(requiredKnowledge.Groups["knowledge"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(requiredKnowledge.Groups["activity"].Value),
+                concept: SemanticWorldModelQuestionNormalization.Normalize(requiredKnowledge.Groups["knowledge"].Value),
                 sourceText: source);
             return true;
         }
@@ -255,7 +255,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Applications,
-                subject: Normalize(everydayApplications.Groups["subject"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(everydayApplications.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
@@ -265,8 +265,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Compare,
-                subject: Normalize(difference.Groups["subject"].Value),
-                otherSubject: Normalize(difference.Groups["other"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(difference.Groups["subject"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(difference.Groups["other"].Value),
                 sourceText: source);
             return true;
         }
@@ -276,7 +276,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.WhyUse,
-                subject: Normalize(whyShouldUse.Groups["subject"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(whyShouldUse.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
@@ -294,20 +294,20 @@ internal static class SemanticWorldModelQuestionParser
 
         var enumerationRemainder = EnumerationRemainderPattern.Match(text);
         if (enumerationRemainder.Success &&
-            TryParseCardinal(enumerationRemainder.Groups["count"].Value, out var expectedCount) &&
-            TryParseOrdinal(enumerationRemainder.Groups["ordinal"].Value, out var missingPosition))
+            SemanticWorldModelQuestionNormalization.TryParseCardinal(enumerationRemainder.Groups["count"].Value, out var expectedCount) &&
+            SemanticWorldModelQuestionNormalization.TryParseOrdinal(enumerationRemainder.Groups["ordinal"].Value, out var missingPosition))
         {
             var namedMembers = enumerationRemainder.Groups["known"].Value
                 .Split(", ", StringSplitOptions.RemoveEmptyEntries)
-                .Select(Normalize)
+                .Select(SemanticWorldModelQuestionNormalization.Normalize)
                 .ToImmutableArray();
-            var member = Normalize(enumerationRemainder.Groups["member"].Value);
-            var group = Normalize(enumerationRemainder.Groups["group"].Value);
-            var questionGroup = Normalize(enumerationRemainder.Groups["questionGroup"].Value);
+            var member = SemanticWorldModelQuestionNormalization.Normalize(enumerationRemainder.Groups["member"].Value);
+            var group = SemanticWorldModelQuestionNormalization.Normalize(enumerationRemainder.Groups["group"].Value);
+            var questionGroup = SemanticWorldModelQuestionNormalization.Normalize(enumerationRemainder.Groups["questionGroup"].Value);
 
             if (expectedCount > 0 &&
                 missingPosition == expectedCount &&
-                SingularizeEnumerationGroup(group) == SingularizeEnumerationGroup(questionGroup) &&
+                SemanticWorldModelQuestionNormalization.SingularizeEnumerationGroup(group) == SemanticWorldModelQuestionNormalization.SingularizeEnumerationGroup(questionGroup) &&
                 namedMembers.Length == expectedCount - 1 &&
                 namedMembers.Distinct(StringComparer.Ordinal).Count() == namedMembers.Length &&
                 !namedMembers.Contains(member, StringComparer.Ordinal))
@@ -328,13 +328,13 @@ internal static class SemanticWorldModelQuestionParser
         var tallestFeature = TallestFeaturePattern.Match(text);
         if (tallestFeature.Success)
         {
-            var feature = Normalize(tallestFeature.Groups["feature"].Value);
+            var feature = SemanticWorldModelQuestionNormalization.Normalize(tallestFeature.Groups["feature"].Value);
             utterance = Create(
                 SemanticWorldModelQuestionKind.HighestDataValue,
                 subject: feature,
                 concept: $"{feature}-elevation-feet",
                 otherSubject: "feet above sea level",
-                targetType: Normalize(tallestFeature.Groups["scope"].Value),
+                targetType: SemanticWorldModelQuestionNormalization.Normalize(tallestFeature.Groups["scope"].Value),
                 sourceText: source);
             return true;
         }
@@ -345,8 +345,8 @@ internal static class SemanticWorldModelQuestionParser
             var metric = maximumDataValue.Groups["metric"].Value.Trim();
             utterance = Create(
                 SemanticWorldModelQuestionKind.MaximumDataValue,
-                subject: Normalize(maximumDataValue.Groups["subjectType"].Value),
-                concept: NormalizeMaximumMetric(metric),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(maximumDataValue.Groups["subjectType"].Value),
+                concept: SemanticWorldModelQuestionNormalization.NormalizeMaximumMetric(metric),
                 otherSubject: metric,
                 sourceText: source);
             return true;
@@ -355,8 +355,8 @@ internal static class SemanticWorldModelQuestionParser
         var bestMoviesByDecade = BestMoviesByDecadePattern.Match(text);
         if (bestMoviesByDecade.Success)
         {
-            var genre = Normalize(bestMoviesByDecade.Groups["genre"].Value);
-            var decade = Normalize(bestMoviesByDecade.Groups["decade"].Value).Replace("'", string.Empty, StringComparison.Ordinal);
+            var genre = SemanticWorldModelQuestionNormalization.Normalize(bestMoviesByDecade.Groups["genre"].Value);
+            var decade = SemanticWorldModelQuestionNormalization.Normalize(bestMoviesByDecade.Groups["decade"].Value).Replace("'", string.Empty, StringComparison.Ordinal);
             utterance = Create(
                 SemanticWorldModelQuestionKind.NotableExamples,
                 subject: genre,
@@ -373,18 +373,18 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.TypeInstanceListQuery,
-                subject: Normalize(typeInstanceList.Groups["type"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(typeInstanceList.Groups["type"].Value),
                 targetType: instanceLimit.ToString(CultureInfo.InvariantCulture),
                 sourceText: source);
             return true;
         }
 
         var listExamples = ListExamplesPattern.Match(text);
-        if (listExamples.Success && TryParseCardinal(listExamples.Groups["count"].Value, out var listLimit))
+        if (listExamples.Success && SemanticWorldModelQuestionNormalization.TryParseCardinal(listExamples.Groups["count"].Value, out var listLimit))
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.ListExamples,
-                subject: NormalizeListCategory(listExamples.Groups["category"].Value),
+                subject: SemanticWorldModelQuestionNormalization.NormalizeListCategory(listExamples.Groups["category"].Value),
                 limit: listLimit,
                 sourceText: source);
             return true;
@@ -395,7 +395,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.CreativeIdeas,
-                subject: Normalize(creativeIdeas.Groups["item"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(creativeIdeas.Groups["item"].Value),
                 sourceText: source);
             return true;
         }
@@ -405,7 +405,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.BeginnerGuidance,
-                subject: NormalizeBeginnerActivity(beginnerGuidance.Groups["activity"].Value),
+                subject: SemanticWorldModelQuestionNormalization.NormalizeBeginnerActivity(beginnerGuidance.Groups["activity"].Value),
                 sourceText: source);
             return true;
         }
@@ -415,8 +415,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.WhyHarmful,
-                subject: NormalizeHarmTerm(harmful.Groups["subject"].Value),
-                concept: NormalizeHarmTerm(harmful.Groups["target"].Value),
+                subject: SemanticWorldModelQuestionNormalization.NormalizeHarmTerm(harmful.Groups["subject"].Value),
+                concept: SemanticWorldModelQuestionNormalization.NormalizeHarmTerm(harmful.Groups["target"].Value),
                 sourceText: source);
             return true;
         }
@@ -426,7 +426,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Definition,
-                concept: Normalize(definition.Groups["concept"].Value),
+                concept: SemanticWorldModelQuestionNormalization.Normalize(definition.Groups["concept"].Value),
                 sourceText: source);
             return true;
         }
@@ -436,8 +436,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.WhyClassification,
-                subject: Normalize(why.Groups["subject"].Value),
-                concept: Normalize(why.Groups["concept"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(why.Groups["subject"].Value),
+                concept: SemanticWorldModelQuestionNormalization.Normalize(why.Groups["concept"].Value),
                 sourceText: source);
             return true;
         }
@@ -449,9 +449,9 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.CapabilityExplanation,
-                subject: Normalize(capabilityExplanation.Groups["subject"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(capabilityExplanation.Groups["subject"].Value),
                 concept: "survive",
-                otherSubject: Normalize(capabilityExplanation.Groups["context"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(capabilityExplanation.Groups["context"].Value),
                 sourceText: source);
             return true;
         }
@@ -461,8 +461,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Ability,
-                subject: Normalize(ability.Groups["subject"].Value),
-                concept: Normalize(ability.Groups["ability"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(ability.Groups["subject"].Value),
+                concept: SemanticWorldModelQuestionNormalization.Normalize(ability.Groups["ability"].Value),
                 sourceText: source);
             return true;
         }
@@ -472,7 +472,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Mechanism,
-                subject: Normalize(mechanism.Groups["subject"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(mechanism.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
@@ -482,7 +482,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.EventOutcomes,
-                subject: Normalize(eventOutcomes.Groups["event"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(eventOutcomes.Groups["event"].Value),
                 sourceText: source);
             return true;
         }
@@ -492,7 +492,7 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Causes,
-                subject: Normalize(causes.Groups["subject"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(causes.Groups["subject"].Value),
                 sourceText: source);
             return true;
         }
@@ -502,10 +502,10 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.ContributionQuery,
-                subject: NormalizeContributionTerm(headquartersContribution.Groups["recipient"].Value),
-                concept: NormalizeContributionTerm(headquartersContribution.Groups["resource"].Value),
-                otherSubject: NormalizeContributionTerm(headquartersContribution.Groups["location"].Value),
-                targetType: NormalizeContributionTerm(headquartersContribution.Groups["facility"].Value),
+                subject: SemanticWorldModelQuestionNormalization.NormalizeContributionTerm(headquartersContribution.Groups["recipient"].Value),
+                concept: SemanticWorldModelQuestionNormalization.NormalizeContributionTerm(headquartersContribution.Groups["resource"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.NormalizeContributionTerm(headquartersContribution.Groups["location"].Value),
+                targetType: SemanticWorldModelQuestionNormalization.NormalizeContributionTerm(headquartersContribution.Groups["facility"].Value),
                 sourceText: source);
             return true;
         }
@@ -515,8 +515,8 @@ internal static class SemanticWorldModelQuestionParser
         {
             utterance = Create(
                 SemanticWorldModelQuestionKind.Compare,
-                subject: Normalize(comparison.Groups["subject"].Value),
-                otherSubject: Normalize(comparison.Groups["other"].Value),
+                subject: SemanticWorldModelQuestionNormalization.Normalize(comparison.Groups["subject"].Value),
+                otherSubject: SemanticWorldModelQuestionNormalization.Normalize(comparison.Groups["other"].Value),
                 sourceText: source);
             return true;
         }
@@ -556,157 +556,5 @@ internal static class SemanticWorldModelQuestionParser
             new SemanticWorldModelQuestionFormula(kind, subject, concept, otherSubject, targetType, limit),
             sourceText ?? string.Empty);
 
-    private static string SingularizeEnumerationGroup(string group) =>
-        group switch
-        {
-            "children" => "child",
-            "people" => "person",
-            "men" => "man",
-            "women" => "woman",
-            "mice" => "mouse",
-            "geese" => "goose",
-            "teeth" => "tooth",
-            "feet" => "foot",
-            _ when group.EndsWith("ies", StringComparison.Ordinal) => $"{group[..^3]}y",
-            _ when group.EndsWith("sses", StringComparison.Ordinal) ||
-                   group.EndsWith("shes", StringComparison.Ordinal) ||
-                   group.EndsWith("ches", StringComparison.Ordinal) ||
-                   group.EndsWith("xes", StringComparison.Ordinal) ||
-                   group.EndsWith("zes", StringComparison.Ordinal) => group[..^2],
-            _ when group.EndsWith("s", StringComparison.Ordinal) &&
-                   !group.EndsWith("ss", StringComparison.Ordinal) => group[..^1],
-            _ => group
-        };
 
-    private static bool TryParseCardinal(string value, out int number)
-    {
-        if (int.TryParse(value, out number))
-        {
-            return number > 0;
-        }
-
-        number = value.ToLowerInvariant() switch
-        {
-            "one" => 1,
-            "two" => 2,
-            "three" => 3,
-            "four" => 4,
-            "five" => 5,
-            "six" => 6,
-            "seven" => 7,
-            "eight" => 8,
-            "nine" => 9,
-            "ten" => 10,
-            _ => 0
-        };
-
-        return number > 0;
-    }
-
-    private static bool TryParseOrdinal(string value, out int number)
-    {
-        number = value.ToLowerInvariant() switch
-        {
-            "first" => 1,
-            "second" => 2,
-            "third" => 3,
-            "fourth" => 4,
-            "fifth" => 5,
-            "sixth" => 6,
-            "seventh" => 7,
-            "eighth" => 8,
-            "ninth" => 9,
-            "tenth" => 10,
-            _ => 0
-        };
-
-        if (number > 0)
-        {
-            return true;
-        }
-
-        var digits = Regex.Match(value, @"^(?<number>[0-9]+)(?:st|nd|rd|th)$");
-        return digits.Success && int.TryParse(digits.Groups["number"].Value, out number) && number > 0;
-    }
-
-    private static string NormalizeMaximumMetric(string value) =>
-        Normalize(value) switch
-        {
-            "olympic-gold-medal" or "olympic-gold-medals" => "olympic-gold-medal-count",
-            _ => Normalize(value)
-        };
-
-    private static string NormalizeListCategory(string value) =>
-        Normalize(value) switch
-        {
-            "golf-equipment-companies" or "golf-equipment-company-names" => "golf-equipment-company",
-            "golf-equipment-company" => "golf-equipment-company",
-            _ => Normalize(value)
-        };
-
-    private static string NormalizeBeginnerActivity(string value) =>
-        Normalize(value) switch
-        {
-            "run" or "running" or "jogging" => "running",
-            _ => Normalize(value)
-        };
-
-    private static string NormalizeHarmTerm(string value) =>
-        Normalize(value) switch
-        {
-            "mobile" or "mobile-phone" or "mobile-phones" or
-            "smartphone" or "smartphones" or "smartphone-use" or "phone-use" or
-            "cell-phone" or "cell-phones" => "mobile-phone-use",
-            "human" or "humans" or "people" => "person",
-            _ => Normalize(value)
-        };
-
-    private static string NormalizeContributionTerm(string value) =>
-        Normalize(value) switch
-        {
-            "un" => "united-nations",
-            "ny" => "new-york-city",
-            "land" => "land-parcel",
-            "hq" or "headquarters" => "headquarters-site",
-            _ => Normalize(value)
-        };
-
-    internal static string NormalizeQuotedTerm(string value) =>
-        Normalize(value.Trim().Trim('"', '\u201c', '\u201d', '\u0027', '\u2019'));
-
-    private static string NormalizeRegionalVariant(string value) =>
-        Normalize(value) switch
-        {
-            "american" or "americans" or "united-states" => "american-english",
-            "british" or "brits" or "united-kingdom" => "british-english",
-            _ => Normalize(value)
-        };
-
-    internal static string NormalizeType(string value)
-    {
-        var normalized = Normalize(value);
-        if (normalized.EndsWith("ies", StringComparison.Ordinal) && normalized.Length > 3)
-        {
-            return normalized[..^3] + "y";
-        }
-
-        return normalized.EndsWith('s') && !normalized.EndsWith("ss", StringComparison.Ordinal)
-            ? normalized[..^1]
-            : normalized;
-    }
-
-    internal static string Normalize(string value)
-    {
-        var normalized = value.Trim();
-        foreach (var article in new[] { "a ", "an ", "the " })
-        {
-            if (normalized.StartsWith(article, StringComparison.OrdinalIgnoreCase))
-            {
-                normalized = normalized[article.Length..];
-                break;
-            }
-        }
-
-        return SemanticWorldModel.Normalize(normalized);
-    }
 }

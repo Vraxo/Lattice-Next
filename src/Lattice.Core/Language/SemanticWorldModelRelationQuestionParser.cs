@@ -43,9 +43,9 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(relationPair.Groups["subject"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(relationPair.Groups["subject"].Value),
                     "related",
-                    OtherSubject: SemanticWorldModelQuestionParser.Normalize(relationPair.Groups["other"].Value)),
+                    OtherSubject: SemanticWorldModelQuestionNormalization.Normalize(relationPair.Groups["other"].Value)),
                 source);
             return true;
         }
@@ -62,10 +62,10 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(scopedTypedRelationTarget.Groups["subject"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(scopedTypedRelationTarget.Groups["verb"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(scopedTypedRelationTarget.Groups["scope"].Value),
-                    SemanticWorldModelQuestionParser.NormalizeType(scopedTypedRelationTarget.Groups["targetType"].Value)),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedTypedRelationTarget.Groups["subject"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedTypedRelationTarget.Groups["verb"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedTypedRelationTarget.Groups["scope"].Value),
+                    SemanticWorldModelQuestionNormalization.NormalizeType(scopedTypedRelationTarget.Groups["targetType"].Value)),
                 source);
             return true;
         }
@@ -76,9 +76,9 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(typedRelationTarget.Groups["subject"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(typedRelationTarget.Groups["verb"].Value),
-                    TargetType: SemanticWorldModelQuestionParser.NormalizeType(typedRelationTarget.Groups["targetType"].Value)),
+                    SemanticWorldModelQuestionNormalization.Normalize(typedRelationTarget.Groups["subject"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(typedRelationTarget.Groups["verb"].Value),
+                    TargetType: SemanticWorldModelQuestionNormalization.NormalizeType(typedRelationTarget.Groups["targetType"].Value)),
                 source);
             return true;
         }
@@ -89,9 +89,9 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(scopedRelationTarget.Groups["subject"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(scopedRelationTarget.Groups["verb"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(scopedRelationTarget.Groups["scope"].Value)),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedRelationTarget.Groups["subject"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedRelationTarget.Groups["verb"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(scopedRelationTarget.Groups["scope"].Value)),
                 source);
             return true;
         }
@@ -102,8 +102,8 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(relationTarget.Groups["subject"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(relationTarget.Groups["verb"].Value)),
+                    SemanticWorldModelQuestionNormalization.Normalize(relationTarget.Groups["subject"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(relationTarget.Groups["verb"].Value)),
                 source);
             return true;
         }
@@ -114,9 +114,9 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationSourceQueryFormula(
-                    SemanticWorldModelQuestionParser.NormalizeQuotedTerm(typedRelationSource.Groups["object"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(typedRelationSource.Groups["verb"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(typedRelationSource.Groups["subjectType"].Value)),
+                    SemanticWorldModelQuestionNormalization.NormalizeQuotedTerm(typedRelationSource.Groups["object"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(typedRelationSource.Groups["verb"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(typedRelationSource.Groups["subjectType"].Value)),
                 source);
             return true;
         }
@@ -127,8 +127,8 @@ internal static class SemanticWorldModelRelationQuestionParser
             utterance = new SemanticUtterance(
                 UtteranceKind.Question,
                 new SemanticRelationSourceQueryFormula(
-                    SemanticWorldModelQuestionParser.Normalize(relationSource.Groups["object"].Value),
-                    SemanticWorldModelQuestionParser.Normalize(relationSource.Groups["verb"].Value)),
+                    SemanticWorldModelQuestionNormalization.Normalize(relationSource.Groups["object"].Value),
+                    SemanticWorldModelQuestionNormalization.Normalize(relationSource.Groups["verb"].Value)),
                 source);
             return true;
         }
