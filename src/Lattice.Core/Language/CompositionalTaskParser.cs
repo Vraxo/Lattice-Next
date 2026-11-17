@@ -440,7 +440,7 @@ internal static class CompositionalTaskParser
 
         var match = Regex.Match(
             expression,
-            @"^\\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\\s+(?<operator>is\\s+at\\s+least|at\\s+least|is\\s+at\\s+most|at\\s+most|is\\s+greater\\s+than|greater\\s+than|is\\s+less\\s+than|less\\s+than|is\\s+not\\s+equal\\s+to|not\\s+equal\\s+to|is\\s+equal\\s+to|equals?)\\s+(?<right>.+?)\\s*$",
+            @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
         if (!match.Success)
         {
@@ -449,7 +449,7 @@ internal static class CompositionalTaskParser
 
         var leftOperand = match.Groups["left"].Value;
         var rightOperand = match.Groups["right"].Value;
-        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\\s+", " ")
+        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
             .Trim()
             .ToLowerInvariant();
         var symbol = comparison switch
@@ -477,21 +477,21 @@ internal static class CompositionalTaskParser
     private static int FindTopLevelBooleanOperator(string expression, string operation)
     {
         var depth = 0;
-        var quote = '\\0';
+        var quote = '\0';
         for (var index = 0; index <= expression.Length - operation.Length; index++)
         {
             var character = expression[index];
-            if (quote != '\\0')
+            if (quote != '\0')
             {
-                if (character == quote && (index == 0 || expression[index - 1] != '\\\\'))
+                if (character == quote && (index == 0 || expression[index - 1] != '\\'))
                 {
-                    quote = '\\0';
+                    quote = '\0';
                 }
 
                 continue;
             }
 
-            if (character is '\\'' or '"')
+            if (character is '\'' or '"')
             {
                 quote = character;
                 continue;
@@ -531,21 +531,21 @@ internal static class CompositionalTaskParser
         }
 
         var depth = 0;
-        var quote = '\\0';
+        var quote = '\0';
         for (var index = 0; index < expression.Length; index++)
         {
             var character = expression[index];
-            if (quote != '\\0')
+            if (quote != '\0')
             {
-                if (character == quote && (index == 0 || expression[index - 1] != '\\\\'))
+                if (character == quote && (index == 0 || expression[index - 1] != '\\'))
                 {
-                    quote = '\\0';
+                    quote = '\0';
                 }
 
                 continue;
             }
 
-            if (character is '\\'' or '"')
+            if (character is '\'' or '"')
             {
                 quote = character;
             }
