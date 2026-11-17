@@ -65,7 +65,7 @@ internal static class SemanticWorldModelDefinitionLoader
                 relation.DomainType is null ||
                 relation.RangeType is null ||
                 string.IsNullOrWhiteSpace(expression.TargetType) ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, expression.TargetType) ||
+                !SemanticWorldModelValidation.IsType(concepts, expression.TargetType) ||
                 !expression.Operands.IsDefaultOrEmpty ||
                 expression.StartRelation is not null ||
                 expression.MinimumLength != 0 ||
@@ -96,12 +96,12 @@ internal static class SemanticWorldModelDefinitionLoader
                 startRelation.DomainType is not null &&
                 startRelation.RangeType is not null &&
                 !string.IsNullOrWhiteSpace(expression.TargetType) &&
-                SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, expression.TargetType) &&
+                SemanticWorldModelValidation.IsType(concepts, expression.TargetType) &&
                 expression.MinimumLength is >= 2 and <= 64 &&
                 ((expression.SourceConnectionRelation is null &&
                   expression.TargetConnectionRelation is null) ||
-                 (SemanticWorldModelValidation.SemanticWorldModelValidation.IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
-                  SemanticWorldModelValidation.SemanticWorldModelValidation.IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
+                 (SemanticWorldModelValidation.IsValidConnectionRelation(expression.SourceConnectionRelation, relations) &&
+                  SemanticWorldModelValidation.IsValidConnectionRelation(expression.TargetConnectionRelation, relations))) &&
                 expression.Filler is null &&
                 expression.Operands.IsDefaultOrEmpty;
         }
@@ -179,7 +179,7 @@ internal static class SemanticWorldModelDefinitionLoader
                 relation.ObjectKind != SemanticRelationArgumentKind.Individual ||
                 relation.DomainType is null ||
                 relation.RangeType is null ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, condition.TargetType))
+                !SemanticWorldModelValidation.IsType(concepts, condition.TargetType))
             {
                 error = $"Type definition '{ownerType}' contains an invalid necessary or sufficient relation restriction.";
                 return false;
@@ -207,11 +207,11 @@ internal static class SemanticWorldModelDefinitionLoader
         {
             var parents = item?.Parents ?? [];
             var hasValidLegacyParents = document.FormatVersion < 3 &&
-                parents.All(parent => SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, parent)) &&
+                parents.All(parent => SemanticWorldModelValidation.IsType(concepts, parent)) &&
                 parents.Distinct(StringComparer.Ordinal).Count() == parents.Count;
 
             if (item is null ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Concept) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.Concept) ||
                 item.Conditions is null ||
                 item.NecessaryConditions is null ||
                 (document.FormatVersion < 3 && !hasValidLegacyParents) ||
