@@ -33,6 +33,10 @@ internal static class CompositionalTaskParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex DictionaryIterationPattern = new(
+        @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -131,6 +135,10 @@ internal static class CompositionalTaskParser
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
             formula = formula with { GenerationSteps = functionSteps };
+        }
+        else if (TryGetDictionaryIterationProgram(source, out var dictionarySteps))
+        {
+            formula = formula with { GenerationSteps = dictionarySteps };
         }
         else if (TryGetLoopFilterProgram(source, out var filterSteps))
         {
@@ -864,6 +872,41 @@ internal static class CompositionalTaskParser
         return true;
     }
 
+    private static bool TryGetDictionaryIterationProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = DictionaryIterationPattern.Match(source);
+        if (!match.Success ||
+            !TryNormalizeSimpleDictionaryLiteral(match.Groups["items"].Value, out var items))
+        {
+            return false;
+        }
+
+        var dictionary = match.Groups["dictionary"].Value;
+        var key = match.Groups["key"].Value;
+        var value = match.Groups["value"].Value;
+        if (dictionary.Equals(key, StringComparison.OrdinalIgnoreCase) ||
+            dictionary.Equals(value, StringComparison.OrdinalIgnoreCase) ||
+            key.Equals(value, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", $"{dictionary} = {items}"),
+            new TaskRequestStep(
+                "begin-loop",
+                "loop-header",
+                $"{key}, {value} in {dictionary}.items()"),
+            new TaskRequestStep(
+                "write-standard-output-indented-expression",
+                "expression",
+                $"{key}, {value}"));
+        return true;
+    }
+
     private static bool TryGetLoopFilterProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -928,6 +971,24 @@ internal static class CompositionalTaskParser
                 "assignment",
                 $"{total} = {total} + {item}"),
             new TaskRequestStep("write-standard-output", "expression", total));
+        return true;
+    }
+
+    private static bool TryNormalizeSimpleDictionaryLiteral(string value, out string normalized)
+    {
+        normalized = value.Trim();
+        const string key = @"(?:'[^'\\]*'|""[^""\\]*"")";
+        const string number = @"[+-]?\d+(?:\.\d+)?";
+        if (!Regex.IsMatch(
+            normalized,
+            $@"^\{{\s*{key}\s*:\s*{number}(?:\s*,\s*{key}\s*:\s*{number})*\s*\}}$",
+            RegexOptions.CultureInvariant))
+        {
+            return false;
+        }
+
+        normalized = Regex.Replace(normalized, @"\s*:\s*", ": ");
+        normalized = Regex.Replace(normalized, @"\s*,\s*", ", ");
         return true;
     }
 
