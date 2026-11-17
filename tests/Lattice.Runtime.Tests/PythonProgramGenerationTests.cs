@@ -145,6 +145,14 @@ public sealed class PythonProgramGenerationTests
         "result = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)",
         "4.0")]
     [InlineData(
+        "Create a Python program that prints each number in [1, 2, 3, 4, 5, 6] only if it is even.",
+        "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)",
+        "2\n4\n6")]
+    [InlineData(
+        "Build a Python script that displays each value from [-3, -2, -1, 0, 1, 2, 3] only if it is odd.",
+        "for value in [-3, -2, -1, 0, 1, 2, 3]:\n    if value % 2 != 0:\n        print(value)",
+        "-3\n-1\n1\n3")]
+    [InlineData(
         "Create a Python program that prints each number in the list [2, 4, 6].",
         "for number in [2, 4, 6]:\n    print(number)",
         "2\n4\n6")]
