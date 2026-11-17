@@ -11,20 +11,50 @@ internal sealed class ObjectiveConversationWorkflow
 {
     private readonly KnowledgeBase knowledgeBase;
     private readonly ObjectiveEvaluator objectiveEvaluator;
+    private readonly Func<ObjectiveFormula?> getActiveObjective;
+    private readonly Action<ObjectiveFormula?> setActiveObjective;
+    private readonly Func<string?> getActiveObjectiveSource;
+    private readonly Action<string?> setActiveObjectiveSource;
+    private readonly Func<ObjectiveCondition?> getPendingCondition;
+    private readonly Action<ObjectiveCondition?> setPendingCondition;
 
     public ObjectiveConversationWorkflow(
         KnowledgeBase knowledgeBase,
-        ObjectiveEvaluator objectiveEvaluator)
+        ObjectiveEvaluator objectiveEvaluator,
+        Func<ObjectiveFormula?> getActiveObjective,
+        Action<ObjectiveFormula?> setActiveObjective,
+        Func<string?> getActiveObjectiveSource,
+        Action<string?> setActiveObjectiveSource,
+        Func<ObjectiveCondition?> getPendingCondition,
+        Action<ObjectiveCondition?> setPendingCondition)
     {
         this.knowledgeBase = knowledgeBase;
         this.objectiveEvaluator = objectiveEvaluator;
+        this.getActiveObjective = getActiveObjective;
+        this.setActiveObjective = setActiveObjective;
+        this.getActiveObjectiveSource = getActiveObjectiveSource;
+        this.setActiveObjectiveSource = setActiveObjectiveSource;
+        this.getPendingCondition = getPendingCondition;
+        this.setPendingCondition = setPendingCondition;
     }
 
-    public ObjectiveFormula? ActiveObjective { get; set; }
+    private ObjectiveFormula? ActiveObjective
+    {
+        get => getActiveObjective();
+        set => setActiveObjective(value);
+    }
 
-    public string? ActiveObjectiveSource { get; set; }
+    private string? ActiveObjectiveSource
+    {
+        get => getActiveObjectiveSource();
+        set => setActiveObjectiveSource(value);
+    }
 
-    public ObjectiveCondition? PendingCondition { get; set; }
+    private ObjectiveCondition? PendingCondition
+    {
+        get => getPendingCondition();
+        set => setPendingCondition(value);
+    }
 
     public LatticeUtteranceResult ProcessCandidateInformation(
         SemanticUtterance parsedUtterance,
