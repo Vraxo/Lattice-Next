@@ -386,16 +386,6 @@
       "startSymbol": "indented-call-expression"
     },
     {
-      "id": "python-sys-stdout-write",
-      "symbol": "sys.stdout.write",
-      "effect": "write-standard-output",
-      "argumentKind": "text",
-      "prerequisites": [
-        "module:sys"
-      ],
-      "startSymbol": "call-expression"
-    },
-    {
       "id": "python-input",
       "symbol": "input",
       "effect": "read-standard-input",
@@ -474,14 +464,6 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-except-statement"
-    },
-    {
-      "id": "python-return-double-indented-expression",
-      "symbol": "return",
-      "effect": "return-value-double-indented-expression",
-      "argumentKind": "expression",
-      "prerequisites": [],
-      "startSymbol": "double-indented-return-expression"
     }
   ],
   "stringLiteralFormat": {
