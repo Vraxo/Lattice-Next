@@ -32,6 +32,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program that outputs 'match' if 7 equals 7.",
         "if 7 == 7:\n    print(\"match\")",
         "match")]
+    [InlineData(
+        "Create a Python program that prints each number from 1 to 5.",
+        "for number in range(1, 6):\n    print(number)",
+        "1\n2\n3\n4\n5")]
+    [InlineData(
+        "Build a Python script that displays each value from 2 through 4.",
+        "for value in range(2, 5):\n    print(value)",
+        "2\n3\n4")]
+    [InlineData(
+        "Generate a Python program that outputs each count from 3 to 6.",
+        "for count in range(3, 7):\n    print(count)",
+        "3\n4\n5\n6")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
@@ -80,6 +92,6 @@ public sealed class PythonProgramGenerationTests
         var output = await outputTask;
         var error = await errorTask;
         Assert.True(process.ExitCode == 0, error);
-        Assert.Equal(expectedOutput + Environment.NewLine, output);
+        Assert.Equal(expectedOutput.Replace("\n", Environment.NewLine, StringComparison.Ordinal) + Environment.NewLine, output);
     }
 }

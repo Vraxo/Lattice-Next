@@ -21,6 +21,10 @@ internal static class CompositionalTaskParser
         "print", "display", "show", "output", "say"
     };
 
+    private static readonly Regex LoopRangeOutputPattern = new(
+        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?|counts?|i)\s+from\s+(?<start>\d+)\s+(?:to|through)\s+(?<end>\d+)\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex ConditionalOutputPattern = new(
         @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -71,7 +75,11 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (TryGetConditionalProgram(source, out var conditionalSteps))
+        if (TryGetLoopProgram(source, out var loopSteps))
+        {
+            formula = formula with { GenerationSteps = loopSteps };
+        }
+        else if (TryGetConditionalProgram(source, out var conditionalSteps))
         {
             formula = formula with { GenerationSteps = conditionalSteps };
         }
@@ -107,6 +115,40 @@ internal static class CompositionalTaskParser
         phrase is not null &&
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
+
+    private static bool TryGetLoopProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = LoopRangeOutputPattern.Match(source);
+        if (!match.Success ||
+            !int.TryParse(match.Groups["start"].Value, out var start) ||
+            !int.TryParse(match.Groups["end"].Value, out var inclusiveEnd) ||
+            inclusiveEnd < start ||
+            inclusiveEnd == int.MaxValue)
+        {
+            return false;
+        }
+
+        var variable = match.Groups["item"].Value.ToLowerInvariant() switch
+        {
+            "numbers" => "number",
+            "values" => "value",
+            "items" => "item",
+            "counts" => "count",
+            var item => item
+        };
+        var loopHeader = $"{variable} in range({start}, {inclusiveEnd + 1})";
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-loop", "loop-header", loopHeader),
+            new TaskRequestStep(
+                "write-standard-output-indented-expression",
+                "expression",
+                variable));
+        return true;
+    }
 
     private static bool TryGetConditionalProgram(
         string source,
