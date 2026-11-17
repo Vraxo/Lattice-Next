@@ -37,9 +37,10 @@ internal static class CompositionalTaskParser
         @"^[A-Za-z_][A-Za-z0-9_]*\s*=\s*(?:\d+(?:\.\d+)?)$",
         RegexOptions.CultureInvariant);
 
-    private static readonly Regex ArithmeticExpressionPattern = new(
-        @"^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+\-*/%]\s*(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?))*$",
-        RegexOptions.CultureInvariant);
+    private static readonly Regex VariableExpressionProgramPattern = new(
+        @"\bsets?\s+(?<variable>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<value>\d+(?:\.\d+)?)\s+and\s+(?:prints?|displays?|outputs?)\s+(?<expression>.+?)\s*[.!?]?\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
 
     internal static bool TryParse(
         string source,
@@ -91,7 +92,7 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = conditionalSteps };
         }
-        else if (TryGetVariableProgram(syntax, creationClauseIndex, out var generationSteps))
+        else if (TryGetVariableProgram(source, out var generationSteps))
         {
             formula = formula with { GenerationSteps = generationSteps };
         }
@@ -124,6 +125,106 @@ internal static class CompositionalTaskParser
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
 
+
+    private static bool IsArithmeticExpression(string expression)
+    {
+        var tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[()+\-*/%]";
+        var tokens = Regex.Matches(expression, tokenPattern)
+            .Select(match => match.Value)
+            .ToArray();
+        var remainder = Regex.Replace(expression, tokenPattern, string.Empty);
+        if (tokens.Length == 0 || remainder.Any(character => !char.IsWhiteSpace(character)))
+        {
+            return false;
+        }
+
+        var index = 0;
+        return TryParseAdditiveExpression(tokens, ref index) && index == tokens.Length;
+    }
+
+    private static bool TryParseAdditiveExpression(string[] tokens, ref int index)
+    {
+        if (!TryParseMultiplicativeExpression(tokens, ref index))
+        {
+            return false;
+        }
+
+        while (index < tokens.Length && tokens[index] is "+" or "-")
+        {
+            index++;
+            if (!TryParseMultiplicativeExpression(tokens, ref index))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryParseMultiplicativeExpression(string[] tokens, ref int index)
+    {
+        if (!TryParseUnaryExpression(tokens, ref index))
+        {
+            return false;
+        }
+
+        while (index < tokens.Length && tokens[index] is "*" or "/" or "%")
+        {
+            index++;
+            if (!TryParseUnaryExpression(tokens, ref index))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryParseUnaryExpression(string[] tokens, ref int index)
+    {
+        if (index < tokens.Length && tokens[index] is "+" or "-")
+        {
+            index++;
+            return TryParseUnaryExpression(tokens, ref index);
+        }
+
+        return TryParsePrimaryExpression(tokens, ref index);
+    }
+
+    private static bool TryParsePrimaryExpression(string[] tokens, ref int index)
+    {
+        if (index >= tokens.Length)
+        {
+            return false;
+        }
+
+        if (tokens[index] == "(")
+        {
+            index++;
+            if (!TryParseAdditiveExpression(tokens, ref index) ||
+                index >= tokens.Length ||
+                tokens[index] != ")")
+            {
+                return false;
+            }
+
+            index++;
+            return true;
+        }
+
+        var token = tokens[index];
+        if (!Regex.IsMatch(
+            token,
+            @"^(?:[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?)$",
+            RegexOptions.CultureInvariant))
+        {
+            return false;
+        }
+
+        index++;
+        return true;
+    }
+
     private static bool TryGetFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -142,7 +243,7 @@ internal static class CompositionalTaskParser
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
         var numericArguments = string.Join(",", Enumerable.Repeat(@"\d+(?:\.\d+)?", parameters.Length));
 
-        if (!ArithmeticExpressionPattern.IsMatch(expression) ||
+        if (!IsArithmeticExpression(expression) ||
             !Regex.IsMatch(
                 compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
@@ -239,29 +340,22 @@ internal static class CompositionalTaskParser
     }
 
     private static bool TryGetVariableProgram(
-        EnglishSentenceSyntax syntax,
-        int creationClauseIndex,
+        string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
-
-        var clauses = syntax.Clauses.Skip(creationClauseIndex + 1).ToArray();
-        var assignment = clauses.FirstOrDefault(clause => clause.Verb == "set");
-        var output = clauses.FirstOrDefault(clause => clause.Verb == "print");
-
-        if (assignment?.Object is null || output?.Object is null)
+        var match = VariableExpressionProgramPattern.Match(source);
+        if (!match.Success)
         {
             return false;
         }
 
-        var assignedValue = assignment.PrepositionalPhrases
-            .FirstOrDefault(phrase => phrase.Preposition == "to")?.Object.Text;
-        var variable = assignment.Object.Text.Trim();
-        var expression = NormalizeOutput(output.Object.Text);
+        var variable = match.Groups["variable"].Value;
+        var assignedValue = match.Groups["value"].Value;
+        var expression = match.Groups["expression"].Value.Trim().TrimEnd('.', '?', '!');
 
-        if (string.IsNullOrWhiteSpace(assignedValue) ||
-            !AssignmentValuePattern.IsMatch($"{variable} = {assignedValue.Trim()}") ||
-            !ArithmeticExpressionPattern.IsMatch(expression))
+        if (!AssignmentValuePattern.IsMatch($"{variable} = {assignedValue}") ||
+            !IsArithmeticExpression(expression))
         {
             return false;
         }
@@ -270,7 +364,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "assign-variable",
                 "assignment",
-                $"{variable} = {assignedValue.Trim()}"),
+                $"{variable} = {assignedValue}"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
