@@ -155,6 +155,36 @@
           "value": ")"
         }
       ]
+    },
+    {
+      "head": "function-definition",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "def "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-return-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -261,6 +291,22 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-expression-call"
+    },
+    {
+      "id": "python-function-definition",
+      "symbol": "def",
+      "effect": "begin-function",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "function-definition"
+    },
+    {
+      "id": "python-return-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-return-expression"
     }
   ],
   "stringLiteralFormat": {
