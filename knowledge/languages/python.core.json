@@ -6,55 +6,154 @@
     {
       "head": "program",
       "symbols": [
-        { "kind": "nonterminal", "value": "statement" }
+        {
+          "kind": "nonterminal",
+          "value": "statement"
+        }
       ]
     },
     {
       "head": "statement",
       "symbols": [
-        { "kind": "nonterminal", "value": "call-expression" }
+        {
+          "kind": "nonterminal",
+          "value": "call-expression"
+        }
       ]
     },
     {
       "head": "call-expression",
       "symbols": [
-        { "kind": "binding", "value": "operation" },
-        { "kind": "terminal", "value": "(" },
-        { "kind": "binding", "value": "argument-text" },
-        { "kind": "terminal", "value": ")" }
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-text"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
       ]
     },
     {
       "head": "expression-call",
       "symbols": [
-        { "kind": "binding", "value": "operation" },
-        { "kind": "terminal", "value": "(" },
-        { "kind": "binding", "value": "argument-expression" },
-        { "kind": "terminal", "value": ")" }
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
       ]
     },
     {
       "head": "assignment-statement",
       "symbols": [
-        { "kind": "binding", "value": "argument-assignment" }
+        {
+          "kind": "binding",
+          "value": "argument-assignment"
+        }
       ]
     },
     {
       "head": "if-statement",
       "symbols": [
-        { "kind": "terminal", "value": "if " },
-        { "kind": "binding", "value": "argument-expression" },
-        { "kind": "terminal", "value": ":" }
+        {
+          "kind": "terminal",
+          "value": "if "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
       ]
     },
     {
       "head": "indented-call-expression",
       "symbols": [
-        { "kind": "terminal", "value": "    " },
-        { "kind": "binding", "value": "operation" },
-        { "kind": "terminal", "value": "(" },
-        { "kind": "binding", "value": "argument-text" },
-        { "kind": "terminal", "value": ")" }
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-text"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "for-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-expression-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
       ]
     }
   ],
@@ -126,7 +225,9 @@
       "symbol": "sys.stdout.write",
       "effect": "write-standard-output",
       "argumentKind": "text",
-      "prerequisites": ["module:sys"],
+      "prerequisites": [
+        "module:sys"
+      ],
       "startSymbol": "call-expression"
     },
     {
@@ -144,17 +245,48 @@
       "argumentKind": "path",
       "prerequisites": [],
       "startSymbol": "call-expression"
+    },
+    {
+      "id": "python-for-loop",
+      "symbol": "for",
+      "effect": "begin-loop",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "for-statement"
+    },
+    {
+      "id": "python-print-indented-expression",
+      "symbol": "print",
+      "effect": "write-standard-output-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-expression-call"
     }
   ],
   "stringLiteralFormat": {
     "openingDelimiter": "\"",
     "closingDelimiter": "\"",
     "escapes": [
-      { "character": "\\", "replacement": "\\\\" },
-      { "character": "\"", "replacement": "\\\"" },
-      { "character": "\n", "replacement": "\\n" },
-      { "character": "\r", "replacement": "\\r" },
-      { "character": "\t", "replacement": "\\t" }
+      {
+        "character": "\\",
+        "replacement": "\\\\"
+      },
+      {
+        "character": "\"",
+        "replacement": "\\\""
+      },
+      {
+        "character": "\n",
+        "replacement": "\\n"
+      },
+      {
+        "character": "\r",
+        "replacement": "\\r"
+      },
+      {
+        "character": "\t",
+        "replacement": "\\t"
+      }
     ]
   }
 }
