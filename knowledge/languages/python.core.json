@@ -98,6 +98,14 @@
       ]
     },
     {
+      "head": "indented-elif-statement",
+      "symbols": [
+        { "kind": "terminal", "value": "    elif " },
+        { "kind": "binding", "value": "argument-expression" },
+        { "kind": "terminal", "value": ":" }
+      ]
+    },
+    {
       "head": "double-indented-return-expression",
       "symbols": [
         { "kind": "terminal", "value": "        return " },
@@ -271,6 +279,14 @@
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "indented-if-statement"
+    },
+    {
+      "id": "python-elif-indented",
+      "symbol": "elif",
+      "effect": "begin-elif-indented",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "indented-elif-statement"
     },
     {
       "id": "python-return-double-indented-expression",
