@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
+        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(7))",
+        "accepted")]
+    [InlineData(
+        "Build a Python script with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(3).",
+        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
+        "rejected")]
+    [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
         "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('admin'))",
         "allowed")]

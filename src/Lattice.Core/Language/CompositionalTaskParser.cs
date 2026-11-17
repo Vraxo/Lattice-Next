@@ -441,6 +441,18 @@ internal static class CompositionalTaskParser
             return true;
         }
 
+        if (expression.StartsWith("not ", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!TryParseBooleanCondition(expression[4..], parameters, out var negated))
+            {
+                return false;
+            }
+
+            var negatedExpression = $"not {negated}";
+            pythonCondition = isExplicitlyGrouped ? $"({negatedExpression})" : negatedExpression;
+            return true;
+        }
+
         var match = Regex.Match(
             expression,
             @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>.+?)\s*$",
