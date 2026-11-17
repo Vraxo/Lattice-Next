@@ -38,7 +38,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionConditionalProgramPattern = new(
-        @"\\bfunction\\s+named\\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\\s+that\\s+takes\\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\\s+and\\s+[A-Za-z_][A-Za-z0-9_]*)*)\\s+and\\s+returns\\s+(?<trueQuote>['""])(?<trueValue>[^'""]+)\\k<trueQuote>\\s+when\\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\\s+(?<operator>is\\s+at\\s+least|at\\s+least|is\\s+at\\s+most|at\\s+most|is\\s+greater\\s+than|greater\\s+than|is\\s+less\\s+than|less\\s+than|is\\s+equal\\s+to|equals?)\\s+(?<threshold>\\d+(?:\\.\\d+)?)\\s+and\\s+otherwise\\s+returns\\s+(?<falseQuote>['""])(?<falseValue>[^'""]+)\\k<falseQuote>,?\\s+then\\s+(?:print|display|output)\\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*[^()]+\\s*\\))\\s*[.!?]?\\s*$",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueQuote>['""])(?<trueValue>[^'""]+)\k<trueQuote>\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<threshold>\d+(?:\.\d+)?)\s+and\s+otherwise\s+returns\s+(?<falseQuote>['""])(?<falseValue>[^'""]+)\k<falseQuote>,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
@@ -371,7 +371,7 @@ internal static class CompositionalTaskParser
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var conditionName = match.Groups["conditionName"].Value;
         var threshold = match.Groups["threshold"].Value;
-        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\\s+", " ")
+        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
             .Trim()
             .ToLowerInvariant();
         var symbol = comparison switch
@@ -383,14 +383,14 @@ internal static class CompositionalTaskParser
             "is equal to" or "equal" or "equals" => "==",
             _ => string.Empty
         };
-        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\\d+(?:\\.\\d+)?", parameters.Length));
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
 
         if (symbol.Length == 0 ||
             !parameters.Contains(conditionName, StringComparer.OrdinalIgnoreCase) ||
             !Regex.IsMatch(
                 compactCall,
-                $@"^{Regex.Escape(name)}\\({numericArguments}\\)$",
+                $@"^{Regex.Escape(name)}\({numericArguments}\)$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
@@ -409,7 +409,7 @@ internal static class CompositionalTaskParser
     }
 
     private static string ToPythonStringLiteral(string value) =>
-        "\\"" + value.Replace("\\\\", "\\\\\\\\", StringComparison.Ordinal)
+        "\\"" + value.Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("\\"", "\\\\"", StringComparison.Ordinal) + "\\"";
 
     private static bool TryGetFunctionWithLocalVariableProgram(
