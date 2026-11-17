@@ -38,7 +38,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionConditionalProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueQuote>['""])(?<trueValue>[^'""]+)\k<trueQuote>\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<threshold>\d+(?:\.\d+)?)\s+and\s+otherwise\s+returns\s+(?<falseQuote>['""])(?<falseValue>[^'""]+)\k<falseQuote>,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
+        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<trueValue>.+?)\s+when\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equals?)\s+(?<threshold>\d+(?:\.\d+)?)\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
@@ -396,8 +396,12 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var trueValue = ToPythonStringLiteral(match.Groups["trueValue"].Value);
-        var falseValue = ToPythonStringLiteral(match.Groups["falseValue"].Value);
+        if (!TryGetFunctionReturnExpression(match.Groups["trueValue"].Value, parameters, out var trueValue) ||
+            !TryGetFunctionReturnExpression(match.Groups["falseValue"].Value, parameters, out var falseValue))
+        {
+            return false;
+        }
+
         var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
@@ -406,6 +410,29 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("return-value-indented-expression", "expression", falseValue),
             new TaskRequestStep("write-standard-output", "expression", $"{name}({string.Join(", ", callArguments)})"));
         return true;
+    }
+
+    private static bool TryGetFunctionReturnExpression(
+        string value,
+        string[] parameters,
+        out string expression)
+    {
+        expression = value.Trim();
+        if (expression.Length >= 2 &&
+            expression[0] is '\'' or '"' &&
+            expression[^1] == expression[0])
+        {
+            expression = ToPythonStringLiteral(expression[1..^1]);
+            return true;
+        }
+
+        if (!IsArithmeticExpression(expression))
+        {
+            return false;
+        }
+
+        return Regex.Matches(expression, @"[A-Za-z_][A-Za-z0-9_]*")
+            .All(match => parameters.Contains(match.Value, StringComparer.OrdinalIgnoreCase));
     }
 
     private static string ToPythonStringLiteral(string value) =>
