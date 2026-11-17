@@ -9,6 +9,18 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(95).",
+        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(95))",
+        "high")]
+    [InlineData(
+        "Build a Python script with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(75).",
+        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(75))",
+        "pass")]
+    [InlineData(
+        "Generate a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(40).",
+        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(40))",
+        "fail")]
+    [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
         "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(7))",
         "accepted")]
