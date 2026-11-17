@@ -371,12 +371,12 @@ internal static class CompositionalTaskParser
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var condition = match.Groups["condition"].Value;
         var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
+        var functionArguments = string.Join(",", Enumerable.Repeat(@"(?:[+-]?\d+(?:\.\d+)?|'[^']*')", parameters.Length));
 
         if (!TryParseFunctionCondition(condition, parameters, out var pythonCondition) ||
             !Regex.IsMatch(
                 compactCall,
-                $@"^{Regex.Escape(name)}\({numericArguments}\)$",
+                $@"^{Regex.Escape(name)}\({functionArguments}\)$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
