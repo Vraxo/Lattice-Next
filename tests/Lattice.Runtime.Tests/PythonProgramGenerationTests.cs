@@ -68,6 +68,18 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program with a function named subtract that takes larger and smaller and returns larger - smaller, then print subtract(15, 4).",
         "def subtract(larger, smaller):\n    return larger - smaller\nprint(subtract(15, 4))",
         "11")]
+    [InlineData(
+        "Create a Python program with a function named sum_three that takes first and second and third and returns first + second + third, then print sum_three(2, 3, 4).",
+        "def sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))",
+        "9")]
+    [InlineData(
+        "Build a Python script with a function named volume that takes width and height and depth and returns width * height * depth, then print volume(2, 3, 5).",
+        "def volume(width, height, depth):\n    return width * height * depth\nprint(volume(2, 3, 5))",
+        "30")]
+    [InlineData(
+        "Generate a Python program with a function named weighted_total that takes base and bonus and penalty and returns base + bonus - penalty, then print weighted_total(20, 7, 3).",
+        "def weighted_total(base, bonus, penalty):\n    return base + bonus - penalty\nprint(weighted_total(20, 7, 3))",
+        "24")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
