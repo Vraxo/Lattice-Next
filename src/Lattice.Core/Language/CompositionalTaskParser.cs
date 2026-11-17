@@ -139,17 +139,21 @@ internal static class CompositionalTaskParser
         var parameters = match.Groups["parameters"].Value
             .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var expression = match.Groups["expression"].Value.Trim();
-        var call = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
         var numericArguments = string.Join(",", Enumerable.Repeat(@"\d+(?:\.\d+)?", parameters.Length));
 
         if (!ArithmeticExpressionPattern.IsMatch(expression) ||
             !Regex.IsMatch(
-                call,
+                compactCall,
                 $@"^{Regex.Escape(name)}\({numericArguments}\)$",
                 RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
         {
             return false;
         }
+
+        var callName = compactCall[..compactCall.IndexOf('(')];
+        var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
+        var call = $"{callName}({string.Join(", ", callArguments)})";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
