@@ -100,6 +100,14 @@ public sealed class PythonProgramGenerationTests
         "Generate a Python program that sets total to 5 and prints (total + 3) * 2.",
         "total = 5\nprint((total + 3) * 2)",
         "16")]
+    [InlineData(
+        "Create a Python program with a function named double that takes value and returns value * 2, and a function named add_three that takes value and returns double(value) + 3, then print add_three(4).",
+        "def double(value):\n    return value * 2\ndef add_three(value):\n    return double(value) + 3\nprint(add_three(4))",
+        "11")]
+    [InlineData(
+        "Build a Python script with a function named sum_values that takes left and right and returns left + right, and a function named doubled_sum that takes left and right and returns sum_values(left, right) * 2, then print doubled_sum(3, 5).",
+        "def sum_values(left, right):\n    return left + right\ndef doubled_sum(left, right):\n    return sum_values(left, right) * 2\nprint(doubled_sum(3, 5))",
+        "16")]
     public async Task Generates_and_executes_composed_python_programs(
         string input,
         string expectedCode,
