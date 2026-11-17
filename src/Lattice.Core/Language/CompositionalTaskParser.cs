@@ -139,7 +139,7 @@ internal static class CompositionalTaskParser
             "counts" => "count",
             var item => item
         };
-        var loopHeader = $"for {variable} in range({start}, {inclusiveEnd + 1})";
+        var loopHeader = $"{variable} in range({start}, {inclusiveEnd + 1})";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-loop", "loop-header", loopHeader),
