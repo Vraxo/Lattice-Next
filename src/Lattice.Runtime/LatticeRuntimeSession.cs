@@ -616,8 +616,8 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
                 TruthValue.Both => LatticeTruthValue.Both,
                 _ => LatticeTruthValue.Unknown
             },
-            SupportingEvidence: answer.Proofs.Select(MapEvidence).ToImmutableArray(),
-            OpposingEvidence: answer.ContradictingProofs.Select(MapEvidence).ToImmutableArray());
+            SupportingEvidence: answer.Proofs.Select(LatticeRuntimeSessionObjectiveMapper.MapEvidence).ToImmutableArray(),
+            OpposingEvidence: answer.ContradictingProofs.Select(LatticeRuntimeSessionObjectiveMapper.MapEvidence).ToImmutableArray());
     }
 
     private LatticeUtteranceResult ProcessTaskRequest(
