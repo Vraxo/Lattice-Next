@@ -88,7 +88,7 @@ public sealed class TaskRequestResponseTests
     [InlineData("Could you write a simple Python script to display Hello, world?", "Hello, world!", "print(\"Hello, world!\")")]
     [InlineData("Create a Python program that prints 'A second message!'.", "A second message!", "print(\"A second message!\")")]
     [InlineData("Write a script in Python to display 'Keep this: punctuation, please!'.", "Keep this: punctuation, please!", "print(\"Keep this: punctuation, please!\")")]
-    [InlineData("Create a Python program that prints 'She said \\"hello\\".'.", "She said \"hello\".", "print(\"She said \\\"hello\\\".\")")]
+    [InlineData("Create a Python program that prints 'She said \"hello\".'.", "She said \"hello\".", "print(\"She said \\\"hello\\\".\")")]
     public async Task Generates_and_executes_python_from_reusable_generation_knowledge(
         string input,
         string expectedOutput,
