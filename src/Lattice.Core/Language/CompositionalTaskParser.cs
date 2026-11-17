@@ -37,6 +37,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex FunctionConditionalProgramPattern = new(
+        @"\\bfunction\\s+named\\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\\s+that\\s+takes\\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\\s+and\\s+[A-Za-z_][A-Za-z0-9_]*)*)\\s+and\\s+returns\\s+(?<trueQuote>['""])(?<trueValue>[^'""]+)\\k<trueQuote>\\s+when\\s+(?<conditionName>[A-Za-z_][A-Za-z0-9_]*)\\s+(?<operator>is\\s+at\\s+least|at\\s+least|is\\s+at\\s+most|at\\s+most|is\\s+greater\\s+than|greater\\s+than|is\\s+less\\s+than|less\\s+than|is\\s+equal\\s+to|equals?)\\s+(?<threshold>\\d+(?:\\.\\d+)?)\\s+and\\s+otherwise\\s+returns\\s+(?<falseQuote>['""])(?<falseValue>[^'""]+)\\k<falseQuote>,?\\s+then\\s+(?:print|display|output)\\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*[^()]+\\s*\\))\\s*[.!?]?\\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex FunctionLocalVariableProgramPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?)(?:\s+and\s+sets?\s+(?<local>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<assignment>.+?))*\s+and\s+returns\s+(?<expression>.+?),\s*then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -95,6 +99,10 @@ internal static class CompositionalTaskParser
         if (TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
+        }
+        else if (TryGetFunctionConditionalProgram(source, out var conditionalFunctionSteps))
+        {
+            formula = formula with { GenerationSteps = conditionalFunctionSteps };
         }
         else if (TryGetFunctionWithLocalVariableProgram(source, out var localVariableSteps))
         {
@@ -346,6 +354,63 @@ internal static class CompositionalTaskParser
         steps = generatedSteps.ToImmutable();
         return true;
     }
+
+    private static bool TryGetFunctionConditionalProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = FunctionConditionalProgramPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Value;
+        var parameters = match.Groups["parameters"].Value
+            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var conditionName = match.Groups["conditionName"].Value;
+        var threshold = match.Groups["threshold"].Value;
+        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\\s+", " ")
+            .Trim()
+            .ToLowerInvariant();
+        var symbol = comparison switch
+        {
+            "is at least" or "at least" => ">=",
+            "is at most" or "at most" => "<=",
+            "is greater than" or "greater than" => ">",
+            "is less than" or "less than" => "<",
+            "is equal to" or "equal" or "equals" => "==",
+            _ => string.Empty
+        };
+        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\\s+", string.Empty);
+        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\\d+(?:\\.\\d+)?", parameters.Length));
+
+        if (symbol.Length == 0 ||
+            !parameters.Contains(conditionName, StringComparer.OrdinalIgnoreCase) ||
+            !Regex.IsMatch(
+                compactCall,
+                $@"^{Regex.Escape(name)}\\({numericArguments}\\)$",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+        {
+            return false;
+        }
+
+        var trueValue = ToPythonStringLiteral(match.Groups["trueValue"].Value);
+        var falseValue = ToPythonStringLiteral(match.Groups["falseValue"].Value);
+        var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
+            new TaskRequestStep("begin-conditional-indented", "condition", $"{conditionName} {symbol} {threshold}"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", trueValue),
+            new TaskRequestStep("return-value-indented-expression", "expression", falseValue),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}({string.Join(", ", callArguments)})"));
+        return true;
+    }
+
+    private static string ToPythonStringLiteral(string value) =>
+        "\\"" + value.Replace("\\\\", "\\\\\\\\", StringComparison.Ordinal)
+            .Replace("\\"", "\\\\"", StringComparison.Ordinal) + "\\"";
 
     private static bool TryGetFunctionWithLocalVariableProgram(
         string source,
