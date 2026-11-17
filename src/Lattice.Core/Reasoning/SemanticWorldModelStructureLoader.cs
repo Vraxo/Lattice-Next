@@ -58,8 +58,8 @@ internal static class SemanticWorldModelStructureLoader
                 (item.ObjectRole is not null && item.ObjectRole.Length > 80) ||
                 item.Order is < 0 or > 1000 ||
                 item.ComparisonPriority is < 0 or > 1000 ||
-                (item.Domain is not null && !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Domain)) ||
-                (item.Range is not null && !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Range)) ||
+                (item.Domain is not null && !SemanticWorldModelValidation.IsType(concepts, item.Domain)) ||
+                (item.Range is not null && !SemanticWorldModelValidation.IsType(concepts, item.Range)) ||
                 (subjectKind == SemanticRelationArgumentKind.Type && item.Domain is not null) ||
                 (objectKind == SemanticRelationArgumentKind.Type && item.Range is not null) ||
                 !identifiers.Add(item.Id))
@@ -72,13 +72,13 @@ internal static class SemanticWorldModelStructureLoader
                 ? subjectKind == SemanticRelationArgumentKind.Individual && item.Domain is null
                 : subjectKind switch
                 {
-                    SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Domain),
+                    SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.IsType(concepts, item.Domain),
                     SemanticRelationArgumentKind.Type => item.Domain is null,
                     _ => false
                 };
             var validRange = objectKind switch
             {
-                SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Range),
+                SemanticRelationArgumentKind.Individual => SemanticWorldModelValidation.IsType(concepts, item.Range),
                 SemanticRelationArgumentKind.Type => item.Range is null,
                 _ => false
             };
@@ -174,8 +174,8 @@ internal static class SemanticWorldModelStructureLoader
         {
             if (item is null ||
                 !relations.TryGetValue(item.Relation, out var relation) ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
+                !SemanticWorldModelValidation.IsRelationArgument(concepts, item.Subject, relation.SubjectKind) ||
+                !SemanticWorldModelValidation.IsRelationArgument(concepts, item.Object, relation.ObjectKind) ||
                 (document.FormatVersion >= 3 &&
                     (item.SourceText is not null || item.SourceUrl is not null)) ||
                 !relationKeys.Add($"{item.Subject}:{item.Relation}:{item.Object}"))
@@ -196,8 +196,8 @@ internal static class SemanticWorldModelStructureLoader
         {
             if (document.FormatVersion >= 3 ||
                 item is null ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsIndividual(concepts, item.Individual) ||
-                !SemanticWorldModelValidation.SemanticWorldModelValidation.IsType(concepts, item.Type))
+                !SemanticWorldModelValidation.IsIndividual(concepts, item.Individual) ||
+                !SemanticWorldModelValidation.IsType(concepts, item.Type))
             {
                 error = "Legacy type assertions must reference a declared individual and type.";
                 return false;
