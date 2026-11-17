@@ -25,6 +25,44 @@ internal static class TaskCodeGenerationResponder
         if (request.Subject == "python-program" &&
             request.Context == "python" &&
             request.OutputFormat == "python-source" &&
+            !request.GenerationSteps.IsDefaultOrEmpty)
+        {
+            var loader = new GenerationLanguagePackLoader();
+            if (!loader.TryLoadEmbedded(out var packs, out _) ||
+                !packs.TryGetValue(request.Context, out var pack))
+            {
+                return false;
+            }
+
+            var goals = request.GenerationSteps
+                .Select(step => new GenerationGoal(
+                    step.Effect,
+                    step.ArgumentKind,
+                    step.ArgumentValue,
+                    ImmutableArray<string>.Empty))
+                .ToImmutableArray();
+
+            if (!new SequenceGenerationPipeline().TryGenerateProgram(
+                pack,
+                goals,
+                out var program,
+                out _))
+            {
+                return false;
+            }
+
+            var fence = new string((char)96, 3);
+            message = string.Join(
+                Environment.NewLine,
+                fence + request.Context,
+                program!.Text,
+                fence);
+            return true;
+        }
+
+        if (request.Subject == "python-program" &&
+            request.Context == "python" &&
+            request.OutputFormat == "python-source" &&
             request.Scope == "write-standard-output" &&
             request.RequestedValue is { Length: > 0 } requestedValue)
         {
