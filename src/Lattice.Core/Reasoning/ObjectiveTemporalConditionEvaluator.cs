@@ -5,7 +5,7 @@ namespace Lattice.Core.Reasoning;
 
 internal static class ObjectiveTemporalConditionEvaluator
 {
-        private static ObjectiveConditionAssessment EvaluateTemporalPlan(
+        internal static ObjectiveConditionAssessment EvaluateTemporalPlan(
             ObjectiveCondition condition,
             SemanticIdentifier candidate,
             ObjectiveTimeWindowValue window,
@@ -212,7 +212,7 @@ internal static class ObjectiveTemporalConditionEvaluator
             }
         }
 
-        private static ObjectiveConditionAssessment EvaluateTemporalSequence(
+        internal static ObjectiveConditionAssessment EvaluateTemporalSequence(
             ObjectiveCondition condition,
             SemanticIdentifier candidate,
             ObjectiveTemporalSequenceValue sequence,
