@@ -8,7 +8,7 @@ namespace Lattice.Runtime;
 
 internal static class LatticeRuntimeSessionObjectiveMapper
 {
-    public static LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
+    public static tic LatticeObjectiveEvaluation MapObjectiveEvaluation(ObjectiveEvaluation evaluation) =>
         new(evaluation.Candidates.Select(candidate => new LatticeCandidateAssessment(
             candidate.Candidate.Value,
             candidate.HasHardConstraintViolation,
@@ -51,7 +51,39 @@ internal static class LatticeRuntimeSessionObjectiveMapper
                             source.RequiresFreshness))
                         .ToImmutableArray()))
                     .ToImmutableArray()
-            }
+            })
+                .ToImmutableArray())
+        {
+            Feasibility = candidate.Feasibility.ToString(),
+            Highlights = candidate.Highlights.Select(highlight =>
+                new LatticeObjectiveCandidateHighlight(
+                    highlight.Name.Value,
+                    MapObjectiveEvidenceSources(new[] { highlight })))
+                .ToImmutableArray()
+        })
+            .ToImmutableArray())
+        {
+            PreferenceTradeOffs = evaluation.PreferenceTradeOffs.Select(tradeOff =>
+                new LatticeObjectivePreferenceTradeOff(
+                    tradeOff.Preference,
+                    tradeOff.CandidateWithPositiveEvidence.Value,
+                    tradeOff.CandidateWithContraryEvidence.Value,
+                    MapObjectiveEvidenceSources(tradeOff.PositiveEvidence),
+                    MapObjectiveEvidenceSources(tradeOff.ContraryEvidence)))
+                .ToImmutableArray(),
+            Recommendation = new LatticeObjectiveRecommendation(
+                evaluation.Recommendation.Status.ToString(),
+                evaluation.Recommendation.ShortlistedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
+                evaluation.Recommendation.DominatedCandidates.Select(candidate => candidate.Value).ToImmutableArray(),
+                evaluation.Recommendation.HasIncompletePreferenceEvidence),
+            EvidenceRequests = evaluation.EvidenceRequests.Select(request =>
+                new LatticeObjectiveEvidenceRequest(
+                    request.Candidate.Value,
+                    request.ConditionName,
+                    request.AttributeName,
+                    request.Prompt))
+                .ToImmutableArray()
+        };
     private static ImmutableArray<LatticeObjectiveEvidenceSource> MapObjectiveEvidenceSources(
         IEnumerable<KnowledgeAttribute> attributes) =>
         attributes
@@ -65,47 +97,6 @@ internal static class LatticeRuntimeSessionObjectiveMapper
                 source.FreshUntil,
                 source.RequiresFreshness))
             .ToImmutableArray();
-
-    private static LatticeEvidence MapEvidence(ProofNode proof)
-    {
-        var premises = ImmutableArray.CreateBuilder<LatticeEvidence>();
-
-        if (proof.Premise is not null)
-        {
-            premises.Add(MapEvidence(proof.Premise));
-        }
-
-        if (!proof.AdditionalPremises.IsDefaultOrEmpty)
-        {
-            foreach (var premise in proof.AdditionalPremises)
-            {
-                premises.Add(MapEvidence(premise));
-            }
-        }
-
-        return new LatticeEvidence(
-            proof.Kind switch
-            {
-                ProofNodeKind.Asserted => LatticeEvidenceKind.Asserted,
-                _ => LatticeEvidenceKind.Derived
-            },
-            proof.Polarity switch
-            {
-                EvidencePolarity.Positive => LatticeEvidencePolarity.Positive,
-                _ => LatticeEvidencePolarity.Negative
-            },
-            proof.Sources.Select(source => new LatticeEvidenceSource(
-                source.Kind switch
-                {
-                    KnowledgeSourceKind.UserAssertion => LatticeKnowledgeSourceKind.UserAssertion,
-                    KnowledgeSourceKind.ImportedClaim => LatticeKnowledgeSourceKind.ImportedClaim,
-                    _ => LatticeKnowledgeSourceKind.ExternalObservation
-                },
-                source.SourceText,
-                source.SourceId,
-                source.ResolvedReferent?.Value)).ToImmutableArray(),
-            premises.ToImmutable());
-    }
     public static LatticeEvidence MapEvidence(ProofNode proof)
     {
         var premises = ImmutableArray.CreateBuilder<LatticeEvidence>();
