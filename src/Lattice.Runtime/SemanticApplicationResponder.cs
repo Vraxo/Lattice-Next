@@ -4,14 +4,14 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
 using static Lattice.Runtime.SemanticWorldModelResponseReasoningHelpers;
+namespace Lattice.Runtime;
 
 internal static class SemanticApplicationResponder
 {
 
-internal static bool TryExplainApplications(
+    internal static bool TryExplainApplications(
         string requestedMethod,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -74,7 +74,7 @@ internal static bool TryExplainApplications(
         return true;
     }
 
-internal static bool TryWhyUse(
+    internal static bool TryWhyUse(
         string requestedAssistant,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -153,7 +153,7 @@ internal static bool TryWhyUse(
         }
     }
 
-internal static bool TryExplainSamplingParameters(
+    internal static bool TryExplainSamplingParameters(
         string firstParameterId,
         string secondParameterId,
         string domainId,

@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticClassificationResponder
 {
 
-internal static bool TryClassify(
+    internal static bool TryClassify(
         MultiItemClassificationFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -89,7 +89,7 @@ internal static bool TryClassify(
         return true;
     }
 
-private static string FormatClassificationGroup(
+    private static string FormatClassificationGroup(
         string category,
         IReadOnlyList<string> items,
         string itemType)
@@ -115,7 +115,7 @@ private static string FormatClassificationGroup(
         return $"{Capitalize(categoryPhrase)} {pluralType}: {itemNames}.";
     }
 
-private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
+    private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
         string candidate,
         string expected,
         SemanticWorldModel model)
@@ -164,7 +164,7 @@ private static ImmutableArray<SemanticWorldModelSource> GetSubtypeEvidence(
         return [];
     }
 
-internal static bool TryChoice(
+    internal static bool TryChoice(
         ChoiceQuestionFormula question,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -204,7 +204,7 @@ internal static bool TryChoice(
         return true;
     }
 
-internal static bool TryAskMembership(
+    internal static bool TryAskMembership(
         string individual,
         string type,
         SemanticWorldModel model,

@@ -4,13 +4,13 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
+namespace Lattice.Runtime;
 
 internal static class SemanticRelationResponder
 {
 
-internal static bool TryRespond(
+    internal static bool TryRespond(
         SemanticRelationQueryFormula request,
         SemanticWorldModel model,
         SemanticWorldModelReasoner reasoner,
@@ -154,7 +154,7 @@ internal static bool TryRespond(
         return true;
     }
 
-private static bool TryRespondPairwise(
+    private static bool TryRespondPairwise(
         string subjectId,
         string otherSubjectId,
         SemanticWorldModel model,
@@ -215,7 +215,7 @@ private static bool TryRespondPairwise(
         return true;
     }
 
-private static ImmutableArray<string> FormatRelationAssertions(
+    private static ImmutableArray<string> FormatRelationAssertions(
         IReadOnlyCollection<SemanticRelationAssertion> assertions,
         SemanticWorldModel model) =>
         assertions.Select(assertion =>
@@ -232,7 +232,7 @@ private static ImmutableArray<string> FormatRelationAssertions(
             .Distinct(StringComparer.Ordinal)
             .ToImmutableArray();
 
-private static string FormatPairwiseRelation(
+    private static string FormatPairwiseRelation(
         SemanticConcept subject,
         SemanticConcept target,
         SemanticRelationDefinition relation)
@@ -258,13 +258,13 @@ private static string FormatPairwiseRelation(
         return $"{subjectPhrase} {verb} {targetPhrase}.";
     }
 
-private static bool IsProperName(string value)
+    private static bool IsProperName(string value)
     {
         var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return words.Length > 0 && words.All(word => char.IsUpper(word[0]));
     }
 
-private static bool TryFindUniqueShortestRelationPath(
+    private static bool TryFindUniqueShortestRelationPath(
         string start,
         string target,
         SemanticWorldModel model,

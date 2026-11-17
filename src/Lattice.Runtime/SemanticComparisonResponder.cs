@@ -4,14 +4,14 @@ using Lattice.Client;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
-namespace Lattice.Runtime;
 using static Lattice.Runtime.SemanticWorldModelResponseFormatting;
 using static Lattice.Runtime.SemanticWorldModelResponseReasoningHelpers;
+namespace Lattice.Runtime;
 
 internal static class SemanticComparisonResponder
 {
 
-internal static bool TryCompare(
+    internal static bool TryCompare(
         string firstId,
         string secondId,
         SemanticWorldModel model,
