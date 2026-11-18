@@ -41,6 +41,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+)?converts?\s+(?:the\s+)?(?<input>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\s+and\s+returns?\s+(?:a\s+)?(?:clear\s+)?(?:result|message)\s+(?:when|if)\s+(?:the\s+)?(?:text|input)\s+is\s+not\s+a\s+valid\s+integer",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex CollectionMappingFunctionPattern = new(
+        @"\b(?:given|from)\s+(?:a|the)\s+list\s+of\s+(?<kind>names?|words?|numbers?|values?|items?)\s*,?\s*(?:creates?|builds?|makes?)\s+(?:a\s+)?dictionary(?:\s+named\s+(?<dictionary>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+maps?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<mapping>.+?)\s*[.!?]?\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex AverageFilterFunctionPattern = new(
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater|less)\s+than\s+(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -151,6 +155,10 @@ internal static class CompositionalTaskParser
         else if (TryGetIntegerConversionFunctionProgram(source, out var exceptionSteps))
         {
             formula = formula with { GenerationSteps = exceptionSteps };
+        }
+        else if (TryGetCollectionMappingFunctionProgram(source, out var collectionMappingSteps))
+        {
+            formula = formula with { GenerationSteps = collectionMappingSteps };
         }
         else if (TryGetAverageFilterFunctionProgram(source, out var averageFilterSteps))
         {
@@ -885,6 +893,69 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", call));
+        return true;
+    }
+
+    private static bool TryGetCollectionMappingFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = CollectionMappingFunctionPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var kind = match.Groups["kind"].Value;
+        var item = match.Groups["item"].Value;
+        var parameter = kind.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? kind
+            : kind + "s";
+        var expressionText = match.Groups["mapping"].Value.Trim().TrimEnd('.', '?', '!');
+        var expression = expressionText.ToLowerInvariant() switch
+        {
+            "the number of characters in it" or "the length of it" or "its length" =>
+                $"len({item})",
+            "the square of it" or "its square" =>
+                $"{item} * {item}",
+            _ => expressionText
+        };
+
+        if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
+            !IsArithmeticExpression(expression) ||
+            Regex.Matches(expression, @"[A-Za-z_][A-Za-z0-9_]*")
+                .Any(identifier => !identifier.Value.Equals(item, StringComparison.OrdinalIgnoreCase) &&
+                    !identifier.Value.Equals("len", StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        var function = "map_values";
+        var sample = kind.StartsWith("name", StringComparison.OrdinalIgnoreCase) ||
+            kind.StartsWith("word", StringComparison.OrdinalIgnoreCase)
+            ? @"[""Ada"", ""Grace"", ""Linus""]"
+            : "[1, 2, 3]";
+
+        var dictionary = match.Groups["dictionary"].Success
+            ? match.Groups["dictionary"].Value
+            : "mapped_values";
+        var dictionaryExpression = $"{{{item}: {expression} for {item} in {parameter}}}";
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{function}({parameter})"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"{dictionary} = {dictionaryExpression}"),
+            new TaskRequestStep(
+                "return-value-indented-expression",
+                "expression",
+                dictionary),
+            new TaskRequestStep(
+                "write-standard-output",
+                "expression",
+                $"{function}({sample})"));
         return true;
     }
 

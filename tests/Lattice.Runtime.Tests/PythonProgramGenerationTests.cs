@@ -9,6 +9,18 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
+        "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
+        "{'Ada': 3, 'Grace': 5, 'Linus': 5}")]
+    [InlineData(
+        "Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number to the square of it.",
+        "def map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))",
+        "{1: 1, 2: 4, 3: 9}")]
+    [InlineData(
+        "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
+        "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))",
+        "{1: 11, 2: 12, 3: 13}")]
+    [InlineData(
         "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
         "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))",
         "[4, 5]")]
