@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex NonEmptyFileLineCountPattern = new(
-        @"\\breads?\\s+(?:a|the)\\s+text\\s+file\\s+and\\s+counts?\\s+how\\s+many\\s+non[- ]empty\\s+lines?\\s+it\\s+contains?\\b",
+        @"\breads?\s+(?:a|the)\s+text\s+file\s+and\s+counts?\s+how\s+many\s+non[- ]empty\s+lines?\s+it\s+contains?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
