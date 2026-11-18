@@ -42,7 +42,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex AverageFilterFunctionPattern = new(
-        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+greater\s+than\s+(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?",
+        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater|less)\s+than\s+(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
@@ -920,7 +920,8 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var expression = $"[{item} for {item} in {parameter} if {item} > sum({parameter}) / len({parameter})]";
+        var comparison = match.Groups["comparison"].Value.Equals("greater", StringComparison.OrdinalIgnoreCase) ? ">" : "<";
+        var expression = $"[{item} for {item} in {parameter} if {item} {comparison} sum({parameter}) / len({parameter})]";
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
