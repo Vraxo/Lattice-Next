@@ -806,7 +806,7 @@ public sealed class PythonProgramGenerationTests
     [Fact]
     public async Task Generates_and_executes_product_price_dictionary_iteration()
     {
-        const string prompt = "Given a dictionary of product names and prices, print each product with its price.";
+        const string prompt = "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.";
         var expectedCode = string.Join(Environment.NewLine, "products = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}", "for product, price in products.items():", "    print(product, price)");
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
