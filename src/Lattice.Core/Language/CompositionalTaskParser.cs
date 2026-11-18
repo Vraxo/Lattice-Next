@@ -1412,8 +1412,9 @@ internal static class CompositionalTaskParser
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("import-module", "module-name", "os"),
-            new TaskRequestStep("assign-variable", "assignment", "directory = \"sample_directory\""),
-            new TaskRequestStep("begin-try", "statement", string.Empty),
+            new TaskRequestStep("import-module", "module-name", "sys"),
+            new TaskRequestStep("assign-variable", "assignment", "directory = sys.argv[1]"),
+            new TaskRequestStep("begin-try", "statement", "try"),
             new TaskRequestStep("begin-loop-indented", "loop-header", "entry in os.scandir(directory)"),
             new TaskRequestStep("begin-conditional-double-indented", "condition", "entry.is_file()"),
             new TaskRequestStep("write-standard-output-triple-indented-expression", "expression", "f\"{entry.name}: {entry.stat().st_size} bytes\""),
