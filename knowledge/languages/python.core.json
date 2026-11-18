@@ -377,6 +377,66 @@
           "value": "argument-expression"
         }
       ]
+    },
+    {
+      "head": "class-definition",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "class "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "class-method-definition",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    def "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-assignment-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-assignment"
+        }
+      ]
+    },
+    {
+      "head": "triple-indented-return-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -603,6 +663,38 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "indented-expression-call"
+    },
+    {
+      "id": "python-class-definition",
+      "symbol": "class",
+      "effect": "begin-class",
+      "argumentKind": "class-name",
+      "prerequisites": [],
+      "startSymbol": "class-definition"
+    },
+    {
+      "id": "python-class-method-definition",
+      "symbol": "def",
+      "effect": "begin-class-method",
+      "argumentKind": "method-header",
+      "prerequisites": [],
+      "startSymbol": "class-method-definition"
+    },
+    {
+      "id": "python-assign-variable-double-indented",
+      "symbol": "=",
+      "effect": "assign-variable-double-indented",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "double-indented-assignment-statement"
+    },
+    {
+      "id": "python-return-triple-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-triple-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "triple-indented-return-expression"
     }
   ],
   "stringLiteralFormat": {
