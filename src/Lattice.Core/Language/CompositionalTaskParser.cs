@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex SortRecordsByFieldPattern = new(
-        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+by\s+(?:that|the)\s+field\b",
+        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+by\s+(?:that|the)\s+field(?:\s+in\s+descending\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex JsonCollectionRoundTripPattern = new(
@@ -1147,7 +1147,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "return-value-indented-expression",
                 "expression",
-                $"sorted({recordsName}, key=lambda record: record[{fieldName}])"),
+                $"sorted({recordsName}, key=lambda record: record[{fieldName}]{(source.Contains("descending order", StringComparison.OrdinalIgnoreCase) ? ", reverse=True" : string.Empty)})"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
