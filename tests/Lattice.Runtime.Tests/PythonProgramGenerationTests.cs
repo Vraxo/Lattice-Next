@@ -17,6 +17,14 @@ public sealed class PythonProgramGenerationTests
         "def filter_high(scores):\n    return [score for score in scores if score > sum(scores) / len(scores)]\nprint(filter_high([1, 2, 3, 4, 5]))",
         "[4, 5]")]
     [InlineData(
+        "Write a Python function that receives a list of numbers named measurements and returns a new list containing only measurement values less than the average of measurements.",
+        "def above_average(measurements):\n    return [measurement for measurement in measurements if measurement < sum(measurements) / len(measurements)]\nprint(above_average([1, 2, 3, 4, 5]))",
+        "[1, 2]")]
+    [InlineData(
+        "Create a Python function named below_mean that accepts a list of numbers named scores and returns a new list containing only score values less than the average of scores.",
+        "def below_mean(scores):\n    return [score for score in scores if score < sum(scores) / len(scores)]\nprint(below_mean([1, 2, 3, 4, 5]))",
+        "[1, 2]")]
+    [InlineData(
         "Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.",
         "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
         "42\nInvalid integer")]
