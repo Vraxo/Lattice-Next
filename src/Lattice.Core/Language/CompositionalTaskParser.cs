@@ -46,7 +46,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex CollectionFilterFunctionPattern = new(
-        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater|less)\s+than\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?)",
+        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater\s+than\s+or\s+equal\s+to|at\s+least|less\s+than\s+or\s+equal\s+to|at\s+most|not\s+equal\s+to|greater\s+than|more\s+than|less\s+than|below|equal\s+to|equals)\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|[0-9][0-9.\s+*/%()-]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
@@ -995,10 +995,28 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var comparison = match.Groups["comparison"].Value.Equals("greater", StringComparison.OrdinalIgnoreCase) ? ">" : "<";
+        var comparisonText = Regex.Replace(
+            match.Groups["comparison"].Value,
+            @"\s+",
+            " ",
+            RegexOptions.CultureInvariant).Trim().ToLowerInvariant();
+        var comparison = comparisonText switch
+        {
+            "greater than" or "more than" => ">",
+            "greater than or equal to" or "at least" => ">=",
+            "less than" or "below" => "<",
+            "less than or equal to" or "at most" => "<=",
+            "equal to" or "equals" => "==",
+            "not equal to" => "!=",
+            _ => string.Empty
+        };
         var thresholdExpression = isAverage
             ? $"sum({parameter}) / len({parameter})"
             : threshold;
+        if (comparison.Length == 0 || (!isAverage && !IsArithmeticExpression(thresholdExpression)))
+        {
+            return false;
+        }
         var expression = $"[{item} for {item} in {parameter} if {item} {comparison} {thresholdExpression}]";
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
