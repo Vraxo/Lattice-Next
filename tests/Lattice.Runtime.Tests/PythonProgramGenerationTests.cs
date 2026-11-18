@@ -25,6 +25,14 @@ public sealed class PythonProgramGenerationTests
         "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))",
         "[4, 5]")]
     [InlineData(
+        "Create a Python function named keep_large that receives a list of numbers named readings and returns a new list containing only reading values greater than 10.",
+        "def keep_large(readings):\\n    return [reading for reading in readings if reading > 10]\\nprint(keep_large([1, 2, 3, 4, 5]))",
+        "[]")]
+    [InlineData(
+        "Build a Python function named keep_small that receives a list of numbers named scores and returns a new list containing only score values less than 4.",
+        "def keep_small(scores):\\n    return [score for score in scores if score < 4]\\nprint(keep_small([1, 2, 3, 4, 5]))",
+        "[1, 2, 3]")]
+    [InlineData(
         "Create a Python function named filter_high that receives a list of numbers named scores and returns a new list containing only score values greater than the average of scores.",
         "def filter_high(scores):\n    return [score for score in scores if score > sum(scores) / len(scores)]\nprint(filter_high([1, 2, 3, 4, 5]))",
         "[4, 5]")]
