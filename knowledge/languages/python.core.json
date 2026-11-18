@@ -377,31 +377,6 @@
           "value": "argument-expression"
         }
       ]
-    },
-    {
-      "head": "indented-generic-expression-call",
-      "symbols": [
-        {
-          "kind": "terminal",
-          "value": "    "
-        },
-        {
-          "kind": "binding",
-          "value": "operation"
-        },
-        {
-          "kind": "terminal",
-          "value": "("
-        },
-        {
-          "kind": "binding",
-          "value": "argument-expression"
-        },
-        {
-          "kind": "terminal",
-          "value": ")"
-        }
-      ]
     }
   ],
   "bindings": [
@@ -627,7 +602,7 @@
       "effect": "write-expression-indented",
       "argumentKind": "expression",
       "prerequisites": [],
-      "startSymbol": "indented-generic-expression-call"
+      "startSymbol": "indented-expression-call"
     }
   ],
   "stringLiteralFormat": {
