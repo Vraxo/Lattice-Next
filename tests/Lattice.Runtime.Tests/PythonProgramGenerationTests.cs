@@ -901,13 +901,66 @@ public sealed class PythonProgramGenerationTests
             "True\nFalse\n75");
     }
 
-    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
+
+    [Fact]
+    public async Task Generates_and_executes_directory_file_listing_with_missing_path_handling()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that accepts a directory path and reports the names and sizes of all files directly inside it, handling a missing directory cleanly.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "import os",
+            "import sys",
+            "directory = sys.argv[1]",
+            "try:",
+            "    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):",
+            "        if entry.is_file():",
+            "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
+            "except FileNotFoundError:",
+            "    print(f\"Directory not found: {directory}\")");
+        Assert.Equal(expectedCode, generatedCode);
+
+        await AssertPythonOutput(
+            generatedCode,
+            "Directory not found: missing_directory",
+            useTemporaryDirectory: true,
+            programArgument: "missing_directory");
+        await AssertPythonOutput(
+            generatedCode,
+            "empty.txt: 0 bytes\nhello.txt: 5 bytes",
+            useTemporaryDirectory: true,
+            createSampleDirectory: true,
+            programArgument: "sample_directory");
+    }
+
+    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false, bool createSampleDirectory = false, string? programArgument = null)
     {
         string? workingDirectory = null;
-        if (useTemporaryDirectory || (inputFileName is not null && inputFileContent is not null))
+        if (useTemporaryDirectory || programArgument is not null || (inputFileName is not null && inputFileContent is not null))
         {
             workingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(workingDirectory);
+            if (createSampleDirectory)
+            {
+                var sampleDirectory = Directory.CreateDirectory(Path.Combine(workingDirectory, "sample_directory"));
+                await File.WriteAllTextAsync(Path.Combine(sampleDirectory.FullName, "hello.txt"), "hello");
+                await File.WriteAllTextAsync(Path.Combine(sampleDirectory.FullName, "empty.txt"), string.Empty);
+                Directory.CreateDirectory(Path.Combine(sampleDirectory.FullName, "nested"));
+            }
             if (inputFileName is not null && inputFileContent is not null)
             {
                 await File.WriteAllTextAsync(Path.Combine(workingDirectory, inputFileName), inputFileContent);
@@ -925,6 +978,10 @@ public sealed class PythonProgramGenerationTests
         };
         startInfo.ArgumentList.Add("-c");
         startInfo.ArgumentList.Add(code);
+        if (programArgument is not null)
+        {
+            startInfo.ArgumentList.Add(programArgument);
+        }
 
         using var process = Process.Start(startInfo);
         Assert.NotNull(process);
