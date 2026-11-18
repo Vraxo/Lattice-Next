@@ -114,7 +114,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex IntegerSignClassificationPattern = new(
-        @"\\breports?\\s+whether\\s+(?:an|the)\\s+integer\\s+is\\s+positive,?\\s+negative,?\\s+or\\s+zero\\b",
+        @"\breports?\s+whether\s+(?:an|the)\s+integer\s+is\s+positive,?\s+negative,?\s+or\s+zero\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex GenericEvenListFilterPattern = new(
