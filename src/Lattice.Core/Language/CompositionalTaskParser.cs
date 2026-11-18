@@ -8,7 +8,7 @@ internal static class CompositionalTaskParser
 {
     private static readonly HashSet<string> CreationVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "write", "create", "generate", "make", "build"
+        "write", "create", "generate", "make", "build", "define"
     };
 
     private static readonly HashSet<string> CodeArtifacts = new(StringComparer.OrdinalIgnoreCase)
