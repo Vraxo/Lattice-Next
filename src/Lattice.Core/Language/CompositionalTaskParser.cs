@@ -970,7 +970,11 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "filter_values";
+        var threshold = match.Groups["threshold"].Value;
+        var isAverage = threshold.Contains("average", StringComparison.OrdinalIgnoreCase);
+        var name = match.Groups["name"].Success
+            ? match.Groups["name"].Value
+            : isAverage ? "above_average" : "filter_values";
         var parameter = match.Groups["parameter"].Success ? match.Groups["parameter"].Value : "values";
         var item = match.Groups["item"].Value;
         if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) &&
@@ -979,8 +983,6 @@ internal static class CompositionalTaskParser
             item = item[..^1];
         }
 
-        var threshold = match.Groups["threshold"].Value;
-        var isAverage = threshold.Contains("average", StringComparison.OrdinalIgnoreCase);
         var averageParameter = match.Groups["averageParameter"].Success
             ? match.Groups["averageParameter"].Value
             : parameter;
