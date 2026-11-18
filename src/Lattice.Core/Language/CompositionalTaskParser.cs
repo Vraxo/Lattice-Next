@@ -149,32 +149,34 @@ internal static class CompositionalTaskParser
     {
         utterance = null;
 
-        if (!EnglishSyntaxParser.TryParse(source, out var syntax))
-        {
-            return false;
-        }
-
-        var creationClauseIndex = -1;
-        for (var index = 0; index < syntax!.Clauses.Length; index++)
-        {
-            if (CreationVerbs.Contains(syntax.Clauses[index].Verb))
-            {
-                creationClauseIndex = index;
-                break;
-            }
-        }
-
         var isDirectoryListingRequest =
             DirectoryFileListingPattern.IsMatch(source) &&
             Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-        if (!isDirectoryListingRequest &&
-            (creationClauseIndex < 0 ||
-             syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
-             !ContainsCodeArtifact(codeArtifact) ||
-             !ContainsPythonLanguage(syntax.Clauses[creationClauseIndex])))
+        if (!isDirectoryListingRequest)
         {
-            return false;
+            if (!EnglishSyntaxParser.TryParse(source, out var syntax))
+            {
+                return false;
+            }
+
+            var creationClauseIndex = -1;
+            for (var index = 0; index < syntax!.Clauses.Length; index++)
+            {
+                if (CreationVerbs.Contains(syntax.Clauses[index].Verb))
+                {
+                    creationClauseIndex = index;
+                    break;
+                }
+            }
+
+            if (creationClauseIndex < 0 ||
+                syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
+                !ContainsCodeArtifact(codeArtifact) ||
+                !ContainsPythonLanguage(syntax.Clauses[creationClauseIndex]))
+            {
+                return false;
+            }
         }
 
         var formula = new TaskRequestFormula(
