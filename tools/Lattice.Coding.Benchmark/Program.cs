@@ -177,8 +177,6 @@ static async Task<PythonCheck> CheckPythonAsync(string code, IReadOnlyDictionary
             }
         }
 
-
-    {
         var python = OperatingSystem.IsWindows() ? "python" : "python3";
         var syntax = await RunProcessAsync(python, ["-m", "py_compile", scriptPath], directory);
         if (syntax.ExitCode is null)
