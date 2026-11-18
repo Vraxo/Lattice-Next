@@ -45,8 +45,8 @@ internal static class CompositionalTaskParser
         @"\b(?:given|from)\s+(?:a|the)\s+list\s+of\s+(?<kind>names?|words?|numbers?|values?|items?)\s*,?\s*(?:creates?|builds?|makes?)\s+(?:a\s+)?dictionary(?:\s+named\s+(?<dictionary>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+maps?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<mapping>.+?)\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex AverageFilterFunctionPattern = new(
-        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater|less)\s+than\s+(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?",
+    private static readonly Regex CollectionFilterFunctionPattern = new(
+        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater|less)\s+than\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
@@ -160,9 +160,9 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = collectionMappingSteps };
         }
-        else if (TryGetAverageFilterFunctionProgram(source, out var averageFilterSteps))
+        else if (TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
         {
-            formula = formula with { GenerationSteps = averageFilterSteps };
+            formula = formula with { GenerationSteps = collectionFilterSteps };
         }
         else if (TryGetLoopFilterProgram(source, out var filterSteps))
         {
@@ -959,18 +959,18 @@ internal static class CompositionalTaskParser
         return true;
     }
 
-    private static bool TryGetAverageFilterFunctionProgram(
+    private static bool TryGetCollectionFilterFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = AverageFilterFunctionPattern.Match(source);
+        var match = CollectionFilterFunctionPattern.Match(source);
         if (!match.Success)
         {
             return false;
         }
 
-        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "above_average";
+        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "filter_values";
         var parameter = match.Groups["parameter"].Success ? match.Groups["parameter"].Value : "values";
         var item = match.Groups["item"].Value;
         if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) &&
@@ -979,12 +979,14 @@ internal static class CompositionalTaskParser
             item = item[..^1];
         }
 
+        var threshold = match.Groups["threshold"].Value;
+        var isAverage = threshold.Contains("average", StringComparison.OrdinalIgnoreCase);
         var averageParameter = match.Groups["averageParameter"].Success
             ? match.Groups["averageParameter"].Value
             : parameter;
 
         if (item.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
-            !averageParameter.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
+            (isAverage && !averageParameter.Equals(parameter, StringComparison.OrdinalIgnoreCase)) ||
             name.Equals(parameter, StringComparison.OrdinalIgnoreCase) ||
             name.Equals(item, StringComparison.OrdinalIgnoreCase))
         {
@@ -992,7 +994,10 @@ internal static class CompositionalTaskParser
         }
 
         var comparison = match.Groups["comparison"].Value.Equals("greater", StringComparison.OrdinalIgnoreCase) ? ">" : "<";
-        var expression = $"[{item} for {item} in {parameter} if {item} {comparison} sum({parameter}) / len({parameter})]";
+        var thresholdExpression = isAverage
+            ? $"sum({parameter}) / len({parameter})"
+            : threshold;
+        var expression = $"[{item} for {item} in {parameter} if {item} {comparison} {thresholdExpression}]";
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
