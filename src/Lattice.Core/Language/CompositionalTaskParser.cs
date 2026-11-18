@@ -1377,9 +1377,9 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("assign-variable", "assignment", "number = -5"),
             new TaskRequestStep("begin-conditional", "condition", "number > 0"),
             new TaskRequestStep("write-standard-output-indented", "text", "Positive"),
-            new TaskRequestStep("begin-elif-indented", "condition", "number < 0"),
+            new TaskRequestStep("begin-elif", "condition", "number < 0"),
             new TaskRequestStep("write-standard-output-indented", "text", "Negative"),
-            new TaskRequestStep("begin-elif-indented", "condition", "number == 0"),
+            new TaskRequestStep("begin-elif", "condition", "number == 0"),
             new TaskRequestStep("write-standard-output-indented", "text", "Zero"));
         return true;
     }
