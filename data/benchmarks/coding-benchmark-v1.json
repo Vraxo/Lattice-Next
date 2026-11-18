@@ -189,7 +189,7 @@
           "id": "pyc-003",
           "prompt": "Write a program that reads a text file and counts how many non-empty lines it contains.",
           "executionFiles": {
-            "input.txt": "First line\\n\\nThird line\\n"
+            "input.txt": "First line\n\nThird line\n"
           },
           "capabilities": [
             "file",
