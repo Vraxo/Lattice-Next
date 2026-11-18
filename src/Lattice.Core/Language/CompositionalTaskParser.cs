@@ -49,6 +49,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater\s+than\s+or\s+equal\s+to|at\s+least|less\s+than\s+or\s+equal\s+to|at\s+most|not\s+equal\s+to|greater\s+than|more\s+than|less\s+than|below|equal\s+to|equals)\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?(?:\s*[+*/%\-]\s*\d+(?:\.\d+)?)*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex JsonCollectionRoundTripPattern = new(
+        @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries\s+to\s+(?:a|the)\s+JSON\s+file\s+and\s+then\s+loads?\s+it\s+back\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex NonEmptyFileLineCountPattern = new(
         @"\breads?\s+(?:a|the)\s+text\s+file\s+and\s+counts?\s+how\s+many\s+non[- ]empty\s+lines?\s+it\s+contains?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -167,6 +171,10 @@ internal static class CompositionalTaskParser
         else if (TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
         {
             formula = formula with { GenerationSteps = collectionFilterSteps };
+        }
+        else if (TryGetJsonCollectionRoundTripProgram(source, out var jsonRoundTripSteps))
+        {
+            formula = formula with { GenerationSteps = jsonRoundTripSteps };
         }
         else if (TryGetNonEmptyFileLineCountProgram(source, out var fileLineCountSteps))
         {
@@ -1099,6 +1107,45 @@ internal static class CompositionalTaskParser
                 "write-standard-output-indented-expression",
                 "expression",
                 $"{key}, {value}"));
+        return true;
+    }
+
+    private static bool TryGetJsonCollectionRoundTripProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!JsonCollectionRoundTripPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("import-module", "module-name", "json"),
+            new TaskRequestStep(
+                "assign-variable",
+                "assignment",
+                "records = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]"),
+            new TaskRequestStep(
+                "begin-with",
+                "expression",
+                "open(\"records.json\", \"w\", encoding=\"utf-8\") as output_file"),
+            new TaskRequestStep(
+                "write-expression-indented",
+                "expression",
+                "records, output_file, indent=2"),
+            new TaskRequestStep(
+                "begin-with",
+                "expression",
+                "open(\"records.json\", \"r\", encoding=\"utf-8\") as input_file"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                "loaded_records = json.load(input_file)"),
+            new TaskRequestStep(
+                "write-standard-output",
+                "expression",
+                "loaded_records"));
         return true;
     }
 

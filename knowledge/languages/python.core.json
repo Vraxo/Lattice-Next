@@ -360,6 +360,23 @@
           "value": "argument-assignment"
         }
       ]
+    },
+    {
+      "head": "import-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": " "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -570,6 +587,22 @@
       "argumentKind": "assignment",
       "prerequisites": [],
       "startSymbol": "triple-indented-assignment-statement"
+    },
+    {
+      "id": "python-import-module",
+      "symbol": "import",
+      "effect": "import-module",
+      "argumentKind": "module-name",
+      "prerequisites": [],
+      "startSymbol": "import-statement"
+    },
+    {
+      "id": "python-json-dump-indented",
+      "symbol": "json.dump",
+      "effect": "write-expression-indented",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-expression-call"
     }
   ],
   "stringLiteralFormat": {
