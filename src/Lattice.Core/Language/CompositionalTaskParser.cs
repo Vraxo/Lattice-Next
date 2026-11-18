@@ -840,24 +840,6 @@ internal static class CompositionalTaskParser
         return true;
     }
 
-    private static bool TryNormalizeSimpleDictionaryLiteral(string value, out string normalized)
-    {
-        normalized = value.Trim();
-        const string key = @"(?:'[^'\\]*'|""[^""\\]*"")";
-        const string number = @"[+-]?\d+(?:\.\d+)?";
-        if (!Regex.IsMatch(
-            normalized,
-            $@"^\{{\s*{key}\s*:\s*{number}(?:\s*,\s*{key}\s*:\s*{number})*\s*\}}$",
-            RegexOptions.CultureInvariant))
-        {
-            return false;
-        }
-
-        normalized = Regex.Replace(normalized, @"\s*:\s*", ": ");
-        normalized = Regex.Replace(normalized, @"\s*,\s*", ", ");
-        return true;
-    }
-
     private static bool TryNormalizeNumericListLiteral(string value, out string normalized)
     {
         normalized = value.Trim();
