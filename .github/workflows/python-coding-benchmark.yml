@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - "tools/Lattice.Coding.Benchmark/**"
+      - "src/Lattice.Core/Language/**"
+      - "tests/Lattice.Runtime.Tests/PythonProgramGenerationTests.cs"
       - "data/benchmarks/coding-benchmark-v1.json"
       - ".github/workflows/python-coding-benchmark.yml"
   pull_request:
