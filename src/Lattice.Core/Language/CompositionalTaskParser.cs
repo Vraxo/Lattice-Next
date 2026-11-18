@@ -1147,7 +1147,7 @@ internal static class CompositionalTaskParser
             ? match.Groups["fields"].Value
             : "fields";
         var descending = source.Contains("descending order", StringComparison.OrdinalIgnoreCase);
-        var sampleRecords = "[{\\"department\\": \\"Engineering\\", \\"name\\": \\"Ada\\"}, {\\"department\\": \\"Design\\", \\"name\\": \\"Grace\\"}, {\\"department\\": \\"Engineering\\", \\"name\\": \\"Linus\\"}]";
+        var sampleRecords = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep(
