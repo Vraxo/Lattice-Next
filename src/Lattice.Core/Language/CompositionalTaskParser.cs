@@ -66,7 +66,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex BuiltInSumAvoidancePattern = new(
-        @"\\bcalculates?\\s+(?:the\\s+)?(?:total|sum)\\s+(?:of|for)\\s+(?:a|the)\\s+list\\s+of\\s+numbers?\\s+without\\s+using\\s+(?:the\\s+)?built[- ]in\\s+sum\\s+function\\b",
+        @"\bcalculates?\s+(?:(?:their|the)\s+(?:total|sum)|(?:the\s+)?(?:total|sum)\s+of\s+(?:a|the)\s+list\s+of\s+numbers?)\s+without\s+using\s+(?:the\s+)?built[- ]in\s+sum\s+function\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopAccumulatorPattern = new(
