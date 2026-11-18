@@ -365,7 +365,7 @@ public sealed class PythonProgramGenerationTests
         Assert.True(start >= 0 && end > start, utterance.Message);
 
         var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
-        Assert.Equal(expectedCode, generatedCode);
+        Assert.Equal(expectedCode.Replace("\n", Environment.NewLine, StringComparison.Ordinal), generatedCode);
         await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
