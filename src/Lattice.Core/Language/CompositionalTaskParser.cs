@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex SortRecordsByFieldsPattern = new(
-        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?list\s+of\s+field\s+names(?:\s+(?:named\s+)?(?<fields>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+by\s+(?:those|the)\s+fields(?:\s+in\s+descending\s+order)?\b",
+        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?list\s+of\s+field\s+names(?:\s+(?:named\s+)?(?<fields>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:those|the)\s+fields(?:\s+case[- ]insensitively)?(?:\s+in\s+descending\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex SortRecordsByFieldPattern = new(
@@ -1182,8 +1182,13 @@ internal static class CompositionalTaskParser
         var fieldsName = match.Groups["fields"].Success
             ? match.Groups["fields"].Value
             : "fields";
+        var caseInsensitive = source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase)
+            || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase);
         var descending = source.Contains("descending order", StringComparison.OrdinalIgnoreCase);
         var sampleRecords = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
+        var sortKey = caseInsensitive
+            ? $"tuple(record[field].casefold() for field in {fieldsName})"
+            : $"tuple(record[field] for field in {fieldsName})";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep(
@@ -1193,7 +1198,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "return-value-indented-expression",
                 "expression",
-                $"sorted({recordsName}, key=lambda record: tuple(record[field] for field in {fieldsName}){(descending ? ", reverse=True" : string.Empty)})"),
+                $"sorted({recordsName}, key=lambda record: {sortKey}{(descending ? ", reverse=True" : string.Empty)})"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
