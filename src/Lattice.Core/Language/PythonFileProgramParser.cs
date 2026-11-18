@@ -17,7 +17,7 @@ internal static class PythonFileProgramParser
         @"\breads?\s+(?:a|the)\s+text\s+file\s+and\s+counts?\s+how\s+many\s+non[- ]empty\s+lines?\s+it\s+contains?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static bool TryGetDirectoryFileListingProgram(
+    internal static bool TryGetDirectoryFileListingProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -40,7 +40,7 @@ internal static class PythonFileProgramParser
         return true;
     }
 
-    private static bool TryGetNonEmptyFileLineCountProgram(
+    internal static bool TryGetNonEmptyFileLineCountProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
