@@ -85,3 +85,16 @@ This instruction is intentionally explicit so it remains discoverable and enforc
 - Prefer explicit, small types and deterministic behavior.
 - Avoid unnecessary dependencies, reflection-driven magic, and premature abstraction.
 - Use Result-style outcomes for expected failures; do not use exceptions for ordinary control flow.
+
+## CI wait-and-check procedure
+
+When a change triggers GitHub Actions or another asynchronous CI workflow, agents must allow the checks time to settle before polling. Do this while the task is still actively running; do not return control to the user merely to wait for CI and ask them to prompt a later status check.
+
+- After pushing the final commit for a PR update, wait **90 seconds** before the first CI status check.
+- If the relevant workflow is still queued or in progress, wait another **30–60 seconds** before checking again. Repeat as needed while actively working.
+- Once a run completes, inspect its conclusion and failed job/step logs. A failed run requires diagnosis and a corrective change; after pushing that fix, restart the wait-and-check cycle.
+- Verify the latest commit's required checks, not an earlier commit's run. Do not treat a stale green run as validation for newer code.
+- Do not report a PR as merged until GitHub confirms it is merged. Auto-merge must remain enabled and must wait for all configured checks and review requirements.
+- If the execution environment cannot sustain the wait or polling, state the limitation explicitly rather than implying that CI was checked.
+
+This procedure applies to every agent and every PR, including documentation-only changes.
