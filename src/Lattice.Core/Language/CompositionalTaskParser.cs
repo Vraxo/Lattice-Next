@@ -37,6 +37,10 @@ internal static class CompositionalTaskParser
         @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex ProductPriceIterationPattern = new(
+        @"\b(?:given|with)\s+(?:a\s+)?dictionary\s+of\s+product\s+names\s+and\s+prices\s*,?\s*(?:prints?|displays?|outputs?)\s+each\s+product\s+with\s+its\s+price\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex GreetingFunctionPattern = new(
         @"\b(?:defines?|creates?)\s+(?:a\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|takes?)\s+(?:a\s+)?person'?s\s+name\s+and\s+returns?\s+(?:a\s+)?greeting\b.*?\bcall\s+(?:it|the\s+function)\s+with\s+two\s+different\s+names\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
@@ -191,6 +195,10 @@ internal static class CompositionalTaskParser
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
             formula = formula with { GenerationSteps = functionSteps };
+        }
+        else if (TryGetProductPriceIterationProgram(source, out var productPriceSteps))
+        {
+            formula = formula with { GenerationSteps = productPriceSteps };
         }
         else if (TryGetDictionaryIterationProgram(source, out var dictionarySteps))
         {
@@ -1153,6 +1161,23 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
+        return true;
+    }
+
+    private static bool TryGetProductPriceIterationProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!ProductPriceIterationPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", "products = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}"),
+            new TaskRequestStep("begin-loop", "loop-header", "product, price in products.items()"),
+            new TaskRequestStep("write-standard-output-indented-expression", "expression", "product, price"));
         return true;
     }
 
