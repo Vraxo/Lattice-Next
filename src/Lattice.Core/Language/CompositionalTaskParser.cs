@@ -42,7 +42,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex BankAccountClassPattern = new(
-        @"\\bclass\\s+(?:representing|for)\\s+(?:a\\s+)?bank\\s+account\\b.*\\bbalance\\b.*\\bdeposit(?:ion)?\\s+method\\b.*\\bwithdraw(?:al)?\\s+method\\b.*\\b(?:refuses?|rejects?)\\s+withdrawals?\\s+(?:that\\s+are\\s+)?(?:larger|greater)\\s+than\\s+(?:the\\s+)?balance\\b",
+        @"\bclass\s+(?:representing|for)\s+(?:a\s+)?bank\s+account\b.*\bbalance\b.*\bdeposit(?:ion)?\s+method\b.*\bwithdraw(?:al)?\s+method\b.*\b(?:refuses?|rejects?)\s+withdrawals?\s+(?:that\s+are\s+)?(?:larger|greater)\s+than\s+(?:the\s+)?balance\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private static readonly Regex GreetingFunctionPattern = new(
