@@ -1,0 +1,50 @@
+name: Python coding benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/Lattice.Coding.Benchmark/**"
+      - "data/benchmarks/coding-benchmark-v1.json"
+      - ".github/workflows/python-coding-benchmark.yml"
+  pull_request:
+    paths:
+      - "tools/Lattice.Coding.Benchmark/**"
+      - "data/benchmarks/coding-benchmark-v1.json"
+      - ".github/workflows/python-coding-benchmark.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    name: Evaluate Python benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Python coding benchmark
+        run: dotnet run --project tools/Lattice.Coding.Benchmark --configuration Release
+
+      - name: Publish benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lattice-python-coding-benchmark
+          path: |
+            artifacts/coding-benchmark-python-results.json
+            artifacts/coding-benchmark-python-results.md
+          if-no-files-found: error
+          retention-days: 30
