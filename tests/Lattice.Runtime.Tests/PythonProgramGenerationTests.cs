@@ -20,7 +20,6 @@ public sealed class PythonProgramGenerationTests
         "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
         "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))",
         "{1: 11, 2: 12, 3: 13}")]
-    [Theory]
     [InlineData(
         "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
         "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))",
