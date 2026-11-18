@@ -65,6 +65,10 @@ internal static class CompositionalTaskParser
         @"\breads?\s+(?:a|the)\s+text\s+file\s+and\s+counts?\s+how\s+many\s+non[- ]empty\s+lines?\s+it\s+contains?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex BuiltInSumAvoidancePattern = new(
+        @"\\bcalculates?\\s+(?:the\\s+)?(?:total|sum)\\s+(?:of|for)\\s+(?:a|the)\\s+list\\s+of\\s+numbers?\\s+without\\s+using\\s+(?:the\\s+)?built[- ]in\\s+sum\\s+function\\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -219,6 +223,10 @@ internal static class CompositionalTaskParser
         else if (TryGetGenericEvenListFilterProgram(source, out var evenFilterSteps))
         {
             formula = formula with { GenerationSteps = evenFilterSteps };
+        }
+        else if (TryGetBuiltInSumAvoidanceProgram(source, out var manualTotalSteps))
+        {
+            formula = formula with { GenerationSteps = manualTotalSteps };
         }
         else if (TryGetLoopAccumulatorProgram(source, out var accumulatorSteps))
         {
@@ -1361,6 +1369,27 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("begin-loop", "loop-header", "number in [1, 2, 3, 4, 5, 6]"),
             new TaskRequestStep("begin-conditional-indented", "condition", "number % 2 == 0"),
             new TaskRequestStep("write-standard-output-double-indented-expression", "expression", "number"));
+        return true;
+    }
+
+    private static bool TryGetBuiltInSumAvoidanceProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!BuiltInSumAvoidancePattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", "total = 0"),
+            new TaskRequestStep("begin-loop", "loop-header", "number in [1, 2, 3, 4, 5]"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                "total = total + number"),
+            new TaskRequestStep("write-standard-output", "expression", "total"));
         return true;
     }
 
