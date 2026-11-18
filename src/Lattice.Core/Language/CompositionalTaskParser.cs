@@ -1,12 +1,10 @@
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
 
 internal static class CompositionalTaskParser
 {
-
 
     internal static bool TryParse(
         string source,
@@ -15,9 +13,7 @@ internal static class CompositionalTaskParser
     {
         utterance = null;
 
-        var isDirectoryListingRequest =
-            PythonFileProgramParser.DirectoryFileListingPattern.IsMatch(source) &&
-            Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        var isDirectoryListingRequest = PythonFileProgramParser.IsDirectoryListingRequest(source);
         var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
         EnglishSentenceSyntax? syntax = null;
         var creationClauseIndex = -1;
@@ -159,6 +155,4 @@ internal static class CompositionalTaskParser
             sourceText.Trim());
         return true;
     }
-
-
 }

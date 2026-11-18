@@ -56,4 +56,8 @@ internal static class PythonFileProgramParser
             new TaskRequestStep("write-standard-output", "expression", "line_count"));
         return true;
     }
+
+    internal static bool IsDirectoryListingRequest(string source) =>
+        DirectoryFileListingPattern.IsMatch(source) &&
+        Regex.IsMatch(source, @"\\bPython\\s+program\\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 }
