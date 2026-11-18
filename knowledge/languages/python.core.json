@@ -481,7 +481,7 @@
         },
         {
           "kind": "binding",
-          "value": "argument-text"
+          "value": "argument-expression"
         },
         {
           "kind": "terminal",
