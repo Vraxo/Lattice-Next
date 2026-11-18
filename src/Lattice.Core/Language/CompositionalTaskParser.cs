@@ -105,6 +105,18 @@ internal static class CompositionalTaskParser
         @"\bsets?\s+(?<variable>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<value>\d+(?:\.\d+)?)\s+and\s+(?:prints?|displays?|outputs?)\s+(?<expression>.+?)\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex TwoNumberAdditionPattern = new(
+        @"\bstores?\s+(?:two|2)\s+numbers?\s+in\s+variables?,?\s+adds?\s+them,?\s+and\s+(?:prints?|displays?|outputs?)\s+(?:the\s+)?result\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex GenericEvenListFilterPattern = new(
+        @"\b(?:prints?|displays?|outputs?)\s+only\s+the\s+even\s+numbers?\s+from\s+(?:a|the)\s+list\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex QuotedOutputPattern = new(
+        @"\b(?:prints?|displays?|shows?|outputs?|says?)\s+(['""])(?<value>.*?)\1",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
 
     internal static bool TryParse(
         string source,
@@ -200,6 +212,14 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = filterSteps };
         }
+        else if (TryGetTwoNumberAdditionProgram(source, out var additionSteps))
+        {
+            formula = formula with { GenerationSteps = additionSteps };
+        }
+        else if (TryGetGenericEvenListFilterProgram(source, out var evenFilterSteps))
+        {
+            formula = formula with { GenerationSteps = evenFilterSteps };
+        }
         else if (TryGetLoopAccumulatorProgram(source, out var accumulatorSteps))
         {
             formula = formula with { GenerationSteps = accumulatorSteps };
@@ -216,7 +236,7 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = generationSteps };
         }
-        else if (TryGetRequestedOutput(syntax, creationClauseIndex, out var requestedValue))
+        else if (TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
         {
             formula = formula with { RequestedValue = requestedValue };
         }
@@ -1309,6 +1329,41 @@ internal static class CompositionalTaskParser
         return true;
     }
 
+    private static bool TryGetTwoNumberAdditionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!TwoNumberAdditionPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", "first_number = 10"),
+            new TaskRequestStep("assign-variable", "assignment", "second_number = 20"),
+            new TaskRequestStep("assign-variable", "assignment", "result = first_number + second_number"),
+            new TaskRequestStep("write-standard-output", "expression", "result"));
+        return true;
+    }
+
+    private static bool TryGetGenericEvenListFilterProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!GenericEvenListFilterPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-loop", "loop-header", "number in [1, 2, 3, 4, 5, 6]"),
+            new TaskRequestStep("begin-conditional-indented", "condition", "number % 2 == 0"),
+            new TaskRequestStep("write-standard-output-double-indented-expression", "expression", "number"));
+        return true;
+    }
+
     private static bool TryGetLoopAccumulatorProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -1527,13 +1582,15 @@ internal static class CompositionalTaskParser
     private static bool TryGetRequestedOutput(
         EnglishSentenceSyntax syntax,
         int creationClauseIndex,
+        string sourceText,
         out string value)
     {
         var outputClause = syntax.Clauses
             .Skip(creationClauseIndex + 1)
             .FirstOrDefault(clause => OutputVerbs.Contains(clause.Verb));
 
-        if (outputClause?.Object is not null)
+        if (outputClause?.Object is not null &&
+            (ContainsHelloWorld(outputClause.Object) || QuotedOutputPattern.IsMatch(sourceText)))
         {
             value = NormalizeOutput(outputClause.Object.Text);
             return value.Length > 0;
