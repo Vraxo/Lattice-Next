@@ -949,9 +949,9 @@ internal static class CompositionalTaskParser
         const string parameter = "name";
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
-            new TaskRequestStep("return-value-indented-expression", "expression", $@"f""Hello, {{{parameter}}}!"""),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\""Ada\"")"),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\""Grace\"")"));
+            new TaskRequestStep("return-value-indented-expression", "expression", "f\"Hello, {name}!\""),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Ada\")"),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Grace\")"));
         return true;
     }
 
