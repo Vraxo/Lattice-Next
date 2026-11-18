@@ -1133,7 +1133,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "write-expression-indented",
                 "expression",
-                "json.dump(records, output_file, indent=2)"),
+                "records, output_file, indent=2"),
             new TaskRequestStep(
                 "begin-with",
                 "expression",
