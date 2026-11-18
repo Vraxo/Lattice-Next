@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex SortRecordsByFieldPattern = new(
-        @"\\b(?:creates?|defines?|writes?)\\s+(?:a\\s+)?(?:reusable\\s+)?function(?:\\s+named\\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\\s+that\\s+(?:accepts?|receives?)\\s+(?:a\\s+)?list\\s+of\\s+records(?:\\s+(?:named\\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\\s+and\\s+(?:a\\s+)?field\\s+name(?:\\s+(?:named\\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\\s*,?\\s+then\\s+returns?\\s+(?:the\\s+)?records?\\s+sorted\\s+by\\s+(?:that|the)\\s+field\\b",
+        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+by\s+(?:that|the)\s+field\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex JsonCollectionRoundTripPattern = new(
