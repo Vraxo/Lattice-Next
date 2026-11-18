@@ -560,6 +560,32 @@ public sealed class PythonProgramGenerationTests
             "[{'name': 'Grace', 'age': 85}, {'name': 'Linus', 'age': 55}, {'name': 'Ada', 'age': 36}]");
     }
 
+    [Fact]
+    public async Task Accepts_reverse_order_as_a_descending_sort_request()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in reverse order.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Contains("reverse=True", generatedCode, StringComparison.Ordinal);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'Grace', 'age': 85}, {'name': 'Linus', 'age': 55}, {'name': 'Ada', 'age': 36}]");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
