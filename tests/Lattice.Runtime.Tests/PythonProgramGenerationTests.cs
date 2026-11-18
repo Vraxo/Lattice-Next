@@ -927,7 +927,7 @@ public sealed class PythonProgramGenerationTests
             "import sys",
             "directory = sys.argv[1]",
             "try:",
-            "    for entry in os.scandir(directory):",
+            "    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):",
             "        if entry.is_file():",
             "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
             "except FileNotFoundError:",
@@ -941,7 +941,7 @@ public sealed class PythonProgramGenerationTests
             programArgument: "missing_directory");
         await AssertPythonOutput(
             generatedCode,
-            "hello.txt: 5 bytes\nempty.txt: 0 bytes",
+            "empty.txt: 0 bytes\nhello.txt: 5 bytes",
             useTemporaryDirectory: true,
             createSampleDirectory: true,
             programArgument: "sample_directory");
