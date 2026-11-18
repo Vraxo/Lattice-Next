@@ -11,7 +11,7 @@ internal static class EnglishSyntaxParser
 {
     private static readonly HashSet<string> AdditionalVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "create", "generate", "build", "print", "display", "show", "output", "say",
+        "create", "define", "generate", "build", "print", "display", "show", "output", "say",
         "explain", "recommend", "plan", "learn", "start", "operate", "set"
     };
 

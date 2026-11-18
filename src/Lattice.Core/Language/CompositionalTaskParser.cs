@@ -8,12 +8,12 @@ internal static class CompositionalTaskParser
 {
     private static readonly HashSet<string> CreationVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "write", "create", "generate", "make", "build"
+        "write", "create", "generate", "make", "build", "define"
     };
 
     private static readonly HashSet<string> CodeArtifacts = new(StringComparer.OrdinalIgnoreCase)
     {
-        "program", "script", "application", "code", "function"
+        "program", "script", "application", "code", "function", "class"
     };
 
     private static readonly HashSet<string> OutputVerbs = new(StringComparer.OrdinalIgnoreCase)
@@ -40,6 +40,10 @@ internal static class CompositionalTaskParser
     private static readonly Regex ProductPriceIterationPattern = new(
         @"\b(?:given|with)\s+(?:a\s+)?dictionary\s+of\s+product\s+names\s+and\s+prices\s*,?\s*(?:prints?|displays?|outputs?)\s+each\s+product\s+with\s+its\s+price\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    private static readonly Regex BankAccountClassPattern = new(
+        @"\bclass\s+(?:representing|for)\s+(?:a\s+)?bank\s+account\b.*\bbalance\b.*\bdeposit(?:ion)?\s+method\b.*\bwithdraw(?:al)?\s+method\b.*\b(?:refuses?|rejects?)\s+withdrawals?\s+(?:that\s+are\s+)?(?:larger|greater)\s+than\s+(?:the\s+)?balance\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private static readonly Regex GreetingFunctionPattern = new(
         @"\b(?:defines?|creates?)\s+(?:a\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|takes?)\s+(?:a\s+)?person'?s\s+name\s+and\s+returns?\s+(?:a\s+)?greeting\b.*?\bcall\s+(?:it|the\s+function)\s+with\s+two\s+different\s+names\b",
@@ -172,7 +176,11 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (TryGetFunctionCompositionProgram(source, out var compositionSteps))
+        if (TryGetBankAccountClassProgram(source, out var bankAccountSteps))
+        {
+            formula = formula with { GenerationSteps = bankAccountSteps };
+        }
+        else if (TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
         }
@@ -939,6 +947,30 @@ internal static class CompositionalTaskParser
             "expression",
             $"{callName}({string.Join(", ", callArguments)})"));
         steps = generatedSteps.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetBankAccountClassProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!BankAccountClassPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-class", "class-name", "BankAccount"),
+            new TaskRequestStep("begin-class-method", "method-header", "__init__(self, balance)"),
+            new TaskRequestStep("assign-variable-double-indented", "assignment", "self.balance = balance"),
+            new TaskRequestStep("begin-class-method", "method-header", "deposit(self, amount)"),
+            new TaskRequestStep("assign-variable-double-indented", "assignment", "self.balance += amount"),
+            new TaskRequestStep("begin-class-method", "method-header", "withdraw(self, amount)"),
+            new TaskRequestStep("begin-conditional-double-indented", "condition", "amount > self.balance"),
+            new TaskRequestStep("return-value-triple-indented-expression", "expression", "False"),
+            new TaskRequestStep("assign-variable-double-indented", "assignment", "self.balance -= amount"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", "True"));
         return true;
     }
 
