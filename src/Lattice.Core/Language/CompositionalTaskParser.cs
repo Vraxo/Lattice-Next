@@ -152,15 +152,16 @@ internal static class CompositionalTaskParser
         var isDirectoryListingRequest =
             DirectoryFileListingPattern.IsMatch(source) &&
             Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        EnglishSentenceSyntax? syntax = null;
+        var creationClauseIndex = -1;
 
         if (!isDirectoryListingRequest)
         {
-            if (!EnglishSyntaxParser.TryParse(source, out var syntax))
+            if (!EnglishSyntaxParser.TryParse(source, out syntax))
             {
                 return false;
             }
 
-            var creationClauseIndex = -1;
             for (var index = 0; index < syntax!.Clauses.Length; index++)
             {
                 if (CreationVerbs.Contains(syntax.Clauses[index].Verb))
