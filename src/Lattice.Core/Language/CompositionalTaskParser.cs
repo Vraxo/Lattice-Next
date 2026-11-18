@@ -937,12 +937,21 @@ internal static class CompositionalTaskParser
             ? @"[""Ada"", ""Grace"", ""Linus""]"
             : "[1, 2, 3]";
 
+        var dictionary = match.Groups["dictionary"].Success
+            ? match.Groups["dictionary"].Value
+            : "mapped_values";
+        var dictionaryExpression = $"{{{item}: {expression} for {item} in {parameter}}}";
+
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{function}({parameter})"),
             new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"{dictionary} = {dictionaryExpression}"),
+            new TaskRequestStep(
                 "return-value-indented-expression",
                 "expression",
-                $"{{{item}: {expression} for {item} in {parameter}}}"),
+                dictionary),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
