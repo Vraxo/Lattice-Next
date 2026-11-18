@@ -435,6 +435,41 @@ public sealed class PythonProgramGenerationTests
             useTemporaryDirectory: true);
     }
 
+    [Fact]
+    public async Task Generalizes_json_round_trip_variable_and_file_names()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that saves a list of dictionaries named people to a JSON file named people-data.json and then loads it back.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "import json",
+            "people = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+            "with open(\"people-data.json\", \"w\", encoding=\"utf-8\") as output_file:",
+            "    json.dump(people, output_file, indent=2)",
+            "with open(\"people-data.json\", \"r\", encoding=\"utf-8\") as input_file:",
+            "    loaded_people = json.load(input_file)",
+            "print(loaded_people)");
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'Ada', 'age': 36}, {'name': 'Grace', 'age': 85}]",
+            useTemporaryDirectory: true);
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
