@@ -1434,7 +1434,7 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var records = $"records = [{{\\"{group}\\": \\"Ada\\", \\"{measure}\\": 25.0}}, {{\\"{group}\\": \\"Grace\\", \\"{measure}\\": 40.0}}, {{\\"{group}\\": \\"Ada\\", \\"{measure}\\": 15.0}}]";
+        var records = $"records = [{{\"{group}\": \"Ada\", \"{measure}\": 25.0}}, {{\"{group}\": \"Grace\", \"{measure}\": 40.0}}, {{\"{group}\": \"Ada\", \"{measure}\": 15.0}}]";
         steps = ImmutableArray.Create(
             new TaskRequestStep("assign-variable", "assignment", records),
             new TaskRequestStep("assign-variable", "assignment", "totals = {}"),
@@ -1442,11 +1442,11 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "assign-variable-indented",
                 "assignment",
-                $"{group} = {record}[\\"{group}\\"]"),
+                $"{group} = {record}[\"{group}\"]"),
             new TaskRequestStep(
                 "assign-variable-indented",
                 "assignment",
-                $"totals[{group}] = totals.get({group}, 0) + {record}[\\"{measure}\\"]"),
+                $"totals[{group}] = totals.get({group}, 0) + {record}[\"{measure}\"]"),
             new TaskRequestStep("begin-loop", "loop-header", $"{group}, total in totals.items()"),
             new TaskRequestStep("write-standard-output-indented-expression", "expression", $"{group}, total"));
         return true;
