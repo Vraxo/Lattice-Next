@@ -42,7 +42,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex CollectionMappingFunctionPattern = new(
-        @"\b(?:given|from)\s+(?:a|the)\s+list\s+of\s+(?<kind>names?|words?|numbers?|values?|items?)\s*,?\s*(?:create|build|make)\s+(?:a\s+)?dictionary(?:\s+named\s+(?<dictionary>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+maps?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<mapping>.+?)\s*[.!?]?\s*$",
+        @"\b(?:given|from)\s+(?:a|the)\s+list\s+of\s+(?<kind>names?|words?|numbers?|values?|items?)\s*,?\s*(?:creates?|builds?|makes?)\s+(?:a\s+)?dictionary(?:\s+named\s+(?<dictionary>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+maps?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<mapping>.+?)\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex AverageFilterFunctionPattern = new(
