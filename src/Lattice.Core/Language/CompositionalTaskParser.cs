@@ -74,7 +74,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex DirectoryFileListingPattern = new(
-        @"\\b(?:accepts?|takes?)\\s+(?:a|the)\\s+directory\\s+path\\s+and\\s+reports?\\s+(?:the\\s+)?names?\\s+and\\s+sizes?\\s+of\\s+(?:all\\s+)?files?\\s+(?:directly\\s+)?inside\\s+it,?\\s+handling\\s+(?:a\\s+)?missing\\s+directory\\s+cleanly\\b",
+        @"\b(?:accepts?|takes?)\s+(?:a|the)\s+directory\s+path\s+and\s+reports?\s+(?:the\s+)?names?\s+and\s+sizes?\s+of\s+(?:all\s+)?files?\s+(?:directly\s+)?inside\s+it,?\s+handling\s+(?:a\s+)?missing\s+directory\s+cleanly\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex NonEmptyFileLineCountPattern = new(
