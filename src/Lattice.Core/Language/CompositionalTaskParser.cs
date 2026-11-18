@@ -37,6 +37,10 @@ internal static class CompositionalTaskParser
         @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex GreetingFunctionPattern = new(
+        @"\b(?:defines?|creates?)\s+(?:a\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|takes?)\s+(?:a\s+)?person'?s\s+name\s+and\s+returns?\s+(?:a\s+)?greeting\b.*?\bcall\s+(?:it|the\s+function)\s+with\s+two\s+different\s+names\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
     private static readonly Regex IntegerConversionFunctionPattern = new(
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+)?converts?\s+(?:the\s+)?(?<input>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\s+and\s+returns?\s+(?:a\s+)?(?:clear\s+)?(?:result|message)\s+(?:when|if)\s+(?:the\s+)?(?:text|input)\s+is\s+not\s+a\s+valid\s+integer",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -179,6 +183,10 @@ internal static class CompositionalTaskParser
         else if (TryGetFunctionWithLocalVariableProgram(source, out var localVariableSteps))
         {
             formula = formula with { GenerationSteps = localVariableSteps };
+        }
+        else if (TryGetGreetingFunctionProgram(source, out var greetingSteps))
+        {
+            formula = formula with { GenerationSteps = greetingSteps };
         }
         else if (TryGetFunctionProgram(source, out var functionSteps))
         {
@@ -923,6 +931,27 @@ internal static class CompositionalTaskParser
             "expression",
             $"{callName}({string.Join(", ", callArguments)})"));
         steps = generatedSteps.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetGreetingFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = GreetingFunctionPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "greet";
+        const string parameter = "name";
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
+            new TaskRequestStep("return-value-indented-expression", "expression", "f\"Hello, {name}!\""),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Ada\")"),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Grace\")"));
         return true;
     }
 
