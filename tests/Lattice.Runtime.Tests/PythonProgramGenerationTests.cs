@@ -10,7 +10,7 @@ public sealed class PythonProgramGenerationTests
     [Theory]
     [InlineData(
         "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
-        "def map_values(names):\n    return {name: len(name) for name in names}\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
+        "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
         "{'Ada': 3, 'Grace': 5, 'Linus': 5}")]
     [InlineData(
         "Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number to the square of it.",
