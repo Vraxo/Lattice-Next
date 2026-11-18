@@ -77,7 +77,12 @@ static async Task<TaskResult> EvaluateAsync(
     BenchmarkTask task)
 {
     await using var session = await client.CreateSessionAsync();
-    var turn = await session.SubmitAsync(task.Prompt);
+    // The benchmark stage supplies language context; keep each task prompt verbatim
+    // while making that shared context explicit to the language parser.
+    var submissionPrompt = task.StageId is "python-fundamentals" or "compositional-python"
+        ? $"Write a Python program that fulfills this request: {task.Prompt}"
+        : task.Prompt;
+    var turn = await session.SubmitAsync(submissionPrompt);
     var utterance = turn.Utterances.FirstOrDefault();
     if (turn.Status != LatticeTurnStatus.Completed ||
         utterance?.Kind != LatticeUtteranceResultKind.TaskCompleted)
