@@ -41,7 +41,7 @@ internal static class PythonCollectionProgramParser
         @"\b(?:groups?|organizes?)\s+(?:a|the)\s+list\s+of\s+(?<record>[A-Za-z_][A-Za-z0-9_]*)\s+records?\s+by\s+(?<group>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:calculates?|computes?|sums?)\s+(?:each\s+(?<owner>[A-Za-z_][A-Za-z0-9_]*)'?s\s+)?(?:total\s+)?(?<measure>spending|amount|cost|price|value)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static bool TryGetCollectionMappingFunctionProgram(
+    internal static bool TryGetCollectionMappingFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -104,7 +104,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetCollectionFilterFunctionProgram(
+    internal static bool TryGetCollectionFilterFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -170,7 +170,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetIntegerConversionFunctionProgram(
+    internal static bool TryGetIntegerConversionFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -204,7 +204,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetProductPriceIterationProgram(
+    internal static bool TryGetProductPriceIterationProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -221,7 +221,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetDictionaryIterationProgram(
+    internal static bool TryGetDictionaryIterationProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -256,7 +256,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetSortRecordsByFieldsProgram(
+    internal static bool TryGetSortRecordsByFieldsProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -300,7 +300,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetSortRecordsByFieldProgram(
+    internal static bool TryGetSortRecordsByFieldProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -343,7 +343,7 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
-    private static bool TryGetJsonCollectionRoundTripProgram(
+    internal static bool TryGetJsonCollectionRoundTripProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
@@ -392,7 +392,7 @@ internal static class PythonCollectionProgramParser
     }
 
 
-    private static bool TryGetCollectionGroupingAggregationProgram(
+    internal static bool TryGetCollectionGroupingAggregationProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
     {
