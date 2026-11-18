@@ -705,6 +705,37 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "2\n4\n6");
     }
 
+    [Fact]
+    public async Task Calculates_a_list_total_without_using_the_builtin_sum_function()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Given a list of numbers, write a Python program that calculates their total without using the built-in sum function.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "total = 0",
+                "for number in [1, 2, 3, 4, 5]:",
+                "    total = total + number",
+                "print(total)"),
+            generatedCode);
+        Assert.DoesNotContain("sum(", generatedCode, StringComparison.Ordinal);
+        await AssertPythonOutput(generatedCode, "15");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
