@@ -802,6 +802,37 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode.Replace("number = -5", "number = 0", StringComparison.Ordinal), "Zero");
     }
 
+
+    [Fact]
+    public async Task Generates_and_executes_greeting_function_for_two_names()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that defines a function that accepts a person's name and returns a greeting. Call it with two different names.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "def greet(name):",
+                "    return f""Hello, {name}!""",
+                "print(greet(""Ada""))",
+                "print(greet(""Grace""))"),
+            generatedCode);
+        await AssertPythonOutput(generatedCode, "Hello, Ada!\nHello, Grace!");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
