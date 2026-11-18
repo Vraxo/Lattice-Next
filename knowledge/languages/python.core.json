@@ -296,6 +296,70 @@
           "value": ":"
         }
       ]
+    },
+    {
+      "head": "with-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "with "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-for-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    for "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-if-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        if "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "triple-indented-assignment-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-assignment"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -474,6 +538,38 @@
       "argumentKind": "exception-type",
       "prerequisites": [],
       "startSymbol": "indented-except-statement"
+    },
+    {
+      "id": "python-with-file",
+      "symbol": "with",
+      "effect": "begin-with",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "with-statement"
+    },
+    {
+      "id": "python-for-loop-indented",
+      "symbol": "for",
+      "effect": "begin-loop-indented",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "indented-for-statement"
+    },
+    {
+      "id": "python-if-double-indented",
+      "symbol": "if",
+      "effect": "begin-conditional-double-indented",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "double-indented-if-statement"
+    },
+    {
+      "id": "python-assign-variable-triple-indented",
+      "symbol": "=",
+      "effect": "assign-variable-triple-indented",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "triple-indented-assignment-statement"
     }
   ],
   "stringLiteralFormat": {
