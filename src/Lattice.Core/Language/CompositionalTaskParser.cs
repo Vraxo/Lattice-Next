@@ -49,6 +49,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater\s+than\s+or\s+equal\s+to|at\s+least|less\s+than\s+or\s+equal\s+to|at\s+most|not\s+equal\s+to|greater\s+than|more\s+than|less\s+than|below|equal\s+to|equals)\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?(?:\s*[+*/%\-]\s*\d+(?:\.\d+)?)*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex NonEmptyFileLineCountPattern = new(
+        @"\\breads?\\s+(?:a|the)\\s+text\\s+file\\s+and\\s+counts?\\s+how\\s+many\\s+non[- ]empty\\s+lines?\\s+it\\s+contains?\\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -163,6 +167,10 @@ internal static class CompositionalTaskParser
         else if (TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
         {
             formula = formula with { GenerationSteps = collectionFilterSteps };
+        }
+        else if (TryGetNonEmptyFileLineCountProgram(source, out var fileLineCountSteps))
+        {
+            formula = formula with { GenerationSteps = fileLineCountSteps };
         }
         else if (TryGetLoopFilterProgram(source, out var filterSteps))
         {
@@ -1091,6 +1099,26 @@ internal static class CompositionalTaskParser
                 "write-standard-output-indented-expression",
                 "expression",
                 $"{key}, {value}"));
+        return true;
+    }
+
+    private static bool TryGetNonEmptyFileLineCountProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        if (!NonEmptyFileLineCountPattern.IsMatch(source))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", "line_count = 0"),
+            new TaskRequestStep("begin-with", "expression", "open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file"),
+            new TaskRequestStep("begin-loop-indented", "loop-header", "line in input_file"),
+            new TaskRequestStep("begin-conditional-double-indented", "condition", "line.strip()"),
+            new TaskRequestStep("assign-variable-triple-indented", "assignment", "line_count += 1"),
+            new TaskRequestStep("write-standard-output", "expression", "line_count"));
         return true;
     }
 
