@@ -164,10 +164,15 @@ internal static class CompositionalTaskParser
             }
         }
 
-        if (creationClauseIndex < 0 ||
-            syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
-            !ContainsCodeArtifact(codeArtifact) ||
-            !ContainsPythonLanguage(syntax.Clauses[creationClauseIndex]))
+        var isDirectoryListingRequest =
+            DirectoryFileListingPattern.IsMatch(source) &&
+            Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+        if (!isDirectoryListingRequest &&
+            (creationClauseIndex < 0 ||
+             syntax.Clauses[creationClauseIndex].Object is not { } codeArtifact ||
+             !ContainsCodeArtifact(codeArtifact) ||
+             !ContainsPythonLanguage(syntax.Clauses[creationClauseIndex])))
         {
             return false;
         }
