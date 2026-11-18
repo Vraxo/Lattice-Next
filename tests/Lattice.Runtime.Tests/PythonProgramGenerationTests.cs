@@ -9,16 +9,16 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
-        "Given a list of names, create a dictionary that maps each name to the number of characters in it.",
+        "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
         "def map_values(names):\n    return {name: len(name) for name in names}\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
         "{'Ada': 3, 'Grace': 5, 'Linus': 5}")]
     [InlineData(
-        "From a list of numbers, build a dictionary named squares that maps each number to the square of it.",
-        "def map_values(numbers):\n    return {number: number * number for number in numbers}\nprint(map_values([1, 2, 3]))",
+        "Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number to the square of it.",
+        "def map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))",
         "{1: 1, 2: 4, 3: 9}")]
     [InlineData(
-        "Given a list of values, make a dictionary that maps each value to value + 10.",
-        "def map_values(values):\n    return {value: value + 10 for value in values}\nprint(map_values([1, 2, 3]))",
+        "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
+        "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))",
         "{1: 11, 2: 12, 3: 13}")]
     [Theory]
     [InlineData(
