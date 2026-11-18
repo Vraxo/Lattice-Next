@@ -924,7 +924,8 @@ public sealed class PythonProgramGenerationTests
         var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
         var expectedCode = string.Join(Environment.NewLine,
             "import os",
-            "directory = \"sample_directory\"",
+            "import sys",
+            "directory = sys.argv[1]",
             "try:",
             "    for entry in os.scandir(directory):",
             "        if entry.is_file():",
@@ -933,18 +934,23 @@ public sealed class PythonProgramGenerationTests
             "    print(f\"Directory not found: {directory}\")");
         Assert.Equal(expectedCode, generatedCode);
 
-        await AssertPythonOutput(generatedCode, "Directory not found: sample_directory", useTemporaryDirectory: true);
+        await AssertPythonOutput(
+            generatedCode,
+            "Directory not found: missing_directory",
+            useTemporaryDirectory: true,
+            programArgument: "missing_directory");
         await AssertPythonOutput(
             generatedCode,
             "hello.txt: 5 bytes\nempty.txt: 0 bytes",
             useTemporaryDirectory: true,
-            createSampleDirectory: true);
+            createSampleDirectory: true,
+            programArgument: "sample_directory");
     }
 
-    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false, bool createSampleDirectory = false)
+    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false, bool createSampleDirectory = false, string? programArgument = null)
     {
         string? workingDirectory = null;
-        if (useTemporaryDirectory || (inputFileName is not null && inputFileContent is not null))
+        if (useTemporaryDirectory || programArgument is not null || (inputFileName is not null && inputFileContent is not null))
         {
             workingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(workingDirectory);
@@ -972,6 +978,10 @@ public sealed class PythonProgramGenerationTests
         };
         startInfo.ArgumentList.Add("-c");
         startInfo.ArgumentList.Add(code);
+        if (programArgument is not null)
+        {
+            startInfo.ArgumentList.Add(programArgument);
+        }
 
         using var process = Process.Start(startInfo);
         Assert.NotNull(process);
