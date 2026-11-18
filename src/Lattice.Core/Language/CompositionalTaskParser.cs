@@ -49,6 +49,10 @@ internal static class CompositionalTaskParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater\s+than\s+or\s+equal\s+to|at\s+least|less\s+than\s+or\s+equal\s+to|at\s+most|not\s+equal\s+to|greater\s+than|more\s+than|less\s+than|below|equal\s+to|equals)\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?(?:\s*[+*/%\-]\s*\d+(?:\.\d+)?)*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex SortRecordsByFieldPattern = new(
+        @"\\b(?:creates?|defines?|writes?)\\s+(?:a\\s+)?(?:reusable\\s+)?function(?:\\s+named\\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\\s+that\\s+(?:accepts?|receives?)\\s+(?:a\\s+)?list\\s+of\\s+records(?:\\s+(?:named\\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\\s+and\\s+(?:a\\s+)?field\\s+name(?:\\s+(?:named\\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\\s*,?\\s+then\\s+returns?\\s+(?:the\\s+)?records?\\s+sorted\\s+by\\s+(?:that|the)\\s+field\\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex JsonCollectionRoundTripPattern = new(
         @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries(?:\s+(?:named|called)\s+(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+to\s+(?:a|the)\s+JSON\s+file(?:\s+(?:named|called)\s+(?<path>[A-Za-z0-9_.-]+\.json))?\s+and\s+then\s+loads?\s+it\s+back\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -171,6 +175,10 @@ internal static class CompositionalTaskParser
         else if (TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
         {
             formula = formula with { GenerationSteps = collectionFilterSteps };
+        }
+        else if (TryGetSortRecordsByFieldProgram(source, out var sortRecordsSteps))
+        {
+            formula = formula with { GenerationSteps = sortRecordsSteps };
         }
         else if (TryGetJsonCollectionRoundTripProgram(source, out var jsonRoundTripSteps))
         {
@@ -1107,6 +1115,43 @@ internal static class CompositionalTaskParser
                 "write-standard-output-indented-expression",
                 "expression",
                 $"{key}, {value}"));
+        return true;
+    }
+
+    private static bool TryGetSortRecordsByFieldProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = SortRecordsByFieldPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var functionName = match.Groups["name"].Success
+            ? match.Groups["name"].Value
+            : "sort_records";
+        var recordsName = match.Groups["records"].Success
+            ? match.Groups["records"].Value
+            : "records";
+        var fieldName = match.Groups["field"].Success
+            ? match.Groups["field"].Value
+            : "field";
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep(
+                "begin-function",
+                "function-header",
+                $"{functionName}({recordsName}, {fieldName})"),
+            new TaskRequestStep(
+                "return-value-indented-expression",
+                "expression",
+                $"sorted({recordsName}, key=lambda record: record[{fieldName}])"),
+            new TaskRequestStep(
+                "write-standard-output",
+                "expression",
+                $"{functionName}([{{\"name\": \"Ada\", \"age\": 36}}, {{\"name\": \"Grace\", \"age\": 85}}, {{\"name\": \"Linus\", \"age\": 55}}], \"age\")"));
         return true;
     }
 
