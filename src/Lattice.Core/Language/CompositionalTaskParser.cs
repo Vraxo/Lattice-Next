@@ -37,12 +37,6 @@ internal static class CompositionalTaskParser
         @"\bclass\s+(?:representing|for)\s+(?:a\s+)?bank\s+account\b.*\bbalance\b.*\bdeposit(?:ion)?\s+method\b.*\bwithdraw(?:al)?\s+method\b.*\b(?:refuses?|rejects?)\s+withdrawals?\s+(?:that\s+are\s+)?(?:larger|greater)\s+than\s+(?:the\s+)?balance\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-
-
-
-
-
-
     private static readonly Regex BuiltInSumAvoidancePattern = new(
         @"\bcalculates?\s+(?:(?:their|the)\s+(?:total|sum)|(?:the\s+)?(?:total|sum)\s+of\s+(?:a|the)\s+list\s+of\s+numbers?)\s+without\s+using\s+(?:the\s+)?built[- ]in\s+sum\s+function\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -50,18 +44,6 @@ internal static class CompositionalTaskParser
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-
-
-
-
-
-
-
-
-
-
-
 
     private static readonly Regex ConditionalOutputPattern = new(
         @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
@@ -90,7 +72,6 @@ internal static class CompositionalTaskParser
     private static readonly Regex QuotedOutputPattern = new(
         @"\b(?:prints?|displays?|shows?|outputs?|says?)\s+(['""])(?<value>.*?)\1",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
 
     internal static bool TryParse(
         string source,
@@ -276,15 +257,6 @@ internal static class CompositionalTaskParser
         (phrase.Head.Equals(word, StringComparison.OrdinalIgnoreCase) ||
          phrase.Modifiers.Any(modifier => modifier.Equals(word, StringComparison.OrdinalIgnoreCase)));
 
-
-
-
-
-
-
-
-
-
     private static bool TryGetBankAccountClassProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -308,14 +280,6 @@ internal static class CompositionalTaskParser
             new TaskRequestStep("return-value-double-indented-expression", "expression", "True"));
         return true;
     }
-
-
-
-
-
-
-
-
 
     private static bool TryGetLoopFilterProgram(
         string source,
