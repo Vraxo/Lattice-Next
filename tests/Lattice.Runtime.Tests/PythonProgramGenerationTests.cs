@@ -470,6 +470,66 @@ public sealed class PythonProgramGenerationTests
             useTemporaryDirectory: true);
     }
 
+    [Fact]
+    public async Task Generates_and_executes_reusable_record_sorting_function()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a reusable function that accepts a list of records and a field name, then returns the records sorted by that field.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "def sort_records(records, field):",
+            "    return sorted(records, key=lambda record: record[field])",
+            "print(sort_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))");
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'Ada', 'age': 36}, {'name': 'Linus', 'age': 55}, {'name': 'Grace', 'age': 85}]");
+    }
+
+    [Fact]
+    public async Task Generalizes_record_sorting_function_and_parameter_names()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a reusable function named order_records that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "def order_records(people, sort_key):",
+            "    return sorted(people, key=lambda record: record[sort_key])",
+            "print(order_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))");
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'Ada', 'age': 36}, {'name': 'Linus', 'age': 55}, {'name': 'Grace', 'age': 85}]");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
