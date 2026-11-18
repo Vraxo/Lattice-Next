@@ -397,7 +397,7 @@ public sealed class PythonProgramGenerationTests
             "            line_count += 1",
             "print(line_count)");
         Assert.Equal(expectedCode, generatedCode);
-        await AssertPythonOutput(generatedCode, "2", "input.txt", "First line\\n\\n   \\nSecond line\\n");
+        await AssertPythonOutput(generatedCode, "2", "input.txt", "First line\n\n   \nSecond line\n");
     }
 
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null)
