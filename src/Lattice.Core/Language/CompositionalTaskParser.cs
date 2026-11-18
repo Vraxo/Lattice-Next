@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex JsonCollectionRoundTripPattern = new(
-        @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries\s+to\s+(?:a|the)\s+JSON\s+file\s+and\s+then\s+loads?\s+it\s+back\b",
+        @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries(?:\s+(?:named|called)\s+(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+to\s+(?:a|the)\s+JSON\s+file(?:\s+(?:named|called)\s+(?<path>[A-Za-z0-9_.-]+\.json))?\s+and\s+then\s+loads?\s+it\s+back\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex NonEmptyFileLineCountPattern = new(
@@ -1115,37 +1115,46 @@ internal static class CompositionalTaskParser
         out ImmutableArray<TaskRequestStep> steps)
     {
         steps = ImmutableArray<TaskRequestStep>.Empty;
-        if (!JsonCollectionRoundTripPattern.IsMatch(source))
+        var match = JsonCollectionRoundTripPattern.Match(source);
+        if (!match.Success)
         {
             return false;
         }
+
+        var recordsName = match.Groups["records"].Success
+            ? match.Groups["records"].Value
+            : "records";
+        var filePath = match.Groups["path"].Success
+            ? match.Groups["path"].Value
+            : "records.json";
+        var loadedName = $"loaded_{recordsName}";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep("import-module", "module-name", "json"),
             new TaskRequestStep(
                 "assign-variable",
                 "assignment",
-                "records = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]"),
+                $"{recordsName} = [{{\"name\": \"Ada\", \"age\": 36}}, {{\"name\": \"Grace\", \"age\": 85}}]"),
             new TaskRequestStep(
                 "begin-with",
                 "expression",
-                "open(\"records.json\", \"w\", encoding=\"utf-8\") as output_file"),
+                $"open(\"{filePath}\", \"w\", encoding=\"utf-8\") as output_file"),
             new TaskRequestStep(
                 "write-expression-indented",
                 "expression",
-                "records, output_file, indent=2"),
+                $"{recordsName}, output_file, indent=2"),
             new TaskRequestStep(
                 "begin-with",
                 "expression",
-                "open(\"records.json\", \"r\", encoding=\"utf-8\") as input_file"),
+                $"open(\"{filePath}\", \"r\", encoding=\"utf-8\") as input_file"),
             new TaskRequestStep(
                 "assign-variable-indented",
                 "assignment",
-                "loaded_records = json.load(input_file)"),
+                $"{loadedName} = json.load(input_file)"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                "loaded_records"));
+                loadedName));
         return true;
     }
 
