@@ -1161,7 +1161,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                $"{functionName}({sampleRecords}, [\\"department\\", \\"name\\"])"));
+                $"{functionName}({sampleRecords}, [\"department\", \"name\"])"));
         return true;
     }
 
