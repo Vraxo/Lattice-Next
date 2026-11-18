@@ -1146,8 +1146,13 @@ internal static class CompositionalTaskParser
         var fieldsName = match.Groups["fields"].Success
             ? match.Groups["fields"].Value
             : "fields";
+        var caseInsensitive = source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase)
+            || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase);
         var descending = source.Contains("descending order", StringComparison.OrdinalIgnoreCase);
         var sampleRecords = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
+        var sortKey = caseInsensitive
+            ? $"tuple(record[field].casefold() for field in {fieldsName})"
+            : $"tuple(record[field] for field in {fieldsName})";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep(
@@ -1157,7 +1162,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "return-value-indented-expression",
                 "expression",
-                $"sorted({recordsName}, key=lambda record: tuple(record[field].casefold() for field in {fieldsName}){(descending ? ", reverse=True" : string.Empty)})"),
+                $"sorted({recordsName}, key=lambda record: {sortKey}{(descending ? ", reverse=True" : string.Empty)})"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
