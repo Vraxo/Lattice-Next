@@ -77,6 +77,10 @@ internal static class CompositionalTaskParser
         @"\b(?:accepts?|takes?)\s+(?:a|the)\s+directory\s+path\s+and\s+reports?\s+(?:the\s+)?names?\s+and\s+sizes?\s+of\s+(?:all\s+)?files?\s+(?:directly\s+)?inside\s+it,?\s+handling\s+(?:a\s+)?missing\s+directory\s+cleanly\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
+    private static readonly Regex CollectionGroupingAggregationPattern = new(
+        @"\b(?:groups?|organizes?)\s+(?:a|the)\s+list\s+of\s+(?<record>[A-Za-z_][A-Za-z0-9_]*)\s+records?\s+by\s+(?<group>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:calculates?|computes?|sums?)\s+(?:each\s+(?<owner>[A-Za-z_][A-Za-z0-9_]*)'?s\s+)?(?:total\s+)?(?<measure>spending|amount|cost|price|value)\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
     private static readonly Regex NonEmptyFileLineCountPattern = new(
         @"\breads?\s+(?:a|the)\s+text\s+file\s+and\s+counts?\s+how\s+many\s+non[- ]empty\s+lines?\s+it\s+contains?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -152,10 +156,11 @@ internal static class CompositionalTaskParser
         var isDirectoryListingRequest =
             DirectoryFileListingPattern.IsMatch(source) &&
             Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        var isCollectionGroupingRequest = CollectionGroupingAggregationPattern.IsMatch(source);
         EnglishSentenceSyntax? syntax = null;
         var creationClauseIndex = -1;
 
-        if (!isDirectoryListingRequest)
+        if (!isDirectoryListingRequest && !isCollectionGroupingRequest)
         {
             if (!EnglishSyntaxParser.TryParse(source, out syntax))
             {
@@ -188,7 +193,11 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (TryGetDirectoryFileListingProgram(source, out var directoryListingSteps))
+        if (TryGetCollectionGroupingAggregationProgram(source, out var groupingSteps))
+        {
+            formula = formula with { GenerationSteps = groupingSteps };
+        }
+        else if (TryGetDirectoryFileListingProgram(source, out var directoryListingSteps))
         {
             formula = formula with { GenerationSteps = directoryListingSteps };
         }
@@ -1399,6 +1408,49 @@ internal static class CompositionalTaskParser
         return true;
     }
 
+
+    private static bool TryGetCollectionGroupingAggregationProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = CollectionGroupingAggregationPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var record = match.Groups["record"].Value;
+        var group = match.Groups["group"].Value;
+        var owner = match.Groups["owner"].Success ? match.Groups["owner"].Value : group;
+        var measure = match.Groups["measure"].Value.Equals("spending", StringComparison.OrdinalIgnoreCase)
+            ? "amount"
+            : match.Groups["measure"].Value;
+
+        if (!owner.Equals(group, StringComparison.OrdinalIgnoreCase) ||
+            record.Equals(group, StringComparison.OrdinalIgnoreCase) ||
+            record.Equals("for", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var records = $"records = [{{\"{group}\": \"Ada\", \"{measure}\": 25.0}}, {{\"{group}\": \"Grace\", \"{measure}\": 40.0}}, {{\"{group}\": \"Ada\", \"{measure}\": 15.0}}]";
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", records),
+            new TaskRequestStep("assign-variable", "assignment", "totals = {}"),
+            new TaskRequestStep("begin-loop", "loop-header", $"{record} in records"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"{group} = {record}[\"{group}\"]"),
+            new TaskRequestStep(
+                "assign-variable-indented",
+                "assignment",
+                $"totals[{group}] = totals.get({group}, 0) + {record}[\"{measure}\"]"),
+            new TaskRequestStep("begin-loop", "loop-header", $"{group}, total in totals.items()"),
+            new TaskRequestStep("write-standard-output-indented-expression", "expression", $"{group}, total"));
+        return true;
+    }
 
     private static bool TryGetDirectoryFileListingProgram(
         string source,
