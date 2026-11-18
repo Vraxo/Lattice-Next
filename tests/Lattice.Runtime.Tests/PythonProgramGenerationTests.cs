@@ -25,6 +25,22 @@ public sealed class PythonProgramGenerationTests
         "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))",
         "[4, 5]")]
     [InlineData(
+        "Create a Python function named keep_at_least that receives a list of numbers named readings and returns a new list containing only reading values at least 3.",
+        "def keep_at_least(readings):\n    return [reading for reading in readings if reading >= 3]\nprint(keep_at_least([1, 2, 3, 4, 5]))",
+        "[3, 4, 5]")]
+    [InlineData(
+        "Create a Python function named keep_at_most that receives a list of numbers named scores and returns a new list containing only score values less than or equal to 3.",
+        "def keep_at_most(scores):\n    return [score for score in scores if score <= 3]\nprint(keep_at_most([1, 2, 3, 4, 5]))",
+        "[1, 2, 3]")]
+    [InlineData(
+        "Create a Python function named omit_three that receives a list of numbers named scores and returns a new list containing only score values not equal to 3.",
+        "def omit_three(scores):\n    return [score for score in scores if score != 3]\nprint(omit_three([1, 2, 3, 4, 5]))",
+        "[1, 2, 4, 5]")]
+    [InlineData(
+        "Create a Python function named keep_above_expression that receives a list of numbers named scores and returns a new list containing only score values greater than 2 + 1.",
+        "def keep_above_expression(scores):\n    return [score for score in scores if score > 2 + 1]\nprint(keep_above_expression([1, 2, 3, 4, 5]))",
+        "[4, 5]")]
+    [InlineData(
         "Create a Python function named keep_large that receives a list of numbers named readings and returns a new list containing only reading values greater than 10.",
         "def keep_large(readings):\n    return [reading for reading in readings if reading > 10]\nprint(keep_large([1, 2, 3, 4, 5]))",
         "[]")]
