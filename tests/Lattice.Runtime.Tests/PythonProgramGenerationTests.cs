@@ -864,7 +864,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.");
+            "Create a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
