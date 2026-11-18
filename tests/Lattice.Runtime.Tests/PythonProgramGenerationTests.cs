@@ -646,6 +646,65 @@ public sealed class PythonProgramGenerationTests
             "[{'name': 'Grace', 'age': 85}, {'name': 'Linus', 'age': 55}, {'name': 'Ada', 'age': 36}]");
     }
 
+    [Fact]
+    public async Task Generates_two_number_addition_from_a_natural_language_request()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that stores two numbers in variables, adds them, and prints the result.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "first_number = 10",
+                "second_number = 20",
+                "result = first_number + second_number",
+                "print(result)"),
+            generatedCode);
+        await AssertPythonOutput(generatedCode, "30");
+    }
+
+    [Fact]
+    public async Task Generates_even_number_filtering_from_a_natural_language_request()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that prints only the even numbers from a list.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "for number in [1, 2, 3, 4, 5, 6]:",
+                "    if number % 2 == 0:",
+                "        print(number)"),
+            generatedCode);
+        await AssertPythonOutput(generatedCode, "2\n4\n6");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
