@@ -561,6 +561,36 @@ public sealed class PythonProgramGenerationTests
     }
 
     [Fact]
+    public async Task Sorts_string_record_fields_case_insensitively()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted case-insensitively by that field.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "def sort_people(people, sort_key):",
+            "    return sorted(people, key=lambda record: record[sort_key].casefold())",
+            """print(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))""");
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}]");
+    }
+
+    [Fact]
     public async Task Accepts_reverse_order_as_a_descending_sort_request()
     {
         var client = new LatticeRuntimeClient();
