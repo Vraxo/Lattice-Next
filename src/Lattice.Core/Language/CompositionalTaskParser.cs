@@ -120,7 +120,7 @@ internal static class CompositionalTaskParser
         var isDirectoryListingRequest =
             DirectoryFileListingPattern.IsMatch(source) &&
             Regex.IsMatch(source, @"\bPython\s+program\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-        var isCollectionGroupingRequest = CollectionGroupingAggregationPattern.IsMatch(source);
+        var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
         EnglishSentenceSyntax? syntax = null;
         var creationClauseIndex = -1;
 
