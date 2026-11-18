@@ -804,6 +804,30 @@ public sealed class PythonProgramGenerationTests
 
 
     [Fact]
+    public async Task Generates_and_executes_product_price_dictionary_iteration()
+    {
+        const string prompt = "Given a dictionary of product names and prices, print each product with its price.";
+        var expectedCode = string.Join(Environment.NewLine, "products = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}", "for product, price in products.items():", "    print(product, price)");
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(generatedCode, string.Join(Environment.NewLine, "Apple 1.5", "Banana 0.75", "Orange 1.25"));
+    }
+
+    [Fact]
     public async Task Generates_and_executes_greeting_function_for_two_names()
     {
         var client = new LatticeRuntimeClient();
