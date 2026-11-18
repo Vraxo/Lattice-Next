@@ -1151,7 +1151,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                $"{functionName}({(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "[{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}]" : "[{'name': 'Ada', 'age': 36}, {'name': 'Grace', 'age': 85}, {'name': 'Linus', 'age': 55}]")}, 'name')"),
+                $"{functionName}({(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "[{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}]" : "[{\\"name\\": \\"Ada\\", \\"age\\": 36}, {\\"name\\": \\"Grace\\", \\"age\\": 85}, {\\"name\\": \\"Linus\\", \\"age\\": 55}]")}, {(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "'name'" : "\\"age\\"")})"),
         return true;
     }
 
