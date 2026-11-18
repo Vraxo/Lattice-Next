@@ -826,9 +826,9 @@ public sealed class PythonProgramGenerationTests
         Assert.Equal(
             string.Join(Environment.NewLine,
                 "def greet(name):",
-                """    return f"Hello, {name}!""",
-                """print(greet("Ada"))""",
-                """print(greet("Grace"))"""),
+                "    return f\"Hello, {name}!\"",
+                "print(greet(\"Ada\"))",
+                "print(greet(\"Grace\"))"),
             generatedCode);
         await AssertPythonOutput(generatedCode, "Hello, Ada!\nHello, Grace!");
     }
