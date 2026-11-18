@@ -2,6 +2,12 @@ name: Python coding benchmark
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/Lattice.Coding.Benchmark/**"
+      - "data/benchmarks/coding-benchmark-v1.json"
+      - ".github/workflows/python-coding-benchmark.yml"
   pull_request:
     paths:
       - "tools/Lattice.Coding.Benchmark/**"
