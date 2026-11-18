@@ -365,8 +365,12 @@
       "head": "import-statement",
       "symbols": [
         {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
           "kind": "terminal",
-          "value": "import "
+          "value": " "
         },
         {
           "kind": "binding",
@@ -611,7 +615,7 @@
     },
     {
       "id": "python-import-module",
-      "symbol": "",
+      "symbol": "import",
       "effect": "import-module",
       "argumentKind": "module-name",
       "prerequisites": [],
