@@ -360,6 +360,44 @@
           "value": "argument-assignment"
         }
       ]
+    },
+    {
+      "head": "import-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "import "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
+    },
+    {
+      "head": "indented-generic-expression-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -570,6 +608,22 @@
       "argumentKind": "assignment",
       "prerequisites": [],
       "startSymbol": "triple-indented-assignment-statement"
+    },
+    {
+      "id": "python-import-module",
+      "symbol": "",
+      "effect": "import-module",
+      "argumentKind": "module-name",
+      "prerequisites": [],
+      "startSymbol": "import-statement"
+    },
+    {
+      "id": "python-json-dump-indented",
+      "symbol": "json.dump",
+      "effect": "write-expression-indented",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-generic-expression-call"
     }
   ],
   "stringLiteralFormat": {
