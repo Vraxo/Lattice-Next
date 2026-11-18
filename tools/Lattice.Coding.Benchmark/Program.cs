@@ -32,7 +32,8 @@ var tasks = benchmark.Stages
         stage.Name,
         item.Id,
         item.Prompt,
-        item.ExecutionRequired)))
+        item.ExecutionRequired,
+        item.ExecutionFiles)))
     .ToArray();
 
 var results = new List<TaskResult>(tasks.Length);
@@ -114,7 +115,7 @@ static async Task<TaskResult> EvaluateAsync(
             null);
     }
 
-    var execution = await CheckPythonAsync(code);
+    var execution = await CheckPythonAsync(code, task.ExecutionFiles);
     return new TaskResult(
         task.Id,
         task.StageId,
@@ -149,7 +150,7 @@ static string? ExtractPython(string message)
     return null;
 }
 
-static async Task<PythonCheck> CheckPythonAsync(string code)
+static async Task<PythonCheck> CheckPythonAsync(string code, IReadOnlyDictionary<string, string>? executionFiles)
 {
     var directory = Path.Combine(Path.GetTempPath(), "lattice-coding-benchmark-" + Guid.NewGuid().ToString("N"));
     Directory.CreateDirectory(directory);
@@ -158,6 +159,24 @@ static async Task<PythonCheck> CheckPythonAsync(string code)
 
     try
     {
+        if (executionFiles is not null)
+        {
+            foreach (var (relativePath, content) in executionFiles)
+            {
+                var fixturePath = Path.GetFullPath(Path.Combine(directory, relativePath));
+                var directoryPrefix = directory.EndsWith(Path.DirectorySeparatorChar)
+                    ? directory
+                    : directory + Path.DirectorySeparatorChar;
+                if (!fixturePath.StartsWith(directoryPrefix, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException($"Execution fixture path must stay inside the temporary directory: {relativePath}");
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(fixturePath)!);
+                await File.WriteAllTextAsync(fixturePath, content, new UTF8Encoding(false));
+            }
+        }
+
         var python = OperatingSystem.IsWindows() ? "python" : "python3";
         var syntax = await RunProcessAsync(python, ["-m", "py_compile", scriptPath], directory);
         if (syntax.ExitCode is null)
@@ -292,8 +311,18 @@ static string BuildMarkdown(BenchmarkReport report)
 
 sealed record BenchmarkDefinition(string Id, BenchmarkStage[] Stages);
 sealed record BenchmarkStage(string Id, string Name, BenchmarkItem[] Items);
-sealed record BenchmarkItem(string Id, string Prompt, bool ExecutionRequired);
-sealed record BenchmarkTask(string StageId, string StageName, string Id, string Prompt, bool ExecutionRequired);
+sealed record BenchmarkItem(
+    string Id,
+    string Prompt,
+    bool ExecutionRequired,
+    Dictionary<string, string>? ExecutionFiles = null);
+sealed record BenchmarkTask(
+    string StageId,
+    string StageName,
+    string Id,
+    string Prompt,
+    bool ExecutionRequired,
+    Dictionary<string, string>? ExecutionFiles);
 sealed record PythonCheck(string Status, bool? SyntaxValid, int? ExitCode, string Output);
 sealed record ProcessResult(int? ExitCode, string Output);
 sealed record TaskResult(
