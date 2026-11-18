@@ -857,6 +857,50 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "Hello, Ada!\nHello, Grace!");
     }
 
+    [Fact]
+    public async Task Generates_and_executes_a_bank_account_class()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "class BankAccount:",
+                "    def __init__(self, balance):",
+                "        self.balance = balance",
+                "    def deposit(self, amount):",
+                "        self.balance += amount",
+                "    def withdraw(self, amount):",
+                "        if amount > self.balance:",
+                "            return False",
+                "        self.balance -= amount",
+                "        return True"),
+            generatedCode);
+
+        await AssertPythonOutput(
+            generatedCode + Environment.NewLine + string.Join(Environment.NewLine,
+                "account = BankAccount(100)",
+                "account.deposit(25)",
+                "print(account.withdraw(50))",
+                "print(account.withdraw(100))",
+                "print(account.balance)"),
+            "True\nFalse\n75");
+    }
+
     private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
