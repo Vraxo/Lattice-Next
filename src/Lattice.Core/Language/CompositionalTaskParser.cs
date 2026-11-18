@@ -1590,7 +1590,9 @@ internal static class CompositionalTaskParser
             .FirstOrDefault(clause => OutputVerbs.Contains(clause.Verb));
 
         if (outputClause?.Object is not null &&
-            (ContainsHelloWorld(outputClause.Object) || QuotedOutputPattern.IsMatch(sourceText)))
+            (ContainsHelloWorld(outputClause.Object) ||
+             NormalizeOutput(outputClause.Object.Text).Equals("Hello, world!", StringComparison.Ordinal) ||
+             QuotedOutputPattern.IsMatch(sourceText)))
         {
             value = NormalizeOutput(outputClause.Object.Text);
             return value.Length > 0;
