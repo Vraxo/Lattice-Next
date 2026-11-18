@@ -50,7 +50,7 @@ internal static class CompositionalTaskParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex SortRecordsByFieldPattern = new(
-        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+by\s+(?:that|the)\s+field(?:\s+in\s+(?:descending|reverse)\s+order)?\b",
+        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:that|the)\s+field(?:\s+case[- ]insensitively)?(?:\s+in\s+(?:descending|reverse)\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex JsonCollectionRoundTripPattern = new(
@@ -1147,11 +1147,11 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "return-value-indented-expression",
                 "expression",
-                $"sorted({recordsName}, key=lambda record: record[{fieldName}]{(source.Contains("descending order", StringComparison.OrdinalIgnoreCase) || source.Contains("reverse order", StringComparison.OrdinalIgnoreCase) ? ", reverse=True" : string.Empty)})"),
+                $"sorted({recordsName}, key=lambda record: record[{fieldName}]{(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? ".casefold()" : string.Empty)}{(source.Contains("descending order", StringComparison.OrdinalIgnoreCase) || source.Contains("reverse order", StringComparison.OrdinalIgnoreCase) ? ", reverse=True" : string.Empty)})"),
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                $"{functionName}([{{\"name\": \"Ada\", \"age\": 36}}, {{\"name\": \"Grace\", \"age\": 85}}, {{\"name\": \"Linus\", \"age\": 55}}], \"age\")"));
+                $"{functionName}({(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "[{\\"name\\": \\"ada\\", \\"age\\": 36}, {\\"name\\": \\"BOB\\", \\"age\\": 42}, {\\"name\\": \\"Grace\\", \\"age\\": 85}]" : "[{\\"name\\": \\"Ada\\", \\"age\\": 36}, {\\"name\\": \\"Grace\\", \\"age\\": 85}, {\\"name\\": \\"Linus\\", \\"age\\": 55}]")}, \\"name\\")"),
         return true;
     }
 
