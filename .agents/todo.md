@@ -23,6 +23,10 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 > Current priority: develop compositional concept knowledge and explanations from the existing predicate graph. Definition questions now traverse named concept nodes, unary properties, and binary relationships; the answer is composed from facts and each fact retains imported provenance. This is an initial graph-backed slice, not a complete ontology: quantified part structures and variable-to-variable relational rules remain open foundations. Extend the graph and inference model through concrete use cases rather than adding stored definition prose or concept-specific handlers. The 34-prompt benchmark remains a small, unbalanced candidate seed; its handled count is an execution metric, not answer quality. Continue broadening request semantics and response capabilities through reusable mechanisms, then add human-reviewed semantic expectations and task-specific quality rubrics before reporting accuracy.
 
 
+## Completed maintenance
+
+- [x] Split Python program parsing into focused expression, collection, function, file, control-flow, class, basic-program, and request-parsing components. Keep `CompositionalTaskParser` as the small dispatch coordinator.
+
 ## Bootstrap
 
 - [x] Create a separate clean-slate repository; preserve the legacy repository unchanged.
