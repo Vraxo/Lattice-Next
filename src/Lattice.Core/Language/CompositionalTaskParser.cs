@@ -1138,6 +1138,12 @@ internal static class CompositionalTaskParser
         var fieldName = match.Groups["field"].Success
             ? match.Groups["field"].Value
             : "field";
+        var caseInsensitive = source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase)
+            || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase);
+        var sampleRecords = caseInsensitive
+            ? "[{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}]"
+            : "[{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}]";
+        var sampleField = caseInsensitive ? "'name'" : "\"age\"";
 
         steps = ImmutableArray.Create(
             new TaskRequestStep(
@@ -1151,7 +1157,7 @@ internal static class CompositionalTaskParser
             new TaskRequestStep(
                 "write-standard-output",
                 "expression",
-                $"{functionName}({(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "[{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}]" : "[{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}]")}, {(source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase) || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase) ? "'name'" : "\"age\"")})"),
+                $"{functionName}({sampleRecords}, {sampleField})"));
         return true;
     }
 
