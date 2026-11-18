@@ -94,7 +94,7 @@ static async Task<TaskResult> EvaluateAsync(
             null);
     }
 
-    var code = ExtractPython(utterance.Message);
+    var code = ExtractPython(utterance.Message ?? string.Empty);
     if (code is null)
     {
         return new TaskResult(
