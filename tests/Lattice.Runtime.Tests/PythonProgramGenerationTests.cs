@@ -431,6 +431,11 @@ public sealed class PythonProgramGenerationTests
 
         var output = await outputTask;
         var error = await errorTask;
+        if (workingDirectory is not null)
+        {
+            Directory.Delete(workingDirectory, recursive: true);
+        }
+
         Assert.True(process.ExitCode == 0, error);
         Assert.Equal(expectedOutput.Replace("\n", Environment.NewLine, StringComparison.Ordinal) + Environment.NewLine, output);
     }
