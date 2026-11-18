@@ -743,7 +743,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a Python program that reports whether an integer is positive, negative, or zero.");
+            "Write a Python program that classifies an integer as positive, negative, or zero.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
