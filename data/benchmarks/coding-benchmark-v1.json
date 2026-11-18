@@ -250,7 +250,15 @@
             "file-metadata",
             "exception"
           ],
-          "executionRequired": true
+          "executionRequired": true,
+          "executionFiles": {
+            "sample_directory/hello.txt": "hello",
+            "sample_directory/empty.txt": "",
+            "sample_directory/nested/ignored.txt": "nested"
+          },
+          "executionArguments": [
+            "sample_directory"
+          ]
         },
         {
           "id": "pyc-008",

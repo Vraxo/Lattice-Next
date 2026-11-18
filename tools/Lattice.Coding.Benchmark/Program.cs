@@ -33,7 +33,8 @@ var tasks = benchmark.Stages
         item.Id,
         item.Prompt,
         item.ExecutionRequired,
-        item.ExecutionFiles)))
+        item.ExecutionFiles,
+        item.ExecutionArguments)))
     .ToArray();
 
 var results = new List<TaskResult>(tasks.Length);
@@ -115,7 +116,7 @@ static async Task<TaskResult> EvaluateAsync(
             null);
     }
 
-    var execution = await CheckPythonAsync(code, task.ExecutionFiles);
+    var execution = await CheckPythonAsync(code, task.ExecutionFiles, task.ExecutionArguments);
     return new TaskResult(
         task.Id,
         task.StageId,
@@ -150,7 +151,10 @@ static string? ExtractPython(string message)
     return null;
 }
 
-static async Task<PythonCheck> CheckPythonAsync(string code, IReadOnlyDictionary<string, string>? executionFiles)
+static async Task<PythonCheck> CheckPythonAsync(
+    string code,
+    IReadOnlyDictionary<string, string>? executionFiles,
+    IReadOnlyList<string>? executionArguments)
 {
     var directory = Path.Combine(Path.GetTempPath(), "lattice-coding-benchmark-" + Guid.NewGuid().ToString("N"));
     Directory.CreateDirectory(directory);
@@ -189,7 +193,13 @@ static async Task<PythonCheck> CheckPythonAsync(string code, IReadOnlyDictionary
             return new PythonCheck("syntax-invalid", false, syntax.ExitCode, syntax.Output);
         }
 
-        var execution = await RunProcessAsync(python, [scriptPath], directory);
+        var arguments = new List<string> { scriptPath };
+        if (executionArguments is not null)
+        {
+            arguments.AddRange(executionArguments);
+        }
+
+        var execution = await RunProcessAsync(python, arguments, directory);
         if (execution.ExitCode is null)
         {
             return new PythonCheck("python-unavailable", true, null, execution.Output);
@@ -315,14 +325,16 @@ sealed record BenchmarkItem(
     string Id,
     string Prompt,
     bool ExecutionRequired,
-    Dictionary<string, string>? ExecutionFiles = null);
+    Dictionary<string, string>? ExecutionFiles = null,
+    string[]? ExecutionArguments = null);
 sealed record BenchmarkTask(
     string StageId,
     string StageName,
     string Id,
     string Prompt,
     bool ExecutionRequired,
-    Dictionary<string, string>? ExecutionFiles);
+    Dictionary<string, string>? ExecutionFiles,
+    string[]? ExecutionArguments);
 sealed record PythonCheck(string Status, bool? SyntaxValid, int? ExitCode, string Output);
 sealed record ProcessResult(int? ExitCode, string Output);
 sealed record TaskResult(
