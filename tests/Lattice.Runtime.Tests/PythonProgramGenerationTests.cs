@@ -477,7 +477,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a Python function that accepts a list of records and a field name, then returns the records sorted by that field.");
+            "Create a Python program that defines a function that accepts a list of records and a field name, then returns the records sorted by that field.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -507,7 +507,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a Python function named order_records that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field.");
+            "Create a Python program that defines a function named order_records that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
