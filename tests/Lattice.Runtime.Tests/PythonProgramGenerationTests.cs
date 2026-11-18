@@ -400,14 +400,52 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "2", "input.txt", "First line\n\n   \nSecond line\n");
     }
 
-    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null)
+    [Fact]
+    public async Task Generates_and_executes_json_file_round_trip_program()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that saves a list of dictionaries to a JSON file and then loads it back.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        var expectedCode = string.Join(Environment.NewLine,
+            "import json",
+            "records = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+            "with open(\"records.json\", \"w\", encoding=\"utf-8\") as output_file:",
+            "    json.dump(records, output_file, indent=2)",
+            "with open(\"records.json\", \"r\", encoding=\"utf-8\") as input_file:",
+            "    loaded_records = json.load(input_file)",
+            "print(loaded_records)");
+        Assert.Equal(expectedCode, generatedCode);
+        await AssertPythonOutput(
+            generatedCode,
+            "[{'name': 'Ada', 'age': 36}, {'name': 'Grace', 'age': 85}]",
+            useTemporaryDirectory: true);
+    }
+
+    private static async Task AssertPythonOutput(string code, string expectedOutput, string? inputFileName = null, string? inputFileContent = null, bool useTemporaryDirectory = false)
     {
         string? workingDirectory = null;
-        if (inputFileName is not null && inputFileContent is not null)
+        if (useTemporaryDirectory || (inputFileName is not null && inputFileContent is not null))
         {
             workingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(workingDirectory);
-            await File.WriteAllTextAsync(Path.Combine(workingDirectory, inputFileName), inputFileContent);
+            if (inputFileName is not null && inputFileContent is not null)
+            {
+                await File.WriteAllTextAsync(Path.Combine(workingDirectory, inputFileName), inputFileContent);
+            }
         }
 
         var startInfo = new ProcessStartInfo
