@@ -197,7 +197,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var content = "Hello, \"world\"!\nSecond line";
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
-            ["language.python", "intent.program-generation", "program.output", "value.output"])
+            ["language.python", "intent.program-generation", "program.output", "program.output.start", "value.output"])
         {
             FactValues = ImmutableArray.Create(
                 new SequenceSemanticFact(

@@ -540,7 +540,9 @@ public static class SequenceKnowledgeBaseLoader
                 return false;
             }
 
-            if (name != "contextSuffix" && !IsValidIdentifier(value))
+            if (name != "contextSuffix" &&
+                !IsValidIdentifier(value) &&
+                !(name == "matchTokens" && value is "+" or "-" or "*" or "/" or "==" or "!=" or "<" or ">" or "<=" or ">="))
             {
                 return false;
             }
