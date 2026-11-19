@@ -248,7 +248,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error));
         Assert.Null(result);
-        Assert.Contains("active semantic facts", error, StringComparison.Ordinal);
+        Assert.Contains("reference one active fact", error, StringComparison.Ordinal);
     }
 
 

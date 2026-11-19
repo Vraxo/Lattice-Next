@@ -41,7 +41,7 @@
     },
     {
       "id": "python-output-close",
-      "contextSuffix": ["print", "("],
+      "contextSuffix": [],
       "requiredFacts": ["program.output"],
       "requiresCompletedFacts": ["value.output"],
       "nextToken": ")",
