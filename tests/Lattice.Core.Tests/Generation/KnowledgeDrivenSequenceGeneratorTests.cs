@@ -188,15 +188,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         ImmutableArray<string> satisfies) =>
         new(id, context, required, completed, nextToken, satisfies);
     [Fact]
-    public void Generates_using_embedded_knowledge_without_a_target_specific_backend()
+    public void Generates_arbitrary_values_from_embedded_knowledge_using_data_defined_encoding()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
             out var knowledge,
             out var loadError), loadError);
 
+        var content = "Hello, \"world\"!\nSecond line";
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
-            ["language.python", "program.output", "value.hello-world"]);
+            ["language.python", "program.output", "value.output"])
+        {
+            FactValues = ImmutableArray.Create(
+                new SequenceSemanticFact(
+                    "value.output",
+                    ImmutableDictionary<string, string>.Empty.Add("content", content)))
+        };
 
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!,
@@ -205,7 +212,43 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("print(\"Hello, world!\")", result!.Text);
+        Assert.Equal("print(\"Hello, \\\"world\\\"!\\nSecond line\")", result!.Text);
+    }
+
+    [Fact]
+    public void Rejects_value_bindings_that_reference_inactive_facts()
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray.Create(
+                new SequenceTokenRule(
+                    "emit-value",
+                    [SequenceKnowledgeBase.StartToken],
+                    ["value"],
+                    [],
+                    null,
+                    ["value"])
+                {
+                    TokenBinding = new SequenceTokenBinding("value", "content")
+                }));
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            ["value"])
+        {
+            FactValues = ImmutableArray.Create(
+                new SequenceSemanticFact(
+                    "other",
+                    ImmutableDictionary<string, string>.Empty.Add("content", "not active")))
+        };
+
+        Assert.False(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge,
+            null,
+            request,
+            out var result,
+            out var error));
+        Assert.Null(result);
+        Assert.Contains("reference one active fact", error, StringComparison.Ordinal);
     }
 
 

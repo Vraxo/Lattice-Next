@@ -1,5 +1,19 @@
 {
   "formatVersion": 1,
+  "encodings": [
+    {
+      "id": "quoted-string",
+      "openingDelimiter": "\"",
+      "closingDelimiter": "\"",
+      "escapes": [
+        { "character": "\\", "replacement": "\\\\" },
+        { "character": "\"", "replacement": "\\\"" },
+        { "character": "\n", "replacement": "\\n" },
+        { "character": "\r", "replacement": "\\r" },
+        { "character": "\t", "replacement": "\\t" }
+      ]
+    }
+  ],
   "rules": [
     {
       "id": "python-output-start",
@@ -17,14 +31,19 @@
     {
       "id": "python-output-value",
       "contextSuffix": ["print", "("],
-      "requiredFacts": ["program.output", "value.hello-world"],
-      "nextToken": "\"Hello, world!\"",
-      "satisfiesFacts": ["value.hello-world"]
+      "requiredFacts": ["program.output", "value.output"],
+      "tokenBinding": {
+        "factId": "value.output",
+        "valueId": "content",
+        "encoding": "quoted-string"
+      },
+      "satisfiesFacts": ["value.output"]
     },
     {
       "id": "python-output-close",
-      "contextSuffix": ["print", "(", "\"Hello, world!\""],
+      "contextSuffix": [],
       "requiredFacts": ["program.output"],
+      "requiresCompletedFacts": ["value.output"],
       "nextToken": ")",
       "satisfiesFacts": ["program.output"]
     }
