@@ -33,9 +33,16 @@ public sealed record SequenceTokenRule(
     public SequenceTokenBinding? TokenBinding { get; init; }
 }
 
+public sealed record SequenceInputFactRule(
+    string Id,
+    ImmutableArray<string> MatchTokens,
+    string FactId,
+    string? ValueId = null);
+
 public sealed record SequenceKnowledgeBase(
     ImmutableArray<SequenceTokenRule> Rules,
-    ImmutableArray<SequenceTokenEncoding> Encodings = default)
+    ImmutableArray<SequenceTokenEncoding> Encodings = default,
+    ImmutableArray<SequenceInputFactRule> InputRules = default)
 {
     public const string StartToken = "<|lattice.start|>";
 }
