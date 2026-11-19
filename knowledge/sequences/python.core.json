@@ -538,6 +538,28 @@
       "factId": "program.output.start"
     },
     {
+      "id": "recognize-displays-operation",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-displays-value",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-displays",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "recognize-outputs-operation",
       "matchTokens": [
         "outputs"
