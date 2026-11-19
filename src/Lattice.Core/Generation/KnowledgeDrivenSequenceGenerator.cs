@@ -116,7 +116,7 @@ public static class KnowledgeDrivenSequenceGenerator
                         continue;
                     }
 
-                    var score = candidate.Rule.Weight +
+                    var score = state.Score + candidate.Rule.Weight +
                         (model?.GetLogScore(state.Context, candidate.Token) ?? 0);
                     if (!double.IsFinite(score))
                     {

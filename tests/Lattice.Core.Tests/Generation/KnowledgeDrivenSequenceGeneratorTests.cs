@@ -179,6 +179,30 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains("could not produce", error, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Ranks_complete_sequences_by_their_accumulated_scores()
+    {
+        var knowledge = new SequenceKnowledgeBase(ImmutableArray.Create(
+            Rule("choose-a", [SequenceKnowledgeBase.StartToken], ["first"], [], "A", ["first"]) with { Weight = 10 },
+            Rule("choose-b", [SequenceKnowledgeBase.StartToken], ["first"], [], "B", ["first"]),
+            Rule("finish-a", ["A"], ["second"], ["first"], "X", ["second"]),
+            Rule("finish-b", ["B"], ["second"], ["first"], "Y", ["second"]) with { Weight = 5 }));
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            ["first", "second"],
+            BeamWidth: 2);
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("AX", result!.Text);
+        Assert.Equal(10, result.Score);
+    }
+
     private static SequenceTokenRule Rule(
         string id,
         ImmutableArray<string> context,
