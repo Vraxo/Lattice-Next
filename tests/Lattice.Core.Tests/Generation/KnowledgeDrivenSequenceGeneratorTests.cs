@@ -190,8 +190,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Fact]
     public void Generates_using_embedded_knowledge_without_a_target_specific_backend()
     {
-        var loader = new SequenceKnowledgeBaseLoader();
-        Assert.True(loader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
