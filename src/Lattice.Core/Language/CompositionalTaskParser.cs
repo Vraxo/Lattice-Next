@@ -128,6 +128,10 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = accumulatorSteps };
         }
+        else if (ProgramCollectionIterationRequestParser.TryGetListIterationProgram(source, out var loopProgram))
+        {
+            formula = UseProgramRepresentation(formula, loopProgram!);
+        }
         else if (PythonControlFlowProgramParser.TryGetLoopProgram(source, out var loopSteps))
         {
             formula = formula with { GenerationSteps = loopSteps };
