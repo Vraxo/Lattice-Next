@@ -455,6 +455,28 @@
         "divided"
       ],
       "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-outputs-operation",
+      "matchTokens": [
+        "outputs"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-outputs-value",
+      "matchTokens": [
+        "outputs"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-outputs",
+      "matchTokens": [
+        "outputs"
+      ],
+      "factId": "program.output.start"
     }
   ],
   "rules": [
