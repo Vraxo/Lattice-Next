@@ -6,6 +6,13 @@ namespace Lattice.Core.Language;
 
 internal static class PythonBasicProgramParser
 {
+    private static readonly Regex AssignmentValuePattern = new(
+        @"^[A-Za-z_][A-Za-z0-9_]*\s*=\s*(?:\d+(?:\.\d+)?)$",
+        RegexOptions.CultureInvariant);
+
+    private static readonly Regex VariableExpressionProgramPattern = new(
+        @"\bsets?\s+(?<variable>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<value>\d+(?:\.\d+)?)\s+and\s+(?:prints?|displays?|outputs?)\s+(?<expression>.+?)\s*[.!?]?\s*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex TwoNumberAdditionPattern = new(
         @"\bstores?\s+(?:two|2)\s+numbers?\s+in\s+variables?,?\s+adds?\s+them,?\s+and\s+(?:prints?|displays?|outputs?)\s+(?:the\s+)?result\b",
@@ -54,4 +61,36 @@ internal static class PythonBasicProgramParser
         return true;
     }
 
+    internal static bool TryGetVariableProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = VariableExpressionProgramPattern.Match(source);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var variable = match.Groups["variable"].Value;
+        var assignedValue = match.Groups["value"].Value;
+        var expression = match.Groups["expression"].Value.Trim().TrimEnd('.', '?', '!');
+
+        if (!AssignmentValuePattern.IsMatch($"{variable} = {assignedValue}") ||
+            !PythonExpressionParser.IsArithmeticExpression(expression))
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep(
+                "assign-variable",
+                "assignment",
+                $"{variable} = {assignedValue}"),
+            new TaskRequestStep(
+                "write-standard-output",
+                "expression",
+                expression));
+        return true;
+    }
 }

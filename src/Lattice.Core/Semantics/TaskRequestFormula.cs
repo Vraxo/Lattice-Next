@@ -12,10 +12,6 @@ public sealed record TaskRequestFormula(
 {
     public string? RequestedValue { get; init; }
 
-    public string? TargetLanguage { get; init; }
-
-    public ProgramSpecification? Program { get; init; }
-
     public ImmutableArray<TaskRequestStep> GenerationSteps { get; init; } =
         ImmutableArray<TaskRequestStep>.Empty;
 }

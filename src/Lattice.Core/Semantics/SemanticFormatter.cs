@@ -124,42 +124,9 @@ public static class SemanticFormatter
         var requestedValue = taskRequest.RequestedValue is null
             ? string.Empty
             : $"; value=\"{taskRequest.RequestedValue.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal)}\"";
-        var targetLanguage = taskRequest.TargetLanguage is null
-            ? string.Empty
-            : $"; target={taskRequest.TargetLanguage}";
-        var program = taskRequest.Program is null
-            ? string.Empty
-            : $"; program={FormatProgram(taskRequest.Program)}";
 
-        return $"task({taskRequest.Action.ToString().ToLowerInvariant()}, {taskRequest.Subject}{context}{output}{scope}{requirements}{requestedValue}{targetLanguage}{program})";
+        return $"task({taskRequest.Action.ToString().ToLowerInvariant()}, {taskRequest.Subject}{context}{output}{scope}{requirements}{requestedValue})";
     }
-
-    private static string FormatProgram(ProgramSpecification program) =>
-        $"program({string.Join(", ", program.Statements.Select(FormatProgramStatement))})";
-
-    private static string FormatProgramStatement(ProgramStatement statement) =>
-        statement switch
-        {
-            ProgramAssignmentStatement assignment =>
-                $"assign({assignment.Target}, {FormatProgramExpression(assignment.Value)})",
-            ProgramOutputStatement output =>
-                $"output({FormatProgramExpression(output.Value)})",
-            _ => "statement(unsupported)"
-        };
-
-    private static string FormatProgramExpression(ProgramExpression expression) =>
-        expression switch
-        {
-            ProgramNameExpression name => $"name({name.Name})",
-            ProgramNumberLiteral number => $"number({number.Value})",
-            ProgramStringLiteral text =>
-                $"text(\"{text.Value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal)}\")",
-            ProgramUnaryExpression unary =>
-                $"unary({unary.Operator.ToString().ToLowerInvariant()}, {FormatProgramExpression(unary.Operand)})",
-            ProgramBinaryExpression binary =>
-                $"binary({binary.Operator.ToString().ToLowerInvariant()}, {FormatProgramExpression(binary.Left)}, {FormatProgramExpression(binary.Right)})",
-            _ => "expression(unsupported)"
-        };
 
     private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
     {
