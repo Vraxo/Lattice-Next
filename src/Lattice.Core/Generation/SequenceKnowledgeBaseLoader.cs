@@ -117,7 +117,7 @@ public static class SequenceKnowledgeBaseLoader
             .Where(name =>
                 name.StartsWith(ResourcePrefix, StringComparison.Ordinal) &&
                 name.EndsWith(".json", StringComparison.Ordinal))
-            .OrderBy(name, StringComparer.Ordinal)
+            .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
         if (resources.Length == 0)
