@@ -79,17 +79,35 @@ internal sealed class PythonProgramBackend : IProgramBackend
         return true;
     }
 
-    private static string RenderExpression(ProgramExpression expression) =>
-        expression switch
+    private static string RenderExpression(ProgramExpression expression, int parentPrecedence = 0)
+    {
+        switch (expression)
         {
-            ProgramNameExpression name => name.Name,
-            ProgramNumberLiteral number => number.Value,
-            ProgramStringLiteral text => $"\\"{EscapeString(text.Value)}\\"",
-            ProgramUnaryExpression { Operator: ProgramUnaryOperator.Negate } unary =>
-                $"-({RenderExpression(unary.Operand)})",
-            ProgramBinaryExpression binary =>
-                $"({RenderExpression(binary.Left)} {GetOperator(binary.Operator)} {RenderExpression(binary.Right)})",
-            _ => throw new ArgumentOutOfRangeException(nameof(expression), expression, "Unsupported program expression.")
+            case ProgramNameExpression name:
+                return name.Name;
+            case ProgramNumberLiteral number:
+                return number.Value;
+            case ProgramStringLiteral text:
+                return $"\\\"{EscapeString(text.Value)}\\\"";
+            case ProgramUnaryExpression { Operator: ProgramUnaryOperator.Negate } unary:
+                return $"-{RenderExpression(unary.Operand, 3)}";
+            case ProgramBinaryExpression binary:
+                var precedence = GetPrecedence(binary.Operator);
+                var left = RenderExpression(binary.Left, precedence);
+                var right = RenderExpression(binary.Right, precedence + 1);
+                var value = $"{left} {GetOperator(binary.Operator)} {right}";
+                return precedence < parentPrecedence ? $"({value})" : value;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(expression), expression, "Unsupported program expression.");
+        }
+    }
+
+    private static int GetPrecedence(ProgramBinaryOperator operation) =>
+        operation switch
+        {
+            ProgramBinaryOperator.Add or ProgramBinaryOperator.Subtract => 1,
+            ProgramBinaryOperator.Multiply or ProgramBinaryOperator.Divide or ProgramBinaryOperator.Remainder => 2,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, "Unsupported program operator.")
         };
 
     private static string GetOperator(ProgramBinaryOperator operation) =>
