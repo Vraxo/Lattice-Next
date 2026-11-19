@@ -197,7 +197,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var content = "Hello, \"world\"!\nSecond line";
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
-            ["language.python", "program.output", "value.output"])
+            ["language.python", "intent.program-generation", "program.output", "value.output"])
         {
             FactValues = ImmutableArray.Create(
                 new SequenceSemanticFact(
@@ -212,7 +212,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("print(\"Hello, \\\"world\\\"!\\nSecond line\")", result!.Text);
+        Assert.Equal("```python\nprint(\"Hello, \\\"world\\\"!\\nSecond line\")\n```", result!.Text);
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("print(\"Hello, world!\")", result!.Text);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", result!.Text);
     }
 
     [Fact]
@@ -298,12 +298,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
-            "Write a Python program that prints Hello, world!",
+            "Write a Python program that prints Greetings, traveler!",
             out var facts,
             out var error), error);
 
         var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
-        Assert.Equal("Hello, world!", valueFact.Values["content"]);
+        Assert.Equal("Greetings, traveler!", valueFact.Values["content"]);
     }
 
     [Fact]

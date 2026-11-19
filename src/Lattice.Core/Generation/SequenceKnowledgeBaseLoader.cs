@@ -247,7 +247,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -257,7 +257,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetOptionalString(item, "valueId", out var valueId) ||
-                (valueId is not null && !IsValidIdentifier(valueId)))
+                (valueId is not null && !IsValidIdentifier(valueId)) ||
+                !TryGetOptionalString(item, "literalValue", out var literalValue) ||
+                (literalValue is not null && (valueId is null || literalValue.Length > 16_384)))
             {
                 error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
                 return false;
@@ -267,7 +269,8 @@ public static class SequenceKnowledgeBaseLoader
                 id,
                 matchTokens,
                 factId,
-                valueId));
+                valueId,
+                literalValue));
         }
 
         inputRules = builder.ToImmutable();

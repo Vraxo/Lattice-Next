@@ -194,6 +194,11 @@ internal sealed class LatticeRuntimeSession : ILatticeSession
 
     private LatticeTurnResult Process(string input)
     {
+        if (KnowledgeDrivenGenerationResponder.TryGenerate(input, out var generated))
+        {
+            return LatticeTurnResult.Completed(ImmutableArray.Create(generated!));
+        }
+
         var parseResult = parser.ParseText(input);
 
         if (!parseResult.IsSuccess)
