@@ -12,7 +12,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var trainingSequence = ImmutableArray.Create(
             "let ",
             "total",
-            " = 0\n",
+            " = 0\\n",
             "print",
             "(",
             "total",
@@ -23,13 +23,13 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var modelError), modelError);
 
         var knowledge = new SequenceKnowledgeBase(ImmutableArray.Create(
-            Rule("initialize-start", [], ["initialize-total"], [], "let ", []),
-            Rule("initialize-name", ["let "], ["initialize-total"], [], "total", []),
-            Rule("initialize-value", ["let ", "total"], ["initialize-total"], [], " = 0\n", ["initialize-total"]),
-            Rule("display-start", [], ["display-total"], [], "print", []),
-            Rule("display-open", ["print"], ["display-total"], [], "(", []),
-            Rule("display-name", ["print", "("], ["display-total"], [], "total", []),
-            Rule("display-close", ["print", "(", "total"], ["display-total"], [], ")", ["display-total"])));
+            Rule("initialize-start", [SequenceKnowledgeBase.StartToken], ["initialize-start"], [], "let ", ["initialize-start"]),
+            Rule("initialize-name", ["let "], ["initialize-name"], [], "total", ["initialize-name"]),
+            Rule("initialize-value", ["let ", "total"], ["initialize-value"], [], " = 0\\n", ["initialize-value"]),
+            Rule("display-start", [" = 0\\n"], ["display-start"], [], "print", ["display-start"]),
+            Rule("display-open", ["print"], ["display-open"], [], "(", ["display-open"]),
+            Rule("display-name", ["print", "("], ["display-name"], [], "total", ["display-name"]),
+            Rule("display-close", ["print", "(", "total"], ["display-close"], [], ")", ["display-close"])));
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
