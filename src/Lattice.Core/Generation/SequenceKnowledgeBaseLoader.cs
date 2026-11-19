@@ -105,7 +105,7 @@ public static class SequenceKnowledgeBaseLoader
         }
     }
 
-    public bool TryLoadEmbedded(
+    public static bool TryLoadEmbedded(
         out SequenceKnowledgeBase? knowledge,
         out string? error)
     {
