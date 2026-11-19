@@ -604,6 +604,13 @@
       "factId": "program.output.start"
     },
     {
+      "id": "recognize-generation-intent-implement",
+      "matchTokens": [
+        "implement"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
       "id": "recognize-generation-intent-develop",
       "matchTokens": [
         "develop"
