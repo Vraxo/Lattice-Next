@@ -33,12 +33,20 @@ public sealed record SequenceTokenRule(
     public SequenceTokenBinding? TokenBinding { get; init; }
 }
 
+public sealed record SequenceInputFactCapture(
+    string FactId,
+    string ValueId,
+    ImmutableArray<string> StartAfterTokens,
+    ImmutableArray<string> StopBeforeTokens,
+    string? LiteralValue = null);
+
 public sealed record SequenceInputFactRule(
     string Id,
     ImmutableArray<string> MatchTokens,
     string FactId,
     string? ValueId = null,
-    string? LiteralValue = null);
+    string? LiteralValue = null,
+    ImmutableArray<SequenceInputFactCapture> Captures = default);
 
 public sealed record SequenceKnowledgeBase(
     ImmutableArray<SequenceTokenRule> Rules,

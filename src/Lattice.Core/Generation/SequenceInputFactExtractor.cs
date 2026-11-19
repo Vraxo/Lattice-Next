@@ -39,48 +39,72 @@ public static class SequenceInputFactExtractor
                 string.IsNullOrWhiteSpace(rule.Id) ||
                 string.IsNullOrWhiteSpace(rule.FactId) ||
                 rule.MatchTokens.IsDefaultOrEmpty ||
-                !TryFindMatch(tokens, rule.MatchTokens, out var lastMatchedToken))
+                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken))
             {
                 continue;
             }
 
             matchedAnyRule = true;
-            if (!extracted.TryGetValue(rule.FactId, out var values))
+            if (!extracted.ContainsKey(rule.FactId))
             {
-                values = new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal);
-                extracted.Add(rule.FactId, values);
+                extracted.Add(
+                    rule.FactId,
+                    new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal));
             }
 
-            if (rule.ValueId is null)
+            if (rule.ValueId is not null)
             {
-                continue;
-            }
-
-            var capturedValue = rule.LiteralValue;
-            if (capturedValue is null &&
-                !TryCaptureValue(input, tokens, lastMatchedToken, out capturedValue))
-            {
-                continue;
-            }
-
-            var specificity = rule.MatchTokens.Length;
-            if (values.TryGetValue(rule.ValueId, out var existing))
-            {
-                if (specificity > existing.Specificity)
+                var capturedValue = rule.LiteralValue;
+                if (capturedValue is null &&
+                    !TryCaptureValue(
+                        input,
+                        tokens,
+                        lastMatchedToken,
+                        ImmutableArray<string>.Empty,
+                        ImmutableArray<string>.Empty,
+                        out capturedValue))
                 {
-                    values[rule.ValueId] = (capturedValue, specificity);
+                    capturedValue = null;
                 }
-                else if (specificity == existing.Specificity &&
-                    !string.Equals(existing.Value, capturedValue, StringComparison.Ordinal))
+
+                if (capturedValue is not null &&
+                    !TryAddValue(extracted, rule.FactId, rule.ValueId, capturedValue, rule.MatchTokens.Length, out error))
                 {
-                    error = $"Input rules produced conflicting values for semantic fact '{rule.FactId}'.";
                     return false;
                 }
+            }
 
+            if (rule.Captures.IsDefaultOrEmpty)
+            {
                 continue;
             }
 
-            values.Add(rule.ValueId, (capturedValue, specificity));
+            foreach (var capture in rule.Captures)
+            {
+                var capturedValue = capture.LiteralValue;
+                if (capturedValue is null &&
+                    !TryCaptureValue(
+                        input,
+                        tokens,
+                        lastMatchedToken,
+                        capture.StartAfterTokens,
+                        capture.StopBeforeTokens,
+                        out capturedValue))
+                {
+                    continue;
+                }
+
+                if (!TryAddValue(
+                    extracted,
+                    capture.FactId,
+                    capture.ValueId,
+                    capturedValue,
+                    rule.MatchTokens.Length + capture.StartAfterTokens.Length,
+                    out error))
+                {
+                    return false;
+                }
+            }
         }
 
         if (!matchedAnyRule)
@@ -101,15 +125,53 @@ public static class SequenceInputFactExtractor
         return true;
     }
 
+    private static bool TryAddValue(
+        Dictionary<string, Dictionary<string, (string Value, int Specificity)>> extracted,
+        string factId,
+        string valueId,
+        string value,
+        int specificity,
+        out string? error)
+    {
+        error = null;
+        if (!extracted.TryGetValue(factId, out var values))
+        {
+            values = new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal);
+            extracted.Add(factId, values);
+        }
+
+        if (!values.TryGetValue(valueId, out var existing))
+        {
+            values.Add(valueId, (value, specificity));
+            return true;
+        }
+
+        if (specificity > existing.Specificity)
+        {
+            values[valueId] = (value, specificity);
+            return true;
+        }
+
+        if (specificity == existing.Specificity &&
+            !string.Equals(existing.Value, value, StringComparison.Ordinal))
+        {
+            error = $"Input rules produced conflicting values for semantic fact '{factId}'.";
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool TryFindMatch(
         ImmutableArray<EnglishToken> tokens,
         ImmutableArray<string> pattern,
+        int startIndex,
         out int lastMatchedToken)
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
 
-        for (var tokenIndex = 0; tokenIndex < tokens.Length; tokenIndex++)
+        for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
             var token = tokens[tokenIndex];
             if (token.IsQuoted || token.IsPunctuation)
@@ -138,6 +200,8 @@ public static class SequenceInputFactExtractor
         string input,
         ImmutableArray<EnglishToken> tokens,
         int lastMatchedToken,
+        ImmutableArray<string> startAfterTokens,
+        ImmutableArray<string> stopBeforeTokens,
         out string value)
     {
         value = string.Empty;
@@ -146,8 +210,38 @@ public static class SequenceInputFactExtractor
             return false;
         }
 
+        var startToken = lastMatchedToken;
+        if (!startAfterTokens.IsDefaultOrEmpty)
+        {
+            if (!TryFindMatch(tokens, startAfterTokens, lastMatchedToken + 1, out startToken))
+            {
+                return false;
+            }
+        }
+
+        var captureStart = tokens[startToken].Start + tokens[startToken].Length;
+        if (captureStart >= input.Length)
+        {
+            return false;
+        }
+
+        var captureEnd = input.Length;
+        if (!stopBeforeTokens.IsDefaultOrEmpty)
+        {
+            for (var index = startToken + 1; index < tokens.Length; index++)
+            {
+                if (stopBeforeTokens.Any(stop =>
+                    tokens[index].Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
+                {
+                    captureEnd = tokens[index].Start;
+                    break;
+                }
+            }
+        }
+
         var quotedValue = tokens
-            .Skip(lastMatchedToken + 1)
+            .Skip(startToken + 1)
+            .TakeWhile(token => token.Start < captureEnd)
             .FirstOrDefault(token => token.IsQuoted);
         if (quotedValue.IsQuoted)
         {
@@ -155,14 +249,7 @@ public static class SequenceInputFactExtractor
             return value.Length > 0;
         }
 
-        var captureStart = tokens[lastMatchedToken].Start +
-            tokens[lastMatchedToken].Length;
-        if (captureStart >= input.Length)
-        {
-            return false;
-        }
-
-        value = input[captureStart..].Trim();
+        value = input[captureStart..captureEnd].Trim();
         if (value.EndsWith(".", StringComparison.Ordinal) ||
             value.EndsWith("?", StringComparison.Ordinal))
         {

@@ -281,6 +281,74 @@
         "if"
       ],
       "factId": "program.condition"
+    },
+    {
+      "id": "capture-assignment-components-set",
+      "matchTokens": [
+        "set"
+      ],
+      "factId": "program.assignment",
+      "captures": [
+        {
+          "factId": "program.assignment.target",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        },
+        {
+          "factId": "program.assignment.value",
+          "valueId": "value",
+          "startAfterTokens": [
+            "to"
+          ],
+          "stopBeforeTokens": [
+            "and",
+            "then"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-assignment-components-sets",
+      "matchTokens": [
+        "sets"
+      ],
+      "factId": "program.assignment",
+      "captures": [
+        {
+          "factId": "program.assignment.target",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        },
+        {
+          "factId": "program.assignment.value",
+          "valueId": "value",
+          "startAfterTokens": [
+            "to"
+          ],
+          "stopBeforeTokens": [
+            "and",
+            "then"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recognize-assignment-operator-set",
+      "matchTokens": [
+        "set"
+      ],
+      "factId": "program.assignment.operator"
+    },
+    {
+      "id": "recognize-assignment-operator-sets",
+      "matchTokens": [
+        "sets"
+      ],
+      "factId": "program.assignment.operator"
     }
   ],
   "rules": [

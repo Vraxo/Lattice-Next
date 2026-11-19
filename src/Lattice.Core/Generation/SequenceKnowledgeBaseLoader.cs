@@ -247,7 +247,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -259,7 +259,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalString(item, "valueId", out var valueId) ||
                 (valueId is not null && !IsValidIdentifier(valueId)) ||
                 !TryGetOptionalString(item, "literalValue", out var literalValue) ||
-                (literalValue is not null && (valueId is null || literalValue.Length > 16_384)))
+                (literalValue is not null && (valueId is null || literalValue.Length > 16_384)) ||
+                !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
+                !TryReadInputCaptures(captureElements, out var captures, out error))
             {
                 error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
                 return false;
@@ -270,10 +272,57 @@ public static class SequenceKnowledgeBaseLoader
                 matchTokens,
                 factId,
                 valueId,
-                literalValue));
+                literalValue,
+                captures));
         }
 
         inputRules = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryReadInputCaptures(
+        JsonElement element,
+        out ImmutableArray<SequenceInputFactCapture> captures,
+        out string? error)
+    {
+        captures = ImmutableArray<SequenceInputFactCapture>.Empty;
+        error = null;
+        if (element.ValueKind == JsonValueKind.Undefined)
+        {
+            return true;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<SequenceInputFactCapture>(element.GetArrayLength());
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "stopBeforeTokens", "literalValue") ||
+                !TryGetString(item, "factId", out var factId) ||
+                !IsValidIdentifier(factId) ||
+                !TryGetString(item, "valueId", out var valueId) ||
+                !IsValidIdentifier(valueId) ||
+                !identifiers.Add($"{factId}.{valueId}") ||
+                !TryGetStringArray(item, "startAfterTokens", out var startAfterTokens) ||
+                startAfterTokens.Length > 16 ||
+                !TryGetStringArray(item, "stopBeforeTokens", out var stopBeforeTokens) ||
+                stopBeforeTokens.Length > 16 ||
+                !TryGetOptionalString(item, "literalValue", out var literalValue) ||
+                (literalValue is not null && literalValue.Length > 16_384))
+            {
+                error = "Every input capture requires a unique fact/value pair and valid optional start, stop, and literal data.";
+                return false;
+            }
+
+            builder.Add(new SequenceInputFactCapture(
+                factId,
+                valueId,
+                startAfterTokens,
+                stopBeforeTokens,
+                literalValue));
+        }
+
+        captures = builder.ToImmutable();
         return true;
     }
 
