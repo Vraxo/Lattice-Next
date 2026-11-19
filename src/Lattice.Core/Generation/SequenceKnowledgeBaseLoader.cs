@@ -76,7 +76,7 @@ public static class SequenceKnowledgeBaseLoader
                     !TryGetString(element, "id", out var id) ||
                     !IsValidIdentifier(id) ||
                     !identifiers.Add(id) ||
-                    !TryGetOptionalString(element, "nextToken", out var nextToken) ||
+                    !TryGetOptionalToken(element, "nextToken", out var nextToken) ||
                     !TryGetTokenBinding(element, out var tokenBinding) ||
                     (nextToken is null) == (tokenBinding is null) ||
                     (nextToken is not null &&
@@ -463,6 +463,27 @@ public static class SequenceKnowledgeBaseLoader
 
         value = property.GetString() ?? string.Empty;
         return true;
+    }
+
+    private static bool TryGetOptionalToken(
+        JsonElement element,
+        string name,
+        out string? value)
+    {
+        value = null;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        value = property.GetString();
+        return value is not null &&
+            value.Length is > 0 and <= MaximumTokenLength;
     }
 
     private static bool TryGetOptionalString(
