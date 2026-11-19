@@ -160,4 +160,74 @@ public static class SemanticFormatter
                 $"binary({binary.Operator.ToString().ToLowerInvariant()}, {FormatProgramExpression(binary.Left)}, {FormatProgramExpression(binary.Right)})",
             _ => "expression(unsupported)"
         };
+
+    private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
+    {
+        var conditions = update.Conditions.Select(FormatObjectiveCondition);
+        var edits = update.PreferenceEdits.Select(edit =>
+            $"{(edit.Kind == ObjectivePreferenceEditKind.Add ? "add" : "remove")}-preference({string.Join("+", edit.Values)})");
+
+        return string.Join(", ", conditions.Concat(edits));
+    }
+
+    private static string FormatObjectiveCondition(ObjectiveCondition condition)
+    {
+        var value = condition.Value switch
+        {
+            ObjectiveMoneyValue money => $"{money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+            ObjectiveTextValue text => text.Value,
+            ObjectiveTextSetValue set => string.Join("+", set.Values),
+            ObjectiveTimeWindowValue time => $"{time.Start:HH:mm}-{time.End:HH:mm}",
+            ObjectiveDurationValue duration => $"{duration.Minutes}m",
+            ObjectiveTimeSetValue times => string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture))),
+            null => "unknown",
+            _ => "unsupported"
+        };
+
+        return $"{condition.Role.ToString().ToLowerInvariant()}({condition.Name}, {condition.Operator.ToString().ToLowerInvariant()}, {value})";
+    }
+
+    private static string FormatObjectiveCandidateInformation(
+        ObjectiveCandidateInformationFormula information) =>
+        $"candidate-information({information.Candidate.Value}, {information.Attribute.Value}, {FormatObjectiveInformation(new ObjectiveInformationFormula(information.Value))})";
+
+    private static string FormatObjectiveInformation(ObjectiveInformationFormula information) =>
+        information.Value switch
+        {
+            ObjectiveMoneyValue money => $"money({money.CurrencySymbol}{money.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)})",
+            ObjectiveTextValue text => $"text({text.Value})",
+            ObjectiveTextSetValue set => $"text-set({string.Join("+", set.Values)})",
+            ObjectiveTimeWindowValue time => $"time-window({time.Start:HH:mm}-{time.End:HH:mm})",
+            ObjectiveDurationValue duration => $"duration({duration.Minutes}m)",
+            ObjectiveTimeSetValue times => $"time-set({string.Join("+", times.Times.Select(time => time.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)))})",
+            _ => "information(unsupported)"
+        };
+
+    private static string FormatObjective(ObjectiveFormula objective)
+    {
+        if (objective.Conditions.IsDefaultOrEmpty)
+        {
+            return $"objective({objective.Goal})";
+        }
+
+        var conditions = string.Join(", ", objective.Conditions.Select(FormatObjectiveCondition));
+        return $"objective({objective.Goal}; {conditions})";
+    }
+
+    private static string FormatPredicate(PredicateApplication predicate)
+    {
+        var arguments = string.Join(", ", predicate.Arguments.Select(Format));
+        return $"{predicate.Predicate}({arguments})";
+    }
+
+    private static string Format(SemanticTerm term) =>
+        term switch
+        {
+            IndividualTerm individual => individual.Identifier.Value,
+            AnonymousIndividualTerm anonymous => $"anonymous({anonymous.Identity.Value})",
+            DescriptiveIndividualTerm description => description.Identifier.Value,
+            VariableTerm variable => variable.Identifier.Value,
+            UnresolvedReferenceTerm reference => reference.Reference.Value,
+            _ => throw new ArgumentOutOfRangeException(nameof(term), term, "Unsupported semantic term.")
+        };
 }
