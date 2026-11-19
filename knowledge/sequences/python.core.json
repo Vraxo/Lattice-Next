@@ -91,6 +91,13 @@
       "factId": "intent.program-generation"
     },
     {
+      "id": "recognize-generation-intent-construct",
+      "matchTokens": [
+        "construct"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
       "id": "recognize-function-requirement",
       "matchTokens": [
         "function"
