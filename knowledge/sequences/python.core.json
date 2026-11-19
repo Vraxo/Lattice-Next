@@ -606,7 +606,9 @@
     {
       "id": "recognize-generation-intent-implement",
       "matchTokens": [
-        "implement"
+        "implement",
+        "program",
+        "prints"
       ],
       "factId": "intent.program-generation"
     },
