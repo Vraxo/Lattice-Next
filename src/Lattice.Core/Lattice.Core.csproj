@@ -11,6 +11,8 @@
                       LogicalName="Lattice.Core.Language.english-lexicon.json" />
     <EmbeddedResource Include="../../knowledge/languages/**/*.json"
                       LogicalName="Lattice.Core.GenerationKnowledge.%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../knowledge/sequences/**/*.json"
+                      LogicalName="Lattice.Core.SequenceKnowledge.%(RecursiveDir)%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="Lattice.Core.Tests" />
   </ItemGroup>
 
