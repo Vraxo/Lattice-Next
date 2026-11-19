@@ -148,7 +148,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
 
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
-        Assert.Equal("\u0060\u0060\u0060python\\nprint(\"Keep this: punctuation, please!\")\\n\u0060\u0060\u0060", response.Message);
+        Assert.Equal("\u0060\u0060\u0060python\nprint(\"Keep this: punctuation, please!\")\n\u0060\u0060\u0060", response.Message);
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
 
