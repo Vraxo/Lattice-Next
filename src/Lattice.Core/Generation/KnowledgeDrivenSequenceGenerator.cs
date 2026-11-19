@@ -33,7 +33,7 @@ public static class KnowledgeDrivenSequenceGenerator
         result = null;
         error = null;
 
-        if (!TryValidate(knowledge, request, out var activeFacts, out var contextLength, out error))
+        if (!TryValidate(knowledge, model, request, out var activeFacts, out var contextLength, out error))
         {
             return false;
         }
@@ -155,6 +155,7 @@ public static class KnowledgeDrivenSequenceGenerator
 
     private static bool TryValidate(
         SequenceKnowledgeBase knowledge,
+        SequenceTokenModel? model,
         KnowledgeDrivenSequenceGenerationRequest request,
         out ImmutableHashSet<string> activeFacts,
         out int contextLength,
@@ -171,7 +172,7 @@ public static class KnowledgeDrivenSequenceGenerator
             request.ContextTokens.Any(string.IsNullOrEmpty) ||
             request.ActiveFacts.IsDefaultOrEmpty ||
             request.ActiveFacts.Length > MaximumFacts ||
-            request.ActiveFacts.Any(string.IsNullOrWhiteSpace) ||
+            request.ActiveFacts.Any(fact => string.IsNullOrWhiteSpace(fact) || fact.Length > 256) ||
             request.ActiveFacts.Distinct(StringComparer.Ordinal).Count() != request.ActiveFacts.Length)
         {
             error = "A non-empty knowledge base and one to 128 unique active semantic facts are required.";
@@ -203,7 +204,7 @@ public static class KnowledgeDrivenSequenceGenerator
         }
 
         activeFacts = request.ActiveFacts.ToImmutableHashSet(StringComparer.Ordinal);
-        contextLength = Math.Max(contextLength, 0);
+        contextLength = Math.Max(contextLength, model?.MaximumContextLength ?? 0);
         return true;
     }
 
