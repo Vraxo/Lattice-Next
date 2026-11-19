@@ -81,10 +81,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     {
         Assert.True(SequenceTokenModel.TryTrain(
             ImmutableArray.Create(
-                ImmutableArray.Create("B"),
-                ImmutableArray.Create("B"),
-                ImmutableArray.Create("B"),
-                ImmutableArray.Create("A")),
+                ImmutableArray.Create("seed", SequenceKnowledgeBase.StartToken, "B", "A"),
+                ImmutableArray.Create("seed", SequenceKnowledgeBase.StartToken, "B", "A"),
+                ImmutableArray.Create("seed", SequenceKnowledgeBase.StartToken, "B", "A"),
+                ImmutableArray.Create("seed", SequenceKnowledgeBase.StartToken, "A", "B")),
             out var model,
             out var modelError), modelError);
 
@@ -92,7 +92,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             Rule("first-fact", [], ["first"], [], "A", ["first"]),
             Rule("second-fact", [], ["second"], [], "B", ["second"])));
         var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
+            ["seed"],
             ["first", "second"]);
 
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
