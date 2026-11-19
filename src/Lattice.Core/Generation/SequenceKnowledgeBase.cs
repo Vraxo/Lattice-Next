@@ -12,4 +12,7 @@ public sealed record SequenceTokenRule(
     double Weight = 0);
 
 public sealed record SequenceKnowledgeBase(
-    ImmutableArray<SequenceTokenRule> Rules);
+    ImmutableArray<SequenceTokenRule> Rules)
+{
+    public const string StartToken = "<|lattice.start|>";
+}
