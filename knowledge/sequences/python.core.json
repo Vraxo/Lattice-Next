@@ -16,6 +16,71 @@
   ],
   "inputRules": [
     {
+      "id": "recognize-generation-intent-write",
+      "matchTokens": ["write"],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-create",
+      "matchTokens": ["create"],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-generate",
+      "matchTokens": ["generate"],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-build",
+      "matchTokens": ["build"],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-function-requirement",
+      "matchTokens": ["function"],
+      "factId": "program.function"
+    },
+    {
+      "id": "recognize-class-requirement",
+      "matchTokens": ["class"],
+      "factId": "program.class"
+    },
+    {
+      "id": "recognize-loop-requirement",
+      "matchTokens": ["loop"],
+      "factId": "program.loop"
+    },
+    {
+      "id": "recognize-iteration-requirement",
+      "matchTokens": ["iterate"],
+      "factId": "program.loop"
+    },
+    {
+      "id": "recognize-dictionary-requirement",
+      "matchTokens": ["dictionary"],
+      "factId": "program.collection"
+    },
+    {
+      "id": "recognize-list-requirement",
+      "matchTokens": ["list"],
+      "factId": "program.collection"
+    },
+    {
+      "id": "recognize-filter-requirement",
+      "matchTokens": ["filter"],
+      "factId": "program.filter"
+    },
+    {
+      "id": "recognize-sort-requirement",
+      "matchTokens": ["sort"],
+      "factId": "program.sort"
+    },
+    {
+      "id": "recognize-aggregate-requirement",
+      "matchTokens": ["sum"],
+      "factId": "program.aggregate"
+    },
+    {
       "id": "recognize-python-language",
       "matchTokens": ["python"],
       "factId": "language.python"
@@ -79,9 +144,9 @@
     {
       "id": "python-output-start",
       "contextSuffix": ["<|lattice.start|>"],
-      "requiredFacts": ["language.python", "program.output"],
+      "requiredFacts": ["language.python", "intent.program-generation", "program.output"],
       "nextToken": "print",
-      "satisfiesFacts": ["language.python"]
+      "satisfiesFacts": ["language.python", "intent.program-generation"]
     },
     {
       "id": "python-output-open",
