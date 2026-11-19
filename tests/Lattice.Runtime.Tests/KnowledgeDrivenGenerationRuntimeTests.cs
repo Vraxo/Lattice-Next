@@ -137,4 +137,19 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("program.assignment.target", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("program.output", response.Meaning, StringComparison.Ordinal);
     }
+    [Fact]
+    public async Task Generates_quoted_output_with_punctuation_from_semantic_value_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a script in Python to display 'Keep this: punctuation, please!'.");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("\u0060\u0060\u0060python\\nprint(\"Keep this: punctuation, please!\")\\n\u0060\u0060\u0060", response.Message);
+        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
+    }
+
 }
