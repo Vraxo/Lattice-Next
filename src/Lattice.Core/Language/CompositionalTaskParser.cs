@@ -19,7 +19,7 @@ internal static class CompositionalTaskParser
         var creationClauseIndex = -1;
 
         if (!isDirectoryListingRequest && !isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out syntax, out creationClauseIndex))
+            !CodeRequestParser.TryGetCreationClause(source, "python", out syntax, out creationClauseIndex))
         {
             return false;
         }
@@ -136,13 +136,13 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = conditionalSteps };
         }
-        else if (PythonBasicProgramParser.TryGetVariableProgram(source, out var generationSteps))
+        else if (ProgramExpressionRequestParser.TryGetVariableProgram(source, out var programSpecification))
         {
-            formula = formula with { GenerationSteps = generationSteps };
+            formula = UseProgramRepresentation(formula, programSpecification!);
         }
-        else if (PythonProgramRequestParser.TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
+        else if (CodeRequestParser.TryGetRequestedOutput(syntax!, creationClauseIndex, sourceText, out var outputProgram))
         {
-            formula = formula with { RequestedValue = requestedValue };
+            formula = UseProgramRepresentation(formula, outputProgram!);
         }
         else
         {
@@ -155,4 +155,20 @@ internal static class CompositionalTaskParser
             sourceText.Trim());
         return true;
     }
+
+    private static TaskRequestFormula UseProgramRepresentation(
+        TaskRequestFormula request,
+        ProgramSpecification program) =>
+        request with
+        {
+            Subject = "program",
+            Context = null,
+            OutputFormat = "source-code",
+            Scope = null,
+            Requirements = ImmutableArray<string>.Empty,
+            RequestedValue = null,
+            TargetLanguage = "python",
+            Program = program,
+            GenerationSteps = ImmutableArray<TaskRequestStep>.Empty
+        };
 }
