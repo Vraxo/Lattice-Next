@@ -27,6 +27,8 @@ At each step, the engine:
 
 Candidates and constraints are data. The engine is generic and does not know what a particular language's keywords or APIs mean.
 
+The current implementation represents each candidate as a declarative next-token rule. A rule can constrain the recent token suffix, require active semantic facts, wait for other facts to be completed, emit one token, and mark facts as satisfied. Independent facts remain active together. A generic start token allows knowledge to define rules that only apply at the beginning of a sequence. The existing context model ranks applicable candidates; the knowledge rules determine which candidates are valid.
+
 ## Knowledge
 
 Language modules contain the facts needed to produce valid sequences: token forms, legal continuations, syntax relationships, composition constraints, and any language-specific API or runtime knowledge.
@@ -34,6 +36,8 @@ Language modules contain the facts needed to produce valid sequences: token form
 Domain modules can contribute additional concepts and relations. For example, Blender operations and Blender API details belong in domain knowledge, while the target language's syntax belongs in its language module.
 
 Knowledge modules should describe concepts and relationships, not store one complete program per prompt. They should support composition across multiple requirements.
+
+Sequence-rule modules are stored under `knowledge/sequences/` and loaded together by `SequenceKnowledgeBaseLoader`. Each rule contains its token context, semantic-fact conditions, completed-fact dependencies, one next token, and any facts completed by that token. Modules are embedded at build time; the same loader and generator handle all languages and domains.
 
 ## Design constraints
 
