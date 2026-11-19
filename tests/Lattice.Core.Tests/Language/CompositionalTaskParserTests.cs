@@ -25,11 +25,13 @@ public sealed class CompositionalTaskParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
-        Assert.Equal("python", request.Context);
-        Assert.Equal("python-source", request.OutputFormat);
-        Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal("Hello, world!", request.RequestedValue);
+        Assert.Equal("program", request.Subject);
+        Assert.Equal("python", request.TargetLanguage);
+        Assert.Null(request.Context);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Null(request.Scope);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral("Hello, world!"), output.Value);
     }
 
     [Theory]
@@ -45,7 +47,9 @@ public sealed class CompositionalTaskParserTests
         Assert.True(result.IsSuccess, result.Error);
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
 
-        Assert.Equal(expected, request.RequestedValue);
+        Assert.Equal("python", request.TargetLanguage);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral(expected), output.Value);
     }
     [Fact]
     public void Does_not_invent_an_output_goal_for_an_unspecified_program()
@@ -62,6 +66,29 @@ public sealed class CompositionalTaskParserTests
             "Create a script that prints 'Python'.");
 
         Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public void Represents_variable_assignment_and_arithmetic_output_without_target_language_syntax()
+    {
+        var result = new LceParser().ParseText(
+            "Create a Python program that sets total to 5 and prints total + 3.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        Assert.Equal("python", request.TargetLanguage);
+        var statements = request.Program!.Statements;
+        Assert.Equal(2, statements.Length);
+
+        var assignment = Assert.IsType<ProgramAssignmentStatement>(statements[0]);
+        Assert.Equal("total", assignment.Target);
+        Assert.Equal(new ProgramNumberLiteral("5"), assignment.Value);
+
+        var output = Assert.IsType<ProgramOutputStatement>(statements[1]);
+        var expression = Assert.IsType<ProgramBinaryExpression>(output.Value);
+        Assert.Equal(ProgramBinaryOperator.Add, expression.Operator);
+        Assert.Equal(new ProgramNameExpression("total"), expression.Left);
+        Assert.Equal(new ProgramNumberLiteral("3"), expression.Right);
     }
 
 }
