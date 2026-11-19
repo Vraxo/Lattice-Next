@@ -487,6 +487,50 @@
       "factId": "program.output.start"
     },
     {
+      "id": "recognize-show-operation",
+      "matchTokens": [
+        "show"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-shown-value",
+      "matchTokens": [
+        "show"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-show",
+      "matchTokens": [
+        "show"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-shows-operation",
+      "matchTokens": [
+        "shows"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-shows-value",
+      "matchTokens": [
+        "shows"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-shows",
+      "matchTokens": [
+        "shows"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "recognize-outputs-operation",
       "matchTokens": [
         "outputs"
