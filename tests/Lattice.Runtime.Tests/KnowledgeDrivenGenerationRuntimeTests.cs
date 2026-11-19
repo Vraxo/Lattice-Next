@@ -152,4 +152,19 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Generates_escaped_multiline_output_from_semantic_value_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Generate a Python program that outputs 'line one\\nline two'.");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\\nprint(\"line one\\\\nline two\")\\n```", response.Message);
+        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
+    }
+
 }
