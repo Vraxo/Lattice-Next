@@ -464,6 +464,29 @@
       "factId": "program.arithmetic"
     },
     {
+      "id": "recognize-say-output-operation",
+      "matchTokens": [
+        "say",
+        "says"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-says-value",
+      "matchTokens": [
+        "says"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-says",
+      "matchTokens": [
+        "says"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "recognize-outputs-operation",
       "matchTokens": [
         "outputs"
