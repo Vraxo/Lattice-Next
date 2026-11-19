@@ -91,4 +91,33 @@ public sealed class CompositionalTaskParserTests
         Assert.Equal(new ProgramNumberLiteral("3"), expression.Right);
     }
 
+    [Fact]
+    public void Preserves_expression_grouping_in_the_language_neutral_program()
+    {
+        var result = new LceParser().ParseText(
+            "Generate a Python program that sets total to 5 and prints (total + 3) * 2.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        var output = Assert.IsType<ProgramOutputStatement>(request.Program!.Statements[1]);
+        var multiply = Assert.IsType<ProgramBinaryExpression>(output.Value);
+
+        Assert.Equal(ProgramBinaryOperator.Multiply, multiply.Operator);
+        Assert.IsType<ProgramBinaryExpression>(multiply.Left);
+        Assert.Equal(new ProgramNumberLiteral("2"), multiply.Right);
+    }
+
+    [Fact]
+    public void Formats_the_neutral_program_meaning_without_emitting_target_source()
+    {
+        var result = new LceParser().ParseText("Write a Python Hello World program.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var formatted = SemanticFormatter.Format(Assert.Single(result.Utterances));
+
+        Assert.Contains("target=python", formatted, StringComparison.Ordinal);
+        Assert.Contains("program(output(text(", formatted, StringComparison.Ordinal);
+        Assert.DoesNotContain("print(", formatted, StringComparison.Ordinal);
+    }
+
 }
