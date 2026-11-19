@@ -349,6 +349,104 @@
         "sets"
       ],
       "factId": "program.assignment.operator"
+    },
+    {
+      "id": "recognize-output-start-print",
+      "matchTokens": [
+        "print"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-prints",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-display",
+      "matchTokens": [
+        "display"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-output",
+      "matchTokens": [
+        "output"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-assignment-prefix-set",
+      "matchTokens": [
+        "set"
+      ],
+      "factId": "program.assignment.prefix"
+    },
+    {
+      "id": "recognize-assignment-prefix-sets",
+      "matchTokens": [
+        "sets"
+      ],
+      "factId": "program.assignment.prefix"
+    },
+    {
+      "id": "recognize-arithmetic-plus",
+      "matchTokens": [
+        "+"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-minus",
+      "matchTokens": [
+        "-"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-multiply",
+      "matchTokens": [
+        "*"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-divide",
+      "matchTokens": [
+        "/"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-word-plus",
+      "matchTokens": [
+        "plus"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-word-minus",
+      "matchTokens": [
+        "minus"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-word-times",
+      "matchTokens": [
+        "times"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "recognize-arithmetic-word-divided",
+      "matchTokens": [
+        "divided"
+      ],
+      "factId": "program.arithmetic"
     }
   ],
   "rules": [
@@ -360,9 +458,10 @@
       "requiredFacts": [
         "language.python",
         "intent.program-generation",
-        "program.output"
+        "program.output",
+        "program.output.start"
       ],
-      "nextToken": "```python\nprint",
+      "nextToken": "```python\n",
       "satisfiesFacts": [
         "language.python",
         "intent.program-generation"
@@ -371,7 +470,7 @@
     {
       "id": "python-output-open",
       "contextSuffix": [
-        "```python\nprint"
+        "print"
       ],
       "requiredFacts": [
         "program.output"
@@ -381,7 +480,7 @@
     {
       "id": "python-output-value",
       "contextSuffix": [
-        "```python\nprint",
+        "print",
         "("
       ],
       "requiredFacts": [
@@ -409,6 +508,115 @@
       "nextToken": ")\n```",
       "satisfiesFacts": [
         "program.output"
+      ]
+    },
+    {
+      "id": "python-assignment-target",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.assignment.target"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.assignment.target",
+        "valueId": "name"
+      },
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.assignment.target"
+      ]
+    },
+    {
+      "id": "python-assignment-operator",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.operator"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.target"
+      ],
+      "nextToken": " = ",
+      "satisfiesFacts": [
+        "program.assignment.operator"
+      ]
+    },
+    {
+      "id": "python-assignment-value",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.value"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.operator"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.value",
+        "valueId": "value"
+      },
+      "satisfiesFacts": [
+        "program.assignment.value"
+      ]
+    },
+    {
+      "id": "python-assignment-line-end",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.value"
+      ],
+      "nextToken": "\n",
+      "satisfiesFacts": [
+        "program.assignment"
+      ]
+    },
+    {
+      "id": "python-output-start-after-assignment",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.output",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment",
+        "program.assignment.value"
+      ],
+      "nextToken": "print",
+      "satisfiesFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-assignment-prefix",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.assignment.prefix"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "program.assignment.prefix"
+      ]
+    },
+    {
+      "id": "python-output-call-start",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.output",
+        "program.output.start"
+      ],
+      "nextToken": "print",
+      "satisfiesFacts": [
+        "program.output.start"
       ]
     }
   ]

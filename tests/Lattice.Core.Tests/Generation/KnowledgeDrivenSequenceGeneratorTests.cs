@@ -197,7 +197,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var content = "Hello, \"world\"!\nSecond line";
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
-            ["language.python", "intent.program-generation", "program.output", "value.output"])
+            ["language.python", "intent.program-generation", "program.output", "program.output.start", "value.output"])
         {
             FactValues = ImmutableArray.Create(
                 new SequenceSemanticFact(
@@ -344,6 +344,37 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
         Assert.Contains(facts, fact => fact.Id == "program.output");
         Assert.Contains(facts, fact => fact.Id == "value.output");
+    }
+
+
+    [Fact]
+    public void Composes_assignment_and_output_facts_in_one_generated_sequence()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that sets total to 5 and prints 'Done'.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("\u0060\u0060\u0060python\ntotal = 5\nprint(\"Done\")\n\u0060\u0060\u0060", result!.Text);
     }
 
 }
