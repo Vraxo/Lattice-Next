@@ -190,7 +190,7 @@ public static class ConstraintSequenceGenerator
             }
         }
 
-        requirementIndexes = indexes.ToImmutable();
+        var resolvedIndexes = indexes.ToImmutable();
         foreach (var requirement in request.Requirements)
         {
             var dependencies = requirement.DependsOn.IsDefault
@@ -198,7 +198,7 @@ public static class ConstraintSequenceGenerator
                 : requirement.DependsOn;
             if (dependencies.Distinct(StringComparer.Ordinal).Count() != dependencies.Length ||
                 dependencies.Any(dependency =>
-                    dependency == requirement.Id || !requirementIndexes.ContainsKey(dependency)))
+                    dependency == requirement.Id || !resolvedIndexes.ContainsKey(dependency)))
             {
                 error = $"Requirement '{requirement.Id}' has a duplicate, self, or unknown dependency.";
                 return false;
@@ -209,13 +209,14 @@ public static class ConstraintSequenceGenerator
         var visited = new HashSet<string>(StringComparer.Ordinal);
         foreach (var requirement in request.Requirements)
         {
-            if (HasDependencyCycle(requirement.Id, request.Requirements, visiting, visited, requirementIndexes))
+            if (HasDependencyCycle(requirement.Id, request.Requirements, visiting, visited, resolvedIndexes))
             {
                 error = "The sequence requirements contain a dependency cycle.";
                 return false;
             }
         }
 
+        requirementIndexes = resolvedIndexes;
         return true;
     }
 
