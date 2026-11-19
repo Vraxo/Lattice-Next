@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "rules": [
+    {
+      "id": "python-output-start",
+      "contextSuffix": ["<|lattice.start|>"],
+      "requiredFacts": ["language.python", "program.output"],
+      "nextToken": "print",
+      "satisfiesFacts": ["language.python"]
+    },
+    {
+      "id": "python-output-open",
+      "contextSuffix": ["print"],
+      "requiredFacts": ["program.output"],
+      "nextToken": "("
+    },
+    {
+      "id": "python-output-value",
+      "contextSuffix": ["print", "("],
+      "requiredFacts": ["program.output", "value.hello-world"],
+      "nextToken": "\"Hello, world!\"",
+      "satisfiesFacts": ["value.hello-world"]
+    },
+    {
+      "id": "python-output-close",
+      "contextSuffix": ["print", "(", "\"Hello, world!\""],
+      "requiredFacts": ["program.output"],
+      "nextToken": ")",
+      "satisfiesFacts": ["program.output"]
+    }
+  ]
+}
