@@ -286,7 +286,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\\nprint(\"Hello, world!\")\\n```", result!.Text);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", result!.Text);
     }
 
     [Fact]
@@ -298,12 +298,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
-            "Write a Python program that prints Hello, world!",
+            "Write a Python program that prints Greetings, traveler!",
             out var facts,
             out var error), error);
 
         var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
-        Assert.Equal("Hello, world!", valueFact.Values["content"]);
+        Assert.Equal("Greetings, traveler!", valueFact.Values["content"]);
     }
 
     [Fact]

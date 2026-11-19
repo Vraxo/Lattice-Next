@@ -30,7 +30,7 @@ public static class SequenceInputFactExtractor
         }
 
         var tokens = EnglishLexer.Tokenize(input);
-        var extracted = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        var extracted = new Dictionary<string, Dictionary<string, (string Value, int Specificity)>>(StringComparer.Ordinal);
         var matchedAnyRule = false;
 
         foreach (var rule in knowledge.InputRules)
@@ -47,7 +47,7 @@ public static class SequenceInputFactExtractor
             matchedAnyRule = true;
             if (!extracted.TryGetValue(rule.FactId, out var values))
             {
-                values = new Dictionary<string, string>(StringComparer.Ordinal);
+                values = new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal);
                 extracted.Add(rule.FactId, values);
             }
 
@@ -56,14 +56,22 @@ public static class SequenceInputFactExtractor
                 continue;
             }
 
-            if (!TryCaptureValue(input, tokens, lastMatchedToken, out var capturedValue))
+            var capturedValue = rule.LiteralValue;
+            if (capturedValue is null &&
+                !TryCaptureValue(input, tokens, lastMatchedToken, out capturedValue))
             {
                 continue;
             }
 
-            if (values.TryGetValue(rule.ValueId, out var existingValue))
+            var specificity = rule.MatchTokens.Length;
+            if (values.TryGetValue(rule.ValueId, out var existing))
             {
-                if (!string.Equals(existingValue, capturedValue, StringComparison.Ordinal))
+                if (specificity > existing.Specificity)
+                {
+                    values[rule.ValueId] = (capturedValue, specificity);
+                }
+                else if (specificity == existing.Specificity &&
+                    !string.Equals(existing.Value, capturedValue, StringComparison.Ordinal))
                 {
                     error = $"Input rules produced conflicting values for semantic fact '{rule.FactId}'.";
                     return false;
@@ -72,7 +80,7 @@ public static class SequenceInputFactExtractor
                 continue;
             }
 
-            values.Add(rule.ValueId, capturedValue);
+            values.Add(rule.ValueId, (capturedValue, specificity));
         }
 
         if (!matchedAnyRule)
@@ -85,7 +93,10 @@ public static class SequenceInputFactExtractor
             .OrderBy(item => item.Key, StringComparer.Ordinal)
             .Select(item => new SequenceSemanticFact(
                 item.Key,
-                item.Value.ToImmutableDictionary(StringComparer.Ordinal)))
+                item.Value.ToImmutableDictionary(
+                    value => value.Key,
+                    value => value.Value.Value,
+                    StringComparer.Ordinal)))
             .ToImmutableArray();
         return true;
     }

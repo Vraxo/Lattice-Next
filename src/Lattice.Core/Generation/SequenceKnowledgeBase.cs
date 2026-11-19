@@ -37,7 +37,8 @@ public sealed record SequenceInputFactRule(
     string Id,
     ImmutableArray<string> MatchTokens,
     string FactId,
-    string? ValueId = null);
+    string? ValueId = null,
+    string? LiteralValue = null);
 
 public sealed record SequenceKnowledgeBase(
     ImmutableArray<SequenceTokenRule> Rules,

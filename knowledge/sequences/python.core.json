@@ -31,6 +31,16 @@
   ],
   "inputRules": [
     {
+      "id": "canonicalize-hello-world",
+      "matchTokens": [
+        "hello",
+        "world"
+      ],
+      "factId": "value.output",
+      "valueId": "content",
+      "literalValue": "Hello, world!"
+    },
+    {
       "id": "recognize-generation-intent-write",
       "matchTokens": [
         "write"
