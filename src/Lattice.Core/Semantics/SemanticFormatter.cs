@@ -144,6 +144,8 @@ public static class SemanticFormatter
                 $"assign({assignment.Target}, {FormatProgramExpression(assignment.Value)})",
             ProgramOutputStatement output =>
                 $"output({FormatProgramExpression(output.Value)})",
+            ProgramForEachStatement loop =>
+                $"for-each({loop.Variable}, {FormatProgramExpression(loop.Collection)}, body({string.Join(", ", loop.Body.Select(FormatProgramStatement))}))",
             _ => "statement(unsupported)"
         };
 
@@ -154,6 +156,8 @@ public static class SemanticFormatter
             ProgramNumberLiteral number => $"number({number.Value})",
             ProgramStringLiteral text =>
                 $"text(\"{text.Value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal)}\")",
+            ProgramListExpression list =>
+                $"list({string.Join(", ", list.Items.Select(FormatProgramExpression))})",
             ProgramUnaryExpression unary =>
                 $"unary({unary.Operator.ToString().ToLowerInvariant()}, {FormatProgramExpression(unary.Operand)})",
             ProgramBinaryExpression binary =>
