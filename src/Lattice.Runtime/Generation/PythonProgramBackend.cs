@@ -110,20 +110,20 @@ internal sealed class PythonProgramBackend : IProgramBackend
         {
             switch (character)
             {
-                case '\\\\':
-                    builder.Append("\\\\\\\\");
+                case '\\':
+                    builder.Append("\\\\");
                     break;
                 case '"':
-                    builder.Append("\\\\\"");
+                    builder.Append("\\\"");
                     break;
-                case '\\r':
-                    builder.Append("\\\\r");
+                case '\r':
+                    builder.Append("\\r");
                     break;
-                case '\\n':
-                    builder.Append("\\\\n");
+                case '\n':
+                    builder.Append("\\n");
                     break;
-                case '\\t':
-                    builder.Append("\\\\t");
+                case '\t':
+                    builder.Append("\\t");
                     break;
                 default:
                     builder.Append(character);
@@ -133,6 +133,7 @@ internal sealed class PythonProgramBackend : IProgramBackend
 
         return builder.ToString();
     }
+
     private static bool IsIdentifier(string value) =>
         value.Length > 0 &&
         (char.IsAsciiLetter(value[0]) || value[0] == '_') &&
