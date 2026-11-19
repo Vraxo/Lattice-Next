@@ -120,4 +120,43 @@ public sealed class CompositionalTaskParserTests
         Assert.DoesNotContain("print(", formatted, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Represents_list_iteration_as_a_neutral_loop_statement()
+    {
+        var result = new LceParser().ParseText(
+            "Create a Python program that prints each number in the list [1, 2, 3].");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        var loop = Assert.IsType<ProgramForEachStatement>(Assert.Single(request.Program!.Statements));
+
+        Assert.Equal("number", loop.Variable);
+        Assert.Equal(
+            new ProgramListExpression([
+                new ProgramNumberLiteral("1"),
+                new ProgramNumberLiteral("2"),
+                new ProgramNumberLiteral("3")
+            ]),
+            loop.Collection);
+        Assert.Equal(
+            new ProgramOutputStatement(new ProgramNameExpression("number")),
+            Assert.Single(loop.Body));
+    }
+
+    [Fact]
+    public void Parses_string_values_inside_a_neutral_list_expression()
+    {
+        var result = new LceParser().ParseText(
+            "Create a Python program that prints each name in ['Ada', 'Grace'].");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        var loop = Assert.IsType<ProgramForEachStatement>(Assert.Single(request.Program!.Statements));
+        var list = Assert.IsType<ProgramListExpression>(loop.Collection);
+
+        Assert.Equal(
+            new[] { new ProgramStringLiteral("Ada"), new ProgramStringLiteral("Grace") },
+            list.Items);
+    }
+
 }
