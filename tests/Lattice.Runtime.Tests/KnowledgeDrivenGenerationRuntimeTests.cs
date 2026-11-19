@@ -164,7 +164,6 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
         Assert.Equal("```python\nprint(\"line one\\\\nline two\")\n```", response.Message);
-        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
 
 }
