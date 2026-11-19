@@ -452,7 +452,6 @@
         "program.assignment.target"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": null,
       "tokenBinding": {
         "factId": "program.assignment.target",
         "valueId": "name"
@@ -486,7 +485,6 @@
       "requiresCompletedFacts": [
         "program.assignment.operator"
       ],
-      "nextToken": null,
       "tokenBinding": {
         "factId": "program.assignment.value",
         "valueId": "value"
