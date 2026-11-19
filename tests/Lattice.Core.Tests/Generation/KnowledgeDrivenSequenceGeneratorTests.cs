@@ -33,7 +33,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
-            ["initialize-total", "display-total"]);
+            ["initialize-start", "initialize-name", "initialize-value", "display-start", "display-open", "display-name", "display-close"]);
 
         var generated = KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge,
