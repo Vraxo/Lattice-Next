@@ -77,7 +77,7 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
-    public void Parses_a_different_print_request_without_embedding_its_program()
+    public void Parses_a_different_print_request_as_a_neutral_program_literal()
     {
         const string input = "Create a Python program that prints 'A second message!'.";
 
