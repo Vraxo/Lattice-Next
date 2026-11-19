@@ -52,6 +52,24 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Equal("```python\nprint(\"Greetings, traveler!\")\n```", response.Message);
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task Generates_hello_world_from_a_script_print_request()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a simple Python script that prints Hello World");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", response.Message);
+        Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task Composes_assignment_and_output_in_one_runtime_request()
     {
@@ -67,5 +85,4 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("program.assignment.target", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("program.output", response.Meaning, StringComparison.Ordinal);
     }
-
 }
