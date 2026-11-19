@@ -602,6 +602,13 @@
         "outputs"
       ],
       "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-generation-intent-develop",
+      "matchTokens": [
+        "develop"
+      ],
+      "factId": "intent.program-generation"
     }
   ],
   "rules": [
