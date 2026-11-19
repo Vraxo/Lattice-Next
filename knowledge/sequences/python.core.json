@@ -14,6 +14,67 @@
       ]
     }
   ],
+  "inputRules": [
+    {
+      "id": "recognize-python-language",
+      "matchTokens": ["python"],
+      "factId": "language.python"
+    },
+    {
+      "id": "recognize-program-output",
+      "matchTokens": ["program"],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-script-output",
+      "matchTokens": ["script"],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-print-operation",
+      "matchTokens": ["print"],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-prints-operation",
+      "matchTokens": ["prints"],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-display-operation",
+      "matchTokens": ["display"],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-output-operation",
+      "matchTokens": ["output"],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-printed-value",
+      "matchTokens": ["print"],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "capture-printed-values",
+      "matchTokens": ["prints"],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "capture-displayed-value",
+      "matchTokens": ["display"],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "capture-output-value",
+      "matchTokens": ["output"],
+      "factId": "value.output",
+      "valueId": "content"
+    }
+  ],
   "rules": [
     {
       "id": "python-output-start",
