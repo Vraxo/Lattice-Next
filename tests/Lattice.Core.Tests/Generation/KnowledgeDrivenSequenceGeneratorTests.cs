@@ -212,7 +212,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("print(\"Hello, \\\"world\\\"!\\nSecond line\")", result!.Text);
+        Assert.Equal("```python\nprint(\"Hello, \\\"world\\\"!\\nSecond line\")\n```", result!.Text);
     }
 
     [Fact]

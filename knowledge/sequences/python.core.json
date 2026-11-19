@@ -6,172 +6,332 @@
       "openingDelimiter": "\"",
       "closingDelimiter": "\"",
       "escapes": [
-        { "character": "\\", "replacement": "\\\\" },
-        { "character": "\"", "replacement": "\\\"" },
-        { "character": "\n", "replacement": "\\n" },
-        { "character": "\r", "replacement": "\\r" },
-        { "character": "\t", "replacement": "\\t" }
+        {
+          "character": "\\",
+          "replacement": "\\\\"
+        },
+        {
+          "character": "\"",
+          "replacement": "\\\""
+        },
+        {
+          "character": "\n",
+          "replacement": "\\n"
+        },
+        {
+          "character": "\r",
+          "replacement": "\\r"
+        },
+        {
+          "character": "\t",
+          "replacement": "\\t"
+        }
       ]
     }
   ],
   "inputRules": [
     {
       "id": "recognize-generation-intent-write",
-      "matchTokens": ["write"],
+      "matchTokens": [
+        "write"
+      ],
       "factId": "intent.program-generation"
     },
     {
       "id": "recognize-generation-intent-create",
-      "matchTokens": ["create"],
+      "matchTokens": [
+        "create"
+      ],
       "factId": "intent.program-generation"
     },
     {
       "id": "recognize-generation-intent-generate",
-      "matchTokens": ["generate"],
+      "matchTokens": [
+        "generate"
+      ],
       "factId": "intent.program-generation"
     },
     {
       "id": "recognize-generation-intent-build",
-      "matchTokens": ["build"],
+      "matchTokens": [
+        "build"
+      ],
       "factId": "intent.program-generation"
     },
     {
       "id": "recognize-function-requirement",
-      "matchTokens": ["function"],
+      "matchTokens": [
+        "function"
+      ],
       "factId": "program.function"
     },
     {
       "id": "recognize-class-requirement",
-      "matchTokens": ["class"],
+      "matchTokens": [
+        "class"
+      ],
       "factId": "program.class"
     },
     {
       "id": "recognize-loop-requirement",
-      "matchTokens": ["loop"],
+      "matchTokens": [
+        "loop"
+      ],
       "factId": "program.loop"
     },
     {
       "id": "recognize-iteration-requirement",
-      "matchTokens": ["iterate"],
+      "matchTokens": [
+        "iterate"
+      ],
       "factId": "program.loop"
     },
     {
       "id": "recognize-dictionary-requirement",
-      "matchTokens": ["dictionary"],
+      "matchTokens": [
+        "dictionary"
+      ],
       "factId": "program.collection"
     },
     {
       "id": "recognize-list-requirement",
-      "matchTokens": ["list"],
+      "matchTokens": [
+        "list"
+      ],
       "factId": "program.collection"
     },
     {
       "id": "recognize-filter-requirement",
-      "matchTokens": ["filter"],
+      "matchTokens": [
+        "filter"
+      ],
       "factId": "program.filter"
     },
     {
       "id": "recognize-sort-requirement",
-      "matchTokens": ["sort"],
+      "matchTokens": [
+        "sort"
+      ],
       "factId": "program.sort"
     },
     {
       "id": "recognize-aggregate-requirement",
-      "matchTokens": ["sum"],
+      "matchTokens": [
+        "sum"
+      ],
       "factId": "program.aggregate"
     },
     {
       "id": "recognize-python-language",
-      "matchTokens": ["python"],
+      "matchTokens": [
+        "python"
+      ],
       "factId": "language.python"
     },
     {
       "id": "recognize-program-output",
-      "matchTokens": ["program"],
+      "matchTokens": [
+        "program"
+      ],
       "factId": "program.output"
     },
     {
       "id": "recognize-script-output",
-      "matchTokens": ["script"],
+      "matchTokens": [
+        "script"
+      ],
       "factId": "program.output"
     },
     {
       "id": "recognize-print-operation",
-      "matchTokens": ["print"],
+      "matchTokens": [
+        "print"
+      ],
       "factId": "program.output"
     },
     {
       "id": "recognize-prints-operation",
-      "matchTokens": ["prints"],
+      "matchTokens": [
+        "prints"
+      ],
       "factId": "program.output"
     },
     {
       "id": "recognize-display-operation",
-      "matchTokens": ["display"],
+      "matchTokens": [
+        "display"
+      ],
       "factId": "program.output"
     },
     {
       "id": "recognize-output-operation",
-      "matchTokens": ["output"],
+      "matchTokens": [
+        "output"
+      ],
       "factId": "program.output"
     },
     {
       "id": "capture-printed-value",
-      "matchTokens": ["print"],
+      "matchTokens": [
+        "print"
+      ],
       "factId": "value.output",
       "valueId": "content"
     },
     {
       "id": "capture-printed-values",
-      "matchTokens": ["prints"],
+      "matchTokens": [
+        "prints"
+      ],
       "factId": "value.output",
       "valueId": "content"
     },
     {
       "id": "capture-displayed-value",
-      "matchTokens": ["display"],
+      "matchTokens": [
+        "display"
+      ],
       "factId": "value.output",
       "valueId": "content"
     },
     {
       "id": "capture-output-value",
-      "matchTokens": ["output"],
+      "matchTokens": [
+        "output"
+      ],
       "factId": "value.output",
       "valueId": "content"
+    },
+    {
+      "id": "unsupported-assignment-set",
+      "matchTokens": [
+        "set"
+      ],
+      "factId": "program.assignment"
+    },
+    {
+      "id": "unsupported-assignment-sets",
+      "matchTokens": [
+        "sets"
+      ],
+      "factId": "program.assignment"
+    },
+    {
+      "id": "unsupported-assignment-start",
+      "matchTokens": [
+        "starts"
+      ],
+      "factId": "program.assignment"
+    },
+    {
+      "id": "unsupported-assignment-assign",
+      "matchTokens": [
+        "assign"
+      ],
+      "factId": "program.assignment"
+    },
+    {
+      "id": "unsupported-assignment-assigns",
+      "matchTokens": [
+        "assigns"
+      ],
+      "factId": "program.assignment"
+    },
+    {
+      "id": "unsupported-arithmetic-add",
+      "matchTokens": [
+        "add"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "unsupported-arithmetic-adds",
+      "matchTokens": [
+        "adds"
+      ],
+      "factId": "program.arithmetic"
+    },
+    {
+      "id": "unsupported-iteration-each",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.iteration"
+    },
+    {
+      "id": "unsupported-iteration-range",
+      "matchTokens": [
+        "range"
+      ],
+      "factId": "program.iteration"
+    },
+    {
+      "id": "unsupported-condition-if",
+      "matchTokens": [
+        "if"
+      ],
+      "factId": "program.condition"
     }
   ],
   "rules": [
     {
       "id": "python-output-start",
-      "contextSuffix": ["<|lattice.start|>"],
-      "requiredFacts": ["language.python", "intent.program-generation", "program.output"],
-      "nextToken": "print",
-      "satisfiesFacts": ["language.python", "intent.program-generation"]
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.output"
+      ],
+      "nextToken": "```python\nprint",
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation"
+      ]
     },
     {
       "id": "python-output-open",
-      "contextSuffix": ["print"],
-      "requiredFacts": ["program.output"],
+      "contextSuffix": [
+        "```python\nprint"
+      ],
+      "requiredFacts": [
+        "program.output"
+      ],
       "nextToken": "("
     },
     {
       "id": "python-output-value",
-      "contextSuffix": ["print", "("],
-      "requiredFacts": ["program.output", "value.output"],
+      "contextSuffix": [
+        "```python\nprint",
+        "("
+      ],
+      "requiredFacts": [
+        "program.output",
+        "value.output"
+      ],
       "tokenBinding": {
         "factId": "value.output",
         "valueId": "content",
         "encoding": "quoted-string"
       },
-      "satisfiesFacts": ["value.output"]
+      "satisfiesFacts": [
+        "value.output"
+      ]
     },
     {
       "id": "python-output-close",
       "contextSuffix": [],
-      "requiredFacts": ["program.output"],
-      "requiresCompletedFacts": ["value.output"],
-      "nextToken": ")",
-      "satisfiesFacts": ["program.output"]
+      "requiredFacts": [
+        "program.output"
+      ],
+      "requiresCompletedFacts": [
+        "value.output"
+      ],
+      "nextToken": ")\n```",
+      "satisfiesFacts": [
+        "program.output"
+      ]
     }
   ]
 }

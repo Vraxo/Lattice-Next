@@ -17,7 +17,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
 
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
-        Assert.Equal("print(\"Hello, world!\")", response.Message);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", response.Message);
         Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
