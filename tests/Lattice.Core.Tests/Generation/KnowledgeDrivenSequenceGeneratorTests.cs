@@ -12,8 +12,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var trainingSequence = ImmutableArray.Create(
             "let ",
             "total",
-            " = 0",
-            "\n",
+            " = 0\n",
             "print",
             "(",
             "total",
