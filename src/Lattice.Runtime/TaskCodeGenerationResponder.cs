@@ -5,7 +5,6 @@ using Lattice.Client;
 using Lattice.Core.Generation;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
-using Lattice.Runtime.Generation;
 
 namespace Lattice.Runtime;
 
@@ -22,27 +21,6 @@ internal static class TaskCodeGenerationResponder
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
-
-        if (request.Program is not null &&
-            request.TargetLanguage is { Length: > 0 } targetLanguage)
-        {
-            if (!ProgramBackendCatalog.TryGenerate(
-                targetLanguage,
-                request.Program,
-                out var source,
-                out _))
-            {
-                return false;
-            }
-
-            var fence = new string((char)96, 3);
-            message = string.Join(
-                Environment.NewLine,
-                fence + targetLanguage,
-                source,
-                fence);
-            return true;
-        }
 
         if (request.Subject == "python-program" &&
             request.Context == "python" &&
