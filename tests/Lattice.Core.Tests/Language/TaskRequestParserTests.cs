@@ -66,17 +66,18 @@ public sealed class TaskRequestParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
-        Assert.Equal("python", request.Context);
-        Assert.Equal("python-source", request.OutputFormat);
-        Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal("Hello, world!", request.RequestedValue);
-        Assert.Equal(new[] { "text-output" }, request.Requirements);
+        Assert.Equal("program", request.Subject);
+        Assert.Equal("python", request.TargetLanguage);
+        Assert.Null(request.Context);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Null(request.Scope);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral("Hello, world!"), output.Value);
         Assert.Equal(input, utterance.SourceText);
     }
 
     [Fact]
-    public void Parses_a_different_print_request_without_embedding_its_program()
+    public void Parses_a_different_print_request_as_a_neutral_program_literal()
     {
         const string input = "Create a Python program that prints 'A second message!'.";
 
@@ -85,8 +86,10 @@ public sealed class TaskRequestParserTests
         Assert.True(result.IsSuccess, result.Error);
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
 
-        Assert.Equal("python-program", request.Subject);
-        Assert.Equal("A second message!", request.RequestedValue);
+        Assert.Equal("program", request.Subject);
+        Assert.Equal("python", request.TargetLanguage);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral("A second message!"), output.Value);
     }
 
     [Fact]

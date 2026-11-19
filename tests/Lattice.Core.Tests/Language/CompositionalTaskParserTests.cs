@@ -25,11 +25,13 @@ public sealed class CompositionalTaskParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
-        Assert.Equal("python", request.Context);
-        Assert.Equal("python-source", request.OutputFormat);
-        Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal("Hello, world!", request.RequestedValue);
+        Assert.Equal("program", request.Subject);
+        Assert.Equal("python", request.TargetLanguage);
+        Assert.Null(request.Context);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Null(request.Scope);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral("Hello, world!"), output.Value);
     }
 
     [Theory]
@@ -45,7 +47,9 @@ public sealed class CompositionalTaskParserTests
         Assert.True(result.IsSuccess, result.Error);
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
 
-        Assert.Equal(expected, request.RequestedValue);
+        Assert.Equal("python", request.TargetLanguage);
+        var output = Assert.IsType<ProgramOutputStatement>(Assert.Single(request.Program!.Statements));
+        Assert.Equal(new ProgramStringLiteral(expected), output.Value);
     }
     [Fact]
     public void Does_not_invent_an_output_goal_for_an_unspecified_program()
@@ -62,6 +66,58 @@ public sealed class CompositionalTaskParserTests
             "Create a script that prints 'Python'.");
 
         Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public void Represents_variable_assignment_and_arithmetic_output_without_target_language_syntax()
+    {
+        var result = new LceParser().ParseText(
+            "Create a Python program that sets total to 5 and prints total + 3.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        Assert.Equal("python", request.TargetLanguage);
+        var statements = request.Program!.Statements;
+        Assert.Equal(2, statements.Length);
+
+        var assignment = Assert.IsType<ProgramAssignmentStatement>(statements[0]);
+        Assert.Equal("total", assignment.Target);
+        Assert.Equal(new ProgramNumberLiteral("5"), assignment.Value);
+
+        var output = Assert.IsType<ProgramOutputStatement>(statements[1]);
+        var expression = Assert.IsType<ProgramBinaryExpression>(output.Value);
+        Assert.Equal(ProgramBinaryOperator.Add, expression.Operator);
+        Assert.Equal(new ProgramNameExpression("total"), expression.Left);
+        Assert.Equal(new ProgramNumberLiteral("3"), expression.Right);
+    }
+
+    [Fact]
+    public void Preserves_expression_grouping_in_the_language_neutral_program()
+    {
+        var result = new LceParser().ParseText(
+            "Generate a Python program that sets total to 5 and prints (total + 3) * 2.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        var output = Assert.IsType<ProgramOutputStatement>(request.Program!.Statements[1]);
+        var multiply = Assert.IsType<ProgramBinaryExpression>(output.Value);
+
+        Assert.Equal(ProgramBinaryOperator.Multiply, multiply.Operator);
+        Assert.IsType<ProgramBinaryExpression>(multiply.Left);
+        Assert.Equal(new ProgramNumberLiteral("2"), multiply.Right);
+    }
+
+    [Fact]
+    public void Formats_the_neutral_program_meaning_without_emitting_target_source()
+    {
+        var result = new LceParser().ParseText("Write a Python Hello World program.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var formatted = SemanticFormatter.Format(Assert.Single(result.Utterances));
+
+        Assert.Contains("target=python", formatted, StringComparison.Ordinal);
+        Assert.Contains("program(output(text(", formatted, StringComparison.Ordinal);
+        Assert.DoesNotContain("print(", formatted, StringComparison.Ordinal);
     }
 
 }
