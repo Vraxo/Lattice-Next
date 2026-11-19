@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text;
 using Lattice.Core.Generation;
 using Lattice.Core.Semantics;
 
@@ -102,13 +103,36 @@ internal sealed class PythonProgramBackend : IProgramBackend
             _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, "Unsupported program operator.")
         };
 
-    private static string EscapeString(string value) =>
-        value.Replace("\\\\", "\\\\\\\\", StringComparison.Ordinal)
-            .Replace("\\"", "\\\\\\"", StringComparison.Ordinal)
-            .Replace("\\r", "\\\\r", StringComparison.Ordinal)
-            .Replace("\\n", "\\\\n", StringComparison.Ordinal)
-            .Replace("\\t", "\\\\t", StringComparison.Ordinal);
+    private static string EscapeString(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        foreach (var character in value)
+        {
+            switch (character)
+            {
+                case '\\\\':
+                    builder.Append("\\\\\\\\");
+                    break;
+                case '"':
+                    builder.Append("\\\\\"");
+                    break;
+                case '\\r':
+                    builder.Append("\\\\r");
+                    break;
+                case '\\n':
+                    builder.Append("\\\\n");
+                    break;
+                case '\\t':
+                    builder.Append("\\\\t");
+                    break;
+                default:
+                    builder.Append(character);
+                    break;
+            }
+        }
 
+        return builder.ToString();
+    }
     private static bool IsIdentifier(string value) =>
         value.Length > 0 &&
         (char.IsAsciiLetter(value[0]) || value[0] == '_') &&
