@@ -75,7 +75,7 @@ public static class ConstraintSequenceGenerator
                     var requirement = request.Requirements[requirementIndex];
                     var progress = state.Progress[requirementIndex];
                     if (progress >= requirement.Tokens.Length ||
-                        !DependenciesAreComplete(requirement, state.Progress, requirementIndexes))
+                        !DependenciesAreComplete(requirement, request.Requirements, state.Progress, requirementIndexes))
                     {
                         continue;
                     }
@@ -255,6 +255,7 @@ public static class ConstraintSequenceGenerator
 
     private static bool DependenciesAreComplete(
         SequenceRequirement requirement,
+        ImmutableArray<SequenceRequirement> requirements,
         ImmutableArray<int> progress,
         ImmutableDictionary<string, int> indexes)
     {
@@ -266,7 +267,7 @@ public static class ConstraintSequenceGenerator
         return requirement.DependsOn.All(dependency =>
         {
             var index = indexes[dependency];
-            return progress[index] == requirement.Tokens.Length;
+            return progress[index] == requirements[index].Tokens.Length;
         });
     }
 
