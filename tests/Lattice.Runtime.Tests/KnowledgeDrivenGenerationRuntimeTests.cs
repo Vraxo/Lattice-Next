@@ -39,6 +39,20 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
     }
 
     [Fact]
+    public async Task Generates_unquoted_custom_output_from_semantic_value_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that prints Greetings, traveler!");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\nprint(\"Greetings, traveler!\")\n```", response.Message);
+        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
+    }
+    [Fact]
     public async Task Composes_assignment_and_output_in_one_runtime_request()
     {
         var client = new LatticeRuntimeClient();
