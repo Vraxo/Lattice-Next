@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Text;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
@@ -19,6 +21,26 @@ internal static class ProgramExpressionParser
         }
 
         return parser.IsAtEnd;
+    }
+
+
+    internal static bool TryParseListLiteral(string source, out ProgramListExpression? expression)
+    {
+        expression = null;
+        var normalized = source.Trim();
+        if (normalized.Length < 2 || normalized[0] != '[' || normalized[^1] != ']')
+        {
+            return false;
+        }
+
+        var parser = new Parser(normalized[1..^1]);
+        if (!parser.TryParseListItems(out var items))
+        {
+            return false;
+        }
+
+        expression = new ProgramListExpression(items);
+        return true;
     }
 
     private sealed class Parser
@@ -43,6 +65,49 @@ internal static class ProgramExpressionParser
         internal bool TryParseExpression(out ProgramExpression? expression)
         {
             return TryParseAdditive(out expression);
+        }
+
+
+        internal bool TryParseListItems(out ImmutableArray<ProgramExpression> items)
+        {
+            var parsed = ImmutableArray.CreateBuilder<ProgramExpression>();
+            SkipWhitespace();
+            if (position == source.Length)
+            {
+                items = parsed.ToImmutable();
+                return true;
+            }
+
+            while (true)
+            {
+                if (!TryParseExpression(out var item))
+                {
+                    items = ImmutableArray<ProgramExpression>.Empty;
+                    return false;
+                }
+
+                parsed.Add(item!);
+                SkipWhitespace();
+                if (position == source.Length)
+                {
+                    items = parsed.ToImmutable();
+                    return true;
+                }
+
+                if (source[position] != ',')
+                {
+                    items = ImmutableArray<ProgramExpression>.Empty;
+                    return false;
+                }
+
+                position++;
+                SkipWhitespace();
+                if (position == source.Length)
+                {
+                    items = ImmutableArray<ProgramExpression>.Empty;
+                    return false;
+                }
+            }
         }
 
         private bool TryParseAdditive(out ProgramExpression? expression)
@@ -144,6 +209,52 @@ internal static class ProgramExpressionParser
                 }
 
                 position++;
+                return true;
+            }
+
+
+            if (source[position] is '\'' or '"')
+            {
+                var quote = source[position++];
+                var builder = new StringBuilder();
+                var closed = false;
+                while (position < source.Length)
+                {
+                    var character = source[position++];
+                    if (character == quote)
+                    {
+                        closed = true;
+                        break;
+                    }
+
+                    if (character == '\\')
+                    {
+                        if (position >= source.Length)
+                        {
+                            return false;
+                        }
+
+                        character = source[position++] switch
+                        {
+                            'n' => '\n',
+                            'r' => '\r',
+                            't' => '\t',
+                            '\\' => '\\',
+                            '\'' => '\'',
+                            '"' => '"',
+                            var escaped => escaped
+                        };
+                    }
+
+                    builder.Append(character);
+                }
+
+                if (!closed)
+                {
+                    return false;
+                }
+
+                expression = new ProgramStringLiteral(builder.ToString());
                 return true;
             }
 
