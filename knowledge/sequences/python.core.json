@@ -349,6 +349,34 @@
         "sets"
       ],
       "factId": "program.assignment.operator"
+    },
+    {
+      "id": "recognize-output-start-print",
+      "matchTokens": [
+        "print"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-prints",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-display",
+      "matchTokens": [
+        "display"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-output-start-output",
+      "matchTokens": [
+        "output"
+      ],
+      "factId": "program.output.start"
     }
   ],
   "rules": [
@@ -360,12 +388,14 @@
       "requiredFacts": [
         "language.python",
         "intent.program-generation",
-        "program.output"
+        "program.output",
+        "program.output.start"
       ],
       "nextToken": "```python\nprint",
       "satisfiesFacts": [
         "language.python",
-        "intent.program-generation"
+        "intent.program-generation",
+        "program.output.start"
       ]
     },
     {
@@ -409,6 +439,90 @@
       "nextToken": ")\n```",
       "satisfiesFacts": [
         "program.output"
+      ]
+    },
+    {
+      "id": "python-assignment-target",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.assignment.target"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": null,
+      "tokenBinding": {
+        "factId": "program.assignment.target",
+        "valueId": "name"
+      },
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.assignment.target"
+      ]
+    },
+    {
+      "id": "python-assignment-operator",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.operator"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.target"
+      ],
+      "nextToken": " = ",
+      "satisfiesFacts": [
+        "program.assignment.operator"
+      ]
+    },
+    {
+      "id": "python-assignment-value",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.value"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.operator"
+      ],
+      "nextToken": null,
+      "tokenBinding": {
+        "factId": "program.assignment.value",
+        "valueId": "value"
+      },
+      "satisfiesFacts": [
+        "program.assignment.value"
+      ]
+    },
+    {
+      "id": "python-assignment-line-end",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.value"
+      ],
+      "nextToken": "\n",
+      "satisfiesFacts": [
+        "program.assignment"
+      ]
+    },
+    {
+      "id": "python-output-start-after-assignment",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.output",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment",
+        "program.assignment.value"
+      ],
+      "nextToken": "```python\nprint",
+      "satisfiesFacts": [
+        "program.output.start"
       ]
     }
   ]
