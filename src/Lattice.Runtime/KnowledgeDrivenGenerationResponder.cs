@@ -46,7 +46,9 @@ internal static class KnowledgeDrivenGenerationResponder
         result = new LatticeUtteranceResult(
             LatticeUtteranceResultKind.TaskCompleted,
             generated!.Text,
-            meaning);
+            meaning,
+            SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty,
+            OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         return true;
     }
 
