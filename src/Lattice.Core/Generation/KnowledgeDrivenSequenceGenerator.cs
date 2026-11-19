@@ -45,7 +45,7 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
-        var initialContext = TrimContext(request.ContextTokens, contextLength);
+        var initialContext = TrimContext(request.ContextTokens.Add(SequenceKnowledgeBase.StartToken), contextLength);
         var frontier = new List<GenerationState>
         {
             new(
@@ -188,6 +188,8 @@ public static class KnowledgeDrivenSequenceGenerator
                 !ruleIds.Add(rule.Id) ||
                 string.IsNullOrEmpty(rule.NextToken) ||
                 rule.NextToken.Length > 4096 ||
+                rule.NextToken == SequenceKnowledgeBase.StartToken ||
+                rule.NextToken == SequenceTokenModel.EndToken ||
                 !double.IsFinite(rule.Weight) ||
                 rule.ContextSuffix.IsDefault ||
                 rule.ContextSuffix.Length > 64 ||
