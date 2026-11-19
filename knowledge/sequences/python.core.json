@@ -41,6 +41,14 @@
       "literalValue": "Hello, world!"
     },
     {
+      "id": "recognize-hello-world-output-start",
+      "matchTokens": [
+        "hello",
+        "world"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "recognize-generation-intent-write",
       "matchTokens": [
         "write"

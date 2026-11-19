@@ -24,6 +24,21 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
     }
 
     [Fact]
+    public async Task Generates_hello_world_from_its_semantic_output_requirement()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Hello World program in Python.");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("\u0060\u0060\u0060python\nprint(\"Hello, world!\")\n\u0060\u0060\u0060", response.Message);
+        Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Composes_assignment_and_output_in_one_runtime_request()
     {
         var client = new LatticeRuntimeClient();
