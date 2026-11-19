@@ -14,6 +14,11 @@ public sealed record ProgramAssignmentStatement(
 public sealed record ProgramOutputStatement(
     ProgramExpression Value) : ProgramStatement;
 
+public sealed record ProgramForEachStatement(
+    string Variable,
+    ProgramExpression Collection,
+    ImmutableArray<ProgramStatement> Body) : ProgramStatement;
+
 public abstract record ProgramExpression;
 
 public sealed record ProgramNameExpression(string Name) : ProgramExpression;
@@ -21,6 +26,9 @@ public sealed record ProgramNameExpression(string Name) : ProgramExpression;
 public sealed record ProgramNumberLiteral(string Value) : ProgramExpression;
 
 public sealed record ProgramStringLiteral(string Value) : ProgramExpression;
+
+public sealed record ProgramListExpression(
+    ImmutableArray<ProgramExpression> Items) : ProgramExpression;
 
 public sealed record ProgramBinaryExpression(
     ProgramExpression Left,
