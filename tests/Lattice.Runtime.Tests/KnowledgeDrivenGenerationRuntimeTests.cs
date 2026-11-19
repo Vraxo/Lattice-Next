@@ -221,7 +221,6 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
 
-
     [Fact]
     public async Task Generates_custom_output_from_a_displays_request_using_semantic_facts()
     {
@@ -230,7 +229,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
 
         var result = await session.SubmitAsync(
             "Create a Python program that displays 'Ready'.");
-        
+
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
         Assert.Equal("\\u0060\\u0060\\u0060python\\nprint(\\\"Ready\\\")\\n\\u0060\\u0060\\u0060", response.Message);
