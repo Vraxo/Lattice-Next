@@ -479,6 +479,21 @@
       "factId": "program.output"
     },
     {
+      "id": "capture-say-value",
+      "matchTokens": [
+        "say"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-say",
+      "matchTokens": [
+        "say"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "capture-says-value",
       "matchTokens": [
         "says"
