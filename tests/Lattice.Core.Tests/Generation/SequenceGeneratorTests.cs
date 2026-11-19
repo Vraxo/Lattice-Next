@@ -253,7 +253,7 @@ public sealed class SequenceGeneratorTests
     public void Respects_dependencies_between_requirements()
     {
         var preferredSecond = ImmutableArray.Create("display ", "value");
-        var preferredFirst = ImmutableArray.Create("initialize ", "value");
+        var preferredFirst = ImmutableArray.Create("initialize ", "value ");
         Assert.True(SequenceTokenModel.TryTrain(
             ImmutableArray.Create(preferredSecond, preferredSecond, preferredFirst),
             out var model,
@@ -262,7 +262,7 @@ public sealed class SequenceGeneratorTests
         var request = new SequenceConstraintGenerationRequest(
             ImmutableArray<string>.Empty,
             ImmutableArray.Create(
-                new SequenceRequirement("initialize", ["initialize ", "value"], []),
+                new SequenceRequirement("initialize", ["initialize ", "value "], []),
                 new SequenceRequirement("display", ["display ", "value"], ["initialize"])));
 
         Assert.True(ConstraintSequenceGenerator.TryGenerate(
