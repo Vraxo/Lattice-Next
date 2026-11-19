@@ -8,9 +8,12 @@ public static class SequenceKnowledgeBaseLoader
     private const int SupportedFormatVersion = 1;
     private const int MaximumJsonLength = 2_097_152;
     private const int MaximumRules = 10_000;
+    private const int MaximumEncodings = 128;
     private const int MaximumArrayItems = 128;
+    private const int MaximumContextItems = 64;
     private const int MaximumTokenLength = 4096;
     private const int MaximumIdentifierLength = 128;
+    private const int MaximumDelimiterLength = 32;
     private const string ResourcePrefix = "Lattice.Core.SequenceKnowledge.";
 
     public static bool TryLoad(
@@ -40,14 +43,15 @@ public static class SequenceKnowledgeBaseLoader
 
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(root, "formatVersion", "rules") ||
+                !HasOnlyProperties(root, "formatVersion", "rules", "encodings") ||
                 !TryGetInt32(root, "formatVersion", out var formatVersion) ||
                 formatVersion != SupportedFormatVersion ||
-                !root.TryGetProperty("rules", out var rulesElement) ||
-                rulesElement.ValueKind != JsonValueKind.Array ||
-                rulesElement.GetArrayLength() is 0 or > MaximumRules)
+                !TryGetArray(root, "rules", MaximumRules, required: true, out var rulesElement) ||
+                rulesElement.GetArrayLength() == 0 ||
+                !TryGetArray(root, "encodings", MaximumEncodings, required: false, out var encodingElements) ||
+                !TryReadEncodings(encodingElements, out var encodings, out error))
             {
-                error = "The sequence knowledge metadata or rule collection is invalid or unsupported.";
+                error ??= "The sequence knowledge metadata, rule collection, or encodings are invalid or unsupported.";
                 return false;
             }
 
@@ -63,15 +67,19 @@ public static class SequenceKnowledgeBaseLoader
                         "requiredFacts",
                         "requiresCompletedFacts",
                         "nextToken",
+                        "tokenBinding",
                         "satisfiesFacts",
                         "weight") ||
                     !TryGetString(element, "id", out var id) ||
                     !IsValidIdentifier(id) ||
                     !identifiers.Add(id) ||
-                    !TryGetString(element, "nextToken", out var nextToken) ||
-                    !IsValidToken(nextToken) ||
-                    nextToken == SequenceKnowledgeBase.StartToken ||
-                    nextToken == SequenceTokenModel.EndToken ||
+                    !TryGetOptionalString(element, "nextToken", out var nextToken) ||
+                    !TryGetTokenBinding(element, out var tokenBinding) ||
+                    (nextToken is null) == (tokenBinding is null) ||
+                    (nextToken is not null &&
+                        (!IsValidToken(nextToken) ||
+                         nextToken == SequenceKnowledgeBase.StartToken ||
+                         nextToken == SequenceTokenModel.EndToken)) ||
                     !TryGetStringArray(element, "contextSuffix", out var contextSuffix) ||
                     !TryGetStringArray(element, "requiredFacts", out var requiredFacts) ||
                     !TryGetStringArray(element, "requiresCompletedFacts", out var requiresCompletedFacts) ||
@@ -79,9 +87,10 @@ public static class SequenceKnowledgeBaseLoader
                     !TryGetWeight(element, out var weight) ||
                     !HasUniqueIdentifiers(requiredFacts) ||
                     !HasUniqueIdentifiers(requiresCompletedFacts) ||
-                    !HasUniqueIdentifiers(satisfiesFacts))
+                    !HasUniqueIdentifiers(satisfiesFacts) ||
+                    (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
-                    error = "Every sequence rule requires a unique identifier, a next token, valid fact identifiers, context, and a finite optional weight.";
+                    error = "Every sequence rule requires a unique identifier, exactly one literal or bound token source, valid fact identifiers, context, and a finite optional weight.";
                     return false;
                 }
 
@@ -92,10 +101,13 @@ public static class SequenceKnowledgeBaseLoader
                     requiresCompletedFacts,
                     nextToken,
                     satisfiesFacts,
-                    weight));
+                    weight)
+                {
+                    TokenBinding = tokenBinding
+                });
             }
 
-            knowledge = new SequenceKnowledgeBase(rules.ToImmutable());
+            knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings);
             return true;
         }
         catch (JsonException)
@@ -127,7 +139,10 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         var rules = ImmutableArray.CreateBuilder<SequenceTokenRule>();
-        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        var encodings = ImmutableArray.CreateBuilder<SequenceTokenEncoding>();
+        var ruleIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+        var encodingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+
         foreach (var resource in resources)
         {
             using var stream = assembly.GetManifestResourceStream(resource);
@@ -145,7 +160,7 @@ public static class SequenceKnowledgeBaseLoader
 
             foreach (var rule in module!.Rules)
             {
-                if (!identifiers.Add(rule.Id))
+                if (!ruleIdentifiers.Add(rule.Id))
                 {
                     error = $"More than one sequence knowledge module declares rule '{rule.Id}'.";
                     return false;
@@ -158,9 +173,123 @@ public static class SequenceKnowledgeBaseLoader
                     return false;
                 }
             }
+
+            foreach (var encoding in module.Encodings.IsDefault
+                ? ImmutableArray<SequenceTokenEncoding>.Empty
+                : module.Encodings)
+            {
+                if (!encodingIdentifiers.Add(encoding.Id))
+                {
+                    error = $"More than one sequence knowledge module declares encoding '{encoding.Id}'.";
+                    return false;
+                }
+
+                encodings.Add(encoding);
+                if (encodings.Count > MaximumEncodings)
+                {
+                    error = "The combined sequence knowledge modules contain too many token encodings.";
+                    return false;
+                }
+            }
         }
 
-        knowledge = new SequenceKnowledgeBase(rules.ToImmutable());
+        foreach (var rule in rules)
+        {
+            if (rule.TokenBinding?.Encoding is { } encoding &&
+                !encodingIdentifiers.Contains(encoding))
+            {
+                error = $"The token binding in rule '{rule.Id}' references missing encoding '{encoding}'.";
+                return false;
+            }
+        }
+
+        knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings.ToImmutable());
+        return true;
+    }
+
+    private static bool TryReadEncodings(
+        JsonElement element,
+        out ImmutableArray<SequenceTokenEncoding> encodings,
+        out string? error)
+    {
+        encodings = ImmutableArray<SequenceTokenEncoding>.Empty;
+        error = null;
+        if (element.ValueKind == JsonValueKind.Undefined)
+        {
+            return true;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<SequenceTokenEncoding>(element.GetArrayLength());
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(item, "id", "openingDelimiter", "closingDelimiter", "escapes") ||
+                !TryGetString(item, "id", out var id) ||
+                !IsValidIdentifier(id) ||
+                !identifiers.Add(id) ||
+                !TryGetString(item, "openingDelimiter", out var openingDelimiter) ||
+                !IsValidDelimiter(openingDelimiter) ||
+                !TryGetString(item, "closingDelimiter", out var closingDelimiter) ||
+                !IsValidDelimiter(closingDelimiter) ||
+                !TryGetArray(item, "escapes", MaximumArrayItems, required: true, out var escapeElements))
+            {
+                error = "Every token encoding requires a unique identifier, delimiters, and an escape-rule array.";
+                return false;
+            }
+
+            var escapes = ImmutableArray.CreateBuilder<SequenceTokenEscape>(escapeElements.GetArrayLength());
+            var characters = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var escape in escapeElements.EnumerateArray())
+            {
+                if (escape.ValueKind != JsonValueKind.Object ||
+                    !HasOnlyProperties(escape, "character", "replacement") ||
+                    !TryGetString(escape, "character", out var character) ||
+                    character.Length != 1 ||
+                    !TryGetString(escape, "replacement", out var replacement) ||
+                    !characters.Add(character))
+                {
+                    error = $"Token encoding '{id}' contains an invalid or duplicate escape rule.";
+                    return false;
+                }
+
+                escapes.Add(new SequenceTokenEscape(character, replacement));
+            }
+
+            builder.Add(new SequenceTokenEncoding(
+                id,
+                openingDelimiter,
+                closingDelimiter,
+                escapes.ToImmutable()));
+        }
+
+        encodings = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetTokenBinding(
+        JsonElement element,
+        out SequenceTokenBinding? binding)
+    {
+        binding = null;
+        if (!element.TryGetProperty("tokenBinding", out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.Object ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding") ||
+            !TryGetString(property, "factId", out var factId) ||
+            !IsValidIdentifier(factId) ||
+            !TryGetString(property, "valueId", out var valueId) ||
+            !IsValidIdentifier(valueId) ||
+            !TryGetOptionalString(property, "encoding", out var encoding) ||
+            (encoding is not null && !IsValidIdentifier(encoding)))
+        {
+            return false;
+        }
+
+        binding = new SequenceTokenBinding(factId, valueId, encoding);
         return true;
     }
 
@@ -177,6 +306,23 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         return true;
+    }
+
+    private static bool TryGetArray(
+        JsonElement element,
+        string name,
+        int maximumLength,
+        bool required,
+        out JsonElement value)
+    {
+        value = default;
+        if (!element.TryGetProperty(name, out value))
+        {
+            return !required;
+        }
+
+        return value.ValueKind == JsonValueKind.Array &&
+            value.GetArrayLength() <= maximumLength;
     }
 
     private static bool TryGetInt32(JsonElement element, string name, out int value)
@@ -200,6 +346,26 @@ public static class SequenceKnowledgeBaseLoader
         return true;
     }
 
+    private static bool TryGetOptionalString(
+        JsonElement element,
+        string name,
+        out string? value)
+    {
+        value = null;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        value = property.GetString();
+        return !string.IsNullOrWhiteSpace(value);
+    }
+
     private static bool TryGetStringArray(
         JsonElement element,
         string name,
@@ -211,8 +377,9 @@ public static class SequenceKnowledgeBaseLoader
             return true;
         }
 
+        var maximumLength = name == "contextSuffix" ? MaximumContextItems : MaximumArrayItems;
         if (property.ValueKind != JsonValueKind.Array ||
-            property.GetArrayLength() > (name == "contextSuffix" ? 64 : MaximumArrayItems))
+            property.GetArrayLength() > maximumLength)
         {
             return false;
         }
@@ -270,4 +437,7 @@ public static class SequenceKnowledgeBaseLoader
 
     private static bool IsValidToken(string value) =>
         value.Length is > 0 and <= MaximumTokenLength;
+
+    private static bool IsValidDelimiter(string value) =>
+        value.Length is > 0 and <= MaximumDelimiterLength;
 }
