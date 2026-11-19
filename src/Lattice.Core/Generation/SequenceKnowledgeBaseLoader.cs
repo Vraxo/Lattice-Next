@@ -8,6 +8,7 @@ public static class SequenceKnowledgeBaseLoader
     private const int SupportedFormatVersion = 1;
     private const int MaximumJsonLength = 2_097_152;
     private const int MaximumRules = 10_000;
+    private const int MaximumInputRules = 4096;
     private const int MaximumEncodings = 128;
     private const int MaximumArrayItems = 128;
     private const int MaximumContextItems = 64;
@@ -43,13 +44,15 @@ public static class SequenceKnowledgeBaseLoader
 
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(root, "formatVersion", "rules", "encodings") ||
+                !HasOnlyProperties(root, "formatVersion", "rules", "encodings", "inputRules") ||
                 !TryGetInt32(root, "formatVersion", out var formatVersion) ||
                 formatVersion != SupportedFormatVersion ||
                 !TryGetArray(root, "rules", MaximumRules, required: true, out var rulesElement) ||
                 rulesElement.GetArrayLength() == 0 ||
                 !TryGetArray(root, "encodings", MaximumEncodings, required: false, out var encodingElements) ||
-                !TryReadEncodings(encodingElements, out var encodings, out error))
+                !TryReadEncodings(encodingElements, out var encodings, out error) ||
+                !TryGetArray(root, "inputRules", MaximumInputRules, required: false, out var inputRuleElements) ||
+                !TryReadInputRules(inputRuleElements, out var inputRules, out error))
             {
                 error ??= "The sequence knowledge metadata, rule collection, or encodings are invalid or unsupported.";
                 return false;
@@ -107,7 +110,7 @@ public static class SequenceKnowledgeBaseLoader
                 });
             }
 
-            knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings);
+            knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings, inputRules);
             return true;
         }
         catch (JsonException)
@@ -140,8 +143,10 @@ public static class SequenceKnowledgeBaseLoader
 
         var rules = ImmutableArray.CreateBuilder<SequenceTokenRule>();
         var encodings = ImmutableArray.CreateBuilder<SequenceTokenEncoding>();
+        var inputRules = ImmutableArray.CreateBuilder<SequenceInputFactRule>();
         var ruleIdentifiers = new HashSet<string>(StringComparer.Ordinal);
         var encodingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+        var inputRuleIdentifiers = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var resource in resources)
         {
@@ -191,6 +196,24 @@ public static class SequenceKnowledgeBaseLoader
                     return false;
                 }
             }
+
+            foreach (var inputRule in module.InputRules.IsDefault
+                ? ImmutableArray<SequenceInputFactRule>.Empty
+                : module.InputRules)
+            {
+                if (!inputRuleIdentifiers.Add(inputRule.Id))
+                {
+                    error = $"More than one sequence knowledge module declares input rule '{inputRule.Id}'.";
+                    return false;
+                }
+
+                inputRules.Add(inputRule);
+                if (inputRules.Count > MaximumInputRules)
+                {
+                    error = "The combined sequence knowledge modules contain too many input fact rules.";
+                    return false;
+                }
+            }
         }
 
         foreach (var rule in rules)
@@ -203,7 +226,51 @@ public static class SequenceKnowledgeBaseLoader
             }
         }
 
-        knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings.ToImmutable());
+        knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings.ToImmutable(), inputRules.ToImmutable());
+        return true;
+    }
+
+    private static bool TryReadInputRules(
+        JsonElement element,
+        out ImmutableArray<SequenceInputFactRule> inputRules,
+        out string? error)
+    {
+        inputRules = ImmutableArray<SequenceInputFactRule>.Empty;
+        error = null;
+        if (element.ValueKind == JsonValueKind.Undefined)
+        {
+            return true;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<SequenceInputFactRule>(element.GetArrayLength());
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId") ||
+                !TryGetString(item, "id", out var id) ||
+                !IsValidIdentifier(id) ||
+                !identifiers.Add(id) ||
+                !TryGetStringArray(item, "matchTokens", out var matchTokens) ||
+                matchTokens.IsDefaultOrEmpty ||
+                matchTokens.Length > 16 ||
+                !TryGetString(item, "factId", out var factId) ||
+                !IsValidIdentifier(factId) ||
+                !TryGetOptionalString(item, "valueId", out var valueId) ||
+                (valueId is not null && !IsValidIdentifier(valueId)))
+            {
+                error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
+                return false;
+            }
+
+            builder.Add(new SequenceInputFactRule(
+                id,
+                matchTokens,
+                factId,
+                valueId));
+        }
+
+        inputRules = builder.ToImmutable();
         return true;
     }
 

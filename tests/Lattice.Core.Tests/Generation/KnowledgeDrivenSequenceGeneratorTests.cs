@@ -252,4 +252,74 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
+
+    [Fact]
+    public void Extracts_multiple_active_semantic_facts_and_generates_from_one_request()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        var input = "Create a Python program that prints \"Hello, world!\".";
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "language.python");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
+        var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("Hello, world!", valueFact.Values["content"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("print(\"Hello, world!\")", result!.Text);
+    }
+
+    [Fact]
+    public void Captures_unquoted_text_after_a_knowledge_matched_cue()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a Python program that prints Hello, world!",
+            out var facts,
+            out var error), error);
+
+        var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("Hello, world!", valueFact.Values["content"]);
+    }
+
+    [Fact]
+    public void Rejects_input_that_matches_no_semantic_fact_rule()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Tell me something unrelated.",
+            out var facts,
+            out var error));
+        Assert.Empty(facts);
+        Assert.Contains("No semantic input rule", error, StringComparison.Ordinal);
+    }
+
 }
