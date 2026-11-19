@@ -52,6 +52,46 @@ internal sealed class PythonProgramBackend : IProgramBackend
                         ImmutableArray<string>.Empty));
                     break;
 
+                case ProgramForEachStatement loop when IsIdentifier(loop.Variable):
+                    if (loop.Body.IsDefaultOrEmpty)
+                    {
+                        error = "An iteration statement requires a non-empty body.";
+                        return false;
+                    }
+
+                    goals.Add(new GenerationGoal(
+                        "begin-loop",
+                        "loop-header",
+                        $"{loop.Variable} in {RenderExpression(loop.Collection)}",
+                        ImmutableArray<string>.Empty));
+                    foreach (var bodyStatement in loop.Body)
+                    {
+                        switch (bodyStatement)
+                        {
+                            case ProgramOutputStatement { Value: ProgramStringLiteral text }:
+                                goals.Add(new GenerationGoal(
+                                    "write-standard-output-indented",
+                                    "text",
+                                    text.Value,
+                                    ImmutableArray<string>.Empty));
+                                break;
+
+                            case ProgramOutputStatement output:
+                                goals.Add(new GenerationGoal(
+                                    "write-standard-output-indented-expression",
+                                    "expression",
+                                    RenderExpression(output.Value),
+                                    ImmutableArray<string>.Empty));
+                                break;
+
+                            default:
+                                error = $"The Python backend does not support iteration body statement '{bodyStatement.GetType().Name}'.";
+                                return false;
+                        }
+                    }
+                    break;
+
+
                 default:
                     error = $"The Python backend does not support statement '{statement.GetType().Name}'.";
                     return false;
@@ -87,6 +127,8 @@ internal sealed class PythonProgramBackend : IProgramBackend
                 return name.Name;
             case ProgramNumberLiteral number:
                 return number.Value;
+            case ProgramListExpression list:
+                return $"[{string.Join(", ", list.Items.Select(item => RenderExpression(item)))}]";
             case ProgramStringLiteral text:
                 return $"\"{EscapeString(text.Value)}\"";
             case ProgramUnaryExpression { Operator: ProgramUnaryOperator.Negate } unary:
