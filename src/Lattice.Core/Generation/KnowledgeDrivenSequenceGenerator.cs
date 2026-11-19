@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text;
 
 namespace Lattice.Core.Generation;
 
@@ -6,19 +7,28 @@ public sealed record KnowledgeDrivenSequenceGenerationRequest(
     ImmutableArray<string> ContextTokens,
     ImmutableArray<string> ActiveFacts,
     int BeamWidth = 8,
-    int MaxTokens = 512);
+    int MaxTokens = 512)
+{
+    public ImmutableArray<SequenceSemanticFact> FactValues { get; init; } =
+        ImmutableArray<SequenceSemanticFact>.Empty;
+}
 
 public static class KnowledgeDrivenSequenceGenerator
 {
     private const int MaximumFacts = 128;
     private const int MaximumContextTokens = 8192;
     private const int MaximumGeneratedTokens = 8192;
+    private const int MaximumFactValueLength = 16_384;
 
     private sealed record GenerationState(
         ImmutableArray<string> Context,
         ImmutableArray<string> Tokens,
         ImmutableHashSet<string> CompletedFacts,
         double Score);
+
+    private sealed record TokenCandidate(
+        SequenceTokenRule Rule,
+        string Token);
 
     public static bool TryGenerate(
         SequenceKnowledgeBase knowledge,
@@ -33,7 +43,15 @@ public static class KnowledgeDrivenSequenceGenerator
         result = null;
         error = null;
 
-        if (!TryValidate(knowledge, model, request, out var activeFacts, out var contextLength, out error))
+        if (!TryValidate(
+            knowledge,
+            model,
+            request,
+            out var facts,
+            out var activeFacts,
+            out var encodings,
+            out var contextLength,
+            out error))
         {
             return false;
         }
@@ -45,7 +63,9 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
-        var initialContext = TrimContext(request.ContextTokens.Add(SequenceKnowledgeBase.StartToken), contextLength);
+        var initialContext = TrimContext(
+            request.ContextTokens.Add(SequenceKnowledgeBase.StartToken),
+            contextLength);
         var frontier = new List<GenerationState>
         {
             new(
@@ -68,33 +88,42 @@ public static class KnowledgeDrivenSequenceGenerator
                     continue;
                 }
 
-                var candidates = knowledge.Rules
-                    .Where(rule =>
-                        MatchesContext(rule.ContextSuffix, state.Context) &&
-                        RequiredFactsAreActive(rule.RequiredFacts, activeFacts, state.CompletedFacts) &&
-                        RequiredFactsAreComplete(rule.RequiresCompletedFacts, state.CompletedFacts) &&
-                        SatisfiesOnlyActiveFacts(rule.SatisfiesFacts, activeFacts))
-                    .ToArray();
-
-                var modelCandidates = model is null
-                    ? ImmutableHashSet<string>.Empty.WithComparer(StringComparer.Ordinal)
-                    : model.GetNextTokens(state.Context).ToImmutableHashSet(StringComparer.Ordinal);
-                var hasModelCandidate = candidates.Any(rule => modelCandidates.Contains(rule.NextToken));
-
-                foreach (var candidate in candidates)
+                var candidates = new List<TokenCandidate>();
+                foreach (var rule in knowledge.Rules)
                 {
-                    if (hasModelCandidate && !modelCandidates.Contains(candidate.NextToken))
+                    if (!MatchesContext(rule.ContextSuffix, state.Context) ||
+                        !RequiredFactsAreActive(rule.RequiredFacts, activeFacts, state.CompletedFacts) ||
+                        !RequiredFactsAreComplete(rule.RequiresCompletedFacts, state.CompletedFacts) ||
+                        !SatisfiesOnlyActiveFacts(rule.SatisfiesFacts, activeFacts) ||
+                        !TryResolveToken(rule, facts, encodings, out var token))
                     {
                         continue;
                     }
 
-                    var score = candidate.Weight + (model?.GetLogScore(state.Context, candidate.NextToken) ?? 0);
+                    candidates.Add(new TokenCandidate(rule, token));
+                }
+
+                var modelCandidates = model is null
+                    ? ImmutableHashSet<string>.Empty.WithComparer(StringComparer.Ordinal)
+                    : model.GetNextTokens(state.Context).ToImmutableHashSet(StringComparer.Ordinal);
+                var hasModelCandidate = candidates.Any(candidate =>
+                    modelCandidates.Contains(candidate.Token));
+
+                foreach (var candidate in candidates)
+                {
+                    if (hasModelCandidate && !modelCandidates.Contains(candidate.Token))
+                    {
+                        continue;
+                    }
+
+                    var score = candidate.Rule.Weight +
+                        (model?.GetLogScore(state.Context, candidate.Token) ?? 0);
                     if (!double.IsFinite(score))
                     {
                         continue;
                     }
 
-                    var nextContext = state.Context.Add(candidate.NextToken);
+                    var nextContext = state.Context.Add(candidate.Token);
                     if (nextContext.Length > contextLength)
                     {
                         nextContext = contextLength == 0
@@ -102,13 +131,13 @@ public static class KnowledgeDrivenSequenceGenerator
                             : nextContext.Skip(nextContext.Length - contextLength).ToImmutableArray();
                     }
 
-                    var completedFacts = candidate.SatisfiesFacts.IsDefaultOrEmpty
+                    var completedFacts = candidate.Rule.SatisfiesFacts.IsDefaultOrEmpty
                         ? state.CompletedFacts
-                        : state.CompletedFacts.Union(candidate.SatisfiesFacts);
+                        : state.CompletedFacts.Union(candidate.Rule.SatisfiesFacts);
 
                     next.Add(new GenerationState(
                         nextContext,
-                        state.Tokens.Add(candidate.NextToken),
+                        state.Tokens.Add(candidate.Token),
                         completedFacts,
                         score));
                 }
@@ -157,11 +186,15 @@ public static class KnowledgeDrivenSequenceGenerator
         SequenceKnowledgeBase knowledge,
         SequenceTokenModel? model,
         KnowledgeDrivenSequenceGenerationRequest request,
+        out ImmutableDictionary<string, SequenceSemanticFact> facts,
         out ImmutableHashSet<string> activeFacts,
+        out ImmutableDictionary<string, SequenceTokenEncoding> encodings,
         out int contextLength,
         out string? error)
     {
+        facts = ImmutableDictionary<string, SequenceSemanticFact>.Empty.WithComparers(StringComparer.Ordinal);
         activeFacts = ImmutableHashSet<string>.Empty.WithComparer(StringComparer.Ordinal);
+        encodings = ImmutableDictionary<string, SequenceTokenEncoding>.Empty.WithComparers(StringComparer.Ordinal);
         contextLength = 0;
         error = null;
 
@@ -173,49 +206,169 @@ public static class KnowledgeDrivenSequenceGenerator
             request.ActiveFacts.IsDefaultOrEmpty ||
             request.ActiveFacts.Length > MaximumFacts ||
             request.ActiveFacts.Any(fact => string.IsNullOrWhiteSpace(fact) || fact.Length > 256) ||
-            request.ActiveFacts.Distinct(StringComparer.Ordinal).Count() != request.ActiveFacts.Length)
+            request.ActiveFacts.Distinct(StringComparer.Ordinal).Count() != request.ActiveFacts.Length ||
+            request.FactValues.IsDefault ||
+            request.FactValues.Length > MaximumFacts)
         {
-            error = "A non-empty knowledge base and one to 128 unique active semantic facts are required.";
+            error = "A non-empty knowledge base, initialized context, and one to 128 unique active semantic facts are required.";
             return false;
         }
+
+        activeFacts = request.ActiveFacts.ToImmutableHashSet(StringComparer.Ordinal);
+        var factBuilder = ImmutableDictionary.CreateBuilder<string, SequenceSemanticFact>(StringComparer.Ordinal);
+        foreach (var fact in request.FactValues)
+        {
+            if (fact is null ||
+                !activeFacts.Contains(fact.Id) ||
+                fact.Values is null ||
+                !factBuilder.TryAdd(fact.Id, fact) ||
+                fact.Values.Any(value =>
+                    string.IsNullOrWhiteSpace(value.Key) ||
+                    value.Key.Length > 128 ||
+                    value.Value is null ||
+                    value.Value.Length > MaximumFactValueLength))
+            {
+                error = "Every semantic value binding must reference one active fact and contain valid named values.";
+                return false;
+            }
+        }
+
+        facts = factBuilder.ToImmutable();
+
+        var encodingBuilder = ImmutableDictionary.CreateBuilder<string, SequenceTokenEncoding>(StringComparer.Ordinal);
+        var availableEncodings = knowledge.Encodings.IsDefault
+            ? ImmutableArray<SequenceTokenEncoding>.Empty
+            : knowledge.Encodings;
+        foreach (var encoding in availableEncodings)
+        {
+            if (encoding is null ||
+                !IsValidIdentifier(encoding.Id) ||
+                !IsValidDelimiter(encoding.OpeningDelimiter) ||
+                !IsValidDelimiter(encoding.ClosingDelimiter) ||
+                encoding.Escapes.IsDefault ||
+                encoding.Escapes.Any(escape =>
+                    escape is null ||
+                    escape.Character is null ||
+                    escape.Character.Length != 1 ||
+                    escape.Replacement is null) ||
+                encoding.Escapes.Select(escape => escape.Character)
+                    .Distinct(StringComparer.Ordinal).Count() != encoding.Escapes.Length ||
+                !encodingBuilder.TryAdd(encoding.Id, encoding))
+            {
+                error = "Every token encoding requires a unique identifier, delimiters, and unique single-character escape rules.";
+                return false;
+            }
+        }
+
+        encodings = encodingBuilder.ToImmutable();
 
         var ruleIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var rule in knowledge.Rules)
         {
+            var hasLiteral = !string.IsNullOrEmpty(rule?.NextToken);
+            var hasBinding = rule?.TokenBinding is not null;
             if (rule is null ||
-                string.IsNullOrWhiteSpace(rule.Id) ||
-                rule.Id.Length > 128 ||
+                !IsValidIdentifier(rule.Id) ||
                 !ruleIds.Add(rule.Id) ||
-                string.IsNullOrEmpty(rule.NextToken) ||
-                rule.NextToken.Length > 4096 ||
-                rule.NextToken == SequenceKnowledgeBase.StartToken ||
-                rule.NextToken == SequenceTokenModel.EndToken ||
-                rule.NextToken == SequenceKnowledgeBase.StartToken ||
-                rule.NextToken == SequenceTokenModel.EndToken ||
+                hasLiteral == hasBinding ||
+                (hasLiteral &&
+                    (rule.NextToken!.Length > 4096 ||
+                     rule.NextToken == SequenceKnowledgeBase.StartToken ||
+                     rule.NextToken == SequenceTokenModel.EndToken)) ||
                 !double.IsFinite(rule.Weight) ||
                 rule.ContextSuffix.IsDefault ||
                 rule.ContextSuffix.Length > 64 ||
                 rule.ContextSuffix.Any(string.IsNullOrEmpty) ||
                 !IsValidFactArray(rule.RequiredFacts) ||
                 !IsValidFactArray(rule.RequiresCompletedFacts) ||
-                !IsValidFactArray(rule.SatisfiesFacts))
+                !IsValidFactArray(rule.SatisfiesFacts) ||
+                (rule.TokenBinding is not null &&
+                    (!IsValidIdentifier(rule.TokenBinding.FactId) ||
+                     !IsValidIdentifier(rule.TokenBinding.ValueId) ||
+                     !rule.RequiredFacts.Contains(rule.TokenBinding.FactId, StringComparer.Ordinal) ||
+                     (rule.TokenBinding.Encoding is not null &&
+                      !encodings.ContainsKey(rule.TokenBinding.Encoding)))))
             {
-                error = "Every knowledge rule requires a unique identifier, valid token context, next token, fact conditions, and finite weight.";
+                error = "Every knowledge rule requires a unique identifier, exactly one valid token source, valid fact conditions, and finite weight.";
                 return false;
             }
 
             contextLength = Math.Max(contextLength, rule.ContextSuffix.Length);
         }
 
-        activeFacts = request.ActiveFacts.ToImmutableHashSet(StringComparer.Ordinal);
         contextLength = Math.Max(contextLength, model?.MaximumContextLength ?? 0);
         return true;
     }
 
+    private static bool TryResolveToken(
+        SequenceTokenRule rule,
+        ImmutableDictionary<string, SequenceSemanticFact> facts,
+        ImmutableDictionary<string, SequenceTokenEncoding> encodings,
+        out string token)
+    {
+        token = string.Empty;
+        if (rule.TokenBinding is null)
+        {
+            token = rule.NextToken ?? string.Empty;
+            return token.Length > 0;
+        }
+
+        var binding = rule.TokenBinding;
+        if (!facts.TryGetValue(binding.FactId, out var fact) ||
+            !fact.Values.TryGetValue(binding.ValueId, out var value))
+        {
+            return false;
+        }
+
+        token = binding.Encoding is null
+            ? value
+            : EncodeValue(value, encodings[binding.Encoding]);
+
+        return token.Length > 0 &&
+            token.Length <= 4096 &&
+            token != SequenceKnowledgeBase.StartToken &&
+            token != SequenceTokenModel.EndToken;
+    }
+
+    private static string EncodeValue(string value, SequenceTokenEncoding encoding)
+    {
+        var replacements = encoding.Escapes.ToDictionary(
+            escape => escape.Character[0],
+            escape => escape.Replacement);
+        var builder = new StringBuilder(
+            encoding.OpeningDelimiter.Length + value.Length + encoding.ClosingDelimiter.Length);
+        builder.Append(encoding.OpeningDelimiter);
+
+        foreach (var character in value)
+        {
+            if (replacements.TryGetValue(character, out var replacement))
+            {
+                builder.Append(replacement);
+            }
+            else
+            {
+                builder.Append(character);
+            }
+        }
+
+        builder.Append(encoding.ClosingDelimiter);
+        return builder.ToString();
+    }
+
+    private static bool IsValidIdentifier(string value) =>
+        !string.IsNullOrWhiteSpace(value) &&
+        value.Length <= 128 &&
+        value.All(character =>
+            char.IsAsciiLetterOrDigit(character) ||
+            character is '.' or '-' or '_' or ':');
+
+    private static bool IsValidDelimiter(string value) =>
+        !string.IsNullOrEmpty(value) && value.Length <= 32;
+
     private static bool IsValidFactArray(ImmutableArray<string> facts) =>
         facts.IsDefault ||
         (facts.Length <= MaximumFacts &&
-         facts.All(fact => !string.IsNullOrWhiteSpace(fact) && fact.Length <= 128) &&
+         facts.All(IsValidIdentifier) &&
          facts.Distinct(StringComparer.Ordinal).Count() == facts.Length);
 
     private static bool MatchesContext(
