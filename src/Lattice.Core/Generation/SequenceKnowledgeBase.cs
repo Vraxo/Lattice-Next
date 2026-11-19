@@ -2,17 +2,40 @@ using System.Collections.Immutable;
 
 namespace Lattice.Core.Generation;
 
+public sealed record SequenceSemanticFact(
+    string Id,
+    ImmutableDictionary<string, string> Values);
+
+public sealed record SequenceTokenBinding(
+    string FactId,
+    string ValueId,
+    string? Encoding = null);
+
+public sealed record SequenceTokenEscape(
+    string Character,
+    string Replacement);
+
+public sealed record SequenceTokenEncoding(
+    string Id,
+    string OpeningDelimiter,
+    string ClosingDelimiter,
+    ImmutableArray<SequenceTokenEscape> Escapes);
+
 public sealed record SequenceTokenRule(
     string Id,
     ImmutableArray<string> ContextSuffix,
     ImmutableArray<string> RequiredFacts,
     ImmutableArray<string> RequiresCompletedFacts,
-    string NextToken,
+    string? NextToken,
     ImmutableArray<string> SatisfiesFacts,
-    double Weight = 0);
+    double Weight = 0)
+{
+    public SequenceTokenBinding? TokenBinding { get; init; }
+}
 
 public sealed record SequenceKnowledgeBase(
-    ImmutableArray<SequenceTokenRule> Rules)
+    ImmutableArray<SequenceTokenRule> Rules,
+    ImmutableArray<SequenceTokenEncoding> Encodings = default)
 {
     public const string StartToken = "<|lattice.start|>";
 }
