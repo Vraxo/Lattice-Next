@@ -71,6 +71,23 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
     }
 
     [Fact]
+    public async Task Generates_hello_world_when_language_precedes_output_phrase()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "write a python hello world program");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", response.Message);
+        Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Composes_assignment_and_output_in_one_runtime_request()
     {
         var client = new LatticeRuntimeClient();
