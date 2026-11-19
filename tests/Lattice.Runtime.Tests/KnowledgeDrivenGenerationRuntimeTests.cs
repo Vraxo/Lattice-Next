@@ -149,7 +149,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
 
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
-        Assert.Equal("```python\\nprint(\\\"Ready\\\")\\n```", response.Message);
+        Assert.Equal("```python" + Environment.NewLine + "print(\"Ready\")" + Environment.NewLine + "```", response.Message);
         Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
@@ -232,7 +232,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
 
         var response = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
-        Assert.Equal("\\u0060\\u0060\\u0060python\\nprint(\\\"Ready\\\")\\n\\u0060\\u0060\\u0060", response.Message);
+        Assert.Equal("```python" + Environment.NewLine + "print(\"Ready\")" + Environment.NewLine + "```", response.Message);
         Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
