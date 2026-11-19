@@ -140,10 +140,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = generationSteps };
         }
-        else if (PythonProgramRequestParser.TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
-        {
-            formula = formula with { RequestedValue = requestedValue };
-        }
         else
         {
             return false;
