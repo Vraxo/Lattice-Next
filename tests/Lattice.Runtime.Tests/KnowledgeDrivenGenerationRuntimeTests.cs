@@ -256,7 +256,7 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
     }
-}
+
 
     [Fact]
     public async Task Generates_custom_output_from_a_display_request_using_semantic_facts()
@@ -275,3 +275,4 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
     }
+}
