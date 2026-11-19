@@ -190,6 +190,8 @@ public static class KnowledgeDrivenSequenceGenerator
                 rule.NextToken.Length > 4096 ||
                 rule.NextToken == SequenceKnowledgeBase.StartToken ||
                 rule.NextToken == SequenceTokenModel.EndToken ||
+                rule.NextToken == SequenceKnowledgeBase.StartToken ||
+                rule.NextToken == SequenceTokenModel.EndToken ||
                 !double.IsFinite(rule.Weight) ||
                 rule.ContextSuffix.IsDefault ||
                 rule.ContextSuffix.Length > 64 ||

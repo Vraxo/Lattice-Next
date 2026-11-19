@@ -11,6 +11,7 @@ public static class SequenceKnowledgeBaseLoader
     private const int MaximumArrayItems = 128;
     private const int MaximumTokenLength = 4096;
     private const int MaximumIdentifierLength = 128;
+    private const string ResourcePrefix = "Lattice.Core.SequenceKnowledge.";
 
     public static bool TryLoad(
         string json,
@@ -69,6 +70,8 @@ public static class SequenceKnowledgeBaseLoader
                     !identifiers.Add(id) ||
                     !TryGetString(element, "nextToken", out var nextToken) ||
                     !IsValidToken(nextToken) ||
+                    nextToken == SequenceKnowledgeBase.StartToken ||
+                    nextToken == SequenceTokenModel.EndToken ||
                     !TryGetStringArray(element, "contextSuffix", out var contextSuffix) ||
                     !TryGetStringArray(element, "requiredFacts", out var requiredFacts) ||
                     !TryGetStringArray(element, "requiresCompletedFacts", out var requiresCompletedFacts) ||
@@ -100,6 +103,65 @@ public static class SequenceKnowledgeBaseLoader
             error = "The sequence knowledge document is not valid JSON.";
             return false;
         }
+    }
+
+    public static bool TryLoadEmbedded(
+        out SequenceKnowledgeBase? knowledge,
+        out string? error)
+    {
+        knowledge = null;
+        error = null;
+
+        var assembly = typeof(SequenceKnowledgeBaseLoader).Assembly;
+        var resources = assembly.GetManifestResourceNames()
+            .Where(name =>
+                name.StartsWith(ResourcePrefix, StringComparison.Ordinal) &&
+                name.EndsWith(".json", StringComparison.Ordinal))
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        if (resources.Length == 0)
+        {
+            error = "No embedded sequence knowledge modules were found.";
+            return false;
+        }
+
+        var rules = ImmutableArray.CreateBuilder<SequenceTokenRule>();
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resource in resources)
+        {
+            using var stream = assembly.GetManifestResourceStream(resource);
+            if (stream is null)
+            {
+                error = $"The embedded sequence knowledge module '{resource}' is missing.";
+                return false;
+            }
+
+            using var reader = new StreamReader(stream);
+            if (!TryLoad(reader.ReadToEnd(), out var module, out error))
+            {
+                return false;
+            }
+
+            foreach (var rule in module!.Rules)
+            {
+                if (!identifiers.Add(rule.Id))
+                {
+                    error = $"More than one sequence knowledge module declares rule '{rule.Id}'.";
+                    return false;
+                }
+
+                rules.Add(rule);
+                if (rules.Count > MaximumRules)
+                {
+                    error = "The combined sequence knowledge modules contain too many rules.";
+                    return false;
+                }
+            }
+        }
+
+        knowledge = new SequenceKnowledgeBase(rules.ToImmutable());
+        return true;
     }
 
     private static bool HasOnlyProperties(JsonElement element, params string[] allowedNames)
@@ -150,7 +212,7 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Array ||
-            property.GetArrayLength() > MaximumArrayItems)
+            property.GetArrayLength() > (name == "contextSuffix" ? 64 : MaximumArrayItems))
         {
             return false;
         }
@@ -165,7 +227,8 @@ public static class SequenceKnowledgeBaseLoader
 
             var value = item.GetString();
             if (string.IsNullOrWhiteSpace(value) ||
-                (name == "contextSuffix" && !IsValidToken(value)))
+                (name == "contextSuffix" &&
+                    (!IsValidToken(value) || value == SequenceTokenModel.EndToken)))
             {
                 return false;
             }

@@ -187,4 +187,26 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         string nextToken,
         ImmutableArray<string> satisfies) =>
         new(id, context, required, completed, nextToken, satisfies);
+    [Fact]
+    public void Generates_using_embedded_knowledge_without_a_target_specific_backend()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            ["language.python", "program.output", "value.hello-world"]);
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("print(\"Hello, world!\")", result!.Text);
+    }
+
+
 }
