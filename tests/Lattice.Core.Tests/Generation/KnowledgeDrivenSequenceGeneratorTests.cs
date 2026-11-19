@@ -322,4 +322,28 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains("No semantic input rule", error, StringComparison.Ordinal);
     }
 
+
+    [Fact]
+    public void Extracts_multiple_named_values_from_one_assignment_phrase()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that sets total to 5 and prints total + 3.",
+            out var facts,
+            out var error), error);
+
+        var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
+        var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
+
+        Assert.Equal("total", target.Values["name"]);
+        Assert.Equal("5", value.Values["value"]);
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
+        Assert.Contains(facts, fact => fact.Id == "value.output");
+    }
+
 }
