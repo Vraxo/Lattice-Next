@@ -102,6 +102,26 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("write a hello world program in python")]
+    [InlineData("Can you generate a program in Python to display Hello, world?")]
+    [InlineData("make me a Python program which outputs Hello World")]
+    [InlineData("Please build a script using Python that says hello world.")]
+    [InlineData("I want to create a Python program that prints Hello World.")]
+    [InlineData("Could you write a simple Python script to display Hello, world?")]
+    [InlineData("Can you make a Python program which outputs 'Hello, world!'?")]
+    public async Task Generates_hello_world_across_alternate_request_phrasings(string input)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\nprint(\"Hello, world!\")\n```", response.Message);
+    }
+
     [Fact]
     public async Task Composes_assignment_and_output_in_one_runtime_request()
     {
