@@ -88,7 +88,7 @@ internal sealed class PythonProgramBackend : IProgramBackend
             case ProgramNumberLiteral number:
                 return number.Value;
             case ProgramStringLiteral text:
-                return $"\\\"{EscapeString(text.Value)}\\\"";
+                return $"\"{EscapeString(text.Value)}\"";
             case ProgramUnaryExpression { Operator: ProgramUnaryOperator.Negate } unary:
                 return $"-{RenderExpression(unary.Operand, 3)}";
             case ProgramBinaryExpression binary:
