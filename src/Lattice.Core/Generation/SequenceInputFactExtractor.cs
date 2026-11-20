@@ -99,7 +99,7 @@ public static class SequenceInputFactExtractor
                     capture.FactId,
                     capture.ValueId,
                     capturedValue,
-                    rule.MatchTokens.Length + capture.StartAfterTokens.Length,
+                    rule.MatchTokens.Length + (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length),
                     out error))
                 {
                     return false;
