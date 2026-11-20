@@ -15,11 +15,10 @@ internal static class CompositionalTaskParser
 
         var isDirectoryListingRequest = PythonFileProgramParser.IsDirectoryListingRequest(source);
         var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
-        EnglishSentenceSyntax? syntax = null;
         var creationClauseIndex = -1;
 
         if (!isDirectoryListingRequest && !isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out syntax, out creationClauseIndex))
+            !PythonProgramRequestParser.TryGetCreationClause(source, out _, out creationClauseIndex))
         {
             return false;
         }
@@ -136,9 +135,9 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = conditionalSteps };
         }
-        else if (PythonProgramRequestParser.TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
+        else if (PythonBasicProgramParser.TryGetVariableProgram(source, out var generationSteps))
         {
-            formula = formula with { RequestedValue = requestedValue };
+            formula = formula with { GenerationSteps = generationSteps };
         }
         else
         {
