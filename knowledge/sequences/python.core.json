@@ -51,7 +51,8 @@
     {
       "id": "recognize-generation-intent-write",
       "matchTokens": [
-        "write"
+        "write",
+        "program"
       ],
       "factId": "intent.program-generation"
     },
