@@ -1213,6 +1213,20 @@
         "function"
       ],
       "factId": "program.manual-list-total"
+    },
+    {
+      "id": "recognize-manual-list-total-output-start",
+      "matchTokens": [
+        "calculates",
+        "their",
+        "total",
+        "without",
+        "using",
+        "built-in",
+        "sum",
+        "function"
+      ],
+      "factId": "program.output.start"
     }
   ],
   "rules": [
