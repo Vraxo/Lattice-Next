@@ -2221,7 +2221,8 @@
         "program.output",
         "program.output.start",
         "program.iteration",
-        "program.condition"
+        "program.condition",
+        "value.output"
       ]
     },
     {
@@ -2240,7 +2241,8 @@
         "program.output",
         "program.output.start",
         "program.iteration",
-        "program.condition"
+        "program.condition",
+        "value.output"
       ]
     }
   ]
