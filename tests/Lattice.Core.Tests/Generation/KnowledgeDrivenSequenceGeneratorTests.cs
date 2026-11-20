@@ -401,4 +401,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("\u0060\u0060\u0060python\ntotal = 5\nprint(\"Done\")\n\u0060\u0060\u0060", result!.Text);
     }
 
+    [Fact]
+    public void Does_not_recognize_generation_intent_inside_quoted_output()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Prepare a Python program that prints 'author a program that prints Ready'.",
+            out var facts,
+            out var error), error);
+
+        Assert.DoesNotContain(facts, fact => fact.Id == "intent.program-generation");
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("author a program that prints Ready", output.Values["content"]);
+    }
+
 }
