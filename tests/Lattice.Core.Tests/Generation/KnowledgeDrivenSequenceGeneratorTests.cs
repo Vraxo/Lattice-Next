@@ -627,4 +627,33 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(expectedValue, output.Values["content"]);
     }
 
+    [Fact]
+    public void Captures_values_when_stop_tokens_are_default()
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: [
+                new SequenceInputFactRule(
+                    "capture-after-say",
+                    ["say"],
+                    "value.output",
+                    Captures: [
+                        new SequenceInputFactCapture(
+                            "value.output",
+                            "content",
+                            default,
+                            default)
+                    ])
+            ]);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            "Say hello there.",
+            out var facts,
+            out var error), error);
+
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("hello there", output.Values["content"]);
+    }
+
 }
