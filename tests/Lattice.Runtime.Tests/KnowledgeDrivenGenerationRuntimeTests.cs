@@ -191,6 +191,25 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("program.assignment.target", response.Meaning, StringComparison.Ordinal);
         Assert.Contains("program.output", response.Meaning, StringComparison.Ordinal);
     }
+    [Theory]
+    [InlineData("assign")]
+    [InlineData("assigns")]
+    public async Task Composes_assignment_and_output_for_assign_phrasings(string assignmentVerb)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            $"Create a Python program that {assignmentVerb} total to 5 and prints 'Done'.");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\ntotal = 5\nprint(\"Done\")\n```", response.Message);
+        Assert.Contains("program.assignment.target", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.assignment.value", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.output", response.Meaning, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task Generates_quoted_output_with_punctuation_from_semantic_value_facts()
     {
