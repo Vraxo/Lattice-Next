@@ -40,10 +40,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = directoryListingSteps };
         }
-        else if (PythonClassProgramParser.TryGetBankAccountClassProgram(source, out var bankAccountSteps))
-        {
-            formula = formula with { GenerationSteps = bankAccountSteps };
-        }
         else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
