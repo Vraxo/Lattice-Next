@@ -481,9 +481,13 @@ public static class SequenceKnowledgeBaseLoader
             return true;
         }
 
-        return property.ValueKind == JsonValueKind.True || property.ValueKind == JsonValueKind.False
-            ? (value = property.GetBoolean()) == property.GetBoolean()
-            : false;
+        if (property.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            return false;
+        }
+
+        value = property.GetBoolean();
+        return true;
     }
 
     private static bool TryGetOptionalToken(
