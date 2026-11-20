@@ -24,7 +24,7 @@ internal static class PythonProgramRequestParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private static readonly Regex OutputIntentPattern = new(
-        @"\\b(?:print|prints|display|displays|show|shows|output|outputs|say|says)\\b",
+        @"\b(?:print|prints|display|displays|show|shows|output|outputs|say|says)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     internal static bool HasOutputIntent(string source) =>
