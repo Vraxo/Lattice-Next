@@ -292,7 +292,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var extractionError), extractionError);
 
         Assert.Contains(facts, fact => fact.Id == "language.python");
-        Assert.Contains(facts, fact => fact.Id == "program.output");
+        Assert.Contains(facts, fact => fact.Id == "program.output.start");
         var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
         Assert.Equal("Hello, world!", valueFact.Values["content"]);
 
