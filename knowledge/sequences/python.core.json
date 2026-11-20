@@ -1727,7 +1727,6 @@
         "language.python",
         "intent.program-generation",
         "program.output",
-        "program.loop",
         "program.aggregate",
         "program.collection",
         "program.function"
