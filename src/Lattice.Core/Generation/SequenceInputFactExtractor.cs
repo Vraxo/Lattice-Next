@@ -246,8 +246,9 @@ public static class SequenceInputFactExtractor
                 break;
             }
 
-            if (stopBeforeTokens.Any(stop =>
-                token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
+            if (!stopBeforeTokens.IsDefaultOrEmpty &&
+                stopBeforeTokens.Any(stop =>
+                    token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
             {
                 captureEnd = token.Start;
                 break;
