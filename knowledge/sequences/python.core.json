@@ -712,7 +712,9 @@
     {
       "id": "recognize-generation-intent-develop",
       "matchTokens": [
-        "develop"
+        "develop",
+        "program",
+        "prints"
       ],
       "factId": "intent.program-generation"
     }
