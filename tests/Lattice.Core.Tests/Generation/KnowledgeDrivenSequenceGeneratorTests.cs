@@ -1113,7 +1113,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
         Assert.Contains(facts, fact => fact.Id == factId);
         var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
         Assert.Equal(string.Join(Environment.NewLine,
             "```python",
             $"def {functionName}({parameter}):",
