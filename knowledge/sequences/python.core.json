@@ -2151,7 +2151,8 @@
         "<|lattice.start|>"
       ],
       "requiredFacts": [
-        "program.integer-conversion-function"
+        "program.integer-conversion-function",
+        "program.function"
       ],
       "nextToken": "```python\ndef convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))\n```",
       "satisfiesFacts": [
@@ -2168,7 +2169,9 @@
         "<|lattice.start|>"
       ],
       "requiredFacts": [
-        "program.named-integer-conversion-function"
+        "program.named-integer-conversion-function",
+        "program.function",
+        "program.condition"
       ],
       "nextToken": "```python\ndef parse_count(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(parse_count(\"42\"))\nprint(parse_count(\"not-a-number\"))\n```",
       "satisfiesFacts": [
