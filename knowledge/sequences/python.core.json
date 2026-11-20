@@ -2220,7 +2220,6 @@
         "intent.program-generation",
         "program.output",
         "program.output.start",
-        "program.collection",
         "program.iteration",
         "program.condition"
       ]
@@ -2240,7 +2239,6 @@
         "intent.program-generation",
         "program.output",
         "program.output.start",
-        "program.collection",
         "program.iteration",
         "program.condition"
       ]
