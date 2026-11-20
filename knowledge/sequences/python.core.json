@@ -1194,12 +1194,8 @@
       "id": "recognize-even-list-filter-request",
       "matchTokens": [
         "prints",
-        "only",
-        "the",
         "even",
         "numbers",
-        "from",
-        "a",
         "list"
       ],
       "factId": "program.even-list-filter"
