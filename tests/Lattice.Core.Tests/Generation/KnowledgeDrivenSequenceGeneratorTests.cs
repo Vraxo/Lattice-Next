@@ -853,4 +853,35 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
     }
 
+
+    [Fact]
+    public void Generates_two_number_addition_from_embedded_semantic_knowledge()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a Python program that stores two numbers in variables, adds them, and prints the result.",
+            out var facts,
+            out var extractError), extractError);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var generationError), generationError);
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(
+            fence + "python\nfirst_number = 10\nsecond_number = 20\nresult = first_number + second_number\nprint(result)\n" + fence,
+            result!.Text);
+    }
+
 }
