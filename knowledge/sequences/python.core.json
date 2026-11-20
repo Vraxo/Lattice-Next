@@ -888,6 +888,32 @@
       ],
       "requiresCompletedFacts": [
         "intent.program-generation"
+      ],
+      "forbiddenFacts": [
+        "program.arithmetic"
+      ]
+    },
+    {
+      "id": "python-output-expression",
+      "contextSuffix": [
+        "print",
+        "("
+      ],
+      "requiredFacts": [
+        "program.output",
+        "value.output",
+        "program.arithmetic"
+      ],
+      "requiresCompletedFacts": [
+        "intent.program-generation"
+      ],
+      "tokenBinding": {
+        "factId": "value.output",
+        "valueId": "content"
+      },
+      "satisfiesFacts": [
+        "value.output",
+        "program.arithmetic"
       ]
     },
     {
