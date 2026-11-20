@@ -72,6 +72,7 @@ public static class SequenceKnowledgeBaseLoader
                         "nextToken",
                         "tokenBinding",
                         "satisfiesFacts",
+                        "forbiddenFacts",
                         "weight") ||
                     !TryGetString(element, "id", out var id) ||
                     !IsValidIdentifier(id) ||
@@ -87,10 +88,12 @@ public static class SequenceKnowledgeBaseLoader
                     !TryGetStringArray(element, "requiredFacts", out var requiredFacts) ||
                     !TryGetStringArray(element, "requiresCompletedFacts", out var requiresCompletedFacts) ||
                     !TryGetStringArray(element, "satisfiesFacts", out var satisfiesFacts) ||
+                    !TryGetStringArray(element, "forbiddenFacts", out var forbiddenFacts) ||
                     !TryGetWeight(element, out var weight) ||
                     !HasUniqueIdentifiers(requiredFacts) ||
                     !HasUniqueIdentifiers(requiresCompletedFacts) ||
                     !HasUniqueIdentifiers(satisfiesFacts) ||
+                    !HasUniqueIdentifiers(forbiddenFacts) ||
                     (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
                     error = "Every sequence rule requires a unique identifier, exactly one literal or bound token source, valid fact identifiers, context, and a finite optional weight.";
@@ -106,7 +109,8 @@ public static class SequenceKnowledgeBaseLoader
                     satisfiesFacts,
                     weight)
                 {
-                    TokenBinding = tokenBinding
+                    TokenBinding = tokenBinding,
+                    ForbiddenFacts = forbiddenFacts
                 });
             }
 
