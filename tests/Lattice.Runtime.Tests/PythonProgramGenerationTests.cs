@@ -1056,4 +1056,30 @@ public sealed class PythonProgramGenerationTests
         Assert.True(process.ExitCode == 0, error);
         Assert.Equal(expectedOutput.Replace("\n", Environment.NewLine, StringComparison.Ordinal) + Environment.NewLine, output);
     }
+
+    [Fact]
+    public async Task Generates_two_number_addition_from_declarative_assignment_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that stores two numbers in variables, adds them, and prints the result.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.Equal(
+            "\u0060\u0060\u0060python" + Environment.NewLine +
+            "first_number = 10" + Environment.NewLine +
+            "second_number = 20" + Environment.NewLine +
+            "result = first_number + second_number" + Environment.NewLine +
+            "print(result)" + Environment.NewLine +
+            "\u0060\u0060\u0060",
+            utterance.Message);
+        Assert.Contains("program.assignment.first", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.assignment.second", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.assignment.result", utterance.Meaning, StringComparison.Ordinal);
+    }
+
 }
