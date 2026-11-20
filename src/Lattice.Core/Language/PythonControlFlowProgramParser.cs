@@ -18,10 +18,6 @@ internal static class PythonControlFlowProgramParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex BuiltInSumAvoidancePattern = new(
-        @"\bcalculates?\s+(?:(?:their|the)\s+(?:total|sum)|(?:the\s+)?(?:total|sum)\s+of\s+(?:a|the)\s+list\s+of\s+numbers?)\s+without\s+using\s+(?:the\s+)?built[- ]in\s+sum\s+function\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex LoopAccumulatorPattern = new(
         @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -64,27 +60,6 @@ internal static class PythonControlFlowProgramParser
                 "write-standard-output-double-indented-expression",
                 "expression",
                 variable));
-        return true;
-    }
-
-    internal static bool TryGetBuiltInSumAvoidanceProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        if (!BuiltInSumAvoidancePattern.IsMatch(source))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("assign-variable", "assignment", "total = 0"),
-            new TaskRequestStep("begin-loop", "loop-header", "number in [1, 2, 3, 4, 5]"),
-            new TaskRequestStep(
-                "assign-variable-indented",
-                "assignment",
-                "total = total + number"),
-            new TaskRequestStep("write-standard-output", "expression", "total"));
         return true;
     }
 
