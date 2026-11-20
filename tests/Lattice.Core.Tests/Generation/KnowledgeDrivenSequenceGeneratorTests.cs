@@ -749,4 +749,37 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
     }
 
+
+    [Fact]
+    public void Does_not_apply_a_rule_when_a_forbidden_fact_is_active()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        var rules = knowledge!.Rules
+            .Select(rule => rule.Id == "python-output-value"
+                ? rule with { ForbiddenFacts = ["program.arithmetic"] }
+                : rule)
+            .ToImmutableArray();
+        var constrainedKnowledge = knowledge with { Rules = rules };
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ["print", "("],
+            ["program.output", "value.output", "program.arithmetic", "intent.program-generation"])
+        {
+            FactValues = ImmutableArray.Create(
+                new SequenceSemanticFact(
+                    "value.output",
+                    ImmutableDictionary<string, string>.Empty.Add("content", "total + 3")))
+        };
+
+        Assert.False(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            constrainedKnowledge,
+            null,
+            request,
+            out var result,
+            out _));
+        Assert.Null(result);
+    }
+
 }

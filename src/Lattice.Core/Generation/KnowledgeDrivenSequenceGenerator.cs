@@ -94,6 +94,7 @@ public static class KnowledgeDrivenSequenceGenerator
                     if (!MatchesContext(rule.ContextSuffix, state.Context) ||
                         !RequiredFactsAreActive(rule.RequiredFacts, activeFacts, state.CompletedFacts) ||
                         !RequiredFactsAreComplete(rule.RequiresCompletedFacts, state.CompletedFacts) ||
+                        HasForbiddenActiveFact(rule.ForbiddenFacts, activeFacts) ||
                         !SatisfiesOnlyActiveFacts(rule.SatisfiesFacts, activeFacts) ||
                         !TryResolveToken(rule, facts, encodings, out var token))
                     {
@@ -282,6 +283,7 @@ public static class KnowledgeDrivenSequenceGenerator
                 !IsValidFactArray(rule.RequiredFacts) ||
                 !IsValidFactArray(rule.RequiresCompletedFacts) ||
                 !IsValidFactArray(rule.SatisfiesFacts) ||
+                !IsValidFactArray(rule.ForbiddenFacts) ||
                 (rule.TokenBinding is not null &&
                     (!IsValidIdentifier(rule.TokenBinding.FactId) ||
                      !IsValidIdentifier(rule.TokenBinding.ValueId) ||
@@ -415,6 +417,12 @@ public static class KnowledgeDrivenSequenceGenerator
         ImmutableArray<string> requiredFacts,
         ImmutableHashSet<string> completedFacts) =>
         requiredFacts.IsDefaultOrEmpty || requiredFacts.All(completedFacts.Contains);
+
+    private static bool HasForbiddenActiveFact(
+        ImmutableArray<string> forbiddenFacts,
+        ImmutableHashSet<string> activeFacts) =>
+        !forbiddenFacts.IsDefaultOrEmpty &&
+        forbiddenFacts.Any(activeFacts.Contains);
 
     private static bool SatisfiesOnlyActiveFacts(
         ImmutableArray<string> satisfiedFacts,
