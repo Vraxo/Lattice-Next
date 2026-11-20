@@ -899,6 +899,119 @@
         "/"
       ],
       "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-first-addition-assignment",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.first"
+    },
+    {
+      "id": "recognize-second-addition-assignment",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.second"
+    },
+    {
+      "id": "recognize-result-addition-assignment",
+      "matchTokens": [
+        "adds",
+        "them"
+      ],
+      "factId": "program.assignment.result"
+    },
+    {
+      "id": "capture-first-addition-target",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.first.target",
+      "valueId": "name",
+      "literalValue": "first_number"
+    },
+    {
+      "id": "capture-first-addition-value",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.first.value",
+      "valueId": "value",
+      "literalValue": "10"
+    },
+    {
+      "id": "capture-second-addition-target",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.second.target",
+      "valueId": "name",
+      "literalValue": "second_number"
+    },
+    {
+      "id": "capture-second-addition-value",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.second.value",
+      "valueId": "value",
+      "literalValue": "20"
+    },
+    {
+      "id": "capture-result-addition-target",
+      "matchTokens": [
+        "adds",
+        "them"
+      ],
+      "factId": "program.assignment.result.target",
+      "valueId": "name",
+      "literalValue": "result"
+    },
+    {
+      "id": "capture-result-addition-value",
+      "matchTokens": [
+        "adds",
+        "them"
+      ],
+      "factId": "program.assignment.result.value",
+      "valueId": "value",
+      "literalValue": "first_number + second_number"
+    },
+    {
+      "id": "recognize-addition-output",
+      "matchTokens": [
+        "prints",
+        "the",
+        "result"
+      ],
+      "factId": "value.output",
+      "valueId": "content",
+      "literalValue": "result"
     }
   ],
   "rules": [
@@ -1109,6 +1222,209 @@
       ],
       "requiresCompletedFacts": [
         "intent.program-generation"
+      ]
+    },
+    {
+      "id": "python-addition-first-target",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.assignment.first",
+        "program.assignment.first.target"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.first.target",
+        "valueId": "name"
+      },
+      "satisfiesFacts": [
+        "program.assignment.first.target"
+      ]
+    },
+    {
+      "id": "python-addition-first-operator",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.first.operator"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.first.target"
+      ],
+      "nextToken": " = ",
+      "satisfiesFacts": [
+        "program.assignment.first.operator"
+      ]
+    },
+    {
+      "id": "python-addition-first-value",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.first.value"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.first.operator"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.first.value",
+        "valueId": "value"
+      },
+      "satisfiesFacts": [
+        "program.assignment.first.value"
+      ]
+    },
+    {
+      "id": "python-addition-first-end",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.first"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.first.value"
+      ],
+      "nextToken": "\n",
+      "satisfiesFacts": [
+        "program.assignment.first"
+      ]
+    },
+    {
+      "id": "python-addition-second-target",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.second",
+        "program.assignment.second.target"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.first"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.second.target",
+        "valueId": "name"
+      },
+      "satisfiesFacts": [
+        "program.assignment.second.target"
+      ]
+    },
+    {
+      "id": "python-addition-second-operator",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.second.operator"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.second.target"
+      ],
+      "nextToken": " = ",
+      "satisfiesFacts": [
+        "program.assignment.second.operator"
+      ]
+    },
+    {
+      "id": "python-addition-second-value",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.second.value"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.second.operator"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.second.value",
+        "valueId": "value"
+      },
+      "satisfiesFacts": [
+        "program.assignment.second.value"
+      ]
+    },
+    {
+      "id": "python-addition-second-end",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.second"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.second.value"
+      ],
+      "nextToken": "\n",
+      "satisfiesFacts": [
+        "program.assignment.second"
+      ]
+    },
+    {
+      "id": "python-addition-result-target",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.result",
+        "program.assignment.result.target"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.second"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.result.target",
+        "valueId": "name"
+      },
+      "satisfiesFacts": [
+        "program.assignment.result.target"
+      ]
+    },
+    {
+      "id": "python-addition-result-operator",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.result.operator"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.result.target"
+      ],
+      "nextToken": " = ",
+      "satisfiesFacts": [
+        "program.assignment.result.operator"
+      ]
+    },
+    {
+      "id": "python-addition-result-value",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.result.value"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.result.operator"
+      ],
+      "tokenBinding": {
+        "factId": "program.assignment.result.value",
+        "valueId": "value"
+      },
+      "satisfiesFacts": [
+        "program.assignment.result.value"
+      ]
+    },
+    {
+      "id": "python-addition-result-end",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.assignment.result"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.result.value"
+      ],
+      "nextToken": "\n",
+      "satisfiesFacts": [
+        "program.assignment.result"
+      ]
+    },
+    {
+      "id": "python-addition-output-start",
+      "contextSuffix": [],
+      "requiredFacts": [
+        "program.output",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.assignment.result"
+      ],
+      "nextToken": "print",
+      "satisfiesFacts": [
+        "program.output.start"
       ]
     }
   ]
