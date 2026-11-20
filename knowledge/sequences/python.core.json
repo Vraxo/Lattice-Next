@@ -1730,7 +1730,8 @@
         "program.output.start",
         "program.loop",
         "program.aggregate",
-        "program.collection"
+        "program.collection",
+        "program.function"
       ]
     }
   ]
