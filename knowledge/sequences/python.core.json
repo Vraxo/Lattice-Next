@@ -1923,7 +1923,10 @@
       "contextSuffix": [
         "<|lattice.start|>"
       ],
-      "requiredFacts": [],
+      "requiredFacts": [
+        "program.greeting-function",
+        "program.greeting-function.calls"
+      ],
       "nextToken": "```python\ndef greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))\n```",
       "satisfiesFacts": [
         "program.greeting-function",
@@ -1932,10 +1935,6 @@
         "intent.program-generation",
         "program.function",
         "program.output"
-      ],
-      "requiresCompletedFacts": [
-        "program.greeting-function",
-        "program.greeting-function.calls"
       ]
     }
   ]
