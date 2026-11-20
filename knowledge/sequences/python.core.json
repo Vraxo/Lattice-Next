@@ -1219,15 +1219,10 @@
       "matchTokens": [
         "starts",
         "total",
-        "at",
-        "0",
         "and",
         "adds",
         "each",
         "number",
-        "in",
-        "to",
-        "total",
         "then",
         "prints",
         "total"
@@ -1239,15 +1234,10 @@
       "matchTokens": [
         "initializes",
         "result",
-        "to",
-        "0",
         "and",
         "adds",
         "each",
         "value",
-        "in",
-        "to",
-        "result",
         "then",
         "displays",
         "result"
