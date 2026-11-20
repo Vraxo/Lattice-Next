@@ -1253,6 +1253,13 @@
         "result"
       ],
       "factId": "program.loop-accumulator.result"
+    },
+    {
+      "id": "recognize-initializes-assignment",
+      "matchTokens": [
+        "initializes"
+      ],
+      "factId": "program.assignment"
     }
   ],
   "rules": [
@@ -1784,7 +1791,12 @@
       "satisfiesFacts": [
         "program.loop-accumulator",
         "language.python",
-        "intent.program-generation"
+        "intent.program-generation",
+        "program.assignment",
+        "program.arithmetic",
+        "program.iteration",
+        "program.output",
+        "program.output.start"
       ]
     },
     {
@@ -1799,7 +1811,12 @@
       "satisfiesFacts": [
         "program.loop-accumulator.result",
         "language.python",
-        "intent.program-generation"
+        "intent.program-generation",
+        "program.assignment",
+        "program.arithmetic",
+        "program.iteration",
+        "program.output",
+        "program.output.start"
       ]
     }
   ]
