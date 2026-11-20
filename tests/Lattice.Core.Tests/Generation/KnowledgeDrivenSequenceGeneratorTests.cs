@@ -688,4 +688,31 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
     }
 
+
+    [Fact]
+    public void Does_not_generate_python_output_without_program_generation_intent()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ["print"],
+            ["program.output", "value.output"])
+        {
+            FactValues = ImmutableArray.Create(
+                new SequenceSemanticFact(
+                    "value.output",
+                    ImmutableDictionary<string, string>.Empty.Add("content", "Ready")))
+        };
+
+        Assert.False(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out _));
+        Assert.Null(result);
+    }
+
 }
