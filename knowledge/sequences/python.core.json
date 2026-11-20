@@ -375,6 +375,60 @@
       ]
     },
     {
+      "id": "capture-assignment-components-assign",
+      "matchTokens": [
+        "assign"
+      ],
+      "factId": "program.assignment",
+      "captures": [
+        {
+          "factId": "program.assignment.target",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        },
+        {
+          "factId": "program.assignment.value",
+          "valueId": "value",
+          "startAfterTokens": [
+            "to"
+          ],
+          "stopBeforeTokens": [
+            "and",
+            "then"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-assignment-components-assigns",
+      "matchTokens": [
+        "assigns"
+      ],
+      "factId": "program.assignment",
+      "captures": [
+        {
+          "factId": "program.assignment.target",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        },
+        {
+          "factId": "program.assignment.value",
+          "valueId": "value",
+          "startAfterTokens": [
+            "to"
+          ],
+          "stopBeforeTokens": [
+            "and",
+            "then"
+          ]
+        }
+      ]
+    },
+    {
       "id": "recognize-assignment-operator-set",
       "matchTokens": [
         "set"
@@ -385,6 +439,20 @@
       "id": "recognize-assignment-operator-sets",
       "matchTokens": [
         "sets"
+      ],
+      "factId": "program.assignment.operator"
+    },
+    {
+      "id": "recognize-assignment-operator-assign",
+      "matchTokens": [
+        "assign"
+      ],
+      "factId": "program.assignment.operator"
+    },
+    {
+      "id": "recognize-assignment-operator-assigns",
+      "matchTokens": [
+        "assigns"
       ],
       "factId": "program.assignment.operator"
     },
@@ -427,6 +495,20 @@
       "id": "recognize-assignment-prefix-sets",
       "matchTokens": [
         "sets"
+      ],
+      "factId": "program.assignment.prefix"
+    },
+    {
+      "id": "recognize-assignment-prefix-assign",
+      "matchTokens": [
+        "assign"
+      ],
+      "factId": "program.assignment.prefix"
+    },
+    {
+      "id": "recognize-assignment-prefix-assigns",
+      "matchTokens": [
+        "assigns"
       ],
       "factId": "program.assignment.prefix"
     },
