@@ -292,7 +292,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var extractionError), extractionError);
 
         Assert.Contains(facts, fact => fact.Id == "language.python");
-        Assert.Contains(facts, fact => fact.Id == "program.output.start");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
         var valueFact = Assert.Single(facts, fact => fact.Id == "value.output");
         Assert.Equal("Hello, world!", valueFact.Values["content"]);
 
@@ -366,7 +366,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("total", target.Values["name"]);
         Assert.Equal("5", value.Values["value"]);
         Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
-        Assert.Contains(facts, fact => fact.Id == "program.output.start");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
         Assert.Contains(facts, fact => fact.Id == "value.output");
     }
 
@@ -730,7 +730,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var extractionError), extractionError);
 
         Assert.Contains(facts, fact => fact.Id == "language.python");
-        Assert.Contains(facts, fact => fact.Id == "program.output");
+        Assert.Contains(facts, fact => fact.Id == "program.output.start");
         Assert.DoesNotContain(facts, fact => fact.Id == "intent.program-generation");
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
