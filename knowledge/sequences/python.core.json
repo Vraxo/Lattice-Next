@@ -1166,6 +1166,52 @@
         "zero"
       ],
       "factId": "program.classification.zero"
+    },
+    {
+      "id": "recognize-sign-classification-output-report",
+      "matchTokens": [
+        "reports",
+        "whether",
+        "integer",
+        "positive",
+        "negative",
+        "zero"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-sign-classification-output-start-report",
+      "matchTokens": [
+        "reports",
+        "whether",
+        "integer",
+        "positive",
+        "negative",
+        "zero"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-sign-classification-output-phrase",
+      "matchTokens": [
+        "classifies",
+        "integer",
+        "positive",
+        "negative",
+        "zero"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "recognize-sign-classification-output-start-phrase",
+      "matchTokens": [
+        "classifies",
+        "integer",
+        "positive",
+        "negative",
+        "zero"
+      ],
+      "factId": "program.output.start"
     }
   ],
   "rules": [
@@ -1590,8 +1636,6 @@
         "```python\n"
       ],
       "requiredFacts": [
-        "language.python",
-        "intent.program-generation",
         "program.assignment.classification"
       ],
       "nextToken": "number = -5\n",
@@ -1599,6 +1643,10 @@
         "language.python",
         "intent.program-generation",
         "program.assignment.classification"
+      ],
+      "requiresCompletedFacts": [
+        "language.python",
+        "intent.program-generation"
       ]
     },
     {
