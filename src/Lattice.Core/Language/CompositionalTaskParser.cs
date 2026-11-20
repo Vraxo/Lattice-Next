@@ -108,10 +108,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = filterSteps };
         }
-        else if (PythonControlFlowProgramParser.TryGetBuiltInSumAvoidanceProgram(source, out var manualTotalSteps))
-        {
-            formula = formula with { GenerationSteps = manualTotalSteps };
-        }
         else if (PythonControlFlowProgramParser.TryGetLoopAccumulatorProgram(source, out var accumulatorSteps))
         {
             formula = formula with { GenerationSteps = accumulatorSteps };
