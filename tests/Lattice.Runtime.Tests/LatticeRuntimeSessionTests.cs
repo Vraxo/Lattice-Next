@@ -7,6 +7,21 @@ namespace Lattice.Runtime.Tests;
 public sealed class LatticeRuntimeSessionTests
 {
     [Fact]
+    public async Task Generates_assignment_and_output_through_the_runtime_semantic_path()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a Python program that sets total to 5 and prints 'Done'.");
+
+        var answer = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, answer.Kind);
+        Assert.Equal("```python\ntotal = 5\nprint(\"Done\")\n```", answer.Message);
+        Assert.StartsWith("semantic-facts(", answer.Meaning, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Resolves_contextual_neighbor_from_character_and_family_relations()
     {
         var client = new LatticeRuntimeClient();
