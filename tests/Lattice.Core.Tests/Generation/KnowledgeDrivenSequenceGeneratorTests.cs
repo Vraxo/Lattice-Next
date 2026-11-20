@@ -333,7 +333,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\nprint(\"Hello, \\\"world\\\"!\\nSecond line\")\n```", result!.Text);
+        Assert.Equal("```python\ndef greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))\n```", result!.Text);
     }
 
     [Fact]
