@@ -2093,7 +2093,11 @@
         "program.dictionary-name-count-iteration",
         "language.python",
         "intent.program-generation",
-        "program.output"
+        "program.output",
+        "program.collection",
+        "program.iteration",
+        "program.output.start",
+        "value.output"
       ]
     }
   ]
