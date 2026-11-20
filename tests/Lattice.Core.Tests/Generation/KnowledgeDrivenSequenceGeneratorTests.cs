@@ -884,4 +884,43 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
+    [Theory]
+    [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
+    [InlineData("Write a Python program that classifies an integer as positive, negative, or zero.")]
+    public void Generates_integer_sign_classification_from_semantic_facts(string prompt)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            prompt,
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.classification");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.positive");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.negative");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.zero");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var generationError), generationError);
+
+        Assert.Equal(
+            "    " + new string((char)96, 3) + "python\\nnumber = -5\\nif number > 0:\\n    print(\\\"Positive\\\")\\nif number < 0:\\n    print(\\\"Negative\\\")\\nif number == 0:\\n    print(\\\"Zero\\\")\\n" + new string((char)96, 3),
+            result!.Text);
+    }
+
 }
