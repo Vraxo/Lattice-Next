@@ -670,7 +670,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractionError), extractionError);
 
-        Assert.Contains(facts, fact => fact.Id == "program.arithmetic");
+        Assert.Contains(facts, fact => fact.Id == "value.output.expression");
         var output = Assert.Single(facts, fact => fact.Id == "value.output");
         Assert.Equal("total + 3", output.Values["content"]);
 
