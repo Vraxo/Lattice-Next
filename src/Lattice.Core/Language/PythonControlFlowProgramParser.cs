@@ -67,23 +67,6 @@ internal static class PythonControlFlowProgramParser
         return true;
     }
 
-    internal static bool TryGetGenericEvenListFilterProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        if (!GenericEvenListFilterPattern.IsMatch(source))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-loop", "loop-header", "number in [1, 2, 3, 4, 5, 6]"),
-            new TaskRequestStep("begin-conditional-indented", "condition", "number % 2 == 0"),
-            new TaskRequestStep("write-standard-output-double-indented-expression", "expression", "number"));
-        return true;
-    }
-
     internal static bool TryGetBuiltInSumAvoidanceProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
