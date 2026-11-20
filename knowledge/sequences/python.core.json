@@ -1665,7 +1665,7 @@
       "requiresCompletedFacts": [
         "program.classification.negative"
       ],
-      "nextToken": "if number == 0:\n    print(\"Zero\")\n",
+      "nextToken": "if number == 0:\n    print(\"Zero\")",
       "satisfiesFacts": [
         "program.classification.zero",
         "program.output"
