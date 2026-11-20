@@ -503,4 +503,36 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("```python\nprint(\"He said \\\"ready\\\" — 100%!\")\n```", result!.Text);
     }
 
+
+    [Fact]
+    public void Rejects_conflicting_values_from_equally_specific_input_rules()
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: ImmutableArray.Create(
+                new SequenceInputFactRule(
+                    "first-value",
+                    ["make"],
+                    "intent.make",
+                    Captures: [
+                        new SequenceInputFactCapture("value.output", "content", [], [], "First")
+                    ]),
+                new SequenceInputFactRule(
+                    "second-value",
+                    ["program"],
+                    "intent.program",
+                    Captures: [
+                        new SequenceInputFactCapture("value.output", "content", [], [], "Second")
+                    ])));
+
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            "Make a program.",
+            out var facts,
+            out var error));
+
+        Assert.Empty(facts);
+        Assert.Contains("conflicting values", error, StringComparison.Ordinal);
+    }
+
 }
