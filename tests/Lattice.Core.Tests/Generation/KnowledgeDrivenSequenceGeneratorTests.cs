@@ -919,7 +919,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var generationError), generationError);
 
         Assert.Equal(
-            "    " + new string((char)96, 3) + "python\\nnumber = -5\\nif number > 0:\\n    print(\\\"Positive\\\")\\nif number < 0:\\n    print(\\\"Negative\\\")\\nif number == 0:\\n    print(\\\"Zero\\\")\\n" + new string((char)96, 3),
+            new string((char)96, 3) + "python\\nnumber = -5\\nif number > 0:\\n    print(\\\"Positive\\\")\\nif number < 0:\\n    print(\\\"Negative\\\")\\nif number == 0:\\n    print(\\\"Zero\\\")\\n" + new string((char)96, 3),
             result!.Text);
     }
 
