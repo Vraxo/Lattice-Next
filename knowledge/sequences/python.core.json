@@ -648,6 +648,50 @@
       "factId": "program.output.start"
     },
     {
+      "id": "recognize-echo-operation",
+      "matchTokens": [
+        "echo"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-echoed-value",
+      "matchTokens": [
+        "echo"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-echo",
+      "matchTokens": [
+        "echo"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-echoes-operation",
+      "matchTokens": [
+        "echoes"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-echoed-values",
+      "matchTokens": [
+        "echoes"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-echoes",
+      "matchTokens": [
+        "echoes"
+      ],
+      "factId": "program.output.start"
+    },
+    {
       "id": "recognize-generation-intent-implement",
       "matchTokens": [
         "implement",
