@@ -706,6 +706,22 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "30");
     }
 
+    [Theory]
+    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
+    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
+    public async Task Generates_loop_accumulators_from_declarative_facts(string prompt, string expectedFact)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+        var utterance = Assert.Single(result.Utterances);
+
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.Contains(expectedFact, utterance.Meaning, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task Generates_even_number_filtering_from_a_natural_language_request()
     {
