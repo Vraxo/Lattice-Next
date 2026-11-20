@@ -242,7 +242,7 @@ public static class SequenceInputFactExtractor
                 token.IsPunctuation &&
                 token.Value is "." or "?" or "!")
             {
-                captureEnd = token.Start;
+                captureEnd = token.Start + token.Length;
                 break;
             }
 
