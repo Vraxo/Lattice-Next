@@ -884,4 +884,53 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
+    [Theory]
+    [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
+    [InlineData("Write a Python program that classifies an integer as positive, negative, or zero.")]
+    public void Generates_integer_sign_classification_from_semantic_facts(string prompt)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            prompt,
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.classification");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.positive");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.negative");
+        Assert.Contains(facts, fact => fact.Id == "program.classification.zero");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var generationError), generationError);
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                fence + "python",
+                "number = -5",
+                "if number > 0:",
+                "    print(\"Positive\")",
+                "if number < 0:",
+                "    print(\"Negative\")",
+                "if number == 0:",
+                "    print(\"Zero\")",
+                fence),
+            result!.Text);
+    }
+
 }
