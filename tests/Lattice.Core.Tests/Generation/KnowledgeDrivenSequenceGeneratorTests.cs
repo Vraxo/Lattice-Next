@@ -232,7 +232,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             null,
             request,
             out var result,
-            out var generationError), generationError);
+            out var generationError),
+            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
         var fence = new string((char)96, 3);
         Assert.Equal(
