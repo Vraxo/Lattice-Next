@@ -65,6 +65,20 @@
       "factId": "intent.program-generation"
     },
     {
+      "id": "recognize-generation-intent-generate",
+      "matchTokens": [
+        "generate"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-build",
+      "matchTokens": [
+        "build"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
       "id": "recognize-generation-intent-define",
       "matchTokens": [
         "define"
@@ -818,38 +832,6 @@
       "id": "recognize-generation-intent-create-script",
       "matchTokens": [
         "create",
-        "script"
-      ],
-      "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-generation-intent-generate-program",
-      "matchTokens": [
-        "generate",
-        "program"
-      ],
-      "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-generation-intent-generate-script",
-      "matchTokens": [
-        "generate",
-        "script"
-      ],
-      "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-generation-intent-build-program",
-      "matchTokens": [
-        "build",
-        "program"
-      ],
-      "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-generation-intent-build-script",
-      "matchTokens": [
-        "build",
         "script"
       ],
       "factId": "intent.program-generation"
