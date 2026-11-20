@@ -1103,4 +1103,27 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "        return True",
             "```"), result!.Text);
     }
+
+    [Theory]
+    [InlineData("Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.", "program.integer-conversion-function", "convert_to_integer", "text")]
+    [InlineData("Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.", "program.named-integer-conversion-function", "parse_count", "raw_text")]
+    public void Generates_integer_conversion_function_from_declarative_semantic_facts(string input, string factId, string functionName, string parameter)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == factId);
+        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.Equal(string.Join(Environment.NewLine,
+            "```python",
+            $"def {functionName}({parameter}):",
+            "    try:",
+            $"        return int({parameter})",
+            "    except ValueError:",
+            "        return \"Invalid integer\"",
+            $"print({functionName}(\"42\"))",
+            $"print({functionName}(\"not-a-number\"))",
+            "```"), result!.Text);
+    }
+
 }
