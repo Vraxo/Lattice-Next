@@ -203,6 +203,49 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(10, result.Score);
     }
 
+    [Fact]
+    public void Generates_manual_list_totals_from_declarative_semantic_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        const string input = "Given a list of numbers, write a Python program that calculates their total without using the built-in sum function.";
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "program.manual-list-total");
+        Assert.Contains(facts, fact => fact.Id == "program.function");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var generationError), generationError);
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                fence + "python",
+                "total = 0",
+                "for number in [1, 2, 3, 4, 5]:",
+                "    total = total + number",
+                "print(total)",
+                fence),
+            result!.Text);
+    }
+
     private static SequenceTokenRule Rule(
         string id,
         ImmutableArray<string> context,
