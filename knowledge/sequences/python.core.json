@@ -1232,7 +1232,6 @@
     {
       "id": "recognize-loop-accumulator-result",
       "matchTokens": [
-        "result",
         "adds",
         "each",
         "value",
