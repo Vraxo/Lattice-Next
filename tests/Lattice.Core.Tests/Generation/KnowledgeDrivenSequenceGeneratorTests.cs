@@ -203,6 +203,16 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(10, result.Score);
     }
 
+    [Theory]
+    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
+    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
+    public void Recognizes_loop_accumulator_requests_from_declarative_facts(string input, string expectedFact)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == expectedFact);
+    }
+
     [Fact]
     public void Generates_manual_list_totals_from_declarative_semantic_facts()
     {
