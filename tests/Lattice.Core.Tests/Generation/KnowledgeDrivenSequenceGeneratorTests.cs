@@ -300,6 +300,30 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
+
+    [Theory]
+    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-name-count-iteration", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\\nfor name, count in counts.items():\\n    print(name, count)")]
+    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.dictionary-product-iteration", "prices = {'apple': 1.5, 'banana': 0.75}\\nfor product, price in prices.items():\\n    print(product, price)")]
+    public void Generates_dictionary_iteration_from_declarative_semantic_facts(string input, string expectedFact, string expectedCode)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == expectedFact);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!, null, request, out var result, out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence), result!.Text);
+    }
+
     private static SequenceTokenRule Rule(
         string id,
         ImmutableArray<string> context,
