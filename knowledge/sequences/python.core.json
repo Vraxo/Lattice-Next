@@ -1383,14 +1383,6 @@
         "converts",
         "text",
         "to",
-        "integer",
-        "returns",
-        "clear",
-        "result",
-        "when",
-        "text",
-        "not",
-        "valid",
         "integer"
       ],
       "factId": "program.integer-conversion-function"
@@ -1399,15 +1391,9 @@
       "id": "recognize-named-integer-conversion-function",
       "matchTokens": [
         "converts",
-        "raw_text",
+        "raw",
+        "text",
         "to",
-        "integer",
-        "returns",
-        "clear",
-        "message",
-        "input",
-        "not",
-        "valid",
         "integer"
       ],
       "factId": "program.named-integer-conversion-function"
@@ -2148,7 +2134,8 @@
         "program.integer-conversion-function",
         "language.python",
         "intent.program-generation",
-        "program.function"
+        "program.function",
+        "program.condition"
       ]
     },
     {
@@ -2164,7 +2151,8 @@
         "program.named-integer-conversion-function",
         "language.python",
         "intent.program-generation",
-        "program.function"
+        "program.function",
+        "program.condition"
       ]
     }
   ]
