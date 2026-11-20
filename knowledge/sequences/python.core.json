@@ -1189,6 +1189,20 @@
         "zero"
       ],
       "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-even-list-filter-request",
+      "matchTokens": [
+        "prints",
+        "only",
+        "the",
+        "even",
+        "numbers",
+        "from",
+        "a",
+        "list"
+      ],
+      "factId": "program.even-list-filter"
     }
   ],
   "rules": [
@@ -1402,7 +1416,8 @@
       ],
       "forbiddenFacts": [
         "program.assignment.first",
-        "program.assignment.classification"
+        "program.assignment.classification",
+        "program.even-list-filter"
       ]
     },
     {
@@ -1669,6 +1684,21 @@
       "satisfiesFacts": [
         "program.classification.zero",
         "program.output"
+      ]
+    },
+    {
+      "id": "python-even-list-filter",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.even-list-filter"
+      ],
+      "nextToken": "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)\n```",
+      "satisfiesFacts": [
+        "program.even-list-filter",
+        "program.output",
+        "program.output.start"
       ]
     }
   ]
