@@ -993,6 +993,24 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(variantCode, "Ada 40.0\nGrace 40.0");
     }
 
+    [Fact]
+    public async Task Generates_and_executes_quoted_output_through_generic_knowledge()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that prints \"Hello, world!\".");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var generatedCode = ExtractGeneratedPythonCode(utterance.Message);
+        Assert.Equal("print(\"Hello, world!\")", generatedCode);
+        await AssertPythonOutput(generatedCode, "Hello, world!");
+    }
+
     private static string ExtractGeneratedPythonCode(string message)
     {
         var fence = new string((char)96, 3);
