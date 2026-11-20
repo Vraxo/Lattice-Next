@@ -235,16 +235,22 @@ public static class SequenceInputFactExtractor
         }
 
         var captureEnd = input.Length;
-        if (!stopBeforeTokens.IsDefaultOrEmpty)
+        for (var index = startToken + 1; index < tokens.Length; index++)
         {
-            for (var index = startToken + 1; index < tokens.Length; index++)
+            var token = tokens[index];
+            if (!token.IsQuoted &&
+                token.IsPunctuation &&
+                token.Value is "." or "?" or "!")
             {
-                if (stopBeforeTokens.Any(stop =>
-                    tokens[index].Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
-                {
-                    captureEnd = tokens[index].Start;
-                    break;
-                }
+                captureEnd = token.Start + token.Length;
+                break;
+            }
+
+            if (stopBeforeTokens.Any(stop =>
+                token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
+            {
+                captureEnd = token.Start;
+                break;
             }
         }
 
