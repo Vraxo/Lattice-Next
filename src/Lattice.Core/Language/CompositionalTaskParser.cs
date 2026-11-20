@@ -92,10 +92,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = jsonRoundTripSteps };
         }
-        else if (PythonFileProgramParser.TryGetNonEmptyFileLineCountProgram(source, out var fileLineCountSteps))
-        {
-            formula = formula with { GenerationSteps = fileLineCountSteps };
-        }
         else if (PythonControlFlowProgramParser.TryGetLoopFilterProgram(source, out var filterSteps))
         {
             formula = formula with { GenerationSteps = filterSteps };
