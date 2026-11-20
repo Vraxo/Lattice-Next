@@ -108,10 +108,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = filterSteps };
         }
-        else if (PythonBasicProgramParser.TryGetTwoNumberAdditionProgram(source, out var additionSteps))
-        {
-            formula = formula with { GenerationSteps = additionSteps };
-        }
         else if (PythonBasicProgramParser.TryGetIntegerSignClassificationProgram(source, out var signClassificationSteps))
         {
             formula = formula with { GenerationSteps = signClassificationSteps };
