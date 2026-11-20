@@ -1442,7 +1442,8 @@
       ],
       "nextToken": "\n",
       "satisfiesFacts": [
-        "program.assignment.result"
+        "program.assignment.result",
+        "program.arithmetic"
       ]
     },
     {
