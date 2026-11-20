@@ -402,6 +402,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Does_not_recognize_generation_intent_for_an_ordinary_writing_request()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a short note about Python.",
+            out var facts,
+            out var error), error);
+
+        Assert.DoesNotContain(facts, fact => fact.Id == "intent.program-generation");
+    }
+
+    [Fact]
     public void Does_not_recognize_generation_intent_inside_quoted_output()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
