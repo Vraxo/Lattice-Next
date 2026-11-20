@@ -1352,10 +1352,6 @@
     {
       "id": "recognize-dictionary-product-iteration",
       "matchTokens": [
-        "stores",
-        "in",
-        "dictionary",
-        "named",
         "then",
         "prints",
         "each",
@@ -1364,15 +1360,12 @@
         "its",
         "price"
       ],
-      "factId": "program.dictionary-product-iteration"
+      "factId": "program.dictionary-product-iteration",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-dictionary-name-count-iteration",
       "matchTokens": [
-        "stores",
-        "as",
-        "dictionary",
-        "named",
         "then",
         "displays",
         "each",
@@ -1381,7 +1374,8 @@
         "its",
         "count"
       ],
-      "factId": "program.dictionary-name-count-iteration"
+      "factId": "program.dictionary-name-count-iteration",
+      "searchAllSentences": true
     }
   ],
   "rules": [
