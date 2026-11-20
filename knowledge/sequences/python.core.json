@@ -1397,6 +1397,24 @@
         "integer"
       ],
       "factId": "program.named-integer-conversion-function"
+    },
+    {
+      "id": "recognize-generation-intent-write-function",
+      "matchTokens": [
+        "write",
+        "python",
+        "function"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-create-function",
+      "matchTokens": [
+        "create",
+        "python",
+        "function"
+      ],
+      "factId": "intent.program-generation"
     }
   ],
   "rules": [
