@@ -854,7 +854,10 @@
       "requiredFacts": [
         "program.output"
       ],
-      "nextToken": "("
+      "nextToken": "(",
+      "requiresCompletedFacts": [
+        "intent.program-generation"
+      ]
     },
     {
       "id": "python-output-value",
@@ -873,6 +876,9 @@
       },
       "satisfiesFacts": [
         "value.output"
+      ],
+      "requiresCompletedFacts": [
+        "intent.program-generation"
       ]
     },
     {
@@ -882,6 +888,7 @@
         "program.output"
       ],
       "requiresCompletedFacts": [
+        "intent.program-generation",
         "value.output"
       ],
       "nextToken": ")\n```",
@@ -998,6 +1005,9 @@
       "nextToken": "print",
       "satisfiesFacts": [
         "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "intent.program-generation"
       ]
     }
   ]
