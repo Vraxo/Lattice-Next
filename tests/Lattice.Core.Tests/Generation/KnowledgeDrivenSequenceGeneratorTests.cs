@@ -658,6 +658,41 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
+    public void Composes_assignment_and_arithmetic_output_through_semantic_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that sets total to 5 and prints total + 3.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.target");
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.value");
+        Assert.Contains(facts, fact => fact.Id == "program.arithmetic");
+        Assert.Contains(facts, fact => fact.Id == "value.output.expression");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("```python\ntotal = 5\nprint(total + 3)\n```", result!.Text);
+    }
+
+    [Fact]
     public void Generates_expression_valued_output_without_quoting_it()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
