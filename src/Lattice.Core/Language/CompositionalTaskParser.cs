@@ -80,10 +80,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = jsonRoundTripSteps };
         }
-        else if (PythonControlFlowProgramParser.TryGetLoopFilterProgram(source, out var filterSteps))
-        {
-            formula = formula with { GenerationSteps = filterSteps };
-        }
         else if (PythonControlFlowProgramParser.TryGetLoopProgram(source, out var loopSteps))
         {
             formula = formula with { GenerationSteps = loopSteps };
