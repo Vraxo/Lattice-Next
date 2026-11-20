@@ -366,7 +366,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("total", target.Values["name"]);
         Assert.Equal("5", value.Values["value"]);
         Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
-        Assert.Contains(facts, fact => fact.Id == "program.output");
+        Assert.Contains(facts, fact => fact.Id == "program.output.start");
         Assert.Contains(facts, fact => fact.Id == "value.output");
     }
 
