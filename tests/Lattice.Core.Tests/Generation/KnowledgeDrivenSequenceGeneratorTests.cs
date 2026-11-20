@@ -333,7 +333,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\ndef greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))\n```", result!.Text);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "```python",
+                "print(\"Hello, \\\"world\\\"!\\nSecond line\")",
+                "```"),
+            result!.Text);
     }
 
     [Fact]
@@ -1040,6 +1045,14 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
         var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
-        Assert.Equal("```python\ndef greet(name):\n    return f\\\"Hello, {name}!\\\"\nprint(greet(\\\"Ada\\\"))\nprint(greet(\\\"Grace\\\"))\n```", result!.Text);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "```python",
+                "def greet(name):",
+                "    return f\"Hello, {name}!\"",
+                "print(greet(\"Ada\"))",
+                "print(greet(\"Grace\"))",
+                "```"),
+            result!.Text);
     }
 }
