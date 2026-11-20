@@ -715,4 +715,38 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
     }
 
+
+    [Fact]
+    public void Does_not_treat_creating_a_poem_about_python_as_program_generation()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a poem about Python and say 'Ready'.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "language.python");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
+        Assert.DoesNotContain(facts, fact => fact.Id == "intent.program-generation");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.False(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out _));
+        Assert.Null(result);
+    }
+
 }
