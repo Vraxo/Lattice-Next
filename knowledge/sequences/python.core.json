@@ -1376,6 +1376,41 @@
       ],
       "factId": "program.dictionary-name-count-iteration",
       "searchAllSentences": true
+    },
+    {
+      "id": "recognize-integer-conversion-function",
+      "matchTokens": [
+        "converts",
+        "text",
+        "to",
+        "integer",
+        "returns",
+        "clear",
+        "result",
+        "when",
+        "text",
+        "not",
+        "valid",
+        "integer"
+      ],
+      "factId": "program.integer-conversion-function"
+    },
+    {
+      "id": "recognize-named-integer-conversion-function",
+      "matchTokens": [
+        "converts",
+        "raw_text",
+        "to",
+        "integer",
+        "returns",
+        "clear",
+        "message",
+        "input",
+        "not",
+        "valid",
+        "integer"
+      ],
+      "factId": "program.named-integer-conversion-function"
     }
   ],
   "rules": [
@@ -2098,6 +2133,38 @@
         "program.iteration",
         "program.output.start",
         "value.output"
+      ]
+    },
+    {
+      "id": "python-integer-conversion-function",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.integer-conversion-function"
+      ],
+      "nextToken": "```python\ndef convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))\n```",
+      "satisfiesFacts": [
+        "program.integer-conversion-function",
+        "language.python",
+        "intent.program-generation",
+        "program.function"
+      ]
+    },
+    {
+      "id": "python-named-integer-conversion-function",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.named-integer-conversion-function"
+      ],
+      "nextToken": "```python\ndef parse_count(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(parse_count(\"42\"))\nprint(parse_count(\"not-a-number\"))\n```",
+      "satisfiesFacts": [
+        "program.named-integer-conversion-function",
+        "language.python",
+        "intent.program-generation",
+        "program.function"
       ]
     }
   ]
