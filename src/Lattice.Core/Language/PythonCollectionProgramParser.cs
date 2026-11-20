@@ -6,9 +6,6 @@ namespace Lattice.Core.Language;
 
 internal static class PythonCollectionProgramParser
 {
-    private static readonly Regex IntegerConversionFunctionPattern = new(
-        @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+)?converts?\s+(?:the\s+)?(?<input>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\s+and\s+returns?\s+(?:a\s+)?(?:clear\s+)?(?:result|message)\s+(?:when|if)\s+(?:the\s+)?(?:text|input)\s+is\s+not\s+a\s+valid\s+integer",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex CollectionMappingFunctionPattern = new(
         @"\b(?:given|from)\s+(?:a|the)\s+list\s+of\s+(?<kind>names?|words?|numbers?|values?|items?)\s*,?\s*(?:creates?|builds?|makes?)\s+(?:a\s+)?dictionary(?:\s+named\s+(?<dictionary>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+maps?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+(?<mapping>.+?)\s*[.!?]?\s*$",
@@ -160,40 +157,6 @@ internal static class PythonCollectionProgramParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", $"{name}([1, 2, 3, 4, 5])"));
-        return true;
-    }
-
-    internal static bool TryGetIntegerConversionFunctionProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = IntegerConversionFunctionPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var parameter = match.Groups["parameter"].Success
-            ? match.Groups["parameter"].Value
-            : match.Groups["input"].Value;
-        var name = match.Groups["name"].Success
-            ? match.Groups["name"].Value
-            : "convert_to_integer";
-
-        if (name.Equals(parameter, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
-            new TaskRequestStep("begin-try-indented", "statement", "try"),
-            new TaskRequestStep("return-value-double-indented-expression", "expression", $"int({parameter})"),
-            new TaskRequestStep("begin-except-indented", "exception-type", "ValueError"),
-            new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
         return true;
     }
 
