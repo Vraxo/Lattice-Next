@@ -835,6 +835,70 @@
         "script"
       ],
       "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-print-expression-plus",
+      "matchTokens": [
+        "print",
+        "+"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-print-expression-minus",
+      "matchTokens": [
+        "print",
+        "-"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-print-expression-multiply",
+      "matchTokens": [
+        "print",
+        "*"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-print-expression-divide",
+      "matchTokens": [
+        "print",
+        "/"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-prints-expression-plus",
+      "matchTokens": [
+        "prints",
+        "+"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-prints-expression-minus",
+      "matchTokens": [
+        "prints",
+        "-"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-prints-expression-multiply",
+      "matchTokens": [
+        "prints",
+        "*"
+      ],
+      "factId": "value.output.expression"
+    },
+    {
+      "id": "recognize-prints-expression-divide",
+      "matchTokens": [
+        "prints",
+        "/"
+      ],
+      "factId": "value.output.expression"
     }
   ],
   "rules": [
@@ -890,7 +954,7 @@
         "intent.program-generation"
       ],
       "forbiddenFacts": [
-        "program.arithmetic"
+        "value.output.expression"
       ]
     },
     {
@@ -902,7 +966,7 @@
       "requiredFacts": [
         "program.output",
         "value.output",
-        "program.arithmetic"
+        "value.output.expression"
       ],
       "requiresCompletedFacts": [
         "intent.program-generation"
@@ -913,7 +977,7 @@
       },
       "satisfiesFacts": [
         "value.output",
-        "program.arithmetic"
+        "value.output.expression"
       ]
     },
     {
