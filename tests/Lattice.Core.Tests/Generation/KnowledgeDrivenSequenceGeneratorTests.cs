@@ -601,4 +601,30 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains("No semantic input rule", error, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(".")]
+    [InlineData("?")]
+    [InlineData("!")]
+    public void Stops_captured_values_at_sentence_boundaries(string terminator)
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: [
+                new SequenceInputFactRule(
+                    "capture-after-say",
+                    ["say"],
+                    "value.output",
+                    "content")
+            ]);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            $"Say hello{terminator} Then leave.",
+            out var facts,
+            out var error), error);
+
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("hello", output.Values["content"]);
+    }
+
 }
