@@ -48,7 +48,10 @@ public sealed record SequenceInputFactRule(
     string FactId,
     string? ValueId = null,
     string? LiteralValue = null,
-    ImmutableArray<SequenceInputFactCapture> Captures = default);
+    ImmutableArray<SequenceInputFactCapture> Captures = default)
+{
+    public bool SearchAllSentences { get; init; }
+}
 
 public sealed record SequenceKnowledgeBase(
     ImmutableArray<SequenceTokenRule> Rules,
