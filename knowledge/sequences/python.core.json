@@ -1232,10 +1232,7 @@
     {
       "id": "recognize-loop-accumulator-result",
       "matchTokens": [
-        "adds",
-        "each",
-        "value",
-        "displays"
+        "initializes"
       ],
       "factId": "program.loop-accumulator.result"
     },
@@ -1802,7 +1799,6 @@
         "program.arithmetic",
         "program.iteration",
         "program.output",
-        "program.output.start",
         "value.output"
       ]
     }
