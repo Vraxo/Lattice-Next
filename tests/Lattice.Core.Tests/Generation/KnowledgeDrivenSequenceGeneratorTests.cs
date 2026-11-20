@@ -576,4 +576,29 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("Specific", output.Values["content"]);
     }
 
+    [Theory]
+    [InlineData(".")]
+    [InlineData("?")]
+    [InlineData("!")]
+    public void Does_not_match_semantic_phrases_across_sentence_boundaries(string terminator)
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: [
+                new SequenceInputFactRule(
+                    "cross-sentence",
+                    ["write", "program"],
+                    "intent.program-generation")
+            ]);
+
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            $"Write a note{terminator} The program is ready.",
+            out var facts,
+            out var error));
+
+        Assert.Empty(facts);
+        Assert.Contains("No semantic input rule", error, StringComparison.Ordinal);
+    }
+
 }
