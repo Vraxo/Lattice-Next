@@ -31,6 +31,8 @@ public sealed record SequenceTokenRule(
     double Weight = 0)
 {
     public SequenceTokenBinding? TokenBinding { get; init; }
+
+    public ImmutableArray<string> ForbiddenFacts { get; init; } = ImmutableArray<string>.Empty;
 }
 
 public sealed record SequenceInputFactCapture(
