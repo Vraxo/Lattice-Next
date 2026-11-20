@@ -656,6 +656,42 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("hello there", output.Values["content"]);
     }
 
+
+    [Fact]
+    public void Generates_expression_valued_output_without_quoting_it()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that prints total + 3.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "program.arithmetic");
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("total + 3", output.Values["content"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("\u0060\u0060\u0060python\nprint(total + 3)\n\u0060\u0060\u0060", result!.Text);
+    }
+
+
     [Fact]
     public void Does_not_generate_assignment_without_program_generation_intent()
     {
