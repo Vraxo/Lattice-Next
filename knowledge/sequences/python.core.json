@@ -977,6 +977,8 @@
         "<|lattice.start|>"
       ],
       "requiredFacts": [
+        "language.python",
+        "intent.program-generation",
         "program.assignment.prefix"
       ],
       "nextToken": "```python\n",
