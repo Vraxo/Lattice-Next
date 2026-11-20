@@ -1348,6 +1348,40 @@
         "price"
       ],
       "factId": "program.product-price-iteration"
+    },
+    {
+      "id": "recognize-dictionary-product-iteration",
+      "matchTokens": [
+        "stores",
+        "in",
+        "dictionary",
+        "named",
+        "then",
+        "prints",
+        "each",
+        "product",
+        "and",
+        "its",
+        "price"
+      ],
+      "factId": "program.dictionary-product-iteration"
+    },
+    {
+      "id": "recognize-dictionary-name-count-iteration",
+      "matchTokens": [
+        "stores",
+        "as",
+        "dictionary",
+        "named",
+        "then",
+        "displays",
+        "each",
+        "name",
+        "and",
+        "its",
+        "count"
+      ],
+      "factId": "program.dictionary-name-count-iteration"
     }
   ],
   "rules": [
@@ -2027,6 +2061,46 @@
       "nextToken": "```python\nproducts = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}\nfor product, price in products.items():\n    print(product, price)\n```",
       "satisfiesFacts": [
         "program.product-price-iteration",
+        "language.python",
+        "intent.program-generation",
+        "program.output",
+        "program.collection",
+        "program.iteration",
+        "program.output.start",
+        "value.output"
+      ]
+    },
+    {
+      "id": "python-dictionary-product-iteration",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.dictionary-product-iteration"
+      ],
+      "nextToken": "```python\nprices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)\n```",
+      "satisfiesFacts": [
+        "program.dictionary-product-iteration",
+        "language.python",
+        "intent.program-generation",
+        "program.output",
+        "program.collection",
+        "program.iteration",
+        "program.output.start",
+        "value.output"
+      ]
+    },
+    {
+      "id": "python-dictionary-name-count-iteration",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.dictionary-name-count-iteration"
+      ],
+      "nextToken": "```python\ncounts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)\n```",
+      "satisfiesFacts": [
+        "program.dictionary-name-count-iteration",
         "language.python",
         "intent.program-generation",
         "program.output",
