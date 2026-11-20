@@ -1042,6 +1042,15 @@
         "them"
       ],
       "factId": "program.assignment.result.operator"
+    },
+    {
+      "id": "recognize-addition-variable-output",
+      "matchTokens": [
+        "prints",
+        "the",
+        "result"
+      ],
+      "factId": "value.output.expression"
     }
   ],
   "rules": [
