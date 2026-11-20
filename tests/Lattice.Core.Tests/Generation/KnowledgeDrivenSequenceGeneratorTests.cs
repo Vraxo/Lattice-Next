@@ -402,6 +402,40 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Generates_a_write_script_request_through_semantic_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a Python script that prints 'Ready'.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
+        Assert.Contains(facts, fact => fact.Id == "language.python");
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("Ready", output.Values["content"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("```python\nprint(\"Ready\")\n```", result!.Text);
+    }
+    [Fact]
     public void Does_not_recognize_generation_intent_for_an_ordinary_writing_request()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
