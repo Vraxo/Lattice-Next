@@ -203,6 +203,34 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(10, result.Score);
     }
 
+    [Theory]
+    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
+    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
+    public void Recognizes_loop_accumulator_requests_from_declarative_facts(string input, string expectedFact)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.True(
+            facts.Any(fact => fact.Id == expectedFact),
+            $"Extracted facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(
+                knowledge!,
+                null,
+                request,
+                out var generated,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains("for ", generated!.Text, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Generates_manual_list_totals_from_declarative_semantic_facts()
     {
