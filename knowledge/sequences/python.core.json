@@ -2242,7 +2242,8 @@
         "program.output.start",
         "program.iteration",
         "program.condition",
-        "value.output"
+        "value.output",
+        "program.arithmetic"
       ]
     }
   ]
