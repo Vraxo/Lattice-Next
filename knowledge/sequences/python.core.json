@@ -603,12 +603,50 @@
       ],
       "factId": "program.output.start"
     },
-    { "id": "recognize-emit-operation", "matchTokens": ["emit"], "factId": "program.output" },
-    { "id": "capture-emitted-value", "matchTokens": ["emit"], "factId": "value.output", "valueId": "content" },
-    { "id": "recognize-output-start-emit", "matchTokens": ["emit"], "factId": "program.output.start" },
-    { "id": "recognize-emits-operation", "matchTokens": ["emits"], "factId": "program.output" },
-    { "id": "capture-emitted-values", "matchTokens": ["emits"], "factId": "value.output", "valueId": "content" },
-    { "id": "recognize-output-start-emits", "matchTokens": ["emits"], "factId": "program.output.start" },
+    {
+      "id": "recognize-emit-operation",
+      "matchTokens": [
+        "emit"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-emitted-value",
+      "matchTokens": [
+        "emit"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-emit",
+      "matchTokens": [
+        "emit"
+      ],
+      "factId": "program.output.start"
+    },
+    {
+      "id": "recognize-emits-operation",
+      "matchTokens": [
+        "emits"
+      ],
+      "factId": "program.output"
+    },
+    {
+      "id": "capture-emitted-values",
+      "matchTokens": [
+        "emits"
+      ],
+      "factId": "value.output",
+      "valueId": "content"
+    },
+    {
+      "id": "recognize-output-start-emits",
+      "matchTokens": [
+        "emits"
+      ],
+      "factId": "program.output.start"
+    },
     {
       "id": "recognize-generation-intent-implement",
       "matchTokens": [
