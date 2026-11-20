@@ -253,7 +253,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
         var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\\\n", Environment.NewLine), fence), generated!.Text);
+        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence), generated!.Text);
     }
 
     [Fact]
