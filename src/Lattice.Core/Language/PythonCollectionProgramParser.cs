@@ -30,10 +30,6 @@ internal static class PythonCollectionProgramParser
         @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries(?:\s+(?:named|called)\s+(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+to\s+(?:a|the)\s+JSON\s+file(?:\s+(?:named|called)\s+(?<path>[A-Za-z0-9_.-]+\.json))?\s+and\s+then\s+loads?\s+it\s+back\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex ProductPriceIterationPattern = new(
-        @"\b(?:given|with)\s+(?:a\s+)?dictionary\s+of\s+product\s+names\s+and\s+prices\s*,?\s*(?:prints?|displays?|outputs?)\s+each\s+product\s+with\s+its\s+price\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex DictionaryIterationPattern = new(
         @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -202,23 +198,6 @@ internal static class PythonCollectionProgramParser
             new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
-        return true;
-    }
-
-    internal static bool TryGetProductPriceIterationProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        if (!ProductPriceIterationPattern.IsMatch(source))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("assign-variable", "assignment", "products = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}"),
-            new TaskRequestStep("begin-loop", "loop-header", "product, price in products.items()"),
-            new TaskRequestStep("write-standard-output-indented-expression", "expression", "product, price"));
         return true;
     }
 
