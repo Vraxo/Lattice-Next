@@ -749,4 +749,40 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
     }
 
+
+    [Theory]
+    [InlineData("Generate a Python program that sets result to 9 and prints result - 4.")]
+    [InlineData("Build a Python script that sets result to 9 and prints result - 4.")]
+    public void Generates_assignment_requests_for_generate_and_build_intents(string input)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError), extractionError);
+
+        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
+        Assert.Contains(facts, fact => fact.Id == "program.assignment.prefix");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("```python\nresult = 9\nprint(result - 4)\n```", result!.Text);
+    }
+
 }
