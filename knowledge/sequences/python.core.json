@@ -1213,6 +1213,46 @@
         "function"
       ],
       "factId": "program.manual-list-total"
+    },
+    {
+      "id": "recognize-loop-accumulator-total",
+      "matchTokens": [
+        "starts",
+        "total",
+        "at",
+        "0",
+        "and",
+        "adds",
+        "each",
+        "number",
+        "in",
+        "to",
+        "total",
+        "then",
+        "prints",
+        "total"
+      ],
+      "factId": "program.loop-accumulator"
+    },
+    {
+      "id": "recognize-loop-accumulator-result",
+      "matchTokens": [
+        "initializes",
+        "result",
+        "to",
+        "0",
+        "and",
+        "adds",
+        "each",
+        "value",
+        "in",
+        "to",
+        "result",
+        "then",
+        "displays",
+        "result"
+      ],
+      "factId": "program.loop-accumulator.result"
     }
   ],
   "rules": [
@@ -1730,6 +1770,36 @@
         "program.aggregate",
         "program.collection",
         "program.function"
+      ]
+    },
+    {
+      "id": "python-loop-accumulator-total",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.loop-accumulator"
+      ],
+      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)\n```",
+      "satisfiesFacts": [
+        "program.loop-accumulator",
+        "language.python",
+        "intent.program-generation"
+      ]
+    },
+    {
+      "id": "python-loop-accumulator-result",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.loop-accumulator.result"
+      ],
+      "nextToken": "```python\nresult = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)\n```",
+      "satisfiesFacts": [
+        "program.loop-accumulator.result",
+        "language.python",
+        "intent.program-generation"
       ]
     }
   ]
