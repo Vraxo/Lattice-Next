@@ -1445,6 +1445,30 @@
         "odd"
       ],
       "factId": "program.odd-value-list-parity-filter"
+    },
+    {
+      "id": "recognize-number-square-dictionary-mapping",
+      "matchTokens": [
+        "dictionary",
+        "maps",
+        "each",
+        "number",
+        "to",
+        "square"
+      ],
+      "factId": "program.number-square-dictionary-mapping"
+    },
+    {
+      "id": "recognize-value-offset-dictionary-mapping",
+      "matchTokens": [
+        "dictionary",
+        "maps",
+        "each",
+        "value",
+        "to",
+        "value"
+      ],
+      "factId": "program.value-offset-dictionary-mapping"
     }
   ],
   "rules": [
@@ -2244,6 +2268,43 @@
         "program.condition",
         "value.output",
         "program.arithmetic"
+      ]
+    },
+    {
+      "id": "python-number-square-dictionary-mapping",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.number-square-dictionary-mapping"
+      ],
+      "nextToken": "```python\ndef map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))\n```",
+      "satisfiesFacts": [
+        "program.number-square-dictionary-mapping",
+        "program.collection",
+        "language.python",
+        "program.output",
+        "program.iteration",
+        "intent.program-generation"
+      ]
+    },
+    {
+      "id": "python-value-offset-dictionary-mapping",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.value-offset-dictionary-mapping"
+      ],
+      "nextToken": "```python\ndef map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))\n```",
+      "satisfiesFacts": [
+        "program.value-offset-dictionary-mapping",
+        "program.collection",
+        "language.python",
+        "program.output",
+        "program.iteration",
+        "program.arithmetic",
+        "intent.program-generation"
       ]
     }
   ]
