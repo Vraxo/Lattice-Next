@@ -1053,29 +1053,6 @@
       "factId": "value.output.expression"
     },
     {
-      "id": "recognize-sign-classification-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.request"
-    },
-    {
-      "id": "recognize-sign-classification-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.request"
-    },
-    {
       "id": "recognize-sign-classification-assignment-report",
       "matchTokens": [
         "reports",
@@ -1424,7 +1401,8 @@
         "intent.program-generation"
       ],
       "forbiddenFacts": [
-        "program.assignment.first"
+        "program.assignment.first",
+        "program.assignment.classification"
       ]
     },
     {
@@ -1642,7 +1620,8 @@
       "satisfiesFacts": [
         "language.python",
         "intent.program-generation",
-        "program.assignment.classification"
+        "program.assignment.classification",
+        "program.output.start"
       ],
       "requiresCompletedFacts": [
         "language.python",
@@ -1688,7 +1667,8 @@
       ],
       "nextToken": "if number == 0:\n    print(\"Zero\")\n",
       "satisfiesFacts": [
-        "program.classification.zero"
+        "program.classification.zero",
+        "program.output"
       ]
     }
   ]
