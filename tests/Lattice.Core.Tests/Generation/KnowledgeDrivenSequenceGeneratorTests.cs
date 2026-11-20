@@ -535,4 +535,45 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains("conflicting values", error, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Prefers_more_specific_captured_values_independent_of_rule_order(bool reverseRules)
+    {
+        var rules = new[]
+        {
+            new SequenceInputFactRule(
+                "general-value",
+                ["make"],
+                "intent.make",
+                Captures: [
+                    new SequenceInputFactCapture("value.output", "content", [], [], "General")
+                ]),
+            new SequenceInputFactRule(
+                "specific-value",
+                ["make", "program"],
+                "intent.program",
+                Captures: [
+                    new SequenceInputFactCapture("value.output", "content", [], [], "Specific")
+                ])
+        };
+        if (reverseRules)
+        {
+            Array.Reverse(rules);
+        }
+
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: rules.ToImmutableArray());
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            "Make a program.",
+            out var facts,
+            out var error), error);
+
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("Specific", output.Values["content"]);
+    }
+
 }
