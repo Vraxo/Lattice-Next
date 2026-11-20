@@ -60,10 +60,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = functionSteps };
         }
-        else if (PythonCollectionProgramParser.TryGetCollectionMappingFunctionProgram(source, out var collectionMappingSteps))
-        {
-            formula = formula with { GenerationSteps = collectionMappingSteps };
-        }
         else if (PythonCollectionProgramParser.TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
         {
             formula = formula with { GenerationSteps = collectionFilterSteps };
