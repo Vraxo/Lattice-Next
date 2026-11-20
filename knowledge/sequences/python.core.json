@@ -1012,6 +1012,36 @@
       "factId": "value.output",
       "valueId": "content",
       "literalValue": "result"
+    },
+    {
+      "id": "recognize-first-addition-assignment-operator",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.first.operator"
+    },
+    {
+      "id": "recognize-second-addition-assignment-operator",
+      "matchTokens": [
+        "stores",
+        "two",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.assignment.second.operator"
+    },
+    {
+      "id": "recognize-result-addition-assignment-operator",
+      "matchTokens": [
+        "adds",
+        "them"
+      ],
+      "factId": "program.assignment.result.operator"
     }
   ],
   "rules": [
