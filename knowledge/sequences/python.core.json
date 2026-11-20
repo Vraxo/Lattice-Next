@@ -2032,7 +2032,8 @@
         "program.output",
         "program.collection",
         "program.iteration",
-        "program.output.start"
+        "program.output.start",
+        "value.output"
       ]
     }
   ]
