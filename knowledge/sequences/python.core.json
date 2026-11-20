@@ -1998,9 +1998,7 @@
         "program.non-empty-file-line-count",
         "language.python",
         "intent.program-generation",
-        "program.output",
-        "program.iteration",
-        "program.file"
+        "program.output"
       ]
     }
   ]
