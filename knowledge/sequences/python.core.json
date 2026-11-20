@@ -2031,7 +2031,8 @@
         "intent.program-generation",
         "program.output",
         "program.collection",
-        "program.iteration"
+        "program.iteration",
+        "program.output.start"
       ]
     }
   ]
