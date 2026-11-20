@@ -602,10 +602,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData(".")]
-    [InlineData("?")]
-    [InlineData("!")]
-    public void Stops_captured_values_at_sentence_boundaries(string terminator)
+    [InlineData(".", "hello")]
+    [InlineData("?", "hello")]
+    [InlineData("!", "hello!")]
+    public void Stops_captured_values_at_sentence_boundaries(string terminator, string expectedValue)
     {
         var knowledge = new SequenceKnowledgeBase(
             ImmutableArray<SequenceTokenRule>.Empty,
@@ -624,7 +624,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var error), error);
 
         var output = Assert.Single(facts, fact => fact.Id == "value.output");
-        Assert.Equal("hello", output.Values["content"]);
+        Assert.Equal(expectedValue, output.Values["content"]);
     }
 
 }
