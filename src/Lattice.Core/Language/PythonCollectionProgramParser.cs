@@ -30,10 +30,6 @@ internal static class PythonCollectionProgramParser
         @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries(?:\s+(?:named|called)\s+(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+to\s+(?:a|the)\s+JSON\s+file(?:\s+(?:named|called)\s+(?<path>[A-Za-z0-9_.-]+\.json))?\s+and\s+then\s+loads?\s+it\s+back\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex DictionaryIterationPattern = new(
-        @"\bstores?\s+(?<items>\{[^}]*\})\s+(?:in|as)\s+(?:a\s+)?dictionary\s+(?:named\s+)?(?<dictionary>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+each\s+(?<key>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:its\s+)?(?<value>[A-Za-z_][A-Za-z0-9_]*)",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     internal static readonly Regex CollectionGroupingAggregationPattern = new(
         @"\b(?:groups?|organizes?)\s+(?:a|the)\s+list\s+of\s+(?<record>[A-Za-z_][A-Za-z0-9_]*)\s+records?\s+by\s+(?<group>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:calculates?|computes?|sums?)\s+(?:each\s+(?<owner>[A-Za-z_][A-Za-z0-9_]*)'?s\s+)?(?:total\s+)?(?<measure>spending|amount|cost|price|value)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -198,41 +194,6 @@ internal static class PythonCollectionProgramParser
             new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
             new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
-        return true;
-    }
-
-    internal static bool TryGetDictionaryIterationProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = DictionaryIterationPattern.Match(source);
-        if (!match.Success ||
-            !TryNormalizeSimpleDictionaryLiteral(match.Groups["items"].Value, out var items))
-        {
-            return false;
-        }
-
-        var dictionary = match.Groups["dictionary"].Value;
-        var key = match.Groups["key"].Value;
-        var value = match.Groups["value"].Value;
-        if (dictionary.Equals(key, StringComparison.OrdinalIgnoreCase) ||
-            dictionary.Equals(value, StringComparison.OrdinalIgnoreCase) ||
-            key.Equals(value, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("assign-variable", "assignment", $"{dictionary} = {items}"),
-            new TaskRequestStep(
-                "begin-loop",
-                "loop-header",
-                $"{key}, {value} in {dictionary}.items()"),
-            new TaskRequestStep(
-                "write-standard-output-indented-expression",
-                "expression",
-                $"{key}, {value}"));
         return true;
     }
 
