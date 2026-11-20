@@ -1321,6 +1321,18 @@
         "balance"
       ],
       "factId": "program.bank-account-class"
+    },
+    {
+      "id": "recognize-non-empty-file-line-count",
+      "matchTokens": [
+        "reads",
+        "text",
+        "file",
+        "counts",
+        "non-empty",
+        "lines"
+      ],
+      "factId": "program.non-empty-file-line-count"
     }
   ],
   "rules": [
@@ -1971,6 +1983,24 @@
         "program.class",
         "language.python",
         "intent.program-generation"
+      ]
+    },
+    {
+      "id": "python-non-empty-file-line-count",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.non-empty-file-line-count"
+      ],
+      "nextToken": "```python\nline_count = 0\nwith open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file:\n    for line in input_file:\n        if line.strip():\n            line_count += 1\nprint(line_count)\n```",
+      "satisfiesFacts": [
+        "program.non-empty-file-line-count",
+        "language.python",
+        "intent.program-generation",
+        "program.output",
+        "program.iteration",
+        "program.file"
       ]
     }
   ]
