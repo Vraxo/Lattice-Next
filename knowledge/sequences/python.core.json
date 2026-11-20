@@ -1252,6 +1252,9 @@
       ],
       "requiresCompletedFacts": [
         "intent.program-generation"
+      ],
+      "forbiddenFacts": [
+        "program.assignment.first"
       ]
     },
     {
