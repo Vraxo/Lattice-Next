@@ -88,6 +88,10 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { RequestedValue = requestedValue };
         }
+        else if (PythonProgramRequestParser.HasOutputIntent(source))
+        {
+            formula = formula with { RequestedValue = null };
+        }
         else
         {
             return false;
