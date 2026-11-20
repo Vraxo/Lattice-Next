@@ -918,8 +918,18 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var generationError), generationError);
 
+        var fence = new string((char)96, 3);
         Assert.Equal(
-            new string((char)96, 3) + "python\\nnumber = -5\\nif number > 0:\\n    print(\\\"Positive\\\")\\nif number < 0:\\n    print(\\\"Negative\\\")\\nif number == 0:\\n    print(\\\"Zero\\\")\\n" + new string((char)96, 3),
+            string.Join(Environment.NewLine,
+                fence + "python",
+                "number = -5",
+                "if number > 0:",
+                "    print(\"Positive\")",
+                "if number < 0:",
+                "    print(\"Negative\")",
+                "if number == 0:",
+                "    print(\"Zero\")",
+                fence),
             result!.Text);
     }
 
