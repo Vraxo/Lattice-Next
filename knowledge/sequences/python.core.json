@@ -966,6 +966,7 @@
       "requiredFacts": [
         "program.output",
         "value.output",
+        "program.arithmetic",
         "value.output.expression"
       ],
       "requiresCompletedFacts": [
@@ -977,6 +978,7 @@
       },
       "satisfiesFacts": [
         "value.output",
+        "program.arithmetic",
         "value.output.expression"
       ]
     },
