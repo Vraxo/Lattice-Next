@@ -1213,20 +1213,6 @@
         "function"
       ],
       "factId": "program.manual-list-total"
-    },
-    {
-      "id": "recognize-manual-list-total-output-start",
-      "matchTokens": [
-        "calculates",
-        "their",
-        "total",
-        "without",
-        "using",
-        "built-in",
-        "sum",
-        "function"
-      ],
-      "factId": "program.output.start"
     }
   ],
   "rules": [
@@ -1730,18 +1716,17 @@
     {
       "id": "python-manual-list-total",
       "contextSuffix": [
-        "```python\n"
+        "<|lattice.start|>"
       ],
       "requiredFacts": [
         "program.manual-list-total"
       ],
-      "nextToken": "total = 0\nfor number in [1, 2, 3, 4, 5]:\n    total = total + number\nprint(total)\n```",
+      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3, 4, 5]:\n    total = total + number\nprint(total)\n```",
       "satisfiesFacts": [
         "program.manual-list-total",
         "language.python",
         "intent.program-generation",
         "program.output",
-        "program.output.start",
         "program.loop",
         "program.aggregate",
         "program.collection",
