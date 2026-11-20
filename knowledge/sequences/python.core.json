@@ -1279,6 +1279,29 @@
         "7"
       ],
       "factId": "program.conditional-output.match-equals"
+    },
+    {
+      "id": "recognize-greeting-function-definition-request",
+      "matchTokens": [
+        "defines",
+        "function",
+        "accepts",
+        "name",
+        "returns",
+        "greeting"
+      ],
+      "factId": "program.greeting-function"
+    },
+    {
+      "id": "recognize-greeting-function-call-request",
+      "matchTokens": [
+        "call",
+        "two",
+        "different",
+        "names"
+      ],
+      "factId": "program.greeting-function.calls",
+      "searchAllSentences": true
     }
   ],
   "rules": [
@@ -1893,6 +1916,25 @@
         "program.output.start",
         "program.condition",
         "value.output"
+      ]
+    },
+    {
+      "id": "python-greeting-function",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.greeting-function",
+        "program.greeting-function.calls"
+      ],
+      "nextToken": "```python\ndef greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))\n```",
+      "satisfiesFacts": [
+        "program.greeting-function",
+        "program.greeting-function.calls",
+        "language.python",
+        "intent.program-generation",
+        "program.function",
+        "program.output"
       ]
     }
   ]

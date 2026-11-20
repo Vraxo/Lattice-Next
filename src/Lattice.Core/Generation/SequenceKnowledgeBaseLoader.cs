@@ -251,7 +251,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -265,6 +265,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalString(item, "literalValue", out var literalValue) ||
                 (literalValue is not null && (valueId is null || literalValue.Length > 16_384)) ||
                 !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
+                !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
                 !TryReadInputCaptures(captureElements, out var captures, out error))
             {
                 error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
@@ -277,7 +278,10 @@ public static class SequenceKnowledgeBaseLoader
                 factId,
                 valueId,
                 literalValue,
-                captures));
+                captures)
+            {
+                SearchAllSentences = searchAllSentences
+            });
         }
 
         inputRules = builder.ToImmutable();
@@ -466,6 +470,23 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         value = property.GetString() ?? string.Empty;
+        return true;
+    }
+
+    private static bool TryGetOptionalBoolean(JsonElement element, string name, out bool value)
+    {
+        value = false;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            return false;
+        }
+
+        value = property.GetBoolean();
         return true;
     }
 

@@ -333,7 +333,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\nprint(\"Hello, \\\"world\\\"!\\nSecond line\")\n```", result!.Text);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "```python",
+                "print(\"Hello, \\\"world\\\"!\\nSecond line\")",
+                "```"),
+            result!.Text);
     }
 
     [Fact]
@@ -1030,4 +1035,24 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
+    [Fact]
+    public void Generates_greeting_function_from_declarative_semantic_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string input = "Write a Python program that defines a function that accepts a person's name and returns a greeting. Call it with two different names.";
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.greeting-function");
+        Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
+        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "```python",
+                "def greet(name):",
+                "    return f\"Hello, {name}!\"",
+                "print(greet(\"Ada\"))",
+                "print(greet(\"Grace\"))",
+                "```"),
+            result!.Text);
+    }
 }

@@ -39,7 +39,7 @@ public static class SequenceInputFactExtractor
                 string.IsNullOrWhiteSpace(rule.Id) ||
                 string.IsNullOrWhiteSpace(rule.FactId) ||
                 rule.MatchTokens.IsDefaultOrEmpty ||
-                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken))
+                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences))
             {
                 continue;
             }
@@ -166,7 +166,8 @@ public static class SequenceInputFactExtractor
         ImmutableArray<EnglishToken> tokens,
         ImmutableArray<string> pattern,
         int startIndex,
-        out int lastMatchedToken)
+        out int lastMatchedToken,
+        bool searchAllSentences = false)
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
@@ -178,7 +179,13 @@ public static class SequenceInputFactExtractor
                 token.Value is "." or "?" or "!" &&
                 !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
-                break;
+                if (!searchAllSentences)
+                {
+                    break;
+                }
+
+                patternIndex = 0;
+                continue;
             }
 
             if (token.IsQuoted ||

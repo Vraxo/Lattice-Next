@@ -60,10 +60,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = localVariableSteps };
         }
-        else if (PythonFunctionProgramParser.TryGetGreetingFunctionProgram(source, out var greetingSteps))
-        {
-            formula = formula with { GenerationSteps = greetingSteps };
-        }
         else if (PythonFunctionProgramParser.TryGetFunctionProgram(source, out var functionSteps))
         {
             formula = formula with { GenerationSteps = functionSteps };
