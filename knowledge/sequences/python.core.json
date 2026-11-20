@@ -1383,7 +1383,10 @@
         "converts",
         "text",
         "to",
-        "integer"
+        "integer",
+        "returns",
+        "clear",
+        "result"
       ],
       "factId": "program.integer-conversion-function"
     },
@@ -1394,7 +1397,10 @@
         "raw",
         "text",
         "to",
-        "integer"
+        "integer",
+        "returns",
+        "clear",
+        "message"
       ],
       "factId": "program.named-integer-conversion-function"
     },
