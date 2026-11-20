@@ -1694,7 +1694,8 @@
       "satisfiesFacts": [
         "program.even-list-filter",
         "program.output",
-        "program.output.start"
+        "program.output.start",
+        "value.output"
       ]
     }
   ]
