@@ -469,4 +469,38 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("author a program that prints Ready", output.Values["content"]);
     }
 
+
+    [Fact]
+    public void Preserves_punctuation_and_escapes_quotes_across_request_generation()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
+            out var knowledge,
+            out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a Python script that prints 'He said \"ready\" — 100%!'.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        var output = Assert.Single(facts, fact => fact.Id == "value.output");
+        Assert.Equal("He said \"ready\" — 100%!", output.Values["content"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out var result,
+            out var error), error);
+
+        Assert.Equal("```python\nprint(\"He said \\\"ready\\\" — 100%!\")\n```", result!.Text);
+    }
+
 }
