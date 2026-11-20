@@ -2159,8 +2159,7 @@
         "program.integer-conversion-function",
         "language.python",
         "intent.program-generation",
-        "program.function",
-        "program.condition"
+        "program.function"
       ]
     },
     {
