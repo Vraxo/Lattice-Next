@@ -232,9 +232,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Create a Python program that prints 'adult' if 20 is at least 18.", "program.conditional-output.adult-at-least", "if 20 >= 18:\\n    print(\"adult\")")]
-    [InlineData("Build a Python script that displays 'minor' if 16 is less than 18.", "program.conditional-output.minor-less-than", "if 16 < 18:\\n    print(\"minor\")")]
-    [InlineData("Generate a Python program that outputs 'match' if 7 equals 7.", "program.conditional-output.match-equals", "if 7 == 7:\\n    print(\"match\")")]
+    [InlineData("Create a Python program that prints 'adult' if 20 is at least 18.", "program.conditional-output.adult-at-least", "if 20 >= 18:\n    print(\"adult\")")]
+    [InlineData("Build a Python script that displays 'minor' if 16 is less than 18.", "program.conditional-output.minor-less-than", "if 16 < 18:\n    print(\"minor\")")]
+    [InlineData("Generate a Python program that outputs 'match' if 7 equals 7.", "program.conditional-output.match-equals", "if 7 == 7:\n    print(\"match\")")]
     public void Generates_simple_conditional_output_from_declarative_facts(string input, string expectedFact, string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
@@ -333,7 +333,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\nprint(\"Hello, \"world\"!\\nSecond line\")\n```", result!.Text);
+        Assert.Equal("```python\nprint(\"Hello, \\\"world\\\"!\\nSecond line\")\n```", result!.Text);
     }
 
     [Fact]
@@ -597,7 +597,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var result,
             out var error), error);
 
-        Assert.Equal("```python\nprint(\"He said \"ready\" — 100%!\")\n```", result!.Text);
+        Assert.Equal("```python\nprint(\"He said \\\"ready\\\" — 100%!\")\n```", result!.Text);
     }
 
 
