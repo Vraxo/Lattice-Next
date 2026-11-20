@@ -210,7 +210,26 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
+        Assert.Contains(
+            facts,
+            fact => fact.Id == expectedFact,
+            $"Extracted facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(
+                knowledge!,
+                null,
+                request,
+                out var generated,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains("for ", generated!.Text, StringComparison.Ordinal);
     }
 
     [Fact]
