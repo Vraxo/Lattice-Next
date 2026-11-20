@@ -6,10 +6,6 @@ namespace Lattice.Core.Language;
 
 internal static class PythonFunctionProgramParser
 {
-    private static readonly Regex GreetingFunctionPattern = new(
-        @"\b(?:defines?|creates?)\s+(?:a\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|takes?)\s+(?:a\s+)?person'?s\s+name\s+and\s+returns?\s+(?:a\s+)?greeting\b.*?\bcall\s+(?:it|the\s+function)\s+with\s+two\s+different\s+names\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
     private static readonly Regex FunctionDefinitionPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)(?=,\s*(?:and\s+)?(?:a\s+)?function\s+named\b|,\s*then\s+(?:print|display|output)\b)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -306,27 +302,6 @@ internal static class PythonFunctionProgramParser
             "expression",
             $"{callName}({string.Join(", ", callArguments)})"));
         steps = generatedSteps.ToImmutable();
-        return true;
-    }
-
-    internal static bool TryGetGreetingFunctionProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = GreetingFunctionPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var name = match.Groups["name"].Success ? match.Groups["name"].Value : "greet";
-        const string parameter = "name";
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
-            new TaskRequestStep("return-value-indented-expression", "expression", "f\"Hello, {name}!\""),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Ada\")"),
-            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"Grace\")"));
         return true;
     }
 
