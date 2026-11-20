@@ -18,10 +18,6 @@ internal static class PythonControlFlowProgramParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex LoopAccumulatorPattern = new(
-        @"\b(?:starts?|initializes?)\s+(?<total>[A-Za-z_][A-Za-z0-9_]*)\s+(?:at|to)\s+0\s+and\s+adds?\s+each\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+in\s+(?<items>\[[^\]]*\])\s+to\s+(?<target>[A-Za-z_][A-Za-z0-9_]*)\s*,?\s+then\s+(?:prints?|displays?|outputs?)\s+(?<output>[A-Za-z_][A-Za-z0-9_]*)",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex ConditionalOutputPattern = new(
         @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -60,40 +56,6 @@ internal static class PythonControlFlowProgramParser
                 "write-standard-output-double-indented-expression",
                 "expression",
                 variable));
-        return true;
-    }
-
-    internal static bool TryGetLoopAccumulatorProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = LoopAccumulatorPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var total = match.Groups["total"].Value;
-        var target = match.Groups["target"].Value;
-        var item = match.Groups["item"].Value;
-        var output = match.Groups["output"].Value;
-        if (!total.Equals(target, StringComparison.OrdinalIgnoreCase) ||
-            !total.Equals(output, StringComparison.OrdinalIgnoreCase) ||
-            total.Equals(item, StringComparison.OrdinalIgnoreCase) ||
-            !TryNormalizeNumericListLiteral(match.Groups["items"].Value, out var items))
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("assign-variable", "assignment", $"{total} = 0"),
-            new TaskRequestStep("begin-loop", "loop-header", $"{item} in {items}"),
-            new TaskRequestStep(
-                "assign-variable-indented",
-                "assignment",
-                $"{total} = {total} + {item}"),
-            new TaskRequestStep("write-standard-output", "expression", total));
         return true;
     }
 
