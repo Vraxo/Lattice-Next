@@ -1302,6 +1302,25 @@
       ],
       "factId": "program.greeting-function.calls",
       "searchAllSentences": true
+    },
+    {
+      "id": "recognize-bank-account-class",
+      "matchTokens": [
+        "class",
+        "representing",
+        "bank",
+        "account",
+        "balance",
+        "deposit",
+        "method",
+        "withdrawal",
+        "method",
+        "refuses",
+        "withdrawals",
+        "larger",
+        "balance"
+      ],
+      "factId": "program.bank-account-class"
     }
   ],
   "rules": [
@@ -1935,6 +1954,23 @@
         "intent.program-generation",
         "program.function",
         "program.output"
+      ]
+    },
+    {
+      "id": "python-bank-account-class",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.bank-account-class",
+        "program.class"
+      ],
+      "nextToken": "```python\nclass BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance += amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance -= amount\n        return True\n```",
+      "satisfiesFacts": [
+        "program.bank-account-class",
+        "program.class",
+        "language.python",
+        "intent.program-generation"
       ]
     }
   ]
