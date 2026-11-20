@@ -174,6 +174,13 @@ public static class SequenceInputFactExtractor
         for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
             var token = tokens[tokenIndex];
+            if (token.IsPunctuation &&
+                token.Value is "." or "?" or "!" &&
+                !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
             if (token.IsQuoted ||
                 (token.IsPunctuation &&
                  !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase)))
