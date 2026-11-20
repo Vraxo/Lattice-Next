@@ -385,3 +385,22 @@ public sealed class KnowledgeDrivenGenerationRuntimeTests
         Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
     }
 }
+
+    [Fact]
+    public async Task Generates_custom_output_from_an_echoes_request_using_semantic_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a Python program that echoes 'Ready'.");
+
+        var response = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, response.Kind);
+        Assert.Equal("```python\nprint("Ready")\n```", response.Message);
+        Assert.Contains("language.python", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("intent.program-generation", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("value.output", response.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.output.start", response.Meaning, StringComparison.Ordinal);
+    }
+}
