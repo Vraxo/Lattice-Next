@@ -18,10 +18,6 @@ internal static class PythonControlFlowProgramParser
         @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex ConditionalOutputPattern = new(
-        @"\b(?:print|display|show|output)s?\s+(?<quote>['""])(?<text>[^'""]+)\k<quote>\s+if\s+(?<left>\d+(?:\.\d+)?)\s+(?<operator>is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+equal\s+to|equals?)\s+(?<right>\d+(?:\.\d+)?)\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex GenericEvenListFilterPattern = new(
         @"\b(?:prints?|displays?|outputs?)\s+only\s+the\s+even\s+numbers?\s+from\s+(?:a|the)\s+list\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -146,46 +142,4 @@ internal static class PythonControlFlowProgramParser
         return true;
     }
 
-    internal static bool TryGetConditionalProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = ConditionalOutputPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
-            .Trim()
-            .ToLowerInvariant();
-        var symbol = comparison switch
-        {
-            "is at least" or "at least" => ">=",
-            "is at most" or "at most" => "<=",
-            "is greater than" or "greater than" => ">",
-            "is less than" or "less than" => "<",
-            "is not equal to" or "not equal to" => "!=",
-            "is equal to" or "equal" or "equals" => "==",
-            _ => string.Empty
-        };
-
-        if (symbol.Length == 0)
-        {
-            return false;
-        }
-
-        var condition = $"{match.Groups["left"].Value} {symbol} {match.Groups["right"].Value}";
-        var output = match.Groups["text"].Value.Trim();
-        if (output.Length == 0)
-        {
-            return false;
-        }
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-conditional", "condition", condition),
-            new TaskRequestStep("write-standard-output-indented", "text", output));
-        return true;
-    }
 }
