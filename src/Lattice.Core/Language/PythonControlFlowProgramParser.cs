@@ -11,65 +11,12 @@ internal static class PythonControlFlowProgramParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex LoopCollectionOutputPattern = new(
-        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-    private static readonly Regex LoopFilterPattern = new(
-        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>numbers?|values?|items?)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])\s+only\s+if\s+(?:they\s+are|it\s+is)\s+(?<parity>even|odd)\b",
+        @"\b(?:print|display|output)s?\s+(?:each\s+)?(?<item>[A-Za-z_][A-Za-z0-9_]*)\s+(?:in|from)\s+(?:the\s+)?(?:list\s+)?(?<items>\[[^\]]*\])(?!\s+only\s+if\b)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     private static readonly Regex GenericEvenListFilterPattern = new(
         @"\b(?:prints?|displays?|outputs?)\s+only\s+the\s+even\s+numbers?\s+from\s+(?:a|the)\s+list\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-    internal static bool TryGetLoopFilterProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = LoopFilterPattern.Match(source);
-        if (!match.Success ||
-            !TryNormalizeNumericListLiteral(match.Groups["items"].Value, out var items))
-        {
-            return false;
-        }
-
-        var item = match.Groups["item"].Value;
-        var variable = item.EndsWith("s", StringComparison.OrdinalIgnoreCase)
-            ? item[..^1]
-            : item;
-        var parity = match.Groups["parity"].Value.Equals("even", StringComparison.OrdinalIgnoreCase)
-            ? "=="
-            : "!=";
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-loop", "loop-header", $"{variable} in {items}"),
-            new TaskRequestStep(
-                "begin-conditional-indented",
-                "condition",
-                $"{variable} % 2 {parity} 0"),
-            new TaskRequestStep(
-                "write-standard-output-double-indented-expression",
-                "expression",
-                variable));
-        return true;
-    }
-
-    internal static bool TryNormalizeNumericListLiteral(string value, out string normalized)
-    {
-        normalized = value.Trim();
-        const string number = @"[+-]?\d+(?:\.\d+)?";
-        if (!Regex.IsMatch(
-            normalized,
-            $@"^\[\s*{number}(?:\s*,\s*{number})*\s*\]$",
-            RegexOptions.CultureInvariant))
-        {
-            return false;
-        }
-
-        normalized = Regex.Replace(normalized, @"\s*,\s*", ", ");
-        return true;
-    }
 
     internal static bool TryGetLoopProgram(
         string source,

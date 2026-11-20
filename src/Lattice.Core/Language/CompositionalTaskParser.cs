@@ -80,10 +80,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = jsonRoundTripSteps };
         }
-        else if (PythonControlFlowProgramParser.TryGetLoopFilterProgram(source, out var filterSteps))
-        {
-            formula = formula with { GenerationSteps = filterSteps };
-        }
         else if (PythonControlFlowProgramParser.TryGetLoopProgram(source, out var loopSteps))
         {
             formula = formula with { GenerationSteps = loopSteps };
@@ -91,6 +87,10 @@ internal static class CompositionalTaskParser
         else if (PythonProgramRequestParser.TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
         {
             formula = formula with { RequestedValue = requestedValue };
+        }
+        else if (PythonProgramRequestParser.HasOutputIntent(source))
+        {
+            formula = formula with { RequestedValue = null };
         }
         else
         {

@@ -23,6 +23,13 @@ internal static class PythonProgramRequestParser
         @"\b(?:prints?|displays?|shows?|outputs?|says?)\s+(['""])(?<value>.*?)\1",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
+    private static readonly Regex OutputIntentPattern = new(
+        @"\b(?:print|prints|display|displays|show|shows|output|outputs|say|says)\b",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+    internal static bool HasOutputIntent(string source) =>
+        OutputIntentPattern.IsMatch(source);
+
     internal static bool ContainsCodeArtifact(EnglishNounPhrase phrase) =>
         CodeArtifacts.Contains(phrase.Head) ||
         phrase.Modifiers.Any(CodeArtifacts.Contains);
