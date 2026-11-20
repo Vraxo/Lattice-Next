@@ -852,10 +852,12 @@
         "print"
       ],
       "requiredFacts": [
-        "intent.program-generation",
         "program.output"
       ],
-      "nextToken": "("
+      "nextToken": "(",
+      "requiresCompletedFacts": [
+        "intent.program-generation"
+      ]
     },
     {
       "id": "python-output-value",
@@ -864,7 +866,6 @@
         "("
       ],
       "requiredFacts": [
-        "intent.program-generation",
         "program.output",
         "value.output"
       ],
@@ -875,16 +876,19 @@
       },
       "satisfiesFacts": [
         "value.output"
+      ],
+      "requiresCompletedFacts": [
+        "intent.program-generation"
       ]
     },
     {
       "id": "python-output-close",
       "contextSuffix": [],
       "requiredFacts": [
-        "intent.program-generation",
         "program.output"
       ],
       "requiresCompletedFacts": [
+        "intent.program-generation",
         "value.output"
       ],
       "nextToken": ")\n```",
@@ -995,13 +999,15 @@
         "```python\n"
       ],
       "requiredFacts": [
-        "intent.program-generation",
         "program.output",
         "program.output.start"
       ],
       "nextToken": "print",
       "satisfiesFacts": [
         "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "intent.program-generation"
       ]
     }
   ]
