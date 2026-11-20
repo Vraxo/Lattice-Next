@@ -852,6 +852,7 @@
         "print"
       ],
       "requiredFacts": [
+        "intent.program-generation",
         "program.output"
       ],
       "nextToken": "("
@@ -863,6 +864,7 @@
         "("
       ],
       "requiredFacts": [
+        "intent.program-generation",
         "program.output",
         "value.output"
       ],
@@ -879,6 +881,7 @@
       "id": "python-output-close",
       "contextSuffix": [],
       "requiredFacts": [
+        "intent.program-generation",
         "program.output"
       ],
       "requiresCompletedFacts": [
@@ -992,6 +995,7 @@
         "```python\n"
       ],
       "requiredFacts": [
+        "intent.program-generation",
         "program.output",
         "program.output.start"
       ],
