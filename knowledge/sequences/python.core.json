@@ -613,6 +613,15 @@
       "factId": "intent.program-generation"
     },
     {
+      "id": "recognize-generation-intent-produce",
+      "matchTokens": [
+        "produce",
+        "program",
+        "prints"
+      ],
+      "factId": "intent.program-generation"
+    },
+    {
       "id": "recognize-generation-intent-develop",
       "matchTokens": [
         "develop"
