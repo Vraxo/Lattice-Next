@@ -717,6 +717,15 @@
         "prints"
       ],
       "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-craft",
+      "matchTokens": [
+        "craft",
+        "program",
+        "prints"
+      ],
+      "factId": "intent.program-generation"
     }
   ],
   "rules": [
