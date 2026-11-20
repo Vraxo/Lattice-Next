@@ -726,6 +726,15 @@
         "prints"
       ],
       "factId": "intent.program-generation"
+    },
+    {
+      "id": "recognize-generation-intent-author",
+      "matchTokens": [
+        "author",
+        "program",
+        "prints"
+      ],
+      "factId": "intent.program-generation"
     }
   ],
   "rules": [
