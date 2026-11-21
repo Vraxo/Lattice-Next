@@ -2836,7 +2836,8 @@
           "of",
           "dictionaries"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "recognize-json-round-trip-load-back",
@@ -2852,7 +2853,8 @@
           "of",
           "dictionaries"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     }
   ],
   "rules": [
