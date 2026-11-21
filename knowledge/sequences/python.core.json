@@ -4480,7 +4480,7 @@
       "id": "record-aggregation-loop",
       "contextSuffix": [
         "*",
-        "totals = {}\\n"
+        "totals = {}\n"
       ],
       "requiredFacts": [
         "program.record-aggregation"
@@ -4497,7 +4497,7 @@
     {
       "id": "record-aggregation-key",
       "contextSuffix": [
-        "totals = {}\\n",
+        "totals = {}\n",
         "*"
       ],
       "requiredFacts": [
@@ -4516,7 +4516,7 @@
     {
       "id": "record-aggregation-add",
       "contextSuffix": [
-        "totals = {}\\n",
+        "totals = {}\n",
         "*",
         "*"
       ],
@@ -4536,7 +4536,7 @@
     {
       "id": "record-aggregation-iterate-totals",
       "contextSuffix": [
-        "totals = {}\\n",
+        "totals = {}\n",
         "*",
         "*",
         "*"
@@ -4552,7 +4552,7 @@
       "id": "record-aggregation-output",
       "contextSuffix": [
         "*",
-        "for key, total in totals.items():\\n"
+        "for key, total in totals.items():\n"
       ],
       "requiredFacts": [
         "program.record-aggregation"

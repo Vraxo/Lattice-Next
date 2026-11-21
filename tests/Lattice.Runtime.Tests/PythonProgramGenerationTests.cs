@@ -996,7 +996,7 @@ public sealed class PythonProgramGenerationTests
 
         var generatedCode = ExtractGeneratedPythonCode(utterance.Message);
         var expectedCode = string.Join(Environment.NewLine,
-            "records = [{\"customer\": \"Ada\", \"amount\": 25.0}, {\"customer\": \"Grace\", \"amount\": 40.0}, {\"customer\": \"Ada\", \"amount\": 15.0}]",
+            "records = [{\"customer\": \"Ada\", \"spending\": 25.0}, {\"customer\": \"Grace\", \"spending\": 40.0}, {\"customer\": \"Ada\", \"spending\": 15.0}]",
             "totals = {}",
             "for purchase in records:",
             "    key = purchase[\"customer\"]",
@@ -1007,8 +1007,8 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "Ada 40.0\nGrace 40.0");
 
         var changedDataCode = generatedCode.Replace(
-            "\"Ada\", \"amount\": 25.0",
-            "\"Ada\", \"amount\": 100.0",
+            "\"Ada\", \"spending\": 25.0",
+            "\"Ada\", \"spending\": 100.0",
             StringComparison.Ordinal);
         await AssertPythonOutput(changedDataCode, "Ada 115.0\nGrace 40.0");
 
