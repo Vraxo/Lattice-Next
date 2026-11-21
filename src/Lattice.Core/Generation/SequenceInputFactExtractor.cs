@@ -427,6 +427,11 @@ public static class SequenceInputFactExtractor
         else
         {
             value = input[captureStart..captureEnd].Trim();
+            if (value.EndsWith(".", StringComparison.Ordinal) ||
+                value.EndsWith("?", StringComparison.Ordinal))
+            {
+                value = value[..^1].TrimEnd();
+            }
         }
 
         if (!trimPrefixTokens.IsDefaultOrEmpty)
