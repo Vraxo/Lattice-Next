@@ -2037,6 +2037,21 @@
       "subject": "piano-hammer-shank-form",
       "relation": "instance-of",
       "object": "elongated-shape"
+    },
+    {
+      "subject": "piano-hammers",
+      "relation": "has-part",
+      "object": "piano-hammer-head"
+    },
+    {
+      "subject": "piano-hammers",
+      "relation": "has-part",
+      "object": "piano-hammer-shank"
+    },
+    {
+      "subject": "piano-hammer-shank",
+      "relation": "attached-to",
+      "object": "piano-hammer-head"
     }
   ],
   "dataProperties": [],
