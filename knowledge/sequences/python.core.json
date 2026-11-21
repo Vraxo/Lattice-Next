@@ -1730,7 +1730,8 @@
           "valueId": "collection",
           "startAfterTokens": [
             "from"
-          ]
+          ],
+          "preserveRawValue": true
         }
       ],
       "requiredAnySequences": [
@@ -1775,7 +1776,8 @@
           "valueId": "collection",
           "startAfterTokens": [
             "list"
-          ]
+          ],
+          "preserveRawValue": true
         }
       ],
       "requiredAnySequences": [
