@@ -515,7 +515,7 @@ public static class SequenceKnowledgeBaseLoader
             foreach (var token in item.EnumerateArray())
             {
                 if (token.ValueKind != JsonValueKind.String ||
-                    (token.GetString() != "*" && !IsValidIdentifier(token.GetString() ?? string.Empty)))
+                    !IsValidIdentifier(token.GetString() ?? string.Empty))
                 {
                     return false;
                 }

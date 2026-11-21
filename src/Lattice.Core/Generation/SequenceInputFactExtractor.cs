@@ -328,7 +328,6 @@ public static class SequenceInputFactExtractor
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
-        var mustMatchNextToken = false;
 
         for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
@@ -353,31 +352,11 @@ public static class SequenceInputFactExtractor
                 continue;
             }
 
-            if (pattern[patternIndex] == "*")
-            {
-                lastMatchedToken = tokenIndex;
-                patternIndex++;
-                mustMatchNextToken = true;
-                if (patternIndex == pattern.Length)
-                {
-                    return true;
-                }
-
-                continue;
-            }
-
             if (!token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
-                if (mustMatchNextToken)
-                {
-                    lastMatchedToken = -1;
-                    return false;
-                }
-
                 continue;
             }
 
-            mustMatchNextToken = false;
             lastMatchedToken = tokenIndex;
             patternIndex++;
             if (patternIndex == pattern.Length)

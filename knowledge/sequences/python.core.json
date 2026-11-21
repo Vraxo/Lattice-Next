@@ -1965,13 +1965,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2015,13 +2036,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2065,13 +2107,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2115,13 +2178,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2165,13 +2249,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2215,13 +2320,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2265,13 +2391,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2315,13 +2462,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2365,13 +2533,34 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     },
@@ -2384,12 +2573,10 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
         ]
       ]
@@ -2403,12 +2590,10 @@
       "requiredAnySequences": [
         [
           "from",
-          "*",
           "to"
         ],
         [
           "from",
-          "*",
           "through"
         ]
       ]
