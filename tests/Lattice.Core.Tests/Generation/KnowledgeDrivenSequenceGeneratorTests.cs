@@ -39,8 +39,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Write a small program that groups a list of purchase records by customer and calculates each customer's total spending.", "purchase", "customer", "spending")]
-    [InlineData("Create a small program that groups a list of order records by buyer and sums each buyer's total amount.", "order", "buyer", "amount")]
+    [InlineData("Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.", "purchase", "customer", "spending")]
+    [InlineData("Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.", "order", "buyer", "amount")]
     public void Extracts_and_generates_grouped_record_aggregation_from_declarative_facts(string prompt, string record, string group, string measure)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
