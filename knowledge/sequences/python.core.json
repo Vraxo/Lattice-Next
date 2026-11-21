@@ -5125,7 +5125,8 @@
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
-        "program.sort"
+        "program.sort",
+        "program.single-field-record-sorting.case-insensitive"
       ],
       "forbiddenFacts": [
         "program.single-field-record-sorting.descending"
@@ -5154,7 +5155,8 @@
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
-        "program.sort"
+        "program.sort",
+        "program.single-field-record-sorting.descending"
       ],
       "forbiddenFacts": [
         "program.single-field-record-sorting.case-insensitive"
@@ -5184,7 +5186,9 @@
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
-        "program.sort"
+        "program.sort",
+        "program.single-field-record-sorting.case-insensitive",
+        "program.single-field-record-sorting.descending"
       ],
       "weight": 10
     },
