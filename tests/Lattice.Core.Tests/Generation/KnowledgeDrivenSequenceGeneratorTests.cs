@@ -379,13 +379,13 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         };
         var binding = new SequenceTokenBinding("locals", "assignments", UseCollection: true);
         var knowledge = new SequenceKnowledgeBase([
-            new SequenceTokenRule("emit-item", [], ["locals"], [], null, ["locals.started"], 1)
+            new SequenceTokenRule("emit-item", [], ["locals"], [], null, [], 1)
             {
                 TokenBinding = binding,
                 AdvanceCollections = ["locals:assignments"]
             }
         ]);
-        var request = new KnowledgeDrivenSequenceGenerationRequest([], ["locals", "locals.started"])
+        var request = new KnowledgeDrivenSequenceGenerationRequest([], ["locals"])
         {
             FactValues = [fact]
         };
