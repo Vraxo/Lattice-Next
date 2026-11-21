@@ -2995,22 +2995,31 @@
         [
           "those",
           "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
         ]
       ]
     },
     {
       "id": "capture-single-field-sort-function-name",
       "matchTokens": [
-        "function"
+        "function",
+        "named"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
         {
           "factId": "program.single-field-record-sorting",
           "valueId": "name",
-          "startAfterTokens": [
-            "named"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "that"
           ]
@@ -3022,21 +3031,32 @@
           "sorted",
           "by"
         ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
+        ]
       ]
     },
     {
       "id": "capture-single-field-sort-records-name",
       "matchTokens": [
-        "records"
+        "records",
+        "named"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
         {
           "factId": "program.single-field-record-sorting",
           "valueId": "records",
-          "startAfterTokens": [
-            "named"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "and"
           ]
@@ -3048,22 +3068,33 @@
           "sorted",
           "by"
         ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
+        ]
       ]
     },
     {
       "id": "capture-single-field-sort-field-name",
       "matchTokens": [
         "field",
-        "name"
+        "name",
+        "named"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
         {
           "factId": "program.single-field-record-sorting",
           "valueId": "field",
-          "startAfterTokens": [
-            "named"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "then"
           ],
@@ -3075,6 +3106,18 @@
           "records",
           "sorted",
           "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
         ]
       ]
     },
@@ -3102,6 +3145,16 @@
         [
           "function",
           "named"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
         ]
       ]
     },
@@ -3129,6 +3182,16 @@
         [
           "records",
           "named"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
         ]
       ]
     },
@@ -3157,6 +3220,16 @@
           "field",
           "name",
           "named"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ],
+        [
+          "those",
+          "fields"
         ]
       ]
     },

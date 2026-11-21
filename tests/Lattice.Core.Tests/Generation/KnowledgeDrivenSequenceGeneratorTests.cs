@@ -543,7 +543,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
-            "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named class, then returns the records sorted by that field.",
+            "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort-key, then returns the records sorted by that field.",
             out var facts,
             out var extractionError), extractionError);
         Assert.False(SequenceInputFactValidator.TryValidate(knowledge!.Validations, facts, out _));
