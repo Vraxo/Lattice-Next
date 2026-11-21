@@ -1554,7 +1554,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             FactValues = facts
         };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var generated, out var generationError), generationError);
+            knowledge!, null, request, out var generated, out var generationError),
+            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
         Assert.Equal(expectedCode, generated!.Text);
     }
 
