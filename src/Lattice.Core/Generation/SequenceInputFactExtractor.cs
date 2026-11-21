@@ -424,17 +424,21 @@ public static class SequenceInputFactExtractor
             }
         }
 
+        var capturedText = input[captureStart..captureEnd].Trim();
+        var isBracketedCollection = capturedText.Length >= 2 &&
+            capturedText[0] == '[' &&
+            capturedText[^1] == ']';
         var quotedValue = tokens
             .Skip(startToken + 1)
             .TakeWhile(token => token.Start < captureEnd)
             .FirstOrDefault(token => token.IsQuoted);
-        if (quotedValue.IsQuoted)
+        if (quotedValue.IsQuoted && !isBracketedCollection)
         {
             value = quotedValue.Value;
         }
         else
         {
-            value = input[captureStart..captureEnd].Trim();
+            value = capturedText;
             if (value.EndsWith(".", StringComparison.Ordinal) ||
                 value.EndsWith("?", StringComparison.Ordinal))
             {
