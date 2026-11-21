@@ -343,7 +343,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -374,6 +374,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetNestedStringArray(item, "stopBeforeSequences", out var stopBeforeSequences) ||
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
+                !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
                      collectionFieldDelimiter is null)) ||
@@ -400,7 +401,8 @@ public static class SequenceKnowledgeBaseLoader
                 CollectionFieldIndex = collectionFieldIndex,
                 CollectionTemplate = collectionTemplate,
                 TrimPrefixTokens = trimPrefixTokens,
-                TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty
+                TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
+                PreserveRawValue = preserveRawValue
             });
         }
 
@@ -430,7 +432,8 @@ public static class SequenceKnowledgeBaseLoader
             "disjointCollections",
             "arithmeticCollectionReferences",
             "arithmeticValueReferences",
-            "matchingNumericFunctionCall"
+            "matchingNumericFunctionCall",
+            "pythonListLiteral"
         };
 
         foreach (var item in element.EnumerateArray())
@@ -507,7 +510,7 @@ public static class SequenceKnowledgeBaseLoader
             foreach (var token in item.EnumerateArray())
             {
                 if (token.ValueKind != JsonValueKind.String ||
-                    !IsValidIdentifier(token.GetString() ?? string.Empty))
+                    !IsValidSequenceToken(token.GetString() ?? string.Empty))
                 {
                     return false;
                 }
@@ -857,6 +860,9 @@ public static class SequenceKnowledgeBaseLoader
         value.All(character =>
             char.IsAsciiLetterOrDigit(character) ||
             character is '.' or '-' or '_' or ':');
+
+    private static bool IsValidSequenceToken(string value) =>
+        IsValidIdentifier(value) || value is "[" or "]";
 
     private static bool IsValidToken(string value) =>
         value.Length is > 0 and <= MaximumTokenLength;

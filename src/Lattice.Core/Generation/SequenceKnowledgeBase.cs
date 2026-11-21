@@ -83,6 +83,8 @@ public sealed record SequenceInputFactCapture(
     public ImmutableArray<string> TrimPrefixTokens { get; init; } = ImmutableArray<string>.Empty;
 
     public string TrimSuffixCharacters { get; init; } = string.Empty;
+
+    public bool PreserveRawValue { get; init; }
 }
 
 public sealed record SequenceInputFactValidation(

@@ -77,6 +77,7 @@ public static class SequenceInputFactExtractor
                         ImmutableArray<ImmutableArray<string>>.Empty,
                         ImmutableArray<string>.Empty,
                         string.Empty,
+                        preserveRawValue: false,
                         out capturedValue))
                 {
                     capturedValue = null;
@@ -108,6 +109,7 @@ public static class SequenceInputFactExtractor
                         capture.StopBeforeSequences,
                         capture.TrimPrefixTokens,
                         capture.TrimSuffixCharacters,
+                        capture.PreserveRawValue,
                         out capturedValue))
                 {
                     continue;
@@ -356,6 +358,7 @@ public static class SequenceInputFactExtractor
         ImmutableArray<ImmutableArray<string>> stopBeforeSequences,
         ImmutableArray<string> trimPrefixTokens,
         string trimSuffixCharacters,
+        bool preserveRawValue,
         out string value)
     {
         value = string.Empty;
@@ -404,7 +407,8 @@ public static class SequenceInputFactExtractor
             var token = tokens[index];
             if (!token.IsQuoted &&
                 token.IsPunctuation &&
-                token.Value is "." or "?" or "!")
+                token.Value is "." or "?" or "!" &&
+                !IsDecimalPoint(input, token))
             {
                 captureEnd = token.Value == "!"
                     ? token.Start + token.Length
@@ -424,17 +428,25 @@ public static class SequenceInputFactExtractor
             }
         }
 
+        var capturedText = input[captureStart..captureEnd].Trim();
+        var isBracketedCollection = capturedText.Length >= 2 &&
+            capturedText[0] == '[' &&
+            capturedText[^1] == ']';
         var quotedValue = tokens
             .Skip(startToken + 1)
             .TakeWhile(token => token.Start < captureEnd)
             .FirstOrDefault(token => token.IsQuoted);
-        if (quotedValue.IsQuoted)
+        if (preserveRawValue)
+        {
+            value = capturedText;
+        }
+        else if (quotedValue.IsQuoted && !isBracketedCollection)
         {
             value = quotedValue.Value;
         }
         else
         {
-            value = input[captureStart..captureEnd].Trim();
+            value = capturedText;
             if (value.EndsWith(".", StringComparison.Ordinal) ||
                 value.EndsWith("?", StringComparison.Ordinal))
             {
@@ -459,6 +471,13 @@ public static class SequenceInputFactExtractor
 
         return value.Length > 0;
     }
+
+    private static bool IsDecimalPoint(string input, EnglishToken token) =>
+        token.Value == "." &&
+        token.Start > 0 &&
+        token.Start + token.Length < input.Length &&
+        char.IsDigit(input[token.Start - 1]) &&
+        char.IsDigit(input[token.Start + token.Length]);
 
     private static bool MatchesSequenceAt(
         ImmutableArray<EnglishToken> tokens,
