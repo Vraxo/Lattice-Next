@@ -1566,7 +1566,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Rejects_invalid_range_loop_bounds_declaratively(string input)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError),
+            $"Expected invalid range to be rejected: {input}. Extraction error: {extractionError}");
         Assert.Empty(facts);
     }
 
