@@ -50,6 +50,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(group, aggregation.Values["group"]);
         Assert.Equal(measure, aggregation.Values["measure"]);
         Assert.Contains(facts, fact => fact.Id == "program.record-aggregation.intent");
+        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
+        Assert.Contains(facts, fact => fact.Id == "program.collection");
+        Assert.Contains(facts, fact => fact.Id == "program.iteration");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
         var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError), generationError);
         Assert.Contains($"for {record} in records:", generated!.Text, StringComparison.Ordinal);

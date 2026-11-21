@@ -4483,7 +4483,10 @@
         "secondaryValueIsCollection": false,
         "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n"
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "program.collection"
+      ]
     },
     {
       "id": "record-aggregation-initialize",
@@ -4516,7 +4519,9 @@
         "prefix": "for ",
         "suffix": " in records:\n"
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [
+        "program.iteration"
+      ]
     },
     {
       "id": "record-aggregation-key",
@@ -4588,6 +4593,7 @@
       "requiresCompletedFacts": [],
       "nextToken": "    print(key, total)\n",
       "satisfiesFacts": [
+        "program.output",
         "program.record-aggregation",
         "program.record-aggregation.intent"
       ]
