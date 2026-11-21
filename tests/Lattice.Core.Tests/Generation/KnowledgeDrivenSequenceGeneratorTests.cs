@@ -541,11 +541,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Rejects_single_field_record_sorting_with_invalid_identifiers()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(
+        Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named class, then returns the records sorted by that field.",
             out var facts,
-            out _));
+            out var extractionError), extractionError);
+        Assert.False(SequenceInputFactValidator.TryValidate(knowledge!, facts, out _));
     }
 
     [Fact]
