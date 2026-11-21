@@ -2413,7 +2413,8 @@
         "program.function",
         "program.collection",
         "program.output",
-        "program.multi-field-record-sorting"
+        "program.multi-field-record-sorting",
+        "program.sort"
       ],
       "forbiddenFacts": [
         "program.multi-field-record-sorting.case-insensitive"
@@ -2436,7 +2437,8 @@
         "program.collection",
         "program.output",
         "program.multi-field-record-sorting",
-        "program.multi-field-record-sorting.case-insensitive"
+        "program.multi-field-record-sorting.case-insensitive",
+        "program.sort"
       ]
     }
   ]
