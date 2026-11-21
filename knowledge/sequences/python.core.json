@@ -2778,28 +2778,28 @@
       "kind": "identifierValue",
       "factId": "program.function-local-signature",
       "valueId": "name",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-parameters-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.function-local-signature",
       "valueId": "parameters",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-names-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.function-local-variables",
       "valueId": "locals",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-names-are-unique",
       "kind": "uniqueCollection",
       "factId": "program.function-local-variables",
       "valueId": "locals",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-names-do-not-shadow-parameters",
@@ -2808,7 +2808,7 @@
       "valueId": "locals",
       "relatedFactId": "program.function-local-signature",
       "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-expressions-reference-earlier-names",
@@ -2819,7 +2819,7 @@
       "relatedValueId": "parameters",
       "additionalFactId": "program.function-local-variables",
       "additionalValueId": "locals",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-return-references-available-names",
@@ -2830,7 +2830,7 @@
       "relatedValueId": "parameters",
       "additionalFactId": "program.function-local-variables",
       "additionalValueId": "locals",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     },
     {
       "id": "function-local-call-matches-function-and-parameters",
@@ -2841,7 +2841,7 @@
       "relatedValueId": "name",
       "additionalFactId": "program.function-local-signature",
       "additionalValueId": "parameters",
-      "appliesWhenFactId": "program.function-local-signature"
+      "appliesWhenFactId": "program.function-local-variables"
     }
   ]
 }
