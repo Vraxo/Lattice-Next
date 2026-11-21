@@ -116,7 +116,7 @@ static async Task<TaskResult> EvaluateAsync(
             null);
     }
 
-    var execution = await CheckPythonAsync(code, task.ExecutionFiles, task.ExecutionArguments);
+    var execution = await CheckPythonAsync(code, task.ExecutionRequired, task.ExecutionFiles, task.ExecutionArguments);
     return new TaskResult(
         task.Id,
         task.StageId,
@@ -153,6 +153,7 @@ static string? ExtractPython(string message)
 
 static async Task<PythonCheck> CheckPythonAsync(
     string code,
+    bool executionRequired,
     IReadOnlyDictionary<string, string>? executionFiles,
     IReadOnlyList<string>? executionArguments)
 {
@@ -191,6 +192,15 @@ static async Task<PythonCheck> CheckPythonAsync(
         if (syntax.ExitCode != 0)
         {
             return new PythonCheck("syntax-invalid", false, syntax.ExitCode, syntax.Output);
+        }
+
+        if (!executionRequired)
+        {
+            return new PythonCheck(
+                "syntax-valid-not-executed",
+                true,
+                null,
+                "Execution skipped because this benchmark task does not require execution.");
         }
 
         var arguments = new List<string> { scriptPath };
