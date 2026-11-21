@@ -515,7 +515,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                             "names",
                             ["are"],
                             ["and", "then"],
-                            CollectionDelimiter: ",")
+                            LiteralValue: null)
+                        {
+                            CollectionDelimiter = ","
+                        }
                     ])
             ]);
 
