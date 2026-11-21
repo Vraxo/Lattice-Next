@@ -2985,8 +2985,7 @@
     {
       "id": "capture-single-field-sort-function-name",
       "matchTokens": [
-        "function",
-        "named"
+        "function"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
@@ -3012,8 +3011,7 @@
     {
       "id": "capture-single-field-sort-records-name",
       "matchTokens": [
-        "records",
-        "named"
+        "records"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
@@ -3040,8 +3038,7 @@
       "id": "capture-single-field-sort-field-name",
       "matchTokens": [
         "field",
-        "name",
-        "named"
+        "name"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
