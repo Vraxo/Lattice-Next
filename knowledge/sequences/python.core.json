@@ -3795,27 +3795,6 @@
       "appliesWhenFactId": "program.arithmetic-function-signature"
     },
     {
-      "id": "range-loop-variable-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.range-loop",
-      "valueId": "item",
-      "appliesWhenFactId": "program.range-loop"
-    },
-    {
-      "id": "range-loop-start-is-integer",
-      "kind": "integerValue",
-      "factId": "program.range-loop",
-      "valueId": "start",
-      "appliesWhenFactId": "program.range-loop"
-    },
-    {
-      "id": "range-loop-end-is-integer",
-      "kind": "integerValue",
-      "factId": "program.range-loop",
-      "valueId": "end",
-      "appliesWhenFactId": "program.range-loop"
-    },
-    {
       "id": "range-loop-is-ascending-and-safe",
       "kind": "ascendingIntegerRange",
       "factId": "program.range-loop",
