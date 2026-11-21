@@ -4970,7 +4970,7 @@
         "valueId": "records",
         "secondaryValueId": "field",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}])\n"
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}])"
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
@@ -4998,7 +4998,7 @@
         "valueId": "records",
         "secondaryValueId": "field",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold())\n"
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold())"
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
@@ -5025,7 +5025,7 @@
         "valueId": "records",
         "secondaryValueId": "field",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}], reverse=True)\n"
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}], reverse=True)"
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
@@ -5053,7 +5053,7 @@
         "valueId": "records",
         "secondaryValueId": "field",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold(), reverse=True)\n"
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold(), reverse=True)"
       },
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
@@ -5063,7 +5063,7 @@
     {
       "id": "single-field-record-sort-output",
       "contextSuffix": [
-        "\n"
+        ")"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting"
@@ -5074,7 +5074,7 @@
       "tokenBinding": {
         "factId": "program.single-field-record-sorting",
         "valueId": "name",
-        "prefix": "print(",
+        "prefix": "\nprint(",
         "suffix": "([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))\n```\n"
       },
       "satisfiesFacts": [
@@ -5085,7 +5085,7 @@
     {
       "id": "single-field-record-sort-output-case-insensitive",
       "contextSuffix": [
-        "\n"
+        ")"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
@@ -5097,7 +5097,7 @@
       "tokenBinding": {
         "factId": "program.single-field-record-sorting",
         "valueId": "name",
-        "prefix": "print(",
+        "prefix": "\nprint(",
         "suffix": "([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))\n```\n"
       },
       "satisfiesFacts": [
