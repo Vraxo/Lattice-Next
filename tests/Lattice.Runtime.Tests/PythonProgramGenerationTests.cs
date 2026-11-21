@@ -1102,4 +1102,28 @@ public sealed class PythonProgramGenerationTests
         Assert.Contains("program.assignment.result", utterance.Meaning, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Generates_function_local_assignments_from_declarative_collection_facts()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Create a Python program that defines a function with signature \"combine(left, right)\" and statements \"first = left + right; second = first * 2\", returns second then prints combine(3, 4).");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.Equal(
+            "```python" + Environment.NewLine +
+            "def combine(left, right):" + Environment.NewLine +
+            "    first = left + right" + Environment.NewLine +
+            "    second = first * 2" + Environment.NewLine +
+            "    return second" + Environment.NewLine +
+            "print(combine(3, 4))" + Environment.NewLine +
+            "```",
+            utterance.Message);
+    }
+
+
 }
