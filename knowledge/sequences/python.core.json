@@ -2643,6 +2643,46 @@
           "sort"
         ]
       ]
+    },
+    {
+      "id": "recognize-range-loop-facts",
+      "matchTokens": [
+        "from"
+      ],
+      "factId": "program.range-loop",
+      "requiredAnySequences": [
+        [
+          "from",
+          "to"
+        ],
+        [
+          "from",
+          "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
+        ]
+      ]
     }
   ],
   "rules": [
