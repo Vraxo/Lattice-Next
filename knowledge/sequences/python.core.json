@@ -2943,6 +2943,291 @@
           "organizes"
         ]
       ]
+    },
+    {
+      "id": "recognize-single-field-record-sorting",
+      "matchTokens": [
+        "records",
+        "sorted",
+        "by"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting.header",
+          "valueId": "kind",
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.single-field-record-sorting.signature",
+          "valueId": "kind",
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.single-field-record-sorting.body",
+          "valueId": "kind",
+          "literalValue": "ready"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "field",
+          "name"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ]
+    },
+    {
+      "id": "capture-single-field-sort-function-name",
+      "matchTokens": [
+        "function",
+        "named"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "name",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeTokens": [
+            "that"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ]
+    },
+    {
+      "id": "capture-single-field-sort-records-name",
+      "matchTokens": [
+        "records",
+        "named"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "records",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ]
+    },
+    {
+      "id": "capture-single-field-sort-field-name",
+      "matchTokens": [
+        "field",
+        "name",
+        "named"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "field",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ]
+    },
+    {
+      "id": "default-single-field-sort-function-name",
+      "matchTokens": [
+        "function"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "name",
+          "literalValue": "sort_records"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "default-single-field-sort-records-name",
+      "matchTokens": [
+        "records"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "records",
+          "literalValue": "records"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "records",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "default-single-field-sort-field-name",
+      "matchTokens": [
+        "field"
+      ],
+      "factId": "program.single-field-record-sorting",
+      "captures": [
+        {
+          "factId": "program.single-field-record-sorting",
+          "valueId": "field",
+          "literalValue": "field"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "field",
+          "name",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-single-field-sort-case-insensitive",
+      "matchTokens": [
+        "case-insensitively"
+      ],
+      "factId": "program.single-field-record-sorting.case-insensitive",
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-single-field-sort-case-insensitive-spaced",
+      "matchTokens": [
+        "case",
+        "insensitively"
+      ],
+      "factId": "program.single-field-record-sorting.case-insensitive",
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-single-field-sort-descending",
+      "matchTokens": [
+        "descending",
+        "order"
+      ],
+      "factId": "program.single-field-record-sorting.descending",
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-single-field-sort-reverse",
+      "matchTokens": [
+        "reverse",
+        "order"
+      ],
+      "factId": "program.single-field-record-sorting.descending",
+      "requiredAnySequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ]
     }
   ],
   "rules": [
@@ -4623,6 +4908,202 @@
         "program.record-aggregation",
         "program.record-aggregation.intent"
       ]
+    },
+    {
+      "id": "single-field-record-sort-function",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "name",
+        "prefix": "```python\ndef ",
+        "suffix": "("
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.header",
+        "intent.program-generation",
+        "language.python"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-parameters",
+      "contextSuffix": [
+        "("
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.header"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "records",
+        "secondaryValueId": "field",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0}, {1}):\n"
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.signature",
+        "program.function",
+        "program.collection"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-body-standard",
+      "contextSuffix": [
+        "):\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "records",
+        "secondaryValueId": "field",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}])\n"
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.body",
+        "program.sort"
+      ],
+      "forbiddenFacts": [
+        "program.single-field-record-sorting.case-insensitive",
+        "program.single-field-record-sorting.descending"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-body-case-insensitive",
+      "contextSuffix": [
+        "):\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.case-insensitive"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "records",
+        "secondaryValueId": "field",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold())\n"
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.body",
+        "program.sort"
+      ],
+      "forbiddenFacts": [
+        "program.single-field-record-sorting.descending"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-body-descending",
+      "contextSuffix": [
+        "):\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.descending"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "records",
+        "secondaryValueId": "field",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}], reverse=True)\n"
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.body",
+        "program.sort"
+      ],
+      "forbiddenFacts": [
+        "program.single-field-record-sorting.case-insensitive"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-body-case-insensitive-descending",
+      "contextSuffix": [
+        "):\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.case-insensitive",
+        "program.single-field-record-sorting.descending"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "records",
+        "secondaryValueId": "field",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold(), reverse=True)\n"
+      },
+      "satisfiesFacts": [
+        "program.single-field-record-sorting.body",
+        "program.sort"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-output",
+      "contextSuffix": [
+        "\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.body"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "name",
+        "prefix": "print(",
+        "suffix": "([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))\n```\n"
+      },
+      "satisfiesFacts": [
+        "program.output",
+        "program.single-field-record-sorting"
+      ]
+    },
+    {
+      "id": "single-field-record-sort-output-case-insensitive",
+      "contextSuffix": [
+        "\n"
+      ],
+      "requiredFacts": [
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.case-insensitive"
+      ],
+      "requiresCompletedFacts": [
+        "program.single-field-record-sorting.body"
+      ],
+      "tokenBinding": {
+        "factId": "program.single-field-record-sorting",
+        "valueId": "name",
+        "prefix": "print(",
+        "suffix": "([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))\n```\n"
+      },
+      "satisfiesFacts": [
+        "program.output",
+        "program.single-field-record-sorting"
+      ]
     }
   ],
   "validations": [
@@ -4808,6 +5289,27 @@
       "factId": "program.record-aggregation",
       "valueId": "measure",
       "appliesWhenFactId": "program.record-aggregation.intent"
+    },
+    {
+      "id": "single-field-record-sort-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.single-field-record-sorting",
+      "valueId": "name",
+      "appliesWhenFactId": "program.single-field-record-sorting"
+    },
+    {
+      "id": "single-field-record-sort-records-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.single-field-record-sorting",
+      "valueId": "records",
+      "appliesWhenFactId": "program.single-field-record-sorting"
+    },
+    {
+      "id": "single-field-record-sort-field-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.single-field-record-sorting",
+      "valueId": "field",
+      "appliesWhenFactId": "program.single-field-record-sorting"
     }
   ]
 }

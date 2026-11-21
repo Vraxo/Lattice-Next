@@ -515,6 +515,39 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode, fence), result!.Text);
     }
 
+    [Theory]
+    [InlineData("Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.", "sort_people", "people", "sort_key", "program.single-field-record-sorting.descending")]
+    [InlineData("Create a Python program that defines a function named order_records that accepts a list of records named entries and a field name named order_by, then returns the records sorted case-insensitively by that field.", "order_records", "entries", "order_by", "program.single-field-record-sorting.case-insensitive")]
+    public void Extracts_and_generates_single_field_record_sorting_declaratively(string prompt, string functionName, string recordsName, string fieldName, string expectedFact)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
+        Assert.Contains(facts, fact => fact.Id == expectedFact);
+        Assert.True(SequenceInputFactValidator.TryValidate(knowledge!, facts, out var validationError), validationError);
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            new KnowledgeDrivenSequenceGenerationRequest(
+                ImmutableArray<string>.Empty,
+                facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts },
+            out var generated,
+            out var generationError), generationError);
+        Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated);
+        Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated);
+    }
+
+    [Fact]
+    public void Rejects_single_field_record_sorting_with_invalid_identifiers()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named class, then returns the records sorted by that field.",
+            out var facts,
+            out _));
+    }
+
     [Fact]
     public void Generates_ordered_collection_items_and_advances_only_at_declared_boundaries()
     {
