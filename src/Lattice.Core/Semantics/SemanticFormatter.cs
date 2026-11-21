@@ -121,11 +121,7 @@ public static class SemanticFormatter
         var requirements = taskRequest.Requirements.IsDefaultOrEmpty
             ? string.Empty
             : $"; requirements={string.Join("+", taskRequest.Requirements)}";
-        var requestedValue = taskRequest.RequestedValue is null
-            ? string.Empty
-            : $"; value=\"{taskRequest.RequestedValue.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal)}\"";
-
-        return $"task({taskRequest.Action.ToString().ToLowerInvariant()}, {taskRequest.Subject}{context}{output}{scope}{requirements}{requestedValue})";
+        return $"task({taskRequest.Action.ToString().ToLowerInvariant()}, {taskRequest.Subject}{context}{output}{scope}{requirements})";
     }
 
     private static string FormatObjectiveConditionUpdate(ObjectiveConditionUpdateFormula update)
