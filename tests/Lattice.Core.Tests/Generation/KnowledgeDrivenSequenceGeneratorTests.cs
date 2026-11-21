@@ -324,6 +324,46 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence), result!.Text);
     }
 
+
+    [Theory]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
+        "program.multi-field-record-sorting",
+        """def order_records(people, sort_keys):
+    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))
+print(order_records([{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}], ["department", "name"]))""")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
+        "program.multi-field-record-sorting.case-insensitive",
+        """def order_records(people, sort_keys):
+    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))
+print(order_records([{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}], ["department", "name"]))""")]
+    public void Generates_multi_field_record_sorting_from_declarative_facts(string input, string expectedFact, string expectedCode)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == expectedFact);
+        Assert.Contains(facts, fact => fact.Id == "program.multi-field-record-sorting");
+        Assert.Contains(facts, fact => fact.Id == "language.python");
+        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
+        Assert.Contains(facts, fact => fact.Id == "program.function");
+        Assert.Contains(facts, fact => fact.Id == "program.collection");
+        Assert.Contains(facts, fact => fact.Id == "program.output");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!, null, request, out var result, out var generationError),
+            $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode, fence), result!.Text);
+    }
+
     private static SequenceTokenRule Rule(
         string id,
         ImmutableArray<string> context,
