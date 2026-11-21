@@ -1499,6 +1499,33 @@
         "cleanly"
       ],
       "factId": "program.directory-file-listing"
+    },
+    {
+      "id": "recognize-multi-field-record-sorting",
+      "matchTokens": [
+        "list",
+        "field",
+        "names",
+        "returns",
+        "records",
+        "sorted",
+        "by",
+        "those",
+        "fields"
+      ],
+      "factId": "program.multi-field-record-sorting"
+    },
+    {
+      "id": "recognize-case-insensitive-multi-field-record-sorting",
+      "matchTokens": [
+        "records",
+        "sorted",
+        "case-insensitively",
+        "by",
+        "those",
+        "fields"
+      ],
+      "factId": "program.multi-field-record-sorting.case-insensitive"
     }
   ],
   "rules": [
@@ -2369,6 +2396,49 @@
         "language.python",
         "intent.program-generation",
         "program.output"
+      ]
+    },
+    {
+      "id": "python-multi-field-record-sorting",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.multi-field-record-sorting"
+      ],
+      "nextToken": "```python\ndef order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))\n```",
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.function",
+        "program.collection",
+        "program.output",
+        "program.multi-field-record-sorting",
+        "program.sort"
+      ],
+      "forbiddenFacts": [
+        "program.multi-field-record-sorting.case-insensitive"
+      ]
+    },
+    {
+      "id": "python-case-insensitive-multi-field-record-sorting",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.multi-field-record-sorting",
+        "program.multi-field-record-sorting.case-insensitive"
+      ],
+      "nextToken": "```python\ndef order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))\n```",
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.function",
+        "program.collection",
+        "program.output",
+        "program.multi-field-record-sorting",
+        "program.multi-field-record-sorting.case-insensitive",
+        "program.sort"
       ]
     }
   ]
