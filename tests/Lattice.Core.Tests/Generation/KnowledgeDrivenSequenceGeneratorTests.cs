@@ -1567,7 +1567,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.False(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError),
-            $"Expected invalid range to be rejected: {input}. Extraction error: {extractionError}");
+            $"Expected invalid range to be rejected: {input}. Extraction error: {extractionError}. Facts: {string.Join(" | ", facts.Select(fact => $"{fact.Id}: {string.Join(", ", fact.Values.Select(value => $"{value.Key}={value.Value}"))}"))}");
         Assert.Empty(facts);
     }
 
