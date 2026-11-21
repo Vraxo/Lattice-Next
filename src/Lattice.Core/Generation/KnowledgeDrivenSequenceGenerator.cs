@@ -350,7 +350,7 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
-        token = binding.Encoding is null ? value : EncodeValue(value, encodings[binding.Encoding]);
+        token = binding.Prefix + (binding.Encoding is null ? value : EncodeValue(value, encodings[binding.Encoding])) + binding.Suffix;
 
         return token.Length > 0 &&
             token.Length <= 4096 &&

@@ -415,19 +415,22 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection", "prefix", "suffix") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
             !IsValidIdentifier(valueId) ||
             !TryGetOptionalString(property, "encoding", out var encoding) ||
             (encoding is not null && !IsValidIdentifier(encoding)) ||
-            !TryGetOptionalBoolean(property, "collection", out var useCollection))
+            !TryGetOptionalBoolean(property, "collection", out var useCollection) ||
+            !TryGetOptionalString(property, "prefix", out var prefix) ||
+            !TryGetOptionalString(property, "suffix", out var suffix) ||
+            (prefix?.Length ?? 0) > 128 || (suffix?.Length ?? 0) > 128)
         {
             return false;
         }
 
-        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection);
+        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection) { Prefix = prefix ?? string.Empty, Suffix = suffix ?? string.Empty };
         return true;
     }
 

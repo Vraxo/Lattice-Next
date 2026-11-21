@@ -14,7 +14,11 @@ public sealed record SequenceTokenBinding(
     string FactId,
     string ValueId,
     string? Encoding = null,
-    bool UseCollection = false);
+    bool UseCollection = false)
+{
+    public string Prefix { get; init; } = string.Empty;
+    public string Suffix { get; init; } = string.Empty;
+}
 
 public sealed record SequenceTokenEscape(
     string Character,
