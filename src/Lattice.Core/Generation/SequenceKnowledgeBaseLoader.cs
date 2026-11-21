@@ -73,6 +73,7 @@ public static class SequenceKnowledgeBaseLoader
                         "tokenBinding",
                         "satisfiesFacts",
                         "forbiddenFacts",
+                        "advanceCollections",
                         "weight") ||
                     !TryGetString(element, "id", out var id) ||
                     !IsValidIdentifier(id) ||
@@ -89,11 +90,14 @@ public static class SequenceKnowledgeBaseLoader
                     !TryGetStringArray(element, "requiresCompletedFacts", out var requiresCompletedFacts) ||
                     !TryGetStringArray(element, "satisfiesFacts", out var satisfiesFacts) ||
                     !TryGetStringArray(element, "forbiddenFacts", out var forbiddenFacts) ||
+                    !TryGetStringArray(element, "advanceCollections", out var advanceCollections) ||
                     !TryGetWeight(element, out var weight) ||
                     !HasUniqueIdentifiers(requiredFacts) ||
                     !HasUniqueIdentifiers(requiresCompletedFacts) ||
                     !HasUniqueIdentifiers(satisfiesFacts) ||
                     !HasUniqueIdentifiers(forbiddenFacts) ||
+                    advanceCollections.Any(value => !IsValidCollectionKey(value)) ||
+                    advanceCollections.Distinct(StringComparer.Ordinal).Count() != advanceCollections.Length ||
                     (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
                     error = "Every sequence rule requires a unique identifier, exactly one literal or bound token source, valid fact identifiers, context, and a finite optional weight.";
@@ -110,7 +114,8 @@ public static class SequenceKnowledgeBaseLoader
                     weight)
                 {
                     TokenBinding = tokenBinding,
-                    ForbiddenFacts = forbiddenFacts
+                    ForbiddenFacts = forbiddenFacts,
+                    AdvanceCollections = advanceCollections
                 });
             }
 
@@ -410,18 +415,19 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
             !IsValidIdentifier(valueId) ||
             !TryGetOptionalString(property, "encoding", out var encoding) ||
-            (encoding is not null && !IsValidIdentifier(encoding)))
+            (encoding is not null && !IsValidIdentifier(encoding)) ||
+            !TryGetOptionalBoolean(property, "collection", out var useCollection))
         {
             return false;
         }
 
-        binding = new SequenceTokenBinding(factId, valueId, encoding);
+        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection);
         return true;
     }
 
@@ -599,6 +605,13 @@ public static class SequenceKnowledgeBaseLoader
 
     private static bool HasUniqueIdentifiers(ImmutableArray<string> values) =>
         values.Distinct(StringComparer.Ordinal).Count() == values.Length;
+
+    private static bool IsValidCollectionKey(string value)
+    {
+        var separator = value.IndexOf(':');
+        return separator > 0 && separator < value.Length - 1 &&
+            IsValidIdentifier(value[..separator]) && IsValidIdentifier(value[(separator + 1)..]);
+    }
 
     private static bool IsValidIdentifier(string value) =>
         value.Length is > 0 and <= MaximumIdentifierLength &&
