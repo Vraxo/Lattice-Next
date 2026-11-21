@@ -11,10 +11,6 @@ internal static class PythonCollectionProgramParser
         @"\bfunction\s+(?:named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+)?(?:that\s+)?(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+numbers?(?:\s+(?:named\s+)?(?<parameter>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+returns?\s+(?:a\s+)?new\s+list\s+containing\s+only\s+(?<item>[A-Za-z_][A-Za-z0-9_]*)(?:\s+values?)?\s+(?<comparison>greater\s+than\s+or\s+equal\s+to|at\s+least|less\s+than\s+or\s+equal\s+to|at\s+most|not\s+equal\s+to|greater\s+than|more\s+than|less\s+than|below|equal\s+to|equals)\s+(?<threshold>(?:the\s+)?average(?:\s+of\s+(?:the\s+)?(?<averageParameter>[A-Za-z_][A-Za-z0-9_]*))?|\d+(?:\.\d+)?(?:\s*[+*/%\-]\s*\d+(?:\.\d+)?)*)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex SortRecordsByFieldsPattern = new(
-        @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?list\s+of\s+field\s+names(?:\s+(?:named\s+)?(?<fields>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:those|the)\s+fields(?:\s+case[- ]insensitively)?(?:\s+in\s+descending\s+order)?\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex SortRecordsByFieldPattern = new(
         @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:that|the)\s+field(?:\s+case[- ]insensitively)?(?:\s+in\s+(?:descending|reverse)\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -90,50 +86,6 @@ internal static class PythonCollectionProgramParser
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
             new TaskRequestStep("return-value-indented-expression", "expression", expression),
             new TaskRequestStep("write-standard-output", "expression", $"{name}([1, 2, 3, 4, 5])"));
-        return true;
-    }
-
-    internal static bool TryGetSortRecordsByFieldsProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = SortRecordsByFieldsPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var functionName = match.Groups["name"].Success
-            ? match.Groups["name"].Value
-            : "sort_records";
-        var recordsName = match.Groups["records"].Success
-            ? match.Groups["records"].Value
-            : "records";
-        var fieldsName = match.Groups["fields"].Success
-            ? match.Groups["fields"].Value
-            : "fields";
-        var caseInsensitive = source.Contains("case-insensitively", StringComparison.OrdinalIgnoreCase)
-            || source.Contains("case insensitively", StringComparison.OrdinalIgnoreCase);
-        var descending = source.Contains("descending order", StringComparison.OrdinalIgnoreCase);
-        var sampleRecords = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
-        var sortKey = caseInsensitive
-            ? $"tuple(record[field].casefold() for field in {fieldsName})"
-            : $"tuple(record[field] for field in {fieldsName})";
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep(
-                "begin-function",
-                "function-header",
-                $"{functionName}({recordsName}, {fieldsName})"),
-            new TaskRequestStep(
-                "return-value-indented-expression",
-                "expression",
-                $"sorted({recordsName}, key=lambda record: {sortKey}{(descending ? ", reverse=True" : string.Empty)})"),
-            new TaskRequestStep(
-                "write-standard-output",
-                "expression",
-                $"{functionName}({sampleRecords}, [\"department\", \"name\"])"));
         return true;
     }
 
