@@ -3902,28 +3902,9 @@
       "weight": 12
     },
     {
-      "id": "python-range-loop-open-fence",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.range-loop",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.output.start"
-      ],
-      "weight": 1000
-    },
-    {
       "id": "python-range-loop-open",
       "contextSuffix": [
-        "```python\\n"
+        "```python\n"
       ],
       "requiredFacts": [
         "program.range-loop"
@@ -3993,6 +3974,7 @@
         "program.range-loop",
         "program.iteration",
         "program.output",
+        "program.output.start",
         "value.output"
       ]
     }
