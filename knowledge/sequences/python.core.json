@@ -5020,7 +5020,7 @@
     {
       "id": "single-field-record-sort-parameters",
       "contextSuffix": [
-        "("
+        "*("
       ],
       "requiredFacts": [
         "program.single-field-record-sorting"
@@ -5044,7 +5044,7 @@
     {
       "id": "single-field-record-sort-body-standard",
       "contextSuffix": [
-        "):\n"
+        "*):\n"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting"
@@ -5071,7 +5071,7 @@
     {
       "id": "single-field-record-sort-body-case-insensitive",
       "contextSuffix": [
-        "):\n"
+        "*):\n"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
@@ -5098,7 +5098,7 @@
     {
       "id": "single-field-record-sort-body-descending",
       "contextSuffix": [
-        "):\n"
+        "*):\n"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
@@ -5125,7 +5125,7 @@
     {
       "id": "single-field-record-sort-body-case-insensitive-descending",
       "contextSuffix": [
-        "):\n"
+        "*):\n"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
@@ -5150,7 +5150,7 @@
     {
       "id": "single-field-record-sort-output",
       "contextSuffix": [
-        ")"
+        "*)"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting"
@@ -5172,7 +5172,7 @@
     {
       "id": "single-field-record-sort-output-case-insensitive",
       "contextSuffix": [
-        ")"
+        "*)"
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
