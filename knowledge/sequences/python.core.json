@@ -338,6 +338,12 @@
             "then"
           ]
         }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
       ]
     },
     {
@@ -365,6 +371,12 @@
             "then"
           ]
         }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
       ]
     },
     {
@@ -392,6 +404,12 @@
             "then"
           ]
         }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
       ]
     },
     {
@@ -419,6 +437,12 @@
             "then"
           ]
         }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
       ]
     },
     {
