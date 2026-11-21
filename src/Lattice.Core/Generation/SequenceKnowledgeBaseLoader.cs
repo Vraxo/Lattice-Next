@@ -304,7 +304,7 @@ public static class SequenceKnowledgeBaseLoader
                 forbiddenAnySequences.Length > 16 ||
                 !TryReadInputCaptures(captureElements, out var captures, out error))
             {
-                error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
+                error = $"Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier. Invalid rule: {item.GetRawText()}";
                 return false;
             }
 
