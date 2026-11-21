@@ -500,6 +500,36 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Extracts_an_ordered_collection_from_a_declarative_input_capture()
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            [Rule("unused", [], ["unused"], [], "unused", ["unused"])],
+            InputRules: [
+                new SequenceInputFactRule(
+                    "capture-items",
+                    ["variables"],
+                    "program.locals",
+                    Captures: [
+                        new SequenceInputFactCapture(
+                            "program.locals",
+                            "names",
+                            ["are"],
+                            ["and", "then"],
+                            CollectionDelimiter: ",")
+                    ])
+            ]);
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            "Variables are first, second, third and then return.",
+            out var facts,
+            out var error), error);
+
+        var locals = Assert.Single(facts, fact => fact.Id == "program.locals");
+        Assert.Equal(["first", "second", "third"], locals.Collections["names"]);
+    }
+
+    [Fact]
     public void Rejects_input_that_matches_no_semantic_fact_rule()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
