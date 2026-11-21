@@ -500,6 +500,32 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Loads_ordered_collection_capture_metadata_from_knowledge()
+    {
+        const string json = """
+        {
+          "formatVersion": 1,
+          "rules": [{ "id": "unused", "nextToken": "unused" }],
+          "inputRules": [{
+            "id": "capture-items",
+            "matchTokens": ["variables"],
+            "factId": "program.locals",
+            "captures": [{
+              "factId": "program.locals",
+              "valueId": "names",
+              "startAfterTokens": ["are"],
+              "stopBeforeTokens": ["and"],
+              "collectionDelimiter": ","
+            }]
+          }]
+        }
+        """;
+
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoad(json, out var knowledge, out var error), error);
+        Assert.Equal(",", Assert.Single(knowledge!.InputRules[0].Captures).CollectionDelimiter);
+    }
+
+    [Fact]
     public void Extracts_an_ordered_collection_from_a_declarative_input_capture()
     {
         var knowledge = new SequenceKnowledgeBase(
