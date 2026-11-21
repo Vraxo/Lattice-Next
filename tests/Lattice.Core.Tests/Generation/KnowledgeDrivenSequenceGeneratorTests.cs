@@ -248,7 +248,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         "['Ada', 'Grace']",
         "for name in ['Ada', 'Grace']:\\n    print(name)")]
     [InlineData(
-        "Build a Python script that displays each label from [\\u0022red, blue\\u0022, 'green'].",
+        "Build a Python script that displays each label from [\u0022red, blue\\u0022, 'green'].",
         "label",
         "[\"red, blue\", 'green']",
         "for label in [\"red, blue\", 'green']:\\n    print(label)")]
