@@ -2904,21 +2904,45 @@
       "matchTokens": [
         "calculates"
       ],
-      "factId": "program.record-aggregation.intent"
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
     },
     {
       "id": "recognize-record-aggregation-computes",
       "matchTokens": [
         "computes"
       ],
-      "factId": "program.record-aggregation.intent"
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
     },
     {
       "id": "recognize-record-aggregation-sums",
       "matchTokens": [
         "sums"
       ],
-      "factId": "program.record-aggregation.intent"
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
     }
   ],
   "rules": [

@@ -988,7 +988,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a small program that groups a list of purchase records by customer and calculates each customer's total spending.");
+            "Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -1014,7 +1014,7 @@ public sealed class PythonProgramGenerationTests
 
         await using var variantSession = await client.CreateSessionAsync();
         var variantResult = await variantSession.SubmitAsync(
-            "Create a small program that groups a list of order records by buyer and sums each buyer's total amount.");
+            "Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.");
 
         var variantUtterance = Assert.Single(variantResult.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, variantResult.Status);
