@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Lattice.Core.Generation;
@@ -47,6 +48,9 @@ public static class SequenceInputFactValidator
             {
                 "identifierValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var value) &&
                     IsIdentifier(value),
+                "integerValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var integerValue) &&
+                    int.TryParse(integerValue, NumberStyles.None, CultureInfo.InvariantCulture, out _),
+                "ascendingIntegerRange" => TryValidateAscendingIntegerRange(factMap, validation),
                 "pythonListLiteral" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var listLiteral) &&
                     IsPythonListLiteral(listLiteral),
                 "identifierCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var identifiers) &&
@@ -153,6 +157,18 @@ public static class SequenceInputFactValidator
         return arguments.Length == parameters.Length &&
             arguments.Length > 0 &&
             arguments.All(argument => NumberPattern.IsMatch(argument));
+    }
+
+
+    private static bool TryValidateAscendingIntegerRange(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        return TryGetValue(facts, validation.FactId, validation.ValueId, out var startText) &&
+            TryGetValue(facts, validation.RelatedFactId, validation.RelatedValueId, out var endText) &&
+            int.TryParse(startText, NumberStyles.None, CultureInfo.InvariantCulture, out var start) &&
+            int.TryParse(endText, NumberStyles.None, CultureInfo.InvariantCulture, out var end) &&
+            end > start;
     }
 
     private static bool IsPythonListLiteral(string value)

@@ -343,7 +343,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue", "numericOffset") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -375,6 +375,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
+                !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
                      collectionFieldDelimiter is null)) ||
@@ -402,7 +403,8 @@ public static class SequenceKnowledgeBaseLoader
                 CollectionTemplate = collectionTemplate,
                 TrimPrefixTokens = trimPrefixTokens,
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
-                PreserveRawValue = preserveRawValue
+                PreserveRawValue = preserveRawValue,
+                NumericOffset = numericOffset ?? 0
             });
         }
 
@@ -434,7 +436,9 @@ public static class SequenceKnowledgeBaseLoader
             "arithmeticValue",
             "arithmeticValueReferences",
             "matchingNumericFunctionCall",
-            "pythonListLiteral"
+            "pythonListLiteral",
+            "integerValue",
+            "ascendingIntegerRange"
         };
 
         foreach (var item in element.EnumerateArray())
