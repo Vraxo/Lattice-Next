@@ -15,10 +15,6 @@ internal static class PythonCollectionProgramParser
         @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:that|the)\s+field(?:\s+case[- ]insensitively)?(?:\s+in\s+(?:descending|reverse)\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex JsonCollectionRoundTripPattern = new(
-        @"\b(?:saves?|writes?)\s+(?:a|the)\s+list\s+of\s+dictionaries(?:\s+(?:named|called)\s+(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+to\s+(?:a|the)\s+JSON\s+file(?:\s+(?:named|called)\s+(?<path>[A-Za-z0-9_.-]+\.json))?\s+and\s+then\s+loads?\s+it\s+back\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     internal static readonly Regex CollectionGroupingAggregationPattern = new(
         @"\b(?:groups?|organizes?)\s+(?:a|the)\s+list\s+of\s+(?<record>[A-Za-z_][A-Za-z0-9_]*)\s+records?\s+by\s+(?<group>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:calculates?|computes?|sums?)\s+(?:each\s+(?<owner>[A-Za-z_][A-Za-z0-9_]*)'?s\s+)?(?:total\s+)?(?<measure>spending|amount|cost|price|value)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -131,55 +127,6 @@ internal static class PythonCollectionProgramParser
                 $"{functionName}({sampleRecords}, {sampleField})"));
         return true;
     }
-
-    internal static bool TryGetJsonCollectionRoundTripProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = JsonCollectionRoundTripPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var recordsName = match.Groups["records"].Success
-            ? match.Groups["records"].Value
-            : "records";
-        var filePath = match.Groups["path"].Success
-            ? match.Groups["path"].Value
-            : "records.json";
-        var loadedName = $"loaded_{recordsName}";
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("import-module", "module-name", "json"),
-            new TaskRequestStep(
-                "assign-variable",
-                "assignment",
-                $"{recordsName} = [{{\"name\": \"Ada\", \"age\": 36}}, {{\"name\": \"Grace\", \"age\": 85}}]"),
-            new TaskRequestStep(
-                "begin-with",
-                "expression",
-                $"open(\"{filePath}\", \"w\", encoding=\"utf-8\") as output_file"),
-            new TaskRequestStep(
-                "write-expression-indented",
-                "expression",
-                $"{recordsName}, output_file, indent=2"),
-            new TaskRequestStep(
-                "begin-with",
-                "expression",
-                $"open(\"{filePath}\", \"r\", encoding=\"utf-8\") as input_file"),
-            new TaskRequestStep(
-                "assign-variable-indented",
-                "assignment",
-                $"{loadedName} = json.load(input_file)"),
-            new TaskRequestStep(
-                "write-standard-output",
-                "expression",
-                loadedName));
-        return true;
-    }
-
 
     internal static bool TryGetCollectionGroupingAggregationProgram(
         string source,

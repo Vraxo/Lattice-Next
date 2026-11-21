@@ -53,10 +53,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = sortRecordsSteps };
         }
-        else if (PythonCollectionProgramParser.TryGetJsonCollectionRoundTripProgram(source, out var jsonRoundTripSteps))
-        {
-            formula = formula with { GenerationSteps = jsonRoundTripSteps };
-        }
         else if (!PythonProgramRequestParser.HasOutputIntent(source))
         {
             return false;
