@@ -15,10 +15,6 @@ internal static class PythonCollectionProgramParser
         @"\b(?:creates?|defines?|writes?)\s+(?:a\s+)?(?:reusable\s+)?function(?:\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*))?\s+that\s+(?:accepts?|receives?)\s+(?:a\s+)?list\s+of\s+records(?:\s+(?:named\s+)?(?<records>[A-Za-z_][A-Za-z0-9_]*))?\s+and\s+(?:a\s+)?field\s+name(?:\s+(?:named\s+)?(?<field>[A-Za-z_][A-Za-z0-9_]*))?\s*,?\s+then\s+returns?\s+(?:the\s+)?records?\s+sorted\s+(?:case[- ]insensitively\s+)?by\s+(?:that|the)\s+field(?:\s+case[- ]insensitively)?(?:\s+in\s+(?:descending|reverse)\s+order)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    internal static readonly Regex CollectionGroupingAggregationPattern = new(
-        @"\b(?:groups?|organizes?)\s+(?:a|the)\s+list\s+of\s+(?<record>[A-Za-z_][A-Za-z0-9_]*)\s+records?\s+by\s+(?<group>[A-Za-z_][A-Za-z0-9_]*)\s+and\s+(?:calculates?|computes?|sums?)\s+(?:each\s+(?<owner>[A-Za-z_][A-Za-z0-9_]*)'?s\s+)?(?:total\s+)?(?<measure>spending|amount|cost|price|value)\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     internal static bool TryGetCollectionFilterFunctionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
@@ -125,49 +121,6 @@ internal static class PythonCollectionProgramParser
                 "write-standard-output",
                 "expression",
                 $"{functionName}({sampleRecords}, {sampleField})"));
-        return true;
-    }
-
-    internal static bool TryGetCollectionGroupingAggregationProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = CollectionGroupingAggregationPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        var record = match.Groups["record"].Value;
-        var group = match.Groups["group"].Value;
-        var owner = match.Groups["owner"].Success ? match.Groups["owner"].Value : group;
-        var measure = match.Groups["measure"].Value.Equals("spending", StringComparison.OrdinalIgnoreCase)
-            ? "amount"
-            : match.Groups["measure"].Value;
-
-        if (!owner.Equals(group, StringComparison.OrdinalIgnoreCase) ||
-            record.Equals(group, StringComparison.OrdinalIgnoreCase) ||
-            record.Equals("for", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var records = $"records = [{{\"{group}\": \"Ada\", \"{measure}\": 25.0}}, {{\"{group}\": \"Grace\", \"{measure}\": 40.0}}, {{\"{group}\": \"Ada\", \"{measure}\": 15.0}}]";
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("assign-variable", "assignment", records),
-            new TaskRequestStep("assign-variable", "assignment", "totals = {}"),
-            new TaskRequestStep("begin-loop", "loop-header", $"{record} in records"),
-            new TaskRequestStep(
-                "assign-variable-indented",
-                "assignment",
-                $"{group} = {record}[\"{group}\"]"),
-            new TaskRequestStep(
-                "assign-variable-indented",
-                "assignment",
-                $"totals[{group}] = totals.get({group}, 0) + {record}[\"{measure}\"]"),
-            new TaskRequestStep("begin-loop", "loop-header", $"{group}, total in totals.items()"),
-            new TaskRequestStep("write-standard-output-indented-expression", "expression", $"{group}, total"));
         return true;
     }
 

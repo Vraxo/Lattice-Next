@@ -38,6 +38,24 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains("people-data.json", generated!.Text, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("Write a small program that groups a list of purchase records by customer and calculates each customer's total spending.", "purchase", "customer", "spending")]
+    [InlineData("Create a small program that groups a list of order records by buyer and sums each buyer's total amount.", "order", "buyer", "amount")]
+    public void Extracts_and_generates_grouped_record_aggregation_from_declarative_facts(string prompt, string record, string group, string measure)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+        var aggregation = Assert.Single(facts, fact => fact.Id == "program.record-aggregation");
+        Assert.Equal(record, aggregation.Values["record"]);
+        Assert.Equal(group, aggregation.Values["group"]);
+        Assert.Equal(measure, aggregation.Values["measure"]);
+        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError), generationError);
+        Assert.Contains($"for {record} in records:", generated!.Text, StringComparison.Ordinal);
+        Assert.Contains($"key = {record}[\"{group}\"]", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Continues_from_multiple_active_semantic_facts_using_contextual_next_tokens()
     {

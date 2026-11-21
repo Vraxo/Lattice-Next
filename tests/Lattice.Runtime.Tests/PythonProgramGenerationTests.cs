@@ -999,10 +999,10 @@ public sealed class PythonProgramGenerationTests
             "records = [{\"customer\": \"Ada\", \"amount\": 25.0}, {\"customer\": \"Grace\", \"amount\": 40.0}, {\"customer\": \"Ada\", \"amount\": 15.0}]",
             "totals = {}",
             "for purchase in records:",
-            "    customer = purchase[\"customer\"]",
-            "    totals[customer] = totals.get(customer, 0) + purchase[\"amount\"]",
-            "for customer, total in totals.items():",
-            "    print(customer, total)");
+            "    key = purchase[\"customer\"]",
+            "    totals[key] = totals.get(key, 0) + purchase[\"spending\"]",
+            "for key, total in totals.items():",
+            "    print(key, total)");
         Assert.Equal(expectedCode, generatedCode);
         await AssertPythonOutput(generatedCode, "Ada 40.0\nGrace 40.0");
 
@@ -1022,8 +1022,8 @@ public sealed class PythonProgramGenerationTests
 
         var variantCode = ExtractGeneratedPythonCode(variantUtterance.Message);
         Assert.Contains("for order in records:", variantCode, StringComparison.Ordinal);
-        Assert.Contains("buyer = order[\"buyer\"]", variantCode, StringComparison.Ordinal);
-        Assert.Contains("totals[buyer] = totals.get(buyer, 0) + order[\"amount\"]", variantCode, StringComparison.Ordinal);
+        Assert.Contains("key = order[\"buyer\"]", variantCode, StringComparison.Ordinal);
+        Assert.Contains("totals[key] = totals.get(key, 0) + order[\"amount\"]", variantCode, StringComparison.Ordinal);
         await AssertPythonOutput(variantCode, "Ada 40.0\nGrace 40.0");
     }
 

@@ -13,9 +13,7 @@ internal static class CompositionalTaskParser
     {
         utterance = null;
 
-        var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
-        if (!isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out _))
+        if (!PythonProgramRequestParser.TryGetCreationClause(source, out _))
         {
             return false;
         }
@@ -28,11 +26,7 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (PythonCollectionProgramParser.TryGetCollectionGroupingAggregationProgram(source, out var groupingSteps))
-        {
-            formula = formula with { GenerationSteps = groupingSteps };
-        }
-        else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
+        if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
         }

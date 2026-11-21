@@ -314,9 +314,10 @@ public static class KnowledgeDrivenSequenceGenerator
                        rule.TokenBinding.SecondaryCollectionSeparator is not null)) ||
                      (rule.TokenBinding.ValueTemplate is not null &&
                       (rule.TokenBinding.SecondaryValueId is null ||
-                       rule.TokenBinding.SecondaryCollectionSeparator is null ||
                        !IsValidIdentifier(rule.TokenBinding.SecondaryValueId) ||
-                       rule.TokenBinding.SecondaryCollectionSeparator.Length > 32 ||
+                       (rule.TokenBinding.SecondaryValueIsCollection && rule.TokenBinding.SecondaryCollectionSeparator is null) ||
+                       (!rule.TokenBinding.SecondaryValueIsCollection && rule.TokenBinding.SecondaryCollectionSeparator is not null) ||
+                       (rule.TokenBinding.SecondaryCollectionSeparator?.Length > 32) ||
                        rule.TokenBinding.ValueTemplate.Length > 256 ||
                        !rule.TokenBinding.ValueTemplate.Contains("{0}", StringComparison.Ordinal) ||
                        !rule.TokenBinding.ValueTemplate.Contains("{1}", StringComparison.Ordinal) ||
@@ -360,16 +361,29 @@ public static class KnowledgeDrivenSequenceGenerator
         string value;
         if (binding.ValueTemplate is { } valueTemplate)
         {
-            if (!fact.Values.TryGetValue(binding.ValueId, out var firstValue) ||
-                !fact.Collections.TryGetValue(binding.SecondaryValueId!, out var secondaryValues) ||
-                secondaryValues.IsDefaultOrEmpty)
+            if (!fact.Values.TryGetValue(binding.ValueId, out var firstValue))
             {
                 return false;
             }
 
-            var joinedValues = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
+            string secondaryValue;
+            if (binding.SecondaryValueIsCollection)
+            {
+                if (!fact.Collections.TryGetValue(binding.SecondaryValueId!, out var secondaryValues) ||
+                    secondaryValues.IsDefaultOrEmpty)
+                {
+                    return false;
+                }
+
+                secondaryValue = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
+            }
+            else if (!fact.Values.TryGetValue(binding.SecondaryValueId!, out secondaryValue!))
+            {
+                return false;
+            }
+
             value = valueTemplate.Replace("{0}", firstValue, StringComparison.Ordinal)
-                .Replace("{1}", joinedValues, StringComparison.Ordinal);
+                .Replace("{1}", secondaryValue, StringComparison.Ordinal);
         }
         else if (binding.CollectionSeparator is { } separator)
         {
