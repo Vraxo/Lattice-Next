@@ -67,12 +67,6 @@ public static class SequenceInputFactValidator
             if (!valid)
             {
                 error = $"Semantic input validation '{validation.Id}' rejected the extracted values.";
-                if (validation.Kind == "pythonListLiteral" &&
-                    TryGetValue(factMap, validation.FactId, validation.ValueId, out var rejectedValue))
-                {
-                    error += $" Extracted value: '{rejectedValue}'.";
-                }
-
                 return false;
             }
         }
