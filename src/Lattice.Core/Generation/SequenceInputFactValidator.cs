@@ -58,6 +58,9 @@ public static class SequenceInputFactValidator
                     !first.Intersect(second, StringComparer.OrdinalIgnoreCase).Any(),
                 "arithmeticCollectionReferences" => TryValidateArithmeticCollection(
                     factMap, validation, out _),
+                "arithmeticValue" => TryGetValue(
+                    factMap, validation.FactId, validation.ValueId, out var arithmeticValue) &&
+                    IsArithmeticExpression(arithmeticValue),
                 "arithmeticValueReferences" => TryValidateArithmeticValue(
                     factMap, validation, out _),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),

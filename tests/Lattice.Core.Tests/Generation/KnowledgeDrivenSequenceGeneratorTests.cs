@@ -1469,4 +1469,70 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             generated!.Text);
     }
 
+
+    [Theory]
+    [InlineData(
+        "Create a Python program with a function named double that takes value and returns value * 2, then print double(4).",
+        "```python\ndef double(value):\n    return value * 2\nprint(double(4))\n```")]
+    [InlineData(
+        "Build a Python script with a function named scale that takes value and factor and returns (value + 3) * factor, then print scale(2, 4).",
+        "```python\ndef scale(value, factor):\n    return (value + 3) * factor\nprint(scale(2, 4))\n```")]
+    [InlineData(
+        "Create a Python program with a function named sum_three that takes first and second and third and returns first + second + third, then print sum_three(2, 3, 4).",
+        "```python\ndef sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))\n```")]
+    [InlineData(
+        "Create a Python program with a function named clamp_floor that takes value and returns max(abs(value), 10) + 2, then print clamp_floor(-4).",
+        "```python\ndef clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))\n```")]
+    public void Extracts_and_generates_arithmetic_functions_declaratively(
+        string input,
+        string expectedCode)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(
+                knowledge!,
+                input,
+                out var facts,
+                out var extractionError),
+            extractionError);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(
+                knowledge!,
+                null,
+                request,
+                out var generated,
+                out var generationError),
+            generationError);
+        Assert.Equal(expectedCode, generated!.Text);
+    }
+
+    [Theory]
+    [InlineData("Create a Python program with a function named 2double that takes value and returns value * 2, then print 2double(4).")]
+    [InlineData("Create a Python program with a function named double that takes value and returns value + * 2, then print double(4).")]
+    [InlineData("Create a Python program with a function named double that takes value and returns value * 2, then print triple(4).")]
+    [InlineData("Create a Python program with a function named double that takes value and returns value * 2, then print double(4, 5).")]
+    [InlineData("Create a Python program with a function named double that takes value and returns value * 2.")]
+    public void Rejects_invalid_arithmetic_function_requests_declaratively(string input)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        Assert.False(
+            SequenceInputFactExtractor.TryExtract(
+                knowledge!,
+                input,
+                out var facts,
+                out _));
+        Assert.Empty(facts);
+    }
+
+
 }

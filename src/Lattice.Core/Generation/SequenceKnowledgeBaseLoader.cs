@@ -431,6 +431,7 @@ public static class SequenceKnowledgeBaseLoader
             "uniqueCollection",
             "disjointCollections",
             "arithmeticCollectionReferences",
+            "arithmeticValue",
             "arithmeticValueReferences",
             "matchingNumericFunctionCall",
             "pythonListLiteral"

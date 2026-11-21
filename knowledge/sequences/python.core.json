@@ -160,7 +160,13 @@
       "matchTokens": [
         "sum"
       ],
-      "factId": "program.aggregate"
+      "factId": "program.aggregate",
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ]
     },
     {
       "id": "recognize-python-language",
@@ -1806,6 +1812,115 @@
           "to"
         ]
       ]
+    },
+    {
+      "id": "recognize-declarative-arithmetic-function-program",
+      "matchTokens": [
+        "function"
+      ],
+      "factId": "program.arithmetic-function-signature",
+      "captures": [
+        {
+          "factId": "program.arithmetic-function-signature",
+          "valueId": "name",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeSequences": [
+            [
+              "that"
+            ]
+          ]
+        },
+        {
+          "factId": "program.arithmetic-function-signature",
+          "valueId": "parameters",
+          "startAfterTokens": [
+            "takes"
+          ],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "returns"
+            ]
+          ],
+          "collectionDelimiter": "and"
+        },
+        {
+          "factId": "program.arithmetic-function-return",
+          "valueId": "expression",
+          "startAfterTokens": [
+            "returns"
+          ],
+          "stopBeforeSequences": [
+            [
+              "then",
+              "print"
+            ],
+            [
+              "then",
+              "display"
+            ],
+            [
+              "then",
+              "output"
+            ]
+          ],
+          "trimSuffixCharacters": ","
+        },
+        {
+          "factId": "program.arithmetic-function-call",
+          "valueId": "call",
+          "startAfterSequences": [
+            [
+              "then",
+              "print"
+            ],
+            [
+              "then",
+              "display"
+            ],
+            [
+              "then",
+              "output"
+            ]
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "named",
+          "that",
+          "takes"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "when"
+        ],
+        [
+          "otherwise"
+        ],
+        [
+          "and",
+          "sets"
+        ],
+        [
+          "and",
+          "set"
+        ],
+        [
+          "and",
+          "a",
+          "function",
+          "named"
+        ],
+        [
+          "and",
+          "function",
+          "named"
+        ]
+      ]
     }
   ],
   "rules": [
@@ -2966,6 +3081,149 @@
         "value.output",
         "program.collection"
       ]
+    },
+    {
+      "id": "python-arithmetic-function-open-fence",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-signature",
+        "program.arithmetic-function-return",
+        "program.arithmetic-function-call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start",
+        "program.arithmetic",
+        "value.output"
+      ],
+      "weight": 12,
+      "forbiddenFacts": [
+        "value.output.expression"
+      ]
+    },
+    {
+      "id": "python-arithmetic-function-header",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.arithmetic-function-signature",
+        "valueId": "name",
+        "valueTemplate": "{0}({1})",
+        "secondaryValueId": "parameters",
+        "secondaryCollectionSeparator": ", ",
+        "prefix": "def ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-arithmetic-function-return-prefix",
+      "contextSuffix": [
+        "*):\n"
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-return"
+      ],
+      "nextToken": "    return "
+    },
+    {
+      "id": "python-arithmetic-function-return-expression",
+      "contextSuffix": [
+        "    return "
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-return"
+      ],
+      "tokenBinding": {
+        "factId": "program.arithmetic-function-return",
+        "valueId": "expression",
+        "suffix": "\nprint("
+      },
+      "satisfiesFacts": [
+        "program.arithmetic-function-return"
+      ]
+    },
+    {
+      "id": "python-arithmetic-function-call",
+      "contextSuffix": [
+        "*\nprint("
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-call"
+      ],
+      "requiresCompletedFacts": [
+        "program.arithmetic-function-return"
+      ],
+      "tokenBinding": {
+        "factId": "program.arithmetic-function-call",
+        "valueId": "call"
+      },
+      "satisfiesFacts": [
+        "program.arithmetic-function-call"
+      ]
+    },
+    {
+      "id": "python-arithmetic-function-close-fence",
+      "contextSuffix": [
+        "*"
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-signature"
+      ],
+      "requiresCompletedFacts": [
+        "program.arithmetic-function-return",
+        "program.arithmetic-function-call"
+      ],
+      "nextToken": ")\n```",
+      "satisfiesFacts": [
+        "program.arithmetic-function-signature",
+        "program.arithmetic-function-return",
+        "program.arithmetic-function-call"
+      ]
+    },
+    {
+      "id": "python-arithmetic-function-open-fence-with-expression",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.arithmetic-function-signature",
+        "program.arithmetic-function-return",
+        "program.arithmetic-function-call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start",
+        "value.output.expression"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start",
+        "program.arithmetic",
+        "value.output",
+        "value.output.expression"
+      ],
+      "weight": 12
     }
   ],
   "validations": [
@@ -3052,6 +3310,38 @@
       "factId": "program.collection-loop",
       "valueId": "collection",
       "appliesWhenFactId": "program.collection-loop"
+    },
+    {
+      "id": "arithmetic-function-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.arithmetic-function-signature",
+      "valueId": "name",
+      "appliesWhenFactId": "program.arithmetic-function-signature"
+    },
+    {
+      "id": "arithmetic-function-parameters-are-identifiers",
+      "kind": "identifierCollection",
+      "factId": "program.arithmetic-function-signature",
+      "valueId": "parameters",
+      "appliesWhenFactId": "program.arithmetic-function-signature"
+    },
+    {
+      "id": "arithmetic-function-return-is-arithmetic",
+      "kind": "arithmeticValue",
+      "factId": "program.arithmetic-function-return",
+      "valueId": "expression",
+      "appliesWhenFactId": "program.arithmetic-function-signature"
+    },
+    {
+      "id": "arithmetic-function-call-matches-definition",
+      "kind": "matchingNumericFunctionCall",
+      "factId": "program.arithmetic-function-call",
+      "valueId": "call",
+      "relatedFactId": "program.arithmetic-function-signature",
+      "relatedValueId": "name",
+      "additionalFactId": "program.arithmetic-function-signature",
+      "additionalValueId": "parameters",
+      "appliesWhenFactId": "program.arithmetic-function-signature"
     }
   ]
 }
