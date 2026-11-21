@@ -9,6 +9,7 @@ public static class SequenceKnowledgeBaseLoader
     private const int MaximumJsonLength = 2_097_152;
     private const int MaximumRules = 10_000;
     private const int MaximumInputRules = 4096;
+    private const int MaximumValidations = 4096;
     private const int MaximumEncodings = 128;
     private const int MaximumArrayItems = 128;
     private const int MaximumContextItems = 64;
@@ -44,7 +45,7 @@ public static class SequenceKnowledgeBaseLoader
 
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(root, "formatVersion", "rules", "encodings", "inputRules") ||
+                !HasOnlyProperties(root, "formatVersion", "rules", "encodings", "inputRules", "validations") ||
                 !TryGetInt32(root, "formatVersion", out var formatVersion) ||
                 formatVersion != SupportedFormatVersion ||
                 !TryGetArray(root, "rules", MaximumRules, required: true, out var rulesElement) ||
@@ -52,7 +53,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetArray(root, "encodings", MaximumEncodings, required: false, out var encodingElements) ||
                 !TryReadEncodings(encodingElements, out var encodings, out error) ||
                 !TryGetArray(root, "inputRules", MaximumInputRules, required: false, out var inputRuleElements) ||
-                !TryReadInputRules(inputRuleElements, out var inputRules, out error))
+                !TryReadInputRules(inputRuleElements, out var inputRules, out error) ||
+                !TryGetArray(root, "validations", MaximumValidations, required: false, out var validationElements) ||
+                !TryReadInputValidations(validationElements, out var validations, out error))
             {
                 error ??= "The sequence knowledge metadata, rule collection, or encodings are invalid or unsupported.";
                 return false;
@@ -119,7 +122,7 @@ public static class SequenceKnowledgeBaseLoader
                 });
             }
 
-            knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings, inputRules);
+            knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings, inputRules, validations);
             return true;
         }
         catch (JsonException)
@@ -153,9 +156,11 @@ public static class SequenceKnowledgeBaseLoader
         var rules = ImmutableArray.CreateBuilder<SequenceTokenRule>();
         var encodings = ImmutableArray.CreateBuilder<SequenceTokenEncoding>();
         var inputRules = ImmutableArray.CreateBuilder<SequenceInputFactRule>();
+        var validations = ImmutableArray.CreateBuilder<SequenceInputFactValidation>();
         var ruleIdentifiers = new HashSet<string>(StringComparer.Ordinal);
         var encodingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
         var inputRuleIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+        var validationIdentifiers = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var resource in resources)
         {
@@ -223,6 +228,24 @@ public static class SequenceKnowledgeBaseLoader
                     return false;
                 }
             }
+
+            foreach (var validation in module.Validations.IsDefault
+                ? ImmutableArray<SequenceInputFactValidation>.Empty
+                : module.Validations)
+            {
+                if (!validationIdentifiers.Add(validation.Id))
+                {
+                    error = $"More than one sequence knowledge module declares input validation '{validation.Id}'.";
+                    return false;
+                }
+
+                validations.Add(validation);
+                if (validations.Count > MaximumValidations)
+                {
+                    error = "The combined sequence knowledge modules contain too many input validations.";
+                    return false;
+                }
+            }
         }
 
         foreach (var rule in rules)
@@ -235,7 +258,11 @@ public static class SequenceKnowledgeBaseLoader
             }
         }
 
-        knowledge = new SequenceKnowledgeBase(rules.ToImmutable(), encodings.ToImmutable(), inputRules.ToImmutable());
+        knowledge = new SequenceKnowledgeBase(
+            rules.ToImmutable(),
+            encodings.ToImmutable(),
+            inputRules.ToImmutable(),
+            validations.ToImmutable());
         return true;
     }
 
@@ -310,7 +337,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "stopBeforeTokens", "literalValue", "collectionDelimiter") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -318,12 +345,35 @@ public static class SequenceKnowledgeBaseLoader
                 !identifiers.Add($"{factId}.{valueId}") ||
                 !TryGetStringArray(item, "startAfterTokens", out var startAfterTokens) ||
                 startAfterTokens.Length > 16 ||
+                !TryGetNestedStringArray(item, "startAfterSequences", out var startAfterSequences) ||
+                startAfterSequences.Length > 16 ||
+                (startAfterTokens.Length > 0 && startAfterSequences.Length > 0) ||
                 !TryGetStringArray(item, "stopBeforeTokens", out var stopBeforeTokens) ||
                 stopBeforeTokens.Length > 16 ||
                 !TryGetOptionalString(item, "literalValue", out var literalValue) ||
                 (literalValue is not null && literalValue.Length > 16_384) ||
                 !TryGetOptionalString(item, "collectionDelimiter", out var collectionDelimiter) ||
-                (collectionDelimiter is not null && collectionDelimiter.Length > 32))
+                (collectionDelimiter is not null && collectionDelimiter.Length > 32) ||
+                !TryGetStringArray(item, "collectionDelimiters", out var collectionDelimiters) ||
+                collectionDelimiters.Length > 16 ||
+                (collectionDelimiter is not null && !collectionDelimiters.IsDefaultOrEmpty) ||
+                !TryGetOptionalString(item, "collectionFieldDelimiter", out var collectionFieldDelimiter) ||
+                (collectionFieldDelimiter is not null && collectionFieldDelimiter.Length > 32) ||
+                !TryGetOptionalInt32(item, "collectionFieldIndex", out var collectionFieldIndex) ||
+                !TryGetOptionalString(item, "collectionTemplate", out var collectionTemplate) ||
+                (collectionTemplate is not null &&
+                    (collectionTemplate.Length > 256 ||
+                     !collectionTemplate.Contains("{0}", StringComparison.Ordinal) ||
+                     !collectionTemplate.Contains("{1}", StringComparison.Ordinal))) ||
+                !TryGetNestedStringArray(item, "stopBeforeSequences", out var stopBeforeSequences) ||
+                !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
+                !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
+                ((collectionFieldIndex is not null || collectionTemplate is not null) &&
+                    ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
+                     collectionFieldDelimiter is null)) ||
+                (collectionFieldDelimiter is not null &&
+                    collectionFieldIndex is null && collectionTemplate is null) ||
+                (collectionTemplate is not null && collectionFieldIndex is not null))
             {
                 error = "Every input capture requires a unique fact/value pair and valid optional start, stop, and literal data.";
                 return false;
@@ -336,11 +386,150 @@ public static class SequenceKnowledgeBaseLoader
                 stopBeforeTokens,
                 literalValue)
             {
-                CollectionDelimiter = collectionDelimiter
+                CollectionDelimiter = collectionDelimiter,
+                CollectionDelimiters = collectionDelimiters,
+                StartAfterSequences = startAfterSequences,
+                StopBeforeSequences = stopBeforeSequences,
+                CollectionFieldDelimiter = collectionFieldDelimiter,
+                CollectionFieldIndex = collectionFieldIndex,
+                CollectionTemplate = collectionTemplate,
+                TrimPrefixTokens = trimPrefixTokens,
+                TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty
             });
         }
 
         captures = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryReadInputValidations(
+        JsonElement element,
+        out ImmutableArray<SequenceInputFactValidation> validations,
+        out string? error)
+    {
+        validations = ImmutableArray<SequenceInputFactValidation>.Empty;
+        error = null;
+        if (element.ValueKind == JsonValueKind.Undefined)
+        {
+            return true;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<SequenceInputFactValidation>(element.GetArrayLength());
+        var identifiers = new HashSet<string>(StringComparer.Ordinal);
+        var supportedKinds = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "identifierValue",
+            "identifierCollection",
+            "uniqueCollection",
+            "disjointCollections",
+            "arithmeticCollectionReferences",
+            "arithmeticValueReferences",
+            "matchingNumericFunctionCall"
+        };
+
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(item, "id", "kind", "factId", "valueId", "relatedFactId", "relatedValueId", "additionalFactId", "additionalValueId") ||
+                !TryGetString(item, "id", out var id) ||
+                !IsValidIdentifier(id) ||
+                !identifiers.Add(id) ||
+                !TryGetString(item, "kind", out var kind) ||
+                !supportedKinds.Contains(kind) ||
+                !TryGetString(item, "factId", out var factId) ||
+                !IsValidIdentifier(factId) ||
+                !TryGetString(item, "valueId", out var valueId) ||
+                !IsValidIdentifier(valueId) ||
+                !TryGetOptionalString(item, "relatedFactId", out var relatedFactId) ||
+                (relatedFactId is not null && !IsValidIdentifier(relatedFactId)) ||
+                !TryGetOptionalString(item, "relatedValueId", out var relatedValueId) ||
+                (relatedValueId is not null && !IsValidIdentifier(relatedValueId)) ||
+                !TryGetOptionalString(item, "additionalFactId", out var additionalFactId) ||
+                (additionalFactId is not null && !IsValidIdentifier(additionalFactId)) ||
+                !TryGetOptionalString(item, "additionalValueId", out var additionalValueId) ||
+                (additionalValueId is not null && !IsValidIdentifier(additionalValueId)))
+            {
+                error = "Every input validation requires a unique identifier, a supported constraint kind, and valid fact/value references.";
+                return false;
+            }
+
+            builder.Add(new SequenceInputFactValidation(
+                id,
+                kind,
+                factId,
+                valueId,
+                relatedFactId,
+                relatedValueId,
+                additionalFactId,
+                additionalValueId));
+        }
+
+        validations = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetNestedStringArray(
+        JsonElement element,
+        string name,
+        out ImmutableArray<ImmutableArray<string>> values)
+    {
+        values = ImmutableArray<ImmutableArray<string>>.Empty;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.Array || property.GetArrayLength() > 16)
+        {
+            return false;
+        }
+
+        var builder = ImmutableArray.CreateBuilder<ImmutableArray<string>>(property.GetArrayLength());
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Array || item.GetArrayLength() is 0 or > 16)
+            {
+                return false;
+            }
+
+            var sequence = ImmutableArray.CreateBuilder<string>(item.GetArrayLength());
+            foreach (var token in item.EnumerateArray())
+            {
+                if (token.ValueKind != JsonValueKind.String ||
+                    !IsValidIdentifier(token.GetString() ?? string.Empty))
+                {
+                    return false;
+                }
+
+                sequence.Add(token.GetString()!);
+            }
+
+            builder.Add(sequence.ToImmutable());
+        }
+
+        values = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryGetOptionalInt32(
+        JsonElement element,
+        string name,
+        out int? value)
+    {
+        value = null;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.Number ||
+            !property.TryGetInt32(out var parsed) ||
+            parsed is < 0 or > 16)
+        {
+            return false;
+        }
+
+        value = parsed;
         return true;
     }
 
@@ -415,19 +604,48 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection", "collectionSeparator", "prefix", "suffix", "secondaryValueId", "secondaryCollectionSeparator", "valueTemplate", "minimumCollectionCursor") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
             !IsValidIdentifier(valueId) ||
             !TryGetOptionalString(property, "encoding", out var encoding) ||
             (encoding is not null && !IsValidIdentifier(encoding)) ||
-            !TryGetOptionalBoolean(property, "collection", out var useCollection))
+            !TryGetOptionalBoolean(property, "collection", out var useCollection) ||
+            !TryGetOptionalToken(property, "collectionSeparator", out var collectionSeparator) ||
+            !TryGetOptionalToken(property, "prefix", out var prefix) ||
+            !TryGetOptionalToken(property, "suffix", out var suffix) ||
+            !TryGetOptionalString(property, "secondaryValueId", out var secondaryValueId) ||
+            (secondaryValueId is not null && !IsValidIdentifier(secondaryValueId)) ||
+            !TryGetOptionalToken(property, "secondaryCollectionSeparator", out var secondaryCollectionSeparator) ||
+            !TryGetOptionalString(property, "valueTemplate", out var valueTemplate) ||
+            !TryGetOptionalInt32(property, "minimumCollectionCursor", out var minimumCollectionCursor) ||
+            (collectionSeparator is not null &&
+                (collectionSeparator.Length > MaximumDelimiterLength || useCollection || encoding is not null)) ||
+            (prefix is not null && prefix.Length > 128) ||
+            (suffix is not null && suffix.Length > 128) ||
+            (minimumCollectionCursor is > 0 && !useCollection) ||
+            ((valueTemplate is not null) != (secondaryValueId is not null && secondaryCollectionSeparator is not null)) ||
+            (valueTemplate is not null &&
+                (useCollection || encoding is not null || collectionSeparator is not null ||
+                 valueTemplate.Length > 256 ||
+                 !valueTemplate.Contains("{0}", StringComparison.Ordinal) ||
+                 !valueTemplate.Contains("{1}", StringComparison.Ordinal) ||
+                 secondaryCollectionSeparator!.Length > MaximumDelimiterLength)))
         {
             return false;
         }
 
-        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection);
+        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection)
+        {
+            CollectionSeparator = collectionSeparator,
+            Prefix = prefix ?? string.Empty,
+            Suffix = suffix ?? string.Empty,
+            SecondaryValueId = secondaryValueId,
+            SecondaryCollectionSeparator = secondaryCollectionSeparator,
+            ValueTemplate = valueTemplate,
+            MinimumCollectionCursor = minimumCollectionCursor ?? 0
+        };
         return true;
     }
 
@@ -576,7 +794,16 @@ public static class SequenceKnowledgeBaseLoader
                 return false;
             }
 
-            if (name != "contextSuffix" &&
+            if (name == "collectionDelimiters")
+            {
+                if (value.Length > MaximumDelimiterLength ||
+                    value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length == 0 ||
+                    value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Any(token => !IsValidIdentifier(token)))
+                {
+                    return false;
+                }
+            }
+            else if (name != "contextSuffix" &&
                 !IsValidIdentifier(value) &&
                 !(name == "matchTokens" && value is "+" or "-" or "*" or "/" or "==" or "!=" or "<" or ">" or "<=" or ">="))
             {

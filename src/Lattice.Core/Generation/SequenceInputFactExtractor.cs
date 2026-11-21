@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Lattice.Core.Language;
 
 namespace Lattice.Core.Generation;
@@ -46,12 +47,7 @@ public static class SequenceInputFactExtractor
             }
 
             matchedAnyRule = true;
-            if (!extracted.ContainsKey(rule.FactId))
-            {
-                extracted.Add(
-                    rule.FactId,
-                    new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal));
-            }
+            EnsureFact(extracted, rule.FactId);
 
             if (rule.ValueId is not null)
             {
@@ -62,7 +58,11 @@ public static class SequenceInputFactExtractor
                         tokens,
                         lastMatchedToken,
                         ImmutableArray<string>.Empty,
+                        ImmutableArray<ImmutableArray<string>>.Empty,
                         ImmutableArray<string>.Empty,
+                        ImmutableArray<ImmutableArray<string>>.Empty,
+                        ImmutableArray<string>.Empty,
+                        string.Empty,
                         out capturedValue))
                 {
                     capturedValue = null;
@@ -89,7 +89,11 @@ public static class SequenceInputFactExtractor
                         tokens,
                         lastMatchedToken,
                         capture.StartAfterTokens,
+                        capture.StartAfterSequences,
                         capture.StopBeforeTokens,
+                        capture.StopBeforeSequences,
+                        capture.TrimPrefixTokens,
+                        capture.TrimSuffixCharacters,
                         out capturedValue))
                 {
                     continue;
@@ -97,14 +101,67 @@ public static class SequenceInputFactExtractor
 
                 var specificity = rule.MatchTokens.Length +
                     (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
-                if (capture.CollectionDelimiter is { Length: > 0 } delimiter)
+                var collectionDelimiters = capture.CollectionDelimiters.IsDefaultOrEmpty
+                    ? (capture.CollectionDelimiter is { Length: > 0 } delimiter
+                        ? ImmutableArray.Create(delimiter)
+                        : ImmutableArray<string>.Empty)
+                    : capture.CollectionDelimiters;
+
+                if (!collectionDelimiters.IsDefaultOrEmpty)
                 {
-                    var items = capturedValue.Split(delimiter, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                        .ToImmutableArray();
-                    if (items.IsDefaultOrEmpty || items.Any(item => item.Length == 0) ||
-                        !TryAddCollection(collections, capture.FactId, capture.ValueId, items, out error))
+                    var rawItems = SplitText(capturedValue, collectionDelimiters);
+                    if (rawItems.IsDefaultOrEmpty)
                     {
-                        error ??= $"Input rule '{rule.Id}' produced an empty ordered collection.";
+                        error = $"Input rule '{rule.Id}' produced an empty ordered collection.";
+                        return false;
+                    }
+
+                    var items = ImmutableArray.CreateBuilder<string>(rawItems.Length);
+                    foreach (var rawItem in rawItems)
+                    {
+                        if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
+                        {
+                            var fields = SplitText(rawItem, fieldDelimiter);
+                            if (fields.Length < 2 ||
+                                (capture.CollectionFieldIndex is not null &&
+                                 capture.CollectionFieldIndex.Value >= fields.Length))
+                            {
+                                error = $"Input rule '{rule.Id}' produced a collection item with missing fields.";
+                                return false;
+                            }
+
+                            if (capture.CollectionTemplate is { } template)
+                            {
+                                if (fields.Length != 2)
+                                {
+                                    error = $"Input rule '{rule.Id}' produced an item with an unexpected number of fields.";
+                                    return false;
+                                }
+
+                                items.Add(template.Replace("{0}", fields[0], StringComparison.Ordinal)
+                                    .Replace("{1}", fields[1], StringComparison.Ordinal));
+                            }
+                            else
+                            {
+                                items.Add(fields[capture.CollectionFieldIndex!.Value]);
+                            }
+                        }
+                        else
+                        {
+                            items.Add(rawItem);
+                        }
+                    }
+
+                    var immutableItems = items.ToImmutable();
+                    if (immutableItems.Any(string.IsNullOrWhiteSpace))
+                    {
+                        error = $"Input rule '{rule.Id}' produced an empty collection value.";
+                        return false;
+                    }
+
+                    EnsureFact(extracted, capture.FactId);
+                    if (!TryAddCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error))
+                    {
                         return false;
                     }
                 }
@@ -121,7 +178,7 @@ public static class SequenceInputFactExtractor
             return false;
         }
 
-        facts = extracted
+        var extractedFacts = extracted
             .OrderBy(item => item.Key, StringComparer.Ordinal)
             .Select(item => new SequenceSemanticFact(
                 item.Key,
@@ -135,7 +192,26 @@ public static class SequenceInputFactExtractor
                     : ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal)
             })
             .ToImmutableArray();
+
+        if (!SequenceInputFactValidator.TryValidate(knowledge.Validations, extractedFacts, out error))
+        {
+            return false;
+        }
+
+        facts = extractedFacts;
         return true;
+    }
+
+    private static void EnsureFact(
+        Dictionary<string, Dictionary<string, (string Value, int Specificity)>> extracted,
+        string factId)
+    {
+        if (!extracted.ContainsKey(factId))
+        {
+            extracted.Add(
+                factId,
+                new Dictionary<string, (string Value, int Specificity)>(StringComparer.Ordinal));
+        }
     }
 
     private static bool TryAddCollection(
@@ -259,7 +335,11 @@ public static class SequenceInputFactExtractor
         ImmutableArray<EnglishToken> tokens,
         int lastMatchedToken,
         ImmutableArray<string> startAfterTokens,
+        ImmutableArray<ImmutableArray<string>> startAfterSequences,
         ImmutableArray<string> stopBeforeTokens,
+        ImmutableArray<ImmutableArray<string>> stopBeforeSequences,
+        ImmutableArray<string> trimPrefixTokens,
+        string trimSuffixCharacters,
         out string value)
     {
         value = string.Empty;
@@ -276,6 +356,25 @@ public static class SequenceInputFactExtractor
                 return false;
             }
         }
+        else if (!startAfterSequences.IsDefaultOrEmpty)
+        {
+            var matchedStart = int.MaxValue;
+            foreach (var sequence in startAfterSequences)
+            {
+                if (TryFindMatch(tokens, sequence, lastMatchedToken + 1, out var candidateStart) &&
+                    candidateStart < matchedStart)
+                {
+                    matchedStart = candidateStart;
+                }
+            }
+
+            if (matchedStart == int.MaxValue)
+            {
+                return false;
+            }
+
+            startToken = matchedStart;
+        }
 
         var captureStart = tokens[startToken].Start + tokens[startToken].Length;
         if (captureStart >= input.Length)
@@ -291,13 +390,16 @@ public static class SequenceInputFactExtractor
                 token.IsPunctuation &&
                 token.Value is "." or "?" or "!")
             {
-                captureEnd = token.Start + token.Length;
+                captureEnd = token.Start;
                 break;
             }
 
-            if (!stopBeforeTokens.IsDefaultOrEmpty &&
-                stopBeforeTokens.Any(stop =>
-                    token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase)))
+            if ((!stopBeforeTokens.IsDefaultOrEmpty &&
+                 stopBeforeTokens.Any(stop =>
+                     token.Value.Equals(stop, StringComparison.OrdinalIgnoreCase))) ||
+                (!stopBeforeSequences.IsDefaultOrEmpty &&
+                 stopBeforeSequences.Any(sequence =>
+                     MatchesSequenceAt(tokens, index, sequence))))
             {
                 captureEnd = token.Start;
                 break;
@@ -311,16 +413,74 @@ public static class SequenceInputFactExtractor
         if (quotedValue.IsQuoted)
         {
             value = quotedValue.Value;
-            return value.Length > 0;
+        }
+        else
+        {
+            value = input[captureStart..captureEnd].Trim();
         }
 
-        value = input[captureStart..captureEnd].Trim();
-        if (value.EndsWith(".", StringComparison.Ordinal) ||
-            value.EndsWith("?", StringComparison.Ordinal))
+        if (!trimPrefixTokens.IsDefaultOrEmpty)
         {
-            value = value[..^1].TrimEnd();
+            var prefixEnd = value.IndexOfAny([' ', '\t', '\r', '\n']);
+            var firstToken = prefixEnd < 0 ? value : value[..prefixEnd];
+            if (trimPrefixTokens.Contains(firstToken, StringComparer.OrdinalIgnoreCase))
+            {
+                value = prefixEnd < 0 ? string.Empty : value[(prefixEnd + 1)..].TrimStart();
+            }
+        }
+
+        if (trimSuffixCharacters.Length > 0)
+        {
+            value = value.TrimEnd().TrimEnd(trimSuffixCharacters.ToCharArray()).TrimEnd();
         }
 
         return value.Length > 0;
+    }
+
+    private static bool MatchesSequenceAt(
+        ImmutableArray<EnglishToken> tokens,
+        int startIndex,
+        ImmutableArray<string> sequence)
+    {
+        if (sequence.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var patternIndex = 0;
+        for (var index = startIndex; index < tokens.Length && patternIndex < sequence.Length; index++)
+        {
+            if (tokens[index].IsPunctuation || tokens[index].IsQuoted ||
+                !tokens[index].Value.Equals(sequence[patternIndex], StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            patternIndex++;
+        }
+
+        return patternIndex == sequence.Length;
+    }
+
+    private static ImmutableArray<string> SplitText(
+        string value,
+        ImmutableArray<string> delimiters)
+    {
+        var patterns = delimiters
+            .Select(delimiter => delimiter.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Where(terms => terms.Length > 0)
+            .Select(terms =>
+                @"\s+" + string.Join(@"\s+", terms.Select(Regex.Escape)) + @"\s+")
+            .ToArray();
+        if (patterns.Length == 0)
+        {
+            return ImmutableArray<string>.Empty;
+        }
+
+        var pattern = "(?:" + string.Join("|", patterns) + ")";
+        return Regex.Split(value, pattern, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)
+            .Select(item => item.Trim())
+            .Where(item => item.Length > 0)
+            .ToImmutableArray();
     }
 }

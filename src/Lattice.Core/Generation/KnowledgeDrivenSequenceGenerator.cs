@@ -299,6 +299,30 @@ public static class KnowledgeDrivenSequenceGenerator
                      !IsValidIdentifier(rule.TokenBinding.ValueId) ||
                      !rule.RequiredFacts.Contains(rule.TokenBinding.FactId, StringComparer.Ordinal) ||
                      (rule.TokenBinding.UseCollection && rule.TokenBinding.Encoding is not null) ||
+                     (rule.TokenBinding.CollectionSeparator is not null &&
+                      (rule.TokenBinding.UseCollection ||
+                       rule.TokenBinding.Encoding is not null ||
+                       rule.TokenBinding.CollectionSeparator.Length > 32)) ||
+                     rule.TokenBinding.Prefix is null ||
+                     rule.TokenBinding.Suffix is null ||
+                     rule.TokenBinding.Prefix.Length > 128 ||
+                     rule.TokenBinding.Suffix.Length > 128 ||
+                     rule.TokenBinding.MinimumCollectionCursor is < 0 or > MaximumFacts ||
+                     (rule.TokenBinding.MinimumCollectionCursor > 0 && !rule.TokenBinding.UseCollection) ||
+                     (rule.TokenBinding.ValueTemplate is null &&
+                      (rule.TokenBinding.SecondaryValueId is not null ||
+                       rule.TokenBinding.SecondaryCollectionSeparator is not null)) ||
+                     (rule.TokenBinding.ValueTemplate is not null &&
+                      (rule.TokenBinding.SecondaryValueId is null ||
+                       rule.TokenBinding.SecondaryCollectionSeparator is null ||
+                       !IsValidIdentifier(rule.TokenBinding.SecondaryValueId) ||
+                       rule.TokenBinding.SecondaryCollectionSeparator.Length > 32 ||
+                       rule.TokenBinding.ValueTemplate.Length > 256 ||
+                       !rule.TokenBinding.ValueTemplate.Contains("{0}", StringComparison.Ordinal) ||
+                       !rule.TokenBinding.ValueTemplate.Contains("{1}", StringComparison.Ordinal) ||
+                       rule.TokenBinding.UseCollection ||
+                       rule.TokenBinding.CollectionSeparator is not null ||
+                       rule.TokenBinding.Encoding is not null)) ||
                      (rule.TokenBinding.Encoding is not null &&
                       !encodings.ContainsKey(rule.TokenBinding.Encoding)))))
             {
@@ -334,11 +358,36 @@ public static class KnowledgeDrivenSequenceGenerator
         }
 
         string value;
-        if (binding.UseCollection)
+        if (binding.ValueTemplate is { } valueTemplate)
+        {
+            if (!fact.Values.TryGetValue(binding.ValueId, out var firstValue) ||
+                !fact.Collections.TryGetValue(binding.SecondaryValueId!, out var secondaryValues) ||
+                secondaryValues.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            var joinedValues = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
+            value = valueTemplate.Replace("{0}", firstValue, StringComparison.Ordinal)
+                .Replace("{1}", joinedValues, StringComparison.Ordinal);
+        }
+        else if (binding.CollectionSeparator is { } separator)
+        {
+            if (!fact.Collections.TryGetValue(binding.ValueId, out var collection) ||
+                collection.IsDefaultOrEmpty)
+            {
+                return false;
+            }
+
+            value = string.Join(separator, collection);
+        }
+        else if (binding.UseCollection)
         {
             var key = BuildCollectionKey(binding.FactId, binding.ValueId);
             var index = collectionCursors.GetValueOrDefault(key);
-            if (!fact.Collections.TryGetValue(binding.ValueId, out var collection) || index >= collection.Length)
+            if (index < binding.MinimumCollectionCursor ||
+                !fact.Collections.TryGetValue(binding.ValueId, out var collection) ||
+                index >= collection.Length)
             {
                 return false;
             }
@@ -350,7 +399,8 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
-        token = binding.Encoding is null ? value : EncodeValue(value, encodings[binding.Encoding]);
+        var encodedValue = binding.Encoding is null ? value : EncodeValue(value, encodings[binding.Encoding]);
+        token = binding.Prefix + encodedValue + binding.Suffix;
 
         return token.Length > 0 &&
             token.Length <= 4096 &&
@@ -450,7 +500,24 @@ public static class KnowledgeDrivenSequenceGenerator
         var offset = context.Length - suffix.Length;
         for (var index = 0; index < suffix.Length; index++)
         {
-            if (!string.Equals(context[offset + index], suffix[index], StringComparison.Ordinal))
+            var expected = suffix[index];
+            var actual = context[offset + index];
+            if (expected == "*")
+            {
+                continue;
+            }
+
+            if (expected.StartsWith("*", StringComparison.Ordinal))
+            {
+                if (!actual.EndsWith(expected[1..], StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (!string.Equals(actual, expected, StringComparison.Ordinal))
             {
                 return false;
             }
