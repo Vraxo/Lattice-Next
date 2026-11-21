@@ -13,6 +13,10 @@ public static class SequenceInputFactValidator
         @"^[+-]?\d+(?:\.\d+)?$",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex PythonListLiteralPattern = new(
+        @"^\[\s*(?:[+-]?\d+(?:\.\d+)?|'(?:\\.|[^'\\])*'|""(?:\\.|[^""\\])*"")(?:\s*,\s*(?:[+-]?\d+(?:\.\d+)?|'(?:\\.|[^'\\])*'|""(?:\\.|[^""\\])*""))*\s*\]$",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex FunctionCallPattern = new(
         @"^\s*(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*\(\s*(?<arguments>[^()]*)\s*\)\s*$",
         RegexOptions.CultureInvariant);
@@ -47,6 +51,8 @@ public static class SequenceInputFactValidator
             {
                 "identifierValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var value) &&
                     IsIdentifier(value),
+                "pythonListLiteral" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var listLiteral) &&
+                    PythonListLiteralPattern.IsMatch(listLiteral),
                 "identifierCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var identifiers) &&
                     identifiers.All(IsIdentifier),
                 "uniqueCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var uniqueValues) &&
