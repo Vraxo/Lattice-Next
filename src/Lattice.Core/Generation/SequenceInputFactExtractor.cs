@@ -47,7 +47,7 @@ public static class SequenceInputFactExtractor
                      TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true))) ||
                 (!rule.ForbiddenAnySequences.IsDefaultOrEmpty &&
                  rule.ForbiddenAnySequences.Any(sequence =>
-                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true)))
+                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true))))
             {
                 continue;
             }
