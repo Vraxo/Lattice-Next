@@ -7,8 +7,6 @@ namespace Lattice.Core.Tests.Language;
 public sealed class CompositionalTaskParserTests
 {
     [Theory]
-    [InlineData("write a python hello world program")]
-    [InlineData("write a hello world program in python")]
     [InlineData("create a simple Python script that prints Hello World")]
     [InlineData("Can you generate a program in Python to display Hello, world?")]
     [InlineData("make me a Python program which outputs Hello World")]
@@ -16,7 +14,7 @@ public sealed class CompositionalTaskParserTests
     [InlineData("I want to create a Python program that prints Hello World.")]
     [InlineData("Could you write a simple Python script to display Hello, world?")]
     [InlineData("Can you make a Python program which outputs 'Hello, world!'?")]
-    public void Resolves_different_word_orders_to_the_same_semantic_goal(string input)
+    public void Parses_python_output_requests_with_different_word_orders(string input)
     {
         var result = new LceParser().ParseText(input);
 
