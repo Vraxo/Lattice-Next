@@ -375,6 +375,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
+                !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
                      collectionFieldDelimiter is null)) ||
@@ -402,7 +403,8 @@ public static class SequenceKnowledgeBaseLoader
                 CollectionTemplate = collectionTemplate,
                 TrimPrefixTokens = trimPrefixTokens,
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
-                PreserveRawValue = preserveRawValue
+                PreserveRawValue = preserveRawValue,
+                NumericOffset = numericOffset ?? 0
             });
         }
 
