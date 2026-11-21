@@ -24,6 +24,7 @@ public static class KnowledgeDrivenSequenceGenerator
         ImmutableArray<string> Context,
         ImmutableArray<string> Tokens,
         ImmutableHashSet<string> CompletedFacts,
+        ImmutableDictionary<string, int> CollectionCursors,
         double Score);
 
     private sealed record TokenCandidate(
@@ -72,6 +73,7 @@ public static class KnowledgeDrivenSequenceGenerator
                 initialContext,
                 ImmutableArray<string>.Empty,
                 ImmutableHashSet<string>.Empty.WithComparer(StringComparer.Ordinal),
+                ImmutableDictionary<string, int>.Empty.WithComparers(StringComparer.Ordinal),
                 0)
         };
         var completed = new List<GenerationState>();
@@ -96,7 +98,7 @@ public static class KnowledgeDrivenSequenceGenerator
                         !RequiredFactsAreComplete(rule.RequiresCompletedFacts, state.CompletedFacts) ||
                         HasForbiddenActiveFact(rule.ForbiddenFacts, activeFacts) ||
                         !SatisfiesOnlyActiveFacts(rule.SatisfiesFacts, activeFacts) ||
-                        !TryResolveToken(rule, facts, encodings, out var token))
+                        !TryResolveToken(rule, facts, state.CollectionCursors, encodings, out var token))
                     {
                         continue;
                     }
@@ -136,11 +138,12 @@ public static class KnowledgeDrivenSequenceGenerator
                         ? state.CompletedFacts
                         : state.CompletedFacts.Union(candidate.Rule.SatisfiesFacts);
 
-                    next.Add(new GenerationState(
-                        nextContext,
-                        state.Tokens.Add(candidate.Token),
-                        completedFacts,
-                        score));
+                    if (!TryAdvanceCollections(candidate.Rule.AdvanceCollections, facts, state.CollectionCursors, completedFacts, out var cursors, out completedFacts))
+                    {
+                        continue;
+                    }
+
+                    next.Add(new GenerationState(nextContext, state.Tokens.Add(candidate.Token), completedFacts, cursors, score));
                 }
             }
 
@@ -157,6 +160,7 @@ public static class KnowledgeDrivenSequenceGenerator
                 .OrderByDescending(state => state.Score)
                 .ThenBy(state => BuildTokenKey(state.Tokens), StringComparer.Ordinal)
                 .ThenBy(state => BuildFactKey(state.CompletedFacts), StringComparer.Ordinal)
+                .ThenBy(state => BuildCursorKey(state.CollectionCursors), StringComparer.Ordinal)
                 .Take(request.BeamWidth)
                 .ToList();
         }
@@ -305,6 +309,7 @@ public static class KnowledgeDrivenSequenceGenerator
     private static bool TryResolveToken(
         SequenceTokenRule rule,
         ImmutableDictionary<string, SequenceSemanticFact> facts,
+        ImmutableDictionary<string, int> collectionCursors,
         ImmutableDictionary<string, SequenceTokenEncoding> encodings,
         out string token)
     {
@@ -316,21 +321,62 @@ public static class KnowledgeDrivenSequenceGenerator
         }
 
         var binding = rule.TokenBinding;
-        if (!facts.TryGetValue(binding.FactId, out var fact) ||
-            !fact.Values.TryGetValue(binding.ValueId, out var value))
+        if (!facts.TryGetValue(binding.FactId, out var fact))
         {
             return false;
         }
 
-        token = binding.Encoding is null
-            ? value
-            : EncodeValue(value, encodings[binding.Encoding]);
+        string value;
+        if (binding.UseCollection)
+        {
+            var key = BuildCollectionKey(binding.FactId, binding.ValueId);
+            var index = collectionCursors.GetValueOrDefault(key);
+            if (!fact.Collections.TryGetValue(binding.ValueId, out var collection) || index >= collection.Length)
+            {
+                return false;
+            }
+
+            value = collection[index];
+        }
+        else if (!fact.Values.TryGetValue(binding.ValueId, out value!))
+        {
+            return false;
+        }
+
+        token = binding.Encoding is null ? value : EncodeValue(value, encodings[binding.Encoding]);
 
         return token.Length > 0 &&
             token.Length <= 4096 &&
             token != SequenceKnowledgeBase.StartToken &&
             token != SequenceTokenModel.EndToken;
     }
+
+    private static bool TryAdvanceCollections(ImmutableArray<string> keys, ImmutableDictionary<string, SequenceSemanticFact> facts, ImmutableDictionary<string, int> current, ImmutableHashSet<string> currentCompleted, out ImmutableDictionary<string, int> cursors, out ImmutableHashSet<string> completed)
+    {
+        cursors = current;
+        completed = currentCompleted;
+        if (keys.IsDefaultOrEmpty) return true;
+        var builder = current.ToBuilder();
+        foreach (var key in keys)
+        {
+            var split = key.IndexOf(':');
+            if (split <= 0) return false;
+            var factId = key[..split];
+            var valueId = key[(split + 1)..];
+            if (!facts.TryGetValue(factId, out var fact) || !fact.Collections.TryGetValue(valueId, out var items) || items.IsDefaultOrEmpty) return false;
+            var next = builder.GetValueOrDefault(key) + 1;
+            if (next > items.Length) return false;
+            builder[key] = next;
+            if (fact.Collections.All(pair => builder.GetValueOrDefault($"{factId}:{pair.Key}") >= pair.Value.Length))
+                completed = completed.Add(factId);
+        }
+        cursors = builder.ToImmutable();
+        return true;
+    }
+
+    private static string BuildCollectionKey(string factId, string valueId) => $"{factId}:{valueId}";
+    private static string BuildCursorKey(ImmutableDictionary<string, int> cursors) =>
+        string.Join("\u001f", cursors.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => $"{pair.Key}={pair.Value}"));
 
     private static string EncodeValue(string value, SequenceTokenEncoding encoding)
     {

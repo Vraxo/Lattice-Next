@@ -73,6 +73,7 @@ public static class SequenceKnowledgeBaseLoader
                         "tokenBinding",
                         "satisfiesFacts",
                         "forbiddenFacts",
+                        "advanceCollections",
                         "weight") ||
                     !TryGetString(element, "id", out var id) ||
                     !IsValidIdentifier(id) ||
@@ -89,6 +90,7 @@ public static class SequenceKnowledgeBaseLoader
                     !TryGetStringArray(element, "requiresCompletedFacts", out var requiresCompletedFacts) ||
                     !TryGetStringArray(element, "satisfiesFacts", out var satisfiesFacts) ||
                     !TryGetStringArray(element, "forbiddenFacts", out var forbiddenFacts) ||
+                    !TryGetStringArray(element, "advanceCollections", out var advanceCollections) ||
                     !TryGetWeight(element, out var weight) ||
                     !HasUniqueIdentifiers(requiredFacts) ||
                     !HasUniqueIdentifiers(requiresCompletedFacts) ||
@@ -110,7 +112,8 @@ public static class SequenceKnowledgeBaseLoader
                     weight)
                 {
                     TokenBinding = tokenBinding,
-                    ForbiddenFacts = forbiddenFacts
+                    ForbiddenFacts = forbiddenFacts,
+                    AdvanceCollections = advanceCollections
                 });
             }
 
@@ -410,18 +413,19 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
             !IsValidIdentifier(valueId) ||
             !TryGetOptionalString(property, "encoding", out var encoding) ||
-            (encoding is not null && !IsValidIdentifier(encoding)))
+            (encoding is not null && !IsValidIdentifier(encoding)) ||
+            !TryGetOptionalBoolean(property, "collection", out var useCollection))
         {
             return false;
         }
 
-        binding = new SequenceTokenBinding(factId, valueId, encoding);
+        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection);
         return true;
     }
 

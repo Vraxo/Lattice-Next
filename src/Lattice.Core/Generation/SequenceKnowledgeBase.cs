@@ -13,7 +13,8 @@ public sealed record SequenceSemanticFact(
 public sealed record SequenceTokenBinding(
     string FactId,
     string ValueId,
-    string? Encoding = null);
+    string? Encoding = null,
+    bool UseCollection = false);
 
 public sealed record SequenceTokenEscape(
     string Character,
@@ -35,6 +36,8 @@ public sealed record SequenceTokenRule(
     double Weight = 0)
 {
     public SequenceTokenBinding? TokenBinding { get; init; }
+
+    public ImmutableArray<string> AdvanceCollections { get; init; } = ImmutableArray<string>.Empty;
 
     public ImmutableArray<string> ForbiddenFacts { get; init; } = ImmutableArray<string>.Empty;
 }
