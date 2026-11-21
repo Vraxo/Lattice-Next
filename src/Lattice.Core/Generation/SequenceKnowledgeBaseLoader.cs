@@ -508,7 +508,7 @@ public static class SequenceKnowledgeBaseLoader
             foreach (var token in item.EnumerateArray())
             {
                 if (token.ValueKind != JsonValueKind.String ||
-                    !IsValidIdentifier(token.GetString() ?? string.Empty))
+                    !IsValidSequenceToken(token.GetString() ?? string.Empty))
                 {
                     return false;
                 }
@@ -858,6 +858,9 @@ public static class SequenceKnowledgeBaseLoader
         value.All(character =>
             char.IsAsciiLetterOrDigit(character) ||
             character is '.' or '-' or '_' or ':');
+
+    private static bool IsValidSequenceToken(string value) =>
+        IsValidIdentifier(value) || value is "[" or "]";
 
     private static bool IsValidToken(string value) =>
         value.Length is > 0 and <= MaximumTokenLength;
