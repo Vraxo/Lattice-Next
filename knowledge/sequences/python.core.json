@@ -2969,13 +2969,15 @@
       "id": "collection-loop-item-is-identifier",
       "kind": "identifierValue",
       "factId": "program.collection-loop",
-      "valueId": "item"
+      "valueId": "item",
+      "appliesWhenFactId": "program.collection-loop"
     },
     {
       "id": "collection-loop-value-is-list-literal",
       "kind": "pythonListLiteral",
       "factId": "program.collection-loop",
-      "valueId": "collection"
+      "valueId": "collection",
+      "appliesWhenFactId": "program.collection-loop"
     }
   ]
 }
