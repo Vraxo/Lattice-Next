@@ -1553,7 +1553,15 @@
         "those",
         "fields"
       ],
-      "factId": "program.multi-field-record-sorting"
+      "factId": "program.multi-field-record-sorting",
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
     },
     {
       "id": "recognize-case-insensitive-multi-field-record-sorting",
@@ -1565,7 +1573,15 @@
         "those",
         "fields"
       ],
-      "factId": "program.multi-field-record-sorting.case-insensitive"
+      "factId": "program.multi-field-record-sorting.case-insensitive",
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
     },
     {
       "id": "recognize-declarative-function-local-variables",
@@ -3050,7 +3066,8 @@
           ],
           "stopBeforeTokens": [
             "then"
-          ]
+          ],
+          "trimSuffixCharacters": ","
         }
       ],
       "requiredAnySequences": [
