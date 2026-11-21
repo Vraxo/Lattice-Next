@@ -34,7 +34,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 request,
                 out var generated,
                 out var generationError),
-            generationError);
+            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
         Assert.Contains("people-data.json", generated!.Text, StringComparison.Ordinal);
     }
 
