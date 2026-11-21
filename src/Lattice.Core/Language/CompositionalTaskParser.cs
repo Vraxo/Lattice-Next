@@ -14,9 +14,8 @@ internal static class CompositionalTaskParser
         utterance = null;
 
         var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
-        EnglishSentenceSyntax? syntax = null;
         if (!isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out syntax))
+            !PythonProgramRequestParser.TryGetCreationClause(source, out _))
         {
             return false;
         }
