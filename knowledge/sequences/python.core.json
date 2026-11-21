@@ -1556,6 +1556,7 @@
     {
       "id": "capture-local-function-assignments",
       "matchTokens": [
+        "signature",
         "statements"
       ],
       "factId": "program.local-variables",
@@ -1574,6 +1575,7 @@
     {
       "id": "recognize-local-function-assignments-started",
       "matchTokens": [
+        "signature",
         "statements"
       ],
       "factId": "program.local-assignments.started"
@@ -1581,6 +1583,7 @@
     {
       "id": "capture-local-function-return",
       "matchTokens": [
+        "signature",
         "returns"
       ],
       "factId": "program.local-return",
@@ -1598,6 +1601,7 @@
     {
       "id": "capture-local-function-call",
       "matchTokens": [
+        "signature",
         "prints"
       ],
       "factId": "program.local-call",
