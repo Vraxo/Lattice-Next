@@ -352,6 +352,18 @@ public static class SequenceInputFactExtractor
                 continue;
             }
 
+            if (pattern[patternIndex] == "*")
+            {
+                lastMatchedToken = tokenIndex;
+                patternIndex++;
+                if (patternIndex == pattern.Length)
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
             if (!token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
                 continue;
