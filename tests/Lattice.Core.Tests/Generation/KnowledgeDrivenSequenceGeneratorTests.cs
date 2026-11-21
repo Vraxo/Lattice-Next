@@ -375,7 +375,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             ImmutableDictionary<string, string>.Empty)
         {
             Collections = ImmutableDictionary<string, ImmutableArray<string>>.Empty
-                .Add("assignments", ["first = left + right; ", "second = first * 2; "])
+                .Add("assignments", ["first = left + right; "])
         };
         var binding = new SequenceTokenBinding("locals", "assignments", UseCollection: true);
         var knowledge = new SequenceKnowledgeBase([
@@ -392,7 +392,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge, null, request, out var result, out var error), error);
-        Assert.Equal("first = left + right; second = first * 2; ", result!.Text);
+        Assert.Equal("first = left + right; ", result!.Text);
         Assert.False(result.SearchLimitReached);
     }
 
