@@ -283,7 +283,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "forbiddenAnySequences") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -300,6 +300,8 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
                 !TryGetNestedStringArray(item, "requiredAnySequences", out var requiredAnySequences) ||
                 requiredAnySequences.Length > 16 ||
+                !TryGetNestedStringArray(item, "forbiddenAnySequences", out var forbiddenAnySequences) ||
+                forbiddenAnySequences.Length > 16 ||
                 !TryReadInputCaptures(captureElements, out var captures, out error))
             {
                 error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
@@ -315,7 +317,8 @@ public static class SequenceKnowledgeBaseLoader
                 captures)
             {
                 SearchAllSentences = searchAllSentences,
-                RequiredAnySequences = requiredAnySequences
+                RequiredAnySequences = requiredAnySequences,
+                ForbiddenAnySequences = forbiddenAnySequences
             });
         }
 
