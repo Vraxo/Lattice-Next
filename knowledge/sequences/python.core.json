@@ -160,7 +160,13 @@
       "matchTokens": [
         "sum"
       ],
-      "factId": "program.aggregate"
+      "factId": "program.aggregate",
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ]
     },
     {
       "id": "recognize-python-language",
