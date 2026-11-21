@@ -1,6 +1,4 @@
 using System.Collections.Immutable;
-using System.Globalization;
-using System.Text;
 using Lattice.Client;
 using Lattice.Core.Generation;
 using Lattice.Core.Reasoning;
@@ -56,37 +54,6 @@ internal static class TaskCodeGenerationResponder
                 Environment.NewLine,
                 fence + request.Context,
                 program!.Text,
-                fence);
-            return true;
-        }
-
-        if (request.Subject == "python-program" &&
-            request.Context == "python" &&
-            request.OutputFormat == "python-source" &&
-            request.Scope == "write-standard-output" &&
-            request.RequestedValue is { Length: > 0 } requestedValue)
-        {
-            var loader = new GenerationLanguagePackLoader();
-            if (!loader.TryLoadEmbedded(out var packs, out _) ||
-                !packs.TryGetValue(request.Context, out var pack) ||
-                !new SequenceGenerationPipeline().TryGenerate(
-                    pack,
-                    new GenerationGoal(
-                        request.Scope,
-                        "text",
-                        requestedValue,
-                        ImmutableArray<string>.Empty),
-                    out var generated,
-                    out _))
-            {
-                return false;
-            }
-
-            var fence = new string((char)96, 3);
-            message = string.Join(
-                Environment.NewLine,
-                fence + request.Context,
-                generated!.Text,
                 fence);
             return true;
         }
