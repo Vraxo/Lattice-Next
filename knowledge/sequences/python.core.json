@@ -2579,6 +2579,29 @@
           "from",
           "through"
         ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
+        ]
       ]
     },
     {
@@ -2595,6 +2618,29 @@
         [
           "from",
           "through"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "named"
+        ],
+        [
+          "list"
+        ],
+        [
+          "dictionary"
+        ],
+        [
+          "array"
+        ],
+        [
+          "map"
+        ],
+        [
+          "sort"
         ]
       ]
     }
