@@ -422,8 +422,7 @@ public static class SequenceKnowledgeBaseLoader
             !IsValidIdentifier(valueId) ||
             !TryGetOptionalString(property, "encoding", out var encoding) ||
             (encoding is not null && !IsValidIdentifier(encoding)) ||
-            !TryGetOptionalBoolean(property, "collection", out var useCollection) ||
-)
+            !TryGetOptionalBoolean(property, "collection", out var useCollection))
         {
             return false;
         }
