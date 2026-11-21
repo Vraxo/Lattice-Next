@@ -521,7 +521,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Extracts_and_generates_single_field_record_sorting_declaratively(string prompt, string functionName, string recordsName, string fieldName, string expectedFact)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+        var extracted = SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError);
+        var captureSummary = string.Join(", ", facts.SelectMany(fact => fact.Values.Select(value => $"{fact.Id}.{value.Key}={value.Value}")));
+        Assert.True(extracted, $"{extractionError}. Captures: {captureSummary}");
         Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
         Assert.Contains(facts, fact => fact.Id == expectedFact);
         Assert.True(SequenceInputFactValidator.TryValidate(knowledge!.Validations, facts, out var validationError), validationError);
@@ -532,7 +534,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 ImmutableArray<string>.Empty,
                 facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts },
             out var generated,
-            out var generationError), generationError);
+            out var generationError), $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}. Values: {captureSummary}");
         Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated!.Text);
         Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated.Text);
     }
