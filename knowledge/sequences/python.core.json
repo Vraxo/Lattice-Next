@@ -1731,7 +1731,8 @@
           "startAfterTokens": [
             "from"
           ],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "trimSuffixCharacters": "."
         }
       ],
       "requiredAnySequences": [
@@ -1777,7 +1778,8 @@
           "startAfterTokens": [
             "list"
           ],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "trimSuffixCharacters": "."
         }
       ],
       "requiredAnySequences": [
