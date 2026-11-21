@@ -248,10 +248,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         "['Ada', 'Grace']",
         "for name in ['Ada', 'Grace']:\\n    print(name)")]
     [InlineData(
-        "Build a Python script that displays each label from [\u0022red, blue\\u0022, 'green'].",
+        """Build a Python script that displays each label from ["red, blue", 'green'].""",
         "label",
-        "[\"red, blue\", 'green']",
-        "for label in [\"red, blue\", 'green']:\\n    print(label)")]
+        """["red, blue", 'green']""",
+        """for label in ["red, blue", 'green']:\\n    print(label)""")
     public void Generates_collection_iteration_from_declarative_facts(
         string input,
         string expectedItem,
@@ -279,6 +279,25 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(
             string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence),
             generated!.Text);
+    }
+
+    [Fact]
+    public void Accepts_mixed_quoted_string_items_in_a_list_literal()
+    {
+        var fact = new SequenceSemanticFact(
+            "program.collection-loop",
+            ImmutableDictionary<string, string>.Empty.Add(
+                "collection",
+                """["red, blue", 'green']"""));
+        var validation = new SequenceInputFactValidation(
+            "collection-loop-list-literal",
+            "pythonListLiteral",
+            "program.collection-loop",
+            "collection");
+
+        Assert.True(
+            SequenceInputFactValidator.TryValidate([validation], [fact], out var error),
+            error);
     }
 
     [Fact]
