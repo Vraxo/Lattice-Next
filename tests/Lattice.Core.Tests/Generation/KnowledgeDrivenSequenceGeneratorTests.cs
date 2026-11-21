@@ -455,7 +455,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(
             string.Join(Environment.NewLine,
                 "```python",
-                "print(\"Hello, \\\"world\\\"!\nSecond line\")",
+                "print(\"Hello, \\\"world\\\"!\\nSecond line\")",
                 "```"),
             result!.Text);
     }
@@ -1354,7 +1354,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractionError);
 
-        Assert.Equal(expectedValid, extracted);
+        Assert.Equal(expectedValid, extracted, extractionError);
         if (!expectedValid)
         {
             Assert.Empty(facts);
