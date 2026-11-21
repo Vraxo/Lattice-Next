@@ -49,6 +49,21 @@ public sealed class CompositionalTaskParserTests
         Assert.DoesNotContain("value=", SemanticFormatter.Format(utterance), StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("Create a Python program that prints each number in the list [2, 4, 6].")]
+    [InlineData("Build a Python script that displays each value from [1, 3.5, -2].")]
+    public void Leaves_collection_iteration_to_declarative_sequence_generation(string input)
+    {
+        var result = new LceParser().ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Empty(request.GenerationSteps);
+        Assert.Equal(input, utterance.SourceText);
+    }
+
     [Fact]
     public void Does_not_invent_an_output_goal_for_an_unspecified_program()
     {
