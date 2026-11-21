@@ -2548,7 +2548,6 @@
       "tokenBinding": {
         "factId": "program.local-signature",
         "valueId": "header",
-        "prefix": "",
         "suffix": ":\n"
       },
       "satisfiesFacts": []

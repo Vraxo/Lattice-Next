@@ -302,7 +302,7 @@ public static class KnowledgeDrivenSequenceGenerator
                      (rule.TokenBinding.Encoding is not null &&
                       !encodings.ContainsKey(rule.TokenBinding.Encoding)))))
             {
-                error = $"Invalid sequence rule: {rule?.Id}.";
+                error = "Every knowledge rule requires a unique identifier, exactly one valid token source, valid fact conditions, and finite weight.";
                 return false;
             }
 
