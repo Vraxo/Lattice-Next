@@ -3099,7 +3099,8 @@
         "program.output",
         "program.output.start",
         "program.arithmetic",
-        "value.output"
+        "value.output",
+        "value.output.expression"
       ],
       "weight": 12
     },
@@ -3120,9 +3121,7 @@
         "prefix": "def ",
         "suffix": ":\n"
       },
-      "satisfiesFacts": [
-        "program.arithmetic-function-signature"
-      ]
+      "satisfiesFacts": []
     },
     {
       "id": "python-arithmetic-function-return-prefix",
