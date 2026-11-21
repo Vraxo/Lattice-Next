@@ -47,6 +47,10 @@ public static class SequenceInputFactExtractor
             }
 
             matchedAnyRule = true;
+            if (rule.ValueId is null && rule.Captures.IsDefaultOrEmpty)
+            {
+                EnsureFact(extracted, rule.FactId);
+            }
 
             if (rule.ValueId is not null)
             {
