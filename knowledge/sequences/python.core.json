@@ -5049,7 +5049,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.single-field-record-sorting"
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.signature"
       ],
       "requiresCompletedFacts": [
         "program.single-field-record-sorting.header"
@@ -5073,7 +5074,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.single-field-record-sorting"
+        "program.single-field-record-sorting",
+        "program.single-field-record-sorting.body"
       ],
       "requiresCompletedFacts": [
         "program.single-field-record-sorting.signature"
@@ -5101,6 +5103,7 @@
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
+        "program.single-field-record-sorting.body",
         "program.single-field-record-sorting.case-insensitive"
       ],
       "requiresCompletedFacts": [
@@ -5128,6 +5131,7 @@
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
+        "program.single-field-record-sorting.body",
         "program.single-field-record-sorting.descending"
       ],
       "requiresCompletedFacts": [
@@ -5155,6 +5159,7 @@
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
+        "program.single-field-record-sorting.body",
         "program.single-field-record-sorting.case-insensitive",
         "program.single-field-record-sorting.descending"
       ],
