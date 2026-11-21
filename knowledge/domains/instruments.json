@@ -397,6 +397,31 @@
       "id": "piano-string-bending-mode",
       "label": "piano string bending mode",
       "kind": "Individual"
+    },
+    {
+      "id": "hammer-head",
+      "label": "hammer head",
+      "kind": "Type"
+    },
+    {
+      "id": "hammer-shank",
+      "label": "hammer shank",
+      "kind": "Type"
+    },
+    {
+      "id": "piano-hammer-head",
+      "label": "piano hammer head",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-hammer-shank",
+      "label": "piano hammer shank",
+      "kind": "Individual"
+    },
+    {
+      "id": "piano-hammer-shank-form",
+      "label": "piano hammer shank form",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -940,6 +965,22 @@
       "objectRole": null,
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "has-part",
+      "domain": "physical-component",
+      "range": "physical-component",
+      "verb": "has a part",
+      "order": 3,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "attached-to",
+      "domain": "physical-component",
+      "range": "physical-component",
+      "verb": "is attached to",
+      "order": 4,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -1197,9 +1238,23 @@
     },
     {
       "concept": "hammer-component",
-      "definitionKind": "primitive",
+      "definitionKind": "defined",
       "necessaryConditions": [],
-      "sufficientExpression": null
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-part",
+            "targetType": "hammer-head"
+          },
+          {
+            "kind": "some",
+            "relation": "has-part",
+            "targetType": "hammer-shank"
+          }
+        ]
+      }
     },
     {
       "concept": "piano-hammer-action",
@@ -1264,6 +1319,36 @@
         "kind": "some",
         "relation": "exhibits-mechanical-behavior",
         "targetType": "bending-response"
+      }
+    },
+    {
+      "concept": "hammer-head",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "some",
+        "relation": "strikes",
+        "targetType": "string-component"
+      }
+    },
+    {
+      "concept": "hammer-shank",
+      "definitionKind": "defined",
+      "necessaryConditions": [],
+      "sufficientExpression": {
+        "kind": "and",
+        "operands": [
+          {
+            "kind": "some",
+            "relation": "has-geometric-form",
+            "targetType": "elongated-shape"
+          },
+          {
+            "kind": "some",
+            "relation": "attached-to",
+            "targetType": "hammer-head"
+          }
+        ]
       }
     }
   ],
@@ -1927,6 +2012,31 @@
       "subject": "piano-string-bending-deformation",
       "relation": "deforms-component",
       "object": "piano-strings"
+    },
+    {
+      "subject": "hammer-head",
+      "relation": "is-a",
+      "object": "striking-component"
+    },
+    {
+      "subject": "hammer-shank",
+      "relation": "is-a",
+      "object": "elongated-component"
+    },
+    {
+      "subject": "piano-hammer-head",
+      "relation": "strikes",
+      "object": "piano-strings"
+    },
+    {
+      "subject": "piano-hammer-shank",
+      "relation": "has-geometric-form",
+      "object": "piano-hammer-shank-form"
+    },
+    {
+      "subject": "piano-hammer-shank-form",
+      "relation": "instance-of",
+      "object": "elongated-shape"
     }
   ],
   "dataProperties": [],
