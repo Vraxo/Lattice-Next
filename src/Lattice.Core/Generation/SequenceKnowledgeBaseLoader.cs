@@ -62,7 +62,6 @@ public static class SequenceKnowledgeBaseLoader
             var identifiers = new HashSet<string>(StringComparer.Ordinal);
             foreach (var element in rulesElement.EnumerateArray())
             {
-                var diagnosticRuleId = element.TryGetProperty("id", out var diagnosticId) ? diagnosticId.ToString() : "unknown";
                 if (element.ValueKind != JsonValueKind.Object ||
                     !HasOnlyProperties(
                         element,
@@ -101,7 +100,7 @@ public static class SequenceKnowledgeBaseLoader
                     advanceCollections.Distinct(StringComparer.Ordinal).Count() != advanceCollections.Length ||
                     (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
-                    error = $"Invalid sequence knowledge rule: {diagnosticRuleId}.";
+                    error = "Every sequence rule requires a unique identifier, exactly one literal or bound token source, valid fact identifiers, context, and a finite optional weight.";
                     return false;
                 }
 
@@ -590,7 +589,7 @@ public static class SequenceKnowledgeBaseLoader
             }
 
             var value = item.GetString();
-            if (string.IsNullOrWhiteSpace(value) ||
+            if ((name != "contextSuffix" && string.IsNullOrWhiteSpace(value)) ||
                 (name == "contextSuffix" &&
                     (!IsValidToken(value) || value == SequenceTokenModel.EndToken)))
             {
