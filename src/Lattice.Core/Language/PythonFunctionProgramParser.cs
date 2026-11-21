@@ -14,10 +14,6 @@ internal static class PythonFunctionProgramParser
         @"\bthen\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    private static readonly Regex FunctionProgramPattern = new(
-        @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<expression>.+?)\s*,?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
     private static readonly Regex FunctionMultiConditionalProgramPattern = new(
         @"\bfunction\s+named\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s+that\s+takes\s+(?<parameters>[A-Za-z_][A-Za-z0-9_]*(?:\s+and\s+[A-Za-z_][A-Za-z0-9_]*)*)\s+and\s+returns\s+(?<branchValue>.+?)\s+when\s+(?<branchCondition>.+?)(?:,\s*(?:and\s+)?returns\s+(?<branchValue>.+?)\s+when\s+(?<branchCondition>.+?))*\s*,?\s+and\s+otherwise\s+returns\s+(?<falseValue>.+?),?\s+then\s+(?:print|display|output)\s+(?<call>[A-Za-z_][A-Za-z0-9_]*\s*\(\s*[^()]+\s*\))\s*[.!?]?\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -211,41 +207,5 @@ internal static class PythonFunctionProgramParser
     }
 
 
-    internal static bool TryGetFunctionProgram(
-        string source,
-        out ImmutableArray<TaskRequestStep> steps)
-    {
-        steps = ImmutableArray<TaskRequestStep>.Empty;
-        var match = FunctionProgramPattern.Match(source);
-        if (!match.Success)
-        {
-            return false;
-        }
 
-        var name = match.Groups["name"].Value;
-        var parameters = match.Groups["parameters"].Value
-            .Split(" and ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var expression = match.Groups["expression"].Value.Trim();
-        var compactCall = Regex.Replace(match.Groups["call"].Value, @"\s+", string.Empty);
-        var numericArguments = string.Join(",", Enumerable.Repeat(@"[+-]?\d+(?:\.\d+)?", parameters.Length));
-
-        if (!PythonExpressionParser.IsArithmeticExpression(expression) ||
-            !Regex.IsMatch(
-                compactCall,
-                $@"^{Regex.Escape(name)}\({numericArguments}\)$",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
-        {
-            return false;
-        }
-
-        var callName = compactCall[..compactCall.IndexOf('(')];
-        var callArguments = compactCall[(compactCall.IndexOf('(') + 1)..^1].Split(',');
-        var call = $"{callName}({string.Join(", ", callArguments)})";
-
-        steps = ImmutableArray.Create(
-            new TaskRequestStep("begin-function", "function-header", $"{name}({string.Join(", ", parameters)})"),
-            new TaskRequestStep("return-value-indented-expression", "expression", expression),
-            new TaskRequestStep("write-standard-output", "expression", call));
-        return true;
-    }
 }
