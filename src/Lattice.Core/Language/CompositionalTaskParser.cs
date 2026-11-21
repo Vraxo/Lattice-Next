@@ -59,10 +59,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = collectionFilterSteps };
         }
-        else if (PythonCollectionProgramParser.TryGetSortRecordsByFieldsProgram(source, out var sortRecordsByFieldsSteps))
-        {
-            formula = formula with { GenerationSteps = sortRecordsByFieldsSteps };
-        }
         else if (PythonCollectionProgramParser.TryGetSortRecordsByFieldProgram(source, out var sortRecordsSteps))
         {
             formula = formula with { GenerationSteps = sortRecordsSteps };
