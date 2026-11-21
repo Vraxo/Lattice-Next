@@ -1126,4 +1126,34 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "```"), result!.Text);
     }
 
+
+    [Fact]
+    public void Generates_directory_file_listing_from_declarative_semantic_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string input = "Write a Python program that accepts a directory path and reports the names and sizes of all files directly inside it, handling a missing directory cleanly.";
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.directory-file-listing");
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.Equal(string.Join(Environment.NewLine,
+            "\u0060\u0060\u0060python",
+            "import os",
+            "import sys",
+            "directory = sys.argv[1]",
+            "try:",
+            "    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):",
+            "        if entry.is_file():",
+            "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
+            "except FileNotFoundError:",
+            "    print(f\"Directory not found: {directory}\")",
+            "\u0060\u0060\u0060"), result!.Text);
+    }
+
 }
