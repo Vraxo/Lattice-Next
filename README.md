@@ -24,6 +24,10 @@ Lattice keeps three concerns independent:
 
 The console is the initial user interface. Tools are not the intelligence, knowledge packs are not executable plugins, and no neural model is required by Core. Core defines an optional, provider-neutral semantics-translator boundary. An LM Studio adapter lives in a separate project and can be enabled explicitly in the REPL; no model is bundled or selected by default. Translator output remains an untrusted candidate until reviewed.
 
+## Program-generation direction
+
+**The coding track is being rebuilt around one generic, symbolic, knowledge-driven sequence generator.** Python is knowledge consumed by the engine, not a special case implemented by the engine. The runtime must not route requests to Python-specific parsers or generators, and adding a construct must not require another hard-coded C# branch. The current migration objective, architecture, non-negotiable constraints, and progress are documented in [Program generation architecture](docs/program-generation-architecture.md).
+
 ## Current language, context, and reasoning slice
 
 The first language implementation is **Lattice Controlled English (LCE) 0.9**, a deliberately small controlled-language subset inspired by the approach taken by Attempto Controlled English. The same native parser is also growing a deterministic English grammar built from reusable noun descriptions, quantifiers, and relation structures. It maps recognized constructions directly into Lattice's semantic model; it does not rewrite input into LCE first. Neither grammar is full ACE or unrestricted English.

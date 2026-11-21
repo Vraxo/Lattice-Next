@@ -38,6 +38,10 @@ Keep these concerns independently understandable and changeable:
 - Do not claim full Attempto Controlled English (ACE) support unless the implementation actually conforms to ACE. Clearly name any Lattice-defined subset or derivative.
 - Unknown is not false. Do not infer negation from missing information.
 
+## Program-generation direction
+
+The Python code-generation migration must follow [docs/program-generation-architecture.md](docs/program-generation-architecture.md). That document is the authoritative target architecture, including the explicit no-ML constraint, the prohibition on task-specific parser/generator dispatch, the current 21/28 migration checkpoint, and the definition of success. Do not reintroduce specialized Python runtime logic or replace it with one-prompt-one-rule templates. Inspect current `main` before choosing each remaining migration target, and update the documented progress only after a verified merge.
+
 ## Development workflow
 
 - Develop language and intelligence as coupled, co-evolving tracks; do not complete one before returning to the other.

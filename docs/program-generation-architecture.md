@@ -1,50 +1,91 @@
 # Program generation architecture
 
-Program generation is a knowledge-driven token continuation process.
+> **Current migration objective:** remove the remaining specialized Python parsing and code-generation branches. Replace them with generic semantic extraction, validation, symbolic reasoning, and declarative token-sequence generation. This is an architectural migration, not a project to move hard-coded templates from C# into JSON.
 
-## Core rule
+This document is the authoritative direction for the program-generation track. When implementation details or older design notes conflict with it, follow this document and the current code/tests.
 
-The runtime must not contain target-language knowledge. It must not dispatch a prompt to a target-specific parser, choose a predefined operation family, or render code through a language-specific backend. Language syntax, token forms, API usage, and constraints belong in declarative knowledge.
+## The destination
 
-The same runtime is responsible for natural-language, programming-language, and other sequence generation.
+Lattice should have one general-purpose, output-format-agnostic sequence-generation mechanism. It should be able to generate a program by combining what it knows about the requested meaning, the relevant concepts and operations, and the target language's syntax.
 
-## Request understanding
+The runtime must not know that it is generating Python. Python syntax and semantics needed for generation belong in declarative knowledge. The same generic machinery should eventually be reusable for other languages and for non-code sequences.
 
-A request is represented by the semantic facts and constraints extracted from it, not by a single prompt category. One request may express multiple requirements that are concurrent, ordered, or dependent on one another.
+The goal is not to replace a growing list of C# special cases with a growing list of prompt-specific JSON templates. The system must generalize by composing reusable facts, constraints, relationships, and generation rules.
 
-The semantic representation must preserve all of those requirements. It must not reduce them to one effect/argument pair or a single generation template.
+## Intended processing model
 
-## Generation
+A request may express multiple requirements at once. They may be independent, ordered, or dependent on one another. Preserve them as semantic facts and constraints rather than collapsing the request into one task category or handler.
 
-Generation begins from the available semantic context and an empty output sequence.
+The intended path is:
 
-At each step, the engine:
+1. **Interpret the request:** extract its meaning into reusable semantic facts, values, entities, relationships, and constraints.
+2. **Validate meaning:** check types, relationships, dependencies, compatibility, and other semantic constraints using generic validation mechanisms.
+3. **Reason over knowledge:** combine the request's requirements with domain concepts, operation knowledge, and language knowledge. Keep all simultaneously relevant requirements active.
+4. **Generate a sequence:** use the shared generator to consider valid next-token candidates under the active facts, constraints, and already-emitted sequence.
+5. **Validate the result:** test structural/syntactic validity and, where practical, execute generated programs against behavioral expectations.
 
-1. Retrieves candidate next-token knowledge that applies to the current token context and active semantic constraints.
-2. Reasons over the candidates using the knowledge base, the requested meaning, and the already-emitted sequence.
-3. Selects a continuation and updates the context and semantic state.
-4. Repeats until the requirements are expressed and the sequence is complete.
+This is a conceptual pipeline, not a mandate to introduce a separate framework or layer for every stage. Keep the implementation cohesive and add abstractions only when they provide a real reusable capability.
 
-Candidates and constraints are data. The engine is generic and does not know what a particular language's keywords or APIs mean.
+## Generic generation mechanism
 
-The current implementation represents each candidate as a declarative next-token rule. A rule can constrain the recent token suffix, require active semantic facts, wait for other facts to be completed, emit one token, and mark facts as satisfied. Independent facts remain active together. A generic start token allows knowledge to define rules that only apply at the beginning of a sequence. The existing context model ranks applicable candidates; the knowledge rules determine which candidates are valid.
+At each generation step, the engine should:
 
-## Knowledge
+1. Retrieve declarative next-token candidates applicable to the current sequence context.
+2. Filter and reason over candidates using active semantic facts, completed requirements, forbidden conditions, and other generic constraints.
+3. Select a continuation using the generator's deterministic search strategy.
+4. Update the sequence and semantic state, including any facts satisfied or collection positions advanced by the emitted token.
+5. Continue until the required meaning has been expressed and generation is complete.
 
-Language modules contain the facts needed to produce valid sequences: token forms, legal continuations, syntax relationships, composition constraints, and any language-specific API or runtime knowledge.
+The generator must not contain Python keywords, syntax rules, APIs, or task-specific construction logic. It operates on generic facts, token contexts, bindings, constraints, and candidate rules. Language and domain knowledge supply the meaning of those data.
 
-Domain modules can contribute additional concepts and relations. For example, Blender operations and Blender API details belong in domain knowledge, while the target language's syntax belongs in its language module.
+The current implementation already has a declarative next-token knowledge base, semantic fact bindings, collection cursors, input-fact extraction, generic validation, and bounded token-sequence search. Extend these primitives when a genuinely reusable capability is missing; do not add a dedicated generator for the next construct.
 
-Knowledge modules should describe concepts and relationships, not store one complete program per prompt. They should support composition across multiple requirements.
+## Where knowledge belongs
 
-Sequence-rule modules are stored under `knowledge/sequences/` and loaded together by `SequenceKnowledgeBaseLoader`. Each rule contains its token context, semantic-fact conditions, completed-fact dependencies, one next token, and any facts completed by that token. Modules are embedded at build time; the same loader and generator handle all languages and domains.
+- **Language knowledge:** token spellings, syntax, legal continuations, grammar relationships, expression forms, and language-specific conventions.
+- **Domain knowledge:** concepts, operations, effects, API names/signatures, and domain relationships.
+- **Request-derived semantic facts:** the actual values, requirements, entities, and dependencies expressed by the user.
+- **Generic runtime:** extraction infrastructure, semantic representation, validation machinery, constraint evaluation, sequence search, token binding, and state transitions.
 
-## Design constraints
+Knowledge may describe reusable constructions and their constraints. It must not store complete programs for individual prompts, benchmark cases, or task IDs. A language-specific knowledge file is acceptable; a language-specific runtime implementation is not.
 
-- No target-language names, keywords, syntax, APIs, or special cases in runtime code.
-- No target-specific parser or backend classes.
-- No one-prompt-one-operation routing.
-- Multiple semantic requirements must remain simultaneously available during generation.
-- Each generation step is a next-token decision over candidates grounded in knowledge.
-- Preserve deterministic bounds, explainable candidate evidence, and executable benchmark validation.
-- Knowledge additions should increase capability without requiring new target-specific C# branches.
+## Non-negotiable constraints
+
+- **No Python-specific runtime intelligence.** No Python-specific parser dispatch, task parser, generator, code-fragment assembler, or target-language branch in generic C# runtime code.
+- **No task-keyed routing.** Do not map request categories, prompt patterns, benchmark IDs, or operation-family names to dedicated handlers.
+- **No hard-coded benchmark solutions.** Benchmarks are tests of generalization, not a source of special cases.
+- **No ML-based generation.** The intended system is explicitly symbolic and deterministic/explainable. Do not introduce neural models, corpus training, n-gram prediction, or statistical next-token prediction as a substitute for semantic reasoning.
+- **No configuration-shaped overfitting.** Moving each special case into its own declarative template is not sufficient. Rules must express reusable concepts and compose across requirements and wording variations.
+- **Keep requirements compositional.** Multiple requirements must remain simultaneously represented; do not reduce them to a single effect/argument pair or one output template.
+- **Keep syntax in knowledge.** The generic runtime must not interpret target-language keywords or APIs.
+- **Preserve uncertainty and safety.** Reject unsupported or contradictory inputs rather than guessing. Unknown information must remain unknown.
+- **Prove behavior.** Add focused extraction, validation, generation, rejection, and end-to-end execution tests as appropriate. A plausible-looking string alone is not evidence of correctness.
+
+## Migration work in progress
+
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-21**, **21 of 28 (75%)** have been removed through small, independently reviewed increments; **7 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
+
+The latest completed increment is PR [#507 — Generate integer range loops declaratively](https://github.com/Vraxo/Lattice-Next/pull/507). It removed the dedicated range-loop parser dispatch and moved extraction, validation, and token generation into reusable mechanisms and declarative knowledge. Its CI passed and it was merged to `main`.
+
+For every remaining increment:
+
+1. Inspect the current `main` branch and identify an actual remaining legacy branch; do not rely on a stale candidate list.
+2. Remove one focused branch and its dedicated parser/generator logic while preserving genuinely shared functionality.
+3. Express the required input facts, validation, and output sequence declaratively, extending generic infrastructure only when necessary.
+4. Add tests for ordinary cases, variations, invalid inputs, and end-to-end behavior.
+5. Open a small PR, enable GitHub auto-merge, and wait for required CI checks. Never bypass checks.
+6. Verify the merge and the resulting `main` contents before incrementing the progress count.
+7. Stop at the merge boundary before starting the next increment.
+
+## Definition of success
+
+The migration is not complete merely because all 28 tracked branches are gone. The resulting system must also demonstrate that:
+
+- new programming constructs can be added through knowledge and existing generic mechanisms, without target-specific C# dispatch or generation code;
+- requests with multiple requirements can be represented and composed rather than routed to one task handler;
+- paraphrases and changed values work without benchmark-specific rules;
+- invalid, incomplete, contradictory, or unsupported requests are rejected or left unresolved safely;
+- generated programs are syntactically valid and execute correctly for the supported behavioral cases; and
+- the same runtime architecture is not inherently tied to Python.
+
+After the 28-branch cleanup, audit the remaining runtime for hidden target-language assumptions and evaluate compositional generalization independently. Treat branch removal as a migration checkpoint, not the final quality metric.
