@@ -6,7 +6,7 @@ Run the 16 Python tasks in `data/benchmarks/coding-benchmark-v1.json` through th
 dotnet run --project tools/Lattice.Coding.Benchmark
 ```
 
-The runner creates a fresh session for each exact benchmark prompt, extracts the generated Python block, checks syntax with `python -m py_compile`, and performs a bounded smoke execution in an isolated temporary directory.
+The runner creates a fresh session for each exact benchmark prompt, extracts the generated Python block, and checks syntax with `python -m py_compile`. It performs a bounded smoke execution in an isolated temporary directory only for tasks whose benchmark definition sets `executionRequired` to `true`; other tasks are reported as syntax-valid but not executed.
 
 It writes:
 
