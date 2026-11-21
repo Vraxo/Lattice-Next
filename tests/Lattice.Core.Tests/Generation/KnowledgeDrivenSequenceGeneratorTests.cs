@@ -12,7 +12,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var trainingSequence = ImmutableArray.Create(
             "let ",
             "total",
-            " = 0\\n",
+            " = 0\n",
             "print",
             "(",
             "total",
@@ -25,8 +25,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var knowledge = new SequenceKnowledgeBase(ImmutableArray.Create(
             Rule("initialize-start", [SequenceKnowledgeBase.StartToken], ["initialize-start"], [], "let ", ["initialize-start"]),
             Rule("initialize-name", ["let "], ["initialize-name"], [], "total", ["initialize-name"]),
-            Rule("initialize-value", ["let ", "total"], ["initialize-value"], [], " = 0\\n", ["initialize-value"]),
-            Rule("display-start", [" = 0\\n"], ["display-start"], [], "print", ["display-start"]),
+            Rule("initialize-value", ["let ", "total"], ["initialize-value"], [], " = 0\n", ["initialize-value"]),
+            Rule("display-start", [" = 0\n"], ["display-start"], [], "print", ["display-start"]),
             Rule("display-open", ["print"], ["display-open"], [], "(", ["display-open"]),
             Rule("display-name", ["print", "("], ["display-name"], [], "total", ["display-name"]),
             Rule("display-close", ["print", "(", "total"], ["display-close"], [], ")", ["display-close"])));
@@ -253,7 +253,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
         var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence), generated!.Text);
+        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), generated!.Text);
     }
 
     [Fact]
@@ -302,8 +302,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Theory]
-    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-name-count-iteration", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\\nfor name, count in counts.items():\\n    print(name, count)")]
-    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.dictionary-product-iteration", "prices = {'apple': 1.5, 'banana': 0.75}\\nfor product, price in prices.items():\\n    print(product, price)")]
+    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-name-count-iteration", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
+    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.dictionary-product-iteration", "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
     public void Generates_dictionary_iteration_from_declarative_semantic_facts(string input, string expectedFact, string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
@@ -321,7 +321,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
         var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence), result!.Text);
+        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), result!.Text);
     }
 
 
@@ -1308,6 +1308,83 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "except FileNotFoundError:",
             "    print(f\"Directory not found: {directory}\")",
             "\u0060\u0060\u0060"), result!.Text);
+    }
+
+
+    [Theory]
+    [InlineData(
+        "Generate a Python program with a function named transform that takes value and set shifted to value + 2 and sets scaled to shifted * 4 and returns scaled - shifted, then print transform(3).",
+        true)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets total to value + 1 and sets total to total * 2 and returns total, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets value to value * 2 and returns value, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets first to later + 1 and sets later to value * 2 and returns later, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to value * 2 and returns missing + doubled, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to value * 2 and returns value + 1, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to value + * 2 and returns doubled, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to value * 2 and returns doubled, then print calculate(3, 4).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to helper(value) and returns doubled, then print calculate(3).",
+        false)]
+    [InlineData(
+        "Create a Python program with a function named calculate that takes value and sets doubled to value * 2 and returns doubled, then print other(3).",
+        false)]
+    public void Extracts_and_validates_function_local_variables_declaratively(
+        string input,
+        bool expectedValid)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        var extracted = SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError);
+
+        Assert.True(expectedValid == extracted, extractionError);
+        if (!expectedValid)
+        {
+            Assert.Empty(facts);
+            return;
+        }
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(
+                knowledge!,
+                null,
+                request,
+                out var generated,
+                out var generationError),
+            generationError);
+        Assert.Equal(
+            "\u0060\u0060\u0060python\n" +
+            "def transform(value):\n" +
+            "    shifted = value + 2\n" +
+            "    scaled = shifted * 4\n" +
+            "    return scaled - shifted\n" +
+            "print(transform(3))\n" +
+            "\u0060\u0060\u0060",
+            generated!.Text);
     }
 
 }
