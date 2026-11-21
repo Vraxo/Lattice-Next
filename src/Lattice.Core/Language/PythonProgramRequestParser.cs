@@ -36,28 +36,18 @@ internal static class PythonProgramRequestParser
 
     internal static bool TryGetCreationClause(
         string source,
-        out EnglishSentenceSyntax? syntax,
-        out int creationClauseIndex)
+        out EnglishSentenceSyntax? syntax)
     {
         syntax = null;
-        creationClauseIndex = -1;
         if (!EnglishSyntaxParser.TryParse(source, out syntax))
         {
             return false;
         }
 
-        for (var index = 0; index < syntax!.Clauses.Length; index++)
-        {
-            if (CreationVerbs.Contains(syntax.Clauses[index].Verb))
-            {
-                creationClauseIndex = index;
-                break;
-            }
-        }
-
-        return creationClauseIndex >= 0 &&
-            syntax.Clauses[creationClauseIndex].Object is { } codeArtifact &&
+        var creationClause = syntax!.Clauses.FirstOrDefault(clause =>
+            CreationVerbs.Contains(clause.Verb));
+        return creationClause?.Object is { } codeArtifact &&
             ContainsCodeArtifact(codeArtifact) &&
-            ContainsPythonLanguage(syntax.Clauses[creationClauseIndex]);
+            ContainsPythonLanguage(creationClause);
     }
 }
