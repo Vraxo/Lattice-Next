@@ -1712,7 +1712,7 @@
       ]
     },
     {
-      "id": "capture-collection-loop-components",
+      "id": "capture-collection-loop-from",
       "matchTokens": [
         "each"
       ],
@@ -1722,35 +1722,20 @@
           "factId": "program.collection-loop",
           "valueId": "item",
           "stopBeforeTokens": [
-            "in",
             "from"
           ]
         },
         {
           "factId": "program.collection-loop",
           "valueId": "collection",
-          "startAfterSequences": [
-            [
-              "in",
-              "the",
-              "list"
-            ],
-            [
-              "from"
-            ]
+          "startAfterTokens": [
+            "from"
           ]
         }
       ],
       "requiredAnySequences": [
         [
-          "in",
-          "the",
-          "list",
-          "["
-        ],
-        [
-          "from",
-          "["
+          "from"
         ]
       ],
       "forbiddenAnySequences": [
@@ -1765,6 +1750,56 @@
         ],
         [
           "odd"
+        ],
+        [
+          "to"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-loop-in-list",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.collection-loop",
+      "captures": [
+        {
+          "factId": "program.collection-loop",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        },
+        {
+          "factId": "program.collection-loop",
+          "valueId": "collection",
+          "startAfterTokens": [
+            "list"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "in",
+          "the",
+          "list"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "if"
+        ],
+        [
+          "only"
+        ],
+        [
+          "even"
+        ],
+        [
+          "odd"
+        ],
+        [
+          "to"
         ]
       ]
     }
