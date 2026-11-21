@@ -1535,4 +1535,38 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
+
+    [Theory]
+    [InlineData("Create a Python program that prints each number from 1 to 5.", "number", "1", "5", "```python\\nfor number in range(1, 5 + 1):\\n    print(number)\\n```")]
+    [InlineData("Build a Python script that displays each value from 2 through 4.", "value", "2", "4", "```python\\nfor value in range(2, 4 + 1):\\n    print(value)\\n```")]
+    [InlineData("Generate a Python program that outputs each count from 3 to 6.", "count", "3", "6", "```python\\nfor count in range(3, 6 + 1):\\n    print(count)\\n```")]
+    [InlineData("Create a Python program that prints each item from 7 to 7.", "item", "7", "7", "```python\\nfor item in range(7, 7 + 1):\\n    print(item)\\n```")]
+    public void Generates_range_loops_from_declarative_semantic_facts(string input, string item, string start, string end, string expectedCode)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.range-loop" &&
+            fact.Values["item"] == item && fact.Values["start"] == start && fact.Values["end"] == end);
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!, null, request, out var generated, out var generationError), generationError);
+        Assert.Equal(expectedCode, generated!.Text);
+    }
+
+    [Theory]
+    [InlineData("Create a Python program that prints each number from 5 to 1.")]
+    [InlineData("Create a Python program that prints each number from 1 to 2147483647.")]
+    [InlineData("Create a Python program that prints each number from 1.5 to 5.")]
+    public void Rejects_invalid_range_loop_bounds_declaratively(string input)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out _));
+        Assert.Empty(facts);
+    }
+
 }

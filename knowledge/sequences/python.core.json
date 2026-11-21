@@ -1921,6 +1921,346 @@
           "named"
         ]
       ]
+    },
+    {
+      "id": "capture-range-loop-number",
+      "matchTokens": [
+        "number"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "number"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-numbers",
+      "matchTokens": [
+        "numbers"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "number"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-value",
+      "matchTokens": [
+        "value"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "value"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-values",
+      "matchTokens": [
+        "values"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "value"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-item",
+      "matchTokens": [
+        "item"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "item"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-items",
+      "matchTokens": [
+        "items"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "item"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-count",
+      "matchTokens": [
+        "count"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "count"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-counts",
+      "matchTokens": [
+        "counts"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "count"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-range-loop-i",
+      "matchTokens": [
+        "i"
+      ],
+      "factId": "program.range-loop",
+      "captures": [
+        {
+          "factId": "program.range-loop",
+          "valueId": "item",
+          "literalValue": "i"
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "start",
+          "startAfterTokens": [
+            "from"
+          ],
+          "stopBeforeTokens": [
+            "to",
+            "through"
+          ]
+        },
+        {
+          "factId": "program.range-loop",
+          "valueId": "end",
+          "startAfterSequences": [
+            [
+              "to"
+            ],
+            [
+              "through"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recognize-range-loop-iteration",
+      "matchTokens": [
+        "from"
+      ],
+      "factId": "program.iteration"
     }
   ],
   "rules": [
@@ -3224,6 +3564,90 @@
         "value.output.expression"
       ],
       "weight": 12
+    },
+    {
+      "id": "python-range-loop-open",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.range-loop",
+        "language.python",
+        "intent.program-generation",
+        "program.output"
+      ],
+      "nextToken": "```python\\nfor ",
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.output"
+      ],
+      "weight": 50
+    },
+    {
+      "id": "python-range-loop-variable",
+      "contextSuffix": [
+        "for "
+      ],
+      "requiredFacts": [
+        "program.range-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.range-loop",
+        "valueId": "item",
+        "suffix": " in range("
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-range-loop-start",
+      "contextSuffix": [
+        " in range("
+      ],
+      "requiredFacts": [
+        "program.range-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.range-loop",
+        "valueId": "start",
+        "suffix": ", "
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-range-loop-inclusive-end",
+      "contextSuffix": [
+        "*,"
+      ],
+      "requiredFacts": [
+        "program.range-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.range-loop",
+        "valueId": "end",
+        "suffix": " + 1):\\n    print("
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-range-loop-output",
+      "contextSuffix": [
+        "*print("
+      ],
+      "requiredFacts": [
+        "program.range-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.range-loop",
+        "valueId": "item",
+        "suffix": ")\\n```"
+      },
+      "satisfiesFacts": [
+        "program.range-loop",
+        "program.iteration",
+        "program.output",
+        "value.output"
+      ]
     }
   ],
   "validations": [
@@ -3342,6 +3766,36 @@
       "additionalFactId": "program.arithmetic-function-signature",
       "additionalValueId": "parameters",
       "appliesWhenFactId": "program.arithmetic-function-signature"
+    },
+    {
+      "id": "range-loop-variable-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.range-loop",
+      "valueId": "item",
+      "appliesWhenFactId": "program.range-loop"
+    },
+    {
+      "id": "range-loop-start-is-integer",
+      "kind": "integerValue",
+      "factId": "program.range-loop",
+      "valueId": "start",
+      "appliesWhenFactId": "program.range-loop"
+    },
+    {
+      "id": "range-loop-end-is-integer",
+      "kind": "integerValue",
+      "factId": "program.range-loop",
+      "valueId": "end",
+      "appliesWhenFactId": "program.range-loop"
+    },
+    {
+      "id": "range-loop-is-ascending-and-safe",
+      "kind": "ascendingIntegerRange",
+      "factId": "program.range-loop",
+      "valueId": "start",
+      "relatedFactId": "program.range-loop",
+      "relatedValueId": "end",
+      "appliesWhenFactId": "program.range-loop"
     }
   ]
 }
