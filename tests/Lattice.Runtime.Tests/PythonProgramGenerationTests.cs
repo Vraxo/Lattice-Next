@@ -988,7 +988,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a small program that groups a list of purchase records by customer and calculates each customer's total spending.");
+            "Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -996,25 +996,25 @@ public sealed class PythonProgramGenerationTests
 
         var generatedCode = ExtractGeneratedPythonCode(utterance.Message);
         var expectedCode = string.Join(Environment.NewLine,
-            "records = [{\"customer\": \"Ada\", \"amount\": 25.0}, {\"customer\": \"Grace\", \"amount\": 40.0}, {\"customer\": \"Ada\", \"amount\": 15.0}]",
+            "records = [{\"customer\": \"Ada\", \"spending\": 25.0}, {\"customer\": \"Grace\", \"spending\": 40.0}, {\"customer\": \"Ada\", \"spending\": 15.0}]",
             "totals = {}",
             "for purchase in records:",
-            "    customer = purchase[\"customer\"]",
-            "    totals[customer] = totals.get(customer, 0) + purchase[\"amount\"]",
-            "for customer, total in totals.items():",
-            "    print(customer, total)");
+            "    key = purchase[\"customer\"]",
+            "    totals[key] = totals.get(key, 0) + purchase[\"spending\"]",
+            "for key, total in totals.items():",
+            "    print(key, total)");
         Assert.Equal(expectedCode, generatedCode);
         await AssertPythonOutput(generatedCode, "Ada 40.0\nGrace 40.0");
 
         var changedDataCode = generatedCode.Replace(
-            "\"Ada\", \"amount\": 25.0",
-            "\"Ada\", \"amount\": 100.0",
+            "\"Ada\", \"spending\": 25.0",
+            "\"Ada\", \"spending\": 100.0",
             StringComparison.Ordinal);
         await AssertPythonOutput(changedDataCode, "Ada 115.0\nGrace 40.0");
 
         await using var variantSession = await client.CreateSessionAsync();
         var variantResult = await variantSession.SubmitAsync(
-            "Create a small program that groups a list of order records by buyer and sums each buyer's total amount.");
+            "Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.");
 
         var variantUtterance = Assert.Single(variantResult.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, variantResult.Status);
@@ -1022,8 +1022,8 @@ public sealed class PythonProgramGenerationTests
 
         var variantCode = ExtractGeneratedPythonCode(variantUtterance.Message);
         Assert.Contains("for order in records:", variantCode, StringComparison.Ordinal);
-        Assert.Contains("buyer = order[\"buyer\"]", variantCode, StringComparison.Ordinal);
-        Assert.Contains("totals[buyer] = totals.get(buyer, 0) + order[\"amount\"]", variantCode, StringComparison.Ordinal);
+        Assert.Contains("key = order[\"buyer\"]", variantCode, StringComparison.Ordinal);
+        Assert.Contains("totals[key] = totals.get(key, 0) + order[\"amount\"]", variantCode, StringComparison.Ordinal);
         await AssertPythonOutput(variantCode, "Ada 40.0\nGrace 40.0");
     }
 

@@ -2855,6 +2855,94 @@
         ]
       ],
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-grouped-record-aggregation",
+      "matchTokens": [
+        "list",
+        "of"
+      ],
+      "factId": "program.record-aggregation",
+      "captures": [
+        {
+          "factId": "program.record-aggregation",
+          "valueId": "record",
+          "stopBeforeTokens": [
+            "records"
+          ]
+        },
+        {
+          "factId": "program.record-aggregation",
+          "valueId": "group",
+          "startAfterTokens": [
+            "by"
+          ],
+          "stopBeforeTokens": [
+            "and"
+          ]
+        },
+        {
+          "factId": "program.record-aggregation",
+          "valueId": "measure",
+          "startAfterTokens": [
+            "total"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ],
+      "forbiddenAnySequences": []
+    },
+    {
+      "id": "recognize-record-aggregation-calculates",
+      "matchTokens": [
+        "calculates"
+      ],
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-aggregation-computes",
+      "matchTokens": [
+        "computes"
+      ],
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-aggregation-sums",
+      "matchTokens": [
+        "sums"
+      ],
+      "factId": "program.record-aggregation.intent",
+      "requiredAnySequences": [
+        [
+          "groups"
+        ],
+        [
+          "organizes"
+        ]
+      ]
     }
   ],
   "rules": [
@@ -4401,6 +4489,140 @@
         "program.output",
         "program.collection"
       ]
+    },
+    {
+      "id": "record-aggregation-data",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.record-aggregation",
+        "valueId": "group",
+        "secondaryValueId": "measure",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n",
+        "prefix": "```python\n"
+      },
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.collection"
+      ]
+    },
+    {
+      "id": "record-aggregation-initialize",
+      "contextSuffix": [
+        "<|lattice.start|>",
+        "*"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "totals = {}\n",
+      "satisfiesFacts": []
+    },
+    {
+      "id": "record-aggregation-loop",
+      "contextSuffix": [
+        "*",
+        "totals = {}\n"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.record-aggregation",
+        "valueId": "record",
+        "prefix": "for ",
+        "suffix": " in records:\n"
+      },
+      "satisfiesFacts": [
+        "program.iteration"
+      ]
+    },
+    {
+      "id": "record-aggregation-key",
+      "contextSuffix": [
+        "totals = {}\n",
+        "*"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.record-aggregation",
+        "valueId": "record",
+        "secondaryValueId": "group",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    key = {0}[\"{1}\"]\n"
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "record-aggregation-add",
+      "contextSuffix": [
+        "totals = {}\n",
+        "*",
+        "*"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.record-aggregation",
+        "valueId": "record",
+        "secondaryValueId": "measure",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "    totals[key] = totals.get(key, 0) + {0}[\"{1}\"]\n"
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "record-aggregation-iterate-totals",
+      "contextSuffix": [
+        "totals = {}\n",
+        "*",
+        "*",
+        "*"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "for key, total in totals.items():\n",
+      "satisfiesFacts": []
+    },
+    {
+      "id": "record-aggregation-output",
+      "contextSuffix": [
+        "*",
+        "for key, total in totals.items():\n"
+      ],
+      "requiredFacts": [
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "    print(key, total)\n```\n",
+      "satisfiesFacts": [
+        "program.output",
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
+      ]
     }
   ],
   "validations": [
@@ -4565,6 +4787,27 @@
       "factId": "program.json-round-trip",
       "valueId": "records",
       "appliesWhenFactId": "program.json-round-trip"
+    },
+    {
+      "id": "record-aggregation-record-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.record-aggregation",
+      "valueId": "record",
+      "appliesWhenFactId": "program.record-aggregation.intent"
+    },
+    {
+      "id": "record-aggregation-group-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.record-aggregation",
+      "valueId": "group",
+      "appliesWhenFactId": "program.record-aggregation.intent"
+    },
+    {
+      "id": "record-aggregation-measure-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.record-aggregation",
+      "valueId": "measure",
+      "appliesWhenFactId": "program.record-aggregation.intent"
     }
   ]
 }

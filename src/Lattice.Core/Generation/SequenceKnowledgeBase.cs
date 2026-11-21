@@ -26,6 +26,8 @@ public sealed record SequenceTokenBinding(
 
     public string? SecondaryCollectionSeparator { get; init; }
 
+    public bool SecondaryValueIsCollection { get; init; } = true;
+
     public string? ValueTemplate { get; init; }
 
     public int MinimumCollectionCursor { get; init; }

@@ -623,7 +623,7 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection", "collectionSeparator", "prefix", "suffix", "secondaryValueId", "secondaryCollectionSeparator", "valueTemplate", "minimumCollectionCursor") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection", "collectionSeparator", "prefix", "suffix", "secondaryValueId", "secondaryCollectionSeparator", "secondaryValueIsCollection", "valueTemplate", "minimumCollectionCursor") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
@@ -637,6 +637,7 @@ public static class SequenceKnowledgeBaseLoader
             !TryGetOptionalString(property, "secondaryValueId", out var secondaryValueId) ||
             (secondaryValueId is not null && !IsValidIdentifier(secondaryValueId)) ||
             !TryGetOptionalToken(property, "secondaryCollectionSeparator", out var secondaryCollectionSeparator) ||
+            !TryGetOptionalBoolean(property, "secondaryValueIsCollection", out var secondaryValueIsCollectionValue) ||
             !TryGetOptionalString(property, "valueTemplate", out var valueTemplate) ||
             !TryGetOptionalInt32(property, "minimumCollectionCursor", out var minimumCollectionCursor) ||
             (collectionSeparator is not null &&
@@ -644,13 +645,16 @@ public static class SequenceKnowledgeBaseLoader
             (prefix is not null && prefix.Length > 128) ||
             (suffix is not null && suffix.Length > 128) ||
             (minimumCollectionCursor is > 0 && !useCollection) ||
-            ((valueTemplate is not null) != (secondaryValueId is not null && secondaryCollectionSeparator is not null)) ||
+            (valueTemplate is null && (secondaryValueId is not null || secondaryCollectionSeparator is not null || property.TryGetProperty("secondaryValueIsCollection", out _))) ||
             (valueTemplate is not null &&
-                (useCollection || encoding is not null || collectionSeparator is not null ||
+                (secondaryValueId is null ||
+                 ((!property.TryGetProperty("secondaryValueIsCollection", out _) || secondaryValueIsCollectionValue) && secondaryCollectionSeparator is null) ||
+                 (property.TryGetProperty("secondaryValueIsCollection", out _) && !secondaryValueIsCollectionValue && secondaryCollectionSeparator is not null) ||
+                 (secondaryCollectionSeparator?.Length > MaximumDelimiterLength) ||
+                 useCollection || encoding is not null || collectionSeparator is not null ||
                  valueTemplate.Length > 256 ||
                  !valueTemplate.Contains("{0}", StringComparison.Ordinal) ||
-                 !valueTemplate.Contains("{1}", StringComparison.Ordinal) ||
-                 secondaryCollectionSeparator!.Length > MaximumDelimiterLength)))
+                 !valueTemplate.Contains("{1}", StringComparison.Ordinal))))
         {
             return false;
         }
@@ -662,6 +666,7 @@ public static class SequenceKnowledgeBaseLoader
             Suffix = suffix ?? string.Empty,
             SecondaryValueId = secondaryValueId,
             SecondaryCollectionSeparator = secondaryCollectionSeparator,
+            SecondaryValueIsCollection = !property.TryGetProperty("secondaryValueIsCollection", out _) || secondaryValueIsCollectionValue,
             ValueTemplate = valueTemplate,
             MinimumCollectionCursor = minimumCollectionCursor ?? 0
         };

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Lattice.Core.Generation;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Core.Language;
@@ -13,9 +14,7 @@ internal static class CompositionalTaskParser
     {
         utterance = null;
 
-        var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
-        if (!isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out _))
+        if (!PythonProgramRequestParser.TryGetCreationClause(source, out _))
         {
             return false;
         }
@@ -28,11 +27,7 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (PythonCollectionProgramParser.TryGetCollectionGroupingAggregationProgram(source, out var groupingSteps))
-        {
-            formula = formula with { GenerationSteps = groupingSteps };
-        }
-        else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
+        if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
         }
@@ -53,7 +48,7 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = sortRecordsSteps };
         }
-        else if (!PythonProgramRequestParser.HasOutputIntent(source))
+        else if (!PythonProgramRequestParser.HasOutputIntent(source) && !CanGenerateDeclaratively(source))
         {
             return false;
         }
@@ -64,4 +59,28 @@ internal static class CompositionalTaskParser
             sourceText.Trim());
         return true;
     }
+    private static bool CanGenerateDeclaratively(string source)
+    {
+        if (!SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out _) ||
+            !SequenceInputFactExtractor.TryExtract(knowledge!, source, out var facts, out _) ||
+            facts.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        return KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!,
+            null,
+            request,
+            out _,
+            out _);
+    }
+
 }
