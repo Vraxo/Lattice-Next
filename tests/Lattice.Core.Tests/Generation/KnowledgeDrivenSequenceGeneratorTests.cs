@@ -1354,7 +1354,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractionError);
 
-        Assert.Equal(expectedValid, extracted, extractionError);
+        Assert.True(expectedValid == extracted, extractionError);
         if (!expectedValid)
         {
             Assert.Empty(facts);
