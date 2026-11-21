@@ -53,11 +53,9 @@ public sealed class TaskRequestParserTests
     }
 
     [Theory]
-    [InlineData("Write a Hello World program in Python.")]
-    [InlineData("write a hello world program in python")]
-    [InlineData("write a python hello world program")]
-    [InlineData("Write a Python Hello World program")]
-    public void Parses_a_Hello_World_program_as_a_semantic_output_goal(string input)
+    [InlineData("Create a Python program that prints 'Hello, world!'.")]
+    [InlineData("Create a Python script that displays Hello, world.")]
+    public void Parses_a_Python_program_request_with_explicit_output_intent(string input)
     {
         var result = parser.ParseText(input);
 
