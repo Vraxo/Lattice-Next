@@ -328,17 +328,11 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
-        "program.multi-field-record-sorting",
-        """def order_records(people, sort_keys):
-    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))
-print(order_records([{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}], ["department", "name"]))""")]
+        "program.multi-field-record-sorting")]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
-        "program.multi-field-record-sorting.case-insensitive",
-        """def order_records(people, sort_keys):
-    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))
-print(order_records([{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}], ["department", "name"]))""")]
-    public void Generates_multi_field_record_sorting_from_declarative_facts(string input, string expectedFact, string expectedCode)
+        "program.multi-field-record-sorting.case-insensitive")]
+    public void Generates_multi_field_record_sorting_from_declarative_facts(string input, string expectedFact)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
@@ -349,6 +343,15 @@ print(order_records([{"department": "Engineering", "name": "Ada"}, {"department"
         Assert.Contains(facts, fact => fact.Id == "program.function");
         Assert.Contains(facts, fact => fact.Id == "program.collection");
         Assert.Contains(facts, fact => fact.Id == "program.output");
+
+        const string sample = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
+        var key = expectedFact.EndsWith("case-insensitive", StringComparison.Ordinal)
+            ? "tuple(record[field].casefold() for field in sort_keys)"
+            : "tuple(record[field] for field in sort_keys)";
+        var expectedCode = string.Join(Environment.NewLine,
+            "def order_records(people, sort_keys):",
+            $"    return sorted(people, key=lambda record: {key})",
+            $"print(order_records({sample}, [\"department\", \"name\"]))");
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
