@@ -232,6 +232,69 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
+    [InlineData(
+        "Create a Python program that prints each number in the list [2, 4, 6].",
+        "number",
+        "[2, 4, 6]",
+        "for number in [2, 4, 6]:\\n    print(number)")]
+    [InlineData(
+        "Build a Python script that displays each value from [1, 3.5, -2].",
+        "value",
+        "[1, 3.5, -2]",
+        "for value in [1, 3.5, -2]:\\n    print(value)")]
+    [InlineData(
+        "Create a Python program that prints each name in the list ['Ada', 'Grace'].",
+        "name",
+        "['Ada', 'Grace']",
+        "for name in ['Ada', 'Grace']:\\n    print(name)")]
+    [InlineData(
+        "Build a Python script that displays each label from [\"red, blue\", 'green'].",
+        "label",
+        "[\"red, blue\", 'green']",
+        "for label in [\"red, blue\", 'green']:\\n    print(label)")]
+    public void Generates_collection_iteration_from_declarative_facts(
+        string input,
+        string expectedItem,
+        string expectedCollection,
+        string expectedCode)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+
+        var collectionLoop = Assert.Single(facts.Where(fact => fact.Id == "program.collection-loop"));
+        Assert.Equal(expectedItem, collectionLoop.Values["item"]);
+        Assert.Equal(expectedCollection, collectionLoop.Values["collection"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge!, null, request, out var generated, out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+
+        var fence = new string((char)96, 3);
+        Assert.Equal(
+            string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence),
+            generated!.Text);
+    }
+
+    [Fact]
+    public void Rejects_collection_loop_values_that_are_not_safe_list_literals()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that prints each item in the list [__import__('os')].",
+            out var facts,
+            out _));
+        Assert.Empty(facts);
+    }
+
+    [Theory]
     [InlineData("Create a Python program that prints 'adult' if 20 is at least 18.", "program.conditional-output.adult-at-least", "if 20 >= 18:\n    print(\"adult\")")]
     [InlineData("Build a Python script that displays 'minor' if 16 is less than 18.", "program.conditional-output.minor-less-than", "if 16 < 18:\n    print(\"minor\")")]
     [InlineData("Generate a Python program that outputs 'match' if 7 equals 7.", "program.conditional-output.match-equals", "if 7 == 7:\n    print(\"match\")")]
