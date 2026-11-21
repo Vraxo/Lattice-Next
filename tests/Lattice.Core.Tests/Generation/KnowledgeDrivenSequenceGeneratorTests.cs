@@ -379,12 +379,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         };
         var binding = new SequenceTokenBinding("locals", "assignments", UseCollection: true);
         var knowledge = new SequenceKnowledgeBase([
-            new SequenceTokenRule("first-item", [SequenceKnowledgeBase.StartToken], ["locals"], [], null, ["locals.started"], 1)
-            {
-                TokenBinding = binding,
-                AdvanceCollections = ["locals:assignments"]
-            },
-            new SequenceTokenRule("next-item", [], ["locals"], ["locals.started"], null, [], 1)
+            new SequenceTokenRule("emit-item", [], ["locals"], [], null, ["locals.started"], 1)
             {
                 TokenBinding = binding,
                 AdvanceCollections = ["locals:assignments"]
