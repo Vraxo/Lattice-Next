@@ -63,9 +63,9 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration work in progress
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-21**, **21 of 28 (75%)** have been removed through small, independently reviewed increments; **7 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-21**, **23 of 28 (82.1%)** have been removed through small, independently reviewed increments; **7 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
 
-The latest completed increment is PR [#507 — Generate integer range loops declaratively](https://github.com/Vraxo/Lattice-Next/pull/507). It removed the dedicated range-loop parser dispatch and moved extraction, validation, and token generation into reusable mechanisms and declarative knowledge. Its CI passed and it was merged to `main`.
+The latest completed increment is PR [#510 — Generate grouped record totals declaratively](https://github.com/Vraxo/Lattice-Next/pull/510). It removed the dedicated grouped-record aggregation parser dispatch and moved semantic capture, validation, and generation into the shared knowledge-driven sequence path. Its CI passed and it was merged to `main`.
 
 For every remaining increment:
 
