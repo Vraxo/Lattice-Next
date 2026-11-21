@@ -1482,6 +1482,23 @@
         "characters"
       ],
       "factId": "program.name-length-dictionary-mapping"
+    },
+    {
+      "id": "recognize-directory-file-listing",
+      "matchTokens": [
+        "directory",
+        "path",
+        "reports",
+        "names",
+        "sizes",
+        "files",
+        "inside",
+        "handling",
+        "missing",
+        "directory",
+        "cleanly"
+      ],
+      "factId": "program.directory-file-listing"
     }
   ],
   "rules": [
@@ -2336,6 +2353,22 @@
         "program.output",
         "program.iteration",
         "intent.program-generation"
+      ]
+    },
+    {
+      "id": "python-directory-file-listing",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.directory-file-listing"
+      ],
+      "nextToken": "```python\nimport os\nimport sys\ndirectory = sys.argv[1]\ntry:\n    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):\n        if entry.is_file():\n            print(f\"{entry.name}: {entry.stat().st_size} bytes\")\nexcept FileNotFoundError:\n    print(f\"Directory not found: {directory}\")\n```",
+      "satisfiesFacts": [
+        "program.directory-file-listing",
+        "language.python",
+        "intent.program-generation",
+        "program.output"
       ]
     }
   ]
