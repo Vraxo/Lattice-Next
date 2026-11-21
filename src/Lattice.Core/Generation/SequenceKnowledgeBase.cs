@@ -4,7 +4,11 @@ namespace Lattice.Core.Generation;
 
 public sealed record SequenceSemanticFact(
     string Id,
-    ImmutableDictionary<string, string> Values);
+    ImmutableDictionary<string, string> Values)
+{
+    public ImmutableDictionary<string, ImmutableArray<string>> Collections { get; init; } =
+        ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal);
+}
 
 public sealed record SequenceTokenBinding(
     string FactId,
@@ -40,7 +44,10 @@ public sealed record SequenceInputFactCapture(
     string ValueId,
     ImmutableArray<string> StartAfterTokens,
     ImmutableArray<string> StopBeforeTokens,
-    string? LiteralValue = null);
+    string? LiteralValue = null)
+{
+    public string? CollectionDelimiter { get; init; }
+}
 
 public sealed record SequenceInputFactRule(
     string Id,

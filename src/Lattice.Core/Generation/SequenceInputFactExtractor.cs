@@ -31,6 +31,7 @@ public static class SequenceInputFactExtractor
 
         var tokens = EnglishLexer.Tokenize(input);
         var extracted = new Dictionary<string, Dictionary<string, (string Value, int Specificity)>>(StringComparer.Ordinal);
+        var collections = new Dictionary<string, Dictionary<string, ImmutableArray<string>>>(StringComparer.Ordinal);
         var matchedAnyRule = false;
 
         foreach (var rule in knowledge.InputRules)
@@ -94,13 +95,20 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
-                if (!TryAddValue(
-                    extracted,
-                    capture.FactId,
-                    capture.ValueId,
-                    capturedValue,
-                    rule.MatchTokens.Length + (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length),
-                    out error))
+                var specificity = rule.MatchTokens.Length +
+                    (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
+                if (capture.CollectionDelimiter is { Length: > 0 } delimiter)
+                {
+                    var items = capturedValue.Split(delimiter, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                        .ToImmutableArray();
+                    if (items.IsDefaultOrEmpty || items.Any(item => item.Length == 0) ||
+                        !TryAddCollection(collections, capture.FactId, capture.ValueId, items, out error))
+                    {
+                        error ??= $"Input rule '{rule.Id}' produced an empty ordered collection.";
+                        return false;
+                    }
+                }
+                else if (!TryAddValue(extracted, capture.FactId, capture.ValueId, capturedValue, specificity, out error))
                 {
                     return false;
                 }
@@ -120,8 +128,42 @@ public static class SequenceInputFactExtractor
                 item.Value.ToImmutableDictionary(
                     value => value.Key,
                     value => value.Value.Value,
-                    StringComparer.Ordinal)))
+                    StringComparer.Ordinal))
+            {
+                Collections = collections.TryGetValue(item.Key, out var factCollections)
+                    ? factCollections.ToImmutableDictionary(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal)
+            })
             .ToImmutableArray();
+        return true;
+    }
+
+    private static bool TryAddCollection(
+        Dictionary<string, Dictionary<string, ImmutableArray<string>>> extracted,
+        string factId,
+        string valueId,
+        ImmutableArray<string> items,
+        out string? error)
+    {
+        error = null;
+        if (!extracted.TryGetValue(factId, out var values))
+        {
+            values = new Dictionary<string, ImmutableArray<string>>(StringComparer.Ordinal);
+            extracted.Add(factId, values);
+        }
+
+        if (values.TryGetValue(valueId, out var existing))
+        {
+            if (!existing.SequenceEqual(items, StringComparer.Ordinal))
+            {
+                error = $"Input rules produced conflicting collections for semantic fact '{factId}'.";
+                return false;
+            }
+
+            return true;
+        }
+
+        values.Add(valueId, items);
         return true;
     }
 
