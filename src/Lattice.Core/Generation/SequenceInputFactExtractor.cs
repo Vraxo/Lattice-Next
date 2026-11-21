@@ -77,6 +77,7 @@ public static class SequenceInputFactExtractor
                         ImmutableArray<ImmutableArray<string>>.Empty,
                         ImmutableArray<string>.Empty,
                         string.Empty,
+                        preserveRawValue: false,
                         out capturedValue))
                 {
                     capturedValue = null;
