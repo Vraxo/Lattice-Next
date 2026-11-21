@@ -108,6 +108,7 @@ public static class SequenceInputFactExtractor
                         capture.StopBeforeSequences,
                         capture.TrimPrefixTokens,
                         capture.TrimSuffixCharacters,
+                        capture.PreserveRawValue,
                         out capturedValue))
                 {
                     continue;
@@ -356,6 +357,7 @@ public static class SequenceInputFactExtractor
         ImmutableArray<ImmutableArray<string>> stopBeforeSequences,
         ImmutableArray<string> trimPrefixTokens,
         string trimSuffixCharacters,
+        bool preserveRawValue,
         out string value)
     {
         value = string.Empty;
@@ -433,7 +435,11 @@ public static class SequenceInputFactExtractor
             .Skip(startToken + 1)
             .TakeWhile(token => token.Start < captureEnd)
             .FirstOrDefault(token => token.IsQuoted);
-        if (quotedValue.IsQuoted && !isBracketedCollection)
+        if (preserveRawValue)
+        {
+            value = capturedText;
+        }
+        else if (quotedValue.IsQuoted && !isBracketedCollection)
         {
             value = quotedValue.Value;
         }
