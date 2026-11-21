@@ -637,6 +637,7 @@ public static class SequenceKnowledgeBaseLoader
             !TryGetOptionalString(property, "secondaryValueId", out var secondaryValueId) ||
             (secondaryValueId is not null && !IsValidIdentifier(secondaryValueId)) ||
             !TryGetOptionalToken(property, "secondaryCollectionSeparator", out var secondaryCollectionSeparator) ||
+            !TryGetOptionalBoolean(property, "secondaryValueIsCollection", out var secondaryValueIsCollectionValue) ||
             !TryGetOptionalString(property, "valueTemplate", out var valueTemplate) ||
             !TryGetOptionalInt32(property, "minimumCollectionCursor", out var minimumCollectionCursor) ||
             (collectionSeparator is not null &&
@@ -653,7 +654,7 @@ public static class SequenceKnowledgeBaseLoader
                  useCollection || encoding is not null || collectionSeparator is not null ||
                  valueTemplate.Length > 256 ||
                  !valueTemplate.Contains("{0}", StringComparison.Ordinal) ||
-                 !valueTemplate.Contains("{1}", StringComparison.Ordinal)))
+                 !valueTemplate.Contains("{1}", StringComparison.Ordinal))))
         {
             return false;
         }
