@@ -4505,7 +4505,8 @@
         "valueId": "group",
         "secondaryValueId": "measure",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n"
+        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n",
+        "prefix": "```python\n"
       },
       "satisfiesFacts": [
         "intent.program-generation",
@@ -4615,7 +4616,7 @@
         "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": "    print(key, total)\n",
+      "nextToken": "    print(key, total)\n```\n",
       "satisfiesFacts": [
         "program.output",
         "program.record-aggregation",
