@@ -423,8 +423,8 @@ public static class SequenceKnowledgeBaseLoader
             !TryGetOptionalString(property, "encoding", out var encoding) ||
             (encoding is not null && !IsValidIdentifier(encoding)) ||
             !TryGetOptionalBoolean(property, "collection", out var useCollection) ||
-            !TryGetOptionalString(property, "prefix", out var prefix) ||
-            !TryGetOptionalString(property, "suffix", out var suffix) ||
+            !TryGetOptionalText(property, "prefix", out var prefix) ||
+            !TryGetOptionalText(property, "suffix", out var suffix) ||
             (prefix?.Length ?? 0) > 128 || (suffix?.Length ?? 0) > 128)
         {
             return false;
@@ -543,6 +543,23 @@ public static class SequenceKnowledgeBaseLoader
 
         value = property.GetString();
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryGetOptionalText(JsonElement element, string name, out string? value)
+    {
+        value = null;
+        if (!element.TryGetProperty(name, out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        value = property.GetString();
+        return value is not null;
     }
 
     private static bool TryGetStringArray(
