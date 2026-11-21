@@ -31,6 +31,11 @@ public static class SequenceInputFactValidator
         var factMap = facts.ToDictionary(fact => fact.Id, StringComparer.Ordinal);
         foreach (var validation in validations)
         {
+            if (!factMap.ContainsKey(validation.FactId))
+            {
+                continue;
+            }
+
             var valid = validation.Kind switch
             {
                 "identifierValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var value) &&
