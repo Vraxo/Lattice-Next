@@ -14,7 +14,7 @@ public static class SequenceInputFactValidator
         RegexOptions.CultureInvariant);
 
     private static readonly Regex PythonListLiteralPattern = new(
-        @"^\[\s*(?:[+-]?\d+(?:\.\d+)?|'(?:\\.|[^'\\])*'|""(?:\\.|[^""\\])*"")(?:\s*,\s*(?:[+-]?\d+(?:\.\d+)?|'(?:\\.|[^'\\])*'|""(?:\\.|[^""\\])*""))*\s*\]$",
+        @"^\[\s*(?:[+-]?\d+(?:\.\d+)?|'[^']*'|""[^""]*"")(?:\s*,\s*(?:[+-]?\d+(?:\.\d+)?|'[^']*'|""[^""]*""))*\s*\]$",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex FunctionCallPattern = new(
