@@ -7,6 +7,38 @@ namespace Lattice.Core.Tests.Generation;
 public sealed class KnowledgeDrivenSequenceGeneratorTests
 {
     [Fact]
+    public void Extracts_and_generates_json_round_trip_with_custom_names()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string prompt = "Write a Python program that saves a list of dictionaries named people to a JSON file named people-data.json and then loads it back.";
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var roundTrip = Assert.Single(facts, fact => fact.Id == "program.json-round-trip");
+        Assert.Equal("people", roundTrip.Values["records"]);
+        Assert.Equal("people-data.json", roundTrip.Values["path"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(
+                knowledge!,
+                null,
+                request,
+                out var generated,
+                out var generationError),
+            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains("people-data.json", generated!.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Continues_from_multiple_active_semantic_facts_using_contextual_next_tokens()
     {
         var trainingSequence = ImmutableArray.Create(

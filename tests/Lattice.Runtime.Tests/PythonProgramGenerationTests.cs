@@ -471,6 +471,20 @@ public sealed class PythonProgramGenerationTests
             useTemporaryDirectory: true);
     }
 
+    [Theory]
+    [InlineData("Write a Python program that saves a list of dictionaries to a JSON file.")]
+    [InlineData("Write a Python program that saves a list of dictionaries named invalid-name to a JSON file and then loads it back.")]
+    public async Task Rejects_incomplete_or_invalid_json_round_trip_requests(string prompt)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        Assert.Equal(LatticeTurnStatus.Rejected, result.Status);
+        Assert.Empty(result.Utterances);
+    }
+
     [Fact]
     public async Task Generates_and_executes_reusable_record_sorting_function()
     {

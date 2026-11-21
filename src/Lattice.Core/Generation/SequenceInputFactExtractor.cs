@@ -429,7 +429,7 @@ public static class SequenceInputFactExtractor
             if (!token.IsQuoted &&
                 token.IsPunctuation &&
                 token.Value is "." or "?" or "!" &&
-                !IsDecimalPoint(input, token))
+                !IsEmbeddedPeriod(input, token))
             {
                 captureEnd = token.Value == "!"
                     ? token.Start + token.Length
@@ -493,12 +493,12 @@ public static class SequenceInputFactExtractor
         return value.Length > 0;
     }
 
-    private static bool IsDecimalPoint(string input, EnglishToken token) =>
+    private static bool IsEmbeddedPeriod(string input, EnglishToken token) =>
         token.Value == "." &&
         token.Start > 0 &&
         token.Start + token.Length < input.Length &&
-        char.IsDigit(input[token.Start - 1]) &&
-        char.IsDigit(input[token.Start + token.Length]);
+        char.IsLetterOrDigit(input[token.Start - 1]) &&
+        char.IsLetterOrDigit(input[token.Start + token.Length]);
 
     private static bool MatchesSequenceAt(
         ImmutableArray<EnglishToken> tokens,

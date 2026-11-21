@@ -547,7 +547,17 @@
       "matchTokens": [
         "-"
       ],
-      "factId": "program.arithmetic"
+      "factId": "program.arithmetic",
+      "forbiddenAnySequences": [
+        [
+          "file",
+          "named"
+        ],
+        [
+          "json",
+          "file"
+        ]
+      ]
     },
     {
       "id": "recognize-arithmetic-multiply",
@@ -2626,6 +2636,225 @@
           "sort"
         ]
       ]
+    },
+    {
+      "id": "recognize-json-round-trip-python",
+      "matchTokens": [
+        "python"
+      ],
+      "factId": "language.python",
+      "requiredAnySequences": [
+        [
+          "program"
+        ],
+        [
+          "script"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-json-round-trip-generation-intent",
+      "matchTokens": [
+        "program"
+      ],
+      "factId": "intent.program-generation",
+      "requiredAnySequences": [
+        [
+          "write"
+        ],
+        [
+          "create"
+        ],
+        [
+          "generate"
+        ],
+        [
+          "build"
+        ],
+        [
+          "make"
+        ],
+        [
+          "define"
+        ]
+      ]
+    },
+    {
+      "id": "capture-json-round-trip-record-default",
+      "matchTokens": [
+        "dictionaries"
+      ],
+      "factId": "program.json-round-trip",
+      "captures": [
+        {
+          "factId": "program.json-round-trip",
+          "valueId": "records",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "records"
+        },
+        {
+          "factId": "program.json-round-trip.start",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.import",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.records",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.write-open",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.write",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.read-open",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.load",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "json",
+          "file"
+        ]
+      ]
+    },
+    {
+      "id": "capture-json-round-trip-record-name",
+      "matchTokens": [
+        "dictionaries",
+        "named"
+      ],
+      "factId": "program.json-round-trip",
+      "captures": [
+        {
+          "factId": "program.json-round-trip",
+          "valueId": "records",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "json",
+          "file"
+        ]
+      ]
+    },
+    {
+      "id": "capture-json-round-trip-file-default",
+      "matchTokens": [
+        "file"
+      ],
+      "factId": "program.json-round-trip",
+      "captures": [
+        {
+          "factId": "program.json-round-trip",
+          "valueId": "path",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "records.json"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "dictionaries"
+        ]
+      ]
+    },
+    {
+      "id": "capture-json-round-trip-file-name",
+      "matchTokens": [
+        "file",
+        "named"
+      ],
+      "factId": "program.json-round-trip",
+      "captures": [
+        {
+          "factId": "program.json-round-trip",
+          "valueId": "path",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "dictionaries"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-json-round-trip-loads-back",
+      "matchTokens": [
+        "loads",
+        "it",
+        "back"
+      ],
+      "factId": "program.json-round-trip.confirmed",
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "dictionaries"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-json-round-trip-load-back",
+      "matchTokens": [
+        "load",
+        "it",
+        "back"
+      ],
+      "factId": "program.json-round-trip.confirmed",
+      "requiredAnySequences": [
+        [
+          "list",
+          "of",
+          "dictionaries"
+        ]
+      ],
+      "searchAllSentences": true
     }
   ],
   "rules": [
@@ -4006,6 +4235,172 @@
         "program.output.start",
         "value.output"
       ]
+    },
+    {
+      "id": "python-json-round-trip-open",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.json-round-trip",
+        "program.json-round-trip.confirmed"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "language.python",
+        "intent.program-generation",
+        "program.json-round-trip.start"
+      ],
+      "weight": 10
+    },
+    {
+      "id": "python-json-round-trip-import",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json-round-trip.start"
+      ],
+      "nextToken": "import json\n",
+      "satisfiesFacts": [
+        "program.json.import"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-records",
+      "contextSuffix": [
+        "import json\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.import"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "records",
+        "suffix": " = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]\n"
+      },
+      "satisfiesFacts": [
+        "program.json.records"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-write-open",
+      "contextSuffix": [
+        "*]\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.records"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "path",
+        "encoding": "quoted-string",
+        "prefix": "with open(",
+        "suffix": ", \"w\", encoding=\"utf-8\") as output_file:\n"
+      },
+      "satisfiesFacts": [
+        "program.json.write-open"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-dump",
+      "contextSuffix": [
+        "*output_file:\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.write-open"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "records",
+        "prefix": "    json.dump(",
+        "suffix": ", output_file, indent=2)\n"
+      },
+      "satisfiesFacts": [
+        "program.json.write"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-read-open",
+      "contextSuffix": [
+        "*indent=2)\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.write"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "path",
+        "encoding": "quoted-string",
+        "prefix": "with open(",
+        "suffix": ", \"r\", encoding=\"utf-8\") as input_file:\n"
+      },
+      "satisfiesFacts": [
+        "program.json.read-open"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-load",
+      "contextSuffix": [
+        "*input_file:\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.read-open"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "records",
+        "prefix": "    loaded_",
+        "suffix": " = json.load(input_file)\n"
+      },
+      "satisfiesFacts": [
+        "program.json.load"
+      ]
+    },
+    {
+      "id": "python-json-round-trip-output",
+      "contextSuffix": [
+        "*json.load(input_file)\n"
+      ],
+      "requiredFacts": [
+        "program.json-round-trip"
+      ],
+      "requiresCompletedFacts": [
+        "program.json.load"
+      ],
+      "tokenBinding": {
+        "factId": "program.json-round-trip",
+        "valueId": "records",
+        "prefix": "print(loaded_",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.json-round-trip",
+        "program.json-round-trip.confirmed",
+        "program.output",
+        "program.collection"
+      ]
     }
   ],
   "validations": [
@@ -4163,6 +4558,13 @@
       "relatedFactId": "program.range-loop",
       "relatedValueId": "end",
       "appliesWhenFactId": "program.range-loop"
+    },
+    {
+      "id": "json-round-trip-records-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.json-round-trip",
+      "valueId": "records",
+      "appliesWhenFactId": "program.json-round-trip"
     }
   ]
 }
