@@ -305,7 +305,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "stopBeforeTokens", "literalValue") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "stopBeforeTokens", "literalValue", "collectionDelimiter") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -316,7 +316,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "stopBeforeTokens", out var stopBeforeTokens) ||
                 stopBeforeTokens.Length > 16 ||
                 !TryGetOptionalString(item, "literalValue", out var literalValue) ||
-                (literalValue is not null && literalValue.Length > 16_384))
+                (literalValue is not null && literalValue.Length > 16_384) ||
+                !TryGetOptionalString(item, "collectionDelimiter", out var collectionDelimiter) ||
+                (collectionDelimiter is not null && collectionDelimiter.Length > 32))
             {
                 error = "Every input capture requires a unique fact/value pair and valid optional start, stop, and literal data.";
                 return false;
@@ -327,7 +329,10 @@ public static class SequenceKnowledgeBaseLoader
                 valueId,
                 startAfterTokens,
                 stopBeforeTokens,
-                literalValue));
+                literalValue)
+            {
+                CollectionDelimiter = collectionDelimiter
+            });
         }
 
         captures = builder.ToImmutable();
