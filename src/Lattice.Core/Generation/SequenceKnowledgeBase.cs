@@ -85,6 +85,8 @@ public sealed record SequenceInputFactCapture(
     public string TrimSuffixCharacters { get; init; } = string.Empty;
 
     public bool PreserveRawValue { get; init; }
+
+    public int NumericOffset { get; init; }
 }
 
 public sealed record SequenceInputFactValidation(

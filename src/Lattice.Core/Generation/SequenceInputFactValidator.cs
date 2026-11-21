@@ -168,8 +168,7 @@ public static class SequenceInputFactValidator
             TryGetValue(facts, validation.RelatedFactId, validation.RelatedValueId, out var endText) &&
             int.TryParse(startText, NumberStyles.None, CultureInfo.InvariantCulture, out var start) &&
             int.TryParse(endText, NumberStyles.None, CultureInfo.InvariantCulture, out var end) &&
-            end >= start &&
-            end < int.MaxValue;
+            end > start;
     }
 
     private static bool IsPythonListLiteral(string value)

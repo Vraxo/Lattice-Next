@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Lattice.Core.Language;
 
@@ -113,6 +114,26 @@ public static class SequenceInputFactExtractor
                         out capturedValue))
                 {
                     continue;
+                }
+
+                if (capture.NumericOffset != 0)
+                {
+                    if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
+                    {
+                        error = $"Input rule '{rule.Id}' applied a numeric offset to a non-integer value.";
+                        return false;
+                    }
+
+                    try
+                    {
+                        capturedValue = checked(numericValue + capture.NumericOffset)
+                            .ToString(CultureInfo.InvariantCulture);
+                    }
+                    catch (OverflowException)
+                    {
+                        error = $"Input rule '{rule.Id}' produced an integer outside the supported range.";
+                        return false;
+                    }
                 }
 
                 var specificity = rule.MatchTokens.Length +
