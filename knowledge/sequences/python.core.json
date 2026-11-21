@@ -2940,10 +2940,31 @@
       "satisfiesFacts": [
         "program.collection-loop",
         "program.iteration",
-        "program.collection",
         "program.output",
         "program.output.start",
         "value.output"
+      ]
+    },
+    {
+      "id": "python-collection-loop-output-with-collection",
+      "contextSuffix": [
+        "*print("
+      ],
+      "requiredFacts": [
+        "program.collection-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-loop",
+        "valueId": "item",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.collection-loop",
+        "program.iteration",
+        "program.output",
+        "program.output.start",
+        "value.output",
+        "program.collection"
       ]
     }
   ],
