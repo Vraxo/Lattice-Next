@@ -1958,6 +1958,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -1996,6 +2001,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2034,6 +2044,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2072,6 +2087,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2110,6 +2130,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2148,6 +2173,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2186,6 +2216,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2224,6 +2259,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -2262,6 +2302,11 @@
           ],
           "numericOffset": 1
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "from"
+        ]
       ]
     },
     {
@@ -3592,7 +3637,7 @@
         "intent.program-generation",
         "program.output"
       ],
-      "nextToken": "```python\\n",
+      "nextToken": "```python\n",
       "satisfiesFacts": [
         "language.python",
         "intent.program-generation"
@@ -3651,7 +3696,7 @@
       "tokenBinding": {
         "factId": "program.range-loop",
         "valueId": "end",
-        "suffix": "):\\n    print("
+        "suffix": "):\n    print("
       },
       "satisfiesFacts": []
     },
@@ -3666,7 +3711,7 @@
       "tokenBinding": {
         "factId": "program.range-loop",
         "valueId": "item",
-        "suffix": ")\\n```"
+        "suffix": ")\n```"
       },
       "satisfiesFacts": [
         "program.range-loop",
