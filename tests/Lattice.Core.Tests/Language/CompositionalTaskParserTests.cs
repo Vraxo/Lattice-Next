@@ -29,24 +29,28 @@ public sealed class CompositionalTaskParserTests
         Assert.Equal("python", request.Context);
         Assert.Equal("python-source", request.OutputFormat);
         Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal("Hello, world!", request.RequestedValue);
+        Assert.Empty(request.GenerationSteps);
+        Assert.Equal(input, utterance.SourceText);
     }
 
     [Theory]
-    [InlineData("Create a Python program that prints 'A second message!'.", "A second message!")]
-    [InlineData("Write a script in Python to display 'Keep this: punctuation, please!'.", "Keep this: punctuation, please!")]
-    [InlineData("Generate a Python program that outputs 'line one\\nline two'.", "line one\\nline two")]
-    public void Extracts_user_supplied_output_as_a_value_not_as_program_text(
-        string input,
-        string expected)
+    [InlineData("Create a Python program that prints 'A second message!'.")]
+    [InlineData("Write a script in Python to display 'Keep this: punctuation, please!'.")]
+    [InlineData("Generate a Python program that outputs 'line one\\nline two'.")]
+    public void Preserves_output_text_in_the_original_request_without_copying_it_into_task_semantics(
+        string input)
     {
         var result = new LceParser().ParseText(input);
 
         Assert.True(result.IsSuccess, result.Error);
-        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
-        Assert.Equal(expected, request.RequestedValue);
+        Assert.Equal(input, utterance.SourceText);
+        Assert.Empty(request.GenerationSteps);
+        Assert.DoesNotContain("value=", SemanticFormatter.Format(utterance), StringComparison.Ordinal);
     }
+
     [Fact]
     public void Does_not_invent_an_output_goal_for_an_unspecified_program()
     {
