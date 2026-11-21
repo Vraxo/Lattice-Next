@@ -547,7 +547,17 @@
       "matchTokens": [
         "-"
       ],
-      "factId": "program.arithmetic"
+      "factId": "program.arithmetic",
+      "forbiddenAnySequences": [
+        [
+          "file",
+          "named"
+        ],
+        [
+          "json",
+          "file"
+        ]
+      ]
     },
     {
       "id": "recognize-arithmetic-multiply",
@@ -4337,7 +4347,9 @@
       },
       "satisfiesFacts": [
         "program.json-round-trip",
-        "program.json-round-trip.confirmed"
+        "program.json-round-trip.confirmed",
+        "program.output",
+        "program.collection"
       ]
     }
   ],
