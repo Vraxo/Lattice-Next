@@ -367,6 +367,63 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode, fence), result!.Text);
     }
 
+    [Fact]
+    public void Generates_multi_token_collection_items_and_advances_only_at_declared_boundaries()
+    {
+        var fact = new SequenceSemanticFact(
+            "locals",
+            ImmutableDictionary<string, string>.Empty)
+        {
+            Collections = ImmutableDictionary<string, ImmutableArray<string>>.Empty
+                .Add("assignments", ["first = left + right; ", "second = first * 2; "])
+        };
+        var binding = new SequenceTokenBinding("locals", "assignments", UseCollection: true);
+        var knowledge = new SequenceKnowledgeBase([
+            new SequenceTokenRule("first-item", [SequenceKnowledgeBase.StartToken], ["locals"], [], null, [], 1)
+            {
+                TokenBinding = binding,
+                AdvanceCollections = ["locals:assignments"]
+            },
+            new SequenceTokenRule("next-item", ["; "], ["locals"], [], null, [], 1)
+            {
+                TokenBinding = binding,
+                AdvanceCollections = ["locals:assignments"]
+            }
+        ]);
+        var request = new KnowledgeDrivenSequenceGenerationRequest([], ["locals"])
+        {
+            FactValues = [fact]
+        };
+
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
+            knowledge, null, request, out var result, out var error), error);
+        Assert.Equal("first = left + right; second = first * 2; ", result!.Text);
+        Assert.False(result.SearchLimitReached);
+    }
+
+    [Fact]
+    public void Loads_collection_bindings_and_explicit_cursor_advancement()
+    {
+        const string json = """
+        {
+          "formatVersion": 1,
+          "rules": [{
+            "id": "emit-item",
+            "contextSuffix": [],
+            "requiredFacts": ["locals"],
+            "requiresCompletedFacts": [],
+            "tokenBinding": { "factId": "locals", "valueId": "items", "collection": true },
+            "satisfiesFacts": [],
+            "advanceCollections": ["locals:items"]
+          }]
+        }
+        """;
+
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoad(json, out var knowledge, out var error), error);
+        Assert.True(knowledge!.Rules[0].TokenBinding!.UseCollection);
+        Assert.Equal(["locals:items"], knowledge.Rules[0].AdvanceCollections);
+    }
+
     private static SequenceTokenRule Rule(
         string id,
         ImmutableArray<string> context,

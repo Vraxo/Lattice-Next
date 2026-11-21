@@ -231,7 +231,11 @@ public static class KnowledgeDrivenSequenceGenerator
                     string.IsNullOrWhiteSpace(value.Key) ||
                     value.Key.Length > 128 ||
                     value.Value is null ||
-                    value.Value.Length > MaximumFactValueLength))
+                    value.Value.Length > MaximumFactValueLength) ||
+                fact.Collections.Any(collection =>
+                    string.IsNullOrWhiteSpace(collection.Key) || collection.Key.Length > 128 ||
+                    collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
+                    collection.Value.Any(value => value is null || value.Length > MaximumFactValueLength)))
             {
                 error = "Every semantic value binding must reference one active fact and contain valid named values.";
                 return false;
@@ -288,10 +292,13 @@ public static class KnowledgeDrivenSequenceGenerator
                 !IsValidFactArray(rule.RequiresCompletedFacts) ||
                 !IsValidFactArray(rule.SatisfiesFacts) ||
                 !IsValidFactArray(rule.ForbiddenFacts) ||
+                (!rule.AdvanceCollections.IsDefault && rule.AdvanceCollections.Any(key =>
+                    !IsValidCollectionKey(key))) ||
                 (rule.TokenBinding is not null &&
                     (!IsValidIdentifier(rule.TokenBinding.FactId) ||
                      !IsValidIdentifier(rule.TokenBinding.ValueId) ||
                      !rule.RequiredFacts.Contains(rule.TokenBinding.FactId, StringComparer.Ordinal) ||
+                     (rule.TokenBinding.UseCollection && rule.TokenBinding.Encoding is not null) ||
                      (rule.TokenBinding.Encoding is not null &&
                       !encodings.ContainsKey(rule.TokenBinding.Encoding)))))
             {
@@ -401,6 +408,13 @@ public static class KnowledgeDrivenSequenceGenerator
 
         builder.Append(encoding.ClosingDelimiter);
         return builder.ToString();
+    }
+
+    private static bool IsValidCollectionKey(string value)
+    {
+        var separator = value.IndexOf(':');
+        return separator > 0 && separator < value.Length - 1 &&
+            IsValidIdentifier(value[..separator]) && IsValidIdentifier(value[(separator + 1)..]);
     }
 
     private static bool IsValidIdentifier(string value) =>
