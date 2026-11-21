@@ -4510,6 +4510,7 @@
       },
       "satisfiesFacts": [
         "intent.program-generation",
+        "language.python",
         "program.collection"
       ]
     },
