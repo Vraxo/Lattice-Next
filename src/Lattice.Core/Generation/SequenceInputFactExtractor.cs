@@ -41,13 +41,18 @@ public static class SequenceInputFactExtractor
                 string.IsNullOrWhiteSpace(rule.Id) ||
                 string.IsNullOrWhiteSpace(rule.FactId) ||
                 rule.MatchTokens.IsDefaultOrEmpty ||
-                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences) ||
-                (!rule.RequiredAnySequences.IsDefaultOrEmpty &&
-                 !rule.RequiredAnySequences.Any(sequence =>
-                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true))) ||
-                (!rule.ForbiddenAnySequences.IsDefaultOrEmpty &&
-                 rule.ForbiddenAnySequences.Any(sequence =>
-                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true))))
+                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences))
+            {
+                continue;
+            }
+
+            var matchesRequiredSequence = rule.RequiredAnySequences.IsDefaultOrEmpty ||
+                rule.RequiredAnySequences.Any(sequence =>
+                    TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true));
+            var matchesForbiddenSequence = !rule.ForbiddenAnySequences.IsDefaultOrEmpty &&
+                rule.ForbiddenAnySequences.Any(sequence =>
+                    TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true));
+            if (!matchesRequiredSequence || matchesForbiddenSequence)
             {
                 continue;
             }
