@@ -538,6 +538,10 @@ public sealed class LatticeRuntimeSessionTests
             "An example piano is a struck-string instrument because it uses a struck-string mechanism.",
             Assert.Single(stringReason.Utterances).Message);
 
+        var hammerDefinition = await session.SubmitAsync("What is a hammer?");
+        Assert.Equal(
+            "A hammer is a physical component that has a hammer head as a part and has a hammer shank as a part.",
+            Assert.Single(hammerDefinition.Utterances).Message);
 
         var soundMechanism = await session.SubmitAsync("How does the example piano produce sound?");
         var soundMechanismMessage = Assert.Single(soundMechanism.Utterances).Message;
@@ -560,7 +564,7 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("harmonium uses a free-reed mechanism", comparisonMessage);
 
         Assert.All(
-            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, soundMechanism, hammerActionReason, comparison },
+            new[] { musicalInstrument, keyboardDefinition, keyboardReason, stringReason, hammerDefinition, soundMechanism, hammerActionReason, comparison },
             turn => Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, Assert.Single(turn.Utterances).Kind));
         Assert.Contains(
             keyboardReason.Utterances[0].SupportingEvidence,
@@ -578,6 +582,31 @@ public sealed class LatticeRuntimeSessionTests
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
                 source.SourceId == "core-world-model:relation:piano-action:actuates:piano-hammers"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:definition:hammer-component"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:definition:hammer-head"));
+        Assert.Contains(
+            hammerActionUtterance.SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:definition:hammer-shank"));
+        foreach (var assertionId in new[]
+        {
+            "core-world-model:relation:piano-hammers:has-part:piano-hammer-head",
+            "core-world-model:relation:piano-hammers:has-part:piano-hammer-shank",
+            "core-world-model:relation:piano-hammer-head:strikes:piano-strings",
+            "core-world-model:relation:piano-hammer-shank:has-geometric-form:piano-hammer-shank-form",
+            "core-world-model:relation:piano-hammer-shank:attached-to:piano-hammer-head"
+        })
+        {
+            Assert.Contains(
+                hammerActionUtterance.SupportingEvidence,
+                item => item.Sources.Any(source => source.SourceId == assertionId));
+        }
         Assert.Contains(
             hammerActionUtterance.SupportingEvidence,
             item => item.Sources.Any(source =>
