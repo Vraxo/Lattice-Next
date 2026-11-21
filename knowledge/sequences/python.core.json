@@ -4235,7 +4235,6 @@
       "tokenBinding": {
         "factId": "program.json-round-trip",
         "valueId": "records",
-        "prefix": "",
         "suffix": " = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]\n"
       },
       "satisfiesFacts": [
