@@ -10,8 +10,6 @@ public sealed record TaskRequestFormula(
     string? Scope,
     ImmutableArray<string> Requirements) : SemanticFormula
 {
-    public string? RequestedValue { get; init; }
-
     public ImmutableArray<TaskRequestStep> GenerationSteps { get; init; } =
         ImmutableArray<TaskRequestStep>.Empty;
 }

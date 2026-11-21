@@ -14,11 +14,8 @@ internal static class CompositionalTaskParser
         utterance = null;
 
         var isCollectionGroupingRequest = PythonCollectionProgramParser.CollectionGroupingAggregationPattern.IsMatch(source);
-        EnglishSentenceSyntax? syntax = null;
-        var creationClauseIndex = -1;
-
         if (!isCollectionGroupingRequest &&
-            !PythonProgramRequestParser.TryGetCreationClause(source, out syntax, out creationClauseIndex))
+            !PythonProgramRequestParser.TryGetCreationClause(source, out _))
         {
             return false;
         }
@@ -68,15 +65,7 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = loopSteps };
         }
-        else if (PythonProgramRequestParser.TryGetRequestedOutput(syntax, creationClauseIndex, sourceText, out var requestedValue))
-        {
-            formula = formula with { RequestedValue = requestedValue };
-        }
-        else if (PythonProgramRequestParser.HasOutputIntent(source))
-        {
-            formula = formula with { RequestedValue = null };
-        }
-        else
+        else if (!PythonProgramRequestParser.HasOutputIntent(source))
         {
             return false;
         }

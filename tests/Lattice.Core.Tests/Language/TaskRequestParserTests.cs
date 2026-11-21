@@ -53,11 +53,9 @@ public sealed class TaskRequestParserTests
     }
 
     [Theory]
-    [InlineData("Write a Hello World program in Python.")]
-    [InlineData("write a hello world program in python")]
-    [InlineData("write a python hello world program")]
-    [InlineData("Write a Python Hello World program")]
-    public void Parses_a_Hello_World_program_as_a_semantic_output_goal(string input)
+    [InlineData("Create a Python program that prints 'Hello, world!'.")]
+    [InlineData("Create a Python script that displays Hello, world.")]
+    public void Parses_a_Python_program_request_with_explicit_output_intent(string input)
     {
         var result = parser.ParseText(input);
 
@@ -70,7 +68,7 @@ public sealed class TaskRequestParserTests
         Assert.Equal("python", request.Context);
         Assert.Equal("python-source", request.OutputFormat);
         Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal("Hello, world!", request.RequestedValue);
+        Assert.Empty(request.GenerationSteps);
         Assert.Equal(new[] { "text-output" }, request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
@@ -86,7 +84,8 @@ public sealed class TaskRequestParserTests
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
 
         Assert.Equal("python-program", request.Subject);
-        Assert.Equal("A second message!", request.RequestedValue);
+        Assert.Equal(input, Assert.Single(result.Utterances).SourceText);
+        Assert.DoesNotContain("value=", SemanticFormatter.Format(Assert.Single(result.Utterances)), StringComparison.Ordinal);
     }
 
     [Fact]
