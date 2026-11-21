@@ -1710,6 +1710,47 @@
           "set"
         ]
       ]
+    },
+    {
+      "id": "capture-collection-loop-components",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.collection-loop",
+      "captures": [
+        {
+          "factId": "program.collection-loop",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in",
+            "from"
+          ]
+        },
+        {
+          "factId": "program.collection-loop",
+          "valueId": "collection",
+          "startAfterSequences": [
+            [
+              "in",
+              "the",
+              "list"
+            ],
+            [
+              "from"
+            ]
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "in",
+          "the",
+          "list"
+        ],
+        [
+          "from"
+        ]
+      ]
     }
   ],
   "rules": [
@@ -2794,6 +2835,61 @@
         "program.function-local-return",
         "program.function-local-call"
       ]
+    },
+    {
+      "id": "python-collection-loop-variable",
+      "contextSuffix": [
+        "```python\\n"
+      ],
+      "requiredFacts": [
+        "program.collection-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-loop",
+        "valueId": "item",
+        "prefix": "for ",
+        "suffix": " in "
+      },
+      "satisfiesFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-collection-loop-values",
+      "contextSuffix": [
+        "* in "
+      ],
+      "requiredFacts": [
+        "program.collection-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-loop",
+        "valueId": "collection",
+        "suffix": ":\\n    print("
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-collection-loop-output",
+      "contextSuffix": [
+        "*print("
+      ],
+      "requiredFacts": [
+        "program.collection-loop"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-loop",
+        "valueId": "item",
+        "suffix": ")\\n```"
+      },
+      "satisfiesFacts": [
+        "program.collection-loop",
+        "program.iteration",
+        "program.collection",
+        "program.output",
+        "program.output.start",
+        "value.output"
+      ]
     }
   ],
   "validations": [
@@ -2866,6 +2962,18 @@
       "additionalFactId": "program.function-local-signature",
       "additionalValueId": "parameters",
       "appliesWhenFactId": "program.function-local-variables"
+    },
+    {
+      "id": "collection-loop-item-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.collection-loop",
+      "valueId": "item"
+    },
+    {
+      "id": "collection-loop-value-is-list-literal",
+      "kind": "pythonListLiteral",
+      "factId": "program.collection-loop",
+      "valueId": "collection"
     }
   ]
 }
