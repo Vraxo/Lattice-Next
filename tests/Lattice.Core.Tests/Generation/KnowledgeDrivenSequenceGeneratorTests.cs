@@ -524,7 +524,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
         Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
         Assert.Contains(facts, fact => fact.Id == expectedFact);
-        Assert.True(SequenceInputFactValidator.TryValidate(knowledge!, facts, out var validationError), validationError);
+        Assert.True(SequenceInputFactValidator.TryValidate(knowledge!.Validations, facts, out var validationError), validationError);
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!,
             null,
@@ -533,8 +533,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts },
             out var generated,
             out var generationError), generationError);
-        Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated);
-        Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated);
+        Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated!.Text);
+        Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated.Text);
     }
 
     [Fact]
@@ -546,7 +546,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named class, then returns the records sorted by that field.",
             out var facts,
             out var extractionError), extractionError);
-        Assert.False(SequenceInputFactValidator.TryValidate(knowledge!, facts, out _));
+        Assert.False(SequenceInputFactValidator.TryValidate(knowledge!.Validations, facts, out _));
     }
 
     [Fact]
