@@ -100,7 +100,7 @@ public static class SequenceKnowledgeBaseLoader
                     advanceCollections.Distinct(StringComparer.Ordinal).Count() != advanceCollections.Length ||
                     (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
-                    error = $"Invalid sequence knowledge rule: {id}.";
+                    error = $"Invalid sequence knowledge rule: {(element.TryGetProperty(\"id\", out var ruleId) ? ruleId.ToString() : \"unknown\")}.";
                     return false;
                 }
 
