@@ -2983,6 +2983,11 @@
           "factId": "program.single-field-record-sorting.body",
           "valueId": "kind",
           "literalValue": "ready"
+        },
+        {
+          "factId": "program.sort",
+          "valueId": "kind",
+          "literalValue": "ready"
         }
       ],
       "requiredAnySequences": [
@@ -5041,7 +5046,8 @@
         "program.single-field-record-sorting.header",
         "intent.program-generation",
         "language.python"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-parameters",
@@ -5066,7 +5072,8 @@
         "program.single-field-record-sorting.signature",
         "program.function",
         "program.collection"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-body-standard",
@@ -5094,7 +5101,8 @@
       "forbiddenFacts": [
         "program.single-field-record-sorting.case-insensitive",
         "program.single-field-record-sorting.descending"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-body-case-insensitive",
@@ -5122,7 +5130,8 @@
       ],
       "forbiddenFacts": [
         "program.single-field-record-sorting.descending"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-body-descending",
@@ -5150,7 +5159,8 @@
       ],
       "forbiddenFacts": [
         "program.single-field-record-sorting.case-insensitive"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-body-case-insensitive-descending",
@@ -5176,7 +5186,8 @@
       "satisfiesFacts": [
         "program.single-field-record-sorting.body",
         "program.sort"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-output",
@@ -5198,7 +5209,8 @@
       "satisfiesFacts": [
         "program.output",
         "program.single-field-record-sorting"
-      ]
+      ],
+      "weight": 10
     },
     {
       "id": "single-field-record-sort-output-case-insensitive",
@@ -5221,7 +5233,8 @@
       "satisfiesFacts": [
         "program.output",
         "program.single-field-record-sorting"
-      ]
+      ],
+      "weight": 10
     }
   ],
   "validations": [
