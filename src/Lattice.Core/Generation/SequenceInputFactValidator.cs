@@ -13,10 +13,6 @@ public static class SequenceInputFactValidator
         @"^[+-]?\d+(?:\.\d+)?$",
         RegexOptions.CultureInvariant);
 
-    private static readonly Regex PythonListLiteralPattern = new(
-        @"^\[\s*(?:[+-]?\d+(?:\.\d+)?|'[^']*'|""[^""]*"")(?:\s*,\s*(?:[+-]?\d+(?:\.\d+)?|'[^']*'|""[^""]*""))*\s*\]$",
-        RegexOptions.CultureInvariant);
-
     private static readonly Regex FunctionCallPattern = new(
         @"^\s*(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*\(\s*(?<arguments>[^()]*)\s*\)\s*$",
         RegexOptions.CultureInvariant);
@@ -52,7 +48,7 @@ public static class SequenceInputFactValidator
                 "identifierValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var value) &&
                     IsIdentifier(value),
                 "pythonListLiteral" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var listLiteral) &&
-                    PythonListLiteralPattern.IsMatch(listLiteral),
+                    IsPythonListLiteral(listLiteral),
                 "identifierCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var identifiers) &&
                     identifiers.All(IsIdentifier),
                 "uniqueCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var uniqueValues) &&
@@ -160,6 +156,120 @@ public static class SequenceInputFactValidator
         return arguments.Length == parameters.Length &&
             arguments.Length > 0 &&
             arguments.All(argument => NumberPattern.IsMatch(argument));
+    }
+
+    private static bool IsPythonListLiteral(string value)
+    {
+        if (value.Length < 3 || value[0] != '[' || value[^1] != ']')
+        {
+            return false;
+        }
+
+        var end = value.Length - 1;
+        var index = 1;
+        var itemCount = 0;
+
+        while (index < end)
+        {
+            while (index < end && char.IsWhiteSpace(value[index]))
+            {
+                index++;
+            }
+
+            if (index >= end)
+            {
+                return itemCount > 0;
+            }
+
+            if (value[index] is '\'' or '"')
+            {
+                var quote = value[index++];
+                var closed = false;
+                while (index < end)
+                {
+                    var character = value[index++];
+                    if (character == '\\')
+                    {
+                        if (index >= end)
+                        {
+                            return false;
+                        }
+
+                        index++;
+                        continue;
+                    }
+
+                    if (character == quote)
+                    {
+                        closed = true;
+                        break;
+                    }
+
+                    if (character is '\r' or '\n')
+                    {
+                        return false;
+                    }
+                }
+
+                if (!closed)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (value[index] is '+' or '-')
+                {
+                    index++;
+                }
+
+                var integerStart = index;
+                while (index < end && char.IsAsciiDigit(value[index]))
+                {
+                    index++;
+                }
+
+                if (integerStart == index)
+                {
+                    return false;
+                }
+
+                if (index < end && value[index] == '.')
+                {
+                    index++;
+                    var fractionStart = index;
+                    while (index < end && char.IsAsciiDigit(value[index]))
+                    {
+                        index++;
+                    }
+
+                    if (fractionStart == index)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            itemCount++;
+            while (index < end && char.IsWhiteSpace(value[index]))
+            {
+                index++;
+            }
+
+            if (index == end)
+            {
+                return itemCount > 0;
+            }
+
+            if (value[index] != ',')
+            {
+                return false;
+            }
+
+            index++;
+        }
+
+        return false;
     }
 
     private static bool IsArithmeticExpression(string expression)
