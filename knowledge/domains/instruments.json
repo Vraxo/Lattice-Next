@@ -970,9 +970,10 @@
       "id": "has-part",
       "domain": "physical-component",
       "range": "physical-component",
-      "verb": "has a part",
+      "verb": "has",
       "order": 3,
-      "comparisonPriority": 0
+      "comparisonPriority": 0,
+      "objectRole": "as a part"
     },
     {
       "id": "attached-to",
