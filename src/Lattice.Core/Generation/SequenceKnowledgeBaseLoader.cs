@@ -415,7 +415,7 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         if (property.ValueKind != JsonValueKind.Object ||
-            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection", "prefix", "suffix") ||
+            !HasOnlyProperties(property, "factId", "valueId", "encoding", "collection") ||
             !TryGetString(property, "factId", out var factId) ||
             !IsValidIdentifier(factId) ||
             !TryGetString(property, "valueId", out var valueId) ||
@@ -423,14 +423,12 @@ public static class SequenceKnowledgeBaseLoader
             !TryGetOptionalString(property, "encoding", out var encoding) ||
             (encoding is not null && !IsValidIdentifier(encoding)) ||
             !TryGetOptionalBoolean(property, "collection", out var useCollection) ||
-            !TryGetOptionalText(property, "prefix", out var prefix) ||
-            !TryGetOptionalText(property, "suffix", out var suffix) ||
-            (prefix?.Length ?? 0) > 128 || (suffix?.Length ?? 0) > 128)
+)
         {
             return false;
         }
 
-        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection) { Prefix = prefix ?? string.Empty, Suffix = suffix ?? string.Empty };
+        binding = new SequenceTokenBinding(factId, valueId, encoding, useCollection);
         return true;
     }
 
@@ -545,23 +543,6 @@ public static class SequenceKnowledgeBaseLoader
         return !string.IsNullOrWhiteSpace(value);
     }
 
-    private static bool TryGetOptionalText(JsonElement element, string name, out string? value)
-    {
-        value = null;
-        if (!element.TryGetProperty(name, out var property))
-        {
-            return true;
-        }
-
-        if (property.ValueKind != JsonValueKind.String)
-        {
-            return false;
-        }
-
-        value = property.GetString();
-        return value is not null;
-    }
-
     private static bool TryGetStringArray(
         JsonElement element,
         string name,
@@ -589,7 +570,7 @@ public static class SequenceKnowledgeBaseLoader
             }
 
             var value = item.GetString();
-            if ((name != "contextSuffix" && string.IsNullOrWhiteSpace(value)) ||
+            if (string.IsNullOrWhiteSpace(value) ||
                 (name == "contextSuffix" &&
                     (!IsValidToken(value) || value == SequenceTokenModel.EndToken)))
             {
