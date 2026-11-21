@@ -3096,9 +3096,10 @@
           "valueId": "field",
           "startAfterTokens": [],
           "stopBeforeTokens": [
+            ",",
             "then"
           ],
-          "trimSuffixCharacters": ","
+          "trimSuffixCharacters": ""
         }
       ],
       "requiredAnySequences": [
