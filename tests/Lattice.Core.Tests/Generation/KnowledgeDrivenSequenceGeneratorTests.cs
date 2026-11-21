@@ -251,7 +251,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         """Build a Python script that displays each label from ["red, blue", 'green'].""",
         "label",
         """["red, blue", 'green']""",
-        """for label in ["red, blue", 'green']:\\n    print(label)""")
+        """for label in ["red, blue", 'green']:\n    print(label)""")]
     public void Generates_collection_iteration_from_declarative_facts(
         string input,
         string expectedItem,
