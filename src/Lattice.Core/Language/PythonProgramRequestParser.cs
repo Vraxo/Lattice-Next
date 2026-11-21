@@ -48,7 +48,6 @@ internal static class PythonProgramRequestParser
             CreationVerbs.Contains(clause.Verb));
         return creationClause is not null &&
             creationClause.Object is { } codeArtifact &&
-            ContainsCodeArtifact(codeArtifact) &&
-            ContainsPythonLanguage(creationClause);
+            ContainsCodeArtifact(codeArtifact);
     }
 }

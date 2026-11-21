@@ -63,7 +63,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.False(SequenceInputFactExtractor.TryExtract(
             knowledge!,
-            "Write a program that groups a list of 1st records by customer and sums each customer's total amount.",
+            "Write a program that groups a list of purchase records by customer name and sums each customer's total amount.",
             out _,
             out _));
     }

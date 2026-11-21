@@ -47,11 +47,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = sortRecordsSteps };
         }
-        else if (!PythonProgramRequestParser.HasOutputIntent(source))
-        {
-            return false;
-        }
-
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,
             formula,
