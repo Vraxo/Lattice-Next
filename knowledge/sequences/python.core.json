@@ -2839,7 +2839,7 @@
     {
       "id": "python-collection-loop-variable",
       "contextSuffix": [
-        "```python\\n"
+        "```python\n"
       ],
       "requiredFacts": [
         "program.collection-loop"
@@ -2865,7 +2865,7 @@
       "tokenBinding": {
         "factId": "program.collection-loop",
         "valueId": "collection",
-        "suffix": ":\\n    print("
+        "suffix": ":\n    print("
       },
       "satisfiesFacts": []
     },
@@ -2880,7 +2880,7 @@
       "tokenBinding": {
         "factId": "program.collection-loop",
         "valueId": "item",
-        "suffix": ")\\n```"
+        "suffix": ")\n```"
       },
       "satisfiesFacts": [
         "program.collection-loop",
