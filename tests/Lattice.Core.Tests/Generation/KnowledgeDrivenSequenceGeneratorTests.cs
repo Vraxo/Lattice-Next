@@ -49,11 +49,23 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(record, aggregation.Values["record"]);
         Assert.Equal(group, aggregation.Values["group"]);
         Assert.Equal(measure, aggregation.Values["measure"]);
+        Assert.Contains(facts, fact => fact.Id == "program.record-aggregation.intent");
         var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError), generationError);
         Assert.Contains($"for {record} in records:", generated!.Text, StringComparison.Ordinal);
         Assert.Contains($"key = {record}[\"{group}\"]", generated.Text, StringComparison.Ordinal);
         Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_grouped_record_aggregation_with_invalid_identifiers()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Write a program that groups a list of 1st records by customer and sums each customer's total amount.",
+            out _,
+            out _));
     }
 
     [Fact]

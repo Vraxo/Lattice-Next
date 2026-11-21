@@ -2898,6 +2898,27 @@
         ]
       ],
       "forbiddenAnySequences": []
+    },
+    {
+      "id": "recognize-record-aggregation-calculates",
+      "matchTokens": [
+        "calculates"
+      ],
+      "factId": "program.record-aggregation.intent"
+    },
+    {
+      "id": "recognize-record-aggregation-computes",
+      "matchTokens": [
+        "computes"
+      ],
+      "factId": "program.record-aggregation.intent"
+    },
+    {
+      "id": "recognize-record-aggregation-sums",
+      "matchTokens": [
+        "sums"
+      ],
+      "factId": "program.record-aggregation.intent"
     }
   ],
   "rules": [
@@ -4451,7 +4472,8 @@
         "<|lattice.start|>"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "tokenBinding": {
@@ -4470,7 +4492,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "nextToken": "totals = {}\n",
@@ -4483,7 +4506,8 @@
         "totals = {}\n"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "tokenBinding": {
@@ -4501,7 +4525,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "tokenBinding": {
@@ -4521,7 +4546,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "tokenBinding": {
@@ -4542,7 +4568,8 @@
         "*"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "nextToken": "for key, total in totals.items():\n",
@@ -4555,12 +4582,14 @@
         "for key, total in totals.items():\n"
       ],
       "requiredFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ],
       "requiresCompletedFacts": [],
       "nextToken": "    print(key, total)\n",
       "satisfiesFacts": [
-        "program.record-aggregation"
+        "program.record-aggregation",
+        "program.record-aggregation.intent"
       ]
     }
   ],
@@ -4731,19 +4760,22 @@
       "id": "record-aggregation-record-is-identifier",
       "kind": "identifierValue",
       "factId": "program.record-aggregation",
-      "valueId": "record"
+      "valueId": "record",
+      "appliesWhenFactId": "program.record-aggregation.intent"
     },
     {
       "id": "record-aggregation-group-is-identifier",
       "kind": "identifierValue",
       "factId": "program.record-aggregation",
-      "valueId": "group"
+      "valueId": "group",
+      "appliesWhenFactId": "program.record-aggregation.intent"
     },
     {
       "id": "record-aggregation-measure-is-identifier",
       "kind": "identifierValue",
       "factId": "program.record-aggregation",
-      "valueId": "measure"
+      "valueId": "measure",
+      "appliesWhenFactId": "program.record-aggregation.intent"
     }
   ]
 }
