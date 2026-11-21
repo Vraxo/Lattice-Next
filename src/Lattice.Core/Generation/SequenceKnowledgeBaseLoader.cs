@@ -430,7 +430,8 @@ public static class SequenceKnowledgeBaseLoader
             "disjointCollections",
             "arithmeticCollectionReferences",
             "arithmeticValueReferences",
-            "matchingNumericFunctionCall"
+            "matchingNumericFunctionCall",
+            "pythonListLiteral"
         };
 
         foreach (var item in element.EnumerateArray())
