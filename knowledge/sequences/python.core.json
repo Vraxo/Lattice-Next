@@ -2692,6 +2692,55 @@
           "startAfterTokens": [],
           "stopBeforeTokens": [],
           "literalValue": "records"
+        },
+        {
+          "factId": "program.json-round-trip.start",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.import",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.records",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.write-open",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.write",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.read-open",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
+        },
+        {
+          "factId": "program.json.load",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "ready"
         }
       ],
       "requiredAnySequences": [
