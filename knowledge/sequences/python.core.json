@@ -1752,6 +1752,20 @@
           "from",
           "["
         ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "if"
+        ],
+        [
+          "only"
+        ],
+        [
+          "even"
+        ],
+        [
+          "odd"
+        ]
       ]
     }
   ],
