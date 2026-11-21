@@ -121,7 +121,7 @@ public static class SequenceInputFactExtractor
                     {
                         if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
                         {
-                            var fields = SplitText(rawItem, fieldDelimiter);
+                            var fields = SplitText(rawItem, ImmutableArray.Create(fieldDelimiter));
                             if (fields.Length < 2 ||
                                 (capture.CollectionFieldIndex is not null &&
                                  capture.CollectionFieldIndex.Value >= fields.Length))
