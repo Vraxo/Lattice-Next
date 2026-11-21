@@ -647,8 +647,8 @@ public static class SequenceKnowledgeBaseLoader
             (valueTemplate is null && (secondaryValueId is not null || secondaryCollectionSeparator is not null || property.TryGetProperty("secondaryValueIsCollection", out _))) ||
             (valueTemplate is not null &&
                 (secondaryValueId is null ||
-                 (secondaryValueIsCollectionValue && secondaryCollectionSeparator is null) ||
-                 (!secondaryValueIsCollectionValue && secondaryCollectionSeparator is not null) ||
+                 ((!property.TryGetProperty("secondaryValueIsCollection", out _) || secondaryValueIsCollectionValue) && secondaryCollectionSeparator is null) ||
+                 (property.TryGetProperty("secondaryValueIsCollection", out _) && !secondaryValueIsCollectionValue && secondaryCollectionSeparator is not null) ||
                  (secondaryCollectionSeparator?.Length > MaximumDelimiterLength) ||
                  useCollection || encoding is not null || collectionSeparator is not null ||
                  valueTemplate.Length > 256 ||

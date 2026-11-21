@@ -4459,7 +4459,7 @@
         "valueId": "group",
         "secondaryValueId": "measure",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\\n"
+        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n"
       },
       "satisfiesFacts": []
     },
@@ -4473,7 +4473,7 @@
         "program.record-aggregation"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": "totals = {}\\n",
+      "nextToken": "totals = {}\n",
       "satisfiesFacts": []
     },
     {
@@ -4490,7 +4490,7 @@
         "factId": "program.record-aggregation",
         "valueId": "record",
         "prefix": "for ",
-        "suffix": " in records:\\n"
+        "suffix": " in records:\n"
       },
       "satisfiesFacts": []
     },
@@ -4509,7 +4509,7 @@
         "valueId": "record",
         "secondaryValueId": "group",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    key = {0}[\"{1}\"]\\n"
+        "valueTemplate": "    key = {0}[\"{1}\"]\n"
       },
       "satisfiesFacts": []
     },
@@ -4529,7 +4529,7 @@
         "valueId": "record",
         "secondaryValueId": "measure",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "    totals[key] = totals.get(key, 0) + {0}[\"{1}\"]\\n"
+        "valueTemplate": "    totals[key] = totals.get(key, 0) + {0}[\"{1}\"]\n"
       },
       "satisfiesFacts": []
     },
@@ -4545,7 +4545,7 @@
         "program.record-aggregation"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": "for key, total in totals.items():\\n",
+      "nextToken": "for key, total in totals.items():\n",
       "satisfiesFacts": []
     },
     {
@@ -4558,7 +4558,7 @@
         "program.record-aggregation"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": "    print(key, total)\\n",
+      "nextToken": "    print(key, total)\n",
       "satisfiesFacts": [
         "program.record-aggregation"
       ]
