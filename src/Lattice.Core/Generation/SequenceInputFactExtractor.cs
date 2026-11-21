@@ -47,7 +47,6 @@ public static class SequenceInputFactExtractor
             }
 
             matchedAnyRule = true;
-            EnsureFact(extracted, rule.FactId);
 
             if (rule.ValueId is not null)
             {
@@ -470,7 +469,10 @@ public static class SequenceInputFactExtractor
             .Select(delimiter => delimiter.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Where(terms => terms.Length > 0)
             .Select(terms =>
-                @"\s+" + string.Join(@"\s+", terms.Select(Regex.Escape)) + @"\s+")
+            {
+                var separator = terms.All(term => term.All(char.IsPunctuation)) ? @"\s*" : @"\s+";
+                return separator + string.Join(separator, terms.Select(Regex.Escape)) + separator;
+            })
             .ToArray();
         if (patterns.Length == 0)
         {
