@@ -1928,7 +1928,8 @@
     {
       "id": "capture-range-loop-number",
       "matchTokens": [
-        "number"
+        "number",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -1940,9 +1941,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -1960,15 +1959,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -1999,7 +2006,8 @@
     {
       "id": "capture-range-loop-numbers",
       "matchTokens": [
-        "numbers"
+        "numbers",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2011,9 +2019,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2031,15 +2037,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2070,7 +2084,8 @@
     {
       "id": "capture-range-loop-value",
       "matchTokens": [
-        "value"
+        "value",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2082,9 +2097,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2102,15 +2115,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2141,7 +2162,8 @@
     {
       "id": "capture-range-loop-values",
       "matchTokens": [
-        "values"
+        "values",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2153,9 +2175,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2173,15 +2193,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2212,7 +2240,8 @@
     {
       "id": "capture-range-loop-item",
       "matchTokens": [
-        "item"
+        "item",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2224,9 +2253,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2244,15 +2271,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2283,7 +2318,8 @@
     {
       "id": "capture-range-loop-items",
       "matchTokens": [
-        "items"
+        "items",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2295,9 +2331,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2315,15 +2349,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2354,7 +2396,8 @@
     {
       "id": "capture-range-loop-count",
       "matchTokens": [
-        "count"
+        "count",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2366,9 +2409,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2386,15 +2427,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2425,7 +2474,8 @@
     {
       "id": "capture-range-loop-counts",
       "matchTokens": [
-        "counts"
+        "counts",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2437,9 +2487,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2457,15 +2505,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
           "through"
         ]
       ],
@@ -2496,7 +2552,8 @@
     {
       "id": "capture-range-loop-i",
       "matchTokens": [
-        "i"
+        "i",
+        "from"
       ],
       "factId": "program.range-loop",
       "captures": [
@@ -2508,9 +2565,7 @@
         {
           "factId": "program.range-loop",
           "valueId": "start",
-          "startAfterTokens": [
-            "from"
-          ],
+          "startAfterTokens": [],
           "stopBeforeTokens": [
             "to",
             "through"
@@ -2528,135 +2583,23 @@
             ]
           ],
           "numericOffset": 1
+        },
+        {
+          "factId": "program.iteration",
+          "valueId": "kind",
+          "literalValue": "range"
+        },
+        {
+          "factId": "program.output.start",
+          "valueId": "kind",
+          "literalValue": "print"
         }
       ],
       "requiredAnySequences": [
         [
-          "from",
           "to"
         ],
         [
-          "from",
-          "through"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "function"
-        ],
-        [
-          "named"
-        ],
-        [
-          "list"
-        ],
-        [
-          "dictionary"
-        ],
-        [
-          "array"
-        ],
-        [
-          "map"
-        ],
-        [
-          "sort"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-range-loop-iteration",
-      "matchTokens": [
-        "from"
-      ],
-      "factId": "program.iteration",
-      "requiredAnySequences": [
-        [
-          "from",
-          "to"
-        ],
-        [
-          "from",
-          "through"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "function"
-        ],
-        [
-          "named"
-        ],
-        [
-          "list"
-        ],
-        [
-          "dictionary"
-        ],
-        [
-          "array"
-        ],
-        [
-          "map"
-        ],
-        [
-          "sort"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-range-loop-output-start",
-      "matchTokens": [
-        "from"
-      ],
-      "factId": "program.output.start",
-      "requiredAnySequences": [
-        [
-          "from",
-          "to"
-        ],
-        [
-          "from",
-          "through"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "function"
-        ],
-        [
-          "named"
-        ],
-        [
-          "list"
-        ],
-        [
-          "dictionary"
-        ],
-        [
-          "array"
-        ],
-        [
-          "map"
-        ],
-        [
-          "sort"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-range-loop-facts",
-      "matchTokens": [
-        "from"
-      ],
-      "factId": "program.range-loop",
-      "requiredAnySequences": [
-        [
-          "from",
-          "to"
-        ],
-        [
-          "from",
           "through"
         ]
       ],

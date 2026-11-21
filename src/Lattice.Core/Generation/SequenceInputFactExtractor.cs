@@ -334,7 +334,6 @@ public static class SequenceInputFactExtractor
             var token = tokens[tokenIndex];
             if (token.IsPunctuation &&
                 token.Value is "." or "?" or "!" &&
-                !IsDecimalPoint(tokens, tokenIndex) &&
                 !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
                 if (!searchAllSentences)
@@ -492,24 +491,6 @@ public static class SequenceInputFactExtractor
         }
 
         return value.Length > 0;
-    }
-
-    private static bool IsDecimalPoint(ImmutableArray<EnglishToken> tokens, int tokenIndex)
-    {
-        if (tokenIndex <= 0 || tokenIndex >= tokens.Length - 1 ||
-            tokens[tokenIndex].Value != ".")
-        {
-            return false;
-        }
-
-        var previous = tokens[tokenIndex - 1];
-        var next = tokens[tokenIndex + 1];
-        return previous.Value.Length > 0 &&
-            next.Value.Length > 0 &&
-            previous.Value.All(char.IsDigit) &&
-            next.Value.All(char.IsDigit) &&
-            previous.Start + previous.Length == tokens[tokenIndex].Start &&
-            tokens[tokenIndex].Start + tokens[tokenIndex].Length == next.Start;
     }
 
     private static bool IsDecimalPoint(string input, EnglishToken token) =>
