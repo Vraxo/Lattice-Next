@@ -328,6 +328,7 @@ public static class SequenceInputFactExtractor
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
+        var mustMatchNextToken = false;
 
         for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
