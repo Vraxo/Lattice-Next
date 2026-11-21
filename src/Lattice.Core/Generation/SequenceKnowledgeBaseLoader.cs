@@ -283,7 +283,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -298,6 +298,8 @@ public static class SequenceKnowledgeBaseLoader
                 (literalValue is not null && (valueId is null || literalValue.Length > 16_384)) ||
                 !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
+                !TryGetNestedStringArray(item, "requiredAnySequences", out var requiredAnySequences) ||
+                requiredAnySequences.Length > 16 ||
                 !TryReadInputCaptures(captureElements, out var captures, out error))
             {
                 error = "Every input fact rule requires a unique identifier, ordered match tokens, a fact identifier, and an optional value identifier.";
@@ -312,7 +314,8 @@ public static class SequenceKnowledgeBaseLoader
                 literalValue,
                 captures)
             {
-                SearchAllSentences = searchAllSentences
+                SearchAllSentences = searchAllSentences,
+                RequiredAnySequences = requiredAnySequences
             });
         }
 
@@ -430,7 +433,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "kind", "factId", "valueId", "relatedFactId", "relatedValueId", "additionalFactId", "additionalValueId") ||
+                !HasOnlyProperties(item, "id", "kind", "factId", "valueId", "relatedFactId", "relatedValueId", "additionalFactId", "additionalValueId", "appliesWhenFactId") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -447,7 +450,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalString(item, "additionalFactId", out var additionalFactId) ||
                 (additionalFactId is not null && !IsValidIdentifier(additionalFactId)) ||
                 !TryGetOptionalString(item, "additionalValueId", out var additionalValueId) ||
-                (additionalValueId is not null && !IsValidIdentifier(additionalValueId)))
+                (additionalValueId is not null && !IsValidIdentifier(additionalValueId)) ||
+                !TryGetOptionalString(item, "appliesWhenFactId", out var appliesWhenFactId) ||
+                (appliesWhenFactId is not null && !IsValidIdentifier(appliesWhenFactId)))
             {
                 error = "Every input validation requires a unique identifier, a supported constraint kind, and valid fact/value references.";
                 return false;
@@ -461,7 +466,10 @@ public static class SequenceKnowledgeBaseLoader
                 relatedFactId,
                 relatedValueId,
                 additionalFactId,
-                additionalValueId));
+                additionalValueId)
+            {
+                AppliesWhenFactId = appliesWhenFactId
+            });
         }
 
         validations = builder.ToImmutable();

@@ -93,7 +93,10 @@ public sealed record SequenceInputFactValidation(
     string? RelatedFactId = null,
     string? RelatedValueId = null,
     string? AdditionalFactId = null,
-    string? AdditionalValueId = null);
+    string? AdditionalValueId = null)
+{
+    public string? AppliesWhenFactId { get; init; }
+}
 
 public sealed record SequenceInputFactRule(
     string Id,
@@ -104,6 +107,9 @@ public sealed record SequenceInputFactRule(
     ImmutableArray<SequenceInputFactCapture> Captures = default)
 {
     public bool SearchAllSentences { get; init; }
+
+    public ImmutableArray<ImmutableArray<string>> RequiredAnySequences { get; init; } =
+        ImmutableArray<ImmutableArray<string>>.Empty;
 }
 
 public sealed record SequenceKnowledgeBase(

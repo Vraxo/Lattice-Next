@@ -1675,6 +1675,16 @@
           ],
           "stopBeforeTokens": []
         }
+      ],
+      "requiredAnySequences": [
+        [
+          "and",
+          "sets"
+        ],
+        [
+          "and",
+          "set"
+        ]
       ]
     }
   ],
@@ -2767,25 +2777,29 @@
       "id": "function-local-function-name-is-identifier",
       "kind": "identifierValue",
       "factId": "program.function-local-signature",
-      "valueId": "name"
+      "valueId": "name",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-parameters-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.function-local-signature",
-      "valueId": "parameters"
+      "valueId": "parameters",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-names-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.function-local-variables",
-      "valueId": "locals"
+      "valueId": "locals",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-names-are-unique",
       "kind": "uniqueCollection",
       "factId": "program.function-local-variables",
-      "valueId": "locals"
+      "valueId": "locals",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-names-do-not-shadow-parameters",
@@ -2793,7 +2807,8 @@
       "factId": "program.function-local-variables",
       "valueId": "locals",
       "relatedFactId": "program.function-local-signature",
-      "relatedValueId": "parameters"
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-expressions-reference-earlier-names",
@@ -2803,7 +2818,8 @@
       "relatedFactId": "program.function-local-signature",
       "relatedValueId": "parameters",
       "additionalFactId": "program.function-local-variables",
-      "additionalValueId": "locals"
+      "additionalValueId": "locals",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-return-references-available-names",
@@ -2813,7 +2829,8 @@
       "relatedFactId": "program.function-local-signature",
       "relatedValueId": "parameters",
       "additionalFactId": "program.function-local-variables",
-      "additionalValueId": "locals"
+      "additionalValueId": "locals",
+      "appliesWhenFactId": "program.function-local-signature"
     },
     {
       "id": "function-local-call-matches-function-and-parameters",
@@ -2823,7 +2840,8 @@
       "relatedFactId": "program.function-local-signature",
       "relatedValueId": "name",
       "additionalFactId": "program.function-local-signature",
-      "additionalValueId": "parameters"
+      "additionalValueId": "parameters",
+      "appliesWhenFactId": "program.function-local-signature"
     }
   ]
 }

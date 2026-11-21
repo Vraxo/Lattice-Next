@@ -31,9 +31,16 @@ public static class SequenceInputFactValidator
         var factMap = facts.ToDictionary(fact => fact.Id, StringComparer.Ordinal);
         foreach (var validation in validations)
         {
-            if (!factMap.ContainsKey(validation.FactId))
+            if (validation.AppliesWhenFactId is { } appliesWhenFactId &&
+                !factMap.ContainsKey(appliesWhenFactId))
             {
                 continue;
+            }
+
+            if (!factMap.ContainsKey(validation.FactId))
+            {
+                error = $"Semantic input validation '{validation.Id}' is missing its required source fact.";
+                return false;
             }
 
             var valid = validation.Kind switch

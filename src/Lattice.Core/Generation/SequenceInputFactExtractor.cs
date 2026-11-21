@@ -41,7 +41,10 @@ public static class SequenceInputFactExtractor
                 string.IsNullOrWhiteSpace(rule.Id) ||
                 string.IsNullOrWhiteSpace(rule.FactId) ||
                 rule.MatchTokens.IsDefaultOrEmpty ||
-                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences))
+                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences) ||
+                (!rule.RequiredAnySequences.IsDefaultOrEmpty &&
+                 !rule.RequiredAnySequences.Any(sequence =>
+                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true))))
             {
                 continue;
             }
@@ -104,15 +107,17 @@ public static class SequenceInputFactExtractor
 
                 var specificity = rule.MatchTokens.Length +
                     (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
-                var collectionDelimiters = capture.CollectionDelimiters.IsDefaultOrEmpty
-                    ? (capture.CollectionDelimiter is { Length: > 0 } delimiter
-                        ? ImmutableArray.Create(delimiter)
-                        : ImmutableArray<string>.Empty)
-                    : capture.CollectionDelimiters;
+                var rawItems = !capture.CollectionDelimiters.IsDefaultOrEmpty
+                    ? SplitText(capturedValue, capture.CollectionDelimiters)
+                    : capture.CollectionDelimiter is { Length: > 0 } delimiter
+                        ? capturedValue.Split(
+                            delimiter,
+                            StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                            .ToImmutableArray()
+                        : ImmutableArray<string>.Empty;
 
-                if (!collectionDelimiters.IsDefaultOrEmpty)
+                if (!rawItems.IsDefaultOrEmpty)
                 {
-                    var rawItems = SplitText(capturedValue, collectionDelimiters);
                     if (rawItems.IsDefaultOrEmpty)
                     {
                         error = $"Input rule '{rule.Id}' produced an empty ordered collection.";
@@ -393,7 +398,7 @@ public static class SequenceInputFactExtractor
                 token.IsPunctuation &&
                 token.Value is "." or "?" or "!")
             {
-                captureEnd = token.Start;
+                captureEnd = token.Start + token.Length;
                 break;
             }
 
