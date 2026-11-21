@@ -100,7 +100,7 @@ public static class SequenceKnowledgeBaseLoader
                     advanceCollections.Distinct(StringComparer.Ordinal).Count() != advanceCollections.Length ||
                     (tokenBinding is not null && !requiredFacts.Contains(tokenBinding.FactId, StringComparer.Ordinal)))
                 {
-                    error = "Every sequence rule requires a unique identifier, exactly one literal or bound token source, valid fact identifiers, context, and a finite optional weight.";
+                    error = $"Invalid sequence knowledge rule: {id}.";
                     return false;
                 }
 
