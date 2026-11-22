@@ -88,6 +88,8 @@ public sealed record SequenceInputFactCapture(
 
     public bool PreserveRawValue { get; init; }
 
+    public string? Normalization { get; init; }
+
     public int NumericOffset { get; init; }
 }
 
