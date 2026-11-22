@@ -61,4 +61,3 @@ internal static class PythonProgramRequestParser
             ContainsPythonLanguage(creationClause);
     }
 }
-}
