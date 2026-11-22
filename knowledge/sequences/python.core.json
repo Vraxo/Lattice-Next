@@ -5933,7 +5933,7 @@
     {
       "id": "python-class-model-deposit-header",
       "contextSuffix": [
-        "*\n"
+        "*self.balance = balance\n"
       ],
       "requiredFacts": [
         "program.class-model"
@@ -5977,7 +5977,7 @@
     {
       "id": "python-class-model-withdraw-header",
       "contextSuffix": [
-        "*\n"
+        "*self.balance += amount\n"
       ],
       "requiredFacts": [
         "program.class-model"
@@ -6062,7 +6062,7 @@
     {
       "id": "python-class-model-withdraw-accept",
       "contextSuffix": [
-        "*\n"
+        "*self.balance -= amount\n"
       ],
       "requiredFacts": [
         "program.class-model"
