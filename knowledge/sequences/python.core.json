@@ -4214,7 +4214,7 @@
     {
       "id": "python-dictionary-iteration-key",
       "contextSuffix": [
-        "```python\n"
+        "*Add dictionary entries here.\n"
       ],
       "requiredFacts": [
         "program.dictionary-iteration"
