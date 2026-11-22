@@ -108,7 +108,7 @@ internal static class PythonCollectionProgramParser
         var dictionaryName = valueDescription.ToLowerInvariant();
         var example = value.Equals("price", StringComparison.OrdinalIgnoreCase)
             ? "{\"apple\": 1.5, \"banana\": 0.75}"
-            : "{\\"first\\": 1, \\"second\\": 2}";
+            : "{'first': 1, 'second': 2}";
         steps = ImmutableArray.Create(
             new TaskRequestStep("assign-variable", "assignment", $"{dictionaryName} = {example}"),
             new TaskRequestStep("begin-loop", "loop-header", $"{key}, {value} in {dictionaryName}.items()"),
