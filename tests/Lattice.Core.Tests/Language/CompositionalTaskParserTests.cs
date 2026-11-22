@@ -65,6 +65,23 @@ public sealed class CompositionalTaskParserTests
     }
 
     [Fact]
+    public void Parses_python_greeting_function_requests_with_implicit_function_name()
+    {
+        const string input = "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.";
+
+        var result = new LceParser().ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var utterance = Assert.Single(result.Utterances);
+        var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
+
+        Assert.Equal(TaskRequestAction.Code, request.Action);
+        Assert.Equal("python-program", request.Subject);
+        Assert.Empty(request.GenerationSteps);
+        Assert.Equal(input, utterance.SourceText);
+    }
+
+    [Fact]
     public void Does_not_invent_an_output_goal_for_an_unspecified_program()
     {
         var result = new LceParser().ParseText("Create a Python program.");
