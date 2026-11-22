@@ -67,6 +67,7 @@ public static class SequenceInputFactValidator
                     IsArithmeticExpression(arithmeticValue),
                 "arithmeticValueReferences" => TryValidateArithmeticValue(
                     factMap, validation, out _),
+                "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
             };
@@ -130,6 +131,36 @@ public static class SequenceInputFactValidator
         return ReferencesOnlyAvailableNames(expression, available, allowFunctionCalls: true) &&
             ExtractIdentifiers(expression).Any(identifier =>
                 localNames.Contains(identifier, StringComparer.OrdinalIgnoreCase));
+    }
+
+    private static bool TryValidateComparisonValue(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var condition) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters))
+        {
+            return false;
+        }
+
+        var operators = Regex.Matches(condition, @"==|!=|<=|>=|<|>");
+        if (operators.Count != 1)
+        {
+            return false;
+        }
+
+        var comparison = operators[0];
+        var left = condition[..comparison.Index].Trim();
+        var right = condition[(comparison.Index + comparison.Length)..].Trim();
+        if (left.Length == 0 || right.Length == 0 ||
+            !IsArithmeticExpression(left) || !IsArithmeticExpression(right))
+        {
+            return false;
+        }
+
+        var availableNames = parameters.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return ReferencesOnlyAvailableNames(left, availableNames) &&
+            ReferencesOnlyAvailableNames(right, availableNames);
     }
 
     private static bool TryValidateFunctionCall(
