@@ -46,6 +46,34 @@ internal static class PythonFunctionProgramParser
         return true;
     }
 
+
+    internal static bool TryGetIntegerConversionFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = Regex.Match(
+            source,
+            @"\bfunction\b.*?\bconverts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\b.*?\breturns?\s+(?:a\s+)?clear\s+(?:result|message)\b.*?\bnot\s+a\s+valid\s+integer\b",
+            RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var parameter = match.Groups["parameter"].Value;
+        const string name = "convert_to_integer";
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
+            new TaskRequestStep("begin-try-indented", "statement", "try"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", $"int({parameter})"),
+            new TaskRequestStep("begin-except-indented", "exception-type", "ValueError"),
+            new TaskRequestStep("return-value-double-indented-expression", "expression", "\"Invalid integer\""),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"42\")"),
+            new TaskRequestStep("write-standard-output", "expression", $"{name}(\"not-a-number\")"));
+        return true;
+    }
+
     internal static bool TryGetFunctionCompositionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)

@@ -39,12 +39,21 @@ internal static class PythonProgramRequestParser
         out EnglishSentenceSyntax? syntax)
     {
         syntax = null;
-        if (!EnglishSyntaxParser.TryParse(source, out syntax))
+        if (EnglishSyntaxParser.TryParse(source, out syntax) &&
+            HasPythonCreationClause(syntax!))
         {
-            return false;
+            return true;
         }
 
-        var creationClause = syntax!.Clauses.FirstOrDefault(clause =>
+        var contextSeparator = source.IndexOf(':');
+        return contextSeparator > 0 &&
+            EnglishSyntaxParser.TryParse(source[..contextSeparator] + ".", out syntax) &&
+            HasPythonCreationClause(syntax!);
+    }
+
+    private static bool HasPythonCreationClause(EnglishSentenceSyntax syntax)
+    {
+        var creationClause = syntax.Clauses.FirstOrDefault(clause =>
             CreationVerbs.Contains(clause.Verb));
         return creationClause is not null &&
             creationClause.Object is { } codeArtifact &&
