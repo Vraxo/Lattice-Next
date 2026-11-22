@@ -1736,7 +1736,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         Assert.True(
             KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
-            generationError);
+            $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
         Assert.Equal(
             "def classify(score):\n    if score >= 10:\n        return score + 1\n    else:\n        return score - 1\nprint(classify(12))\n",
             string.Join(string.Empty, result!.Tokens));
