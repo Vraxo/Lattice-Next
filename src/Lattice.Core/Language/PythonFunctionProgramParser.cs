@@ -19,8 +19,6 @@ internal static class PythonFunctionProgramParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 
-
-
     internal static bool TryGetFunctionCompositionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
