@@ -117,6 +117,9 @@ public sealed record SequenceInputFactRule(
     public ImmutableArray<ImmutableArray<string>> RequiredAnySequences { get; init; } =
         ImmutableArray<ImmutableArray<string>>.Empty;
 
+    public ImmutableArray<ImmutableArray<string>> RequiredAllSequences { get; init; } =
+        ImmutableArray<ImmutableArray<string>>.Empty;
+
     public ImmutableArray<ImmutableArray<string>> ForbiddenAnySequences { get; init; } =
         ImmutableArray<ImmutableArray<string>>.Empty;
 }
