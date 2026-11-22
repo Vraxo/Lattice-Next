@@ -1434,7 +1434,86 @@
         "larger",
         "balance"
       ],
-      "factId": "program.bank-account-class"
+      "factId": "program.bank-account-class",
+      "captures": [
+        {
+          "factId": "program.bank-account-class",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "bank-account"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "class"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "className",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "BankAccount"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "attributeName",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "balance"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "initializerParameter",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "balance"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "depositMethodName",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "deposit"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "withdrawalMethodName",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "withdraw"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "amountParameter",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "amount"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "failureValue",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "False"
+        },
+        {
+          "factId": "program.class-model",
+          "valueId": "successValue",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "True"
+        },
+        {
+          "factId": "program.output",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "class-definition"
+        }
+      ]
     },
     {
       "id": "recognize-non-empty-file-line-count",
@@ -4181,23 +4260,6 @@
       ]
     },
     {
-      "id": "python-bank-account-class",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.bank-account-class",
-        "program.class"
-      ],
-      "nextToken": "```python\nclass BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance += amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance -= amount\n        return True\n```",
-      "satisfiesFacts": [
-        "program.bank-account-class",
-        "program.class",
-        "language.python",
-        "intent.program-generation"
-      ]
-    },
-    {
       "id": "python-non-empty-file-line-count",
       "contextSuffix": [
         "<|lattice.start|>"
@@ -5790,6 +5852,240 @@
         "value.output"
       ],
       "forbiddenFacts": []
+    },
+    {
+      "id": "python-class-model-open",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.class-model",
+        "program.class",
+        "language.python",
+        "intent.program-generation",
+        "program.output"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "program.class",
+        "language.python",
+        "intent.program-generation",
+        "program.output"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": [],
+      "weight": 10
+    },
+    {
+      "id": "python-class-model-header",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "className",
+        "prefix": "class ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-initializer-header",
+      "contextSuffix": [
+        "*:\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "initializerParameter",
+        "prefix": "    def __init__(self, ",
+        "suffix": "):\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-initializer-assignment",
+      "contextSuffix": [
+        "*):\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "attributeName",
+        "secondaryValueId": "initializerParameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "self.{0} = {1}",
+        "prefix": "        ",
+        "suffix": "\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-deposit-header",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "depositMethodName",
+        "secondaryValueId": "amountParameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0}(self, {1})",
+        "prefix": "    def ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-deposit-body",
+      "contextSuffix": [
+        "*):\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "attributeName",
+        "secondaryValueId": "amountParameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "self.{0} += {1}",
+        "prefix": "        ",
+        "suffix": "\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-withdraw-header",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "withdrawalMethodName",
+        "secondaryValueId": "amountParameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0}(self, {1})",
+        "prefix": "    def ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-withdraw-guard",
+      "contextSuffix": [
+        "*):\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "amountParameter",
+        "secondaryValueId": "attributeName",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0} > self.{1}",
+        "prefix": "        if ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-withdraw-reject",
+      "contextSuffix": [
+        "*:\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "failureValue",
+        "prefix": "            return ",
+        "suffix": "\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-withdraw-body",
+      "contextSuffix": [
+        "*False\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "attributeName",
+        "secondaryValueId": "amountParameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "self.{0} -= {1}",
+        "prefix": "        ",
+        "suffix": "\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-class-model-withdraw-accept",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.class-model"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.class-model",
+        "valueId": "successValue",
+        "prefix": "        return ",
+        "suffix": "\n```"
+      },
+      "satisfiesFacts": [
+        "program.class-model"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     }
   ],
   "validations": [
@@ -6076,6 +6372,48 @@
       "factId": "program.dictionary-iteration",
       "valueId": "collection",
       "appliesWhenFactId": "program.dictionary-iteration"
+    },
+    {
+      "id": "bank-account-class-model-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "className",
+      "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "bank-account-class-model-attribute-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "attributeName",
+      "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "bank-account-class-model-initializer-parameter-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "initializerParameter",
+      "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "bank-account-class-model-deposit-method-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "depositMethodName",
+      "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "bank-account-class-model-withdraw-method-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "withdrawalMethodName",
+      "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "bank-account-class-model-amount-parameter-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.class-model",
+      "valueId": "amountParameter",
+      "appliesWhenFactId": "program.class-model"
     }
   ]
 }
