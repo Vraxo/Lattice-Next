@@ -68,6 +68,7 @@ public static class SequenceInputFactValidator
                 "arithmeticValueReferences" => TryValidateArithmeticValue(
                     factMap, validation, out _),
                 "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
+                "comparisonOperandsReferences" => TryValidateComparisonOperands(factMap, validation),
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
                 "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
@@ -156,6 +157,27 @@ public static class SequenceInputFactValidator
         var right = condition[(comparison.Index + comparison.Length)..].Trim();
         if (left.Length == 0 || right.Length == 0 ||
             !IsArithmeticExpression(left) || !IsArithmeticExpression(right))
+        {
+            return false;
+        }
+
+        var availableNames = parameters.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return ReferencesOnlyAvailableNames(left, availableNames) &&
+            ReferencesOnlyAvailableNames(right, availableNames);
+    }
+
+    private static bool TryValidateComparisonOperands(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!facts.TryGetValue(validation.FactId, out var condition) ||
+            !condition.Values.TryGetValue("left", out var left) ||
+            !condition.Values.TryGetValue("operator", out var comparisonOperator) ||
+            !condition.Values.TryGetValue("right", out var right) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) ||
+            !new[] { "==", "!=", "<", "<=", ">", ">=" }.Contains(comparisonOperator, StringComparer.Ordinal) ||
+            !IsArithmeticExpression(left) ||
+            !IsArithmeticExpression(right))
         {
             return false;
         }
