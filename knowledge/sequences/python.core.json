@@ -5897,7 +5897,8 @@
         "```python\n"
       ],
       "requiredFacts": [
-        "program.class-model"
+        "program.class-model",
+        "program.class-model.stage.class-definition"
       ],
       "requiresCompletedFacts": [],
       "tokenBinding": {
@@ -5920,7 +5921,8 @@
         "*\n"
       ],
       "requiredFacts": [
-        "program.class-model"
+        "program.class-model",
+        "program.class-model.stage.deposit-header"
       ],
       "requiresCompletedFacts": [
         "program.class-model.stage.class-definition"
@@ -5946,7 +5948,8 @@
         "*\n"
       ],
       "requiredFacts": [
-        "program.class-model"
+        "program.class-model",
+        "program.class-model.stage.deposit-body"
       ],
       "requiresCompletedFacts": [
         "program.class-model.stage.deposit-header"
@@ -5972,7 +5975,8 @@
         "*\n"
       ],
       "requiredFacts": [
-        "program.class-model"
+        "program.class-model",
+        "program.class-model.stage.withdraw-header"
       ],
       "requiresCompletedFacts": [
         "program.class-model.stage.deposit-body"
@@ -5998,7 +6002,8 @@
         "*\n"
       ],
       "requiredFacts": [
-        "program.class-model"
+        "program.class-model",
+        "program.class-model.stage.withdraw-body"
       ],
       "requiresCompletedFacts": [
         "program.class-model.stage.withdraw-header"
