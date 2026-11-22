@@ -7,6 +7,33 @@ namespace Lattice.Core.Tests.Generation;
 public sealed class KnowledgeDrivenSequenceGeneratorTests
 {
     [Fact]
+    public void Extracts_and_generates_greeting_function_requests_from_natural_language()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.greeting-function");
+        Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
+        Assert.Contains(facts, fact => fact.Id == "language.python");
+        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
+            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains("def greet(name):", generated!.Text, StringComparison.Ordinal);
+        Assert.Contains("print(greet(\"Ada\"))", generated.Text, StringComparison.Ordinal);
+        Assert.Contains("print(greet(\"Grace\"))", generated.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Extracts_and_generates_json_round_trip_with_custom_names()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
