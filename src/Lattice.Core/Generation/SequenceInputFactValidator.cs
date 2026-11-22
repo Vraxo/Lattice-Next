@@ -68,6 +68,8 @@ public static class SequenceInputFactValidator
                 "arithmeticValueReferences" => TryValidateArithmeticValue(
                     factMap, validation, out _),
                 "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
+                "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
+                "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
             };
@@ -163,9 +165,20 @@ public static class SequenceInputFactValidator
             ReferencesOnlyAvailableNames(right, availableNames);
     }
 
-    private static bool TryValidateFunctionCall(
+    private static bool TryValidateArithmeticExpressionReferences(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
         SequenceInputFactValidation validation)
+    {
+        return TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) &&
+            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
+            IsArithmeticExpression(expression) &&
+            ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
+    }
+
+    private static bool TryValidateFunctionCall(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation,
+        bool allowStringArguments = false)
     {
         if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var call) ||
             !TryGetValue(facts, validation.RelatedFactId, validation.RelatedValueId, out var functionName) ||
@@ -187,9 +200,16 @@ public static class SequenceInputFactValidator
             : argumentsText.Split(',', StringSplitOptions.TrimEntries);
         return arguments.Length == parameters.Length &&
             arguments.Length > 0 &&
-            arguments.All(argument => NumberPattern.IsMatch(argument));
+            arguments.All(argument => NumberPattern.IsMatch(argument) ||
+                (allowStringArguments && IsQuotedStringLiteral(argument)));
     }
 
+
+    private static bool IsQuotedStringLiteral(string value) =>
+        value.Length >= 2 &&
+        value[0] is '\'' or '"' &&
+        value[^1] == value[0] &&
+        !value[1..^1].Contains(value[0]);
 
     private static bool TryValidateAscendingIntegerRange(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
