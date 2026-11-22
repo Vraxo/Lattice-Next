@@ -4268,7 +4268,7 @@
     {
       "id": "python-dictionary-iteration-value",
       "contextSuffix": [
-        ", "
+        "*, "
       ],
       "requiredFacts": [
         "program.dictionary-iteration"
@@ -4286,7 +4286,7 @@
     {
       "id": "python-dictionary-iteration-collection",
       "contextSuffix": [
-        " in "
+        "* in "
       ],
       "requiredFacts": [
         "program.dictionary-iteration"
@@ -4304,7 +4304,7 @@
     {
       "id": "python-dictionary-iteration-print",
       "contextSuffix": [
-        ".items():\n"
+        "*.items():\n"
       ],
       "requiredFacts": [
         "program.dictionary-iteration"
