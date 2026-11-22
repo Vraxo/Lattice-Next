@@ -5911,7 +5911,8 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start"
+        "program.output.start",
+        "program.arithmetic"
       ],
       "weight": 10
     },
