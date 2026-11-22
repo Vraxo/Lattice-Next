@@ -374,6 +374,30 @@ public sealed class PythonProgramGenerationTests
     }
 
     [Fact]
+    public async Task Generates_generic_dictionary_key_value_iteration()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
+        Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Generates_and_executes_non_empty_file_line_counting_program()
     {
         var client = new LatticeRuntimeClient();
