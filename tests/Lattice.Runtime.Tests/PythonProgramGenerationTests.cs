@@ -393,6 +393,7 @@ public sealed class PythonProgramGenerationTests
         Assert.True(start >= 0 && end > start, utterance.Message);
 
         var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Contains("items = {}", generatedCode, StringComparison.Ordinal);
         Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
         Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
     }
