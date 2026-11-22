@@ -73,6 +73,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is greater than or equal to 10 and otherwise returns 'rejected', then print classify(12).",
         "score >= 10", "accepted", "rejected")]
     [InlineData(
+        "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
+        "price >= limit", "price * 0.9", "price")]
+    [InlineData(
+        "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and price is less than limit + 50 and otherwise returns price, then print discount(120, 100).",
+        "price >= limit and price < limit + 50", "price * 0.9", "price")]
+    [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
         "role == 'admin'", "allowed", "denied")]
     public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
