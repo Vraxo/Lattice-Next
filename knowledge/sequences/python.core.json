@@ -484,32 +484,28 @@
       "matchTokens": [
         "print"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-output-start-prints",
       "matchTokens": [
         "prints"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-output-start-display",
       "matchTokens": [
         "display"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-output-start-output",
       "matchTokens": [
         "output"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-assignment-prefix-set",
@@ -626,8 +622,7 @@
       "matchTokens": [
         "say"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "capture-says-value",
@@ -642,8 +637,7 @@
       "matchTokens": [
         "says"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-show-operation",
@@ -665,8 +659,7 @@
       "matchTokens": [
         "show"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-shows-operation",
@@ -688,8 +681,7 @@
       "matchTokens": [
         "shows"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-displays-operation",
@@ -711,8 +703,7 @@
       "matchTokens": [
         "displays"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-outputs-operation",
@@ -734,8 +725,7 @@
       "matchTokens": [
         "outputs"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-emit-operation",
@@ -757,8 +747,7 @@
       "matchTokens": [
         "emit"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-emits-operation",
@@ -780,8 +769,7 @@
       "matchTokens": [
         "emits"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-echo-operation",
@@ -803,8 +791,7 @@
       "matchTokens": [
         "echo"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-echoes-operation",
@@ -826,8 +813,7 @@
       "matchTokens": [
         "echoes"
       ],
-      "factId": "program.output.start",
-      "searchAllSentences": true
+      "factId": "program.output.start"
     },
     {
       "id": "recognize-generation-intent-implement",
@@ -5381,7 +5367,6 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
         "program.arithmetic"
       ],
       "nextToken": "```python\n",
@@ -5390,7 +5375,6 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
         "program.arithmetic"
       ],
       "weight": 10
@@ -5409,8 +5393,7 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.output",
-        "program.output.start"
+        "program.output"
       ],
       "forbiddenFacts": [
         "program.arithmetic"
@@ -5420,8 +5403,7 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.output",
-        "program.output.start"
+        "program.output"
       ],
       "weight": 10
     },
@@ -5548,7 +5530,30 @@
       "requiresCompletedFacts": [
         "program.conditional-function.false-return"
       ],
-      "nextToken": "print("
+      "nextToken": "print(",
+      "forbiddenFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-conditional-function-print-with-output-start",
+      "contextSuffix": [
+        "    return ",
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.false-return"
+      ],
+      "nextToken": "print(",
+      "satisfiesFacts": [
+        "program.output.start"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-conditional-function-call",
