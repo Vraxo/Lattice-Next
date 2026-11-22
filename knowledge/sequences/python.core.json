@@ -2963,9 +2963,9 @@
     {
       "id": "recognize-single-field-record-sorting",
       "matchTokens": [
+        "a",
         "field",
-        "name",
-        "named"
+        "name"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
@@ -5200,7 +5200,10 @@
         "program.output",
         "program.single-field-record-sorting"
       ],
-      "weight": 10
+      "weight": 10,
+      "forbiddenFacts": [
+        "program.single-field-record-sorting.case-insensitive"
+      ]
     },
     {
       "id": "single-field-record-sort-output-case-insensitive",
@@ -5209,7 +5212,8 @@
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
-        "program.output"
+        "program.output",
+        "program.single-field-record-sorting.case-insensitive"
       ],
       "requiresCompletedFacts": [
         "program.single-field-record-sorting.body"
