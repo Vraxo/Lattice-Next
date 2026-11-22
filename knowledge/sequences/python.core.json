@@ -5212,11 +5212,11 @@
       ],
       "requiredFacts": [
         "program.single-field-record-sorting",
-        "program.output",
-        "program.single-field-record-sorting.case-insensitive"
+        "program.output"
       ],
       "requiresCompletedFacts": [
-        "program.single-field-record-sorting.body"
+        "program.single-field-record-sorting.body",
+        "program.single-field-record-sorting.case-insensitive"
       ],
       "tokenBinding": {
         "factId": "program.single-field-record-sorting",
