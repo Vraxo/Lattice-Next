@@ -283,7 +283,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "forbiddenAnySequences") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -300,6 +300,8 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
                 !TryGetNestedStringArray(item, "requiredAnySequences", out var requiredAnySequences) ||
                 requiredAnySequences.Length > 16 ||
+                !TryGetNestedStringArray(item, "requiredAllSequences", out var requiredAllSequences) ||
+                requiredAllSequences.Length > 16 ||
                 !TryGetNestedStringArray(item, "forbiddenAnySequences", out var forbiddenAnySequences) ||
                 forbiddenAnySequences.Length > 16 ||
                 !TryReadInputCaptures(captureElements, out var captures, out error))
@@ -318,6 +320,7 @@ public static class SequenceKnowledgeBaseLoader
             {
                 SearchAllSentences = searchAllSentences,
                 RequiredAnySequences = requiredAnySequences,
+                RequiredAllSequences = requiredAllSequences,
                 ForbiddenAnySequences = forbiddenAnySequences
             });
         }
