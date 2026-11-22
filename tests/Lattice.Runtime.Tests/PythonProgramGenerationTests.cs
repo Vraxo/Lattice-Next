@@ -66,8 +66,8 @@ public sealed class PythonProgramGenerationTests
         "[1, 2]")]
     [InlineData(
         "Write a Python program that fulfills this request: Write a function that converts text to an integer and returns a clear result when the text is not a valid integer.",
-        "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \\"Invalid integer\\"\nprint(convert_to_integer(\\"42\\"))\nprint(convert_to_integer(\\"not-a-number\\"))",
-        "42\\nInvalid integer")]
+        "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
+        "42\nInvalid integer")]
     [InlineData(
         "Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.",
         "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
