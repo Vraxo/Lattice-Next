@@ -1772,9 +1772,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal("score", condition.Values["left"]);
-        Assert.Equal(">=", condition.Values["operator"]);
-        Assert.Equal("10", condition.Values["right"]);
+        Assert.Equal("score >= 10", condition.Values["expression"]);
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1793,14 +1791,14 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Theory]
-    [InlineData("is greater than", ">")]
-    [InlineData("is less than", "<")]
-    [InlineData("is at most", "<=")]
-    [InlineData("is equal to", "==")]
-    [InlineData("is not equal to", "!=")]
-    public void Extracts_comparison_operators_as_reusable_semantic_values(
+    [InlineData("is greater than", "value > 10")]
+    [InlineData("is less than", "value < 10")]
+    [InlineData("is at most", "value <= 10")]
+    [InlineData("is equal to", "value == 10")]
+    [InlineData("is not equal to", "value != 10")]
+    public void Extracts_comparison_phrases_as_normalized_condition_expressions(
         string phrase,
-        string expectedOperator)
+        string expectedExpression)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         var prompt = $"Write a Python program with a function named compare that takes value and returns value + 1 when value {phrase} 10 and otherwise returns value - 1, then print compare(12).";
@@ -1810,7 +1808,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal(expectedOperator, condition.Values["operator"]);
+        Assert.Equal(expectedExpression, condition.Values["expression"]);
     }
 
     [Fact]
