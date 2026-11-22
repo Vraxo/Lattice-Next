@@ -63,9 +63,18 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration work in progress
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-22**, **24 of 28 (85.7%)** have been removed through small, independently reviewed increments; **6 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-22**, **24 of 28 (85.7%)** have been removed through small, independently reviewed increments; **4 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
 
 The latest completed increment is PR [#521 — Generate compound conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/521). It removed the one-branch conditional-function parser fallback and moved compound Boolean conditions, string return values, and parameter-reference validation into generic semantic extraction and declarative sequence generation. Its CI passed and it was merged to `main`.
+
+Recent knowledge-driven improvements have also expanded benchmark coverage without changing the 24/28 C# dispatch count:
+
+- [PR #522](https://github.com/Vraxo/Lattice-Next/pull/522) recognizes natural-language greeting-function requests through existing declarative knowledge.
+- [PR #524](https://github.com/Vraxo/Lattice-Next/pull/524) replaced a fixed product-price dictionary program with captured key/value facts and reusable iteration rules; [PR #525](https://github.com/Vraxo/Lattice-Next/pull/525) made the generated example self-contained without inventing dictionary entries.
+- [PR #526](https://github.com/Vraxo/Lattice-Next/pull/526) connected integer-conversion requests to their output semantics.
+- [PR #528](https://github.com/Vraxo/Lattice-Next/pull/528) replaced the complete bank-account class template with a class model and staged token-binding rules.
+
+The latest [Python benchmark run](https://github.com/Vraxo/Lattice-Next/actions/runs/45059564042) generated **16/16** programs, validated **16/16** syntactically, and smoke-executed **16/16** successfully. This remains generation/syntax/execution evidence only; semantic correctness and generalization are not yet scored. The bank-account domain mapping itself is still task-specific, even though its code is now composed from semantic facts.
 
 For every remaining increment:
 
