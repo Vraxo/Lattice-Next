@@ -1449,21 +1449,6 @@
       "factId": "program.non-empty-file-line-count"
     },
     {
-      "id": "recognize-product-price-dictionary-iteration",
-      "matchTokens": [
-        "given",
-        "dictionary",
-        "product",
-        "names",
-        "prices",
-        "prints",
-        "each",
-        "product",
-        "price"
-      ],
-      "factId": "program.product-price-iteration"
-    },
-    {
       "id": "recognize-dictionary-product-iteration",
       "matchTokens": [
         "then",
@@ -4194,26 +4179,6 @@
         "language.python",
         "intent.program-generation",
         "program.output"
-      ]
-    },
-    {
-      "id": "python-product-price-dictionary-iteration",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.product-price-iteration"
-      ],
-      "nextToken": "```python\nproducts = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}\nfor product, price in products.items():\n    print(product, price)\n```",
-      "satisfiesFacts": [
-        "program.product-price-iteration",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.collection",
-        "program.iteration",
-        "program.output.start",
-        "value.output"
       ]
     },
     {
