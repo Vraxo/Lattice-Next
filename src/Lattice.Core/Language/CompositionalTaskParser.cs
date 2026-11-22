@@ -31,6 +31,10 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = greetingFunctionSteps };
         }
+        else if (PythonCollectionProgramParser.TryGetDictionaryIterationProgram(source, out var dictionaryIterationSteps))
+        {
+            formula = formula with { GenerationSteps = dictionaryIterationSteps };
+        }
         else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
