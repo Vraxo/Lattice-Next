@@ -36,6 +36,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(
             KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
             $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains("items = {}", generated!.Text, StringComparison.Ordinal);
         Assert.Contains($"for {expectedKey}, {expectedValue} in items.items():", generated!.Text, StringComparison.Ordinal);
         Assert.Contains($"print({expectedKey}, {expectedValue})", generated.Text, StringComparison.Ordinal);
     }
