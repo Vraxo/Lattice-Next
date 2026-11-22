@@ -2963,9 +2963,9 @@
     {
       "id": "recognize-single-field-record-sorting",
       "matchTokens": [
-        "records",
-        "sorted",
-        "by"
+        "field",
+        "name",
+        "named"
       ],
       "factId": "program.single-field-record-sorting",
       "captures": [
@@ -2992,26 +2992,12 @@
       ],
       "requiredAnySequences": [
         [
-          "field",
-          "name"
+          "records",
+          "sorted",
+          "by"
         ]
       ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ],
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
+      "forbiddenAnySequences": []
     },
     {
       "id": "capture-single-field-sort-function-name",
@@ -5044,7 +5030,8 @@
       "satisfiesFacts": [
         "program.single-field-record-sorting.header",
         "intent.program-generation",
-        "language.python"
+        "language.python",
+        "program.output.start"
       ],
       "weight": 10
     },
