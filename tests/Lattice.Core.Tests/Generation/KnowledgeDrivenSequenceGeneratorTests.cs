@@ -1723,7 +1723,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal("score is at least 10", condition.Values["expression"]);
+        Assert.Equal("score", condition.Values["left"]);
+        Assert.Equal(">=", condition.Values["operator"]);
+        Assert.Equal("10", condition.Values["right"]);
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1736,7 +1738,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
             generationError);
         Assert.Equal(
-            "def classify(score):\n    if score is at least 10:\n        return score + 1\n    else:\n        return score - 1\nprint(classify(12))\n",
+            "def classify(score):\n    if score >= 10:\n        return score + 1\n    else:\n        return score - 1\nprint(classify(12))\n",
             string.Join(string.Empty, result!.Tokens));
     }
 
