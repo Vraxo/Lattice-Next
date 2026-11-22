@@ -61,6 +61,52 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
     }
 
+
+    [Theory]
+    [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
+        "score >= 10 or (score < 5 and score != 0)")]
+    [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
+        "not (score >= 10 or score < 5)")]
+    [InlineData(
+        "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
+        "role == 'admin'")]
+    public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
+        string prompt,
+        string expectedCondition)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal(expectedCondition, condition.Values["expression"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
+            generationError);
+        Assert.Contains($"if {expectedCondition}:", generated!.Text, StringComparison.Ordinal);
+        Assert.Contains("return 'accepted'", generated.Text, StringComparison.Ordinal);
+        Assert.Contains("return 'rejected'", generated.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_boolean_conditions_that_reference_undeclared_parameters()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or other is less than 5 and otherwise returns 'rejected', then print classify(3).",
+            out _,
+            out _));
+    }
+
     [Fact]
     public void Rejects_grouped_record_aggregation_with_invalid_identifiers()
     {
