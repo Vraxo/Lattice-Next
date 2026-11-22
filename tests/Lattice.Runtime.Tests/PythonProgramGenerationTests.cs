@@ -17,6 +17,7 @@ public sealed class PythonProgramGenerationTests
         "def greet(name):\n    return \"Hello, \" + name\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))",
         "Hello, Ada\nHello, Grace")]
     [InlineData(
+        "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
         "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
         "{'Ada': 3, 'Grace': 5, 'Linus': 5}")]
     [InlineData(
