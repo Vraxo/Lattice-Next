@@ -6,6 +6,40 @@ namespace Lattice.Core.Tests.Generation;
 
 public sealed class KnowledgeDrivenSequenceGeneratorTests
 {
+    [Theory]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
+        "product", "price")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of employee names and salaries, display each employee with its salary.",
+        "employee", "salary")]
+    public void Extracts_and_generates_dictionary_iteration_from_key_value_language(
+        string prompt,
+        string expectedKey,
+        string expectedValue)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+
+        var iteration = Assert.Single(facts, fact => fact.Id == "program.dictionary-iteration");
+        Assert.Equal(expectedKey, iteration.Values["key"]);
+        Assert.Equal(expectedValue, iteration.Values["value"]);
+        Assert.Equal("items", iteration.Values["collection"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
+            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains($"for {expectedKey}, {expectedValue} in items.items():", generated!.Text, StringComparison.Ordinal);
+        Assert.Contains($"print({expectedKey}, {expectedValue})", generated.Text, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Extracts_and_generates_greeting_function_requests_from_natural_language()
     {
