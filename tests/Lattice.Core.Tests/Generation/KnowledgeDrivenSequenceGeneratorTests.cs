@@ -1712,4 +1712,67 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out _));
     }
 
+    [Fact]
+    public void Extracts_and_generates_conditional_function_from_composable_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string prompt = "Write a Python program with a function named classify that takes score and returns score + 1 when score is at least 10 and otherwise returns score - 1, then print classify(12).";
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal("score", condition.Values["left"]);
+        Assert.Equal(">=", condition.Values["operator"]);
+        Assert.Equal("10", condition.Values["right"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
+            $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
+        Assert.Equal(
+            "\u0060\u0060\u0060python\ndef classify(score):\n    if score >= 10:\n        return score + 1\n    return score - 1\nprint(classify(12))\n\u0060\u0060\u0060",
+            string.Join(string.Empty, result!.Tokens));
+    }
+
+
+    [Theory]
+    [InlineData("is greater than", ">")]
+    [InlineData("is less than", "<")]
+    [InlineData("is at most", "<=")]
+    [InlineData("is equal to", "==")]
+    [InlineData("is not equal to", "!=")]
+    public void Extracts_comparison_operators_as_reusable_semantic_values(
+        string phrase,
+        string expectedOperator)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        var prompt = $"Write a Python program with a function named compare that takes value and returns value + 1 when value {phrase} 10 and otherwise returns value - 1, then print compare(12).";
+
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal(expectedOperator, condition.Values["operator"]);
+    }
+
+    [Fact]
+    public void Rejects_conditional_function_conditions_with_undeclared_names()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Write a Python program with a function named compare that takes value and returns value + 1 when missing is greater than 10 and otherwise returns value - 1, then print compare(12).";
+
+        Assert.False(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out _));
+    }
+
+
 }

@@ -50,10 +50,13 @@ public static class SequenceInputFactExtractor
             var matchesRequiredSequence = rule.RequiredAnySequences.IsDefaultOrEmpty ||
                 rule.RequiredAnySequences.Any(sequence =>
                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true));
+            var matchesAllRequiredSequences = rule.RequiredAllSequences.IsDefaultOrEmpty ||
+                rule.RequiredAllSequences.All(sequence =>
+                    TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true));
             var matchesForbiddenSequence = !rule.ForbiddenAnySequences.IsDefaultOrEmpty &&
                 rule.ForbiddenAnySequences.Any(sequence =>
                     TryFindMatch(tokens, sequence, 0, out _, searchAllSentences: true));
-            if (!matchesRequiredSequence || matchesForbiddenSequence)
+            if (!matchesRequiredSequence || !matchesAllRequiredSequences || matchesForbiddenSequence)
             {
                 continue;
             }
