@@ -3381,7 +3381,26 @@
             ]
           ],
           "trimSuffixCharacters": ",",
-          "stopBeforeTokens": []
+          "stopBeforeTokens": [],
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.conditional-function.condition",
+          "valueId": "expression",
+          "startAfterTokens": [
+            "when"
+          ],
+          "stopBeforeTokens": [],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "otherwise",
+              "returns"
+            ]
+          ],
+          "preserveRawValue": true,
+          "normalization": "booleanExpression",
+          "trimSuffixCharacters": ","
         },
         {
           "factId": "program.conditional-function.false-return",
@@ -3397,7 +3416,8 @@
             ]
           ],
           "trimSuffixCharacters": ",",
-          "stopBeforeTokens": []
+          "stopBeforeTokens": [],
+          "preserveRawValue": true
         },
         {
           "factId": "program.conditional-function.call",
@@ -3410,7 +3430,8 @@
             "display",
             "output"
           ],
-          "stopBeforeTokens": []
+          "stopBeforeTokens": [],
+          "preserveRawValue": true
         }
       ],
       "requiredAnySequences": [],
@@ -3433,542 +3454,6 @@
           "then"
         ]
       ]
-    },
-    {
-      "id": "recognize-conditional-function-comparison-at-least",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "at",
-              "least"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": ">="
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "at",
-              "least"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "at",
-          "least"
-        ]
-      ],
-      "forbiddenAnySequences": []
-    },
-    {
-      "id": "recognize-conditional-function-comparison-greater-than",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "greater",
-              "than"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": ">"
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "greater",
-              "than"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "greater",
-          "than"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "is",
-          "not",
-          "greater",
-          "than"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-conditional-function-comparison-at-most",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "at",
-              "most"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": "<="
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "at",
-              "most"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "at",
-          "most"
-        ]
-      ],
-      "forbiddenAnySequences": []
-    },
-    {
-      "id": "recognize-conditional-function-comparison-less-than",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "less",
-              "than"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": "<"
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "less",
-              "than"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "less",
-          "than"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "is",
-          "not",
-          "less",
-          "than"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-conditional-function-comparison-equal-to",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "equal",
-              "to"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": "=="
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "equal",
-              "to"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "equal",
-          "to"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "is",
-          "not",
-          "equal",
-          "to"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-conditional-function-comparison-equals",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "equals"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": "=="
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "equals"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "equals"
-        ]
-      ],
-      "forbiddenAnySequences": []
-    },
-    {
-      "id": "recognize-conditional-function-comparison-not-equal-to",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.conditional-function.condition",
-      "captures": [
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "left",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeSequences": [
-            [
-              "is",
-              "not",
-              "equal",
-              "to"
-            ]
-          ],
-          "stopBeforeTokens": []
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "operator",
-          "literalValue": "!="
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "right",
-          "startAfterSequences": [
-            [
-              "is",
-              "not",
-              "equal",
-              "to"
-            ]
-          ],
-          "stopBeforeSequences": [
-            [
-              "and",
-              "otherwise",
-              "returns"
-            ]
-          ],
-          "stopBeforeTokens": []
-        }
-      ],
-      "requiredAnySequences": [],
-      "requiredAllSequences": [
-        [
-          "named"
-        ],
-        [
-          "takes"
-        ],
-        [
-          "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
-        ],
-        [
-          "is",
-          "not",
-          "equal",
-          "to"
-        ]
-      ],
-      "forbiddenAnySequences": []
     }
   ],
   "rules": [
@@ -5882,7 +5367,6 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
         "program.arithmetic"
       ],
       "nextToken": "```python\n",
@@ -5891,8 +5375,35 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
         "program.arithmetic"
+      ],
+      "weight": 10
+    },
+    {
+      "id": "python-conditional-function-open-without-arithmetic",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.signature",
+        "program.conditional-function.condition",
+        "program.conditional-function.true-return",
+        "program.conditional-function.false-return",
+        "program.conditional-function.call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output"
+      ],
+      "forbiddenFacts": [
+        "program.arithmetic"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output"
       ],
       "weight": 10
     },
@@ -5926,53 +5437,25 @@
       "nextToken": "    if "
     },
     {
-      "id": "python-conditional-function-condition",
+      "id": "python-conditional-function-condition-expression",
       "contextSuffix": [
         "    if "
       ],
       "requiredFacts": [
         "program.conditional-function.condition"
       ],
+      "requiresCompletedFacts": [],
       "tokenBinding": {
         "factId": "program.conditional-function.condition",
-        "valueId": "left",
-        "suffix": " "
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-conditional-function-condition-operator",
-      "contextSuffix": [
-        "    if ",
-        "* "
-      ],
-      "requiredFacts": [
-        "program.conditional-function.condition"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.condition",
-        "valueId": "operator",
-        "suffix": " "
-      }
-    },
-    {
-      "id": "python-conditional-function-condition-right",
-      "contextSuffix": [
-        "    if ",
-        "* ",
-        "* "
-      ],
-      "requiredFacts": [
-        "program.conditional-function.condition"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.condition",
-        "valueId": "right",
+        "valueId": "expression",
         "suffix": ":\n"
       },
       "satisfiesFacts": [
         "program.conditional-function.condition"
-      ]
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": [],
+      "weight": 0
     },
     {
       "id": "python-conditional-function-true-return",
@@ -6047,7 +5530,30 @@
       "requiresCompletedFacts": [
         "program.conditional-function.false-return"
       ],
-      "nextToken": "print("
+      "nextToken": "print(",
+      "forbiddenFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-conditional-function-print-with-output-start",
+      "contextSuffix": [
+        "    return ",
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.false-return"
+      ],
+      "nextToken": "print(",
+      "satisfiesFacts": [
+        "program.output.start"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-conditional-function-call",
@@ -6064,9 +5570,31 @@
       },
       "satisfiesFacts": [
         "program.conditional-function.call",
-        "program.conditional-function.signature",
+        "program.conditional-function.signature"
+      ],
+      "forbiddenFacts": [
         "value.output"
       ]
+    },
+    {
+      "id": "python-conditional-function-call-with-value-output",
+      "contextSuffix": [
+        "print("
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.call",
+        "valueId": "expression",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.call",
+        "program.conditional-function.signature",
+        "value.output"
+      ],
+      "forbiddenFacts": []
     }
   ],
   "validations": [
@@ -6297,7 +5825,7 @@
     },
     {
       "id": "conditional-function-condition-references-parameters",
-      "kind": "comparisonOperandsReferences",
+      "kind": "booleanExpressionReferences",
       "factId": "program.conditional-function.condition",
       "valueId": "expression",
       "relatedFactId": "program.conditional-function.signature",
@@ -6306,7 +5834,7 @@
     },
     {
       "id": "conditional-function-true-return-references-parameters",
-      "kind": "arithmeticExpressionReferences",
+      "kind": "valueExpressionReferences",
       "factId": "program.conditional-function.true-return",
       "valueId": "expression",
       "relatedFactId": "program.conditional-function.signature",
@@ -6315,7 +5843,7 @@
     },
     {
       "id": "conditional-function-false-return-references-parameters",
-      "kind": "arithmeticExpressionReferences",
+      "kind": "valueExpressionReferences",
       "factId": "program.conditional-function.false-return",
       "valueId": "expression",
       "relatedFactId": "program.conditional-function.signature",

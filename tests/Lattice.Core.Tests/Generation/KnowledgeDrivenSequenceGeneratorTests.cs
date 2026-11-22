@@ -61,6 +61,63 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
     }
 
+
+    [Theory]
+    [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
+        "score >= 10 or (score < 5 and score != 0)", "'accepted'", "'rejected'")]
+    [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
+        "not (score >= 10 or score < 5)", "'accepted'", "'rejected'")]
+    [InlineData(
+        "Create a Python program with a function named classify that takes score and returns 'accepted' when score is greater than or equal to 10 and otherwise returns 'rejected', then print classify(12).",
+        "score >= 10", "'accepted'", "'rejected'")]
+    [InlineData(
+        "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
+        "price >= limit", "price * 0.9", "price")]
+    [InlineData(
+        "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and price is less than limit + 50 and otherwise returns price, then print discount(120, 100).",
+        "price >= limit and price < limit + 50", "price * 0.9", "price")]
+    [InlineData(
+        "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
+        "role == 'admin'", "'allowed'", "'denied'")]
+    public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
+        string prompt,
+        string expectedCondition,
+        string expectedTrueReturn,
+        string expectedFalseReturn)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal(expectedCondition, condition.Values["expression"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
+            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.Contains($"if {expectedCondition}:", generated!.Text, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedTrueReturn}", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedFalseReturn}", generated.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_boolean_conditions_that_reference_undeclared_parameters()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or other is less than 5 and otherwise returns 'rejected', then print classify(3).",
+            out _,
+            out _));
+    }
+
     [Fact]
     public void Rejects_grouped_record_aggregation_with_invalid_identifiers()
     {
@@ -678,7 +735,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(result);
         Assert.Contains("reference one active fact", error, StringComparison.Ordinal);
     }
-
 
 
     [Fact]
@@ -1636,7 +1692,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
-
     [Theory]
     [InlineData("Create a Python program that prints each number from 1 to 5.", "number", "1", "6", "```python\nfor number in range(1, 6):\n    print(number)\n```")]
     [InlineData("Build a Python script that displays each value from 2 through 4.", "value", "2", "5", "```python\nfor value in range(2, 5):\n    print(value)\n```")]
@@ -1723,9 +1778,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal("score", condition.Values["left"]);
-        Assert.Equal(">=", condition.Values["operator"]);
-        Assert.Equal("10", condition.Values["right"]);
+        Assert.Equal("score >= 10", condition.Values["expression"]);
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1744,14 +1797,14 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Theory]
-    [InlineData("is greater than", ">")]
-    [InlineData("is less than", "<")]
-    [InlineData("is at most", "<=")]
-    [InlineData("is equal to", "==")]
-    [InlineData("is not equal to", "!=")]
-    public void Extracts_comparison_operators_as_reusable_semantic_values(
+    [InlineData("is greater than", "value > 10")]
+    [InlineData("is less than", "value < 10")]
+    [InlineData("is at most", "value <= 10")]
+    [InlineData("is equal to", "value == 10")]
+    [InlineData("is not equal to", "value != 10")]
+    public void Extracts_comparison_phrases_as_normalized_condition_expressions(
         string phrase,
-        string expectedOperator)
+        string expectedExpression)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         var prompt = $"Write a Python program with a function named compare that takes value and returns value + 1 when value {phrase} 10 and otherwise returns value - 1, then print compare(12).";
@@ -1761,7 +1814,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal(expectedOperator, condition.Values["operator"]);
+        Assert.Equal(expectedExpression, condition.Values["expression"]);
     }
 
     [Fact]

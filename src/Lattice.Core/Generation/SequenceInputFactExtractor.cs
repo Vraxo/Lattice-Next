@@ -119,6 +119,17 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
+                if (capture.Normalization == "booleanExpression")
+                {
+                    if (!BooleanExpressionNormalizer.TryNormalize(capturedValue, out var normalizedValue))
+                    {
+                        error = $"Input rule '{rule.Id}' captured an invalid boolean expression.";
+                        return false;
+                    }
+
+                    capturedValue = normalizedValue;
+                }
+
                 if (capture.NumericOffset != 0)
                 {
                     if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
@@ -327,7 +338,8 @@ public static class SequenceInputFactExtractor
         ImmutableArray<string> pattern,
         int startIndex,
         out int lastMatchedToken,
-        bool searchAllSentences = false)
+        bool searchAllSentences = false,
+        bool ignoreEmbeddedDecimalPoints = false)
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
@@ -335,8 +347,16 @@ public static class SequenceInputFactExtractor
         for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
             var token = tokens[tokenIndex];
+            var isEmbeddedDecimalPoint = token.Value == "." &&
+                tokenIndex > 0 &&
+                tokenIndex + 1 < tokens.Length &&
+                tokens[tokenIndex - 1].Value.Length > 0 &&
+                tokens[tokenIndex + 1].Value.Length > 0 &&
+                tokens[tokenIndex - 1].Value.All(char.IsAsciiDigit) &&
+                tokens[tokenIndex + 1].Value.All(char.IsAsciiDigit);
             if (token.IsPunctuation &&
                 token.Value is "." or "?" or "!" &&
+                (!ignoreEmbeddedDecimalPoints || !isEmbeddedDecimalPoint) &&
                 !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
                 if (!searchAllSentences)
@@ -394,7 +414,7 @@ public static class SequenceInputFactExtractor
         var startToken = lastMatchedToken;
         if (!startAfterTokens.IsDefaultOrEmpty)
         {
-            if (!TryFindMatch(tokens, startAfterTokens, lastMatchedToken + 1, out startToken))
+            if (!TryFindMatch(tokens, startAfterTokens, lastMatchedToken + 1, out startToken, ignoreEmbeddedDecimalPoints: true))
             {
                 return false;
             }
@@ -404,7 +424,7 @@ public static class SequenceInputFactExtractor
             var matchedStart = int.MaxValue;
             foreach (var sequence in startAfterSequences)
             {
-                if (TryFindMatch(tokens, sequence, lastMatchedToken + 1, out var candidateStart) &&
+                if (TryFindMatch(tokens, sequence, lastMatchedToken + 1, out var candidateStart, ignoreEmbeddedDecimalPoints: true) &&
                     candidateStart < matchedStart)
                 {
                     matchedStart = candidateStart;

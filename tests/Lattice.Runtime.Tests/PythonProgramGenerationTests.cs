@@ -106,39 +106,39 @@ public sealed class PythonProgramGenerationTests
         "fail")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
-        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(7))",
+        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return 'accepted'\n    return 'rejected'\nprint(classify(7))",
         "accepted")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(3).",
-        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
+        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return 'accepted'\n    return 'rejected'\nprint(classify(3))",
         "rejected")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
-        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('admin'))",
+        "def access(role):\n    if role == 'admin':\n        return 'allowed'\n    return 'denied'\nprint(access('admin'))",
         "allowed")]
     [InlineData(
         "Build a Python script with a function named access that takes role and returns 'allowed' when role is not equal to 'admin' and otherwise returns 'denied', then print access('guest').",
-        "def access(role):\n    if role != \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('guest'))",
+        "def access(role):\n    if role != 'admin':\n        return 'allowed'\n    return 'denied'\nprint(access('guest'))",
         "allowed")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('guest').",
-        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access('guest'))",
+        "def access(role):\n    if role == 'admin':\n        return 'allowed'\n    return 'denied'\nprint(access('guest'))",
         "denied")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
+        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return 'accepted'\n    return 'rejected'\nprint(classify(3))",
         "accepted")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(0).",
-        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(0))",
+        "def classify(score):\n    if score >= 10 or (score < 5 and score != 0):\n        return 'accepted'\n    return 'rejected'\nprint(classify(0))",
         "rejected")]
     [InlineData(
         "Create a Python program with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(4).",
-        "def nonzero(value):\n    if value != 0:\n        return \"nonzero\"\n    return \"zero\"\nprint(nonzero(4))",
+        "def nonzero(value):\n    if value != 0:\n        return 'nonzero'\n    return 'zero'\nprint(nonzero(4))",
         "nonzero")]
     [InlineData(
         "Build a Python script with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(0).",
-        "def nonzero(value):\n    if value != 0:\n        return \"nonzero\"\n    return \"zero\"\nprint(nonzero(0))",
+        "def nonzero(value):\n    if value != 0:\n        return 'nonzero'\n    return 'zero'\nprint(nonzero(0))",
         "zero")]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and price is less than limit + 50 and otherwise returns price, then print discount(120, 100).",
@@ -146,7 +146,7 @@ public sealed class PythonProgramGenerationTests
         "108.0")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'accepted' when score is at least 10 or score equals 0 and otherwise returns 'rejected', then print classify(0).",
-        "def classify(score):\n    if score >= 10 or score == 0:\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(0))",
+        "def classify(score):\n    if score >= 10 or score == 0:\n        return 'accepted'\n    return 'rejected'\nprint(classify(0))",
         "accepted")]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit + 5 and otherwise returns price, then print discount(120, 100).",
@@ -174,11 +174,11 @@ public sealed class PythonProgramGenerationTests
         "6")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(20).",
-        "def classify(age):\n    if age >= 18:\n        return \"adult\"\n    return \"minor\"\nprint(classify(20))",
+        "def classify(age):\n    if age >= 18:\n        return 'adult'\n    return 'minor'\nprint(classify(20))",
         "adult")]
     [InlineData(
         "Build a Python script with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(16).",
-        "def classify(age):\n    if age >= 18:\n        return \"adult\"\n    return \"minor\"\nprint(classify(16))",
+        "def classify(age):\n    if age >= 18:\n        return 'adult'\n    return 'minor'\nprint(classify(16))",
         "minor")]
     [InlineData(
         "Create a Python program that sets total to 5 and prints total + 3.",
@@ -356,7 +356,7 @@ public sealed class PythonProgramGenerationTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.True(utterance.Kind == LatticeUtteranceResultKind.TaskCompleted, utterance.Message);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);

@@ -70,6 +70,8 @@ public static class SequenceInputFactValidator
                 "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
                 "comparisonOperandsReferences" => TryValidateComparisonOperands(factMap, validation),
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
+                "booleanExpressionReferences" => TryValidateBooleanExpressionReferences(factMap, validation),
+                "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
                 "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
@@ -197,6 +199,31 @@ public static class SequenceInputFactValidator
             ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
 
+
+    private static bool TryValidateBooleanExpressionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        return TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) &&
+            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
+            BooleanExpressionNormalizer.TryValidateReferences(expression, parameters);
+    }
+
+    private static bool TryValidateValueExpressionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters))
+        {
+            return false;
+        }
+
+        return IsQuotedStringLiteral(expression) ||
+            (IsArithmeticExpression(expression) &&
+             ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase)));
+    }
+
     private static bool TryValidateFunctionCall(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
         SequenceInputFactValidation validation,
@@ -227,7 +254,7 @@ public static class SequenceInputFactValidator
     }
 
 
-    private static bool IsQuotedStringLiteral(string value) =>
+    internal static bool IsQuotedStringLiteral(string value) =>
         value.Length >= 2 &&
         value[0] is '\'' or '"' &&
         value[^1] == value[0] &&
@@ -358,7 +385,7 @@ public static class SequenceInputFactValidator
         return false;
     }
 
-    private static bool IsArithmeticExpression(string expression)
+    internal static bool IsArithmeticExpression(string expression)
     {
         const string tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[(),+\-*/%]";
         var tokens = Regex.Matches(expression, tokenPattern)
