@@ -338,7 +338,8 @@ public static class SequenceInputFactExtractor
         ImmutableArray<string> pattern,
         int startIndex,
         out int lastMatchedToken,
-        bool searchAllSentences = false)
+        bool searchAllSentences = false,
+        bool ignoreEmbeddedDecimalPoints = false)
     {
         lastMatchedToken = -1;
         var patternIndex = 0;
@@ -355,7 +356,7 @@ public static class SequenceInputFactExtractor
                 tokens[tokenIndex + 1].Value.All(char.IsAsciiDigit);
             if (token.IsPunctuation &&
                 token.Value is "." or "?" or "!" &&
-                !isEmbeddedDecimalPoint &&
+                (!ignoreEmbeddedDecimalPoints || !isEmbeddedDecimalPoint) &&
                 !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
                 if (!searchAllSentences)
@@ -413,7 +414,7 @@ public static class SequenceInputFactExtractor
         var startToken = lastMatchedToken;
         if (!startAfterTokens.IsDefaultOrEmpty)
         {
-            if (!TryFindMatch(tokens, startAfterTokens, lastMatchedToken + 1, out startToken))
+            if (!TryFindMatch(tokens, startAfterTokens, lastMatchedToken + 1, out startToken, ignoreEmbeddedDecimalPoints: true))
             {
                 return false;
             }
@@ -423,7 +424,7 @@ public static class SequenceInputFactExtractor
             var matchedStart = int.MaxValue;
             foreach (var sequence in startAfterSequences)
             {
-                if (TryFindMatch(tokens, sequence, lastMatchedToken + 1, out var candidateStart) &&
+                if (TryFindMatch(tokens, sequence, lastMatchedToken + 1, out var candidateStart, ignoreEmbeddedDecimalPoints: true) &&
                     candidateStart < matchedStart)
                 {
                     matchedStart = candidateStart;
