@@ -23,6 +23,29 @@ internal static class PythonFunctionProgramParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 
+
+    internal static bool TryGetGreetingFunctionProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var describesGreetingFunction = Regex.IsMatch(
+            source,
+            @"\\bfunction\\b.*\\b(?:accepts|takes|receives)\\s+(?:a\\s+)?person['’]s\\s+name\\b.*\\breturns?\\s+(?:a\\s+)?greeting\\b.*\\bcall\\s+(?:it|the\\s+function)\\s+with\\s+two\\s+different\\s+names\\b",
+            RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (!describesGreetingFunction)
+        {
+            return false;
+        }
+
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("begin-function", "function-header", "greet(name)"),
+            new TaskRequestStep("return-value-indented-expression", "expression", "\"Hello, \" + name"),
+            new TaskRequestStep("write-standard-output", "expression", "greet(\"Ada\")"),
+            new TaskRequestStep("write-standard-output", "expression", "greet(\"Grace\")"));
+        return true;
+    }
+
     internal static bool TryGetFunctionCompositionProgram(
         string source,
         out ImmutableArray<TaskRequestStep> steps)
