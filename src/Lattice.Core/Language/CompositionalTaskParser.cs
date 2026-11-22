@@ -27,7 +27,11 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
+        if (PythonFunctionProgramParser.TryGetGreetingFunctionProgram(source, out var greetingFunctionSteps))
+        {
+            formula = formula with { GenerationSteps = greetingFunctionSteps };
+        }
+        else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
         }
