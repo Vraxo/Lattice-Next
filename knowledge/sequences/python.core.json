@@ -5943,9 +5943,7 @@
         "valueId": "left",
         "suffix": " "
       },
-      "satisfiesFacts": [
-        "program.conditional-function.condition"
-      ]
+      "satisfiesFacts": []
     },
     {
       "id": "python-conditional-function-condition-operator",
@@ -6071,7 +6069,8 @@
       },
       "satisfiesFacts": [
         "program.conditional-function.call",
-        "program.conditional-function.signature"
+        "program.conditional-function.signature",
+        "value.output"
       ]
     }
   ],
