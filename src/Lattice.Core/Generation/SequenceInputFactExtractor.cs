@@ -346,8 +346,16 @@ public static class SequenceInputFactExtractor
         for (var tokenIndex = startIndex; tokenIndex < tokens.Length; tokenIndex++)
         {
             var token = tokens[tokenIndex];
+            var isEmbeddedDecimalPoint = token.Value == "." &&
+                tokenIndex > 0 &&
+                tokenIndex + 1 < tokens.Length &&
+                tokens[tokenIndex - 1].Value.Length > 0 &&
+                tokens[tokenIndex + 1].Value.Length > 0 &&
+                tokens[tokenIndex - 1].Value.All(char.IsAsciiDigit) &&
+                tokens[tokenIndex + 1].Value.All(char.IsAsciiDigit);
             if (token.IsPunctuation &&
                 token.Value is "." or "?" or "!" &&
+                !isEmbeddedDecimalPoint &&
                 !token.Value.Equals(pattern[patternIndex], StringComparison.OrdinalIgnoreCase))
             {
                 if (!searchAllSentences)
