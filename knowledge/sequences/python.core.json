@@ -5365,8 +5365,7 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
-        "program.arithmetic"
+        "program.output.start"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
@@ -5374,8 +5373,7 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start",
-        "program.arithmetic"
+        "program.output.start"
       ],
       "weight": 10
     },
