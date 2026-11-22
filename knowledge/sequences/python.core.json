@@ -5905,7 +5905,8 @@
         "valueId": "className",
         "secondaryValueId": "initializerParameter",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "class {0}:\n    def __init__(self, {1}):\n        self.{1} = {1}"
+        "valueTemplate": "class {0}:\n    def __init__(self, {1}):\n        self.{1} = {1}",
+        "suffix": "\n"
       },
       "satisfiesFacts": [
         "program.class-model.stage.class-definition"
