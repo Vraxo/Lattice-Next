@@ -135,6 +135,67 @@
       "factId": "program.collection"
     },
     {
+      "id": "recognize-dictionary-key-value-iteration",
+      "matchTokens": [
+        "dictionary"
+      ],
+      "factId": "program.dictionary-iteration",
+      "requiredAllSequences": [
+        [
+          "each"
+        ],
+        [
+          "with"
+        ],
+        [
+          "its"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "print"
+        ],
+        [
+          "prints"
+        ],
+        [
+          "display"
+        ],
+        [
+          "displays"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-iteration",
+          "valueId": "key",
+          "startAfterTokens": [
+            "each"
+          ],
+          "stopBeforeTokens": [
+            "with"
+          ],
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.dictionary-iteration",
+          "valueId": "value",
+          "startAfterTokens": [
+            "its"
+          ],
+          "stopBeforeTokens": [],
+          "preserveRawValue": true
+        },
+        {
+          "factId": "program.dictionary-iteration",
+          "valueId": "collection",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "items"
+        }
+      ]
+    },
+    {
       "id": "recognize-list-requirement",
       "matchTokens": [
         "list"
@@ -1386,21 +1447,6 @@
         "lines"
       ],
       "factId": "program.non-empty-file-line-count"
-    },
-    {
-      "id": "recognize-product-price-dictionary-iteration",
-      "matchTokens": [
-        "given",
-        "dictionary",
-        "product",
-        "names",
-        "prices",
-        "prints",
-        "each",
-        "product",
-        "price"
-      ],
-      "factId": "program.product-price-iteration"
     },
     {
       "id": "recognize-dictionary-product-iteration",
@@ -4136,24 +4182,126 @@
       ]
     },
     {
-      "id": "python-product-price-dictionary-iteration",
+      "id": "python-dictionary-iteration-open",
       "contextSuffix": [
         "<|lattice.start|>"
       ],
       "requiredFacts": [
-        "program.product-price-iteration"
-      ],
-      "nextToken": "```python\nproducts = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}\nfor product, price in products.items():\n    print(product, price)\n```",
-      "satisfiesFacts": [
-        "program.product-price-iteration",
-        "language.python",
+        "program.dictionary-iteration",
         "intent.program-generation",
+        "language.python",
         "program.output",
         "program.collection",
         "program.iteration",
         "program.output.start",
         "value.output"
-      ]
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.output",
+        "program.collection",
+        "program.iteration",
+        "program.output.start",
+        "value.output"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": [],
+      "weight": 10
+    },
+    {
+      "id": "python-dictionary-iteration-key",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.dictionary-iteration"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.dictionary-iteration",
+        "valueId": "key",
+        "prefix": "for ",
+        "suffix": ", "
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-dictionary-iteration-value",
+      "contextSuffix": [
+        "*, "
+      ],
+      "requiredFacts": [
+        "program.dictionary-iteration"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.dictionary-iteration",
+        "valueId": "value",
+        "suffix": " in "
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-dictionary-iteration-collection",
+      "contextSuffix": [
+        "* in "
+      ],
+      "requiredFacts": [
+        "program.dictionary-iteration"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.dictionary-iteration",
+        "valueId": "collection",
+        "suffix": ".items():\n"
+      },
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-dictionary-iteration-print",
+      "contextSuffix": [
+        "*.items():\n"
+      ],
+      "requiredFacts": [
+        "program.dictionary-iteration"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "    print(",
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-dictionary-iteration-print-values",
+      "contextSuffix": [
+        "    print("
+      ],
+      "requiredFacts": [
+        "program.dictionary-iteration"
+      ],
+      "requiresCompletedFacts": [],
+      "tokenBinding": {
+        "factId": "program.dictionary-iteration",
+        "valueId": "key",
+        "secondaryValueId": "value",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0}, {1}",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.dictionary-iteration"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-dictionary-product-iteration",
@@ -5873,6 +6021,27 @@
       "additionalFactId": "program.conditional-function.signature",
       "additionalValueId": "parameters",
       "appliesWhenFactId": "program.conditional-function.signature"
+    },
+    {
+      "id": "dictionary-iteration-key-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.dictionary-iteration",
+      "valueId": "key",
+      "appliesWhenFactId": "program.dictionary-iteration"
+    },
+    {
+      "id": "dictionary-iteration-value-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.dictionary-iteration",
+      "valueId": "value",
+      "appliesWhenFactId": "program.dictionary-iteration"
+    },
+    {
+      "id": "dictionary-iteration-collection-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.dictionary-iteration",
+      "valueId": "collection",
+      "appliesWhenFactId": "program.dictionary-iteration"
     }
   ]
 }

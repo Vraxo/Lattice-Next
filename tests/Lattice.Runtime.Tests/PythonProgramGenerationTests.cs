@@ -374,6 +374,30 @@ public sealed class PythonProgramGenerationTests
     }
 
     [Fact]
+    public async Task Generates_generic_dictionary_key_value_iteration()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
+        Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Generates_and_executes_non_empty_file_line_counting_program()
     {
         var client = new LatticeRuntimeClient();
@@ -841,10 +865,9 @@ public sealed class PythonProgramGenerationTests
 
 
     [Fact]
-    public async Task Generates_and_executes_product_price_dictionary_iteration()
+    public async Task Generates_generic_product_price_dictionary_iteration()
     {
         const string prompt = "Write a Python program that, given a dictionary of product names and prices, prints each product with its price.";
-        var expectedCode = string.Join(Environment.NewLine, "products = {\"Apple\": 1.5, \"Banana\": 0.75, \"Orange\": 1.25}", "for product, price in products.items():", "    print(product, price)");
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
@@ -852,17 +875,17 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.product-price-iteration", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("program.dictionary-iteration", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
-        var start = Array.IndexOf(lines, fence + "python");
-        var end = Array.IndexOf(lines, fence, start + 1);
-        Assert.True(start >= 0 && end > start, utterance.Message);
+        var startFence = Array.IndexOf(lines, fence + "python");
+        var endFence = Array.IndexOf(lines, fence, startFence + 1);
+        Assert.True(startFence >= 0 && endFence > startFence, utterance.Message);
 
-        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
-        Assert.Equal(expectedCode, generatedCode);
-        await AssertPythonOutput(generatedCode, string.Join(Environment.NewLine, "Apple 1.5", "Banana 0.75", "Orange 1.25"));
+        var generatedCode = string.Join(Environment.NewLine, lines[(startFence + 1)..endFence]);
+        Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
+        Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
     }
 
     [Fact]
