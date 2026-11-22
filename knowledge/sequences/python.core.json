@@ -1437,13 +1437,6 @@
       "factId": "program.bank-account-class",
       "captures": [
         {
-          "factId": "program.bank-account-class",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "bank-account"
-        },
-        {
           "factId": "program.class-model",
           "valueId": "kind",
           "startAfterTokens": [],
