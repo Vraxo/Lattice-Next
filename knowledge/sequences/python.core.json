@@ -3416,7 +3416,21 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
+        ],
+        [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
         ]
       ]
     },
@@ -3470,14 +3484,29 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
+        ],
+        [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
         ],
         [
           "is",
           "at",
           "least"
         ]
-      ]
+      ],
+      "forbiddenAnySequences": []
     },
     {
       "id": "recognize-conditional-function-comparison-greater-than",
@@ -3529,10 +3558,32 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
         ],
         [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
+        ],
+        [
           "is",
+          "greater",
+          "than"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "is",
+          "not",
           "greater",
           "than"
         ]
@@ -3588,14 +3639,29 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
+        ],
+        [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
         ],
         [
           "is",
           "at",
           "most"
         ]
-      ]
+      ],
+      "forbiddenAnySequences": []
     },
     {
       "id": "recognize-conditional-function-comparison-less-than",
@@ -3647,10 +3713,32 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
         ],
         [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
+        ],
+        [
           "is",
+          "less",
+          "than"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "is",
+          "not",
           "less",
           "than"
         ]
@@ -3706,7 +3794,21 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
+        ],
+        [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
         ],
         [
           "is",
@@ -3769,12 +3871,27 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
+        ],
+        [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
         ],
         [
           "equals"
         ]
-      ]
+      ],
+      "forbiddenAnySequences": []
     },
     {
       "id": "recognize-conditional-function-comparison-not-equal-to",
@@ -3828,10 +3945,25 @@
       "requiredAnySequences": [],
       "requiredAllSequences": [
         [
+          "named"
+        ],
+        [
+          "takes"
+        ],
+        [
           "when"
         ],
         [
+          "and",
+          "otherwise",
+          "returns"
+        ],
+        [
+          "then"
+        ],
+        [
           "is",
+          "not",
           "equal",
           "to"
         ]
