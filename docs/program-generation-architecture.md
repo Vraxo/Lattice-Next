@@ -63,9 +63,9 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration work in progress
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-21**, **23 of 28 (82.1%)** have been removed through small, independently reviewed increments; **7 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-22**, **24 of 28 (85.7%)** have been removed through small, independently reviewed increments; **6 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
 
-The latest completed increment is PR [#510 — Generate grouped record totals declaratively](https://github.com/Vraxo/Lattice-Next/pull/510). It removed the dedicated grouped-record aggregation parser dispatch and moved semantic capture, validation, and generation into the shared knowledge-driven sequence path. Its CI passed and it was merged to `main`.
+The latest completed increment is PR [#521 — Generate compound conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/521). It removed the one-branch conditional-function parser fallback and moved compound Boolean conditions, string return values, and parameter-reference validation into generic semantic extraction and declarative sequence generation. Its CI passed and it was merged to `main`.
 
 For every remaining increment:
 
