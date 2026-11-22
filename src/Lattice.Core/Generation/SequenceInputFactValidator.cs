@@ -70,6 +70,8 @@ public static class SequenceInputFactValidator
                 "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
                 "comparisonOperandsReferences" => TryValidateComparisonOperands(factMap, validation),
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
+                "booleanExpressionReferences" => TryValidateBooleanExpressionReferences(factMap, validation),
+                "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
                 "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
@@ -195,6 +197,31 @@ public static class SequenceInputFactValidator
             TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
             IsArithmeticExpression(expression) &&
             ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
+    }
+
+
+    private static bool TryValidateBooleanExpressionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        return TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) &&
+            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
+            BooleanExpressionNormalizer.TryValidateReferences(expression, parameters);
+    }
+
+    private static bool TryValidateValueExpressionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters))
+        {
+            return false;
+        }
+
+        return IsQuotedStringLiteral(expression) ||
+            (IsArithmeticExpression(expression) &&
+             ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase)));
     }
 
     private static bool TryValidateFunctionCall(
