@@ -1672,4 +1672,44 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Empty(facts);
     }
 
+    [Theory]
+    [InlineData("value > 0", true)]
+    [InlineData("value + offset <= 100", true)]
+    [InlineData("(value * 2) != offset - 1", true)]
+    [InlineData("value > missing", false)]
+    [InlineData("value > 0 and offset < 10", false)]
+    [InlineData("value > * 2", false)]
+    [InlineData("value >", false)]
+    [InlineData("value > 0 > offset", false)]
+    public void Validates_comparison_conditions_against_declared_parameters(
+        string condition,
+        bool expectedValid)
+    {
+        var facts = ImmutableArray.Create(
+            new SequenceSemanticFact(
+                "program.condition",
+                ImmutableDictionary<string, string>.Empty.Add("expression", condition)),
+            new SequenceSemanticFact(
+                "program.signature",
+                ImmutableDictionary<string, string>.Empty)
+            {
+                Collections = ImmutableDictionary<string, ImmutableArray<string>>.Empty
+                    .Add("parameters", ImmutableArray.Create("value", "offset"))
+            });
+        var validation = new SequenceInputFactValidation(
+            "condition-references-declared-parameters",
+            "comparisonValueReferences",
+            "program.condition",
+            "expression",
+            "program.signature",
+            "parameters");
+
+        Assert.Equal(
+            expectedValid,
+            SequenceInputFactValidator.TryValidate(
+                ImmutableArray.Create(validation),
+                facts,
+                out _));
+    }
+
 }
