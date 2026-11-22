@@ -1540,10 +1540,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string input = "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.";
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.bank-account-class");
+        Assert.Contains(facts, fact => fact.Id == "program.class-model");
         Assert.Contains(facts, fact => fact.Id == "program.class");
         var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
         Assert.Equal(string.Join(Environment.NewLine,
             "```python",
             "class BankAccount:",
