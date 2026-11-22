@@ -1743,4 +1743,36 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
+    [Theory]
+    [InlineData("is greater than", ">")]
+    [InlineData("is less than", "<")]
+    [InlineData("is at most", "<=")]
+    [InlineData("is equal to", "==")]
+    [InlineData("is not equal to", "!=")]
+    public void Extracts_comparison_operators_as_reusable_semantic_values(
+        string phrase,
+        string expectedOperator)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        var prompt = $"Write a Python program with a function named compare that takes value and returns value + 1 when value {phrase} 10 and otherwise returns value - 1, then print compare(12).";
+
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal(expectedOperator, condition.Values["operator"]);
+    }
+
+    [Fact]
+    public void Rejects_conditional_function_conditions_with_undeclared_names()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Write a Python program with a function named compare that takes value and returns value + 1 when missing is greater than 10 and otherwise returns value - 1, then print compare(12).";
+
+        Assert.False(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out _));
+    }
+
+
 }
