@@ -41,7 +41,12 @@ internal static class PythonProgramRequestParser
         syntax = null;
         if (!EnglishSyntaxParser.TryParse(source, out syntax))
         {
-            return false;
+            var contextSeparator = source.IndexOf(':');
+            if (contextSeparator <= 0 ||
+                !EnglishSyntaxParser.TryParse(source[..contextSeparator], out syntax))
+            {
+                return false;
+            }
         }
 
         var creationClause = syntax!.Clauses.FirstOrDefault(clause =>
