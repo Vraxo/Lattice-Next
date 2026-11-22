@@ -4197,7 +4197,7 @@
         "value.output"
       ],
       "requiresCompletedFacts": [],
-      "nextToken": "```python\n",
+      "nextToken": "```python\nitems = {}  # Add dictionary entries here.\n",
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
