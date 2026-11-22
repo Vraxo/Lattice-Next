@@ -3399,7 +3399,8 @@
             ]
           ],
           "preserveRawValue": true,
-          "normalization": "booleanExpression"
+          "normalization": "booleanExpression",
+          "trimSuffixCharacters": ","
         },
         {
           "factId": "program.conditional-function.false-return",
