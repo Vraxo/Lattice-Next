@@ -923,14 +923,15 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, "Hello, Ada!\nHello, Grace!");
     }
 
-    [Fact]
-    public async Task Generates_and_executes_a_bank_account_class()
+    [Theory]
+    [InlineData("Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    [InlineData("Write a Python program that fulfills this request: Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    public async Task Generates_and_executes_a_bank_account_class(string prompt)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
 
-        var result = await session.SubmitAsync(
-            "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.");
+        var result = await session.SubmitAsync(prompt);
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
