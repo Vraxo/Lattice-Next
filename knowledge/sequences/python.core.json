@@ -1434,7 +1434,23 @@
         "larger",
         "balance"
       ],
-      "factId": "program.bank-account-class"
+      "factId": "program.bank-account-class",
+      "captures": [
+        {
+          "factId": "program.bank-account-class",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "bank-account"
+        },
+        {
+          "factId": "program.output",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "class-definition"
+        }
+      ]
     },
     {
       "id": "recognize-non-empty-file-line-count",
@@ -4194,7 +4210,8 @@
         "program.bank-account-class",
         "program.class",
         "language.python",
-        "intent.program-generation"
+        "intent.program-generation",
+        "program.output"
       ]
     },
     {
