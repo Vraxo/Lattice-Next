@@ -43,7 +43,7 @@ internal static class PythonProgramRequestParser
         {
             var contextSeparator = source.IndexOf(':');
             if (contextSeparator <= 0 ||
-                !EnglishSyntaxParser.TryParse(source[..contextSeparator], out syntax))
+                !EnglishSyntaxParser.TryParse(source[..contextSeparator] + ".", out syntax))
             {
                 return false;
             }
