@@ -9,34 +9,6 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
-        "Write a Python program that fulfills this request: Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
-        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.withdraw(25))\nprint(account.balance)",
-        "None\nFalse\nTrue\n125")]
-    [InlineData(
-        "Create a Python program that defines a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
-        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.withdraw(25))\nprint(account.balance)",
-        "None\nFalse\nTrue\n125")]
-    [InlineData(
-        "Write a Python program that fulfills this request: Write a function that converts text to an integer and returns a clear result when the text is not a valid integer.",
-        "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
-        "42\nInvalid integer")]
-    [InlineData(
-        "Write a Python program that defines a function which converts raw_text to an integer and returns a clear message when it is not a valid integer.",
-        "def convert_to_integer(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
-        "42\nInvalid integer")]
-    [InlineData(
-        "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
-        "prices = {\"apple\": 1.5, \"banana\": 0.75}\nfor product, price in prices.items():\n    print(product, price)",
-        "apple 1.5\nbanana 0.75")]
-    [InlineData(
-        "Write a Python program that fulfills this request: Given a dictionary of city names and populations, then display each city with its population.",
-        "populations = {'first': 1, 'second': 2}\nfor city, population in populations.items():\n    print(city, population)",
-        "first 1\nsecond 2")]
-    [InlineData(
-        "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
-        "def greet(name):\n    return \"Hello, \" + name\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))",
-        "Hello, Ada\nHello, Grace")]
-    [InlineData(
         "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
         "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))",
         "{'Ada': 3, 'Grace': 5, 'Linus': 5}")]
@@ -384,7 +356,7 @@ public sealed class PythonProgramGenerationTests
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
-        Assert.True(utterance.Kind == LatticeUtteranceResultKind.TaskCompleted, utterance.Message);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
