@@ -7,7 +7,7 @@ namespace Lattice.Core.Language;
 internal static class PythonClassProgramParser
 {
     private static readonly Regex BalanceClassPattern = new(
-        @"\\bclass\\s+representing\\s+(?<entity>[A-Za-z]+(?:\\s+[A-Za-z]+)?)\\s+with\\s+(?:a\\s+)?(?<attribute>[A-Za-z_][A-Za-z0-9_]*)\\b.*?\\b(?<deposit>deposit|credit)\\s+method\\b.*?\\b(?<withdrawal>withdrawal)\\s+method\\b.*?\\brefuses?\\s+withdrawals?\\s+(?:that\\s+are\\s+)?larger\\s+than\\s+(?:the\\s+)?(?<guardAttribute>[A-Za-z_][A-Za-z0-9_]*)\\b",
+        @"\bclass\s+representing\s+(?<entity>[A-Za-z]+(?:\s+[A-Za-z]+)?)\s+with\s+(?:a\s+)?(?<attribute>[A-Za-z_][A-Za-z0-9_]*)\b.*?\b(?<deposit>deposit|credit)\s+method\b.*?\b(?<withdrawal>withdrawal)\s+method\b.*?\brefuses?\s+withdrawals?\s+(?:that\s+are\s+)?larger\s+than\s+(?:the\s+)?(?<guardAttribute>[A-Za-z_][A-Za-z0-9_]*)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     internal static bool TryGetBalanceClassProgram(
