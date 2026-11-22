@@ -3968,14 +3968,7 @@
           "to"
         ]
       ],
-      "forbiddenAnySequences": [
-        [
-          "is",
-          "not",
-          "equal",
-          "to"
-        ]
-      ]
+      "forbiddenAnySequences": []
     }
   ],
   "rules": [
