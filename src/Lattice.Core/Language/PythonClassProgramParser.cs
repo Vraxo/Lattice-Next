@@ -47,6 +47,7 @@ internal static class PythonClassProgramParser
             new TaskRequestStep("assign-variable", "assignment", $"account = {className}(100)"),
             new TaskRequestStep("write-standard-output", "expression", $"account.{depositMethod}(50)"),
             new TaskRequestStep("write-standard-output", "expression", $"account.{withdrawalMethod}(200)"),
+            new TaskRequestStep("write-standard-output", "expression", $"account.{withdrawalMethod}(25)"),
             new TaskRequestStep("write-standard-output", "expression", $"account.{attribute}"));
         return true;
     }
