@@ -5367,7 +5367,8 @@
         "language.python",
         "program.function",
         "program.output",
-        "program.output.start"
+        "program.output.start",
+        "program.arithmetic"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
@@ -5377,6 +5378,36 @@
         "program.output",
         "program.output.start",
         "program.arithmetic"
+      ],
+      "weight": 10
+    },
+    {
+      "id": "python-conditional-function-open-without-arithmetic",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.signature",
+        "program.conditional-function.condition",
+        "program.conditional-function.true-return",
+        "program.conditional-function.false-return",
+        "program.conditional-function.call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start"
+      ],
+      "forbiddenFacts": [
+        "program.arithmetic"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start"
       ],
       "weight": 10
     },
