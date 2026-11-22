@@ -6016,7 +6016,7 @@
       "requiresCompletedFacts": [
         "program.conditional-function.true-return"
       ],
-      "nextToken": "    else:\n        return "
+      "nextToken": "    return "
     },
     {
       "id": "python-conditional-function-false-value",
