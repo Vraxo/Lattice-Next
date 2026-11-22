@@ -27,23 +27,7 @@ internal static class CompositionalTaskParser
             "write-standard-output",
             ImmutableArray.Create("text-output"));
 
-        if (PythonClassProgramParser.TryGetBalanceClassProgram(source, out var balanceClassSteps))
-        {
-            formula = formula with { GenerationSteps = balanceClassSteps };
-        }
-        else if (PythonFunctionProgramParser.TryGetGreetingFunctionProgram(source, out var greetingFunctionSteps))
-        {
-            formula = formula with { GenerationSteps = greetingFunctionSteps };
-        }
-        else if (PythonCollectionProgramParser.TryGetDictionaryIterationProgram(source, out var dictionaryIterationSteps))
-        {
-            formula = formula with { GenerationSteps = dictionaryIterationSteps };
-        }
-        else if (PythonFunctionProgramParser.TryGetIntegerConversionFunctionProgram(source, out var integerConversionSteps))
-        {
-            formula = formula with { GenerationSteps = integerConversionSteps };
-        }
-        else if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
+        if (PythonFunctionProgramParser.TryGetFunctionCompositionProgram(source, out var compositionSteps))
         {
             formula = formula with { GenerationSteps = compositionSteps };
         }
