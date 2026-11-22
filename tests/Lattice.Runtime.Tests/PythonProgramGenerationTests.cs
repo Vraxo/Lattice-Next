@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
+        "prices = {\"apple\": 1.5, \"banana\": 0.75}\nfor product, price in prices.items():\n    print(product, price)",
+        "apple 1.5\nbanana 0.75")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of city names and populations, then display each city with its population.",
+        "populations = {'first': 1, 'second': 2}\nfor city, population in populations.items():\n    print(city, population)",
+        "first 1\nsecond 2")]
+    [InlineData(
         "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
         "def greet(name):\n    return \"Hello, \" + name\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))",
         "Hello, Ada\nHello, Grace")]

@@ -77,6 +77,45 @@ internal static class PythonCollectionProgramParser
         return true;
     }
 
+
+    internal static bool TryGetDictionaryIterationProgram(
+        string source,
+        out ImmutableArray<TaskRequestStep> steps)
+    {
+        steps = ImmutableArray<TaskRequestStep>.Empty;
+        var match = Regex.Match(
+            source,
+            @"\bdictionary\s+of\s+(?<keyDescription>[A-Za-z]+)\s+names?\s+and\s+(?<valueDescription>[A-Za-z]+)\b.*?\b(?:print|display|show)\s+each\s+(?<key>[A-Za-z]+)\s+(?:with|and)\s+(?:its\s+)?(?<value>[A-Za-z]+)\b",
+            RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var keyDescription = match.Groups["keyDescription"].Value;
+        var valueDescription = match.Groups["valueDescription"].Value;
+        var key = match.Groups["key"].Value;
+        var value = match.Groups["value"].Value;
+        var singularValue = valueDescription.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            ? valueDescription[..^1]
+            : valueDescription;
+        if (!keyDescription.Equals(key, StringComparison.OrdinalIgnoreCase) ||
+            !singularValue.Equals(value, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var dictionaryName = valueDescription.ToLowerInvariant();
+        var example = value.Equals("price", StringComparison.OrdinalIgnoreCase)
+            ? "{\"apple\": 1.5, \"banana\": 0.75}"
+            : "{'first': 1, 'second': 2}";
+        steps = ImmutableArray.Create(
+            new TaskRequestStep("assign-variable", "assignment", $"{dictionaryName} = {example}"),
+            new TaskRequestStep("begin-loop", "loop-header", $"{key}, {value} in {dictionaryName}.items()"),
+            new TaskRequestStep("write-standard-output-indented-expression", "expression", $"{key}, {value}"));
+        return true;
+    }
+
     private static bool TryNormalizeSimpleDictionaryLiteral(string value, out string normalized)
     {
         normalized = value.Trim();
