@@ -731,7 +731,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
-
     [Fact]
     public void Extracts_multiple_active_semantic_facts_and_generates_from_one_request()
     {
@@ -1685,7 +1684,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out _));
         Assert.Empty(facts);
     }
-
 
 
     [Theory]
