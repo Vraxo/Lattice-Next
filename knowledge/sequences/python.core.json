@@ -484,28 +484,32 @@
       "matchTokens": [
         "print"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-output-start-prints",
       "matchTokens": [
         "prints"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-output-start-display",
       "matchTokens": [
         "display"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-output-start-output",
       "matchTokens": [
         "output"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-assignment-prefix-set",
@@ -622,7 +626,8 @@
       "matchTokens": [
         "say"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "capture-says-value",
@@ -637,7 +642,8 @@
       "matchTokens": [
         "says"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-show-operation",
@@ -659,7 +665,8 @@
       "matchTokens": [
         "show"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-shows-operation",
@@ -681,7 +688,8 @@
       "matchTokens": [
         "shows"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-displays-operation",
@@ -703,7 +711,8 @@
       "matchTokens": [
         "displays"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-outputs-operation",
@@ -725,7 +734,8 @@
       "matchTokens": [
         "outputs"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-emit-operation",
@@ -747,7 +757,8 @@
       "matchTokens": [
         "emit"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-emits-operation",
@@ -769,7 +780,8 @@
       "matchTokens": [
         "emits"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-echo-operation",
@@ -791,7 +803,8 @@
       "matchTokens": [
         "echo"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-echoes-operation",
@@ -813,7 +826,8 @@
       "matchTokens": [
         "echoes"
       ],
-      "factId": "program.output.start"
+      "factId": "program.output.start",
+      "searchAllSentences": true
     },
     {
       "id": "recognize-generation-intent-implement",
