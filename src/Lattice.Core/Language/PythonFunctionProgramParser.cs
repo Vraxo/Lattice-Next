@@ -31,7 +31,7 @@ internal static class PythonFunctionProgramParser
         steps = ImmutableArray<TaskRequestStep>.Empty;
         var describesGreetingFunction = Regex.IsMatch(
             source,
-            @"\\bfunction\\b.*\\b(?:accepts|takes|receives)\\s+(?:a\\s+)?person['’]s\\s+name\\b.*\\breturns?\\s+(?:a\\s+)?greeting\\b.*\\bcall\\s+(?:it|the\\s+function)\\s+with\\s+two\\s+different\\s+names\\b",
+            @"\bfunction\b.*\b(?:accepts|takes|receives)\s+(?:a\s+)?person['’]s\s+name\b.*\breturns?\s+(?:a\s+)?greeting\b.*\bcall\s+(?:it|the\s+function)\s+with\s+two\s+different\s+names\b",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
         if (!describesGreetingFunction)
         {
