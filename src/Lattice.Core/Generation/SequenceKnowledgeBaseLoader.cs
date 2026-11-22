@@ -346,7 +346,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue", "numericOffset") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue", "normalization", "numericOffset") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -378,6 +378,8 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
+                !TryGetOptionalString(item, "normalization", out var normalization) ||
+                (normalization is not null && normalization != "booleanExpression") ||
                 !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
@@ -407,6 +409,7 @@ public static class SequenceKnowledgeBaseLoader
                 TrimPrefixTokens = trimPrefixTokens,
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
                 PreserveRawValue = preserveRawValue,
+                Normalization = normalization,
                 NumericOffset = numericOffset ?? 0
             });
         }
