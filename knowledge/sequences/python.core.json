@@ -1323,14 +1323,27 @@
     {
       "id": "recognize-greeting-function-definition-request",
       "matchTokens": [
-        "defines",
-        "function",
-        "accepts",
-        "name",
-        "returns",
-        "greeting"
+        "function"
       ],
-      "factId": "program.greeting-function"
+      "factId": "program.greeting-function",
+      "requiredAnySequences": [
+        [
+          "define",
+          "function",
+          "accepts",
+          "name",
+          "returns",
+          "greeting"
+        ],
+        [
+          "defines",
+          "function",
+          "accepts",
+          "name",
+          "returns",
+          "greeting"
+        ]
+      ]
     },
     {
       "id": "recognize-greeting-function-call-request",
