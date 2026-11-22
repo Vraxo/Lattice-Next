@@ -54,7 +54,7 @@ internal static class PythonFunctionProgramParser
         steps = ImmutableArray<TaskRequestStep>.Empty;
         var match = Regex.Match(
             source,
-            @"\\bfunction\\b.*?\\bconverts?\\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\\s+to\\s+an?\\s+integer\\b.*?\\breturns?\\s+(?:a\\s+)?clear\\s+(?:result|message)\\b.*?\\bnot\\s+a\\s+valid\\s+integer\\b",
+            @"\bfunction\b.*?\bconverts?\s+(?<parameter>[A-Za-z_][A-Za-z0-9_]*)\s+to\s+an?\s+integer\b.*?\breturns?\s+(?:a\s+)?clear\s+(?:result|message)\b.*?\bnot\s+a\s+valid\s+integer\b",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
         if (!match.Success)
         {
@@ -62,9 +62,7 @@ internal static class PythonFunctionProgramParser
         }
 
         var parameter = match.Groups["parameter"].Value;
-        var name = parameter.Equals("text", StringComparison.OrdinalIgnoreCase)
-            ? "convert_to_integer"
-            : "convert_to_integer";
+        const string name = "convert_to_integer";
         steps = ImmutableArray.Create(
             new TaskRequestStep("begin-function", "function-header", $"{name}({parameter})"),
             new TaskRequestStep("begin-try-indented", "statement", string.Empty),
