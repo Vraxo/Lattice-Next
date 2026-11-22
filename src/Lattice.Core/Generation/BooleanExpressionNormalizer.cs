@@ -6,7 +6,7 @@ internal static class BooleanExpressionNormalizer
 {
     private static readonly Regex ComparisonPattern = new(
         @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>>=|<=|==|!=|>|<|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+greater\s+than\s+or\s+equal\s+to|greater\s+than\s+or\s+equal\s+to|is\s+less\s+than\s+or\s+equal\s+to|less\s+than\s+or\s+equal\s+to|is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equal\s+to|equals?)\s+(?<right>.+?)\s*$",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     internal static bool TryNormalize(string expression, out string normalized)
     {
