@@ -10,12 +10,12 @@ public sealed class PythonProgramGenerationTests
     [Theory]
     [InlineData(
         "Write a Python program that fulfills this request: Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
-        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.balance)",
-        "None\nFalse\n150")]
+        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.withdraw(25))\nprint(account.balance)",
+        "None\nFalse\nTrue\n125")]
     [InlineData(
         "Create a Python program that defines a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
-        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.balance)",
-        "None\nFalse\n150")]
+        "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance = self.balance - amount\n        return True\naccount = BankAccount(100)\nprint(account.deposit(50))\nprint(account.withdraw(200))\nprint(account.withdraw(25))\nprint(account.balance)",
+        "None\nFalse\nTrue\n125")]
     [InlineData(
         "Write a Python program that fulfills this request: Write a function that converts text to an integer and returns a clear result when the text is not a valid integer.",
         "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
