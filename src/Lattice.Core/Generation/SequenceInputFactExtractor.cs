@@ -119,6 +119,17 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
+                if (capture.Normalization == "booleanExpression")
+                {
+                    if (!BooleanExpressionNormalizer.TryNormalize(capturedValue, out var normalizedValue))
+                    {
+                        error = $"Input rule '{rule.Id}' captured an invalid boolean expression.";
+                        return false;
+                    }
+
+                    capturedValue = normalizedValue;
+                }
+
                 if (capture.NumericOffset != 0)
                 {
                     if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
