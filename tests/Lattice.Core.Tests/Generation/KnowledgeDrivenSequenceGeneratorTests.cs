@@ -65,16 +65,18 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "score >= 10 or (score < 5 and score != 0)")]
+        "score >= 10 or (score < 5 and score != 0)", "accepted", "rejected")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
-        "not (score >= 10 or score < 5)")]
+        "not (score >= 10 or score < 5)", "accepted", "rejected")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
-        "role == 'admin'")]
+        "role == 'admin'", "allowed", "denied")]
     public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
         string prompt,
-        string expectedCondition)
+        string expectedCondition,
+        string expectedTrueReturn,
+        string expectedFalseReturn)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
@@ -92,8 +94,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
             generationError);
         Assert.Contains($"if {expectedCondition}:", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains("return 'accepted'", generated.Text, StringComparison.Ordinal);
-        Assert.Contains("return 'rejected'", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"return '{expectedTrueReturn}'", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"return '{expectedFalseReturn}'", generated.Text, StringComparison.Ordinal);
     }
 
     [Fact]
