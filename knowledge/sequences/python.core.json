@@ -1490,6 +1490,13 @@
       "factId": "program.integer-conversion-function",
       "captures": [
         {
+          "factId": "program.integer-conversion-function",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "integer-conversion"
+        },
+        {
           "factId": "program.output",
           "valueId": "kind",
           "startAfterTokens": [],
@@ -1512,6 +1519,13 @@
       ],
       "factId": "program.named-integer-conversion-function",
       "captures": [
+        {
+          "factId": "program.named-integer-conversion-function",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "integer-conversion"
+        },
         {
           "factId": "program.output",
           "valueId": "kind",
