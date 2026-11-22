@@ -1712,4 +1712,33 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out _));
     }
 
+    [Fact]
+    public void Extracts_and_generates_conditional_function_from_composable_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string prompt = "Write a Python program with a function named classify that takes score and returns score + 1 when score is at least 10 and otherwise returns score - 1, then print classify(12).";
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
+        Assert.Equal("score is at least 10", condition.Values["expression"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
+            generationError);
+        Assert.Equal(
+            "def classify(score):\n    if score is at least 10:\n        return score + 1\n    else:\n        return score - 1\nprint(classify(12))\n",
+            string.Join(string.Empty, result!.Tokens));
+    }
+
+
 }
