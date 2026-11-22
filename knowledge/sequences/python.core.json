@@ -1487,7 +1487,23 @@
         "clear",
         "result"
       ],
-      "factId": "program.integer-conversion-function"
+      "factId": "program.integer-conversion-function",
+      "captures": [
+        {
+          "factId": "program.integer-conversion-function",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "integer-conversion"
+        },
+        {
+          "factId": "program.output",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "function-return"
+        }
+      ]
     },
     {
       "id": "recognize-named-integer-conversion-function",
@@ -1501,7 +1517,23 @@
         "clear",
         "message"
       ],
-      "factId": "program.named-integer-conversion-function"
+      "factId": "program.named-integer-conversion-function",
+      "captures": [
+        {
+          "factId": "program.named-integer-conversion-function",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "integer-conversion"
+        },
+        {
+          "factId": "program.output",
+          "valueId": "kind",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [],
+          "literalValue": "function-return"
+        }
+      ]
     },
     {
       "id": "recognize-generation-intent-write-function",
@@ -4353,7 +4385,8 @@
         "program.integer-conversion-function",
         "language.python",
         "intent.program-generation",
-        "program.function"
+        "program.function",
+        "program.output"
       ]
     },
     {
@@ -4372,7 +4405,8 @@
         "language.python",
         "intent.program-generation",
         "program.function",
-        "program.condition"
+        "program.condition",
+        "program.output"
       ]
     },
     {
