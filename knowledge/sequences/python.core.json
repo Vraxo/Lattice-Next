@@ -6021,7 +6021,7 @@
     {
       "id": "python-conditional-function-false-value",
       "contextSuffix": [
-        "    else:\n        return "
+        "    return "
       ],
       "requiredFacts": [
         "program.conditional-function.false-return"
@@ -6038,7 +6038,7 @@
     {
       "id": "python-conditional-function-print",
       "contextSuffix": [
-        "    else:\n        return ",
+        "    return ",
         "*\n"
       ],
       "requiredFacts": [
