@@ -103,8 +103,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
             generationError);
         Assert.Contains($"if {expectedCondition}:", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"return '{expectedTrueReturn}'", generated.Text, StringComparison.Ordinal);
-        Assert.Contains($"return '{expectedFalseReturn}'", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedTrueReturn}", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedFalseReturn}", generated.Text, StringComparison.Ordinal);
     }
 
     [Fact]
