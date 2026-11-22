@@ -5570,9 +5570,31 @@
       },
       "satisfiesFacts": [
         "program.conditional-function.call",
-        "program.conditional-function.signature",
+        "program.conditional-function.signature"
+      ],
+      "forbiddenFacts": [
         "value.output"
       ]
+    },
+    {
+      "id": "python-conditional-function-call-with-value-output",
+      "contextSuffix": [
+        "print("
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.call",
+        "valueId": "expression",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.call",
+        "program.conditional-function.signature",
+        "value.output"
+      ],
+      "forbiddenFacts": []
     }
   ],
   "validations": [
