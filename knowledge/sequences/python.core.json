@@ -1486,20 +1486,6 @@
           "literalValue": "amount"
         },
         {
-          "factId": "program.class-model",
-          "valueId": "failureValue",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "False"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "successValue",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "True"
-        },
-        {
           "factId": "program.output",
           "valueId": "kind",
           "startAfterTokens": [],
@@ -1507,25 +1493,11 @@
           "literalValue": "class-definition"
         },
         {
-          "factId": "program.class-model.stage.class-header",
+          "factId": "program.class-model.stage.class-definition",
           "valueId": "kind",
           "startAfterTokens": [],
           "stopBeforeTokens": [],
-          "literalValue": "class-header"
-        },
-        {
-          "factId": "program.class-model.stage.initializer-header",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "initializer-header"
-        },
-        {
-          "factId": "program.class-model.stage.initializer-assignment",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "initializer-assignment"
+          "literalValue": "class-definition"
         },
         {
           "factId": "program.class-model.stage.deposit-header",
@@ -1549,32 +1521,11 @@
           "literalValue": "withdraw-header"
         },
         {
-          "factId": "program.class-model.stage.withdraw-guard",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw-guard"
-        },
-        {
-          "factId": "program.class-model.stage.withdraw-reject",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw-reject"
-        },
-        {
           "factId": "program.class-model.stage.withdraw-body",
           "valueId": "kind",
           "startAfterTokens": [],
           "stopBeforeTokens": [],
           "literalValue": "withdraw-body"
-        },
-        {
-          "factId": "program.class-model.stage.withdraw-accept",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw-accept"
         }
       ]
     },
@@ -5941,7 +5892,7 @@
       "weight": 10
     },
     {
-      "id": "python-class-model-header",
+      "id": "python-class-model-definition",
       "contextSuffix": [
         "```python\n"
       ],
@@ -5952,60 +5903,12 @@
       "tokenBinding": {
         "factId": "program.class-model",
         "valueId": "className",
-        "prefix": "class ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.class-header"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-initializer-header",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.class-header"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "initializerParameter",
-        "prefix": "    def __init__(self, ",
-        "suffix": "):\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.initializer-header"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-initializer-assignment",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.initializer-header"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "attributeName",
         "secondaryValueId": "initializerParameter",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "self.{0} = {1}",
-        "prefix": "        ",
-        "suffix": "\n"
+        "valueTemplate": "class {0}:\n    def __init__(self, {1}):\n        self.{1} = {1}"
       },
       "satisfiesFacts": [
-        "program.class-model.stage.initializer-assignment"
+        "program.class-model.stage.class-definition"
       ],
       "forbiddenFacts": [],
       "advanceCollections": []
@@ -6019,7 +5922,7 @@
         "program.class-model"
       ],
       "requiresCompletedFacts": [
-        "program.class-model.stage.initializer-assignment"
+        "program.class-model.stage.class-definition"
       ],
       "tokenBinding": {
         "factId": "program.class-model",
@@ -6089,7 +5992,7 @@
       "advanceCollections": []
     },
     {
-      "id": "python-class-model-withdraw-guard",
+      "id": "python-class-model-withdraw-body",
       "contextSuffix": [
         "*\n"
       ],
@@ -6101,87 +6004,15 @@
       ],
       "tokenBinding": {
         "factId": "program.class-model",
-        "valueId": "amountParameter",
-        "secondaryValueId": "attributeName",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0} > self.{1}",
-        "prefix": "        if ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.withdraw-guard"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-withdraw-reject",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.withdraw-guard"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "failureValue",
-        "prefix": "            return ",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.withdraw-reject"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-withdraw-body",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.withdraw-reject"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
         "valueId": "attributeName",
         "secondaryValueId": "amountParameter",
         "secondaryValueIsCollection": false,
-        "valueTemplate": "self.{0} -= {1}",
+        "valueTemplate": "if {1} > self.{0}:\n            return False\n        self.{0} -= {1}\n        return True",
         "prefix": "        ",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.withdraw-body"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-withdraw-accept",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.withdraw-body"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "successValue",
-        "prefix": "        return ",
         "suffix": "\n```"
       },
       "satisfiesFacts": [
-        "program.class-model.stage.withdraw-accept",
+        "program.class-model.stage.withdraw-body",
         "program.class-model"
       ],
       "forbiddenFacts": [],
