@@ -3413,21 +3413,10 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
-        [
-          "and",
-          "returns"
-        ],
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
         [
           "when"
-        ],
-        [
-          "and",
-          "otherwise",
-          "returns"
-        ],
-        [
-          "then"
         ]
       ]
     },
@@ -3478,7 +3467,11 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "is",
           "at",
@@ -3533,7 +3526,11 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "is",
           "greater",
@@ -3588,7 +3585,11 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "is",
           "at",
@@ -3643,7 +3644,11 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "is",
           "less",
@@ -3698,9 +3703,21 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "is",
+          "equal",
+          "to"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "is",
+          "not",
           "equal",
           "to"
         ]
@@ -3749,7 +3766,11 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
         [
           "equals"
         ]
@@ -3804,7 +3825,18 @@
           "stopBeforeTokens": []
         }
       ],
-      "requiredAnySequences": [
+      "requiredAnySequences": [],
+      "requiredAllSequences": [
+        [
+          "when"
+        ],
+        [
+          "is",
+          "equal",
+          "to"
+        ]
+      ],
+      "forbiddenAnySequences": [
         [
           "is",
           "not",
@@ -5758,6 +5790,7 @@
     {
       "id": "python-conditional-function-if",
       "contextSuffix": [
+        "```python\n",
         "*\n"
       ],
       "requiredFacts": [
@@ -5785,6 +5818,7 @@
     {
       "id": "python-conditional-function-condition-operator",
       "contextSuffix": [
+        "    if ",
         "* "
       ],
       "requiredFacts": [
@@ -5799,6 +5833,8 @@
     {
       "id": "python-conditional-function-condition-right",
       "contextSuffix": [
+        "    if ",
+        "* ",
         "* "
       ],
       "requiredFacts": [
@@ -5816,7 +5852,7 @@
     {
       "id": "python-conditional-function-true-return",
       "contextSuffix": [
-        "*\n"
+        "*:\n"
       ],
       "requiredFacts": [
         "program.conditional-function.true-return"
@@ -5846,6 +5882,7 @@
     {
       "id": "python-conditional-function-else",
       "contextSuffix": [
+        "        return ",
         "*\n"
       ],
       "requiredFacts": [
@@ -5876,6 +5913,7 @@
     {
       "id": "python-conditional-function-print",
       "contextSuffix": [
+        "    else:\n        return ",
         "*\n"
       ],
       "requiredFacts": [
