@@ -5030,8 +5030,7 @@
       "satisfiesFacts": [
         "program.single-field-record-sorting.header",
         "intent.program-generation",
-        "language.python",
-        "program.output.start"
+        "language.python"
       ],
       "weight": 10
     },
