@@ -227,7 +227,7 @@ public static class SequenceInputFactValidator
     }
 
 
-    private static bool IsQuotedStringLiteral(string value) =>
+    internal static bool IsQuotedStringLiteral(string value) =>
         value.Length >= 2 &&
         value[0] is '\'' or '"' &&
         value[^1] == value[0] &&
@@ -358,7 +358,7 @@ public static class SequenceInputFactValidator
         return false;
     }
 
-    private static bool IsArithmeticExpression(string expression)
+    internal static bool IsArithmeticExpression(string expression)
     {
         const string tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[(),+\-*/%]";
         var tokens = Regex.Matches(expression, tokenPattern)
