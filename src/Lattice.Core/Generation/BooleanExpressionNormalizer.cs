@@ -51,6 +51,11 @@ internal static class BooleanExpressionNormalizer
             expression = expression[1..^1].Trim();
         }
 
+        if (TryNormalizeComparison(expression, isGrouped, out normalized))
+        {
+            return true;
+        }
+
         foreach (var operation in new[] { "or", "and" })
         {
             var operatorIndex = FindTopLevelBooleanOperator(expression, operation);
@@ -82,6 +87,15 @@ internal static class BooleanExpressionNormalizer
             return true;
         }
 
+        return false;
+    }
+
+    private static bool TryNormalizeComparison(
+        string expression,
+        bool isGrouped,
+        out string normalized)
+    {
+        normalized = string.Empty;
         var match = ComparisonPattern.Match(expression);
         if (!match.Success)
         {
@@ -104,6 +118,8 @@ internal static class BooleanExpressionNormalizer
             ">=" or "<=" or "==" or "!=" or ">" or "<" => comparison,
             "is at least" or "at least" => ">=",
             "is at most" or "at most" => "<=",
+            "is greater than or equal to" or "greater than or equal to" => ">=",
+            "is less than or equal to" or "less than or equal to" => "<=",
             "is greater than" or "greater than" => ">",
             "is less than" or "less than" => "<",
             "is not equal to" or "not equal to" => "!=",
@@ -119,6 +135,7 @@ internal static class BooleanExpressionNormalizer
         normalized = isGrouped ? $"({normalizedComparison})" : normalizedComparison;
         return true;
     }
+
 
     private static int FindTopLevelBooleanOperator(string expression, string operation)
     {
