@@ -9,6 +9,14 @@ public sealed class PythonProgramGenerationTests
 {
     [Theory]
     [InlineData(
+    [InlineData(
+        "Write a Python program that fulfills this request: Write a function that converts text to an integer and returns a clear result when the text is not a valid integer.",
+        "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
+        "42\nInvalid integer")
+    [InlineData(
+        "Write a Python program that defines a function which converts raw_text to an integer and returns a clear message when it is not a valid integer.",
+        "def convert_to_integer(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))",
+        "42\nInvalid integer")]
         "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
         "prices = {\"apple\": 1.5, \"banana\": 0.75}\nfor product, price in prices.items():\n    print(product, price)",
         "apple 1.5\nbanana 0.75")]
