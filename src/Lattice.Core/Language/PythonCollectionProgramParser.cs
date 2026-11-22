@@ -85,7 +85,7 @@ internal static class PythonCollectionProgramParser
         steps = ImmutableArray<TaskRequestStep>.Empty;
         var match = Regex.Match(
             source,
-            @"\\bdictionary\\s+of\\s+(?<keyDescription>[A-Za-z]+)\\s+names?\\s+and\\s+(?<valueDescription>[A-Za-z]+)\\b.*?\\b(?:print|display|show)\\s+each\\s+(?<key>[A-Za-z]+)\\s+(?:with|and)\\s+(?:its\\s+)?(?<value>[A-Za-z]+)\\b",
+            @"\bdictionary\s+of\s+(?<keyDescription>[A-Za-z]+)\s+names?\s+and\s+(?<valueDescription>[A-Za-z]+)\b.*?\b(?:print|display|show)\s+each\s+(?<key>[A-Za-z]+)\s+(?:with|and)\s+(?:its\s+)?(?<value>[A-Za-z]+)\b",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
         if (!match.Success)
         {
@@ -107,7 +107,7 @@ internal static class PythonCollectionProgramParser
 
         var dictionaryName = valueDescription.ToLowerInvariant();
         var example = value.Equals("price", StringComparison.OrdinalIgnoreCase)
-            ? "{\\"apple\\": 1.5, \\"banana\\": 0.75}"
+            ? "{\"apple\": 1.5, \"banana\": 0.75}"
             : "{\\"first\\": 1, \\"second\\": 2}";
         steps = ImmutableArray.Create(
             new TaskRequestStep("assign-variable", "assignment", $"{dictionaryName} = {example}"),
