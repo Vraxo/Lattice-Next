@@ -4353,7 +4353,8 @@
         "program.integer-conversion-function",
         "language.python",
         "intent.program-generation",
-        "program.function"
+        "program.function",
+        "program.output"
       ]
     },
     {
@@ -4372,7 +4373,8 @@
         "language.python",
         "intent.program-generation",
         "program.function",
-        "program.condition"
+        "program.condition",
+        "program.output"
       ]
     },
     {
