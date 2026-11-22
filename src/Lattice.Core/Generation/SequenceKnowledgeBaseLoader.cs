@@ -444,6 +444,8 @@ public static class SequenceKnowledgeBaseLoader
             "comparisonValueReferences",
             "comparisonOperandsReferences",
             "arithmeticExpressionReferences",
+            "booleanExpressionReferences",
+            "valueExpressionReferences",
             "matchingFunctionCall",
             "matchingNumericFunctionCall",
             "pythonListLiteral",
