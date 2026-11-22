@@ -65,13 +65,13 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "score >= 10 or (score < 5 and score != 0)", "accepted", "rejected")]
+        "score >= 10 or (score < 5 and score != 0)", " 'accepted'", " 'rejected'")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
-        "not (score >= 10 or score < 5)", "accepted", "rejected")]
+        "not (score >= 10 or score < 5)", " 'accepted'", " 'rejected'")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is greater than or equal to 10 and otherwise returns 'rejected', then print classify(12).",
-        "score >= 10", "accepted", "rejected")]
+        "score >= 10", " 'accepted'", " 'rejected'")]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
         "price >= limit", "price * 0.9", "price")]
@@ -80,7 +80,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         "price >= limit and price < limit + 50", "price * 0.9", "price")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
-        "role == 'admin'", "allowed", "denied")]
+        "role == 'admin'", " 'allowed'", " 'denied'")]
     public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
         string prompt,
         string expectedCondition,
