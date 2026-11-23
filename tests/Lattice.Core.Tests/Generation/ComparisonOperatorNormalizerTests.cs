@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Core.Generation;
 using Xunit;
 
@@ -36,5 +37,70 @@ public sealed class ComparisonOperatorNormalizerTests
     {
         Assert.False(ComparisonOperatorNormalizer.TryNormalize(input, out var actual));
         Assert.Equal(string.Empty, actual);
+    }
+
+    [Theory]
+    [InlineData("greater than", ">")]
+    [InlineData("at least", ">=")]
+    [InlineData("below", "<")]
+    [InlineData("at most", "<=")]
+    [InlineData("equals", "==")]
+    [InlineData("not equal to", "!=")]
+    public void Extractor_normalizes_comparison_operator_captures(string phrase, string expected)
+    {
+        var capture = new SequenceInputFactCapture(
+            "program.comparison",
+            "operator",
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty)
+        {
+            Normalization = "comparisonOperator"
+        };
+        var rule = new SequenceInputFactRule(
+            "capture-comparison",
+            ImmutableArray.Create("comparison"),
+            "program.comparison",
+            Captures: ImmutableArray.Create(capture));
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: ImmutableArray.Create(rule));
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            $"comparison {phrase}",
+            out var facts,
+            out var error), error);
+
+        Assert.Equal(expected, facts.Single().Values["operator"]);
+    }
+
+    [Fact]
+    public void Extractor_rejects_unsupported_comparison_operator_captures()
+    {
+        var capture = new SequenceInputFactCapture(
+            "program.comparison",
+            "operator",
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty)
+        {
+            Normalization = "comparisonOperator"
+        };
+        var rule = new SequenceInputFactRule(
+            "capture-comparison",
+            ImmutableArray.Create("comparison"),
+            "program.comparison",
+            Captures: ImmutableArray.Create(capture));
+        var knowledge = new SequenceKnowledgeBase(
+            ImmutableArray<SequenceTokenRule>.Empty,
+            InputRules: ImmutableArray.Create(rule));
+
+        Assert.False(SequenceInputFactExtractor.TryExtract(
+            knowledge,
+            "comparison approximately",
+            out var facts,
+            out var error));
+
+        Assert.Empty(facts);
+        Assert.Contains("unsupported comparison operator", error, StringComparison.Ordinal);
     }
 }
