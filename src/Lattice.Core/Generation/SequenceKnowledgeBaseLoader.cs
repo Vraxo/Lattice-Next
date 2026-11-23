@@ -455,6 +455,8 @@ public static class SequenceKnowledgeBaseLoader
             "valueExpressionReferences",
             "valueExpressionCollectionReferences",
             "matchingCollections",
+            "orderedArithmeticFunctionExpressions",
+            "matchingLastNumericFunctionCall",
             "matchingFunctionCall",
             "matchingNumericFunctionCall",
             "pythonListLiteral",
