@@ -12,7 +12,10 @@ internal static class EnglishDescriptionParser
         bool expectPluralHead,
         out EnglishDescription? description,
         bool allowNegatedRelativePredicates = false,
-        bool allowRelationalRelativePredicates = false)
+        bool allowRelationalRelativePredicates = false,
+        VariableTerm? relationSubject = null,
+        bool allowExistentialRelationalObjects = true,
+        bool allowNegativeRelationalRelativePredicates = true)
     {
         description = null;
 
@@ -74,8 +77,11 @@ internal static class EnglishDescriptionParser
                         ref index,
                         end,
                         expectPluralHead,
+                        relationSubject ?? new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x")),
                         relativeRelations,
-                        existentialRelativeConditions)) return false;
+                        existentialRelativeConditions,
+                        allowExistentialRelationalObjects,
+                        allowNegativeRelationalRelativePredicates)) return false;
                 continue;
             }
             if (!EnglishGrammarTokens.Is(tokens[index], "that")) return false;
@@ -145,8 +151,11 @@ internal static class EnglishDescriptionParser
         ref int index,
         int end,
         bool pluralSubject,
+        VariableTerm relationSubject,
         List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations,
-        List<SemanticFormula> existentialConditions)
+        List<SemanticFormula> existentialConditions,
+        bool allowExistentialRelationalObjects,
+        bool allowNegativeRelationalRelativePredicates)
     {
         if (index + 1 >= end)
         {
@@ -155,6 +164,11 @@ internal static class EnglishDescriptionParser
 
         var auxiliary = tokens[index + 1];
         var isNegative = EnglishGrammarTokens.Is(auxiliary, pluralSubject ? "do" : "does");
+        if (isNegative && !allowNegativeRelationalRelativePredicates)
+        {
+            return false;
+        }
+
         int verbIndex;
         int objectStart;
 
@@ -200,25 +214,30 @@ internal static class EnglishDescriptionParser
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
         if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
-            if (isNegative ||
+            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
+            if (!allowExistentialRelationalObjects ||
+                isNegative ||
                 existentialConditions.Count > 0 ||
                 !TryParseDescription(
                     tokens,
                     objectStart + 1,
                     objectEnd,
                     expectPluralHead: false,
-                    out var objectDescription))
+                    out var objectDescription,
+                    allowRelationalRelativePredicates: true,
+                    relationSubject: witness,
+                    allowExistentialRelationalObjects: false,
+                    allowNegativeRelationalRelativePredicates: false))
             {
                 return false;
             }
 
-            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
             var objectConditions = EnglishSemanticFactory.GetConjuncts(
                 objectDescription!.ToExistentialConditions(witness));
             var relation = new PredicateApplication(
                 new SemanticIdentifier(predicate),
                 ImmutableArray.Create<SemanticTerm>(
-                    new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x")),
+                    relationSubject,
                     witness));
             existentialConditions.Add(new ExistentialQuantification(
                 witness,

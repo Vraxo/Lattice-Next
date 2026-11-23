@@ -22,12 +22,59 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Parses_a_fixed_object_relation_on_the_existential_witness()
+    {
+        var result = parser.Parse("Every dog that chases a cat that likes milk is friendly.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), exists(y, and(cat(y), likes(y, milk), chases(x, y)))), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Requires_witness_properties_to_match_the_same_related_individual()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that chases a cat that likes milk is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido chases Rover.");
+        Add(complete, "Rover is a cat.");
+        Add(complete, "Rover likes milk.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Contains(result.Proof!.AdditionalPremises, proof =>
+            proof.SourceText == "Fido chases Rover.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Rover is a cat.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Rover likes milk.");
+
+        var mismatchedWitness = new KnowledgeBase();
+        Add(mismatchedWitness, "Every dog that chases a cat that likes milk is friendly.");
+        Add(mismatchedWitness, "Fido is a dog.");
+        Add(mismatchedWitness, "Fido chases Rover.");
+        Add(mismatchedWitness, "Rover is a cat.");
+        Add(mismatchedWitness, "Whiskers likes milk.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(mismatchedWitness, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Rejects_negated_existential_relation_conditions()
     {
         var result = parser.Parse("Every dog that does not chase a cat is friendly.");
 
         Assert.False(result.IsSuccess);
         Assert.Null(result.Utterance);
+
+        var nestedNegation = parser.Parse(
+            "Every dog that chases a cat that does not like milk is friendly.");
+        Assert.False(nestedNegation.IsSuccess);
+        Assert.Null(nestedNegation.Utterance);
     }
 
     [Fact]

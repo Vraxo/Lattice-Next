@@ -6,4 +6,5 @@ namespace Lattice.Core.Reasoning;
 public sealed record ExistentialRulePremise(
     VariableTerm Witness,
     ImmutableArray<PredicateApplication> Conditions,
-    ImmutableArray<PredicateApplication> Relations);
+    ImmutableArray<PredicateApplication> Relations,
+    ImmutableArray<PredicateApplication> FixedObjectRelations);

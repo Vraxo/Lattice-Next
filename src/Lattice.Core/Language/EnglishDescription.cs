@@ -55,6 +55,14 @@ internal sealed record EnglishDescription(
                 ImmutableArray.Create<SemanticTerm>(variable)))
             .ToImmutableArray();
 
+        predicates = predicates.AddRange(RelativeRelations.Select(relation =>
+        {
+            var predicate = (SemanticFormula)new PredicateApplication(
+                new SemanticIdentifier(relation.Predicate),
+                ImmutableArray.Create<SemanticTerm>(variable, relation.Object));
+            return relation.IsNegative ? new Negation(predicate) : predicate;
+        }));
+
         return predicates.Length == 1
             ? predicates[0]
             : new Conjunction(predicates);
