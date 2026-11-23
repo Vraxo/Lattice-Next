@@ -4578,6 +4578,22 @@
           "then",
           "output"
         ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "when"
+        ],
+        [
+          "otherwise"
+        ],
+        [
+          "and",
+          "sets"
+        ],
+        [
+          "and",
+          "set"
+        ]
       ]
     }
   ],
