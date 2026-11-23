@@ -16,36 +16,33 @@ The goal is not to replace a growing list of C# special cases with a growing lis
 
 A request may express multiple requirements at once. They may be independent, ordered, or dependent on one another. Preserve them as semantic facts and constraints rather than collapsing the request into one task category or handler.
 
-The intended path is:
+The conceptual work is to interpret the request, validate its meaning, reason over reusable knowledge, realize a program, and validate the result. The concrete single-path decision below assigns those responsibilities without requiring a separate framework for every stage.
 
-1. **Interpret the request:** extract its meaning into reusable semantic facts, values, entities, relationships, and constraints.
-2. **Validate meaning:** check types, relationships, dependencies, compatibility, and other semantic constraints using generic validation mechanisms.
-3. **Reason over knowledge:** combine the request's requirements with domain concepts, operation knowledge, and language knowledge. Keep all simultaneously relevant requirements active.
-4. **Generate a sequence:** use the shared generator to consider valid next-token candidates under the active facts, constraints, and already-emitted sequence.
-5. **Validate the result:** test structural/syntactic validity and, where practical, execute generated programs against behavioral expectations.
+## Chosen single code-generation path (M-02 decision)
 
-This is a conceptual pipeline, not a mandate to introduce a separate framework or layer for every stage. Keep the implementation cohesive and add abstractions only when they provide a real reusable capability.
+This is the **target production path**, not a description of the current runtime. The as-built routes and their callers are recorded in the [M-01 inventory](code-generation-migration-inventory.md); they remain to be migrated in later queue items.
+
+1. **Interpret one code request.** The language/request layer preserves the user's intent, values, names, collections, constraints, dependencies, and requested target language. The runtime dispatches it through the existing [`TaskCodeGenerationResponder`](../src/Lattice.Runtime/TaskCodeGenerationResponder.cs), generalized for code requests rather than a new router. There is no raw-input first-refusal emitter and no domain-specific fallback route.
+2. **Form language-neutral program goals.** Convert the interpreted request into one or more semantic requirements that do not contain target-language tokens or complete source fragments. Keep values and requirements distinct, and retain ordering/dependency information. An unknown, contradictory, or unsupported requirement stays unresolved or is rejected; it is not guessed from a benchmark prompt.
+3. **Plan with reusable programming/domain knowledge.** Reason over reusable concepts and operations, their typed inputs/results, effects, prerequisites, constraints, and relevant domain/API facts to select a realizable operation plan. This semantic planning is independent of the chosen syntax. Knowledge describes reusable operations, not a prompt-specific sequence of solution steps.
+4. **Select the requested language pack.** Resolve the single requested language identifier with the [`GenerationLanguagePackLoader`](../src/Lattice.Core/Generation/GenerationLanguagePackLoader.cs) to a [`GenerationLanguagePack`](../src/Lattice.Core/Generation/GenerationLanguagePack.cs). The pack supplies syntax productions, surface symbols, bindings/encodings, and the realization available for each supported semantic operation. It does not determine what the request means. An unsupported language or unrealizable operation fails explicitly rather than falling back to another generator.
+5. **Realize the plan through [`SequenceGenerationPipeline`](../src/Lattice.Core/Generation/SequenceGenerationPipeline.cs).** Adapt each planned operation and its request-derived values to the existing [`GenerationGoal`](../src/Lattice.Core/Generation/GenerationGoal.cs) boundary. The pipeline's [`GenerationOperationSelector`](../src/Lattice.Core/Generation/GenerationOperationSelector.cs) checks the selected pack's realization against the goal and available prerequisites, resolves values through the pack's [`GenerationBinding`](../src/Lattice.Core/Generation/GenerationBinding.cs) declarations, converts its [`GenerationProduction`](../src/Lattice.Core/Generation/GenerationProduction.cs) declarations into a [`SequenceGrammar`](../src/Lattice.Core/Generation/SequenceGenerator.cs), and calls the shared [`SequenceGenerator`](../src/Lattice.Core/Generation/SequenceGenerator.cs). `TryGenerateProgram` combines the resulting ordered statement sequences. The pipeline expands syntax; it does not parse the request, infer program semantics, or decide dependencies.
+6. **Validate and return.** Apply generic structural and semantic checks to the plan and bindings; use the selected pack's grammar/knowledge for language-specific syntax. Return generated source only when the supported checks succeed. Add behavioral execution checks for supported cases where practical.
+
+**Single-emitter decision:** [`SequenceGenerationPipeline`](../src/Lattice.Core/Generation/SequenceGenerationPipeline.cs) backed by [`SequenceGenerator`](../src/Lattice.Core/Generation/SequenceGenerator.cs) is the one code-emission path. [`KnowledgeDrivenSequenceGenerator`](../src/Lattice.Core/Generation/KnowledgeDrivenSequenceGenerator.cs) is to be retired as a program generator; it will not remain as an alternate or “semantic-only” code-generation mechanism. It consumes sequence rules and emits text, so retaining it under that label would preserve the parallel engine. Any reusable input extraction or structural validation may survive only as separate, language-neutral semantic components; it must not emit source or own Python/task-specific solutions. [`OperationSequenceGenerator`](../src/Lattice.Core/Generation/OperationSequenceGenerator.cs) is a test-only overlapping prototype with no production caller; it is not selected or to be promoted as another path.
+
+**Contract boundary and limits:** the existing [`GenerationGoal`](../src/Lattice.Core/Generation/GenerationGoal.cs) is a useful realization request, not the complete language-neutral program model. Its effect, argument kind, and value are strings; it does not represent typed statements/expressions, complete operation signatures, or dependencies between goals. `TryGenerateProgram` accepts a preordered list and generates each goal in turn; it does not plan that order. [`GenerationOperation`](../src/Lattice.Core/Generation/GenerationOperation.cs) and [`GenerationLanguagePack`](../src/Lattice.Core/Generation/GenerationLanguagePack.cs) are reusable starting points, but the current pack schema co-locates operation-selection metadata with language realization. Preserve that limitation explicitly: later semantic-model work may refine the boundary, but should extend these contracts only as needed to keep operation meaning language-independent. The present decision does not claim that the current contracts already provide composition or a sufficient programming ontology.
 
 ## Generic generation mechanism
 
-At each generation step, the engine should:
-
-1. Retrieve declarative next-token candidates applicable to the current sequence context.
-2. Filter and reason over candidates using active semantic facts, completed requirements, forbidden conditions, and other generic constraints.
-3. Select a continuation using the generator's deterministic search strategy.
-4. Update the sequence and semantic state, including any facts satisfied or collection positions advanced by the emitted token.
-5. Continue until the required meaning has been expressed and generation is complete.
-
-The generator must not contain Python keywords, syntax rules, APIs, or task-specific construction logic. It operates on generic facts, token contexts, bindings, constraints, and candidate rules. Language and domain knowledge supply the meaning of those data.
-
-The current implementation already has a declarative next-token knowledge base, semantic fact bindings, collection cursors, input-fact extraction, generic validation, and bounded token-sequence search. Extend these primitives when a genuinely reusable capability is missing; do not add a dedicated generator for the next construct.
+The selected pack's declarative productions define legal surface sequences. The shared `SequenceGenerator` expands nonterminals and resolves already-prepared bindings under deterministic search limits. It does not filter grammar candidates against request facts, advance semantic collection cursors, interpret effects, or plan operations. Those concerns belong before realization in request interpretation, generic validation, and semantic planning. Keep the sequence expander language- and domain-agnostic; add no second generator for a new programming construct.
 
 ## Where knowledge belongs
 
-- **Language knowledge:** token spellings, syntax, legal continuations, grammar relationships, expression forms, and language-specific conventions.
-- **Domain knowledge:** concepts, operations, effects, API names/signatures, and domain relationships.
-- **Request-derived semantic facts:** the actual values, requirements, entities, and dependencies expressed by the user.
-- **Generic runtime:** extraction infrastructure, semantic representation, validation machinery, constraint evaluation, sequence search, token binding, and state transitions.
+- **Language pack:** token spellings, grammar and syntax constraints, language-specific literal/identifier encoding, and mappings from supported semantic operations to surface productions.
+- **Programming/domain knowledge:** reusable operation meanings, typed inputs/results, effects, prerequisites, constraints, concepts, and actual API names/signatures.
+- **Request-derived semantic facts:** the values, requirements, entities, target-language choice, and dependencies expressed by this request.
+- **Generic runtime:** interpretation infrastructure, semantic representation and validation, operation reasoning/planning, pack selection, binding, and the shared grammar expander. It contains no Python-specific parser, validator, or generator branch.
 
 Knowledge may describe reusable constructions and their constraints. It must not store complete programs for individual prompts, benchmark cases, or task IDs. A language-specific knowledge file is acceptable; a language-specific runtime implementation is not.
 
