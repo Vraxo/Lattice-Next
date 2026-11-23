@@ -257,6 +257,7 @@ public static class SequenceInputFactExtractor
                 }
                 else if (rule.RepeatMatches)
                 {
+                    EnsureFact(extracted, capture.FactId);
                     if (!TryAppendCollection(
                         collections,
                         capture.FactId,
