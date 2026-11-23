@@ -3654,6 +3654,14 @@
             "that"
           ]
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3673,6 +3681,14 @@
         [
           "average"
         ]
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3688,14 +3704,17 @@
           "literalValue": "above_average"
         }
       ],
-      "requiredAnySequences": [
-        [
-          "function"
-        ]
-      ],
       "forbiddenAnySequences": [
         [
           "named"
+        ]
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
         ]
       ]
     },
@@ -3728,6 +3747,14 @@
             ]
           ]
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3759,6 +3786,14 @@
             ]
           ]
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3773,6 +3808,14 @@
           "valueId": "parameter",
           "literalValue": "values"
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3790,6 +3833,14 @@
             "values"
           ]
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -3805,9 +3856,12 @@
           "literalValue": "value"
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
-          "values"
+          "new",
+          "list",
+          "containing",
+          "only"
         ]
       ]
     },
@@ -3828,8 +3882,11 @@
           "literalValue": ">="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3848,8 +3905,11 @@
           "literalValue": ">="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3871,8 +3931,11 @@
           "literalValue": "<="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3891,8 +3954,11 @@
           "literalValue": "<="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3911,8 +3977,11 @@
           "literalValue": ">"
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3931,8 +4000,11 @@
           "literalValue": ">"
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3951,8 +4023,11 @@
           "literalValue": "<"
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3970,8 +4045,11 @@
           "literalValue": "<"
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -3991,8 +4069,11 @@
           "literalValue": "!="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -4011,8 +4092,11 @@
           "literalValue": "=="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -4030,8 +4114,11 @@
           "literalValue": "=="
         }
       ],
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -4047,6 +4134,12 @@
           "function"
         ],
         [
+          "only"
+        ],
+        [
+          "new",
+          "list",
+          "containing",
           "only"
         ]
       ]
@@ -4082,6 +4175,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4102,6 +4203,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4125,6 +4234,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4145,6 +4262,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4165,6 +4290,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4185,6 +4318,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4205,6 +4346,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4224,6 +4373,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4245,6 +4402,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4265,6 +4430,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     },
     {
@@ -4284,6 +4457,14 @@
           "trimSuffixCharacters": ",",
           "preserveRawValue": true
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "new",
+          "list",
+          "containing",
+          "only"
+        ]
       ]
     }
   ],
