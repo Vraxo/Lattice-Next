@@ -131,8 +131,8 @@ internal static class TaskCodeGenerationResponder
             }
 
             goals.Add(new GenerationGoal(
-                effect.Id,
-                argumentKind.Id,
+                SemanticWorldModel.Normalize(effect.Label),
+                SemanticWorldModel.Normalize(argumentKind.Label),
                 step.Step.Label,
                 ImmutableArray<string>.Empty)
             {
