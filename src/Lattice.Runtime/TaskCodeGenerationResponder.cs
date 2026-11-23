@@ -147,6 +147,18 @@ internal static class TaskCodeGenerationResponder
             sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "generation-step"));
             sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "generation-effect"));
             sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "generation-argument-kind"));
+
+            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "step-references-api"))
+            {
+                var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
+                if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
+                {
+                    return false;
+                }
+
+                sources.Add(apiAssertion.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "application-programming-interface"));
+            }
         }
 
         var loader = new GenerationLanguagePackLoader();
