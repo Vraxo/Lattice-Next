@@ -3570,8 +3570,7 @@
           "collectionFieldIndex": 0,
           "stopBeforeTokens": [],
           "preserveRawValue": true,
-          "trimSuffixCharacters": ",",
-          "normalization": "stringLiteralIfQuoted"
+          "trimSuffixCharacters": ","
         },
         {
           "factId": "program.conditional-function.branches",
@@ -3611,8 +3610,7 @@
           ],
           "trimSuffixCharacters": ",",
           "stopBeforeTokens": [],
-          "preserveRawValue": true,
-          "normalization": "stringLiteralIfQuoted"
+          "preserveRawValue": true
         },
         {
           "factId": "program.conditional-function.call",
