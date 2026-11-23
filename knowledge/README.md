@@ -19,7 +19,7 @@ Each type has an explicit status:
 - **Primitive** marks a semantic starting point whose membership is asserted or inherited. A primitive is not defined merely by its place in the taxonomy.
 - **Defined** requires a sufficient class expression. Membership is derived only when that expression is satisfied.
 
-Necessary restrictions use positive existential forms: `some(relation, targetType)`. They constrain instances but do not establish membership by themselves. Sufficient expressions support positive existential (`some`) and universal (`all`) relation restrictions, nested fillers, and combinations using `and` and `or. A universal restriction applies to every asserted filler reached through its relation; pair it with an existential restriction when at least one filler must exist.
+Necessary restrictions use positive existential forms: `some(relation, targetType)`. They constrain instances but do not establish membership by themselves. Sufficient expressions support positive existential (`some`) and universal (`all`) relation restrictions, nested fillers, and combinations using `and` and `or`. A universal restriction applies to every asserted filler reached through its relation; pair it with an existential restriction when at least one filler must exist.
 
 The current expression language does not support negation, cardinality, equality/inequality, inverse-role reasoning, or unrestricted first-order logic.
 
