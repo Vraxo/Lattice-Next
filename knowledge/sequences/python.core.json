@@ -3704,12 +3704,6 @@
           "literalValue": "above_average"
         }
       ],
-      "forbiddenAnySequences": [
-        [
-          "function",
-          "named"
-        ]
-      ],
       "requiredAllSequences": [
         [
           "new",
