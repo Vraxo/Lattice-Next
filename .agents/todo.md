@@ -47,7 +47,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Represent definite descriptions with a head noun and ordered modifiers; assert them as separate unary facts on one stable individual.
 - [x] Represent indefinite assertions and existence questions as existentially quantified unary conditions.
 - [x] Keep anonymous existential witnesses distinct from named individuals and from other indefinite assertions.
-- [x] Add quantified relational rules with unary premises and one fixed concrete object.
+- [x] Add quantified relational rules with unary premises and fixed-object relation premises.
 - [x] Add relational pronoun forms deliberately; resolve one `it` in either argument position without heuristic antecedent selection.
 
 ## 2. First symbolic reasoning slice
@@ -67,7 +67,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Derive explicit negative universal conclusions from positive unary premises without feeding negative conclusions back into positive inference.
 - [x] Support explicit negative unary premises in universal rules; match them against explicit or safely derived negative ground unary evidence, never absence.
 - [x] Reuse positive and negative unary rule conclusions in iterative, polarity-separated inference closure with cycle-safe proof ancestry.
-- [x] Support at most one fixed-object positive or explicitly negative relational premise alongside unary conditions in universal rules, matching explicit same-polarity evidence for the same subject and exact object while preserving proof provenance.
+- [x] Support multiple fixed-object positive or explicitly negative relational premises alongside unary conditions in universal rules, matching explicit same-polarity evidence for the same subject and each exact object while preserving proof provenance.
 - [x] Reject universal rules with multiple fixed-object relational premises rather than implicitly expanding the supported relational language.
 - [x] Represent one existentially quantified related individual in a universal rule, scoped to each matched subject, with unary witness conditions and provenance-preserving derived relation facts.
 - [ ] Add general multi-variable relation joins, arbitrary relational premises, nested existential structures, and broader quantified rules only after concrete use cases and tests exist.
