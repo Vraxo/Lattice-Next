@@ -178,8 +178,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
 
-        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal(expectedCondition, condition.Values["expression"]);
+        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        Assert.Equal(expectedCondition, Assert.Single(branches.Collections["conditions"]));
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1865,8 +1865,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal("score >= 10", condition.Values["expression"]);
+        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        Assert.Equal("score >= 10", Assert.Single(branches.Collections["conditions"]));
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1933,8 +1933,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var condition = Assert.Single(facts, fact => fact.Id == "program.conditional-function.condition");
-        Assert.Equal(expectedExpression, condition.Values["expression"]);
+        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        Assert.Equal(expectedExpression, Assert.Single(branches.Collections["conditions"]));
     }
 
     [Fact]
