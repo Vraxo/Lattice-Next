@@ -63,7 +63,7 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration work in progress
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-23**, **26 of 28 (92.9%)** have been removed through small, independently reviewed increments; **2 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 89.3% complete.
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-23**, **26 of 28 (92.9%)** have been removed through small, independently reviewed increments; **2 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 92.9% complete.
 
 The latest completed increment is PR [#533 — Generate multi-conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/533). It removed the specialized multi-conditional function parser and replaced it with aligned semantic collections and compositional token generation for repeatable `if`/`elif` branches. Its CI passed, including end-to-end Python execution, and it was merged to `main`.
 
