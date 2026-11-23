@@ -3569,7 +3569,8 @@
           "collectionFieldDelimiter": "when",
           "collectionFieldIndex": 0,
           "stopBeforeTokens": [],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "trimSuffixCharacters": ","
         },
         {
           "factId": "program.conditional-function.branches",
@@ -3589,7 +3590,8 @@
           "collectionFieldIndex": 1,
           "stopBeforeTokens": [],
           "preserveRawValue": true,
-          "normalization": "booleanExpression"
+          "normalization": "booleanExpression",
+          "trimSuffixCharacters": ","
         },
         {
           "factId": "program.conditional-function.false-return",
