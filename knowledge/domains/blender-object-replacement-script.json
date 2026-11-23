@@ -622,6 +622,16 @@
       "id": "value-step-remove-original-arguments",
       "label": "obj, do_unlink=True",
       "kind": "Individual"
+    },
+    {
+      "id": "code-generation-safety-note",
+      "label": "code generation safety note",
+      "kind": "Type"
+    },
+    {
+      "id": "safety-save-copy-before-run",
+      "label": "Save a copy of your Blender file before running; the script removes the original objects.",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -726,6 +736,16 @@
       "objectKind": "Individual",
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "code-generation-task-has-safety-note",
+      "domain": "code-generation-task",
+      "range": "code-generation-safety-note",
+      "verb": "has safety note",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -797,6 +817,12 @@
     },
     {
       "concept": "programming-language",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "code-generation-safety-note",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -2107,6 +2133,21 @@
       "subject": "binding-step-remove-original-arguments",
       "relation": "binding-has-value",
       "object": "value-step-remove-original-arguments"
+    },
+    {
+      "subject": "code-generation-safety-note",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "safety-save-copy-before-run",
+      "relation": "instance-of",
+      "object": "code-generation-safety-note"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "code-generation-task-has-safety-note",
+      "object": "safety-save-copy-before-run"
     }
   ],
   "dataProperties": [
