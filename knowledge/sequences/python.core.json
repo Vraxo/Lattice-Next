@@ -3699,7 +3699,8 @@
       "id": "capture-collection-filter-parameter-receives",
       "matchTokens": [
         "function",
-        "receives"
+        "receives",
+        "list"
       ],
       "factId": "program.collection-filter.signature",
       "captures": [
@@ -3729,7 +3730,8 @@
       "id": "capture-collection-filter-parameter-accepts",
       "matchTokens": [
         "function",
-        "accepts"
+        "accepts",
+        "list"
       ],
       "factId": "program.collection-filter.signature",
       "captures": [
@@ -3772,6 +3774,7 @@
     {
       "id": "capture-collection-filter-item",
       "matchTokens": [
+        "function",
         "only"
       ],
       "factId": "program.collection-filter.signature",
@@ -3788,7 +3791,7 @@
     {
       "id": "default-collection-filter-item",
       "matchTokens": [
-        "only"
+        "function"
       ],
       "factId": "program.collection-filter.signature",
       "captures": [
@@ -4030,112 +4033,6 @@
       ]
     },
     {
-      "id": "capture-collection-filter-numeric-threshold",
-      "matchTokens": [
-        "only"
-      ],
-      "factId": "program.collection-filter.threshold",
-      "captures": [
-        {
-          "factId": "program.collection-filter.threshold",
-          "valueId": "expression",
-          "startAfterSequences": [
-            [
-              "greater",
-              "than",
-              "or",
-              "equal",
-              "to"
-            ],
-            [
-              "at",
-              "least"
-            ],
-            [
-              "less",
-              "than",
-              "or",
-              "equal",
-              "to"
-            ],
-            [
-              "at",
-              "most"
-            ],
-            [
-              "greater",
-              "than"
-            ],
-            [
-              "more",
-              "than"
-            ],
-            [
-              "less",
-              "than"
-            ],
-            [
-              "below"
-            ],
-            [
-              "not",
-              "equal",
-              "to"
-            ],
-            [
-              "equal",
-              "to"
-            ],
-            [
-              "equals"
-            ]
-          ],
-          "stopBeforeTokens": [
-            "then"
-          ],
-          "trimSuffixCharacters": ",",
-          "preserveRawValue": true
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "greater",
-          "than"
-        ],
-        [
-          "more",
-          "than"
-        ],
-        [
-          "at",
-          "least"
-        ],
-        [
-          "less",
-          "than"
-        ],
-        [
-          "below"
-        ],
-        [
-          "at",
-          "most"
-        ],
-        [
-          "equal",
-          "to"
-        ],
-        [
-          "equals"
-        ],
-        [
-          "not",
-          "equal",
-          "to"
-        ]
-      ]
-    },
-    {
       "id": "recognize-collection-filter-average-threshold",
       "matchTokens": [
         "average"
@@ -4159,6 +4056,231 @@
         "only"
       ],
       "factId": "program.collection-filter"
+    },
+    {
+      "id": "capture-collection-filter-threshold-1",
+      "matchTokens": [
+        "only",
+        "greater",
+        "than",
+        "or",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-2",
+      "matchTokens": [
+        "only",
+        "at",
+        "least"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-3",
+      "matchTokens": [
+        "only",
+        "less",
+        "than",
+        "or",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-4",
+      "matchTokens": [
+        "only",
+        "at",
+        "most"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-5",
+      "matchTokens": [
+        "only",
+        "greater",
+        "than"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-6",
+      "matchTokens": [
+        "only",
+        "more",
+        "than"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-7",
+      "matchTokens": [
+        "only",
+        "less",
+        "than"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-8",
+      "matchTokens": [
+        "only",
+        "below"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-9",
+      "matchTokens": [
+        "only",
+        "not",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-10",
+      "matchTokens": [
+        "only",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-threshold-11",
+      "matchTokens": [
+        "only",
+        "equals"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ]
     }
   ],
   "rules": [
