@@ -58,4 +58,58 @@ public sealed class SequenceGenerationPipelineTests
         Assert.Null(result);
         Assert.Contains("No known operation", error, StringComparison.Ordinal);
     }
+    [Fact]
+    public void Resolves_multiple_named_bindings_from_a_semantic_goal()
+    {
+        var pack = new GenerationLanguagePack(
+            1,
+            "python",
+            "assignment",
+            [
+                new GenerationProduction(
+                    "assignment",
+                    [
+                        new GenerationSymbol("binding", "target"),
+                        new GenerationSymbol("terminal", " = "),
+                        new GenerationSymbol("binding", "expression")
+                    ])
+            ],
+            [
+                new GenerationBinding("target", "goal-binding", "none") { Key = "target" },
+                new GenerationBinding("expression", "goal-binding", "none") { Key = "expression" }
+            ],
+            [
+                new GenerationOperation(
+                    "python-assignment",
+                    "=",
+                    "assign-variable",
+                    "assignment",
+                    [])
+                {
+                    StartSymbol = "assignment"
+                }
+            ],
+            new GenerationStringLiteralFormat("\"", "\"", []));
+
+        var goal = new GenerationGoal(
+            "assign-variable",
+            "assignment",
+            "expression",
+            ImmutableArray<string>.Empty)
+        {
+            Bindings = ImmutableDictionary<string, string>.Empty
+                .Add("target", "objects")
+                .Add("expression", "list(bpy.data.objects)")
+        };
+
+        Assert.True(
+            new SequenceGenerationPipeline().TryGenerate(
+                pack,
+                goal,
+                out var result,
+                out var error),
+            error);
+        Assert.Equal("objects = list(bpy.data.objects)", result!.Text);
+    }
+
 }
