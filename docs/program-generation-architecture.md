@@ -63,11 +63,11 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration work in progress
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-23**, **25 of 28 (89.3%)** have been removed through small, independently reviewed increments; **3 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 75% complete.
+The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-23**, **25 of 28 (89.3%)** have been removed through small, independently reviewed increments; **3 remain**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 89.3% complete.
 
-The latest completed increment before the current collection-filter work is PR [#521 — Generate compound conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/521). It removed the one-branch conditional-function parser fallback and moved compound Boolean conditions, string return values, and parameter-reference validation into generic semantic extraction and declarative sequence generation. Its CI passed and it was merged to `main`.
+The latest completed increment is PR [#531 — Generate collection-filter functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/531). It removed the specialized collection-filter parser and replaced it with reusable semantic facts and compositional sequence rules. Its CI passed, including end-to-end Python execution, and it was merged to `main`.
 
-Recent knowledge-driven improvements have also expanded benchmark coverage without changing the 24/28 C# dispatch count:
+Before PR #531, recent knowledge-driven improvements also expanded benchmark coverage without changing the tracked C# dispatch count:
 
 - [PR #522](https://github.com/Vraxo/Lattice-Next/pull/522) recognizes natural-language greeting-function requests through existing declarative knowledge.
 - [PR #524](https://github.com/Vraxo/Lattice-Next/pull/524) replaced a fixed product-price dictionary program with captured key/value facts and reusable iteration rules; [PR #525](https://github.com/Vraxo/Lattice-Next/pull/525) made the generated example self-contained without inventing dictionary entries.
