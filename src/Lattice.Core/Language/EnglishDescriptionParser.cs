@@ -221,7 +221,9 @@ internal static class EnglishDescriptionParser
                 return false;
             }
 
-            var witness = CreateExistentialWitness(existentialConditions.Count);
+            var witness = CreateExistentialWitness(
+                relationSubject,
+                existentialConditions.Count);
             if (!TryParseDescription(
                 tokens,
                 objectStart + 1,
@@ -230,7 +232,7 @@ internal static class EnglishDescriptionParser
                 out var objectDescription,
                 allowRelationalRelativePredicates: true,
                 relationSubject: witness,
-                allowExistentialRelationalObjects: false,
+                allowExistentialRelationalObjects: true,
                 allowNegativeRelationalRelativePredicates: false))
             {
                 return false;
@@ -263,14 +265,18 @@ internal static class EnglishDescriptionParser
         return true;
     }
 
-    private static VariableTerm CreateExistentialWitness(int index)
+    private static VariableTerm CreateExistentialWitness(
+        VariableTerm subject,
+        int index)
     {
-        var name = index switch
-        {
-            0 => "y",
-            1 => "z",
-            _ => $"witness{index + 1}"
-        };
+        var variableNames = new[] { "x", "y", "z", "w", "v", "u", "t", "s", "r", "q", "p" };
+        var subjectIndex = Array.IndexOf(variableNames, subject.Identifier.Value);
+        var witnessIndex = subjectIndex >= 0
+            ? subjectIndex + index + 1
+            : variableNames.Length + index;
+        var name = witnessIndex < variableNames.Length
+            ? variableNames[witnessIndex]
+            : $"witness{witnessIndex + 1}";
         return new VariableTerm(EnglishGrammarTokens.CreateIdentifier(name));
     }
 
