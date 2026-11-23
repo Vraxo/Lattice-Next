@@ -592,6 +592,11 @@
       "id": "blender-codegen-emit-indented-else",
       "label": "emit indented else",
       "kind": "Individual"
+    },
+    {
+      "id": "blender-codegen-emit-indented-assignment",
+      "label": "emit indented assignment",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -1918,7 +1923,7 @@
       "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "step-iterate-collections",
+      "subject": "blender-codegen-step-iterate-collections",
       "relation": "blender-codegen-step-has-generation-effect",
       "object": "blender-codegen-emit-triple-indented-loop-header"
     },
@@ -1971,6 +1976,11 @@
       "subject": "blender-codegen-step-fallback-link",
       "relation": "blender-codegen-step-has-generation-effect",
       "object": "blender-codegen-emit-double-indented-call"
+    },
+    {
+      "subject": "blender-codegen-emit-indented-assignment",
+      "relation": "instance-of",
+      "object": "blender-codegen-generation-effect"
     }
   ],
   "dataProperties": [
