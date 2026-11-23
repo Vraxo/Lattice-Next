@@ -3668,13 +3668,17 @@
           "valueId": "name",
           "literalValue": "filter_values"
         }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "average"
+        ]
       ]
     },
     {
       "id": "default-average-filter-function-name",
       "matchTokens": [
-        "average",
-        "of"
+        "average"
       ],
       "factId": "program.collection-filter.signature",
       "captures": [
