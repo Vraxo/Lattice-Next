@@ -33,10 +33,12 @@ public sealed class SequenceGenerationPipeline
             return false;
         }
 
+        var startSymbol = selectedOperation!.StartSymbol ?? pack.StartSymbol;
+        var requiredBindings = GetReachableBindings(pack.Productions, startSymbol);
         var bindings = ImmutableDictionary.CreateBuilder<string, ImmutableArray<string>>(
             StringComparer.Ordinal);
 
-        foreach (var binding in pack.Bindings)
+        foreach (var binding in pack.Bindings.Where(binding => requiredBindings.Contains(binding.Name)))
         {
             var sourceValue = binding.Source switch
             {
@@ -72,7 +74,7 @@ public sealed class SequenceGenerationPipeline
         if (!SequenceGenerator.TryGenerate(
             grammar,
             new SequenceGenerationRequest(
-                selectedOperation!.StartSymbol ?? pack.StartSymbol,
+                startSymbol,
                 bindings.ToImmutable(),
                 MaxSteps: 256,
                 MaxTokens: 256),
@@ -125,6 +127,41 @@ public sealed class SequenceGenerationPipeline
 
         result = new SequenceProgramGenerationResult(statements.ToImmutable());
         return true;
+    }
+
+    private static HashSet<string> GetReachableBindings(
+        ImmutableArray<GenerationProduction> productions,
+        string startSymbol)
+    {
+        var productionMap = productions.ToDictionary(
+            production => production.Head,
+            StringComparer.Ordinal);
+        var bindings = new HashSet<string>(StringComparer.Ordinal);
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        var pending = new Stack<string>();
+        pending.Push(startSymbol);
+
+        while (pending.TryPop(out var current))
+        {
+            if (!visited.Add(current) || !productionMap.TryGetValue(current, out var production))
+            {
+                continue;
+            }
+
+            foreach (var symbol in production.Symbols)
+            {
+                if (symbol.Kind == "binding")
+                {
+                    bindings.Add(symbol.Value);
+                }
+                else if (symbol.Kind == "nonterminal")
+                {
+                    pending.Push(symbol.Value);
+                }
+            }
+        }
+
+        return bindings;
     }
 
     private static SequenceSymbol ToSequenceSymbol(GenerationSymbol symbol) =>
