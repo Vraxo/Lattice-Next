@@ -119,26 +119,12 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
-                if (capture.Normalization == "booleanExpression")
+                if (capture.CollectionDelimiter is null && capture.CollectionDelimiters.IsDefaultOrEmpty)
                 {
-                    if (!BooleanExpressionNormalizer.TryNormalize(capturedValue, out var normalizedValue))
+                    if (!TryNormalizeCapture(rule.Id, capture.Normalization, capturedValue, out capturedValue, out error))
                     {
-                        error = $"Input rule '{rule.Id}' captured an invalid boolean expression.";
                         return false;
                     }
-
-                    capturedValue = normalizedValue;
-                }
-
-                if (capture.Normalization == "comparisonOperator")
-                {
-                    if (!ComparisonOperatorNormalizer.TryNormalize(capturedValue, out var normalizedValue))
-                    {
-                        error = $"Input rule '{rule.Id}' captured an unsupported comparison operator.";
-                        return false;
-                    }
-
-                    capturedValue = normalizedValue;
                 }
 
                 if (capture.NumericOffset != 0)
@@ -263,6 +249,35 @@ public static class SequenceInputFactExtractor
         }
 
         facts = extractedFacts;
+        return true;
+    }
+
+    private static bool TryNormalizeCapture(
+        string ruleId,
+        string? normalization,
+        string value,
+        out string normalized,
+        out string? error)
+    {
+        normalized = value;
+        error = null;
+        if (normalization == "booleanExpression")
+        {
+            if (!BooleanExpressionNormalizer.TryNormalize(value, out normalized))
+            {
+                error = $"Input rule '{ruleId}' captured an invalid boolean expression.";
+                return false;
+            }
+        }
+        else if (normalization == "comparisonOperator")
+        {
+            if (!ComparisonOperatorNormalizer.TryNormalize(value, out normalized))
+            {
+                error = $"Input rule '{ruleId}' captured an unsupported comparison operator.";
+                return false;
+            }
+        }
+
         return true;
     }
 
