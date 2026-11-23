@@ -5864,8 +5864,8 @@
         "secondaryCollectionSeparator": ", ",
         "prefix": "def ",
         "suffix": ":\n",
-        "useCollection": true,
-        "secondaryValueIsCollection": true
+        "secondaryValueIsCollection": true,
+        "collection": true
       },
       "satisfiesFacts": [],
       "advanceCollections": [
@@ -5895,7 +5895,7 @@
         "factId": "program.arithmetic-function-return",
         "valueId": "expression",
         "suffix": "\n",
-        "useCollection": true
+        "collection": true
       },
       "advanceCollections": [
         "program.arithmetic-function-return:expression"
@@ -7342,8 +7342,8 @@
         "secondaryCollectionSeparator": ", ",
         "prefix": "def ",
         "suffix": ":\n",
-        "useCollection": true,
-        "secondaryValueIsCollection": true
+        "secondaryValueIsCollection": true,
+        "collection": true
       },
       "satisfiesFacts": [],
       "advanceCollections": [
