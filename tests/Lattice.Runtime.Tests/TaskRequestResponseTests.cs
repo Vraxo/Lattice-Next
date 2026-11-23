@@ -183,7 +183,7 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("obj.matrix_world.translation.copy()", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("collection.objects.link(light_obj)", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.objects.remove(obj, do_unlink=True)", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains(".001", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains(@"\.\d+", utterance.Message, StringComparison.Ordinal);
         Assert.NotEmpty(utterance.SupportingEvidence);
         Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
     }
