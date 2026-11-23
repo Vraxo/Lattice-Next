@@ -488,6 +488,433 @@
           "value": ")"
         }
       ]
+    },
+    {
+      "head": "bound-assignment-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-for-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-if-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "if "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-import-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "import "
+        },
+        {
+          "kind": "binding",
+          "value": "module"
+        }
+      ]
+    },
+    {
+      "head": "bound-call-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "else-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "else:"
+        }
+      ]
+    },
+    {
+      "head": "continue-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "continue"
+        }
+      ]
+    },
+    {
+      "head": "bound-string-assignment-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "string-value"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-for",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-for",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-if",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    if "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-if",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        if "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-quadruple-indented-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "                "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-else",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        else:"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-continue",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        continue"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-for",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-else",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    else:"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -510,6 +937,60 @@
       "name": "argument-assignment",
       "source": "goal-argument",
       "encoding": "none"
+    },
+    {
+      "name": "target",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "target"
+    },
+    {
+      "name": "expression",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "expression"
+    },
+    {
+      "name": "variable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "variable"
+    },
+    {
+      "name": "iterable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "iterable"
+    },
+    {
+      "name": "condition",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "condition"
+    },
+    {
+      "name": "module",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "module"
+    },
+    {
+      "name": "function",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "function"
+    },
+    {
+      "name": "arguments",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "arguments"
+    },
+    {
+      "name": "string-value",
+      "source": "goal-binding",
+      "encoding": "string-literal",
+      "key": "string-value"
     }
   ],
   "operations": [
@@ -770,6 +1251,190 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "triple-indented-call-expression"
+    },
+    {
+      "id": "python-bound-assignment",
+      "symbol": "=",
+      "effect": "emit-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-assignment-statement"
+    },
+    {
+      "id": "python-bound-for-loop",
+      "symbol": "for",
+      "effect": "emit-loop-header",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-for-statement"
+    },
+    {
+      "id": "python-bound-conditional",
+      "symbol": "if",
+      "effect": "emit-conditional-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-if-statement"
+    },
+    {
+      "id": "python-bound-import",
+      "symbol": "import",
+      "effect": "emit-import",
+      "argumentKind": "module-name",
+      "prerequisites": [],
+      "startSymbol": "bound-import-statement"
+    },
+    {
+      "id": "python-bound-call",
+      "symbol": "call",
+      "effect": "emit-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-call-statement"
+    },
+    {
+      "id": "python-else",
+      "symbol": "else",
+      "effect": "emit-else",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "else-statement"
+    },
+    {
+      "id": "python-continue",
+      "symbol": "continue",
+      "effect": "emit-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "continue-statement"
+    },
+    {
+      "id": "python-bound-string-assignment",
+      "symbol": "=",
+      "effect": "emit-string-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-string-assignment-statement"
+    },
+    {
+      "id": "python-bound-indented-assignment",
+      "symbol": "=",
+      "effect": "emit-indented-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-assignment"
+    },
+    {
+      "id": "python-bound-double-indented-assignment",
+      "symbol": "=",
+      "effect": "emit-double-indented-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-assignment"
+    },
+    {
+      "id": "python-bound-triple-indented-assignment",
+      "symbol": "=",
+      "effect": "emit-triple-indented-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-assignment"
+    },
+    {
+      "id": "python-bound-indented-for",
+      "symbol": "for",
+      "effect": "emit-indented-loop-header",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-for"
+    },
+    {
+      "id": "python-bound-double-indented-for",
+      "symbol": "for",
+      "effect": "emit-double-indented-loop-header",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-for"
+    },
+    {
+      "id": "python-bound-indented-if",
+      "symbol": "if",
+      "effect": "emit-indented-conditional-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-if"
+    },
+    {
+      "id": "python-bound-double-indented-if",
+      "symbol": "if",
+      "effect": "emit-double-indented-conditional-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-if"
+    },
+    {
+      "id": "python-bound-indented-call",
+      "symbol": "call",
+      "effect": "emit-indented-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-call"
+    },
+    {
+      "id": "python-bound-double-indented-call",
+      "symbol": "call",
+      "effect": "emit-double-indented-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-call"
+    },
+    {
+      "id": "python-bound-triple-indented-call",
+      "symbol": "call",
+      "effect": "emit-triple-indented-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-call"
+    },
+    {
+      "id": "python-bound-quadruple-indented-call",
+      "symbol": "call",
+      "effect": "emit-quadruple-indented-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-quadruple-indented-call"
+    },
+    {
+      "id": "python-bound-double-indented-else",
+      "symbol": "else",
+      "effect": "emit-double-indented-else",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-else"
+    },
+    {
+      "id": "python-bound-double-indented-continue",
+      "symbol": "continue",
+      "effect": "emit-double-indented-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-continue"
+    },
+    {
+      "id": "python-bound-triple-indented-for",
+      "symbol": "for",
+      "effect": "emit-triple-indented-loop-header",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-for"
+    },
+    {
+      "id": "python-bound-indented-else",
+      "symbol": "else",
+      "effect": "emit-indented-else",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-else"
     }
   ],
   "stringLiteralFormat": {

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Lattice.Client;
 using Lattice.Core.Reasoning;
+using Lattice.Core.Generation;
 using Lattice.Core.Semantics;
 
 namespace Lattice.Runtime;
@@ -19,21 +20,32 @@ internal static class TaskCodeGenerationResponder
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
 
-        if (request.OutputFormat != "python-script" ||
-            request.Context != "blender" ||
-            request.Subject != "blender-object-replacement" ||
-            request.Scope != "object-to-point-light")
+        if (request.Scope != "program-generation")
         {
             return false;
         }
 
-        var task = model.FindConcept("blender-object-replacement", SemanticConceptKind.Individual);
-        if (task is null || !reasoner.IsInstanceOf(task.Id, "blender-code-generation-task"))
+        var task = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        var application = model.FindConcept(request.Context, SemanticConceptKind.Individual);
+        if (task is null ||
+            application is null ||
+            !reasoner.IsInstanceOf(task.Id, "blender-codegen-code-generation-task") ||
+            !reasoner.IsInstanceOf(application.Id, "blender-codegen-software-application"))
         {
             return false;
         }
 
-        var stepAssertions = reasoner.GetRelations(task.Id, "script-has-step");
+        var languageAssertions = reasoner.GetRelations(application.Id, "blender-codegen-application-uses-language");
+        var languageAssertion = languageAssertions.Length == 1 ? languageAssertions[0] : null;
+        var language = languageAssertion is null
+            ? null
+            : model.FindConcept(languageAssertion.Object, SemanticConceptKind.Individual);
+        if (language is null || !reasoner.IsInstanceOf(language.Id, "programming-language"))
+        {
+            return false;
+        }
+
+        var stepAssertions = reasoner.GetRelations(task.Id, "blender-codegen-has-generation-step");
         var steps = stepAssertions
             .Select(assertion => new
             {
@@ -45,93 +57,162 @@ internal static class TaskCodeGenerationResponder
             {
                 item.Assertion,
                 Step = item.Step!,
-                Number = model.GetDataAssertions(item.Step!.Id, "script-step-number").FirstOrDefault()?.Value,
-                Operation = reasoner.GetRelations(item.Step!.Id, "step-uses-operation").FirstOrDefault(),
-                Api = reasoner.GetRelations(item.Step!.Id, "step-uses-api").FirstOrDefault()
+                Order = model.GetDataAssertions(item.Step!.Id, "blender-codegen-generation-step-order")
+                    .FirstOrDefault()?.Value
             })
             .Select(item => int.TryParse(
-                item.Number,
+                item.Order,
                 System.Globalization.NumberStyles.None,
                 System.Globalization.CultureInfo.InvariantCulture,
-                out var number) && item.Operation is not null && item.Api is not null
-                    ? new { item.Assertion, item.Step, item.Operation, item.Api, Number = number }
+                out var order)
+                    ? new { item.Assertion, item.Step, Order = order }
                     : null)
             .Where(item => item is not null)
-            .OrderBy(item => item!.Number)
+            .OrderBy(item => item!.Order)
             .ToArray();
 
-        var codeBlocks = new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["op-snapshot-objects"] = "objects = list(bpy.data.objects)",
-            ["op-iterate-objects"] = "for obj in objects:",
-            ["op-match-name"] = "    if name_pattern.fullmatch(obj.name) is None:\n        continue",
-            ["op-create-light-data"] = "    light_data = bpy.data.lights.new(name=f\"{obj.name}_Point\", type=\"POINT\")",
-            ["op-create-light-object"] = "    light_obj = bpy.data.objects.new(name=f\"{obj.name}_Point\", object_data=light_data)",
-            ["op-copy-world-position"] = "    light_obj.location = obj.matrix_world.translation.copy()",
-            ["op-link-collections"] = "    collections = list(obj.users_collection)\n    if collections:\n        for collection in collections:\n            collection.objects.link(light_obj)\n    else:\n        bpy.context.scene.collection.objects.link(light_obj)",
-            ["op-remove-original"] = "    bpy.data.objects.remove(obj, do_unlink=True)"
-        };
-
-        if (steps.Length != codeBlocks.Count ||
-            steps.Select(item => item!.Operation!.Object).Distinct(StringComparer.Ordinal).Count() != codeBlocks.Count)
+        if (steps.Length == 0 ||
+            steps.Length != stepAssertions.Length ||
+            steps.Select(step => step!.Order).Distinct().Count() != steps.Length)
         {
             return false;
         }
 
-        var codeLines = new List<string>();
+        var goals = ImmutableArray.CreateBuilder<GenerationGoal>(steps.Length);
         var sources = new List<SemanticWorldModelSource>();
-        sources.AddRange(reasoner.GetMembershipEvidence(task.Id, "blender-code-generation-task"));
+        sources.AddRange(reasoner.GetMembershipEvidence(task.Id, "blender-codegen-code-generation-task"));
+        sources.AddRange(reasoner.GetMembershipEvidence(application.Id, "blender-codegen-software-application"));
+        sources.AddRange(reasoner.GetMembershipEvidence(language.Id, "programming-language"));
+        sources.Add(languageAssertion!.Source);
 
         foreach (var step in steps)
         {
-            var operation = model.FindConcept(step!.Operation!.Object, SemanticConceptKind.Individual);
-            var api = model.FindConcept(step.Api!.Object, SemanticConceptKind.Individual);
-            if (operation is null || api is null ||
-                !reasoner.IsInstanceOf(operation.Id, "python-code-operation") ||
-                !reasoner.IsInstanceOf(api.Id, "blender-api") ||
-                !codeBlocks.TryGetValue(operation.Id, out var block))
+            var effectAssertions = reasoner.GetRelations(step!.Step.Id, "blender-codegen-step-has-generation-effect");
+            var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "blender-codegen-step-has-argument-kind");
+            var effectAssertion = effectAssertions.Length == 1 ? effectAssertions[0] : null;
+            var argumentKindAssertion = argumentKindAssertions.Length == 1 ? argumentKindAssertions[0] : null;
+            var effect = effectAssertion is null
+                ? null
+                : model.FindConcept(effectAssertion.Object, SemanticConceptKind.Individual);
+            var argumentKind = argumentKindAssertion is null
+                ? null
+                : model.FindConcept(argumentKindAssertion.Object, SemanticConceptKind.Individual);
+            if (effect is null || argumentKind is null ||
+                !reasoner.IsInstanceOf(effect.Id, "blender-codegen-generation-effect") ||
+                !reasoner.IsInstanceOf(argumentKind.Id, "blender-codegen-generation-argument-kind"))
             {
                 return false;
             }
 
-            codeLines.Add(block);
+            var bindings = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+            foreach (var bindingAssertion in reasoner.GetRelations(step.Step.Id, "blender-codegen-step-has-binding"))
+            {
+                var binding = model.FindConcept(bindingAssertion.Object, SemanticConceptKind.Individual);
+                var valueAssertions = binding is null
+                    ? ImmutableArray<SemanticRelationAssertion>.Empty
+                    : reasoner.GetRelations(binding.Id, "blender-codegen-binding-has-value");
+                var valueAssertion = valueAssertions.Length == 1 ? valueAssertions[0] : null;
+                var value = valueAssertion is null
+                    ? null
+                    : model.FindConcept(valueAssertion.Object, SemanticConceptKind.Individual);
+                if (binding is null || value is null ||
+                    !reasoner.IsInstanceOf(binding.Id, "blender-codegen-generation-binding") ||
+                    !reasoner.IsInstanceOf(value.Id, "blender-codegen-generation-binding-value") ||
+                    bindings.ContainsKey(binding.Label))
+                {
+                    return false;
+                }
+
+                bindings.Add(binding.Label, value.Label);
+                sources.Add(bindingAssertion.Source);
+                sources.Add(valueAssertion!.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(binding.Id, "blender-codegen-generation-binding"));
+                sources.AddRange(reasoner.GetMembershipEvidence(value.Id, "blender-codegen-generation-binding-value"));
+            }
+
+            goals.Add(new GenerationGoal(
+                SemanticWorldModel.Normalize(effect.Label),
+                SemanticWorldModel.Normalize(argumentKind.Label),
+                step.Step.Label,
+                ImmutableArray<string>.Empty)
+            {
+                Bindings = bindings.ToImmutable()
+            });
+
             sources.Add(step.Assertion.Source);
-            sources.AddRange(model.GetDataAssertions(step.Step.Id, "script-step-number")
+            sources.AddRange(model.GetDataAssertions(step.Step.Id, "blender-codegen-generation-step-order")
                 .Select(assertion => assertion.Source));
-            sources.Add(step.Operation.Source);
-            sources.Add(step.Api.Source);
-            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "blender-script-step"));
-            sources.AddRange(reasoner.GetMembershipEvidence(operation.Id, "python-code-operation"));
-            sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "blender-api"));
+            sources.Add(effectAssertion!.Source);
+            sources.Add(argumentKindAssertion!.Source);
+            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "blender-codegen-generation-step"));
+            sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "blender-codegen-generation-effect"));
+            sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "blender-codegen-generation-argument-kind"));
+
+            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "blender-codegen-step-references-api"))
+            {
+                var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
+                if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
+                {
+                    return false;
+                }
+
+                sources.Add(apiAssertion.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "application-programming-interface"));
+            }
         }
 
-        var code = string.Join(Environment.NewLine, new[]
+        var loader = new GenerationLanguagePackLoader();
+        if (!loader.TryLoadEmbedded(out var packs, out var loadError))
         {
-            "import bpy",
-            "import re",
-            "",
-            "target_name = \"YourObjectName\"",
-            "name_pattern = re.compile(rf\"{re.escape(target_name)}(?:\\.\\d+)?$\")",
-            "",
-            string.Join(Environment.NewLine, codeLines)
-        });
+            return false;
+        }
+        if (!packs.TryGetValue(language.Id, out var pack))
+        {
+            return false;
+        }
+        if (!new SequenceGenerationPipeline().TryGenerateProgram(
+                pack,
+                goals.ToImmutable(),
+                out var program,
+                out var generationError))
+        {
+            return false;
+        }
 
-        message = string.Join(Environment.NewLine + Environment.NewLine, new[]
+        var safetyNotes = reasoner.GetRelations(task.Id, "blender-codegen-code-generation-task-has-safety-note")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Note is not null)
+            .ToArray();
+        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "blender-codegen-code-generation-safety-note")))
         {
-            "## Blender object replacement",
-            "Set `target_name` to the exact object name you want to replace. The script also matches Blender's numbered duplicates, such as `.001` and `.002`.",
+            return false;
+        }
+
+        var fence = new string((char)96, 3);
+        var messageLines = new List<string>
+        {
+            $"## {task.Label}",
             "### Script",
-            "```python",
-            code,
-            "```",
-            "### What it does",
-            "- Finds every object with the selected name, including numbered duplicates.",
-            "- Creates a point light at each object's world-space position.",
-            "- Links each light into the same collections as its original object.",
-            "- Removes the original object after creating and linking its replacement.",
-            "**Before running:** Save a copy of your Blender file. The original objects are removed."
-        });
+            fence + language.Id,
+            program!.Text,
+            fence,
+            "### Steps"
+        };
+        messageLines.AddRange(steps.Select(step => $"- {step!.Step.Label}"));
+        if (safetyNotes.Length > 0)
+        {
+            messageLines.Add("### Safety");
+            messageLines.AddRange(safetyNotes.Select(item => $"- {item.Note!.Label}"));
+            sources.AddRange(safetyNotes.Select(item => item.Assertion.Source));
+            sources.AddRange(safetyNotes.SelectMany(item =>
+                reasoner.GetMembershipEvidence(item.Note!.Id, "blender-codegen-code-generation-safety-note")));
+        }
 
+        message = string.Join(Environment.NewLine, messageLines);
         evidence = ImmutableArray.Create(new LatticeEvidence(
             LatticeEvidenceKind.Derived,
             LatticeEvidencePolarity.Positive,

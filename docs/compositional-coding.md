@@ -8,40 +8,30 @@ The coding track is separate from the general assistant benchmark. Its initial b
 
 ## Architectural principle: one sequence generator
 
-Lattice should have one general-purpose mechanism for generating output as a sequence of symbols. It must not switch between an English renderer, a Python renderer, a Blender generator, or task-specific response templates.
+Lattice uses one output-format-agnostic sequence-generation mechanism. It expands grammar productions, resolves semantic binding slots, and searches for a valid sequence under bounded deterministic limits. The generator does not interpret Python, English, Markdown, or another output format; language knowledge supplies the productions and terminal tokens.
 
-The generator itself is output-format agnostic:
+The current generation path is symbolic and deterministic:
 
-- It expands grammar symbols into terminal tokens.
-- It resolves semantic binding slots from the supplied generation context.
-- It expands nonterminal grammar symbols to define the currently permissible continuations.
-- It scores every emitted terminal or semantic binding token with the same optional context-sensitive token model.
-- It emits the resulting sequence without interpreting it as Python, English, Markdown, or any other particular format.
+- **Grammar-constrained generation:** declarative productions restrict valid continuations.
+- **Semantic binding:** named values from a generation goal fill the binding slots required by the selected production.
+- **Operation selection:** generic semantic effects, argument kinds, and prerequisites select an applicable language operation.
+- **Sequence search:** bounded deterministic search emits the terminal sequence and rejects unresolved or unsupported bindings.
 
-Language and domain knowledge can describe vocabulary, grammar, syntax, and preferred constructions. A generic token model can provide continuation statistics for any kind of output. Both are data consumed by the same engine; neither becomes a specialized rendering implementation. Whitespace and punctuation are ordinary emitted surface tokens.
+There is no neural model, corpus-trained n-gram model, or statistical next-token prediction in this path. The runtime does not use a separate Python or Blender generator.
 
-The initial implementation combines bounded deterministic beam search with an optional smoothed n-gram continuation model:
-
-- **Grammar-constrained generation:** weighted productions restrict possible sequences; the token model scores each emitted token using the longest available preceding-token context, backing off to shorter contexts when necessary.
-- **Grammar-free continuation:** the same generator can continue a supplied token context directly from the token model, using beam search over observed next-token candidates and a learned end-of-sequence marker.
-- **Corpus training:** token observations can be built from arbitrary token sequences. The training API does not know whether those sequences represent English, Python, Markdown, or another format.
-- **Universal tokenization:** one Unicode subword tokenizer learns pair merges from mixed text/code documents. It starts from Unicode scalar values, preserves whitespace and punctuation, and reconstructs the original input exactly. The same tokenizer is used regardless of output format.
-
-The score is format-agnostic and is applied equally to natural-language words, code symbols, whitespace, and punctuation. The token model learns local continuation frequencies, not meaning. It cannot independently decide what a user is asking, plan an answer, or reliably produce unseen long-range structures. It is a small non-neural baseline, **not** an LLM-equivalent model or a claim of open-ended language ability.
-
-The tokenizer and training APIs are currently in-process foundations; there is not yet a curated large-corpus ingest/persistence workflow, semantic conditioning of next-token choices, a learned semantic content planner, robust morphology, or runtime integration. They do not yet replace the current runtime responders. Those are subsequent milestones.
+The generic sequence engine and language-pack loader are reusable foundations, not evidence of open-ended programming ability. The current knowledge and task models remain limited; broader expression composition, API compatibility checking, semantic planning, and unseen-task generalization still need independent evaluation.
 
 ## Repository audit: current code-generation path
 
-The existing Blender object-replacement example is not general code generation:
+The Blender object-replacement example now uses the generic generation path:
 
-- `knowledge/domains/blender-object-replacement-script.json` stores a task entity, ordered task steps, operation IDs, and Blender API labels.
-- `TaskRequestResponder.TryGenerateCode` accepts only the exact combination `python-script` + `blender` + `blender-object-replacement` + `object-to-point-light`.
-- `TaskRequestParser.TryParseBlenderScript` recognizes one Blender-script request shape and only classifies the task as supported when its text contains specific replacement/object/name/point-light terms.
-- The responder contains a dictionary mapping operation IDs directly to complete Python source fragments.
-- It also hardcodes imports, variable setup, explanatory prose, and the final script layout.
+- Script-creation requests are parsed into an application and a normalized task phrase, rather than routed by a Blender-specific parser branch.
+- The semantic world model resolves the task phrase to a code-generation task and the application to its programming language.
+- Ordered generation steps carry generic effects, argument kinds, and named semantic bindings.
+- The runtime turns those steps into generic generation goals and uses the same `SequenceGenerationPipeline` and language-pack grammar used by other goals.
+- Python statement syntax, indentation, and string-literal escaping live in the language pack; the responder no longer maps task operation IDs to complete source fragments.
 
-This remains a useful baseline for measuring the limitation, but it is not the target architecture and must not be used to score compositional generalization.
+This is a meaningful removal of the task-specific C# assembler, but it is not yet proof of compositional generalization. The Blender task still has a curated semantic step plan, and some expression values are represented as language-level expression bindings. The 30-prompt benchmark and independent holdouts must determine what the system can genuinely compose beyond this example.
 
 ## Design constraints
 
@@ -74,7 +64,7 @@ This remains a useful baseline for measuring the limitation, but it is not the t
 
 - Represent language constructions and lexical choices as loadable knowledge rather than renderer code.
 - Bind concepts, relations, values, and user-provided constraints to generation slots.
-- Add context-sensitive continuation scoring and structural constraints without adding language-specific generation engines.
+- Add reusable symbolic constraints and cross-step dependency reasoning without adding language-specific generation engines.
 - Separate content selection from surface realization while avoiding task-specific answer templates.
 
 The first semantic bridge resolves a graph relation assertion into generic `subject`, `relation`, and `object` bindings, using the shared tokenizer for all three values. A data-defined grammar can express the fact as a sentence without storing that sentence in the knowledge pack. This is direct assertion lexicalization only; multi-hop reasoning, morphology, discourse planning, and contextual lexical choice are not implemented yet.

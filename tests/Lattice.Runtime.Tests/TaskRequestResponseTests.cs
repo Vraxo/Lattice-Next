@@ -168,12 +168,14 @@ public sealed class TaskRequestResponseTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("## Blender object replacement", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("## replace matching Blender objects with point lights", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("### Script", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("```python", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("### What it does", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("- Finds every object", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains("**Before running:**", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### Steps", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("- Snapshot scene objects", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("- Create point-light data", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("### Safety", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("Save a copy of your Blender file before running", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("target_name = \"YourObjectName\"", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.objects", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.lights.new", utterance.Message, StringComparison.Ordinal);
@@ -181,7 +183,22 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("obj.matrix_world.translation.copy()", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("collection.objects.link(light_obj)", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.objects.remove(obj, do_unlink=True)", utterance.Message, StringComparison.Ordinal);
-        Assert.Contains(".001", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "    if name_pattern.fullmatch(obj.name) is None:" + Environment.NewLine +
+            "        continue" + Environment.NewLine +
+            "    light_data = bpy.data.lights.new",
+            utterance.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "    if collections:" + Environment.NewLine +
+            "        for collection in collections:" + Environment.NewLine +
+            "            collection.objects.link(light_obj)" + Environment.NewLine +
+            "    else:" + Environment.NewLine +
+            "        bpy.context.scene.collection.objects.link(light_obj)" + Environment.NewLine +
+            "    bpy.data.objects.remove(obj, do_unlink=True)",
+            utterance.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(@"\.\d+", utterance.Message, StringComparison.Ordinal);
         Assert.NotEmpty(utterance.SupportingEvidence);
         Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
     }

@@ -31,8 +31,8 @@ internal static class TaskRequestParser
         @"^\s*How can I learn to (?<skill>[A-Za-z][A-Za-z-]*) (?<target>.+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex BlenderScriptPattern = new(
-        @"^\s*How would I create a script for (?<application>blender) that (?<task>.+?)\??\s*$",
+    private static readonly Regex ScriptCreationPattern = new(
+        @"^\s*How would I create a script for (?<application>[A-Za-z][A-Za-z0-9 -]*?) that (?<task>.+?)\??\s*$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly Regex OperationExplanationPattern = new(
@@ -63,7 +63,7 @@ internal static class TaskRequestParser
             return true;
         }
 
-        if (TryParseBlenderScript(source, sourceText, out utterance))
+        if (TryParseScriptCreationRequest(source, sourceText, out utterance))
         {
             return true;
         }
@@ -107,32 +107,33 @@ internal static class TaskRequestParser
     }
 
 
-    private static bool TryParseBlenderScript(
+    private static bool TryParseScriptCreationRequest(
         string source,
         string sourceText,
         out SemanticUtterance? utterance)
     {
         utterance = null;
-        var match = BlenderScriptPattern.Match(source);
+        var match = ScriptCreationPattern.Match(source);
 
         if (!match.Success)
         {
             return false;
         }
 
-        var task = match.Groups["task"].Value.Trim().TrimEnd('?');
-        var supportsObjectReplacement =
-            task.Contains("replac", StringComparison.OrdinalIgnoreCase) &&
-            task.Contains("object", StringComparison.OrdinalIgnoreCase) &&
-            task.Contains("specific name", StringComparison.OrdinalIgnoreCase) &&
-            task.Contains("point light", StringComparison.OrdinalIgnoreCase);
+        var task = match.Groups["task"].Value.Trim().TrimEnd('?', '.', '!');
+        var application = match.Groups["application"].Value.Trim();
+        if (task.Length == 0 || application.Length == 0)
+        {
+            return false;
+        }
+
         var formula = new TaskRequestFormula(
             TaskRequestAction.Code,
-            supportsObjectReplacement ? "blender-object-replacement" : "unsupported-blender-script",
-            "blender",
-            "python-script",
-            supportsObjectReplacement ? "object-to-point-light" : task,
-            ImmutableArray.Create("python", "blender-api"));
+            SemanticWorldModel.Normalize(task),
+            SemanticWorldModel.Normalize(application),
+            "source-code",
+            "program-generation",
+            ImmutableArray.Create("source-code"));
 
         utterance = new SemanticUtterance(
             UtteranceKind.TaskRequest,
