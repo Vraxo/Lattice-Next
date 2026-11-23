@@ -19,7 +19,6 @@ internal static class TaskCodeGenerationResponder
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
-        Console.WriteLine($"CODEGEN start: {request.Subject}|{request.Context}|{request.Scope}");
 
         if (request.Scope != "program-generation")
         {
@@ -33,10 +32,8 @@ internal static class TaskCodeGenerationResponder
             !reasoner.IsInstanceOf(task.Id, "blender-codegen-code-generation-task") ||
             !reasoner.IsInstanceOf(application.Id, "blender-codegen-software-application"))
         {
-            Console.WriteLine($"CODEGEN task/app fail: task={task?.Id}; app={application?.Id}");
             return false;
         }
-        Console.WriteLine("CODEGEN task/app ok");
 
         var languageAssertions = reasoner.GetRelations(application.Id, "blender-codegen-application-uses-language");
         var languageAssertion = languageAssertions.Length == 1 ? languageAssertions[0] : null;
@@ -45,10 +42,8 @@ internal static class TaskCodeGenerationResponder
             : model.FindConcept(languageAssertion.Object, SemanticConceptKind.Individual);
         if (language is null || !reasoner.IsInstanceOf(language.Id, "programming-language"))
         {
-            Console.WriteLine($"CODEGEN language fail: assertions={languageAssertions.Length}; language={language?.Id}");
             return false;
         }
-        Console.WriteLine($"CODEGEN language ok: {language.Id}");
 
         var stepAssertions = reasoner.GetRelations(task.Id, "blender-codegen-has-generation-step");
         var steps = stepAssertions
@@ -80,10 +75,8 @@ internal static class TaskCodeGenerationResponder
             steps.Length != stepAssertions.Length ||
             steps.Select(step => step!.Order).Distinct().Count() != steps.Length)
         {
-            Console.WriteLine($"CODEGEN steps fail: {steps.Length}/{stepAssertions.Length}");
             return false;
         }
-        Console.WriteLine($"CODEGEN steps ok: {steps.Length}");
 
         var goals = ImmutableArray.CreateBuilder<GenerationGoal>(steps.Length);
         var sources = new List<SemanticWorldModelSource>();
@@ -94,7 +87,6 @@ internal static class TaskCodeGenerationResponder
 
         foreach (var step in steps)
         {
-            Console.WriteLine($"CODEGEN step: {step!.Step.Id}");
             var effectAssertions = reasoner.GetRelations(step!.Step.Id, "blender-codegen-step-has-generation-effect");
             var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "blender-codegen-step-has-argument-kind");
             var effectAssertion = effectAssertions.Length == 1 ? effectAssertions[0] : null;
@@ -109,7 +101,6 @@ internal static class TaskCodeGenerationResponder
                 !reasoner.IsInstanceOf(effect.Id, "blender-codegen-generation-effect") ||
                 !reasoner.IsInstanceOf(argumentKind.Id, "blender-codegen-generation-argument-kind"))
             {
-                Console.WriteLine($"CODEGEN effect/kind fail: {step.Step.Id}; effects={effectAssertions.Length}; kinds={argumentKindAssertions.Length}; effect={effect?.Id}; kind={argumentKind?.Id}");
                 return false;
             }
 
@@ -129,7 +120,6 @@ internal static class TaskCodeGenerationResponder
                     !reasoner.IsInstanceOf(value.Id, "blender-codegen-generation-binding-value") ||
                     bindings.ContainsKey(binding.Label))
                 {
-                    Console.WriteLine($"CODEGEN binding fail: {step.Step.Id}; binding={binding?.Id}; value={value?.Id}");
                     return false;
                 }
 
@@ -163,7 +153,6 @@ internal static class TaskCodeGenerationResponder
                 var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
                 if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
                 {
-                    Console.WriteLine($"CODEGEN API fail: {step.Step.Id}; api={api?.Id}");
                     return false;
                 }
 
@@ -172,16 +161,13 @@ internal static class TaskCodeGenerationResponder
             }
         }
 
-        Console.WriteLine($"CODEGEN goals ok: {goals.Count}");
         var loader = new GenerationLanguagePackLoader();
         if (!loader.TryLoadEmbedded(out var packs, out var loadError))
         {
-            Console.WriteLine($"CODEGEN pack load fail: {loadError}");
             return false;
         }
         if (!packs.TryGetValue(language.Id, out var pack))
         {
-            Console.WriteLine($"CODEGEN pack missing: {language.Id}");
             return false;
         }
         if (!new SequenceGenerationPipeline().TryGenerateProgram(
@@ -190,10 +176,8 @@ internal static class TaskCodeGenerationResponder
                 out var program,
                 out var generationError))
         {
-            Console.WriteLine($"CODEGEN generation fail: {generationError}");
             return false;
         }
-        Console.WriteLine("CODEGEN generation ok");
 
         var safetyNotes = reasoner.GetRelations(task.Id, "blender-codegen-code-generation-task-has-safety-note")
             .Select(assertion => new
@@ -205,10 +189,8 @@ internal static class TaskCodeGenerationResponder
             .ToArray();
         if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "blender-codegen-code-generation-safety-note")))
         {
-            Console.WriteLine("CODEGEN safety note fail");
             return false;
         }
-        Console.WriteLine($"CODEGEN safety ok: {safetyNotes.Length}");
 
         var fence = new string((char)96, 3);
         var messageLines = new List<string>
