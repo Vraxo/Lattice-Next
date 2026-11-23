@@ -120,11 +120,14 @@ internal static class SemanticDefinitionResponder
         {
             var relation = item.Relation!;
             var target = item.Target!;
-            var objectPhrase = IndefinitePhrase(target.Label);
-            if (relation.ObjectRole is not null)
+            var objectPhrase = relation.Id switch
             {
-                objectPhrase += $" {relation.ObjectRole}";
-            }
+                "supports-capability" => target.Label,
+                "used-for-domain" => target.Label,
+                _ => relation.ObjectRole is null
+                    ? $"the {target.Label}"
+                    : $"{IndefinitePhrase(target.Label)} {relation.ObjectRole}"
+            };
 
             clauses.Add($"It {relation.Verb} {objectPhrase}.");
             sources.Add(item.Assertion.Source);
