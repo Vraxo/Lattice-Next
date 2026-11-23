@@ -29,13 +29,13 @@ internal static class TaskCodeGenerationResponder
         var application = model.FindConcept(request.Context, SemanticConceptKind.Individual);
         if (task is null ||
             application is null ||
-            !reasoner.IsInstanceOf(task.Id, "code-generation-task") ||
-            !reasoner.IsInstanceOf(application.Id, "software-application"))
+            !reasoner.IsInstanceOf(task.Id, "blender-codegen-code-generation-task") ||
+            !reasoner.IsInstanceOf(application.Id, "blender-codegen-software-application"))
         {
             return false;
         }
 
-        var languageAssertions = reasoner.GetRelations(application.Id, "application-uses-language");
+        var languageAssertions = reasoner.GetRelations(application.Id, "blender-codegen-application-uses-language");
         var languageAssertion = languageAssertions.Length == 1 ? languageAssertions[0] : null;
         var language = languageAssertion is null
             ? null
@@ -45,7 +45,7 @@ internal static class TaskCodeGenerationResponder
             return false;
         }
 
-        var stepAssertions = reasoner.GetRelations(task.Id, "has-generation-step");
+        var stepAssertions = reasoner.GetRelations(task.Id, "blender-codegen-has-generation-step");
         var steps = stepAssertions
             .Select(assertion => new
             {
@@ -57,7 +57,7 @@ internal static class TaskCodeGenerationResponder
             {
                 item.Assertion,
                 Step = item.Step!,
-                Order = model.GetDataAssertions(item.Step!.Id, "generation-step-order")
+                Order = model.GetDataAssertions(item.Step!.Id, "blender-codegen-generation-step-order")
                     .FirstOrDefault()?.Value
             })
             .Select(item => int.TryParse(
@@ -80,15 +80,15 @@ internal static class TaskCodeGenerationResponder
 
         var goals = ImmutableArray.CreateBuilder<GenerationGoal>(steps.Length);
         var sources = new List<SemanticWorldModelSource>();
-        sources.AddRange(reasoner.GetMembershipEvidence(task.Id, "code-generation-task"));
-        sources.AddRange(reasoner.GetMembershipEvidence(application.Id, "software-application"));
+        sources.AddRange(reasoner.GetMembershipEvidence(task.Id, "blender-codegen-code-generation-task"));
+        sources.AddRange(reasoner.GetMembershipEvidence(application.Id, "blender-codegen-software-application"));
         sources.AddRange(reasoner.GetMembershipEvidence(language.Id, "programming-language"));
         sources.Add(languageAssertion!.Source);
 
         foreach (var step in steps)
         {
-            var effectAssertions = reasoner.GetRelations(step!.Step.Id, "step-has-generation-effect");
-            var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "step-has-argument-kind");
+            var effectAssertions = reasoner.GetRelations(step!.Step.Id, "blender-codegen-step-has-generation-effect");
+            var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "blender-codegen-step-has-argument-kind");
             var effectAssertion = effectAssertions.Length == 1 ? effectAssertions[0] : null;
             var argumentKindAssertion = argumentKindAssertions.Length == 1 ? argumentKindAssertions[0] : null;
             var effect = effectAssertion is null
@@ -98,26 +98,26 @@ internal static class TaskCodeGenerationResponder
                 ? null
                 : model.FindConcept(argumentKindAssertion.Object, SemanticConceptKind.Individual);
             if (effect is null || argumentKind is null ||
-                !reasoner.IsInstanceOf(effect.Id, "generation-effect") ||
-                !reasoner.IsInstanceOf(argumentKind.Id, "generation-argument-kind"))
+                !reasoner.IsInstanceOf(effect.Id, "blender-codegen-generation-effect") ||
+                !reasoner.IsInstanceOf(argumentKind.Id, "blender-codegen-generation-argument-kind"))
             {
                 return false;
             }
 
             var bindings = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
-            foreach (var bindingAssertion in reasoner.GetRelations(step.Step.Id, "step-has-binding"))
+            foreach (var bindingAssertion in reasoner.GetRelations(step.Step.Id, "blender-codegen-step-has-binding"))
             {
                 var binding = model.FindConcept(bindingAssertion.Object, SemanticConceptKind.Individual);
                 var valueAssertions = binding is null
                     ? ImmutableArray<SemanticRelationAssertion>.Empty
-                    : reasoner.GetRelations(binding.Id, "binding-has-value");
+                    : reasoner.GetRelations(binding.Id, "blender-codegen-binding-has-value");
                 var valueAssertion = valueAssertions.Length == 1 ? valueAssertions[0] : null;
                 var value = valueAssertion is null
                     ? null
                     : model.FindConcept(valueAssertion.Object, SemanticConceptKind.Individual);
                 if (binding is null || value is null ||
-                    !reasoner.IsInstanceOf(binding.Id, "generation-binding") ||
-                    !reasoner.IsInstanceOf(value.Id, "generation-binding-value") ||
+                    !reasoner.IsInstanceOf(binding.Id, "blender-codegen-generation-binding") ||
+                    !reasoner.IsInstanceOf(value.Id, "blender-codegen-generation-binding-value") ||
                     bindings.ContainsKey(binding.Label))
                 {
                     return false;
@@ -126,8 +126,8 @@ internal static class TaskCodeGenerationResponder
                 bindings.Add(binding.Label, value.Label);
                 sources.Add(bindingAssertion.Source);
                 sources.Add(valueAssertion!.Source);
-                sources.AddRange(reasoner.GetMembershipEvidence(binding.Id, "generation-binding"));
-                sources.AddRange(reasoner.GetMembershipEvidence(value.Id, "generation-binding-value"));
+                sources.AddRange(reasoner.GetMembershipEvidence(binding.Id, "blender-codegen-generation-binding"));
+                sources.AddRange(reasoner.GetMembershipEvidence(value.Id, "blender-codegen-generation-binding-value"));
             }
 
             goals.Add(new GenerationGoal(
@@ -140,15 +140,15 @@ internal static class TaskCodeGenerationResponder
             });
 
             sources.Add(step.Assertion.Source);
-            sources.AddRange(model.GetDataAssertions(step.Step.Id, "generation-step-order")
+            sources.AddRange(model.GetDataAssertions(step.Step.Id, "blender-codegen-generation-step-order")
                 .Select(assertion => assertion.Source));
             sources.Add(effectAssertion!.Source);
             sources.Add(argumentKindAssertion!.Source);
-            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "generation-step"));
-            sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "generation-effect"));
-            sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "generation-argument-kind"));
+            sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "blender-codegen-generation-step"));
+            sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "blender-codegen-generation-effect"));
+            sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "blender-codegen-generation-argument-kind"));
 
-            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "step-references-api"))
+            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "blender-codegen-step-references-api"))
             {
                 var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
                 if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
@@ -173,7 +173,7 @@ internal static class TaskCodeGenerationResponder
             return false;
         }
 
-        var safetyNotes = reasoner.GetRelations(task.Id, "code-generation-task-has-safety-note")
+        var safetyNotes = reasoner.GetRelations(task.Id, "blender-codegen-code-generation-task-has-safety-note")
             .Select(assertion => new
             {
                 Assertion = assertion,
@@ -181,7 +181,7 @@ internal static class TaskCodeGenerationResponder
             })
             .Where(item => item.Note is not null)
             .ToArray();
-        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "code-generation-safety-note")))
+        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "blender-codegen-code-generation-safety-note")))
         {
             return false;
         }
@@ -203,7 +203,7 @@ internal static class TaskCodeGenerationResponder
             messageLines.AddRange(safetyNotes.Select(item => $"- {item.Note!.Label}"));
             sources.AddRange(safetyNotes.Select(item => item.Assertion.Source));
             sources.AddRange(safetyNotes.SelectMany(item =>
-                reasoner.GetMembershipEvidence(item.Note!.Id, "code-generation-safety-note")));
+                reasoner.GetMembershipEvidence(item.Note!.Id, "blender-codegen-code-generation-safety-note")));
         }
 
         message = string.Join(Environment.NewLine, messageLines);
