@@ -16,6 +16,7 @@ This directory contains the maintained product, architecture, language, reasonin
 - [Objectives](objectives.md) — goals, constraints, candidate evaluation, evidence freshness, and plan summaries.
 - [Primitive concept audit](primitive-audit.md) — which ontology concepts are currently defined or intentionally primitive.
 - [Compositional program generation](program-generation-architecture.md) — the symbolic generation architecture and its migration checkpoint.
+- [Code-generation migration inventory](code-generation-migration-inventory.md) — the M-01 as-built production paths, helpers, validation kinds, rules, and knowledge modules.
 
 ## Applications and integrations
 
