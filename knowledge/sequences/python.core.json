@@ -6919,19 +6919,21 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.collection-filter.threshold"
+        "program.collection-filter.threshold",
+        "program.collection"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.collection",
-        "program.arithmetic"
+        "program.collection"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
+      "forbiddenFacts": [
+        "program.arithmetic"
+      ],
       "advanceCollections": []
     },
     {
@@ -6946,7 +6948,8 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.collection-filter.average"
+        "program.collection-filter.average",
+        "program.collection"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
@@ -7144,7 +7147,8 @@
         "print("
       ],
       "requiredFacts": [
-        "program.collection-filter.signature"
+        "program.collection-filter.signature",
+        "program.collection-filter"
       ],
       "tokenBinding": {
         "factId": "program.collection-filter.signature",
@@ -7157,6 +7161,35 @@
       "requiresCompletedFacts": [],
       "forbiddenFacts": [],
       "advanceCollections": []
+    },
+    {
+      "id": "python-collection-filter-open-arithmetic",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection-filter.threshold",
+        "program.collection",
+        "program.arithmetic"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection",
+        "program.arithmetic"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": [],
+      "weight": 31
     }
   ],
   "validations": [
