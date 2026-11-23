@@ -147,6 +147,526 @@
       "id": "api-object-removal",
       "label": "bpy.data.objects.remove",
       "kind": "Individual"
+    },
+    {
+      "id": "code-generation-task",
+      "label": "code generation task",
+      "kind": "Type"
+    },
+    {
+      "id": "generation-step",
+      "label": "generation step",
+      "kind": "Type"
+    },
+    {
+      "id": "generation-effect",
+      "label": "generation effect",
+      "kind": "Type"
+    },
+    {
+      "id": "generation-argument-kind",
+      "label": "generation argument kind",
+      "kind": "Type"
+    },
+    {
+      "id": "generation-binding",
+      "label": "generation binding",
+      "kind": "Type"
+    },
+    {
+      "id": "generation-binding-value",
+      "label": "generation binding value",
+      "kind": "Type"
+    },
+    {
+      "id": "software-application",
+      "label": "software application",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-language",
+      "label": "programming language",
+      "kind": "Type"
+    },
+    {
+      "id": "blender",
+      "label": "Blender",
+      "kind": "Individual"
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-import",
+      "label": "emit import",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-string-assignment",
+      "label": "emit string assignment",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-assignment",
+      "label": "emit assignment",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-loop-header",
+      "label": "emit loop header",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-indented-conditional-header",
+      "label": "emit indented conditional header",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-continue",
+      "label": "emit double indented continue",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-assignment",
+      "label": "emit double indented assignment",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-conditional-header",
+      "label": "emit double indented conditional header",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-loop-header",
+      "label": "emit double indented loop header",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-quadruple-indented-call",
+      "label": "emit quadruple indented call",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-else",
+      "label": "emit double indented else",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-triple-indented-call",
+      "label": "emit triple indented call",
+      "kind": "Individual"
+    },
+    {
+      "id": "emit-double-indented-call",
+      "label": "emit double indented call",
+      "kind": "Individual"
+    },
+    {
+      "id": "module-name",
+      "label": "module name",
+      "kind": "Individual"
+    },
+    {
+      "id": "assignment",
+      "label": "assignment",
+      "kind": "Individual"
+    },
+    {
+      "id": "loop-header",
+      "label": "loop header",
+      "kind": "Individual"
+    },
+    {
+      "id": "condition",
+      "label": "condition",
+      "kind": "Individual"
+    },
+    {
+      "id": "none",
+      "label": "none",
+      "kind": "Individual"
+    },
+    {
+      "id": "call",
+      "label": "call",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-import-bpy",
+      "label": "Import the Blender API",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-import-re",
+      "label": "Import regular expressions",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-set-target-name",
+      "label": "Set the target object name",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-build-name-pattern",
+      "label": "Build the object-name pattern",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-continue-nonmatch",
+      "label": "Skip objects that do not match",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-snapshot-collections",
+      "label": "Snapshot original collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-check-collections",
+      "label": "Check whether original collections exist",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-iterate-collections",
+      "label": "Iterate over original collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-else",
+      "label": "Use the scene collection when none exist",
+      "kind": "Individual"
+    },
+    {
+      "id": "step-fallback-link",
+      "label": "Link the light into the scene collection",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-module",
+      "label": "module",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-string-value",
+      "label": "string-value",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-variable",
+      "label": "variable",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-iterable",
+      "label": "iterable",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-condition",
+      "label": "condition",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-function",
+      "label": "function",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-key-arguments",
+      "label": "arguments",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-import-bpy-module",
+      "label": "module",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-import-bpy-module",
+      "label": "bpy",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-import-re-module",
+      "label": "module",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-import-re-module",
+      "label": "re",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-set-target-name-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-set-target-name-target",
+      "label": "target_name",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-set-target-name-string-value",
+      "label": "string-value",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-set-target-name-string-value",
+      "label": "YourObjectName",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-build-name-pattern-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-build-name-pattern-target",
+      "label": "name_pattern",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-build-name-pattern-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-build-name-pattern-expression",
+      "label": "re.compile(rf\"{re.escape(target_name)}(?:\\\\.\\\\d+)?$\")",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-snapshot-objects-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-snapshot-objects-target",
+      "label": "objects",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-snapshot-objects-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-snapshot-objects-expression",
+      "label": "list(bpy.data.objects)",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-iterate-objects-variable",
+      "label": "variable",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-iterate-objects-variable",
+      "label": "obj",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-iterate-objects-iterable",
+      "label": "iterable",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-iterate-objects-iterable",
+      "label": "objects",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-match-name-condition",
+      "label": "condition",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-match-name-condition",
+      "label": "name_pattern.fullmatch(obj.name) is None",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-create-light-data-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-create-light-data-target",
+      "label": "light_data",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-create-light-data-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-create-light-data-expression",
+      "label": "bpy.data.lights.new(name=f\"{obj.name}_Point\", type=\"POINT\")",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-create-light-object-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-create-light-object-target",
+      "label": "light_obj",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-create-light-object-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-create-light-object-expression",
+      "label": "bpy.data.objects.new(name=f\"{obj.name}_Point\", object_data=light_data)",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-copy-world-position-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-copy-world-position-target",
+      "label": "light_obj.location",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-copy-world-position-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-copy-world-position-expression",
+      "label": "obj.matrix_world.translation.copy()",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-snapshot-collections-target",
+      "label": "target",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-snapshot-collections-target",
+      "label": "collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-snapshot-collections-expression",
+      "label": "expression",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-snapshot-collections-expression",
+      "label": "list(obj.users_collection)",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-check-collections-condition",
+      "label": "condition",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-check-collections-condition",
+      "label": "collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-iterate-collections-variable",
+      "label": "variable",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-iterate-collections-variable",
+      "label": "collection",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-iterate-collections-iterable",
+      "label": "iterable",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-iterate-collections-iterable",
+      "label": "collections",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-link-collections-function",
+      "label": "function",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-link-collections-function",
+      "label": "collection.objects.link",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-link-collections-arguments",
+      "label": "arguments",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-link-collections-arguments",
+      "label": "light_obj",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-fallback-link-function",
+      "label": "function",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-fallback-link-function",
+      "label": "bpy.context.scene.collection.objects.link",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-fallback-link-arguments",
+      "label": "arguments",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-fallback-link-arguments",
+      "label": "light_obj",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-remove-original-function",
+      "label": "function",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-remove-original-function",
+      "label": "bpy.data.objects.remove",
+      "kind": "Individual"
+    },
+    {
+      "id": "binding-step-remove-original-arguments",
+      "label": "arguments",
+      "kind": "Individual"
+    },
+    {
+      "id": "value-step-remove-original-arguments",
+      "label": "obj, do_unlink=True",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -154,6 +674,11 @@
       "form": "Blender object replacement script",
       "concept": "blender-object-replacement",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "replaces all of objects with a specific name with a point light",
+      "concept": "blender-object-replacement",
+      "partOfSpeech": "verb phrase"
     }
   ],
   "relations": [
@@ -186,6 +711,66 @@
       "objectKind": "Individual",
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "application-uses-language",
+      "domain": "software-application",
+      "range": "programming-language",
+      "verb": "uses programming language",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "has-generation-step",
+      "domain": "code-generation-task",
+      "range": "generation-step",
+      "verb": "has generation step",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-has-generation-effect",
+      "domain": "generation-step",
+      "range": "generation-effect",
+      "verb": "has generation effect",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-has-argument-kind",
+      "domain": "generation-step",
+      "range": "generation-argument-kind",
+      "verb": "requires argument kind",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "step-has-binding",
+      "domain": "generation-step",
+      "range": "generation-binding",
+      "verb": "has binding",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "binding-has-value",
+      "domain": "generation-binding",
+      "range": "generation-binding-value",
+      "verb": "has value",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -209,6 +794,54 @@
     },
     {
       "concept": "blender-api",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "code-generation-task",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "generation-step",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "generation-effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "generation-argument-kind",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "generation-binding",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "generation-binding-value",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "software-application",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-language",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -479,12 +1112,1102 @@
       "subject": "step-remove-original",
       "relation": "step-uses-api",
       "object": "api-object-removal"
+    },
+    {
+      "subject": "code-generation-task",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "generation-step",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "generation-effect",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "generation-argument-kind",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "generation-binding",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "generation-binding-value",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "software-application",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "programming-language",
+      "relation": "is-a",
+      "object": "entity"
+    },
+    {
+      "subject": "blender-code-generation-task",
+      "relation": "is-a",
+      "object": "code-generation-task"
+    },
+    {
+      "subject": "blender-script-step",
+      "relation": "is-a",
+      "object": "generation-step"
+    },
+    {
+      "subject": "blender",
+      "relation": "instance-of",
+      "object": "software-application"
+    },
+    {
+      "subject": "python",
+      "relation": "instance-of",
+      "object": "programming-language"
+    },
+    {
+      "subject": "blender",
+      "relation": "application-uses-language",
+      "object": "python"
+    },
+    {
+      "subject": "emit-import",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-string-assignment",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-assignment",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-loop-header",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-indented-conditional-header",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-continue",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-assignment",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-conditional-header",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-loop-header",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-quadruple-indented-call",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-else",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-triple-indented-call",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "emit-double-indented-call",
+      "relation": "instance-of",
+      "object": "generation-effect"
+    },
+    {
+      "subject": "module-name",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "assignment",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "loop-header",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "condition",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "none",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "call",
+      "relation": "instance-of",
+      "object": "generation-argument-kind"
+    },
+    {
+      "subject": "step-import-bpy",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-import-re",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-set-target-name",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-continue-nonmatch",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-else",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "step-fallback-link",
+      "relation": "instance-of",
+      "object": "blender-script-step"
+    },
+    {
+      "subject": "binding-key-module",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-string-value",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-variable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-iterable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-condition",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-function",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "binding-key-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-import-bpy"
+    },
+    {
+      "subject": "step-import-bpy",
+      "relation": "step-has-generation-effect",
+      "object": "emit-import"
+    },
+    {
+      "subject": "step-import-bpy",
+      "relation": "step-has-argument-kind",
+      "object": "module-name"
+    },
+    {
+      "subject": "binding-step-import-bpy-module",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-import-bpy-module",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-import-bpy",
+      "relation": "step-has-binding",
+      "object": "binding-step-import-bpy-module"
+    },
+    {
+      "subject": "binding-step-import-bpy-module",
+      "relation": "binding-has-value",
+      "object": "value-step-import-bpy-module"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-import-re"
+    },
+    {
+      "subject": "step-import-re",
+      "relation": "step-has-generation-effect",
+      "object": "emit-import"
+    },
+    {
+      "subject": "step-import-re",
+      "relation": "step-has-argument-kind",
+      "object": "module-name"
+    },
+    {
+      "subject": "binding-step-import-re-module",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-import-re-module",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-import-re",
+      "relation": "step-has-binding",
+      "object": "binding-step-import-re-module"
+    },
+    {
+      "subject": "binding-step-import-re-module",
+      "relation": "binding-has-value",
+      "object": "value-step-import-re-module"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-set-target-name"
+    },
+    {
+      "subject": "step-set-target-name",
+      "relation": "step-has-generation-effect",
+      "object": "emit-string-assignment"
+    },
+    {
+      "subject": "step-set-target-name",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-set-target-name-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-set-target-name-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-set-target-name",
+      "relation": "step-has-binding",
+      "object": "binding-step-set-target-name-target"
+    },
+    {
+      "subject": "binding-step-set-target-name-target",
+      "relation": "binding-has-value",
+      "object": "value-step-set-target-name-target"
+    },
+    {
+      "subject": "binding-step-set-target-name-string-value",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-set-target-name-string-value",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-set-target-name",
+      "relation": "step-has-binding",
+      "object": "binding-step-set-target-name-string-value"
+    },
+    {
+      "subject": "binding-step-set-target-name-string-value",
+      "relation": "binding-has-value",
+      "object": "value-step-set-target-name-string-value"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-build-name-pattern"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "relation": "step-has-generation-effect",
+      "object": "emit-assignment"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-build-name-pattern-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-build-name-pattern-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "relation": "step-has-binding",
+      "object": "binding-step-build-name-pattern-target"
+    },
+    {
+      "subject": "binding-step-build-name-pattern-target",
+      "relation": "binding-has-value",
+      "object": "value-step-build-name-pattern-target"
+    },
+    {
+      "subject": "binding-step-build-name-pattern-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-build-name-pattern-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "relation": "step-has-binding",
+      "object": "binding-step-build-name-pattern-expression"
+    },
+    {
+      "subject": "binding-step-build-name-pattern-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-build-name-pattern-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-snapshot-objects"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-has-generation-effect",
+      "object": "emit-assignment"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-snapshot-objects-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-snapshot-objects-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-has-binding",
+      "object": "binding-step-snapshot-objects-target"
+    },
+    {
+      "subject": "binding-step-snapshot-objects-target",
+      "relation": "binding-has-value",
+      "object": "value-step-snapshot-objects-target"
+    },
+    {
+      "subject": "binding-step-snapshot-objects-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-snapshot-objects-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "step-has-binding",
+      "object": "binding-step-snapshot-objects-expression"
+    },
+    {
+      "subject": "binding-step-snapshot-objects-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-snapshot-objects-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-iterate-objects"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-generation-effect",
+      "object": "emit-loop-header"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-argument-kind",
+      "object": "loop-header"
+    },
+    {
+      "subject": "binding-step-iterate-objects-variable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-iterate-objects-variable",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-binding",
+      "object": "binding-step-iterate-objects-variable"
+    },
+    {
+      "subject": "binding-step-iterate-objects-variable",
+      "relation": "binding-has-value",
+      "object": "value-step-iterate-objects-variable"
+    },
+    {
+      "subject": "binding-step-iterate-objects-iterable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-iterate-objects-iterable",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "step-has-binding",
+      "object": "binding-step-iterate-objects-iterable"
+    },
+    {
+      "subject": "binding-step-iterate-objects-iterable",
+      "relation": "binding-has-value",
+      "object": "value-step-iterate-objects-iterable"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-match-name"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-has-generation-effect",
+      "object": "emit-indented-conditional-header"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-has-argument-kind",
+      "object": "condition"
+    },
+    {
+      "subject": "binding-step-match-name-condition",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-match-name-condition",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-match-name",
+      "relation": "step-has-binding",
+      "object": "binding-step-match-name-condition"
+    },
+    {
+      "subject": "binding-step-match-name-condition",
+      "relation": "binding-has-value",
+      "object": "value-step-match-name-condition"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-continue-nonmatch"
+    },
+    {
+      "subject": "step-continue-nonmatch",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-continue"
+    },
+    {
+      "subject": "step-continue-nonmatch",
+      "relation": "step-has-argument-kind",
+      "object": "none"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-create-light-data"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-assignment"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-create-light-data-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-create-light-data-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-has-binding",
+      "object": "binding-step-create-light-data-target"
+    },
+    {
+      "subject": "binding-step-create-light-data-target",
+      "relation": "binding-has-value",
+      "object": "value-step-create-light-data-target"
+    },
+    {
+      "subject": "binding-step-create-light-data-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-create-light-data-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "step-has-binding",
+      "object": "binding-step-create-light-data-expression"
+    },
+    {
+      "subject": "binding-step-create-light-data-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-create-light-data-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-create-light-object"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-assignment"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-create-light-object-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-create-light-object-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-has-binding",
+      "object": "binding-step-create-light-object-target"
+    },
+    {
+      "subject": "binding-step-create-light-object-target",
+      "relation": "binding-has-value",
+      "object": "value-step-create-light-object-target"
+    },
+    {
+      "subject": "binding-step-create-light-object-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-create-light-object-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "step-has-binding",
+      "object": "binding-step-create-light-object-expression"
+    },
+    {
+      "subject": "binding-step-create-light-object-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-create-light-object-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-copy-world-position"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-assignment"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-copy-world-position-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-copy-world-position-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-has-binding",
+      "object": "binding-step-copy-world-position-target"
+    },
+    {
+      "subject": "binding-step-copy-world-position-target",
+      "relation": "binding-has-value",
+      "object": "value-step-copy-world-position-target"
+    },
+    {
+      "subject": "binding-step-copy-world-position-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-copy-world-position-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "step-has-binding",
+      "object": "binding-step-copy-world-position-expression"
+    },
+    {
+      "subject": "binding-step-copy-world-position-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-copy-world-position-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-snapshot-collections"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-assignment"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "relation": "step-has-argument-kind",
+      "object": "assignment"
+    },
+    {
+      "subject": "binding-step-snapshot-collections-target",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-snapshot-collections-target",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-snapshot-collections-target"
+    },
+    {
+      "subject": "binding-step-snapshot-collections-target",
+      "relation": "binding-has-value",
+      "object": "value-step-snapshot-collections-target"
+    },
+    {
+      "subject": "binding-step-snapshot-collections-expression",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-snapshot-collections-expression",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-snapshot-collections-expression"
+    },
+    {
+      "subject": "binding-step-snapshot-collections-expression",
+      "relation": "binding-has-value",
+      "object": "value-step-snapshot-collections-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-check-collections"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-conditional-header"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "step-has-argument-kind",
+      "object": "condition"
+    },
+    {
+      "subject": "binding-step-check-collections-condition",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-check-collections-condition",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-check-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-check-collections-condition"
+    },
+    {
+      "subject": "binding-step-check-collections-condition",
+      "relation": "binding-has-value",
+      "object": "value-step-check-collections-condition"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-iterate-collections"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-loop-header"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "step-has-argument-kind",
+      "object": "loop-header"
+    },
+    {
+      "subject": "binding-step-iterate-collections-variable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-iterate-collections-variable",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-iterate-collections-variable"
+    },
+    {
+      "subject": "binding-step-iterate-collections-variable",
+      "relation": "binding-has-value",
+      "object": "value-step-iterate-collections-variable"
+    },
+    {
+      "subject": "binding-step-iterate-collections-iterable",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-iterate-collections-iterable",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-iterate-collections-iterable"
+    },
+    {
+      "subject": "binding-step-iterate-collections-iterable",
+      "relation": "binding-has-value",
+      "object": "value-step-iterate-collections-iterable"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-link-collections"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-has-generation-effect",
+      "object": "emit-quadruple-indented-call"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-has-argument-kind",
+      "object": "call"
+    },
+    {
+      "subject": "binding-step-link-collections-function",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-link-collections-function",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-link-collections-function"
+    },
+    {
+      "subject": "binding-step-link-collections-function",
+      "relation": "binding-has-value",
+      "object": "value-step-link-collections-function"
+    },
+    {
+      "subject": "binding-step-link-collections-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-link-collections-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "step-has-binding",
+      "object": "binding-step-link-collections-arguments"
+    },
+    {
+      "subject": "binding-step-link-collections-arguments",
+      "relation": "binding-has-value",
+      "object": "value-step-link-collections-arguments"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-else"
+    },
+    {
+      "subject": "step-else",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-else"
+    },
+    {
+      "subject": "step-else",
+      "relation": "step-has-argument-kind",
+      "object": "none"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-fallback-link"
+    },
+    {
+      "subject": "step-fallback-link",
+      "relation": "step-has-generation-effect",
+      "object": "emit-triple-indented-call"
+    },
+    {
+      "subject": "step-fallback-link",
+      "relation": "step-has-argument-kind",
+      "object": "call"
+    },
+    {
+      "subject": "binding-step-fallback-link-function",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-fallback-link-function",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-fallback-link",
+      "relation": "step-has-binding",
+      "object": "binding-step-fallback-link-function"
+    },
+    {
+      "subject": "binding-step-fallback-link-function",
+      "relation": "binding-has-value",
+      "object": "value-step-fallback-link-function"
+    },
+    {
+      "subject": "binding-step-fallback-link-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-fallback-link-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-fallback-link",
+      "relation": "step-has-binding",
+      "object": "binding-step-fallback-link-arguments"
+    },
+    {
+      "subject": "binding-step-fallback-link-arguments",
+      "relation": "binding-has-value",
+      "object": "value-step-fallback-link-arguments"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "has-generation-step",
+      "object": "step-remove-original"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-has-generation-effect",
+      "object": "emit-double-indented-call"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-has-argument-kind",
+      "object": "call"
+    },
+    {
+      "subject": "binding-step-remove-original-function",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-remove-original-function",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-has-binding",
+      "object": "binding-step-remove-original-function"
+    },
+    {
+      "subject": "binding-step-remove-original-function",
+      "relation": "binding-has-value",
+      "object": "value-step-remove-original-function"
+    },
+    {
+      "subject": "binding-step-remove-original-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding"
+    },
+    {
+      "subject": "value-step-remove-original-arguments",
+      "relation": "instance-of",
+      "object": "generation-binding-value"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "step-has-binding",
+      "object": "binding-step-remove-original-arguments"
+    },
+    {
+      "subject": "binding-step-remove-original-arguments",
+      "relation": "binding-has-value",
+      "object": "value-step-remove-original-arguments"
     }
   ],
   "dataProperties": [
     {
       "id": "script-step-number",
       "domainType": "blender-script-step",
+      "valueType": "number"
+    },
+    {
+      "id": "generation-step-order",
+      "domainType": "generation-step",
       "valueType": "number"
     }
   ],
@@ -528,6 +2251,96 @@
       "subject": "step-remove-original",
       "property": "script-step-number",
       "value": "8"
+    },
+    {
+      "subject": "step-import-bpy",
+      "property": "generation-step-order",
+      "value": "1"
+    },
+    {
+      "subject": "step-import-re",
+      "property": "generation-step-order",
+      "value": "2"
+    },
+    {
+      "subject": "step-set-target-name",
+      "property": "generation-step-order",
+      "value": "3"
+    },
+    {
+      "subject": "step-build-name-pattern",
+      "property": "generation-step-order",
+      "value": "4"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "property": "generation-step-order",
+      "value": "5"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "property": "generation-step-order",
+      "value": "6"
+    },
+    {
+      "subject": "step-match-name",
+      "property": "generation-step-order",
+      "value": "7"
+    },
+    {
+      "subject": "step-continue-nonmatch",
+      "property": "generation-step-order",
+      "value": "8"
+    },
+    {
+      "subject": "step-create-light-data",
+      "property": "generation-step-order",
+      "value": "9"
+    },
+    {
+      "subject": "step-create-light-object",
+      "property": "generation-step-order",
+      "value": "10"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "property": "generation-step-order",
+      "value": "11"
+    },
+    {
+      "subject": "step-snapshot-collections",
+      "property": "generation-step-order",
+      "value": "12"
+    },
+    {
+      "subject": "step-check-collections",
+      "property": "generation-step-order",
+      "value": "13"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "property": "generation-step-order",
+      "value": "14"
+    },
+    {
+      "subject": "step-link-collections",
+      "property": "generation-step-order",
+      "value": "15"
+    },
+    {
+      "subject": "step-else",
+      "property": "generation-step-order",
+      "value": "16"
+    },
+    {
+      "subject": "step-fallback-link",
+      "property": "generation-step-order",
+      "value": "17"
+    },
+    {
+      "subject": "step-remove-original",
+      "property": "generation-step-order",
+      "value": "18"
     }
   ]
 }
