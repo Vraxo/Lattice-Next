@@ -28,7 +28,7 @@ internal static class UniversalRuleFactory
             if (!TryGetBoundRulePremises(
                     implication.Premise,
                     variable,
-                    out var existentialPremises,
+                    out var existentialPositivePremises,
                     out var existentialNegativePremises,
                     out var existentialRelationalPremises,
                     out var existentialNegativeRelationalPremises,
@@ -42,7 +42,7 @@ internal static class UniversalRuleFactory
             }
 
             rule = new UniversalRule(
-                existentialPremises,
+                existentialPositivePremises,
                 existentialRuleConclusion!.Relation,
                 sourceText,
                 sourceKind,
