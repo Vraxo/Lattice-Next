@@ -32,13 +32,18 @@ public sealed class OperationSequenceGenerator
             return false;
         }
 
+        var startSymbol = selectedOperation!.StartSymbol ?? pack.StartSymbol;
+        var requiredBindings = GetReachableBindings(pack.Productions, startSymbol);
         var resolvedBindings = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var binding in pack.Bindings)
+        foreach (var binding in pack.Bindings.Where(binding => requiredBindings.Contains(binding.Name)))
         {
             var sourceValue = binding.Source switch
             {
                 "selected-operation" => selectedOperation!.Symbol,
                 "goal-argument" => goal.ArgumentValue,
+                "goal-binding" => binding.Key is { } key && goal.Bindings.TryGetValue(key, out var boundValue)
+                    ? boundValue
+                    : string.Empty,
                 _ => string.Empty
             };
             var value = binding.Encoding switch
@@ -59,7 +64,7 @@ public sealed class OperationSequenceGenerator
             production => production.Head,
             StringComparer.Ordinal);
         var pending = new Stack<GenerationSymbol>();
-        pending.Push(new GenerationSymbol("nonterminal", pack.StartSymbol));
+        pending.Push(new GenerationSymbol("nonterminal", startSymbol));
         var tokens = ImmutableArray.CreateBuilder<string>();
         var expansions = 0;
 
@@ -117,6 +122,41 @@ public sealed class OperationSequenceGenerator
             selectedOperation!.Id,
             candidateAssessments);
         return true;
+    }
+
+    private static HashSet<string> GetReachableBindings(
+        ImmutableArray<GenerationProduction> productions,
+        string startSymbol)
+    {
+        var productionMap = productions.ToDictionary(
+            production => production.Head,
+            StringComparer.Ordinal);
+        var bindings = new HashSet<string>(StringComparer.Ordinal);
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        var pending = new Stack<string>();
+        pending.Push(startSymbol);
+
+        while (pending.TryPop(out var current))
+        {
+            if (!visited.Add(current) || !productionMap.TryGetValue(current, out var production))
+            {
+                continue;
+            }
+
+            foreach (var symbol in production.Symbols)
+            {
+                if (symbol.Kind == "binding")
+                {
+                    bindings.Add(symbol.Value);
+                }
+                else if (symbol.Kind == "nonterminal")
+                {
+                    pending.Push(symbol.Value);
+                }
+            }
+        }
+
+        return bindings;
     }
 
     private static string EncodeStringLiteral(
