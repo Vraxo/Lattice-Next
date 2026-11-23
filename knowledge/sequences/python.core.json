@@ -3650,9 +3650,6 @@
         {
           "factId": "program.collection-filter.signature",
           "valueId": "name",
-          "startAfterTokens": [
-            "named"
-          ],
           "stopBeforeTokens": [
             "that"
           ]
@@ -3690,6 +3687,11 @@
       "requiredAnySequences": [
         [
           "function"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "named"
         ]
       ]
     },
@@ -3777,9 +3779,6 @@
         {
           "factId": "program.collection-filter.signature",
           "valueId": "item",
-          "startAfterTokens": [
-            "only"
-          ],
           "stopBeforeTokens": [
             "values"
           ]
@@ -6656,7 +6655,8 @@
         "factId": "program.collection-filter.signature",
         "valueId": "item",
         "suffix": " in "
-      }
+      },
+      "satisfiesFacts": []
     },
     {
       "id": "python-collection-filter-parameter",
@@ -6670,7 +6670,8 @@
         "factId": "program.collection-filter.signature",
         "valueId": "parameter",
         "suffix": " if "
-      }
+      },
+      "satisfiesFacts": []
     },
     {
       "id": "python-collection-filter-condition-item",
@@ -6684,7 +6685,8 @@
         "factId": "program.collection-filter.signature",
         "valueId": "item",
         "suffix": " "
-      }
+      },
+      "satisfiesFacts": []
     },
     {
       "id": "python-collection-filter-condition-operator",
@@ -6698,7 +6700,10 @@
         "factId": "program.collection-filter.comparison",
         "valueId": "operator",
         "suffix": " "
-      }
+      },
+      "satisfiesFacts": [
+        "program.collection-filter.comparison"
+      ]
     },
     {
       "id": "python-collection-filter-condition-threshold",
@@ -6715,6 +6720,9 @@
       },
       "requiresCompletedFacts": [
         "program.collection-filter.signature"
+      ],
+      "satisfiesFacts": [
+        "program.collection-filter.threshold"
       ]
     },
     {
@@ -6736,6 +6744,9 @@
       },
       "requiresCompletedFacts": [
         "program.collection-filter.signature"
+      ],
+      "satisfiesFacts": [
+        "program.collection-filter.average"
       ]
     },
     {
@@ -6752,7 +6763,8 @@
         "suffix": "([1, 2, 3, 4, 5])\n```"
       },
       "satisfiesFacts": [
-        "program.collection-filter"
+        "program.collection-filter",
+        "program.collection-filter.signature"
       ]
     }
   ],
