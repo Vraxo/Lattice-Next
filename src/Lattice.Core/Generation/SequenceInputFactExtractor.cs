@@ -121,10 +121,12 @@ public static class SequenceInputFactExtractor
 
                 if (capture.CollectionDelimiter is null && capture.CollectionDelimiters.IsDefaultOrEmpty)
                 {
-                    if (!TryNormalizeCapture(rule.Id, capture.Normalization, capturedValue, out capturedValue, out error))
+                    if (!TryNormalizeCapture(rule.Id, capture.Normalization, capturedValue, out var normalizedValue, out error))
                     {
                         return false;
                     }
+
+                    capturedValue = normalizedValue;
                 }
 
                 if (capture.NumericOffset != 0)
@@ -202,12 +204,12 @@ public static class SequenceInputFactExtractor
                             itemValue = rawItem;
                         }
 
-                        if (!TryNormalizeCapture(rule.Id, capture.Normalization, itemValue, out itemValue, out error))
+                        if (!TryNormalizeCapture(rule.Id, capture.Normalization, itemValue, out var normalizedItem, out error))
                         {
                             return false;
                         }
 
-                        items.Add(itemValue);
+                        items.Add(normalizedItem);
                     }
 
                     var immutableItems = items.ToImmutable();
