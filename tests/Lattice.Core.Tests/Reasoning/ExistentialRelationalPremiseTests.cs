@@ -22,6 +22,15 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Rejects_negated_existential_relation_conditions()
+    {
+        var result = parser.Parse("Every dog that does not chase a cat is friendly.");
+
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Utterance);
+    }
+
+    [Fact]
     public void Derives_a_conclusion_only_when_one_related_individual_satisfies_the_witness_conditions()
     {
         var complete = new KnowledgeBase();
