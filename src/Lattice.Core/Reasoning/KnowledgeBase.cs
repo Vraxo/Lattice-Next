@@ -176,7 +176,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts, existential assertions with unary conditions, and supported universal rules with unary premises, optionally one fixed-object relational premise, and either a unary conclusion, a fixed-object relation, or one existential relational conclusion are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and supported universal rules with unary premises, optionally multiple fixed-object relational premises, and either a unary conclusion, a fixed-object relation, or one existential relational conclusion are supported by the current reasoning engine.";
         return false;
     }
 
