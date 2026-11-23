@@ -296,6 +296,7 @@ internal static class UniversalRuleFactory
         }
 
         var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var negativeConditions = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relations = ImmutableArray.CreateBuilder<PredicateApplication>();
         var fixedObjectRelations = ImmutableArray.CreateBuilder<PredicateApplication>();
         var nestedPremises = ImmutableArray.CreateBuilder<ExistentialRulePremise>();
@@ -315,7 +316,14 @@ internal static class UniversalRuleFactory
                 continue;
             }
 
-            if (conjunct is not PredicateApplication predicate ||
+            var isNegative = conjunct is Negation;
+            var predicate = conjunct switch
+            {
+                PredicateApplication positive => positive,
+                Negation { Formula: PredicateApplication negative } => negative,
+                _ => null
+            };
+            if (predicate is null ||
                 string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
                 predicate.Arguments.IsDefault)
             {
@@ -325,8 +333,21 @@ internal static class UniversalRuleFactory
             if (predicate.Arguments.Length == 1 &&
                 KnowledgeFactFactory.IsBoundUnaryPredicate(predicate, existential.Variable))
             {
-                conditions.Add(predicate);
+                if (isNegative)
+                {
+                    negativeConditions.Add(predicate);
+                }
+                else
+                {
+                    conditions.Add(predicate);
+                }
+
                 continue;
+            }
+
+            if (isNegative)
+            {
+                return false;
             }
 
             if (predicate.Arguments.Length == 2 &&
@@ -360,6 +381,7 @@ internal static class UniversalRuleFactory
         premise = new ExistentialRulePremise(
             existential.Variable,
             conditions.ToImmutable(),
+            negativeConditions.ToImmutable(),
             relations.ToImmutable(),
             fixedObjectRelations.ToImmutable(),
             nestedPremises.ToImmutable());
