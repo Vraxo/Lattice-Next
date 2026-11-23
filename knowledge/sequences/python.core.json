@@ -5926,10 +5926,9 @@
       "contextSuffix": [
         "*"
       ],
-      "requiredFacts": [
-        "program.arithmetic-function-signature"
-      ],
+      "requiredFacts": [],
       "requiresCompletedFacts": [
+        "program.arithmetic-function-signature",
         "program.arithmetic-function-return",
         "program.arithmetic-function-call"
       ],
