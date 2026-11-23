@@ -206,6 +206,7 @@ internal static class EnglishDescriptionParser
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
         if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
+            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
             if (!allowExistentialRelationalObjects ||
                 isNegative ||
                 existentialConditions.Count > 0 ||
@@ -222,7 +223,6 @@ internal static class EnglishDescriptionParser
                 return false;
             }
 
-            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
             var objectConditions = EnglishSemanticFactory.GetConjuncts(
                 objectDescription!.ToExistentialConditions(witness));
             var relation = new PredicateApplication(
