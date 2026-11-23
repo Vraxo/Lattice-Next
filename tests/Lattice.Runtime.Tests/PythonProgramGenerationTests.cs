@@ -94,31 +94,31 @@ public sealed class PythonProgramGenerationTests
         "Ada 3\nGrace 5\nLinus 6")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(70).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(70))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(70))",
         "senior")]
     [InlineData(
         "Build a Python script with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(30).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(30))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(30))",
         "adult")]
     [InlineData(
         "Generate a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(15).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(15))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(15))",
         "teen")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(8).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(8))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(8))",
         "child")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(95).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(95))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(95))",
         "high")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(75).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(75))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(75))",
         "pass")]
     [InlineData(
         "Generate a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(40).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(40))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(40))",
         "fail")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
@@ -1066,6 +1066,33 @@ public sealed class PythonProgramGenerationTests
         Assert.Contains("key = order[\"buyer\"]", variantCode, StringComparison.Ordinal);
         Assert.Contains("totals[key] = totals.get(key, 0) + order[\"amount\"]", variantCode, StringComparison.Ordinal);
         await AssertPythonOutput(variantCode, "Ada 40.0\nGrace 40.0");
+    }
+
+    [Theory]
+    [InlineData(
+        "Write a Python function named classify that takes score and returns \"High\" when score is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).",
+        "def classify(score):\n    if score > 90:\n        return \"High\"\n    elif score >= 50:\n        return \"Pass\"\n    return \"Fail\"\nprint(classify(75))",
+        "Pass")]
+    [InlineData(
+        "Create a Python function named transform that takes value and returns value * 2 when value is greater than 5, returns value + 10 when value is at least 0, and otherwise returns 0, then print transform(3).",
+        "def transform(value):\n    if value > 5:\n        return value * 2\n    elif value >= 0:\n        return value + 10\n    return 0\nprint(transform(3))",
+        "13")]
+    public async Task Generates_and_executes_multi_conditional_functions(
+        string prompt,
+        string expectedCode,
+        string expectedOutput)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var generatedCode = ExtractGeneratedPythonCode(utterance.Message!);
+        Assert.Equal(expectedCode.Replace("\\n", Environment.NewLine, StringComparison.Ordinal), generatedCode);
+        await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
     private static string ExtractGeneratedPythonCode(string message)

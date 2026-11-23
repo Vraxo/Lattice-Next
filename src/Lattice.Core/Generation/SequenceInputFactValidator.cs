@@ -71,7 +71,10 @@ public static class SequenceInputFactValidator
                 "comparisonOperandsReferences" => TryValidateComparisonOperands(factMap, validation),
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
                 "booleanExpressionReferences" => TryValidateBooleanExpressionReferences(factMap, validation),
+                "booleanExpressionCollectionReferences" => TryValidateBooleanExpressionCollectionReferences(factMap, validation),
                 "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
+                "valueExpressionCollectionReferences" => TryValidateValueExpressionCollectionReferences(factMap, validation),
+                "matchingCollections" => TryValidateMatchingCollections(factMap, validation),
                 "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
@@ -207,6 +210,45 @@ public static class SequenceInputFactValidator
         return TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) &&
             TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
             BooleanExpressionNormalizer.TryValidateReferences(expression, parameters);
+    }
+
+    private static bool TryValidateBooleanExpressionCollectionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        return TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) &&
+            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
+            expressions.Length > 0 &&
+            expressions.All(expression =>
+                BooleanExpressionNormalizer.TryValidateReferences(expression, parameters));
+    }
+
+    private static bool TryValidateValueExpressionCollectionReferences(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) ||
+            expressions.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var availableNames = parameters.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return expressions.All(expression =>
+            IsQuotedStringLiteral(expression) ||
+            (IsArithmeticExpression(expression) &&
+             ReferencesOnlyAvailableNames(expression, availableNames)));
+    }
+
+    private static bool TryValidateMatchingCollections(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        return TryGetCollection(facts, validation.FactId, validation.ValueId, out var first) &&
+            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var second) &&
+            first.Length > 0 &&
+            first.Length == second.Length;
     }
 
     private static bool TryValidateValueExpressionReferences(

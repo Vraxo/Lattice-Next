@@ -315,13 +315,13 @@ public static class KnowledgeDrivenSequenceGenerator
                      (rule.TokenBinding.ValueTemplate is not null &&
                       (rule.TokenBinding.SecondaryValueId is null ||
                        !IsValidIdentifier(rule.TokenBinding.SecondaryValueId) ||
-                       (rule.TokenBinding.SecondaryValueIsCollection && rule.TokenBinding.SecondaryCollectionSeparator is null) ||
+                       (rule.TokenBinding.SecondaryValueIsCollection && rule.TokenBinding.SecondaryCollectionSeparator is null && !rule.TokenBinding.UseCollection) ||
                        (!rule.TokenBinding.SecondaryValueIsCollection && rule.TokenBinding.SecondaryCollectionSeparator is not null) ||
                        (rule.TokenBinding.SecondaryCollectionSeparator?.Length > 32) ||
                        rule.TokenBinding.ValueTemplate.Length > 256 ||
                        !rule.TokenBinding.ValueTemplate.Contains("{0}", StringComparison.Ordinal) ||
                        !rule.TokenBinding.ValueTemplate.Contains("{1}", StringComparison.Ordinal) ||
-                       rule.TokenBinding.UseCollection ||
+                       (rule.TokenBinding.UseCollection && !rule.TokenBinding.SecondaryValueIsCollection) ||
                        rule.TokenBinding.CollectionSeparator is not null ||
                        rule.TokenBinding.Encoding is not null)) ||
                      (rule.TokenBinding.Encoding is not null &&
@@ -361,7 +361,21 @@ public static class KnowledgeDrivenSequenceGenerator
         string value;
         if (binding.ValueTemplate is { } valueTemplate)
         {
-            if (!fact.Values.TryGetValue(binding.ValueId, out var firstValue))
+            string firstValue;
+            if (binding.UseCollection)
+            {
+                var key = BuildCollectionKey(binding.FactId, binding.ValueId);
+                var index = collectionCursors.GetValueOrDefault(key);
+                if (index < binding.MinimumCollectionCursor ||
+                    !fact.Collections.TryGetValue(binding.ValueId, out var primaryValues) ||
+                    index >= primaryValues.Length)
+                {
+                    return false;
+                }
+
+                firstValue = primaryValues[index];
+            }
+            else if (!fact.Values.TryGetValue(binding.ValueId, out firstValue!))
             {
                 return false;
             }
@@ -375,7 +389,21 @@ public static class KnowledgeDrivenSequenceGenerator
                     return false;
                 }
 
-                secondaryValue = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
+                if (binding.UseCollection)
+                {
+                    var key = BuildCollectionKey(binding.FactId, binding.ValueId);
+                    var index = collectionCursors.GetValueOrDefault(key);
+                    if (index >= secondaryValues.Length)
+                    {
+                        return false;
+                    }
+
+                    secondaryValue = secondaryValues[index];
+                }
+                else
+                {
+                    secondaryValue = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
+                }
             }
             else if (!fact.Values.TryGetValue(binding.SecondaryValueId!, out secondaryValue!))
             {

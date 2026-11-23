@@ -445,7 +445,10 @@ public static class SequenceKnowledgeBaseLoader
             "comparisonOperandsReferences",
             "arithmeticExpressionReferences",
             "booleanExpressionReferences",
+            "booleanExpressionCollectionReferences",
             "valueExpressionReferences",
+            "valueExpressionCollectionReferences",
+            "matchingCollections",
             "matchingFunctionCall",
             "matchingNumericFunctionCall",
             "pythonListLiteral",
@@ -660,10 +663,10 @@ public static class SequenceKnowledgeBaseLoader
             (valueTemplate is null && (secondaryValueId is not null || secondaryCollectionSeparator is not null || property.TryGetProperty("secondaryValueIsCollection", out _))) ||
             (valueTemplate is not null &&
                 (secondaryValueId is null ||
-                 ((!property.TryGetProperty("secondaryValueIsCollection", out _) || secondaryValueIsCollectionValue) && secondaryCollectionSeparator is null) ||
+                 ((!property.TryGetProperty("secondaryValueIsCollection", out _) || secondaryValueIsCollectionValue) && secondaryCollectionSeparator is null && !useCollection) ||
                  (property.TryGetProperty("secondaryValueIsCollection", out _) && !secondaryValueIsCollectionValue && secondaryCollectionSeparator is not null) ||
                  (secondaryCollectionSeparator?.Length > MaximumDelimiterLength) ||
-                 useCollection || encoding is not null || collectionSeparator is not null ||
+                 (useCollection && !secondaryValueIsCollectionValue) || encoding is not null || collectionSeparator is not null ||
                  valueTemplate.Length > 256 ||
                  !valueTemplate.Contains("{0}", StringComparison.Ordinal) ||
                  !valueTemplate.Contains("{1}", StringComparison.Ordinal))))

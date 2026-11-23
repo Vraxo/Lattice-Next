@@ -119,22 +119,10 @@ public static class SequenceInputFactExtractor
                     continue;
                 }
 
-                if (capture.Normalization == "booleanExpression")
+                if (capture.CollectionDelimiter is null && capture.CollectionDelimiters.IsDefaultOrEmpty)
                 {
-                    if (!BooleanExpressionNormalizer.TryNormalize(capturedValue, out var normalizedValue))
+                    if (!TryNormalizeCapture(rule.Id, capture.Normalization, capturedValue, out var normalizedValue, out error))
                     {
-                        error = $"Input rule '{rule.Id}' captured an invalid boolean expression.";
-                        return false;
-                    }
-
-                    capturedValue = normalizedValue;
-                }
-
-                if (capture.Normalization == "comparisonOperator")
-                {
-                    if (!ComparisonOperatorNormalizer.TryNormalize(capturedValue, out var normalizedValue))
-                    {
-                        error = $"Input rule '{rule.Id}' captured an unsupported comparison operator.";
                         return false;
                     }
 
@@ -183,6 +171,7 @@ public static class SequenceInputFactExtractor
                     var items = ImmutableArray.CreateBuilder<string>(rawItems.Length);
                     foreach (var rawItem in rawItems)
                     {
+                        string itemValue;
                         if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
                         {
                             var fields = SplitText(rawItem, ImmutableArray.Create(fieldDelimiter));
@@ -202,18 +191,25 @@ public static class SequenceInputFactExtractor
                                     return false;
                                 }
 
-                                items.Add(template.Replace("{0}", fields[0], StringComparison.Ordinal)
-                                    .Replace("{1}", fields[1], StringComparison.Ordinal));
+                                itemValue = template.Replace("{0}", fields[0], StringComparison.Ordinal)
+                                    .Replace("{1}", fields[1], StringComparison.Ordinal);
                             }
                             else
                             {
-                                items.Add(fields[capture.CollectionFieldIndex!.Value]);
+                                itemValue = fields[capture.CollectionFieldIndex!.Value];
                             }
                         }
                         else
                         {
-                            items.Add(rawItem);
+                            itemValue = rawItem;
                         }
+
+                        if (!TryNormalizeCapture(rule.Id, capture.Normalization, itemValue, out var normalizedItem, out error))
+                        {
+                            return false;
+                        }
+
+                        items.Add(normalizedItem);
                     }
 
                     var immutableItems = items.ToImmutable();
@@ -263,6 +259,34 @@ public static class SequenceInputFactExtractor
         }
 
         facts = extractedFacts;
+        return true;
+    }
+
+    private static bool TryNormalizeCapture(
+        string ruleId,
+        string? normalization,
+        string value,
+        out string normalized,
+        out string? error)
+    {
+        normalized = value;
+        error = null;
+        if (normalization == "booleanExpression")
+        {
+            if (!BooleanExpressionNormalizer.TryNormalize(value, out normalized))
+            {
+                error = $"Input rule '{ruleId}' captured an invalid boolean expression.";
+                return false;
+            }
+        }
+        else if (normalization == "comparisonOperator")
+        {
+            if (!ComparisonOperatorNormalizer.TryNormalize(value, out normalized))
+            {
+                error = $"Input rule '{ruleId}' captured an unsupported comparison operator.";
+                return false;
+            }
+        }
         return true;
     }
 

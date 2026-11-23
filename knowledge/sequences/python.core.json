@@ -3553,28 +3553,11 @@
           "stopBeforeTokens": []
         },
         {
-          "factId": "program.conditional-function.true-return",
-          "valueId": "expression",
+          "factId": "program.conditional-function.branches",
+          "valueId": "returns",
           "startAfterTokens": [
-            "and",
             "returns"
           ],
-          "stopBeforeSequences": [
-            [
-              "when"
-            ]
-          ],
-          "trimSuffixCharacters": ",",
-          "stopBeforeTokens": [],
-          "preserveRawValue": true
-        },
-        {
-          "factId": "program.conditional-function.condition",
-          "valueId": "expression",
-          "startAfterTokens": [
-            "when"
-          ],
-          "stopBeforeTokens": [],
           "stopBeforeSequences": [
             [
               "and",
@@ -3582,6 +3565,30 @@
               "returns"
             ]
           ],
+          "collectionDelimiter": ", returns",
+          "collectionFieldDelimiter": "when",
+          "collectionFieldIndex": 0,
+          "stopBeforeTokens": [],
+          "preserveRawValue": true,
+          "trimSuffixCharacters": ","
+        },
+        {
+          "factId": "program.conditional-function.branches",
+          "valueId": "conditions",
+          "startAfterTokens": [
+            "returns"
+          ],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "otherwise",
+              "returns"
+            ]
+          ],
+          "collectionDelimiter": ", returns",
+          "collectionFieldDelimiter": "when",
+          "collectionFieldIndex": 1,
+          "stopBeforeTokens": [],
           "preserveRawValue": true,
           "normalization": "booleanExpression",
           "trimSuffixCharacters": ","
@@ -3589,10 +3596,12 @@
         {
           "factId": "program.conditional-function.false-return",
           "valueId": "expression",
-          "startAfterTokens": [
-            "and",
-            "otherwise",
-            "returns"
+          "startAfterSequences": [
+            [
+              "and",
+              "otherwise",
+              "returns"
+            ]
           ],
           "stopBeforeSequences": [
             [
@@ -6519,250 +6528,6 @@
       "weight": 10
     },
     {
-      "id": "python-conditional-function-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature",
-        "program.conditional-function.condition",
-        "program.conditional-function.true-return",
-        "program.conditional-function.false-return",
-        "program.conditional-function.call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.arithmetic"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.arithmetic"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-conditional-function-open-without-arithmetic",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature",
-        "program.conditional-function.condition",
-        "program.conditional-function.true-return",
-        "program.conditional-function.false-return",
-        "program.conditional-function.call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output"
-      ],
-      "forbiddenFacts": [
-        "program.arithmetic"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-conditional-function-header",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.signature",
-        "valueId": "name",
-        "valueTemplate": "{0}({1})",
-        "secondaryValueId": "parameters",
-        "secondaryCollectionSeparator": ", ",
-        "prefix": "def ",
-        "suffix": ":\n"
-      }
-    },
-    {
-      "id": "python-conditional-function-if",
-      "contextSuffix": [
-        "```python\n",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.condition"
-      ],
-      "nextToken": "    if "
-    },
-    {
-      "id": "python-conditional-function-condition-expression",
-      "contextSuffix": [
-        "    if "
-      ],
-      "requiredFacts": [
-        "program.conditional-function.condition"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.conditional-function.condition",
-        "valueId": "expression",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.condition"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": [],
-      "weight": 0
-    },
-    {
-      "id": "python-conditional-function-true-return",
-      "contextSuffix": [
-        "*:\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.true-return"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.condition"
-      ],
-      "nextToken": "        return "
-    },
-    {
-      "id": "python-conditional-function-true-value",
-      "contextSuffix": [
-        "        return "
-      ],
-      "requiredFacts": [
-        "program.conditional-function.true-return"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.true-return",
-        "valueId": "expression",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.true-return"
-      ]
-    },
-    {
-      "id": "python-conditional-function-else",
-      "contextSuffix": [
-        "        return ",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.true-return"
-      ],
-      "nextToken": "    return "
-    },
-    {
-      "id": "python-conditional-function-false-value",
-      "contextSuffix": [
-        "    return "
-      ],
-      "requiredFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.false-return",
-        "valueId": "expression",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.false-return"
-      ]
-    },
-    {
-      "id": "python-conditional-function-print",
-      "contextSuffix": [
-        "    return ",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "nextToken": "print(",
-      "forbiddenFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-conditional-function-print-with-output-start",
-      "contextSuffix": [
-        "    return ",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call",
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "nextToken": "print(",
-      "satisfiesFacts": [
-        "program.output.start"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-conditional-function-call",
-      "contextSuffix": [
-        "print("
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.call",
-        "valueId": "expression",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.call",
-        "program.conditional-function.signature"
-      ],
-      "forbiddenFacts": [
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-conditional-function-call-with-value-output",
-      "contextSuffix": [
-        "print("
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.call",
-        "valueId": "expression",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.call",
-        "program.conditional-function.signature",
-        "value.output"
-      ],
-      "forbiddenFacts": []
-    },
-    {
       "id": "python-class-model-open",
       "contextSuffix": [
         "<|lattice.start|>"
@@ -7306,6 +7071,224 @@
       "forbiddenFacts": [],
       "advanceCollections": [],
       "weight": 32
+    },
+    {
+      "id": "python-conditional-function-open",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.signature",
+        "program.conditional-function.branches",
+        "program.conditional-function.false-return",
+        "program.conditional-function.call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.arithmetic"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.arithmetic"
+      ],
+      "weight": 10
+    },
+    {
+      "id": "python-conditional-function-open-without-arithmetic",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.signature",
+        "program.conditional-function.branches",
+        "program.conditional-function.false-return",
+        "program.conditional-function.call",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output"
+      ],
+      "forbiddenFacts": [
+        "program.arithmetic"
+      ],
+      "weight": 10
+    },
+    {
+      "id": "python-conditional-function-header",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.signature",
+        "valueId": "name",
+        "valueTemplate": "{0}({1})",
+        "secondaryValueId": "parameters",
+        "secondaryCollectionSeparator": ", ",
+        "prefix": "def ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.signature"
+      ]
+    },
+    {
+      "id": "python-conditional-function-first-branch",
+      "contextSuffix": [
+        "```python\n",
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.branches"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.branches",
+        "valueId": "conditions",
+        "collection": true,
+        "secondaryValueId": "returns",
+        "secondaryValueIsCollection": true,
+        "valueTemplate": "{0}:\n        return {1}\n",
+        "prefix": "    if ",
+        "minimumCollectionCursor": 0
+      },
+      "advanceCollections": [
+        "program.conditional-function.branches:conditions",
+        "program.conditional-function.branches:returns"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.signature"
+      ]
+    },
+    {
+      "id": "python-conditional-function-next-branch",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.branches"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.branches",
+        "valueId": "conditions",
+        "collection": true,
+        "secondaryValueId": "returns",
+        "secondaryValueIsCollection": true,
+        "valueTemplate": "{0}:\n        return {1}\n",
+        "prefix": "    elif ",
+        "minimumCollectionCursor": 1
+      },
+      "advanceCollections": [
+        "program.conditional-function.branches:conditions",
+        "program.conditional-function.branches:returns"
+      ]
+    },
+    {
+      "id": "python-conditional-function-else-return",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.false-return"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.branches"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.false-return",
+        "valueId": "expression",
+        "prefix": "    return ",
+        "suffix": "\n"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.false-return"
+      ]
+    },
+    {
+      "id": "python-conditional-function-print",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.false-return"
+      ],
+      "nextToken": "print(",
+      "forbiddenFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-conditional-function-print-with-output-start",
+      "contextSuffix": [
+        "*\n"
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call",
+        "program.output.start"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.false-return"
+      ],
+      "nextToken": "print(",
+      "satisfiesFacts": [
+        "program.output.start"
+      ]
+    },
+    {
+      "id": "python-conditional-function-call",
+      "contextSuffix": [
+        "print("
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.call",
+        "valueId": "expression",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.call",
+        "program.conditional-function.signature"
+      ],
+      "forbiddenFacts": [
+        "value.output"
+      ]
+    },
+    {
+      "id": "python-conditional-function-call-with-value-output",
+      "contextSuffix": [
+        "print("
+      ],
+      "requiredFacts": [
+        "program.conditional-function.call"
+      ],
+      "tokenBinding": {
+        "factId": "program.conditional-function.call",
+        "valueId": "expression",
+        "suffix": ")\n```"
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.call",
+        "program.conditional-function.signature",
+        "value.output"
+      ]
     }
   ],
   "validations": [
@@ -7535,24 +7518,6 @@
       "appliesWhenFactId": "program.conditional-function.signature"
     },
     {
-      "id": "conditional-function-condition-references-parameters",
-      "kind": "booleanExpressionReferences",
-      "factId": "program.conditional-function.condition",
-      "valueId": "expression",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-true-return-references-parameters",
-      "kind": "valueExpressionReferences",
-      "factId": "program.conditional-function.true-return",
-      "valueId": "expression",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
       "id": "conditional-function-false-return-references-parameters",
       "kind": "valueExpressionReferences",
       "factId": "program.conditional-function.false-return",
@@ -7669,6 +7634,33 @@
       "factId": "program.collection-filter.condition",
       "valueId": "item",
       "appliesWhenFactId": "program.collection-filter.condition"
+    },
+    {
+      "id": "conditional-function-branches-have-matching-counts",
+      "kind": "matchingCollections",
+      "factId": "program.conditional-function.branches",
+      "valueId": "conditions",
+      "relatedFactId": "program.conditional-function.branches",
+      "relatedValueId": "returns",
+      "appliesWhenFactId": "program.conditional-function.signature"
+    },
+    {
+      "id": "conditional-function-branch-conditions-reference-parameters",
+      "kind": "booleanExpressionCollectionReferences",
+      "factId": "program.conditional-function.branches",
+      "valueId": "conditions",
+      "relatedFactId": "program.conditional-function.signature",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.conditional-function.signature"
+    },
+    {
+      "id": "conditional-function-branch-returns-reference-parameters",
+      "kind": "valueExpressionCollectionReferences",
+      "factId": "program.conditional-function.branches",
+      "valueId": "returns",
+      "relatedFactId": "program.conditional-function.signature",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.conditional-function.signature"
     }
   ]
 }
