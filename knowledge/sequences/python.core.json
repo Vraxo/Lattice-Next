@@ -3638,6 +3638,528 @@
           "then"
         ]
       ]
+    },
+    {
+      "id": "recognize-collection-filter-function-name",
+      "matchTokens": [
+        "function",
+        "named"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "name",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeTokens": [
+            "that"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "default-collection-filter-function-name",
+      "matchTokens": [
+        "function"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "name",
+          "literalValue": "filter_values"
+        }
+      ]
+    },
+    {
+      "id": "default-average-filter-function-name",
+      "matchTokens": [
+        "average",
+        "of"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "name",
+          "literalValue": "above_average"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "function"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-parameter-receives",
+      "matchTokens": [
+        "function",
+        "receives"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "parameter",
+          "startAfterSequences": [
+            [
+              "numbers",
+              "named"
+            ]
+          ],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "returns"
+            ],
+            [
+              "and",
+              "return"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-parameter-accepts",
+      "matchTokens": [
+        "function",
+        "accepts"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "parameter",
+          "startAfterSequences": [
+            [
+              "numbers",
+              "named"
+            ]
+          ],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "returns"
+            ],
+            [
+              "and",
+              "return"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "default-collection-filter-parameter",
+      "matchTokens": [
+        "function"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "parameter",
+          "literalValue": "values"
+        }
+      ]
+    },
+    {
+      "id": "capture-collection-filter-item",
+      "matchTokens": [
+        "only"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "item",
+          "startAfterTokens": [
+            "only"
+          ],
+          "stopBeforeTokens": [
+            "values"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "default-collection-filter-item",
+      "matchTokens": [
+        "only"
+      ],
+      "factId": "program.collection-filter.signature",
+      "captures": [
+        {
+          "factId": "program.collection-filter.signature",
+          "valueId": "item",
+          "literalValue": "value"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "values"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-1",
+      "matchTokens": [
+        "greater",
+        "than",
+        "or",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": ">="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-2",
+      "matchTokens": [
+        "at",
+        "least"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": ">="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-3",
+      "matchTokens": [
+        "less",
+        "than",
+        "or",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "<="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-4",
+      "matchTokens": [
+        "at",
+        "most"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "<="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-5",
+      "matchTokens": [
+        "greater",
+        "than"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": ">"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-6",
+      "matchTokens": [
+        "more",
+        "than"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": ">"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-7",
+      "matchTokens": [
+        "less",
+        "than"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "<"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-8",
+      "matchTokens": [
+        "below"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "<"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-9",
+      "matchTokens": [
+        "not",
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "!="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-10",
+      "matchTokens": [
+        "equal",
+        "to"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "=="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-operator-11",
+      "matchTokens": [
+        "equals"
+      ],
+      "factId": "program.collection-filter.comparison",
+      "captures": [
+        {
+          "factId": "program.collection-filter.comparison",
+          "valueId": "operator",
+          "literalValue": "=="
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "capture-collection-filter-numeric-threshold",
+      "matchTokens": [
+        "only"
+      ],
+      "factId": "program.collection-filter.threshold",
+      "captures": [
+        {
+          "factId": "program.collection-filter.threshold",
+          "valueId": "expression",
+          "startAfterSequences": [
+            [
+              "greater",
+              "than",
+              "or",
+              "equal",
+              "to"
+            ],
+            [
+              "at",
+              "least"
+            ],
+            [
+              "less",
+              "than",
+              "or",
+              "equal",
+              "to"
+            ],
+            [
+              "at",
+              "most"
+            ],
+            [
+              "greater",
+              "than"
+            ],
+            [
+              "more",
+              "than"
+            ],
+            [
+              "less",
+              "than"
+            ],
+            [
+              "below"
+            ],
+            [
+              "not",
+              "equal",
+              "to"
+            ],
+            [
+              "equal",
+              "to"
+            ],
+            [
+              "equals"
+            ]
+          ],
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ",",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "greater",
+          "than"
+        ],
+        [
+          "more",
+          "than"
+        ],
+        [
+          "at",
+          "least"
+        ],
+        [
+          "less",
+          "than"
+        ],
+        [
+          "below"
+        ],
+        [
+          "at",
+          "most"
+        ],
+        [
+          "equal",
+          "to"
+        ],
+        [
+          "equals"
+        ],
+        [
+          "not",
+          "equal",
+          "to"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-collection-filter-average-threshold",
+      "matchTokens": [
+        "average"
+      ],
+      "factId": "program.collection-filter.average",
+      "requiredAnySequences": [
+        [
+          "function"
+        ],
+        [
+          "only"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-collection-filter-requirement",
+      "matchTokens": [
+        "new",
+        "list",
+        "containing",
+        "only"
+      ],
+      "factId": "program.collection-filter"
     }
   ],
   "rules": [
@@ -6023,6 +6545,215 @@
       ],
       "forbiddenFacts": [],
       "advanceCollections": []
+    },
+    {
+      "id": "python-collection-filter-open",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start",
+        "program.collection-filter.threshold"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start"
+      ],
+      "weight": 30
+    },
+    {
+      "id": "python-collection-filter-open-average",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start",
+        "program.collection-filter.average"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.output",
+        "program.output.start"
+      ],
+      "weight": 30
+    },
+    {
+      "id": "python-collection-filter-header",
+      "contextSuffix": [
+        "```python\n"
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "name",
+        "secondaryValueId": "parameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "{0}({1})",
+        "prefix": "def ",
+        "suffix": ":\n"
+      },
+      "satisfiesFacts": [
+        "program.collection-filter.signature"
+      ]
+    },
+    {
+      "id": "python-collection-filter-return-prefix",
+      "contextSuffix": [
+        "*):\n"
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "nextToken": "    return ["
+    },
+    {
+      "id": "python-collection-filter-item-first",
+      "contextSuffix": [
+        "    return ["
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "item",
+        "suffix": " for "
+      },
+      "satisfiesFacts": []
+    },
+    {
+      "id": "python-collection-filter-item-binding",
+      "contextSuffix": [
+        " for "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "item",
+        "suffix": " in "
+      }
+    },
+    {
+      "id": "python-collection-filter-parameter",
+      "contextSuffix": [
+        " in "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "parameter",
+        "suffix": " if "
+      }
+    },
+    {
+      "id": "python-collection-filter-condition-item",
+      "contextSuffix": [
+        " if "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "item",
+        "suffix": " "
+      }
+    },
+    {
+      "id": "python-collection-filter-condition-operator",
+      "contextSuffix": [
+        " "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.comparison"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.comparison",
+        "valueId": "operator",
+        "suffix": " "
+      }
+    },
+    {
+      "id": "python-collection-filter-condition-threshold",
+      "contextSuffix": [
+        " "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.threshold"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.threshold",
+        "valueId": "expression",
+        "suffix": "]\nprint("
+      },
+      "requiresCompletedFacts": [
+        "program.collection-filter.signature"
+      ]
+    },
+    {
+      "id": "python-collection-filter-condition-average",
+      "contextSuffix": [
+        " "
+      ],
+      "requiredFacts": [
+        "program.collection-filter.average",
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "parameter",
+        "secondaryValueId": "parameter",
+        "secondaryValueIsCollection": false,
+        "valueTemplate": "sum({0}) / len({1})",
+        "suffix": "]\nprint("
+      },
+      "requiresCompletedFacts": [
+        "program.collection-filter.signature"
+      ]
+    },
+    {
+      "id": "python-collection-filter-call",
+      "contextSuffix": [
+        "print("
+      ],
+      "requiredFacts": [
+        "program.collection-filter.signature"
+      ],
+      "tokenBinding": {
+        "factId": "program.collection-filter.signature",
+        "valueId": "name",
+        "suffix": "([1, 2, 3, 4, 5])\n```"
+      },
+      "satisfiesFacts": [
+        "program.collection-filter"
+      ]
     }
   ],
   "validations": [
@@ -6351,6 +7082,34 @@
       "factId": "program.class-model",
       "valueId": "amountParameter",
       "appliesWhenFactId": "program.class-model"
+    },
+    {
+      "id": "collection-filter-function-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.collection-filter.signature",
+      "valueId": "name",
+      "appliesWhenFactId": "program.collection-filter.signature"
+    },
+    {
+      "id": "collection-filter-parameter-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.collection-filter.signature",
+      "valueId": "parameter",
+      "appliesWhenFactId": "program.collection-filter.signature"
+    },
+    {
+      "id": "collection-filter-item-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.collection-filter.signature",
+      "valueId": "item",
+      "appliesWhenFactId": "program.collection-filter.signature"
+    },
+    {
+      "id": "collection-filter-threshold-is-arithmetic",
+      "kind": "arithmeticValue",
+      "factId": "program.collection-filter.threshold",
+      "valueId": "expression",
+      "appliesWhenFactId": "program.collection-filter.threshold"
     }
   ]
 }
