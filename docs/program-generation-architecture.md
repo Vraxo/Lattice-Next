@@ -82,15 +82,15 @@ Earlier knowledge-driven improvements also expanded benchmark coverage without c
 
 The latest [Python benchmark run](https://github.com/Vraxo/Lattice-Next/actions/runs/45059564042) generated **16/16** programs, validated **16/16** syntactically, and smoke-executed **16/16** successfully. This remains generation/syntax/execution evidence only; semantic correctness and generalization are not yet scored. The bank-account domain mapping itself is still task-specific, even though its code is now composed from semantic facts.
 
-For any future increment:
+For future program-generation work:
 
-1. Inspect the current `main` branch and identify an actual remaining legacy branch; do not rely on a stale candidate list.
-2. Remove one focused branch and its dedicated parser/generator logic while preserving genuinely shared functionality.
-3. Express the required input facts, validation, and output sequence declaratively, extending generic infrastructure only when necessary.
-4. Add tests for ordinary cases, variations, invalid inputs, and end-to-end behavior.
-5. Open a small PR, enable GitHub auto-merge, and wait for required CI checks. Never bypass checks.
-6. Verify the merge and the resulting `main` contents before incrementing the progress count.
-7. Stop at the merge boundary before starting the next increment.
+1. Begin with a concrete task or a measured failure in the current benchmark; do not invent another migration target to keep the old branch count moving.
+2. Inspect the current `main` branch and identify the smallest reusable semantic or generation capability that is missing.
+3. Extend the shared mechanism or declarative knowledge without introducing target-language dispatch, task-keyed routing, or stored benchmark solutions.
+4. Add tests for ordinary cases, changed values, paraphrases, invalid/incomplete inputs, and end-to-end behavior as applicable.
+5. Validate generated behavior, not just plausible text or syntax; keep semantic correctness and generalization separate from generation/execution counts.
+6. Open a small PR, enable GitHub auto-merge, and wait for required CI checks. Never bypass checks.
+7. Verify the merge and resulting `main` contents before choosing the next increment.
 
 ## Definition of success
 
