@@ -91,6 +91,27 @@ public sealed class NegativeRelationalPremiseTests
             engine.Ask(wrongObject, ParseQuestion("Is Fido friendly?")).TruthValue);
     }
 
+    [Fact]
+    public void Applies_mixed_positive_and_negative_fixed_object_relational_premises()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that likes milk and does not follow Rex is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido likes milk.");
+        Add(knowledgeBase, "Fido does not follow Rex.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal(2, result.Proof!.AdditionalPremises.Length);
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "likes" &&
+            proof.Polarity == EvidencePolarity.Positive);
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "follows" &&
+            proof.Polarity == EvidencePolarity.Negative);
+    }
+
     [Theory]
     [InlineData("Every dog that do not like milk is friendly.")]
     [InlineData("All dogs that does not like milk are friendly.")]
