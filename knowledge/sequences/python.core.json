@@ -7139,7 +7139,10 @@
         "secondaryCollectionSeparator": ", ",
         "prefix": "def ",
         "suffix": ":\n"
-      }
+      },
+      "satisfiesFacts": [
+        "program.conditional-function.signature"
+      ]
     },
     {
       "id": "python-conditional-function-first-branch",
@@ -7162,6 +7165,9 @@
       "advanceCollections": [
         "program.conditional-function.branches:conditions",
         "program.conditional-function.branches:returns"
+      ],
+      "requiresCompletedFacts": [
+        "program.conditional-function.signature"
       ]
     },
     {
