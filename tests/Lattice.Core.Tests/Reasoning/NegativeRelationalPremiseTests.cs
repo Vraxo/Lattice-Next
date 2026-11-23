@@ -214,7 +214,7 @@ public sealed class NegativeRelationalPremiseTests
     }
 
     [Fact]
-    public void Rejects_more_than_one_fixed_object_relational_premise_across_both_polarities()
+    public void Accepts_multiple_fixed_object_relational_premises_across_both_polarities()
     {
         var variable = new VariableTerm(new SemanticIdentifier("x"));
         var premises = new Conjunction(ImmutableArray.Create<SemanticFormula>(
@@ -231,9 +231,10 @@ public sealed class NegativeRelationalPremiseTests
 
         var accepted = knowledgeBase.TryAdd(utterance, out _, out var error);
 
-        Assert.False(accepted);
-        Assert.Contains("supported", error);
-        Assert.Empty(knowledgeBase.Rules);
+        Assert.True(accepted, error);
+        var rule = Assert.Single(knowledgeBase.Rules);
+        Assert.Single(rule.NegativeRelationalPremises);
+        Assert.Single(rule.RelationalPremises);
     }
 
     [Fact]
