@@ -77,6 +77,7 @@ internal static class SemanticDefinitionResponder
     {
         message = string.Empty;
         evidence = ImmutableArray<LatticeEvidence>.Empty;
+
         var types = reasoner.GetTypes(individual.Id);
         var specificTypes = types
             .Where(candidate => !types.Any(other =>
@@ -86,51 +87,54 @@ internal static class SemanticDefinitionResponder
                 "entity" or "software" or "capability" or "research-publication"))
             .ToArray();
 
-        if (specificTypes.Length == 0)
+        var relations = reasoner.GetRelations(individual.Id)
+            .Where(assertion => assertion.Relation is not ("instance-of" or "is-a"))
+            .Select(assertion => (
+                Assertion: assertion,
+                Relation: model.FindRelation(assertion.Relation),
+                Target: model.FindConcept(assertion.Object)))
+            .Where(item => item.Relation is not null && item.Target is not null)
+            .OrderBy(item => item.Relation!.Order)
+            .ThenBy(item => item.Relation!.Id, StringComparer.Ordinal)
+            .ThenBy(item => item.Target!.Id, StringComparer.Ordinal)
+            .ToArray();
+
+        var documentation = model.GetDataAssertions(individual.Id, "documentation-url");
+        if (specificTypes.Length == 0 && relations.Length == 0 && documentation.Length == 0)
         {
             return false;
         }
 
-        var clauses = new List<string>
-        {
-            $"{individual.Label} is {JoinConditions(specificTypes.Select(DescribeTypeMembership).ToArray())}."
-        };
-        var sources = specificTypes
-            .SelectMany(type => reasoner.GetMembershipEvidence(individual.Id, type!.Id))
-            .ToList();
+        var clauses = new List<string>();
+        var sources = new List<SemanticWorldModelSource>();
 
-        var capabilityAssertions = reasoner.GetRelations(individual.Id, "supports-capability");
-        var capabilities = capabilityAssertions
-            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
-            .Where(target => target is not null)
-            .Select(target => target!)
-            .DistinctBy(target => target.Id)
-            .ToArray();
-
-        if (capabilities.Length > 0)
+        if (specificTypes.Length > 0)
         {
-            clauses.Add($"It supports {JoinConditions(capabilities.Select(target => target.Label).ToArray())}.");
-            sources.AddRange(capabilityAssertions.Select(assertion => assertion.Source));
-            foreach (var capability in capabilities)
+            clauses.Add(
+                $"{individual.Label} is {JoinConditions(specificTypes.Select(DescribeTypeMembership).ToArray())}.");
+            sources.AddRange(specificTypes.SelectMany(type =>
+                reasoner.GetMembershipEvidence(individual.Id, type!.Id)));
+        }
+
+        foreach (var item in relations)
+        {
+            var relation = item.Relation!;
+            var target = item.Target!;
+            var objectPhrase = IndefinitePhrase(target.Label);
+            if (relation.ObjectRole is not null)
             {
-                sources.AddRange(reasoner.GetMembershipEvidence(capability.Id, "capability"));
+                objectPhrase += $" {relation.ObjectRole}";
+            }
+
+            clauses.Add($"It {relation.Verb} {objectPhrase}.");
+            sources.Add(item.Assertion.Source);
+
+            if (target.Kind == SemanticConceptKind.Individual && relation.RangeType is not null)
+            {
+                sources.AddRange(reasoner.GetMembershipEvidence(target.Id, relation.RangeType));
             }
         }
 
-        var domainAssertions = reasoner.GetRelations(individual.Id, "used-for-domain");
-        var domains = domainAssertions
-            .Select(assertion => model.FindConcept(assertion.Object, SemanticConceptKind.Individual))
-            .Where(target => target is not null)
-            .Select(target => target!)
-            .DistinctBy(target => target.Id)
-            .ToArray();
-        if (domains.Length > 0)
-        {
-            clauses.Add($"It is used for {JoinConditions(domains.Select(target => target.Label).ToArray())}.");
-            sources.AddRange(domainAssertions.Select(assertion => assertion.Source));
-        }
-
-        var documentation = model.GetDataAssertions(individual.Id, "documentation-url");
         if (documentation.Length > 0)
         {
             clauses.Add($"Its documentation is available at {documentation[0].Value}.");
