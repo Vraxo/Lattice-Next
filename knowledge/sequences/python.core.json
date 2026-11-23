@@ -4042,7 +4042,7 @@
         "average"
       ],
       "factId": "program.collection-filter.average",
-      "requiredAnySequences": [
+      "requiredAllSequences": [
         [
           "function"
         ],
