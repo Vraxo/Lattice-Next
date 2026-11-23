@@ -158,12 +158,40 @@ internal static class TaskCodeGenerationResponder
             return false;
         }
 
+        var safetyNotes = reasoner.GetRelations(task.Id, "code-generation-task-has-safety-note")
+            .Select(assertion => new
+            {
+                Assertion = assertion,
+                Note = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
+            })
+            .Where(item => item.Note is not null)
+            .ToArray();
+        if (safetyNotes.Any(item => !reasoner.IsInstanceOf(item.Note!.Id, "code-generation-safety-note")))
+        {
+            return false;
+        }
+
         var fence = new string((char)96, 3);
-        message = string.Join(
-            Environment.NewLine,
+        var messageLines = new List<string>
+        {
+            $"## {task.Label}",
+            "### Script",
             fence + language.Id,
             program!.Text,
-            fence);
+            fence,
+            "### Steps"
+        };
+        messageLines.AddRange(steps.Select(step => $"- {step!.Step.Label}"));
+        if (safetyNotes.Length > 0)
+        {
+            messageLines.Add("### Safety");
+            messageLines.AddRange(safetyNotes.Select(item => $"- {item.Note!.Label}"));
+            sources.AddRange(safetyNotes.Select(item => item.Assertion.Source));
+            sources.AddRange(safetyNotes.SelectMany(item =>
+                reasoner.GetMembershipEvidence(item.Note!.Id, "code-generation-safety-note")));
+        }
+
+        message = string.Join(Environment.NewLine, messageLines);
         evidence = ImmutableArray.Create(new LatticeEvidence(
             LatticeEvidenceKind.Derived,
             LatticeEvidencePolarity.Positive,
