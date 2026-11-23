@@ -366,7 +366,8 @@ public static class KnowledgeDrivenSequenceGenerator
             {
                 var key = BuildCollectionKey(binding.FactId, binding.ValueId);
                 var index = collectionCursors.GetValueOrDefault(key);
-                if (!fact.Collections.TryGetValue(binding.ValueId, out var primaryValues) ||
+                if (index < binding.MinimumCollectionCursor ||
+                    !fact.Collections.TryGetValue(binding.ValueId, out var primaryValues) ||
                     index >= primaryValues.Length)
                 {
                     return false;
