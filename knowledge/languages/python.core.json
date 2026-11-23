@@ -933,7 +933,7 @@
     {
       "id": "python-bound-assignment",
       "symbol": "=",
-      "effect": "assign-variable",
+      "effect": "emit-assignment",
       "argumentKind": "assignment",
       "prerequisites": [],
       "startSymbol": "bound-assignment-statement"
@@ -941,7 +941,7 @@
     {
       "id": "python-bound-for-loop",
       "symbol": "for",
-      "effect": "begin-loop",
+      "effect": "emit-loop-header",
       "argumentKind": "loop-header",
       "prerequisites": [],
       "startSymbol": "bound-for-statement"
@@ -949,7 +949,7 @@
     {
       "id": "python-bound-conditional",
       "symbol": "if",
-      "effect": "begin-conditional",
+      "effect": "emit-conditional-header",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "bound-if-statement"
@@ -957,7 +957,7 @@
     {
       "id": "python-bound-import",
       "symbol": "import",
-      "effect": "import-module",
+      "effect": "emit-import",
       "argumentKind": "module-name",
       "prerequisites": [],
       "startSymbol": "bound-import-statement"
@@ -965,7 +965,7 @@
     {
       "id": "python-bound-call",
       "symbol": "call",
-      "effect": "call-function",
+      "effect": "emit-call",
       "argumentKind": "call",
       "prerequisites": [],
       "startSymbol": "bound-call-statement"
@@ -973,7 +973,7 @@
     {
       "id": "python-else",
       "symbol": "else",
-      "effect": "begin-else",
+      "effect": "emit-else",
       "argumentKind": "none",
       "prerequisites": [],
       "startSymbol": "else-statement"
@@ -981,7 +981,7 @@
     {
       "id": "python-continue",
       "symbol": "continue",
-      "effect": "continue-loop",
+      "effect": "emit-continue",
       "argumentKind": "none",
       "prerequisites": [],
       "startSymbol": "continue-statement"
