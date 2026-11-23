@@ -7170,7 +7170,7 @@
       "tokenBinding": {
         "factId": "program.collection-filter.signature",
         "valueId": "name",
-        "suffix": "([1, 2, 3, 4, 5])\n```"
+        "suffix": "([1, 2, 3, 4, 5]))\n```"
       },
       "satisfiesFacts": [
         "program.collection-filter",
