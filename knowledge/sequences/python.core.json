@@ -3832,6 +3832,13 @@
           "stopBeforeTokens": [
             "values"
           ]
+        },
+        {
+          "factId": "program.collection-filter.condition",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "values"
+          ]
         }
       ],
       "requiredAllSequences": [
@@ -3852,6 +3859,11 @@
       "captures": [
         {
           "factId": "program.collection-filter.signature",
+          "valueId": "item",
+          "literalValue": "value"
+        },
+        {
+          "factId": "program.collection-filter.condition",
           "valueId": "item",
           "literalValue": "value"
         }
@@ -6920,7 +6932,8 @@
         "language.python",
         "program.function",
         "program.collection-filter.threshold",
-        "program.collection"
+        "program.collection",
+        "program.collection-filter.condition"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
@@ -6949,7 +6962,8 @@
         "language.python",
         "program.function",
         "program.collection-filter.average",
-        "program.collection"
+        "program.collection",
+        "program.collection-filter.condition"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
@@ -7059,14 +7073,17 @@
         "* if "
       ],
       "requiredFacts": [
-        "program.collection-filter.signature"
+        "program.collection-filter.signature",
+        "program.collection-filter.condition"
       ],
       "tokenBinding": {
-        "factId": "program.collection-filter.signature",
+        "factId": "program.collection-filter.condition",
         "valueId": "item",
         "suffix": " "
       },
-      "satisfiesFacts": [],
+      "satisfiesFacts": [
+        "program.collection-filter.condition"
+      ],
       "requiresCompletedFacts": [],
       "forbiddenFacts": [],
       "advanceCollections": []
@@ -7087,7 +7104,9 @@
       "satisfiesFacts": [
         "program.collection-filter.comparison"
       ],
-      "requiresCompletedFacts": [],
+      "requiresCompletedFacts": [
+        "program.collection-filter.condition"
+      ],
       "forbiddenFacts": [],
       "advanceCollections": []
     },
@@ -7175,7 +7194,8 @@
         "program.function",
         "program.collection-filter.threshold",
         "program.collection",
-        "program.arithmetic"
+        "program.arithmetic",
+        "program.collection-filter.condition"
       ],
       "requiresCompletedFacts": [],
       "nextToken": "```python\n",
@@ -7545,6 +7565,13 @@
       "factId": "program.collection-filter.threshold",
       "valueId": "expression",
       "appliesWhenFactId": "program.collection-filter.threshold"
+    },
+    {
+      "id": "collection-filter-condition-item-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.collection-filter.condition",
+      "valueId": "item",
+      "appliesWhenFactId": "program.collection-filter.condition"
     }
   ]
 }
