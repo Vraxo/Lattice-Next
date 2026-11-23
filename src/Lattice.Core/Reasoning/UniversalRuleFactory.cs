@@ -32,7 +32,7 @@ internal static class UniversalRuleFactory
                     out var existentialNegativePremises,
                     out var existentialRelationalPremises,
                     out var existentialNegativeRelationalPremises,
-                    out var existentialPremises) ||
+                    out var existentialRelationPremises) ||
                 !TryCreateExistentialConclusion(
                     existentialConclusion,
                     variable,
@@ -52,7 +52,7 @@ internal static class UniversalRuleFactory
                 NegativePremises = existentialNegativePremises,
                 RelationalPremises = existentialRelationalPremises,
                 NegativeRelationalPremises = existentialNegativeRelationalPremises,
-                ExistentialPremises = existentialPremises,
+                ExistentialPremises = existentialRelationPremises,
                 ExistentialConclusion = existentialRuleConclusion
             };
 
