@@ -61,13 +61,17 @@ Knowledge may describe reusable constructions and their constraints. It must not
 - **Preserve uncertainty and safety.** Reject unsupported or contradictory inputs rather than guessing. Unknown information must remain unknown.
 - **Prove behavior.** Add focused extraction, validation, generation, rejection, and end-to-end execution tests as appropriate. A plausible-looking string alone is not evidence of correctness.
 
-## Migration work in progress
+## Migration checkpoint
 
-The current cleanup is tracked as 28 legacy Python dispatch branches. As of **2026-11-23**, **27 of 28 (96.4%)** have been removed through small, independently reviewed increments; **1 remains**. This is a count of tracked legacy branches removed, not a claim that the overall architecture is 96.4% complete.
+The tracked cleanup covered 28 legacy Python dispatch branches. As of **2026-11-23**, **all 28 of 28 (100%)** have been removed through small, independently reviewed increments. This is a count of tracked legacy branches removed, not a claim that the overall architecture is complete.
 
-The latest completed increment is PR [#537 — Replace specialized function composition with declarative generation](https://github.com/Vraxo/Lattice-Next/pull/537). It removed the specialized multi-function composition parser and replaced it with generic repeated semantic capture, aligned collections, ordered-scope validation, and declarative generation. Its full CI suite passed, including end-to-end Python execution, and it was merged to `main`.
+The final tracked increment is PR [#541 — Replace Python-specific program request parsing with semantic facts](https://github.com/Vraxo/Lattice-Next/pull/541). It removed `PythonProgramRequestParser` and replaced the English-syntax-specific request gate with generic program-intent and `language.*` fact extraction, followed by declarative generation validation. Its full CI suite passed, including the .NET tests and external Python-tool tests, and it was merged to `main`.
 
-The preceding increment, PR [#533 — Generate multi-conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/533), removed the specialized multi-conditional function parser and replaced it with aligned semantic collections and compositional token generation for repeatable `if`/`elif` branches.
+The preceding increment, PR [#537 — Replace specialized function composition with declarative generation](https://github.com/Vraxo/Lattice-Next/pull/537), removed the specialized multi-function composition parser and replaced it with generic repeated semantic capture, aligned collections, ordered-scope validation, and declarative generation. Its full CI suite passed, including end-to-end Python execution, and it was merged to `main`.
+
+PR [#540 — Generate Blender scripts through semantic goals and language grammar](https://github.com/Vraxo/Lattice-Next/pull/540) also removed the task-specific C# source-fragment assembler for the Blender example. It moved the example to ordered semantic generation steps, named bindings, and the shared Python grammar. This was a code-generation architecture improvement, not one of the 28 tracked parser-branch removals.
+
+PR [#533 — Generate multi-conditional functions declaratively](https://github.com/Vraxo/Lattice-Next/pull/533) removed the specialized multi-conditional function parser and replaced it with aligned semantic collections and compositional token generation for repeatable `if`/`elif` branches.
 
 Earlier knowledge-driven improvements also expanded benchmark coverage without changing the tracked C# dispatch count:
 
@@ -78,7 +82,7 @@ Earlier knowledge-driven improvements also expanded benchmark coverage without c
 
 The latest [Python benchmark run](https://github.com/Vraxo/Lattice-Next/actions/runs/45059564042) generated **16/16** programs, validated **16/16** syntactically, and smoke-executed **16/16** successfully. This remains generation/syntax/execution evidence only; semantic correctness and generalization are not yet scored. The bank-account domain mapping itself is still task-specific, even though its code is now composed from semantic facts.
 
-For every remaining increment:
+For any future increment:
 
 1. Inspect the current `main` branch and identify an actual remaining legacy branch; do not rely on a stale candidate list.
 2. Remove one focused branch and its dedicated parser/generator logic while preserving genuinely shared functionality.
