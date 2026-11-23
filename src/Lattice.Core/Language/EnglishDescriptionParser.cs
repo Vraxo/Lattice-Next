@@ -61,13 +61,17 @@ internal static class EnglishDescriptionParser
         {
             var relativeCopula = expectPluralHead ? "are" : "is";
 
-            if (!EnglishGrammarTokens.Is(tokens[index], "that") || index + 1 >= end) return false;
+            if (index + 1 >= end) return false;
+            var startsRelationalClause = EnglishGrammarTokens.Is(tokens[index], "that") ||
+                (EnglishGrammarTokens.Is(tokens[index], "and") && allowRelationalRelativePredicates);
+            if (!startsRelationalClause) return false;
             if (!EnglishGrammarTokens.Is(tokens[index + 1], relativeCopula))
             {
                 if (!allowRelationalRelativePredicates ||
                     !TryParseRelationalRelativePredicate(tokens, ref index, end, expectPluralHead, relativeRelations)) return false;
                 continue;
             }
+            if (!EnglishGrammarTokens.Is(tokens[index], "that")) return false;
 
             index += 2;
 
@@ -184,7 +188,8 @@ internal static class EnglishDescriptionParser
             ? EnglishMorphology.InflectThirdPersonSingular(tokens[verbIndex])
             : tokens[verbIndex].ToLowerInvariant();
 
-        if (!TryCreateObjectTerm(tokens, objectStart, end, out var relationObject) ||
+        var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
+        if (!TryCreateObjectTerm(tokens, objectStart, objectEnd, out var relationObject) ||
             relationObject is not IndividualTerm individual ||
             string.IsNullOrWhiteSpace(individual.Identifier.Value))
         {
@@ -192,8 +197,40 @@ internal static class EnglishDescriptionParser
         }
 
         relations.Add((predicate, individual, isNegative));
-        index = end;
+        index = objectEnd < end ? objectEnd : end;
         return true;
+    }
+
+    private static int FindNextRelationalConjunction(
+        string[] tokens,
+        int objectStart,
+        int end,
+        bool pluralSubject)
+    {
+        for (var index = objectStart + 1; index + 1 < end; index++)
+        {
+            if (!EnglishGrammarTokens.Is(tokens[index], "and"))
+            {
+                continue;
+            }
+
+            var next = tokens[index + 1];
+            if (EnglishRelationLexicon.IsBaseRelationVerb(next) ||
+                EnglishMorphology.IsThirdPersonVerb(next))
+            {
+                return index;
+            }
+
+            if (index + 3 < end &&
+                EnglishGrammarTokens.Is(next, pluralSubject ? "do" : "does") &&
+                EnglishGrammarTokens.Is(tokens[index + 2], "not") &&
+                EnglishRelationLexicon.IsBaseRelationVerb(tokens[index + 3]))
+            {
+                return index;
+            }
+        }
+
+        return end;
     }
 
     private static bool TryParseRelativeNegatedPredicate(
