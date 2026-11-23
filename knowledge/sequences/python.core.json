@@ -7104,7 +7104,9 @@
         "valueId": "expression",
         "suffix": "]\nprint("
       },
-      "requiresCompletedFacts": [],
+      "requiresCompletedFacts": [
+        "program.collection-filter.comparison"
+      ],
       "satisfiesFacts": [
         "program.collection-filter.threshold"
       ],
@@ -7128,7 +7130,9 @@
         "valueTemplate": "sum({0}) / len({1})",
         "suffix": "]\nprint("
       },
-      "requiresCompletedFacts": [],
+      "requiresCompletedFacts": [
+        "program.collection-filter.comparison"
+      ],
       "satisfiesFacts": [
         "program.collection-filter.average"
       ],
