@@ -69,11 +69,12 @@ public sealed class ExistentialRelationalPremiseTests
             engine.Ask(wrongSubject, ParseQuestion("Is Fido friendly?")).TruthValue);
     }
 
-    private SemanticUtterance ParseQuestion(string sentence)
+    private PredicateApplication ParseQuestion(string sentence)
     {
         var result = parser.Parse(sentence);
         Assert.True(result.IsSuccess, result.Error);
-        return Assert.IsType<SemanticUtterance>(result.Utterance);
+        var utterance = Assert.IsType<SemanticUtterance>(result.Utterance);
+        return Assert.IsType<PredicateApplication>(utterance.Meaning);
     }
 
     private void Add(KnowledgeBase knowledgeBase, string sentence)
