@@ -6945,7 +6945,8 @@
       "weight": 30,
       "requiresCompletedFacts": [],
       "forbiddenFacts": [
-        "program.arithmetic"
+        "program.arithmetic",
+        "program.filter"
       ],
       "advanceCollections": []
     },
@@ -6974,7 +6975,9 @@
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
+      "forbiddenFacts": [
+        "program.filter"
+      ],
       "advanceCollections": []
     },
     {
@@ -7206,9 +7209,103 @@
         "program.collection",
         "program.arithmetic"
       ],
-      "forbiddenFacts": [],
+      "forbiddenFacts": [
+        "program.filter"
+      ],
       "advanceCollections": [],
       "weight": 31
+    },
+    {
+      "id": "python-collection-filter-open-average-with-filter",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection-filter.average",
+        "program.collection",
+        "program.collection-filter.condition",
+        "program.filter"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection",
+        "program.filter"
+      ],
+      "weight": 31,
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-collection-filter-open-with-filter",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection-filter.threshold",
+        "program.collection",
+        "program.collection-filter.condition",
+        "program.filter"
+      ],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection",
+        "program.filter"
+      ],
+      "weight": 31,
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
+    },
+    {
+      "id": "python-collection-filter-open-arithmetic-with-filter",
+      "contextSuffix": [
+        "<|lattice.start|>"
+      ],
+      "requiredFacts": [
+        "program.collection-filter",
+        "program.collection-filter.signature",
+        "program.collection-filter.comparison",
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection-filter.threshold",
+        "program.collection",
+        "program.arithmetic",
+        "program.collection-filter.condition",
+        "program.filter"
+      ],
+      "requiresCompletedFacts": [],
+      "nextToken": "```python\n",
+      "satisfiesFacts": [
+        "intent.program-generation",
+        "language.python",
+        "program.function",
+        "program.collection",
+        "program.arithmetic",
+        "program.filter"
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": [],
+      "weight": 32
     }
   ],
   "validations": [
