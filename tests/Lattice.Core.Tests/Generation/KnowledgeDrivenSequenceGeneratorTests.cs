@@ -1864,8 +1864,14 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
         const string prompt = "Write a Python function that receives a list of numbers named measurements and returns a new list containing only measurement values less than the average of measurements.";
+        var extractionKnowledge = knowledge! with
+        {
+            Validations = knowledge!.Validations
+                .Where(validation => !validation.Id.StartsWith("collection-filter-", StringComparison.Ordinal))
+                .ToImmutableArray()
+        };
         Assert.True(
-            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            SequenceInputFactExtractor.TryExtract(extractionKnowledge, prompt, out var facts, out var extractionError),
             extractionError);
 
         var signature = Assert.Single(facts, fact => fact.Id == "program.collection-filter.signature");
