@@ -379,7 +379,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
                 !TryGetOptionalString(item, "normalization", out var normalization) ||
-                (normalization is not null && normalization != "booleanExpression") ||
+                (normalization is not null && normalization is not ("booleanExpression" or "comparisonOperator")) ||
                 !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
