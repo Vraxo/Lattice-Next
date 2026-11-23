@@ -55,6 +55,11 @@ internal sealed record EnglishDescription(
                 ImmutableArray.Create<SemanticTerm>(variable)))
             .ToImmutableArray();
 
+        predicates = predicates.AddRange(NegativeRelativePredicates.Select(predicate =>
+            (SemanticFormula)new Negation(new PredicateApplication(
+                new SemanticIdentifier(predicate),
+                ImmutableArray.Create<SemanticTerm>(variable)))));
+
         predicates = predicates.AddRange(RelativeRelations.Select(relation =>
         {
             var predicate = (SemanticFormula)new PredicateApplication(
