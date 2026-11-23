@@ -4563,6 +4563,11 @@
               "output"
             ]
           ]
+        },
+        {
+          "factId": "program.arithmetic-function-close",
+          "valueId": "required",
+          "literalValue": "true"
         }
       ],
       "requiredAnySequences": [
@@ -5941,23 +5946,30 @@
         "factId": "program.arithmetic-function-call",
         "valueId": "call",
         "prefix": "print("
-      }
+      },
+      "satisfiesFacts": [
+        "program.arithmetic-function-call"
+      ]
     },
     {
       "id": "python-arithmetic-function-close-fence",
       "contextSuffix": [
         "*"
       ],
-      "requiredFacts": [],
+      "requiredFacts": [
+        "program.arithmetic-function-close"
+      ],
       "requiresCompletedFacts": [
         "program.arithmetic-function-signature",
-        "program.arithmetic-function-return"
+        "program.arithmetic-function-return",
+        "program.arithmetic-function-call"
       ],
       "nextToken": ")\n```",
       "satisfiesFacts": [
         "program.arithmetic-function-signature",
         "program.arithmetic-function-return",
-        "program.arithmetic-function-call"
+        "program.arithmetic-function-call",
+        "program.arithmetic-function-close"
       ]
     },
     {
