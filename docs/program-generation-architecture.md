@@ -1,6 +1,6 @@
 # Program generation architecture
 
-> **Migration checkpoint (2026-11-23):** all 28 tracked legacy Python dispatch branches have been removed and merged. The remaining objective is to test the resulting architecture honestly: find hidden target-language assumptions, measure semantic correctness and generalization, and extend reusable capabilities only when a meaningful task exposes a gap. This is not a claim that open-ended program generation is solved.
+> **Historical migration checkpoint (2026-11-23):** the 28 previously tracked legacy Python dispatch branches were removed and merged. That count covered only those tracked C# dispatch branches; it did **not** complete the Python code-generation migration. Python-specific validation helpers, task-specific request/fact rules, and complete program outputs remain in the current implementation. Finishing that replacement is the active priority. The broader coding-capability and generalization roadmap is deferred until the active queue's migration completion gate is met.
 
 This document is the authoritative direction for the program-generation track. When implementation details or older design notes conflict with it, follow this document and the current code/tests.
 
@@ -63,7 +63,7 @@ Knowledge may describe reusable constructions and their constraints. It must not
 
 ## Migration checkpoint
 
-The tracked cleanup covered 28 legacy Python dispatch branches. As of **2026-11-23**, **all 28 of 28 (100%)** have been removed through small, independently reviewed increments. This is a count of tracked legacy branches removed, not a claim that the overall architecture is complete.
+The tracked cleanup covered 28 legacy Python dispatch branches. As of **2026-11-23**, all 28 of those tracked branches had been removed through small, independently reviewed increments. This is a historical count for that specific list, not a measure of all Python-specific code-generation logic. The remaining migration is substantial and is tracked separately in [`.agents/todo.md`](../.agents/todo.md).
 
 The final tracked increment is PR [#541 — Replace Python-specific program request parsing with semantic facts](https://github.com/Vraxo/Lattice-Next/pull/541). It removed `PythonProgramRequestParser` and replaced the English-syntax-specific request gate with generic program-intent and `language.*` fact extraction, followed by declarative generation validation. Its full CI suite passed, including the .NET tests and external Python-tool tests, and it was merged to `main`.
 
@@ -103,4 +103,4 @@ The migration is not complete merely because all 28 tracked branches are gone. T
 - generated programs are syntactically valid and execute correctly for the supported behavioral cases; and
 - the same runtime architecture is not inherently tied to Python.
 
-After the 28-branch cleanup, audit the remaining runtime for hidden target-language assumptions and evaluate compositional generalization independently. Treat branch removal as a migration checkpoint, not the final quality metric.
+The 28-branch count is not the migration completion gate. Finish the active queue first: remove remaining Python-specific shared-code logic, replace task-specific request facts and full-program sequence templates with reusable semantic structures and operations, unify the production generation path, and verify that Python is supplied as declarative language knowledge rather than embedded in shared C#. Do not start broader ontology expansion or new generalization work before that gate is met.
