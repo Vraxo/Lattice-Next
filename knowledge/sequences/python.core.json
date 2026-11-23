@@ -6695,7 +6695,10 @@
         "program.output",
         "program.output.start"
       ],
-      "weight": 30
+      "weight": 30,
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-open-average",
@@ -6721,7 +6724,10 @@
         "program.output",
         "program.output.start"
       ],
-      "weight": 30
+      "weight": 30,
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-header",
@@ -6739,7 +6745,11 @@
         "valueTemplate": "{0}({1})",
         "prefix": "def ",
         "suffix": ":\n"
-      }
+      },
+      "requiresCompletedFacts": [],
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-return-prefix",
@@ -6749,7 +6759,11 @@
       "requiredFacts": [
         "program.collection-filter.signature"
       ],
-      "nextToken": "    return ["
+      "nextToken": "    return [",
+      "requiresCompletedFacts": [],
+      "satisfiesFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-item-first",
@@ -6764,7 +6778,10 @@
         "valueId": "item",
         "suffix": " for "
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-item-binding",
@@ -6779,7 +6796,10 @@
         "valueId": "item",
         "suffix": " in "
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-parameter",
@@ -6794,7 +6814,10 @@
         "valueId": "parameter",
         "suffix": " if "
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-condition-item",
@@ -6809,7 +6832,10 @@
         "valueId": "item",
         "suffix": " "
       },
-      "satisfiesFacts": []
+      "satisfiesFacts": [],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-condition-operator",
@@ -6826,7 +6852,10 @@
       },
       "satisfiesFacts": [
         "program.collection-filter.comparison"
-      ]
+      ],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-condition-threshold",
@@ -6846,7 +6875,9 @@
       ],
       "satisfiesFacts": [
         "program.collection-filter.threshold"
-      ]
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-condition-average",
@@ -6870,7 +6901,9 @@
       ],
       "satisfiesFacts": [
         "program.collection-filter.average"
-      ]
+      ],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     },
     {
       "id": "python-collection-filter-call",
@@ -6888,7 +6921,10 @@
       "satisfiesFacts": [
         "program.collection-filter",
         "program.collection-filter.signature"
-      ]
+      ],
+      "requiresCompletedFacts": [],
+      "forbiddenFacts": [],
+      "advanceCollections": []
     }
   ],
   "validations": [
