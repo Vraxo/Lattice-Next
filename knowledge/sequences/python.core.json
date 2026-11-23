@@ -6739,10 +6739,7 @@
         "valueTemplate": "{0}({1})",
         "prefix": "def ",
         "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.collection-filter.signature"
-      ]
+      }
     },
     {
       "id": "python-collection-filter-return-prefix",
