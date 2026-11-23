@@ -31,6 +31,87 @@ public sealed class NegativeRelationalPremiseTests
         Assert.Equal(expectedMeaning, SemanticFormatter.Format(result.Utterance!));
     }
 
+    [Fact]
+    public void Parses_multiple_positive_fixed_object_relational_premises()
+    {
+        const string sentence = "Every dog that likes milk and follows Rex is friendly.";
+
+        var result = parser.Parse(sentence);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), likes(x, milk), follows(x, rex)), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Applies_multiple_fixed_object_relational_premises_only_when_all_match_the_same_subject()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that likes milk and follows Rex is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido likes milk.");
+        Add(complete, "Fido follows Rex.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal(2, result.Proof!.AdditionalPremises.Length);
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "likes" &&
+            proof.SourceText == "Fido likes milk.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "follows" &&
+            proof.SourceText == "Fido follows Rex.");
+
+        var missing = new KnowledgeBase();
+        Add(missing, "Every dog that likes milk and follows Rex is friendly.");
+        Add(missing, "Fido is a dog.");
+        Add(missing, "Fido likes milk.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(missing, ParseQuestion("Is Fido friendly?")).TruthValue);
+
+        var wrongSubject = new KnowledgeBase();
+        Add(wrongSubject, "Every dog that likes milk and follows Rex is friendly.");
+        Add(wrongSubject, "Fido is a dog.");
+        Add(wrongSubject, "Fido likes milk.");
+        Add(wrongSubject, "Rex follows Rex.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(wrongSubject, ParseQuestion("Is Fido friendly?")).TruthValue);
+
+        var wrongObject = new KnowledgeBase();
+        Add(wrongObject, "Every dog that likes milk and follows Rex is friendly.");
+        Add(wrongObject, "Fido is a dog.");
+        Add(wrongObject, "Fido likes milk.");
+        Add(wrongObject, "Fido follows Milo.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(wrongObject, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
+    public void Applies_mixed_positive_and_negative_fixed_object_relational_premises()
+    {
+        var knowledgeBase = new KnowledgeBase();
+        Add(knowledgeBase, "Every dog that likes milk and does not follow Rex is friendly.");
+        Add(knowledgeBase, "Fido is a dog.");
+        Add(knowledgeBase, "Fido likes milk.");
+        Add(knowledgeBase, "Fido does not follow Rex.");
+
+        var result = engine.Ask(knowledgeBase, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Equal(2, result.Proof!.AdditionalPremises.Length);
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "likes" &&
+            proof.Polarity == EvidencePolarity.Positive);
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.Predicate.Predicate.Value == "follows" &&
+            proof.Polarity == EvidencePolarity.Negative);
+    }
+
     [Theory]
     [InlineData("Every dog that do not like milk is friendly.")]
     [InlineData("All dogs that does not like milk are friendly.")]
@@ -133,7 +214,7 @@ public sealed class NegativeRelationalPremiseTests
     }
 
     [Fact]
-    public void Rejects_more_than_one_fixed_object_relational_premise_across_both_polarities()
+    public void Accepts_multiple_fixed_object_relational_premises_across_both_polarities()
     {
         var variable = new VariableTerm(new SemanticIdentifier("x"));
         var premises = new Conjunction(ImmutableArray.Create<SemanticFormula>(
@@ -150,9 +231,10 @@ public sealed class NegativeRelationalPremiseTests
 
         var accepted = knowledgeBase.TryAdd(utterance, out _, out var error);
 
-        Assert.False(accepted);
-        Assert.Contains("supported", error);
-        Assert.Empty(knowledgeBase.Rules);
+        Assert.True(accepted, error);
+        var rule = Assert.Single(knowledgeBase.Rules);
+        Assert.Single(rule.NegativeRelationalPremises);
+        Assert.Single(rule.RelationalPremises);
     }
 
     [Fact]
