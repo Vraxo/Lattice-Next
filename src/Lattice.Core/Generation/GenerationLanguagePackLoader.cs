@@ -112,7 +112,7 @@ public sealed class GenerationLanguagePackLoader
 
             if (binding.Encoding == "string-literal" && binding.Source is not ("goal-argument" or "goal-binding"))
             {
-                error = "String-literal encoding can only be applied to the semantic goal argument.";
+                error = "String-literal encoding can only be applied to a semantic goal argument or named goal binding.";
                 pack = null;
                 return false;
             }
