@@ -298,8 +298,23 @@ internal static class UniversalRuleFactory
         var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relations = ImmutableArray.CreateBuilder<PredicateApplication>();
         var fixedObjectRelations = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var nestedPremises = ImmutableArray.CreateBuilder<ExistentialRulePremise>();
         foreach (var conjunct in conjuncts)
         {
+            if (conjunct is ExistentialQuantification nestedExistential)
+            {
+                if (!TryCreateExistentialPremise(
+                    nestedExistential,
+                    existential.Variable,
+                    out var nestedPremise))
+                {
+                    return false;
+                }
+
+                nestedPremises.Add(nestedPremise!);
+                continue;
+            }
+
             if (conjunct is not PredicateApplication predicate ||
                 string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
                 predicate.Arguments.IsDefault)
@@ -346,7 +361,8 @@ internal static class UniversalRuleFactory
             existential.Variable,
             conditions.ToImmutable(),
             relations.ToImmutable(),
-            fixedObjectRelations.ToImmutable());
+            fixedObjectRelations.ToImmutable(),
+            nestedPremises.ToImmutable());
         return true;
     }
 
