@@ -282,8 +282,7 @@ public static class SequenceInputFactValidator
                     @"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
                 .Select(match => match.Groups[1].Value)
                 .ToArray();
-            if (calledFunctions.Any(name => !previousFunctions.Contains(name)) ||
-                (index > 0 && !calledFunctions.Any(previousFunctions.Contains)))
+            if (index > 0 && !calledFunctions.Any(previousFunctions.Contains))
             {
                 return false;
             }
