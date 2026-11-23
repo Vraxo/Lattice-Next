@@ -548,6 +548,15 @@ public sealed class LatticeRuntimeSessionTests
         Assert.Contains("The piano strings transmit vibrations to the piano soundboard", soundMechanismMessage);
         Assert.Contains("The piano soundboard radiates the acoustic sound", soundMechanismMessage);
 
+        var pianoActionDefinition = await session.SubmitAsync("What is the piano action?");
+        var pianoActionAnswer = Assert.Single(pianoActionDefinition.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, pianoActionAnswer.Kind);
+        Assert.Contains("It actuates the piano hammers.", pianoActionAnswer.Message);
+        Assert.Contains(
+            pianoActionAnswer.SupportingEvidence,
+            item => item.Sources.Any(source =>
+                source.SourceId == "core-world-model:relation:piano-action:actuates:piano-hammers"));
+
         var hammerActionReason = await session.SubmitAsync("Why is the piano action a piano hammer action?");
         var hammerActionUtterance = Assert.Single(hammerActionReason.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.QuestionAnswered, hammerActionUtterance.Kind);
