@@ -6926,7 +6926,8 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.collection"
+        "program.collection",
+        "program.arithmetic"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
