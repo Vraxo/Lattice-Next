@@ -82,7 +82,7 @@ public sealed class TaskRequestParserTests
         Assert.True(result.IsSuccess, result.Error);
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
 
-        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("program-generation", request.Subject);
         Assert.Equal(input, Assert.Single(result.Utterances).SourceText);
         Assert.DoesNotContain("value=", SemanticFormatter.Format(Assert.Single(result.Utterances)), StringComparison.Ordinal);
     }
