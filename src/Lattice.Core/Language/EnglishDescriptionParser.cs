@@ -216,15 +216,12 @@ internal static class EnglishDescriptionParser
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
         if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
-            if (!allowExistentialRelationalObjects ||
-                isNegative ||
-                existentialConditions.Count >= ExistentialWitnessNames.Length)
+            if (!allowExistentialRelationalObjects || isNegative)
             {
                 return false;
             }
 
-            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier(
-                ExistentialWitnessNames[existentialConditions.Count]));
+            var witness = CreateExistentialWitness(existentialConditions.Count);
             if (!TryParseDescription(
                 tokens,
                 objectStart + 1,
@@ -264,6 +261,17 @@ internal static class EnglishDescriptionParser
 
         index = objectEnd < end ? objectEnd : end;
         return true;
+    }
+
+    private static VariableTerm CreateExistentialWitness(int index)
+    {
+        var name = index switch
+        {
+            0 => "y",
+            1 => "z",
+            _ => $"witness{index + 1}"
+        };
+        return new VariableTerm(EnglishGrammarTokens.CreateIdentifier(name));
     }
 
     private static int FindNextRelationalConjunction(
