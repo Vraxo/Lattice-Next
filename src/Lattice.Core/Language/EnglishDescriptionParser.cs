@@ -17,7 +17,8 @@ internal static class EnglishDescriptionParser
         bool allowRelationalRelativePredicates = false,
         VariableTerm? relationSubject = null,
         bool allowExistentialRelationalObjects = true,
-        bool allowNegativeRelationalRelativePredicates = true)
+        bool allowNegativeRelationalRelativePredicates = true,
+        VariableTerm? boundReference = null)
     {
         description = null;
 
@@ -83,7 +84,8 @@ internal static class EnglishDescriptionParser
                         relativeRelations,
                         existentialRelativeConditions,
                         allowExistentialRelationalObjects,
-                        allowNegativeRelationalRelativePredicates)) return false;
+                        allowNegativeRelationalRelativePredicates,
+                        boundReference)) return false;
                 continue;
             }
             if (!EnglishGrammarTokens.Is(tokens[index], "that")) return false;
@@ -157,7 +159,8 @@ internal static class EnglishDescriptionParser
         List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations,
         List<SemanticFormula> existentialConditions,
         bool allowExistentialRelationalObjects,
-        bool allowNegativeRelationalRelativePredicates)
+        bool allowNegativeRelationalRelativePredicates,
+        VariableTerm? boundReference)
     {
         if (index + 1 >= end)
         {
@@ -214,7 +217,17 @@ internal static class EnglishDescriptionParser
             : tokens[verbIndex].ToLowerInvariant();
 
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
-        if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
+        if (objectStart + 1 == objectEnd &&
+            EnglishGrammarTokens.Is(tokens[objectStart], "it"))
+        {
+            if (boundReference is null)
+            {
+                return false;
+            }
+
+            relations.Add((predicate, boundReference, isNegative));
+        }
+        else if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
             if (!allowExistentialRelationalObjects || isNegative)
             {
@@ -234,7 +247,8 @@ internal static class EnglishDescriptionParser
                 allowRelationalRelativePredicates: true,
                 relationSubject: witness,
                 allowExistentialRelationalObjects: true,
-                allowNegativeRelationalRelativePredicates: false))
+                allowNegativeRelationalRelativePredicates: false,
+                boundReference: relationSubject))
             {
                 return false;
             }
