@@ -44,7 +44,7 @@ For example:
     The red dog is shiny.
     Does the red dog like milk?
 
-The rule requires both `red(red-dog)` and `dog(red-dog)`. The proof includes the supporting description facts as premises and the universal rule as the derived conclusion. A blue dog does not satisfy the rule. Relational conclusions are not fed back into unary inference or reused as premises. Existential relation premises perform a bounded witness join over explicitly asserted positive relations and unary facts; this is not general transitive traversal or unrestricted multi-variable rule evaluation.
+The rule requires both `red(red-dog)` and `dog(red-dog)`. The proof includes the supporting description facts as premises and the universal rule as the derived conclusion. A blue dog does not satisfy the rule. Relational conclusions are not fed back into unary inference or reused as premises. Existential relation premises perform bounded witness joins, including nested chains, over explicitly asserted positive relations and unary facts; this is not general transitive traversal or unrestricted multi-variable rule evaluation.
 
 Every asserted fact and rule retains structured source records. A source records its kind (user assertion, imported claim, or external observation), original source text, and an optional resolved referent. The default ingestion path classifies input as a user assertion; callers that ingest imported claims or observations can explicitly select the corresponding source kind.
 
