@@ -5,6 +5,8 @@ namespace Lattice.Core.Language;
 
 internal static class EnglishDescriptionParser
 {
+    private static readonly string[] ExistentialWitnessNames =
+        ["y", "z", "w", "v", "u", "t", "s", "r", "q", "p"];
     internal static bool TryParseDescription(
         string[] tokens,
         int start,
@@ -214,20 +216,25 @@ internal static class EnglishDescriptionParser
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
         if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
-            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
             if (!allowExistentialRelationalObjects ||
                 isNegative ||
-                existentialConditions.Count > 0 ||
-                !TryParseDescription(
-                    tokens,
-                    objectStart + 1,
-                    objectEnd,
-                    expectPluralHead: false,
-                    out var objectDescription,
-                    allowRelationalRelativePredicates: true,
-                    relationSubject: witness,
-                    allowExistentialRelationalObjects: false,
-                    allowNegativeRelationalRelativePredicates: false))
+                existentialConditions.Count >= ExistentialWitnessNames.Length)
+            {
+                return false;
+            }
+
+            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier(
+                ExistentialWitnessNames[existentialConditions.Count]));
+            if (!TryParseDescription(
+                tokens,
+                objectStart + 1,
+                objectEnd,
+                expectPluralHead: false,
+                out var objectDescription,
+                allowRelationalRelativePredicates: true,
+                relationSubject: witness,
+                allowExistentialRelationalObjects: false,
+                allowNegativeRelationalRelativePredicates: false))
             {
                 return false;
             }
