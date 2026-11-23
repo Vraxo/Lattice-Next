@@ -40,7 +40,7 @@ Keep these concerns independently understandable and changeable:
 
 ## Program-generation direction
 
-The Python code-generation migration must follow [docs/program-generation-architecture.md](docs/program-generation-architecture.md). That document is the authoritative target architecture, including the explicit no-ML constraint, the prohibition on task-specific parser/generator dispatch, the current 23/28 migration checkpoint, and the definition of success. Do not reintroduce specialized Python runtime logic or replace it with one-prompt-one-rule templates. Inspect current `main` before choosing each remaining migration target, and update the documented progress only after a verified merge.
+The Python code-generation migration must follow [docs/program-generation-architecture.md](docs/program-generation-architecture.md). That document is the authoritative target architecture, including the explicit no-ML constraint, the prohibition on task-specific parser/generator dispatch, the current 28/28 migration checkpoint, and the definition of success. Do not reintroduce specialized Python runtime logic or replace it with one-prompt-one-rule templates. Inspect current `main` before choosing each remaining migration target, and update the documented progress only after a verified merge.
 
 ## Development workflow
 
