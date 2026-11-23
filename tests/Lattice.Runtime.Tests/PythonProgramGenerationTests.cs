@@ -1099,6 +1099,31 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
+    [Fact]
+    public async Task Generates_and_executes_ordered_function_composition_declaratively()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program with a function named double that takes number and returns number * 2, and a function named add_three that takes value and returns double(value) + 3, then print add_three(4).");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var generatedCode = ExtractGeneratedPythonCode(utterance.Message!);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "def double(number):",
+                "    return number * 2",
+                "def add_three(value):",
+                "    return double(value) + 3",
+                "print(add_three(4))"),
+            generatedCode);
+        await AssertPythonOutput(generatedCode, "11");
+    }
+
     private static string ExtractGeneratedPythonCode(string message)
     {
         var fence = new string((char)96, 3);
