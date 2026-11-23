@@ -8,7 +8,7 @@ The current engine accepts three kinds of asserted input:
 
 - **Ground fact:** a predicate applied to one or more individual arguments, such as `dog(fido)` or `likes(fido, milk)`. Definite descriptive arguments are grounded to their stable individual identifier; their head noun and modifiers are also stored as unary facts.
 - **Existential assertion:** a quantified formula containing one or more unary conditions, such as `exists(x, and(red(x), ball(x), shiny(x)))`. When stored, its conditions are attached to one fresh `AnonymousIndividualTerm`.
-- **Universal rule:** one universally quantified implication with one or more unary premises (positive predicates or explicitly negated predicates), optionally one or more positive or explicitly negative binary relation premises to fixed concrete objects, and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a rule with an explicit negative condition is `forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
+- **Universal rule:** one universally quantified implication with one or more unary premises (positive predicates or explicitly negated predicates), optionally one or more positive or explicitly negative binary relation premises to fixed concrete objects, plus positive existential relation premises that bind one related witness and require its unary conditions, and either one unary conclusion or one binary relation conclusion to a fixed concrete object. A simple rule is `forall(x, implies(dog(x), animal(x)))`; a descriptive class rule is `forall(x, implies(and(red(x), ball(x)), toy(x)))`; a rule with an explicit negative condition is `forall(x, implies(and(dog(x), not(cat(x))), friendly(x)))`; a relational rule is `forall(x, implies(dog(x), likes(x, milk)))`.
 
 A ground fact has a non-empty predicate identifier and concrete individual arguments. Definite descriptive terms are normalized to `IndividualTerm` values before storage. Existential witnesses use a distinct semantic term type and never become named conversation referents. Questions are queries, not knowledge, and cannot be inserted into the knowledge base.
 
@@ -35,7 +35,8 @@ A separate relational inference pass applies the restricted quantified relation 
 1. Find candidate subjects that satisfy the first unary premise.
 2. Require every remaining unary premise to be established for that exact same subject.
 3. Substitute that subject into the conclusion's first argument and retain the rule's fixed concrete object as its second argument.
-4. Construct a derived proof containing every supporting unary proof and the rule's source records.
+4. For an existential relation premise, find a positive relation from the same subject to one witness, then require every unary witness condition and every relation in that premise to match that exact same witness.
+5. Construct a derived proof containing every supporting unary proof, witness relation, and the rule's source records.
 
 For example:
 
@@ -43,7 +44,7 @@ For example:
     The red dog is shiny.
     Does the red dog like milk?
 
-The rule requires both `red(red-dog)` and `dog(red-dog)`. The proof includes the supporting description facts as premises and the universal rule as the derived conclusion. A blue dog does not satisfy the rule. Relational conclusions are not fed back into unary inference or reused as premises; this is not relational joining or traversal.
+The rule requires both `red(red-dog)` and `dog(red-dog)`. The proof includes the supporting description facts as premises and the universal rule as the derived conclusion. A blue dog does not satisfy the rule. Relational conclusions are not fed back into unary inference or reused as premises. Existential relation premises perform a bounded witness join over explicitly asserted positive relations and unary facts; this is not general transitive traversal or unrestricted multi-variable rule evaluation.
 
 Every asserted fact and rule retains structured source records. A source records its kind (user assertion, imported claim, or external observation), original source text, and an optional resolved referent. The default ingestion path classifies input as a user assertion; callers that ingest imported claims or observations can explicitly select the corresponding source kind.
 
