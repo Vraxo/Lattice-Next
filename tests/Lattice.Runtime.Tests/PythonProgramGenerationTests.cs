@@ -25,6 +25,14 @@ public sealed class PythonProgramGenerationTests
         "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))",
         "{1: 11, 2: 12, 3: 13}")]
     [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
+        "def filter_values(values):\n    return [value for value in values if value > 2]\nprint(filter_values([1, 2, 3, 4, 5]))",
+        "[3, 4, 5]")]
+    [InlineData(
+        "Build a Python function named keep_large that accepts a list of numbers named samples and returns a new list containing only sample values more than 4.",
+        "def keep_large(samples):\n    return [sample for sample in samples if sample > 4]\nprint(keep_large([1, 2, 3, 4, 5]))",
+        "[5]")]
+    [InlineData(
         "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
         "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))",
         "[4, 5]")]

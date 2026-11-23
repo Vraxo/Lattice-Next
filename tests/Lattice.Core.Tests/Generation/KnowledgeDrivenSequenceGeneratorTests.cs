@@ -1858,6 +1858,38 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
+    [Fact]
+    public void Extracts_and_generates_collection_filter_from_composable_facts()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string prompt = "Write a Python function that receives a list of numbers named measurements and returns a new list containing only measurement values less than the average of measurements.";
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var signature = Assert.Single(facts, fact => fact.Id == "program.collection-filter.signature");
+        Assert.Equal("above_average", signature.Values["name"]);
+        Assert.Equal("measurements", signature.Values["parameter"]);
+        Assert.Equal("measurement", signature.Values["item"]);
+        Assert.Equal("<", Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison").Values["operator"]);
+
+        var request = new KnowledgeDrivenSequenceGenerationRequest(
+            ImmutableArray<string>.Empty,
+            facts.Select(fact => fact.Id).ToImmutableArray())
+        {
+            FactValues = facts
+        };
+
+        Assert.True(
+            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
+            $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
+        Assert.Equal(
+            "```python\ndef above_average(measurements):\n    return [measurement for measurement in measurements if measurement < sum(measurements) / len(measurements)]\nprint(above_average([1, 2, 3, 4, 5]))\n```",
+            string.Join(string.Empty, result!.Tokens));
+    }
+
+
     [Theory]
     [InlineData("is greater than", "value > 10")]
     [InlineData("is less than", "value < 10")]
