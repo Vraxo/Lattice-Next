@@ -1106,7 +1106,7 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(
-            "Write a Python program with a function named double that takes number and returns number * 2, and a function named add_three that takes value and returns double(value) + 3, then print add_three(4).");
+            "Write a Python program with a function named combine that takes left and right and returns left + right, and a function named adjust that takes amount and factor and returns combine(amount, factor) * 2, then print adjust(3, 4).");
 
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
@@ -1115,13 +1115,13 @@ public sealed class PythonProgramGenerationTests
         var generatedCode = ExtractGeneratedPythonCode(utterance.Message!);
         Assert.Equal(
             string.Join(Environment.NewLine,
-                "def double(number):",
-                "    return number * 2",
-                "def add_three(value):",
-                "    return double(value) + 3",
-                "print(add_three(4))"),
+                "def combine(left, right):",
+                "    return left + right",
+                "def adjust(amount, factor):",
+                "    return combine(amount, factor) * 2",
+                "print(adjust(3, 4))"),
             generatedCode);
-        await AssertPythonOutput(generatedCode, "11");
+        await AssertPythonOutput(generatedCode, "14");
     }
 
     private static string ExtractGeneratedPythonCode(string message)
