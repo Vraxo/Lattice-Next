@@ -35,8 +35,8 @@ internal static class TaskCodeGenerationResponder
             return false;
         }
 
-        var languageAssertion = reasoner.GetRelations(application.Id, "application-uses-language")
-            .FirstOrDefault();
+        var languageAssertions = reasoner.GetRelations(application.Id, "application-uses-language");
+        var languageAssertion = languageAssertions.Length == 1 ? languageAssertions[0] : null;
         var language = languageAssertion is null
             ? null
             : model.FindConcept(languageAssertion.Object, SemanticConceptKind.Individual);
@@ -71,7 +71,9 @@ internal static class TaskCodeGenerationResponder
             .OrderBy(item => item!.Order)
             .ToArray();
 
-        if (steps.Length == 0)
+        if (steps.Length == 0 ||
+            steps.Length != stepAssertions.Length ||
+            steps.Select(step => step!.Order).Distinct().Count() != steps.Length)
         {
             return false;
         }
@@ -85,10 +87,10 @@ internal static class TaskCodeGenerationResponder
 
         foreach (var step in steps)
         {
-            var effectAssertion = reasoner.GetRelations(step!.Step.Id, "step-has-generation-effect")
-                .FirstOrDefault();
-            var argumentKindAssertion = reasoner.GetRelations(step.Step.Id, "step-has-argument-kind")
-                .FirstOrDefault();
+            var effectAssertions = reasoner.GetRelations(step!.Step.Id, "step-has-generation-effect");
+            var argumentKindAssertions = reasoner.GetRelations(step.Step.Id, "step-has-argument-kind");
+            var effectAssertion = effectAssertions.Length == 1 ? effectAssertions[0] : null;
+            var argumentKindAssertion = argumentKindAssertions.Length == 1 ? argumentKindAssertions[0] : null;
             var effect = effectAssertion is null
                 ? null
                 : model.FindConcept(effectAssertion.Object, SemanticConceptKind.Individual);
@@ -106,9 +108,10 @@ internal static class TaskCodeGenerationResponder
             foreach (var bindingAssertion in reasoner.GetRelations(step.Step.Id, "step-has-binding"))
             {
                 var binding = model.FindConcept(bindingAssertion.Object, SemanticConceptKind.Individual);
-                var valueAssertion = binding is null
-                    ? null
-                    : reasoner.GetRelations(binding.Id, "binding-has-value").FirstOrDefault();
+                var valueAssertions = binding is null
+                    ? ImmutableArray<SemanticRelationAssertion>.Empty
+                    : reasoner.GetRelations(binding.Id, "binding-has-value");
+                var valueAssertion = valueAssertions.Length == 1 ? valueAssertions[0] : null;
                 var value = valueAssertion is null
                     ? null
                     : model.FindConcept(valueAssertion.Object, SemanticConceptKind.Individual);
