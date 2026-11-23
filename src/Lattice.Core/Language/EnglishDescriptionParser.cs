@@ -270,13 +270,27 @@ internal static class EnglishDescriptionParser
         int index)
     {
         var variableNames = new[] { "x", "y", "z", "w", "v", "u", "t", "s", "r", "q", "p" };
-        var subjectIndex = Array.IndexOf(variableNames, subject.Identifier.Value);
-        var witnessIndex = subjectIndex >= 0
-            ? subjectIndex + index + 1
-            : variableNames.Length + index;
-        var name = witnessIndex < variableNames.Length
-            ? variableNames[witnessIndex]
-            : $"witness{witnessIndex + 1}";
+        var subjectName = subject.Identifier.Value;
+        var subjectIndex = Array.IndexOf(variableNames, subjectName);
+        string name;
+
+        if (subjectIndex >= 0)
+        {
+            var witnessIndex = subjectIndex + index + 1;
+            name = witnessIndex < variableNames.Length
+                ? variableNames[witnessIndex]
+                : $"witness{witnessIndex + 1}";
+        }
+        else if (subjectName.StartsWith("witness", StringComparison.Ordinal) &&
+            int.TryParse(subjectName["witness".Length..], out var parentWitnessIndex))
+        {
+            name = $"witness{parentWitnessIndex + index + 1}";
+        }
+        else
+        {
+            name = $"witness{variableNames.Length + index + 1}";
+        }
+
         return new VariableTerm(EnglishGrammarTokens.CreateIdentifier(name));
     }
 
