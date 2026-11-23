@@ -5914,7 +5914,8 @@
       ],
       "tokenBinding": {
         "factId": "program.arithmetic-function-call",
-        "valueId": "call"
+        "valueId": "call",
+        "prefix": "print("
       },
       "satisfiesFacts": [
         "program.arithmetic-function-call"
