@@ -423,6 +423,18 @@ public sealed class NativeEnglishGrammarTests
     }
 
     [Fact]
+    public void Parses_definite_concept_definition_questions()
+    {
+        var result = parser.Parse("What is the piano action?");
+
+        Assert.True(result.IsSuccess, result.Error);
+        var definition = Assert.IsType<DefinitionQuestionFormula>(result.Utterance!.Meaning);
+        Assert.Equal("action", definition.Concept.Value);
+        Assert.Equal("piano", Assert.Single(definition.Modifiers).Value);
+        Assert.Equal("ask(definition(piano+action))", SemanticFormatter.Format(result.Utterance));
+    }
+
+    [Fact]
     public void Rejects_definition_questions_with_incompatible_number()
     {
         Assert.False(parser.Parse("What are a polygon?").IsSuccess);

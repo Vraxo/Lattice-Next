@@ -28,7 +28,8 @@ internal static class NativeEnglishInformationQuestionParser
             return false;
         }
 
-        var descriptionStart = EnglishGrammarTokens.IsArticle(tokens[2])
+        var descriptionStart = EnglishGrammarTokens.IsArticle(tokens[2]) ||
+            EnglishGrammarTokens.Is(tokens[2], "the")
             ? 3
             : 2;
 
