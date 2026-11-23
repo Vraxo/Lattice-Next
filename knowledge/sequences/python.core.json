@@ -6981,9 +6981,7 @@
         "suffix": ":\n"
       },
       "requiresCompletedFacts": [],
-      "satisfiesFacts": [
-        "program.collection-filter.signature"
-      ],
+      "satisfiesFacts": [],
       "forbiddenFacts": [],
       "advanceCollections": []
     },
@@ -7106,9 +7104,7 @@
         "valueId": "expression",
         "suffix": "]\nprint("
       },
-      "requiresCompletedFacts": [
-        "program.collection-filter.signature"
-      ],
+      "requiresCompletedFacts": [],
       "satisfiesFacts": [
         "program.collection-filter.threshold"
       ],
@@ -7132,9 +7128,7 @@
         "valueTemplate": "sum({0}) / len({1})",
         "suffix": "]\nprint("
       },
-      "requiresCompletedFacts": [
-        "program.collection-filter.signature"
-      ],
+      "requiresCompletedFacts": [],
       "satisfiesFacts": [
         "program.collection-filter.average"
       ],
@@ -7156,7 +7150,8 @@
         "suffix": "([1, 2, 3, 4, 5])\n```"
       },
       "satisfiesFacts": [
-        "program.collection-filter"
+        "program.collection-filter",
+        "program.collection-filter.signature"
       ],
       "requiresCompletedFacts": [],
       "forbiddenFacts": [],
