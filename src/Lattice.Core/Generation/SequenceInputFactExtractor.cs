@@ -41,11 +41,30 @@ public static class SequenceInputFactExtractor
             if (rule is null ||
                 string.IsNullOrWhiteSpace(rule.Id) ||
                 string.IsNullOrWhiteSpace(rule.FactId) ||
-                rule.MatchTokens.IsDefaultOrEmpty ||
-                !TryFindMatch(tokens, rule.MatchTokens, 0, out var lastMatchedToken, rule.SearchAllSentences))
+                rule.MatchTokens.IsDefaultOrEmpty)
             {
                 continue;
             }
+
+            var matchPositions = new List<int>();
+            var searchStart = 0;
+            while (TryFindMatch(tokens, rule.MatchTokens, searchStart, out var matchedToken, rule.SearchAllSentences))
+            {
+                matchPositions.Add(matchedToken);
+                if (!rule.RepeatMatches)
+                {
+                    break;
+                }
+
+                searchStart = matchedToken + 1;
+            }
+
+            if (matchPositions.Count == 0)
+            {
+                continue;
+            }
+
+            var lastMatchedToken = matchPositions[0];
 
             var matchesRequiredSequence = rule.RequiredAnySequences.IsDefaultOrEmpty ||
                 rule.RequiredAnySequences.Any(sequence =>
@@ -99,14 +118,17 @@ public static class SequenceInputFactExtractor
                 continue;
             }
 
-            foreach (var capture in rule.Captures)
+            foreach (var captureMatch in matchPositions)
             {
+                foreach (var capture in rule.Captures)
+                {
+                var captureMatchToken = captureMatch;
                 var capturedValue = capture.LiteralValue;
                 if (capturedValue is null &&
                     !TryCaptureValue(
                         input,
                         tokens,
-                        lastMatchedToken,
+                        captureMatchToken,
                         capture.StartAfterTokens,
                         capture.StartAfterSequences,
                         capture.StopBeforeTokens,
@@ -162,6 +184,11 @@ public static class SequenceInputFactExtractor
 
                 if (!rawItems.IsDefaultOrEmpty)
                 {
+                    if (capture.CollectionItemSeparator is { } itemSeparator)
+                    {
+                        rawItems = [string.Join(itemSeparator, rawItems)];
+                    }
+
                     if (rawItems.IsDefaultOrEmpty)
                     {
                         error = $"Input rule '{rule.Id}' produced an empty ordered collection.";
@@ -220,7 +247,22 @@ public static class SequenceInputFactExtractor
                     }
 
                     EnsureFact(extracted, capture.FactId);
-                    if (!TryAddCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error))
+                    var added = rule.RepeatMatches
+                        ? TryAppendCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error)
+                        : TryAddCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error);
+                    if (!added)
+                    {
+                        return false;
+                    }
+                }
+                else if (rule.RepeatMatches)
+                {
+                    if (!TryAppendCollection(
+                        collections,
+                        capture.FactId,
+                        capture.ValueId,
+                        [capturedValue],
+                        out error))
                     {
                         return false;
                     }
@@ -228,6 +270,7 @@ public static class SequenceInputFactExtractor
                 else if (!TryAddValue(extracted, capture.FactId, capture.ValueId, capturedValue, specificity, out error))
                 {
                     return false;
+                }
                 }
             }
         }
@@ -328,6 +371,32 @@ public static class SequenceInputFactExtractor
         }
 
         values.Add(valueId, items);
+        return true;
+    }
+
+    private static bool TryAppendCollection(
+        Dictionary<string, Dictionary<string, ImmutableArray<string>>> extracted,
+        string factId,
+        string valueId,
+        ImmutableArray<string> items,
+        out string? error)
+    {
+        error = null;
+        if (items.IsDefaultOrEmpty || items.Any(string.IsNullOrWhiteSpace))
+        {
+            error = $"Input rule produced an empty ordered collection for semantic fact '{factId}'.";
+            return false;
+        }
+
+        if (!extracted.TryGetValue(factId, out var values))
+        {
+            values = new Dictionary<string, ImmutableArray<string>>(StringComparer.Ordinal);
+            extracted.Add(factId, values);
+        }
+
+        values[valueId] = values.TryGetValue(valueId, out var existing)
+            ? existing.AddRange(items)
+            : items;
         return true;
     }
 
