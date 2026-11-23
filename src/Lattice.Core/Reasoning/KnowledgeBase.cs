@@ -146,6 +146,7 @@ public sealed class KnowledgeBase
                 AreSamePremises(rule.NegativePremises, candidateRule.NegativePremises) &&
                 AreSameRelationalPremises(rule.RelationalPremises, candidateRule.RelationalPremises) &&
                 AreSameRelationalPremises(rule.NegativeRelationalPremises, candidateRule.NegativeRelationalPremises) &&
+                AreSameExistentialPremises(rule.ExistentialPremises, candidateRule.ExistentialPremises) &&
                 AreSameExistentialConclusion(rule.ExistentialConclusion, candidateRule.ExistentialConclusion) &&
                 IsSamePredicate(rule.Conclusion, candidateRule.Conclusion));
 
@@ -176,7 +177,7 @@ public sealed class KnowledgeBase
         }
 
         error =
-            "Only ground facts, existential assertions with unary conditions, and supported universal rules with unary premises, optionally multiple fixed-object relational premises, and either a unary conclusion, a fixed-object relation, or one existential relational conclusion are supported by the current reasoning engine.";
+            "Only ground facts, existential assertions with unary conditions, and supported universal rules with unary premises, optionally multiple fixed-object or existential relational premises, and either a unary conclusion, a fixed-object relation, or one existential relational conclusion are supported by the current reasoning engine.";
         return false;
     }
 
@@ -252,6 +253,21 @@ public sealed class KnowledgeBase
         {
             AdditionalSources = sources.Skip(1).ToImmutableArray()
         };
+    }
+
+    private static bool AreSameExistentialPremises(
+        ImmutableArray<ExistentialRulePremise> left,
+        ImmutableArray<ExistentialRulePremise> right)
+    {
+        if (left.IsDefault || right.IsDefault || left.Length != right.Length)
+        {
+            return false;
+        }
+
+        return left.Zip(right).All(pair =>
+            pair.First.Witness.Identifier == pair.Second.Witness.Identifier &&
+            AreSamePremises(pair.First.Conditions, pair.Second.Conditions) &&
+            AreSamePremises(pair.First.Relations, pair.Second.Relations));
     }
 
     private static bool AreSameExistentialConclusion(
