@@ -183,6 +183,21 @@ public sealed class TaskRequestResponseTests
         Assert.Contains("obj.matrix_world.translation.copy()", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("collection.objects.link(light_obj)", utterance.Message, StringComparison.Ordinal);
         Assert.Contains("bpy.data.objects.remove(obj, do_unlink=True)", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "    if name_pattern.fullmatch(obj.name) is None:" + Environment.NewLine +
+            "        continue" + Environment.NewLine +
+            "    light_data = bpy.data.lights.new",
+            utterance.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "    if collections:" + Environment.NewLine +
+            "        for collection in collections:" + Environment.NewLine +
+            "            collection.objects.link(light_obj)" + Environment.NewLine +
+            "    else:" + Environment.NewLine +
+            "        bpy.context.scene.collection.objects.link(light_obj)" + Environment.NewLine +
+            "    bpy.data.objects.remove(obj, do_unlink=True)",
+            utterance.Message,
+            StringComparison.Ordinal);
         Assert.Contains(@"\.\d+", utterance.Message, StringComparison.Ordinal);
         Assert.NotEmpty(utterance.SupportingEvidence);
         Assert.NotEmpty(utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources));
