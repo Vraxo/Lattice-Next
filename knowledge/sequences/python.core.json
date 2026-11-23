@@ -6975,7 +6975,9 @@
         "suffix": ":\n"
       },
       "requiresCompletedFacts": [],
-      "satisfiesFacts": [],
+      "satisfiesFacts": [
+        "program.collection-filter.signature"
+      ],
       "forbiddenFacts": [],
       "advanceCollections": []
     },
@@ -7147,8 +7149,7 @@
         "suffix": "([1, 2, 3, 4, 5])\n```"
       },
       "satisfiesFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature"
+        "program.collection-filter"
       ],
       "requiresCompletedFacts": [],
       "forbiddenFacts": [],
