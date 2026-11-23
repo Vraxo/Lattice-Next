@@ -6925,7 +6925,8 @@
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
-        "program.function"
+        "program.function",
+        "program.collection"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
@@ -6950,7 +6951,8 @@
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
-        "program.function"
+        "program.function",
+        "program.collection"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
