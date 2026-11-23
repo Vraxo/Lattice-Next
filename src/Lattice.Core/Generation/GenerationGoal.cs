@@ -6,4 +6,8 @@ public sealed record GenerationGoal(
     string Effect,
     string ArgumentKind,
     string ArgumentValue,
-    ImmutableArray<string> AvailableCapabilities);
+    ImmutableArray<string> AvailableCapabilities)
+{
+    public ImmutableDictionary<string, string> Bindings { get; init; } =
+        ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal);
+}
