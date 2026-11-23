@@ -1,3 +1,7 @@
+> **Archived design note — 2026-11-23.** This document describes an earlier coding-track plan and benchmark scope. The maintained architecture and current migration checkpoint are in [program-generation-architecture.md](../program-generation-architecture.md); execution details are in the [Python coding benchmark runner](../../tools/Lattice.Coding.Benchmark/README.md).
+
+---
+
 # Compositional Coding Track
 
 ## Objective

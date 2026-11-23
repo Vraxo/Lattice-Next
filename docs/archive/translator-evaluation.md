@@ -1,3 +1,7 @@
+> **Archived design note — 2026-11-23.** This is an unexecuted provider-evaluation proposal. It is retained for historical context, not as the current translator contract. The implemented optional adapter and its boundaries are documented in [lm-studio.md](../lm-studio.md) and [language.md](../language.md).
+
+---
+
 # Optional LLM-to-LCE translator evaluation
 
 ## Decision
@@ -42,7 +46,7 @@ The response contract distinguishes unsupported input from invalid translator ou
 
 ## LCE 0.9 scope
 
-The translator must target the grammar documented in [language.md](language.md), not unrestricted English and not full ACE. The currently useful target forms include unary assertions, definite-description property assertions, existential assertions, universal unary rules, fixed-object universal relational rules, binary ground relations, yes/no questions, existence questions, and one unresolved singular `it` reference.
+The translator must target the grammar documented in [language.md](../language.md), not unrestricted English and not full ACE. The currently useful target forms include unary assertions, definite-description property assertions, existential assertions, universal unary rules, fixed-object universal relational rules, binary ground relations, yes/no questions, existence questions, and one unresolved singular `it` reference.
 
 The current validated semantic subset does **not** support negation, modality, disjunction, variable-bound relation objects, relational premises, relational joins, or higher-arity predicates. The model must abstain when meaning depends on those constructions. It must not turn absence of evidence into a negative fact, change quantifier scope, reverse relation arguments, or replace a variable object with an arbitrary concrete object.
 
@@ -71,7 +75,7 @@ Compare models rather than treating provider APIs as if they were models. For ea
 
 ## Benchmark
 
-The machine-readable corpus is [translator-benchmark.json](../tests/Lattice.Core.Tests/Intelligence/translator-benchmark.json). Each supported case specifies the expected LCE output and its canonical meaning using the same shape as `SemanticFormatter.Format`. Unsupported cases expect no candidates and explain why a plausible-looking shortcut would be wrong.
+The machine-readable corpus is [translator-benchmark.json](../../tests/Lattice.Core.Tests/Intelligence/translator-benchmark.json). Each supported case specifies the expected LCE output and its canonical meaning using the same shape as `SemanticFormatter.Format`. Unsupported cases expect no candidates and explain why a plausible-looking shortcut would be wrong.
 
 The cases cover:
 - Paraphrase-to-LCE normalization without changing the proposition.

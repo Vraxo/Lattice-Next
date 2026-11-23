@@ -1,3 +1,7 @@
+> **Archived design note — 2026-11-23.** This is an earlier parser-pipeline design note. It is retained as design history, not as a statement of current parser coverage. The maintained language and syntax contract is in [language.md](../language.md).
+
+---
+
 # Compositional language understanding
 
 Lattice's input pipeline separates lexical recognition, shallow syntax, semantic interpretation, and execution:

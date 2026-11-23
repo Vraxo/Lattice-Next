@@ -1,96 +1,52 @@
 # Real-world assistant benchmark
 
-## Decision
+## Purpose and status
 
-Lattice's first assistant benchmark is deliberately small: **30–40 carefully selected source prompts**, plus a separate diagnostic suite of controlled variations. This is a development benchmark, not a statistically representative estimate of general assistant capability.
+This is a small, curated development seed for measuring general language understanding and assistant usefulness. It is **not** a statistically representative sample and is **not** a held-out accuracy benchmark.
 
-The benchmark has three distinct layers:
+The current source file is [`assistant-benchmark-v1.json`](../../data/benchmarks/assistant-benchmark-v1.json). It contains 40 source prompts:
 
-1. **Real-world instruction** — prompts people actually submitted in conversational settings. OASST1 and WildChat are sources; preserve the original wording and provenance.
-2. **2022-era capability** — human-authored instruction examples organized around task categories also represented in the InstructGPT evaluation. Dolly 15k is a useful public proxy, not a copy of InstructGPT's private prompt set.
-3. **Diagnostics** — developer-written paraphrases and controlled changes to constraints, negation, ambiguity, references, and follow-ups. These are never counted as real prompts.
+| Source | Records | Share |
+|---|---:|---:|
+| OASST1 | 8 | 20% |
+| Dolly 15k | 30 | 75% |
+| WildChat | 2 | 5% |
+| **Total** | **40** | **100%** |
 
-The initial seed file is [assistant-benchmark-v1.json](../../data/benchmarks/assistant-benchmark-v1.json). Its status is **candidate seed, not frozen**. It now contains 40 source prompts: 8 OASST1 prompts, 30 Dolly prompts, and 2 WildChat prompts. The two WildChat records retain their stable conversation IDs and turn numbers, alongside model, timestamp, language, moderation flags, and license. The source mix remains intentionally disclosed rather than presented as balanced: Dolly still accounts for 75% of the set, so this is a practical development sample, not the final held-out evaluation set.
+The source mix is deliberately disclosed: Dolly accounts for three quarters of the current set. The JSON currently marks 37 records with `substantive_answer_reviewed: true`; 3 records remain unreviewed. This marker is a limited coverage-review field, not a complete semantic or factual quality score. The dataset status remains `candidate-seed-not-frozen`.
 
-Controlled diagnostic cases live in [assistant-benchmark-diagnostics-v1.json](../../data/benchmarks/assistant-benchmark-diagnostics-v1.json). They are synthetic and must be scored separately.
+Synthetic controlled variations are stored separately in [`assistant-benchmark-diagnostics-v1.json`](../../data/benchmarks/assistant-benchmark-diagnostics-v1.json). Never combine diagnostic counts with source-prompt counts.
 
-## Why these sources
+## Sources and provenance
 
-### OASST1 — real conversational prompts
+- **OASST1** — community-submitted conversation prompts. Use root prompter messages for independent single-turn cases; preserve message IDs and source metadata. The source is self-selected, not population-representative.
+- **WildChat** — real ChatGPT conversations collected in 2023–2024. Preserve conversation IDs, turn numbers, model, timestamp, language, moderation flags, and license metadata. This benchmark contains only two English single-turn prompts.
+- **Dolly 15k** — human-authored instructions solicited from Databricks contributors and organized using task categories informed by InstructGPT. It is a task-category proxy, not a sample of spontaneous ChatGPT usage.
+- **InstructGPT** — the 2022 paper provides a historical reference for task categories; its original evaluation prompt corpus is not publicly released.
 
-[OpenAssistant/oasst1](https://huggingface.co/datasets/OpenAssistant/oasst1) is a human-generated and human-annotated conversation corpus collected through a public community platform. It contains conversation trees, not independent flat prompts. For single-turn instruction evaluation, use root prompter messages as independent prompts. Follow-up messages belong in the multi-turn/diagnostic suite with their preceding context.
-
-OASST1 is community-contributed and self-selected; it is not a representative sample of ChatGPT users. The dataset is licensed Apache-2.0.
-
-### WildChat — real ChatGPT prompts
-
-[allenai/WildChat](https://huggingface.co/datasets/allenai/WildChat) contains real user conversations with ChatGPT, but its population is self-selected and its collection period is 2023–2024, not 2022. It is a useful source of actual ChatGPT usage, not a reproduction of the early ChatGPT user population.
-
-Two English, non-toxic, non-redacted, single-turn prompts are now retained. Each record stores the stable 32-character conversation ID and turn number, as well as model, timestamp, language, moderation flags, and the dataset's ODC-BY license. This is a small curated sample, not a random or representative draw. Check the dataset card for current release details before redistributing data.
-
-### Dolly 15k — 2022-era task-category proxy
-
-[databricks/databricks-dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) contains 15,011 human-authored instruction/response examples created by Databricks employees. Contributors were asked to create prompts in task categories informed by InstructGPT, including brainstorming, classification, open/closed QA, generation, information extraction, and summarization. These are elicited instructions, not spontaneous requests from ordinary ChatGPT users. The dataset uses CC BY-SA 3.0.
-
-### InstructGPT — historical reference
-
-The [2022 InstructGPT paper](https://arxiv.org/abs/2203.02155) reports the distribution of request types in real API user prompts, but does not release the original evaluation prompt corpus. Its categories are a useful historical guide; they do not make Dolly or any other public dataset equivalent to that private corpus.
-
-## Curation rules
-
-- Keep original source wording. Do not rewrite source prompts to fit Lattice's current grammar.
-- Keep source identity, source URL, and the strongest available source locator with every prompt.
-- Use OASST1 root messages for independent single-turn cases. Do not treat follow-up messages as independent prompts.
-- Label solicited human-authored instructions (Dolly) separately from naturally submitted conversation prompts (OASST1/WildChat).
-- Keep prompts that need a supplied passage paired with that passage; do not silently remove required context.
-- Exclude personal data and unsafe material from a public benchmark release.
-- Deduplicate exact and near-duplicate prompts.
-- Maintain a separate held-out set once the candidate pool is large enough. Do not leak diagnostic paraphrases across development and held-out partitions.
-- Freeze and version benchmark releases; record every change.
+Keep original prompt wording and the strongest available source locator. Preserve any supplied context needed to answer a prompt. Deduplicate exact and near-duplicate examples, exclude personal data and unsafe material, and retain licensing/source metadata. Do not substitute synthetic prompts for missing real-source examples or claim representativeness.
 
 ## Evaluation
 
-Score two outcomes separately.
+Evaluate two distinct questions:
 
-### 1. Language understanding
+1. **Language understanding:** did Lattice preserve the request's intent, entities, relations, requested action, output form, constraints, negation, modality, preferences, references, and uncertainty? Compare against human-reviewed semantic annotations, accepting equivalent semantic representations.
+2. **Task usefulness:** did the response meaningfully satisfy the request while remaining grounded, appropriately uncertain, and traceable to evidence? Use task-specific human review.
 
-Did Lattice correctly identify the user's intent, entities, relations, requested action, output form, constraints, negation, modality, preferences, references, and uncertainty?
-
-A successful parse or recognized keyword is not sufficient. Compare the interpreted meaning against a human-reviewed semantic annotation. Accept equivalent representations.
-
-### 2. Task usefulness
-
-Did Lattice produce a useful, appropriately grounded response? Use task-specific human review. A correct interpretation can still lead to a poor answer, and a plausible answer can conceal a misunderstanding.
-
-Do not collapse these into one score. Report category-level results and important failure types, including unsupported requests, unsafe assumptions, and appropriate abstentions.
-
-## Diagnostics
-
-The diagnostic file contains controlled variations derived from selected source prompts. It probes paraphrasing, added constraints, negation, classification, context references, and follow-ups. Diagnostic results must be reported separately from real-prompt results.
-
-## Acquisition
-
-Do not download entire datasets or all Parquet shards for this benchmark. The initial curation used small public viewer samples and retained only selected prompt text and provenance. The Hugging Face dataset viewer and its rows API can be used to inspect additional candidates in small batches. If a viewer/API route is unavailable, do not substitute invented examples or claim a representative sample.
-
-## Next curation step
-
-Review the six newly added records one at a time against actual production CLI output. The set now reaches the 40-prompt development target, but remains a candidate seed: 30 Dolly examples still dominate the mix, and only 2 WildChat records are included. Before freezing a held-out benchmark, expand the traceable OASST1/WildChat portion or explicitly retain and document this source imbalance. Do not pad the set with weakly sourced or synthetic items merely to hit a target.
-
-The long-term objective remains to test general language understanding without a neural translator, not to hardcode the prompts in this file.
-
+Do not collapse these into one score. Report category-level results and failure types, including unsupported requests, unsafe assumptions, and appropriate abstentions. A fluent answer or successful parse is not proof of correct understanding.
 
 ## Automated execution
 
-The candidate benchmark can be executed against the actual production CLI without manually entering prompts. From the repository root:
+Run the current source set through the production CLI-backed runner:
 
 ```powershell
 dotnet run --project tools/Lattice.Assistant.Benchmark
 ```
 
-This runs every source prompt once. Each prompt is submitted through `LatticeCli.RunAsync`, and every repetition receives a fresh in-process session. The runner writes:
+The runner uses a fresh CLI session for each prompt repetition and writes:
 
-- `artifacts/assistant-benchmark-results.json` — full CLI JSON output, standard error, exit status, utterance kinds, response summaries, latency, per-run outcome signatures, benchmark hash, and aggregate metrics.
-- `artifacts/assistant-benchmark-results.md` — readable run summary, category/layer breakdowns, per-prompt handling and stability, and individual output summaries.
+- `artifacts/assistant-benchmark-results.json` — per-run CLI output, errors, status, utterance kinds, latency, output signatures, benchmark hash, and aggregate metrics.
+- `artifacts/assistant-benchmark-results.md` — human-readable summary and per-prompt/category breakdowns.
 
 Useful options:
 
@@ -102,22 +58,13 @@ dotnet run --project tools/Lattice.Assistant.Benchmark -- --id dolly-001 --id do
 dotnet run --project tools/Lattice.Assistant.Benchmark -- --repeat 5 --fail-on-unhandled
 ```
 
-The default repeat count is one. Repetitions are useful for detecting instability, but deterministic identical runs do not add evidence of answer quality. The runner reports three distinct measures:
+The runner reports handling, answered utterances, marked substantive answers, stability, and latency. **Handled** means the CLI completed the turn; it does not mean the request was understood or answered well. **Answered** records a `QuestionAnswered` response; it does not prove factual correctness. The substantive-answer marker is a manually maintained coverage indicator, not a semantic rubric or accuracy score. The source benchmark currently has no full criterion-level human-reviewed quality rubric.
 
-- **Substantive answers** are the primary progress metric. A prompt is counted only when its current run produces a non-empty `QuestionAnswered` response and the benchmark record is explicitly marked `substantive_answer_reviewed: true` after human inspection. Newly answered prompts remain uncounted until reviewed. This measures coverage of useful responses, not a full factual-accuracy score.
-- **Answered** counts every `QuestionAnswered` utterance, regardless of whether a human has reviewed its usefulness.
-- **Handled** means the CLI completed a turn without rejecting it. This includes unavailable-knowledge responses and retained objectives, so it is only an execution metric.
+## Next evaluation work
 
-At the current checkpoint, **34 of 40 prompts** have been reviewed for substantive-answer status. **32** are accepted as substantive answers; the remaining reviewed records include appropriate clarification or unavailable-knowledge outcomes. The six newly added OASST1/WildChat records remain unreviewed until their actual production CLI outputs and supporting evidence are inspected. This is a manually reviewed coverage milestone, not a statistically representative capability or accuracy score. The separate diagnostics JSON is not silently mixed into this source-prompt run.
+- Preserve the current 40-prompt set and its source provenance while improving source balance through traceable additions.
+- Add human-reviewed semantic expectations for a stratified subset, including explicit expected abstentions.
+- Add task-specific answer-quality rubrics and bind every review to the exact prompt version, output, and system revision.
+- Keep the synthetic diagnostics and task-transfer fixtures separately reported.
 
-The runner itself is included in `Lattice.slnx` and has integration tests verifying fresh-session isolation, report generation, filtering, and invalid benchmark rejection.
-
-
-## Conversational question semantics follow-up
-
-The initial benchmark run accepted 2 of 34 prompts, but neither accepted prompt received a substantive answer. A first language-layer increment now represents simple definition questions such as “What is a polygon?” as a typed `DefinitionQuestionFormula`, preserving the concept and any descriptive modifiers. This is only a parsing result: it does not claim that Lattice can retrieve, formulate, or verify a definition. The benchmark runner's handled count must not be interpreted as answer quality.
-
-
-## Compositional concept knowledge
-
-A definition question is no longer answered by retrieving a prewritten `definition` string. The runtime traverses a named concept's unary properties and binary relationships, composes a compact structural explanation, and returns the imported claim provenance for every displayed fact. The small geometry knowledge pack demonstrates this with polygon, boundary, and line-segment nodes. This is an initial graph-backed capability, not a complete ontology or unrestricted natural-language explanation system; quantified part structures and richer relational rules remain future work.
+The active quality-evaluation implementation work is tracked in [`.agents/todo.md`](../../.agents/todo.md). See also the [first-use task benchmarks](first-use-day-out.md) and [product vision](../vision.md).

@@ -1,34 +1,37 @@
-# Client contract and runtime boundary
+# Client contract and runtime
 
-Lattice frontends communicate through the public contracts in `Lattice.Client`.
+Lattice frontends use the transport-independent contracts in `Lattice.Client`. The same session model is available through the in-process runtime and the implemented HTTP transport.
 
 ## Contract
 
 - `ILatticeClient` creates independent conversational sessions.
-- `ILatticeSession` exposes a stable session ID, accepts text turns, loads validated knowledge packs, provides read-only session counts, and has an explicit asynchronous lifetime.
+- `ILatticeSession` exposes a stable session ID, accepts text turns, loads validated knowledge packs, accepts explicitly reviewed typed candidate evidence, provides read-only session status, and has an asynchronous lifetime.
 - `LatticeTurnResult` distinguishes a completed turn from input rejected before processing.
 - Per-utterance results represent stored statements, rejected statements, answered questions, clarification requests, and unsupported question forms.
-- Answers expose the four-valued truth result and structured supporting/opposing evidence, including provenance and proof premises.
+- Answers expose four-valued truth results and structured supporting/opposing evidence, including provenance and proof premises.
 - Knowledge-pack loading returns a transport-neutral result with the pack name, claim count, and validation error when rejected.
-- A session can accept user-reviewed external monetary candidate evidence while preserving its source URL, retrieval timestamp, and supporting excerpt.
+- Reviewed external candidate evidence retains its source URL, retrieval timestamp, supporting excerpt, typed value, and review decision.
 
-The contract uses transport-neutral .NET types and has no dependency on Core, a UI framework, a process provider, or an HTTP implementation. It is the shared boundary, not a second domain model: Core remains authoritative for parsing, semantics, context, and reasoning.
+The contract uses transport-neutral .NET types and has no dependency on Core, a UI framework, a process provider, or HTTP. It is the shared application boundary, not a second domain model: Core remains authoritative for parsing, semantics, context, and reasoning.
 
 ## In-process runtime
 
-`Lattice.Runtime` supplies `LatticeRuntimeClient`, the first implementation of `ILatticeClient`. Each created session owns its own parser, conversation context, knowledge base, reasoning engine, and loaded-pack list. Turns and pack loads are serialized so session context and knowledge cannot be mutated concurrently. Session status is a read-only snapshot.
+`Lattice.Runtime` provides `LatticeRuntimeClient`, the in-process implementation of `ILatticeClient`. Each created session owns isolated parser/context state, a knowledge base, a reasoning engine, and its loaded-pack state. Turns and pack loads are serialized within a session; separate sessions remain independent.
 
-The runtime exposes the native text-parsing and reasoning path plus validated knowledge-pack loading. Tool discovery/invocation, model-assisted translation, and persistence remain outside this first contract slice; they will be added only when their cross-frontend behavior is defined.
+The runtime supports the native text and reasoning path, validated knowledge-pack loading, objective/candidate evaluation, and the shared contract for explicitly reviewed typed candidate evidence. It does not make fetched content trusted automatically. Tool discovery/invocation and LM Studio translation remain frontend-side; durable session persistence is not implemented.
 
-## Frontends
+## HTTP transport
 
-`Lattice.Repl` uses the in-process client for normal input, reviewed translation candidates, knowledge-pack loading, and session status. Its tool discovery/invocation and LM Studio composition remain frontend-side for now; tool observations are kept separate from the runtime's reasoning context.
+The HTTP host and remote client are implemented:
 
-## Future transports and hosts
+- `Lattice.Server` hosts the shared session contract.
+- `Lattice.Client.Http` implements `ILatticeClient` over the server API.
+- `Lattice.Repl` and `Lattice.Cli` can use either the in-process runtime or the HTTP client.
 
-A future HTTP client can implement the same `ILatticeClient` and `ILatticeSession` contracts, while a server host can expose the in-process runtime over a narrow API. Neither transport needs to change Core or the frontend-facing result model.
+The HTTP host keeps sessions in memory. Restarting the host ends active sessions; durable persistence and idle-session expiration are not included. Deployment, authentication, and route details are documented in [HTTP server and remote client](server.md).
 
+## Frontends and local capabilities
 
-## Reviewed page evidence
+The REPL and non-interactive CLI use the same public session contract. The REPL may additionally compose local tools and the optional LM Studio adapter. Those capabilities are not silently installed or executed by the remote server; see [server.md](server.md) for the remote boundary.
 
-The REPL can turn the latest `web-page-fetch` observation into a reviewable candidate-price claim without treating retrieved text as knowledge automatically. After fetching a page, the user supplies the candidate, amount, currency symbol, and an exact excerpt from the page with `:review-price`. Lattice displays the source URL, retrieval time, and excerpt and requires the user to type `accept` before submitting the claim through the shared session contract. The excerpt must occur verbatim in the fetched text. The runtime still validates the candidate, active monetary constraint, currency, and evidence request before storing the observation.
+Reviewed page evidence follows an explicit human-review path. The user identifies the candidate and typed attribute, supplies an exact excerpt from the fetched page, inspects the source and freshness metadata, and explicitly accepts the claim. The runtime validates the candidate, active evidence request, attribute/value type, and provenance before storing it. A fetched page is an untrusted source envelope, not an instruction or fact by itself.
