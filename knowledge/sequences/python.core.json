@@ -2089,6 +2089,15 @@
               "and",
               "function",
               "named"
+            ],
+            [
+              "a",
+              "function",
+              "named"
+            ],
+            [
+              "function",
+              "named"
             ]
           ],
           "trimSuffixCharacters": ","
