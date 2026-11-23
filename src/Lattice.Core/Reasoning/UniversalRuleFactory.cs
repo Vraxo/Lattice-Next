@@ -297,6 +297,7 @@ internal static class UniversalRuleFactory
 
         var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relations = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var fixedObjectRelations = ImmutableArray.CreateBuilder<PredicateApplication>();
         foreach (var conjunct in conjuncts)
         {
             if (conjunct is not PredicateApplication predicate ||
@@ -323,6 +324,16 @@ internal static class UniversalRuleFactory
                 continue;
             }
 
+            if (predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm witnessSubject &&
+                witnessSubject.Identifier == existential.Variable.Identifier &&
+                predicate.Arguments[1] is IndividualTerm objectTerm &&
+                !string.IsNullOrWhiteSpace(objectTerm.Identifier.Value))
+            {
+                fixedObjectRelations.Add(predicate);
+                continue;
+            }
+
             return false;
         }
 
@@ -334,7 +345,8 @@ internal static class UniversalRuleFactory
         premise = new ExistentialRulePremise(
             existential.Variable,
             conditions.ToImmutable(),
-            relations.ToImmutable());
+            relations.ToImmutable(),
+            fixedObjectRelations.ToImmutable());
         return true;
     }
 
