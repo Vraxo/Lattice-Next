@@ -35,10 +35,6 @@ internal static class CompositionalTaskParser
         {
             formula = formula with { GenerationSteps = multiConditionalFunctionSteps };
         }
-        else if (PythonCollectionProgramParser.TryGetCollectionFilterFunctionProgram(source, out var collectionFilterSteps))
-        {
-            formula = formula with { GenerationSteps = collectionFilterSteps };
-        }
         else if (!PythonProgramRequestParser.HasOutputIntent(source) && !CanGenerateDeclaratively(source))
         {
             return false;
