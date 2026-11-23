@@ -344,51 +344,6 @@
       "kind": "Individual"
     },
     {
-      "id": "binding-key-module",
-      "label": "module",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-target",
-      "label": "target",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-string-value",
-      "label": "string-value",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-expression",
-      "label": "expression",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-variable",
-      "label": "variable",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-iterable",
-      "label": "iterable",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-condition",
-      "label": "condition",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-function",
-      "label": "function",
-      "kind": "Individual"
-    },
-    {
-      "id": "binding-key-arguments",
-      "label": "arguments",
-      "kind": "Individual"
-    },
-    {
       "id": "binding-step-import-bpy-module",
       "label": "module",
       "kind": "Individual"
@@ -1322,51 +1277,6 @@
       "subject": "step-fallback-link",
       "relation": "instance-of",
       "object": "blender-script-step"
-    },
-    {
-      "subject": "binding-key-module",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-string-value",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-variable",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-iterable",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-condition",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-function",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "binding-key-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding"
     },
     {
       "subject": "blender-object-replacement",
