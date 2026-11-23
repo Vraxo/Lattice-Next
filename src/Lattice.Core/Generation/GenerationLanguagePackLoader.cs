@@ -99,8 +99,10 @@ public sealed class GenerationLanguagePackLoader
         {
             if (binding is null ||
                 !IsIdentifier(binding.Name) ||
-                binding.Source is not ("selected-operation" or "goal-argument") ||
+                binding.Source is not ("selected-operation" or "goal-argument" or "goal-binding") ||
                 binding.Encoding is not ("none" or "string-literal") ||
+                (binding.Source == "goal-binding" && !IsIdentifier(binding.Key)) ||
+                (binding.Source != "goal-binding" && binding.Key is not null) ||
                 !bindings.TryAdd(binding.Name, binding))
             {
                 error = "Every generation binding requires a unique name and a supported source and encoding.";
@@ -108,7 +110,7 @@ public sealed class GenerationLanguagePackLoader
                 return false;
             }
 
-            if (binding.Encoding == "string-literal" && binding.Source != "goal-argument")
+            if (binding.Encoding == "string-literal" && binding.Source is not ("goal-argument" or "goal-binding"))
             {
                 error = "String-literal encoding can only be applied to the semantic goal argument.";
                 pack = null;
