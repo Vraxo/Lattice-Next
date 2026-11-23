@@ -881,6 +881,31 @@
           "value": "        continue"
         }
       ]
+    },
+    {
+      "head": "bound-triple-indented-for",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1385,6 +1410,14 @@
       "argumentKind": "none",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-continue"
+    },
+    {
+      "id": "python-bound-triple-indented-for",
+      "symbol": "for",
+      "effect": "emit-triple-indented-loop-header",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-for"
     }
   ],
   "stringLiteralFormat": {
