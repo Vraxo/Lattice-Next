@@ -184,18 +184,8 @@
       "kind": "Type"
     },
     {
-      "id": "programming-language",
-      "label": "programming language",
-      "kind": "Type"
-    },
-    {
       "id": "blender",
       "label": "Blender",
-      "kind": "Individual"
-    },
-    {
-      "id": "python",
-      "label": "Python",
       "kind": "Individual"
     },
     {
@@ -816,12 +806,6 @@
       "sufficientExpression": null
     },
     {
-      "concept": "programming-language",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
       "concept": "code-generation-safety-note",
       "definitionKind": "primitive",
       "necessaryConditions": [],
@@ -1130,11 +1114,6 @@
       "object": "entity"
     },
     {
-      "subject": "programming-language",
-      "relation": "is-a",
-      "object": "entity"
-    },
-    {
       "subject": "blender-code-generation-task",
       "relation": "is-a",
       "object": "code-generation-task"
@@ -1148,16 +1127,6 @@
       "subject": "blender",
       "relation": "instance-of",
       "object": "software-application"
-    },
-    {
-      "subject": "python",
-      "relation": "instance-of",
-      "object": "programming-language"
-    },
-    {
-      "subject": "blender",
-      "relation": "application-uses-language",
-      "object": "python"
     },
     {
       "subject": "emit-import",
