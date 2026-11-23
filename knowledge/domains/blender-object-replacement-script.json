@@ -400,7 +400,7 @@
     },
     {
       "id": "value-step-build-name-pattern-expression",
-      "label": "re.compile(rf\"{re.escape(target_name)}(?:\\\\.\\\\d+)?$\")",
+      "label": "re.compile(rf\"{re.escape(target_name)}(?:\\.\\d+)?$\")",
       "kind": "Individual"
     },
     {
