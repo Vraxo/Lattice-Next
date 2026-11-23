@@ -19,6 +19,8 @@ public sealed record UniversalRule(
 
     public ImmutableArray<PredicateApplication> NegativeRelationalPremises { get; init; } = [];
 
+    public ImmutableArray<ExistentialRulePremise> ExistentialPremises { get; init; } = [];
+
     public ExistentialRuleConclusion? ExistentialConclusion { get; init; }
 
     public ImmutableArray<KnowledgeSource> Sources =>
