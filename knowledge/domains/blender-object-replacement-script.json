@@ -1923,11 +1923,6 @@
       "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "blender-codegen-step-iterate-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-triple-indented-loop-header"
-    },
-    {
       "subject": "blender-codegen-emit-indented-else",
       "relation": "instance-of",
       "object": "blender-codegen-generation-effect"
@@ -1958,11 +1953,6 @@
       "object": "blender-codegen-emit-indented-conditional-header"
     },
     {
-      "subject": "blender-codegen-step-iterate-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-loop-header"
-    },
-    {
       "subject": "step-link-collections",
       "relation": "blender-codegen-step-has-generation-effect",
       "object": "blender-codegen-emit-triple-indented-call"
@@ -1981,6 +1971,11 @@
       "subject": "blender-codegen-emit-indented-assignment",
       "relation": "instance-of",
       "object": "blender-codegen-generation-effect"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-loop-header"
     }
   ],
   "dataProperties": [
