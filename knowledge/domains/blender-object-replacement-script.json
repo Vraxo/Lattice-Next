@@ -587,6 +587,11 @@
       "id": "blender-codegen-emit-triple-indented-loop-header",
       "label": "emit triple indented loop header",
       "kind": "Individual"
+    },
+    {
+      "id": "blender-codegen-emit-indented-else",
+      "label": "emit indented else",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -1394,11 +1399,6 @@
     },
     {
       "subject": "step-create-light-data",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-assignment"
-    },
-    {
-      "subject": "step-create-light-data",
       "relation": "blender-codegen-step-has-argument-kind",
       "object": "blender-codegen-assignment"
     },
@@ -1446,11 +1446,6 @@
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "relation": "blender-codegen-has-generation-step",
       "object": "step-create-light-object"
-    },
-    {
-      "subject": "step-create-light-object",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
       "subject": "step-create-light-object",
@@ -1504,11 +1499,6 @@
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-assignment"
-    },
-    {
-      "subject": "step-copy-world-position",
       "relation": "blender-codegen-step-has-argument-kind",
       "object": "blender-codegen-assignment"
     },
@@ -1556,11 +1546,6 @@
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "relation": "blender-codegen-has-generation-step",
       "object": "blender-codegen-step-snapshot-collections"
-    },
-    {
-      "subject": "blender-codegen-step-snapshot-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
       "subject": "blender-codegen-step-snapshot-collections",
@@ -1614,11 +1599,6 @@
     },
     {
       "subject": "blender-codegen-step-check-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-conditional-header"
-    },
-    {
-      "subject": "blender-codegen-step-check-collections",
       "relation": "blender-codegen-step-has-argument-kind",
       "object": "blender-codegen-condition"
     },
@@ -1646,11 +1626,6 @@
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "relation": "blender-codegen-has-generation-step",
       "object": "blender-codegen-step-iterate-collections"
-    },
-    {
-      "subject": "blender-codegen-step-iterate-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-loop-header"
     },
     {
       "subject": "blender-codegen-step-iterate-collections",
@@ -1704,11 +1679,6 @@
     },
     {
       "subject": "step-link-collections",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-quadruple-indented-call"
-    },
-    {
-      "subject": "step-link-collections",
       "relation": "blender-codegen-step-has-argument-kind",
       "object": "blender-codegen-call"
     },
@@ -1759,11 +1729,6 @@
     },
     {
       "subject": "blender-codegen-step-else",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-double-indented-else"
-    },
-    {
-      "subject": "blender-codegen-step-else",
       "relation": "blender-codegen-step-has-argument-kind",
       "object": "blender-codegen-none"
     },
@@ -1771,11 +1736,6 @@
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "relation": "blender-codegen-has-generation-step",
       "object": "blender-codegen-step-fallback-link"
-    },
-    {
-      "subject": "blender-codegen-step-fallback-link",
-      "relation": "blender-codegen-step-has-generation-effect",
-      "object": "blender-codegen-emit-triple-indented-call"
     },
     {
       "subject": "blender-codegen-step-fallback-link",
@@ -1961,6 +1921,56 @@
       "subject": "step-iterate-collections",
       "relation": "blender-codegen-step-has-generation-effect",
       "object": "blender-codegen-emit-triple-indented-loop-header"
+    },
+    {
+      "subject": "blender-codegen-emit-indented-else",
+      "relation": "instance-of",
+      "object": "blender-codegen-generation-effect"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-assignment"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-assignment"
+    },
+    {
+      "subject": "step-copy-world-position",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-assignment"
+    },
+    {
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-assignment"
+    },
+    {
+      "subject": "blender-codegen-step-check-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-conditional-header"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-loop-header"
+    },
+    {
+      "subject": "step-link-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-triple-indented-call"
+    },
+    {
+      "subject": "blender-codegen-step-else",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-else"
+    },
+    {
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-call"
     }
   ],
   "dataProperties": [
