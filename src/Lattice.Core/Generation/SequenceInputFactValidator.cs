@@ -75,6 +75,8 @@ public static class SequenceInputFactValidator
                 "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
                 "valueExpressionCollectionReferences" => TryValidateValueExpressionCollectionReferences(factMap, validation),
                 "matchingCollections" => TryValidateMatchingCollections(factMap, validation),
+                "orderedArithmeticFunctionExpressions" => TryValidateOrderedArithmeticFunctionExpressions(factMap, validation),
+                "matchingLastNumericFunctionCall" => TryValidateLastNumericFunctionCall(factMap, validation),
                 "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
                 "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
                 _ => false
@@ -239,6 +241,86 @@ public static class SequenceInputFactValidator
             IsQuotedStringLiteral(expression) ||
             (IsArithmeticExpression(expression) &&
              ReferencesOnlyAvailableNames(expression, availableNames)));
+    }
+
+    private static bool TryValidateOrderedArithmeticFunctionExpressions(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameterLists) ||
+            !TryGetCollection(facts, validation.AdditionalFactId, validation.AdditionalValueId, out var functionNames) ||
+            expressions.Length == 0 ||
+            expressions.Length != parameterLists.Length ||
+            expressions.Length != functionNames.Length)
+        {
+            return false;
+        }
+
+        var previousFunctions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (var index = 0; index < expressions.Length; index++)
+        {
+            var parameters = parameterLists[index]
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (parameters.Length == 0 ||
+                parameters.Any(parameter => !IsIdentifier(parameter)) ||
+                parameters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != parameters.Length ||
+                !IsArithmeticExpression(expressions[index]))
+            {
+                return false;
+            }
+
+            var availableNames = parameters.Concat(previousFunctions)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            if (!ReferencesOnlyAvailableNames(expressions[index], availableNames, allowFunctionCalls: true))
+            {
+                return false;
+            }
+
+            var calledFunctions = Regex.Matches(
+                    expressions[index],
+                    @"([A-Za-z_][A-Za-z0-9_]*)\\s*\\(")
+                .Select(match => match.Groups[1].Value)
+                .ToArray();
+            if (calledFunctions.Any(name => !previousFunctions.Contains(name)) ||
+                (index > 0 && !calledFunctions.Any(previousFunctions.Contains)))
+            {
+                return false;
+            }
+
+            previousFunctions.Add(functionNames[index]);
+        }
+
+        return true;
+    }
+
+    private static bool TryValidateLastNumericFunctionCall(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        SequenceInputFactValidation validation)
+    {
+        if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var call) ||
+            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var functionNames) ||
+            !TryGetCollection(facts, validation.AdditionalFactId, validation.AdditionalValueId, out var parameterLists))
+        {
+            return false;
+        }
+
+        var match = FunctionCallPattern.Match(call);
+        if (!match.Success ||
+            !match.Groups["name"].Value.Equals(functionNames[^1], StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var argumentsText = match.Groups["arguments"].Value.Trim();
+        var arguments = argumentsText.Length == 0
+            ? Array.Empty<string>()
+            : argumentsText.Split(',', StringSplitOptions.TrimEntries);
+        var parameters = parameterLists[^1]
+            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        return arguments.Length == parameters.Length &&
+            arguments.Length > 0 &&
+            arguments.All(argument => NumberPattern.IsMatch(argument));
     }
 
     private static bool TryValidateMatchingCollections(
