@@ -275,7 +275,7 @@ public static class SequenceInputFactExtractor
         {
             if (!BooleanExpressionNormalizer.TryNormalize(value, out normalized))
             {
-                error = $"Input rule '{ruleId}' captured an invalid boolean expression: '{value}'.";
+                error = $"Input rule '{ruleId}' captured an invalid boolean expression.";
                 return false;
             }
         }
