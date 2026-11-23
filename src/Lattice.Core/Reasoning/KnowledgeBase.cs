@@ -269,6 +269,7 @@ public sealed class KnowledgeBase
             AreSamePremises(pair.First.Conditions, pair.Second.Conditions) &&
             AreSamePremises(pair.First.NegativeConditions, pair.Second.NegativeConditions) &&
             AreSamePremises(pair.First.Relations, pair.Second.Relations) &&
+            AreSamePremises(pair.First.VariableRelations, pair.Second.VariableRelations) &&
             AreSamePremises(pair.First.FixedObjectRelations, pair.Second.FixedObjectRelations) &&
             AreSameExistentialPremises(pair.First.NestedPremises, pair.Second.NestedPremises));
     }
