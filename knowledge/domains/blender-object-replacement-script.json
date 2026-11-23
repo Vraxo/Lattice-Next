@@ -893,7 +893,7 @@
       "object": "blender-codegen-generation-step"
     },
     {
-      "subject": "blender-codegen-blender",
+      "subject": "blender",
       "relation": "instance-of",
       "object": "blender-codegen-software-application"
     },
