@@ -1,6 +1,6 @@
 # Program generation architecture
 
-> **Current migration objective:** remove the remaining specialized Python parsing and code-generation branches. Replace them with generic semantic extraction, validation, symbolic reasoning, and declarative token-sequence generation. This is an architectural migration, not a project to move hard-coded templates from C# into JSON.
+> **Migration checkpoint (2026-11-23):** all 28 tracked legacy Python dispatch branches have been removed and merged. The remaining objective is to test the resulting architecture honestly: find hidden target-language assumptions, measure semantic correctness and generalization, and extend reusable capabilities only when a meaningful task exposes a gap. This is not a claim that open-ended program generation is solved.
 
 This document is the authoritative direction for the program-generation track. When implementation details or older design notes conflict with it, follow this document and the current code/tests.
 
