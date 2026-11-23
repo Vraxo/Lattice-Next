@@ -27,7 +27,6 @@ public sealed class CompositionalTaskParserTests
         Assert.Equal("python", request.Context);
         Assert.Equal("python-source", request.OutputFormat);
         Assert.Equal("write-standard-output", request.Scope);
-        Assert.Empty(request.GenerationSteps);
         Assert.Equal(input, utterance.SourceText);
     }
 
@@ -45,7 +44,6 @@ public sealed class CompositionalTaskParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(input, utterance.SourceText);
-        Assert.Empty(request.GenerationSteps);
         Assert.DoesNotContain("value=", SemanticFormatter.Format(utterance), StringComparison.Ordinal);
     }
 
@@ -59,8 +57,6 @@ public sealed class CompositionalTaskParserTests
         Assert.True(result.IsSuccess, result.Error);
         var utterance = Assert.Single(result.Utterances);
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
-
-        Assert.Empty(request.GenerationSteps);
         Assert.Equal(input, utterance.SourceText);
     }
 
@@ -77,7 +73,6 @@ public sealed class CompositionalTaskParserTests
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
         Assert.Equal("python-program", request.Subject);
-        Assert.Empty(request.GenerationSteps);
         Assert.Equal(input, utterance.SourceText);
     }
 

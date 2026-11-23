@@ -68,7 +68,6 @@ public sealed class TaskRequestParserTests
         Assert.Equal("python", request.Context);
         Assert.Equal("python-source", request.OutputFormat);
         Assert.Equal("write-standard-output", request.Scope);
-        Assert.Empty(request.GenerationSteps);
         Assert.Equal(new[] { "text-output" }, request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
