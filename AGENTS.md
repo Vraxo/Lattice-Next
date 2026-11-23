@@ -40,7 +40,7 @@ Keep these concerns independently understandable and changeable:
 
 ## Program-generation direction
 
-The Python code-generation migration must follow [docs/program-generation-architecture.md](docs/program-generation-architecture.md). That document is the authoritative target architecture, including the explicit no-ML constraint, the prohibition on task-specific parser/generator dispatch, the current 28/28 migration checkpoint, and the definition of success. Do not reintroduce specialized Python runtime logic or replace it with one-prompt-one-rule templates. Inspect current `main` before choosing each remaining migration target, and update the documented progress only after a verified merge.
+The immediate coding priority is to finish the Python code-generation migration described in [docs/program-generation-architecture.md](docs/program-generation-architecture.md) and tracked in [`.agents/todo.md`](.agents/todo.md). The historical 28/28 count removed only a tracked set of C# dispatch branches; it did not complete the migration. Remaining Python-specific helpers/validators, task-specific input facts, complete program templates in declarative sequence knowledge, and the Blender-specific code-generation route must be replaced with reusable, language-neutral programming semantics and one shared generation path. Do not begin broader programming ontology expansion, new coding domains, or unrelated capability work until the migration completion gate in the active queue is satisfied. Do not reintroduce specialized Python runtime logic or replace it with one-prompt-one-rule templates. Inspect current `main` before choosing each increment and update progress only after a verified merge.
 
 ## Development workflow
 
