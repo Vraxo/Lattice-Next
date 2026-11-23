@@ -64,7 +64,7 @@ This is a meaningful removal of the task-specific C# assembler, but it is not ye
 
 - Represent language constructions and lexical choices as loadable knowledge rather than renderer code.
 - Bind concepts, relations, values, and user-provided constraints to generation slots.
-- Add context-sensitive continuation scoring and structural constraints without adding language-specific generation engines.
+- Add reusable symbolic constraints and cross-step dependency reasoning without adding language-specific generation engines.
 - Separate content selection from surface realization while avoiding task-specific answer templates.
 
 The first semantic bridge resolves a graph relation assertion into generic `subject`, `relation`, and `object` bindings, using the shared tokenizer for all three values. A data-defined grammar can express the fact as a sentence without storing that sentence in the knowledge pack. This is direct assertion lexicalization only; multi-hop reasoning, morphology, discourse planning, and contextual lexical choice are not implemented yet.
