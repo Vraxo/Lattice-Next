@@ -268,7 +268,8 @@ public sealed class KnowledgeBase
             pair.First.Witness.Identifier == pair.Second.Witness.Identifier &&
             AreSamePremises(pair.First.Conditions, pair.Second.Conditions) &&
             AreSamePremises(pair.First.Relations, pair.Second.Relations) &&
-            AreSamePremises(pair.First.FixedObjectRelations, pair.Second.FixedObjectRelations));
+            AreSamePremises(pair.First.FixedObjectRelations, pair.Second.FixedObjectRelations) &&
+            AreSameExistentialPremises(pair.First.NestedPremises, pair.Second.NestedPremises));
     }
 
     private static bool AreSameExistentialConclusion(

@@ -25,6 +25,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## Completed maintenance
 
+- [x] Support nested existential relation chains, requiring each nested relation to continue from the exact parent witness and retaining every witness proof.
 - [x] Support multiple positive existential relation premises in one rule, matching each scoped witness's unary conditions, subject-to-witness relations, and fixed-object relations about that same witness against explicit graph facts.
 - [x] Compose individual concept explanations from their most specific graph classifications and typed outgoing relations, preserving each supporting assertion as evidence.
 - [x] Remove the final Python-specific program request parser; derive generation intent and language from semantic facts and validate through the declarative generator.

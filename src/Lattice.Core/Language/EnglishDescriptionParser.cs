@@ -221,7 +221,9 @@ internal static class EnglishDescriptionParser
                 return false;
             }
 
-            var witness = CreateExistentialWitness(existentialConditions.Count);
+            var witness = CreateExistentialWitness(
+                relationSubject,
+                existentialConditions.Count);
             if (!TryParseDescription(
                 tokens,
                 objectStart + 1,
@@ -230,7 +232,7 @@ internal static class EnglishDescriptionParser
                 out var objectDescription,
                 allowRelationalRelativePredicates: true,
                 relationSubject: witness,
-                allowExistentialRelationalObjects: false,
+                allowExistentialRelationalObjects: true,
                 allowNegativeRelationalRelativePredicates: false))
             {
                 return false;
@@ -263,14 +265,32 @@ internal static class EnglishDescriptionParser
         return true;
     }
 
-    private static VariableTerm CreateExistentialWitness(int index)
+    private static VariableTerm CreateExistentialWitness(
+        VariableTerm subject,
+        int index)
     {
-        var name = index switch
+        var variableNames = new[] { "x", "y", "z", "w", "v", "u", "t", "s", "r", "q", "p" };
+        var subjectName = subject.Identifier.Value;
+        var subjectIndex = Array.IndexOf(variableNames, subjectName);
+        string name;
+
+        if (subjectIndex >= 0)
         {
-            0 => "y",
-            1 => "z",
-            _ => $"witness{index + 1}"
-        };
+            var witnessIndex = subjectIndex + index + 1;
+            name = witnessIndex < variableNames.Length
+                ? variableNames[witnessIndex]
+                : $"witness{witnessIndex + 1}";
+        }
+        else if (subjectName.StartsWith("witness", StringComparison.Ordinal) &&
+            int.TryParse(subjectName["witness".Length..], out var parentWitnessIndex))
+        {
+            name = $"witness{parentWitnessIndex + index + 1}";
+        }
+        else
+        {
+            name = $"witness{variableNames.Length + index + 1}";
+        }
+
         return new VariableTerm(EnglishGrammarTokens.CreateIdentifier(name));
     }
 

@@ -7,4 +7,5 @@ public sealed record ExistentialRulePremise(
     VariableTerm Witness,
     ImmutableArray<PredicateApplication> Conditions,
     ImmutableArray<PredicateApplication> Relations,
-    ImmutableArray<PredicateApplication> FixedObjectRelations);
+    ImmutableArray<PredicateApplication> FixedObjectRelations,
+    ImmutableArray<ExistentialRulePremise> NestedPremises);

@@ -121,6 +121,53 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Parses_nested_existential_relation_chains()
+    {
+        var result = parser.Parse(
+            "Every dog that chases a cat that chases a mouse is friendly.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), exists(y, and(cat(y), exists(z, and(mouse(z), chases(y, z))), chases(x, y)))), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Requires_each_nested_relation_to_continue_from_the_parent_witness()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that chases a cat that chases a mouse is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido chases Rover.");
+        Add(complete, "Rover is a cat.");
+        Add(complete, "Rover chases Jerry.");
+        Add(complete, "Jerry is a mouse.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Contains(result.Proof!.AdditionalPremises, proof =>
+            proof.SourceText == "Fido chases Rover.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Rover is a cat.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Rover chases Jerry.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Jerry is a mouse.");
+
+        var disconnectedChain = new KnowledgeBase();
+        Add(disconnectedChain, "Every dog that chases a cat that chases a mouse is friendly.");
+        Add(disconnectedChain, "Fido is a dog.");
+        Add(disconnectedChain, "Fido chases Rover.");
+        Add(disconnectedChain, "Rover is a cat.");
+        Add(disconnectedChain, "Whiskers chases Jerry.");
+        Add(disconnectedChain, "Jerry is a mouse.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(disconnectedChain, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Rejects_negated_existential_relation_conditions()
     {
         var result = parser.Parse("Every dog that does not chase a cat is friendly.");

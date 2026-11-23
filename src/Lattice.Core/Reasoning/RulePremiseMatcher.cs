@@ -65,100 +65,11 @@ internal static class RulePremiseMatcher
 
         foreach (var required in requiredPremises)
         {
-            var witnessMatches = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
-            foreach (var relation in required.Relations)
-            {
-                if (relation.Arguments.IsDefault ||
-                    relation.Arguments.Length != 2 ||
-                    relation.Arguments[0] is not VariableTerm ||
-                    relation.Arguments[1] is not VariableTerm witnessVariable ||
-                    witnessVariable.Identifier != required.Witness.Identifier)
-                {
-                    return [];
-                }
-
-                var matches = knownRelationalFacts.Where(proof =>
-                    proof.Predicate.Predicate == relation.Predicate &&
-                    !proof.Predicate.Arguments.IsDefault &&
-                    proof.Predicate.Arguments.Length == 2 &&
-                    proof.Predicate.Arguments[0] == individual).ToArray();
-
-                if (matches.Length == 0)
-                {
-                    return [];
-                }
-
-                if (witnessMatches.Count == 0)
-                {
-                    witnessMatches.AddRange(matches.Select(match =>
-                        (match.Predicate.Arguments[1], ImmutableArray.Create(match))));
-                    continue;
-                }
-
-                var joined = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
-                foreach (var existing in witnessMatches)
-                foreach (var match in matches)
-                {
-                    if (match.Predicate.Arguments[1] == existing.Witness)
-                    {
-                        joined.Add((existing.Witness, existing.Relations.Add(match)));
-                    }
-                }
-
-                witnessMatches = joined;
-                if (witnessMatches.Count == 0)
-                {
-                    return [];
-                }
-            }
-
-            foreach (var fixedRelation in required.FixedObjectRelations)
-            {
-                if (fixedRelation.Arguments.IsDefault ||
-                    fixedRelation.Arguments.Length != 2 ||
-                    fixedRelation.Arguments[0] is not VariableTerm witnessVariable ||
-                    witnessVariable.Identifier != required.Witness.Identifier ||
-                    fixedRelation.Arguments[1] is not IndividualTerm fixedObject)
-                {
-                    return [];
-                }
-
-                var expandedWitnesses = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
-                foreach (var witness in witnessMatches)
-                {
-                    var matches = knownRelationalFacts.Where(proof =>
-                        proof.Predicate.Predicate == fixedRelation.Predicate &&
-                        !proof.Predicate.Arguments.IsDefault &&
-                        proof.Predicate.Arguments.Length == 2 &&
-                        proof.Predicate.Arguments[0] == witness.Witness &&
-                        proof.Predicate.Arguments[1] == fixedObject).ToArray();
-
-                    foreach (var match in matches)
-                    {
-                        expandedWitnesses.Add((witness.Witness, witness.Relations.Add(match)));
-                    }
-                }
-
-                witnessMatches = expandedWitnesses;
-                if (witnessMatches.Count == 0)
-                {
-                    return [];
-                }
-            }
-
-            var matchedPremises = new List<ImmutableArray<ProofNode>>();
-            foreach (var witness in witnessMatches)
-            {
-                var conditionCombinations = GetAdditionalPremiseCombinations(
-                    required.Conditions,
-                    witness.Witness,
-                    knownUnaryFacts);
-                foreach (var conditions in conditionCombinations)
-                {
-                    matchedPremises.Add(witness.Relations.AddRange(conditions));
-                }
-            }
-
+            var matchedPremises = GetExistentialWitnessCombinations(
+                required,
+                individual,
+                knownUnaryFacts,
+                knownRelationalFacts);
             if (matchedPremises.Count == 0)
             {
                 return [];
@@ -176,6 +87,119 @@ internal static class RulePremiseMatcher
         }
 
         return premiseCombinations;
+    }
+
+    private static List<ImmutableArray<ProofNode>> GetExistentialWitnessCombinations(
+        ExistentialRulePremise required,
+        SemanticTerm subject,
+        IReadOnlyList<ProofNode> knownUnaryFacts,
+        IReadOnlyList<ProofNode> knownRelationalFacts)
+    {
+        var witnessMatches = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
+        foreach (var relation in required.Relations)
+        {
+            if (relation.Arguments.IsDefault ||
+                relation.Arguments.Length != 2 ||
+                relation.Arguments[0] is not VariableTerm ||
+                relation.Arguments[1] is not VariableTerm witnessVariable ||
+                witnessVariable.Identifier != required.Witness.Identifier)
+            {
+                return [];
+            }
+
+            var matches = knownRelationalFacts.Where(proof =>
+                proof.Predicate.Predicate == relation.Predicate &&
+                !proof.Predicate.Arguments.IsDefault &&
+                proof.Predicate.Arguments.Length == 2 &&
+                proof.Predicate.Arguments[0] == subject).ToArray();
+
+            if (matches.Length == 0)
+            {
+                return [];
+            }
+
+            if (witnessMatches.Count == 0)
+            {
+                witnessMatches.AddRange(matches.Select(match =>
+                    (match.Predicate.Arguments[1], ImmutableArray.Create(match))));
+                continue;
+            }
+
+            var joined = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
+            foreach (var existing in witnessMatches)
+            foreach (var match in matches)
+            {
+                if (match.Predicate.Arguments[1] == existing.Witness)
+                {
+                    joined.Add((existing.Witness, existing.Relations.Add(match)));
+                }
+            }
+
+            witnessMatches = joined;
+            if (witnessMatches.Count == 0)
+            {
+                return [];
+            }
+        }
+
+        foreach (var fixedRelation in required.FixedObjectRelations)
+        {
+            if (fixedRelation.Arguments.IsDefault ||
+                fixedRelation.Arguments.Length != 2 ||
+                fixedRelation.Arguments[0] is not VariableTerm witnessVariable ||
+                witnessVariable.Identifier != required.Witness.Identifier ||
+                fixedRelation.Arguments[1] is not IndividualTerm fixedObject)
+            {
+                return [];
+            }
+
+            var expandedWitnesses = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
+            foreach (var witness in witnessMatches)
+            {
+                var matches = knownRelationalFacts.Where(proof =>
+                    proof.Predicate.Predicate == fixedRelation.Predicate &&
+                    !proof.Predicate.Arguments.IsDefault &&
+                    proof.Predicate.Arguments.Length == 2 &&
+                    proof.Predicate.Arguments[0] == witness.Witness &&
+                    proof.Predicate.Arguments[1] == fixedObject).ToArray();
+
+                foreach (var match in matches)
+                {
+                    expandedWitnesses.Add((witness.Witness, witness.Relations.Add(match)));
+                }
+            }
+
+            witnessMatches = expandedWitnesses;
+            if (witnessMatches.Count == 0)
+            {
+                return [];
+            }
+        }
+
+        var matchedPremises = new List<ImmutableArray<ProofNode>>();
+        foreach (var witness in witnessMatches)
+        {
+            var conditionCombinations = GetAdditionalPremiseCombinations(
+                required.Conditions,
+                witness.Witness,
+                knownUnaryFacts);
+            var nestedCombinations = GetExistentialPremiseCombinations(
+                required.NestedPremises,
+                witness.Witness,
+                knownUnaryFacts,
+                knownRelationalFacts);
+
+            foreach (var conditions in conditionCombinations)
+            foreach (var nested in nestedCombinations)
+            {
+                matchedPremises.Add(
+                    witness.Relations
+                        .AddRange(conditions)
+                        .AddRange(nested));
+            }
+        }
+
+        return matchedPremises;
     }
 
     private static List<ImmutableArray<ProofNode>> GetRelationalPremiseCombinations(
