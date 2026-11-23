@@ -25,7 +25,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## Completed maintenance
 
-- [x] Support positive existential relation premises with one shared witness, matching its unary conditions, subject-to-witness relations, and fixed-object relations about that same witness against explicit graph facts.
+- [x] Support multiple positive existential relation premises in one rule, matching each scoped witness's unary conditions, subject-to-witness relations, and fixed-object relations about that same witness against explicit graph facts.
 - [x] Compose individual concept explanations from their most specific graph classifications and typed outgoing relations, preserving each supporting assertion as evidence.
 - [x] Remove the final Python-specific program request parser; derive generation intent and language from semantic facts and validate through the declarative generator.
 - [x] Split Python program parsing into focused expression, collection, function, file, control-flow, class, basic-program, and request-parsing components. Keep `CompositionalTaskParser` as the small dispatch coordinator.
