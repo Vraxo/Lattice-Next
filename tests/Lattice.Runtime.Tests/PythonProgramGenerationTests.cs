@@ -1068,6 +1068,33 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(variantCode, "Ada 40.0\nGrace 40.0");
     }
 
+    [Theory]
+    [InlineData(
+        "Write a Python function named classify that takes score and returns \"High\" when score is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).",
+        "def classify(score):\n    if score > 90:\n        return \"High\"\n    elif score >= 50:\n        return \"Pass\"\n    else:\n        return \"Fail\"\nprint(classify(75))",
+        "Pass")]
+    [InlineData(
+        "Create a Python function named transform that takes value and returns value * 2 when value is greater than 5, returns value + 10 when value is at least 0, and otherwise returns 0, then print transform(3).",
+        "def transform(value):\n    if value > 5:\n        return value * 2\n    elif value >= 0:\n        return value + 10\n    else:\n        return 0\nprint(transform(3))",
+        "13")]
+    public async Task Generates_and_executes_multi_conditional_functions(
+        string prompt,
+        string expectedCode,
+        string expectedOutput)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(prompt);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        var generatedCode = ExtractGeneratedPythonCode(utterance.Message!);
+        Assert.Equal(expectedCode.Replace("\\n", Environment.NewLine, StringComparison.Ordinal), generatedCode);
+        await AssertPythonOutput(generatedCode, expectedOutput);
+    }
+
     private static string ExtractGeneratedPythonCode(string message)
     {
         var fence = new string((char)96, 3);
