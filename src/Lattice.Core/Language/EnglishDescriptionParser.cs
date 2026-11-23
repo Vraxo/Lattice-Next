@@ -25,6 +25,7 @@ internal static class EnglishDescriptionParser
         var relativeModifiers = new List<string>();
         var negativeRelativePredicates = new List<string>();
         var relativeRelations = new List<(string Predicate, SemanticTerm Object, bool IsNegative)>();
+        var existentialRelativeConditions = new List<SemanticFormula>();
         var index = start;
 
         while (index < end && !EnglishGrammarTokens.Is(tokens[index], "that"))
@@ -68,7 +69,13 @@ internal static class EnglishDescriptionParser
             if (!EnglishGrammarTokens.Is(tokens[index + 1], relativeCopula))
             {
                 if (!allowRelationalRelativePredicates ||
-                    !TryParseRelationalRelativePredicate(tokens, ref index, end, expectPluralHead, relativeRelations)) return false;
+                    !TryParseRelationalRelativePredicate(
+                        tokens,
+                        ref index,
+                        end,
+                        expectPluralHead,
+                        relativeRelations,
+                        existentialRelativeConditions)) return false;
                 continue;
             }
             if (!EnglishGrammarTokens.Is(tokens[index], "that")) return false;
@@ -128,7 +135,8 @@ internal static class EnglishDescriptionParser
             modifiers,
             relativeModifiers.ToImmutableArray(),
             negativeRelativePredicates.ToImmutableArray(),
-            relativeRelations.ToImmutableArray());
+            relativeRelations.ToImmutableArray(),
+            existentialRelativeConditions.ToImmutableArray());
         return true;
     }
 
@@ -137,7 +145,8 @@ internal static class EnglishDescriptionParser
         ref int index,
         int end,
         bool pluralSubject,
-        List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations)
+        List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations,
+        List<SemanticFormula> existentialConditions)
     {
         if (index + 1 >= end)
         {
@@ -189,14 +198,44 @@ internal static class EnglishDescriptionParser
             : tokens[verbIndex].ToLowerInvariant();
 
         var objectEnd = FindNextRelationalConjunction(tokens, objectStart, end, pluralSubject);
-        if (!TryCreateObjectTerm(tokens, objectStart, objectEnd, out var relationObject) ||
-            relationObject is not IndividualTerm individual ||
-            string.IsNullOrWhiteSpace(individual.Identifier.Value))
+        if (objectStart < objectEnd && EnglishGrammarTokens.IsArticle(tokens[objectStart]))
         {
-            return false;
+            if (isNegative ||
+                existentialConditions.Count > 0 ||
+                !TryParseDescription(
+                    tokens,
+                    objectStart + 1,
+                    objectEnd,
+                    expectPluralHead: false,
+                    out var objectDescription))
+            {
+                return false;
+            }
+
+            var witness = new VariableTerm(EnglishGrammarTokens.CreateIdentifier("y"));
+            var objectConditions = EnglishSemanticFactory.GetConjuncts(
+                objectDescription!.ToExistentialConditions(witness));
+            var relation = new PredicateApplication(
+                new SemanticIdentifier(predicate),
+                ImmutableArray.Create<SemanticTerm>(
+                    new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x")),
+                    witness));
+            existentialConditions.Add(new ExistentialQuantification(
+                witness,
+                EnglishSemanticFactory.Combine(objectConditions.Add(relation))));
+        }
+        else
+        {
+            if (!TryCreateObjectTerm(tokens, objectStart, objectEnd, out var relationObject) ||
+                relationObject is not IndividualTerm individual ||
+                string.IsNullOrWhiteSpace(individual.Identifier.Value))
+            {
+                return false;
+            }
+
+            relations.Add((predicate, individual, isNegative));
         }
 
-        relations.Add((predicate, individual, isNegative));
         index = objectEnd < end ? objectEnd : end;
         return true;
     }
