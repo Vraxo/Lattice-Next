@@ -5916,10 +5916,7 @@
         "factId": "program.arithmetic-function-call",
         "valueId": "call",
         "prefix": "print("
-      },
-      "satisfiesFacts": [
-        "program.arithmetic-function-call"
-      ]
+      }
     },
     {
       "id": "python-arithmetic-function-close-fence",
@@ -5929,8 +5926,7 @@
       "requiredFacts": [],
       "requiresCompletedFacts": [
         "program.arithmetic-function-signature",
-        "program.arithmetic-function-return",
-        "program.arithmetic-function-call"
+        "program.arithmetic-function-return"
       ],
       "nextToken": ")\n```",
       "satisfiesFacts": [
