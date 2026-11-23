@@ -180,6 +180,40 @@ internal static class RulePremiseMatcher
             }
         }
 
+        foreach (var variableRelation in required.VariableRelations)
+        {
+            if (variableRelation.Arguments.IsDefault ||
+                variableRelation.Arguments.Length != 2 ||
+                variableRelation.Arguments[0] is not VariableTerm witnessVariable ||
+                witnessVariable.Identifier != required.Witness.Identifier ||
+                variableRelation.Arguments[1] is not VariableTerm)
+            {
+                return [];
+            }
+
+            var expandedWitnesses = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
+            foreach (var witness in witnessMatches)
+            {
+                var matches = knownRelationalFacts.Where(proof =>
+                    proof.Predicate.Predicate == variableRelation.Predicate &&
+                    !proof.Predicate.Arguments.IsDefault &&
+                    proof.Predicate.Arguments.Length == 2 &&
+                    proof.Predicate.Arguments[0] == witness.Witness &&
+                    proof.Predicate.Arguments[1] == subject).ToArray();
+
+                foreach (var match in matches)
+                {
+                    expandedWitnesses.Add((witness.Witness, witness.Relations.Add(match)));
+                }
+            }
+
+            witnessMatches = expandedWitnesses;
+            if (witnessMatches.Count == 0)
+            {
+                return [];
+            }
+        }
+
         var matchedPremises = new List<ImmutableArray<ProofNode>>();
         foreach (var witness in witnessMatches)
         {
