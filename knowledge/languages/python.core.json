@@ -906,6 +906,15 @@
           "value": ":"
         }
       ]
+    },
+    {
+      "head": "bound-indented-else",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    else:"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1418,6 +1427,14 @@
       "argumentKind": "loop-header",
       "prerequisites": [],
       "startSymbol": "bound-triple-indented-for"
+    },
+    {
+      "id": "python-bound-indented-else",
+      "symbol": "else",
+      "effect": "emit-indented-else",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-else"
     }
   ],
   "stringLiteralFormat": {
