@@ -70,6 +70,11 @@ public sealed class ExistentialRelationalPremiseTests
 
         Assert.False(result.IsSuccess);
         Assert.Null(result.Utterance);
+
+        var nestedNegation = parser.Parse(
+            "Every dog that chases a cat that does not like milk is friendly.");
+        Assert.False(nestedNegation.IsSuccess);
+        Assert.Null(nestedNegation.Utterance);
     }
 
     [Fact]
