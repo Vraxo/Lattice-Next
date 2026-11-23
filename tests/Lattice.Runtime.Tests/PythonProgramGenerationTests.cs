@@ -1099,6 +1099,31 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
+    [Fact]
+    public async Task Generates_and_executes_ordered_function_composition_declaratively()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "Write a Python program with a function named combine that takes left and right and returns left + right, and a function named adjust that takes amount and factor and returns combine(amount, factor) * 2, then print adjust(3, 4).");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+
+        var generatedCode = ExtractGeneratedPythonCode(utterance.Message!);
+        Assert.Equal(
+            string.Join(Environment.NewLine,
+                "def combine(left, right):",
+                "    return left + right",
+                "def adjust(amount, factor):",
+                "    return combine(amount, factor) * 2",
+                "print(adjust(3, 4))"),
+            generatedCode);
+        await AssertPythonOutput(generatedCode, "14");
+    }
+
     private static string ExtractGeneratedPythonCode(string message)
     {
         var fence = new string((char)96, 3);

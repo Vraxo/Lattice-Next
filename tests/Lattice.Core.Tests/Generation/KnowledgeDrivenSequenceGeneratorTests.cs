@@ -7,6 +7,51 @@ namespace Lattice.Core.Tests.Generation;
 public sealed class KnowledgeDrivenSequenceGeneratorTests
 {
     [Fact]
+    public void Extracts_repeated_captures_as_ordered_semantic_collections()
+    {
+        var knowledge = new SequenceKnowledgeBase(
+            Rules: [],
+            InputRules:
+            [
+                new SequenceInputFactRule(
+                    "capture-definitions",
+                    ["function"],
+                    "definitions")
+                {
+                    RepeatMatches = true,
+                    Captures =
+                    [
+                        new SequenceInputFactCapture(
+                            "definitions",
+                            "names",
+                            ["named"],
+                            ["returns"]),
+                        new SequenceInputFactCapture(
+                            "definitions",
+                            "expressions",
+                            ["returns"],
+                            ["function"])
+                        {
+                            TrimSuffixCharacters = ","
+                        }
+                    ]
+                }
+            ]);
+
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(
+                knowledge,
+                "Define function named first returns value + 1, function named second returns first(2) + 3.",
+                out var facts,
+                out var error),
+            error);
+
+        var definitions = Assert.Single(facts);
+        Assert.Equal(["first", "second"], definitions.Collections["names"]);
+        Assert.Equal(["value + 1", "first(2) + 3"], definitions.Collections["expressions"]);
+    }
+
+    [Fact]
     public void Extracts_conditional_function_branches_as_aligned_semantic_collections()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);

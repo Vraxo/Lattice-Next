@@ -68,6 +68,8 @@ public sealed record SequenceInputFactCapture(
 {
     public string? CollectionDelimiter { get; init; }
 
+    public string? CollectionItemSeparator { get; init; }
+
     public ImmutableArray<string> CollectionDelimiters { get; init; } = ImmutableArray<string>.Empty;
 
     public ImmutableArray<ImmutableArray<string>> StartAfterSequences { get; init; } =
@@ -115,6 +117,8 @@ public sealed record SequenceInputFactRule(
     ImmutableArray<SequenceInputFactCapture> Captures = default)
 {
     public bool SearchAllSentences { get; init; }
+
+    public bool RepeatMatches { get; init; }
 
     public ImmutableArray<ImmutableArray<string>> RequiredAnySequences { get; init; } =
         ImmutableArray<ImmutableArray<string>>.Empty;
