@@ -100,11 +100,11 @@ public sealed class TaskRequestParserTests
 
         Assert.Equal(UtteranceKind.TaskRequest, utterance.Kind);
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("blender-object-replacement", request.Subject);
+        Assert.Equal("replaces-all-of-objects-with-a-specific-name-with-a-point-light", request.Subject);
         Assert.Equal("blender", request.Context);
-        Assert.Equal("python-script", request.OutputFormat);
-        Assert.Equal("object-to-point-light", request.Scope);
-        Assert.Equal(new[] { "python", "blender-api" }, request.Requirements);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Equal("program-generation", request.Scope);
+        Assert.Equal(new[] { "source-code" }, request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
 
@@ -118,7 +118,10 @@ public sealed class TaskRequestParserTests
         Assert.True(result.IsSuccess, result.Error);
         var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("unsupported-blender-script", request.Subject);
+        Assert.Equal("renames-every-object", request.Subject);
+        Assert.Equal("blender", request.Context);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Equal("program-generation", request.Scope);
     }
 
     [Fact]
