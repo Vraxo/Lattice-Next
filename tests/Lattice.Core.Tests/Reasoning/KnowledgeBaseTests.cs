@@ -60,7 +60,7 @@ public sealed class KnowledgeBaseTests
     }
 
     [Fact]
-    public void Rejects_multiple_fixed_object_relational_premises()
+    public void Accepts_multiple_fixed_object_relational_premises()
     {
         var knowledgeBase = new KnowledgeBase();
         var utterance = CreateRule(
@@ -69,9 +69,9 @@ public sealed class KnowledgeBaseTests
 
         var accepted = knowledgeBase.TryAdd(utterance, out _, out var error);
 
-        accepted.Should().BeFalse();
-        error.Should().Contain("supported");
-        knowledgeBase.Rules.Should().BeEmpty();
+        accepted.Should().BeTrue(error);
+        knowledgeBase.Rules.Should().ContainSingle()
+            .Which.RelationalPremises.Should().HaveCount(2);
     }
 
     [Fact]
