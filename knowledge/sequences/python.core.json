@@ -7020,7 +7020,7 @@
     {
       "id": "python-collection-filter-item-binding",
       "contextSuffix": [
-        " for "
+        "* for "
       ],
       "requiredFacts": [
         "program.collection-filter.signature"
@@ -7038,7 +7038,7 @@
     {
       "id": "python-collection-filter-parameter",
       "contextSuffix": [
-        " in "
+        "* in "
       ],
       "requiredFacts": [
         "program.collection-filter.signature"
@@ -7056,7 +7056,7 @@
     {
       "id": "python-collection-filter-condition-item",
       "contextSuffix": [
-        " if "
+        "* if "
       ],
       "requiredFacts": [
         "program.collection-filter.signature"
@@ -7138,7 +7138,7 @@
     {
       "id": "python-collection-filter-call",
       "contextSuffix": [
-        "print("
+        "*print("
       ],
       "requiredFacts": [
         "program.collection-filter.signature",
