@@ -6,6 +6,32 @@ namespace Lattice.Core.Tests.Generation;
 
 public sealed class KnowledgeDrivenSequenceGeneratorTests
 {
+    [Fact]
+    public void Extracts_conditional_function_branches_as_aligned_semantic_collections()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Write a Python function named classify that takes score and returns \"High\" when score is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).";
+
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        Assert.Equal(new[] { "score > 90", "score >= 50" }, branches.Collections["conditions"]);
+        Assert.Equal(new[] { "\"High\"", "\"Pass\"" }, branches.Collections["returns"]);
+    }
+
+    [Fact]
+    public void Rejects_conditional_function_branches_that_reference_unknown_parameters()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Write a Python function named classify that takes score and returns \"High\" when other is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).";
+
+        Assert.False(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out var extractionError));
+        Assert.Contains("rejected", extractionError, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Theory]
     [InlineData(
         "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
