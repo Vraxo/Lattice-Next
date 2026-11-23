@@ -287,15 +287,6 @@ public static class SequenceInputFactExtractor
                 return false;
             }
         }
-        else if (normalization == "stringLiteralIfQuoted" &&
-            SequenceInputFactValidator.IsQuotedStringLiteral(value))
-        {
-            var content = value[1..^1]
-                .Replace("\\", "\\\\", StringComparison.Ordinal)
-                .Replace("\"", "\\\"", StringComparison.Ordinal);
-            normalized = "\"" + content + "\"";
-        }
-
         return true;
     }
 
