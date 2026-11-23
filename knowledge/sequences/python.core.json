@@ -4545,15 +4545,12 @@
           "valueId": "call",
           "startAfterSequences": [
             [
-              "then",
               "print"
             ],
             [
-              "then",
               "display"
             ],
             [
-              "then",
               "output"
             ]
           ]
