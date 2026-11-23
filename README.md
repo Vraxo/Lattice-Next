@@ -26,7 +26,7 @@ The console is the initial user interface. Tools are not the intelligence, knowl
 
 ## Program-generation direction
 
-**The coding track uses one generic, symbolic, knowledge-driven sequence generator.** Python is knowledge consumed by the engine, not a special case implemented by the engine. The 28 tracked legacy Python dispatch branches have been removed; the remaining work is to test generalization and identify hidden target-language assumptions. The architecture and migration checkpoint are documented in [Program generation architecture](docs/program-generation-architecture.md).
+**The coding track is being migrated to one generic, symbolic, knowledge-driven sequence generator.** Python syntax and API facts belong in declarative language/domain knowledge, not in shared runtime logic. The historical 28 tracked C# dispatch branches have been removed, but the migration is not finished: task-specific request facts and complete program outputs remain in sequence knowledge, and Python-specific validation code remains in Core. The immediate priority is to replace those shortcuts with reusable programming semantics and world-model knowledge before expanding coding capabilities. See [Program generation architecture](docs/program-generation-architecture.md) and the [active migration queue](.agents/todo.md).
 
 ## Current language, context, and reasoning slice
 
