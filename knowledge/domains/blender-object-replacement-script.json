@@ -104,482 +104,482 @@
       "kind": "Individual"
     },
     {
-      "id": "code-generation-task",
+      "id": "blender-codegen-code-generation-task",
       "label": "code generation task",
       "kind": "Type"
     },
     {
-      "id": "generation-step",
+      "id": "blender-codegen-generation-step",
       "label": "generation step",
       "kind": "Type"
     },
     {
-      "id": "generation-effect",
+      "id": "blender-codegen-generation-effect",
       "label": "generation effect",
       "kind": "Type"
     },
     {
-      "id": "generation-argument-kind",
+      "id": "blender-codegen-generation-argument-kind",
       "label": "generation argument kind",
       "kind": "Type"
     },
     {
-      "id": "generation-binding",
+      "id": "blender-codegen-generation-binding",
       "label": "generation binding",
       "kind": "Type"
     },
     {
-      "id": "generation-binding-value",
+      "id": "blender-codegen-generation-binding-value",
       "label": "generation binding value",
       "kind": "Type"
     },
     {
-      "id": "software-application",
+      "id": "blender-codegen-software-application",
       "label": "software application",
       "kind": "Type"
     },
     {
-      "id": "blender",
+      "id": "blender-codegen-blender",
       "label": "Blender",
       "kind": "Individual"
     },
     {
-      "id": "emit-import",
+      "id": "blender-codegen-emit-import",
       "label": "emit import",
       "kind": "Individual"
     },
     {
-      "id": "emit-string-assignment",
+      "id": "blender-codegen-emit-string-assignment",
       "label": "emit string assignment",
       "kind": "Individual"
     },
     {
-      "id": "emit-assignment",
+      "id": "blender-codegen-emit-assignment",
       "label": "emit assignment",
       "kind": "Individual"
     },
     {
-      "id": "emit-loop-header",
+      "id": "blender-codegen-emit-loop-header",
       "label": "emit loop header",
       "kind": "Individual"
     },
     {
-      "id": "emit-indented-conditional-header",
+      "id": "blender-codegen-emit-indented-conditional-header",
       "label": "emit indented conditional header",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-continue",
+      "id": "blender-codegen-emit-double-indented-continue",
       "label": "emit double indented continue",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-assignment",
+      "id": "blender-codegen-emit-double-indented-assignment",
       "label": "emit double indented assignment",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-conditional-header",
+      "id": "blender-codegen-emit-double-indented-conditional-header",
       "label": "emit double indented conditional header",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-loop-header",
+      "id": "blender-codegen-emit-double-indented-loop-header",
       "label": "emit double indented loop header",
       "kind": "Individual"
     },
     {
-      "id": "emit-quadruple-indented-call",
+      "id": "blender-codegen-emit-quadruple-indented-call",
       "label": "emit quadruple indented call",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-else",
+      "id": "blender-codegen-emit-double-indented-else",
       "label": "emit double indented else",
       "kind": "Individual"
     },
     {
-      "id": "emit-triple-indented-call",
+      "id": "blender-codegen-emit-triple-indented-call",
       "label": "emit triple indented call",
       "kind": "Individual"
     },
     {
-      "id": "emit-double-indented-call",
+      "id": "blender-codegen-emit-double-indented-call",
       "label": "emit double indented call",
       "kind": "Individual"
     },
     {
-      "id": "module-name",
+      "id": "blender-codegen-module-name",
       "label": "module name",
       "kind": "Individual"
     },
     {
-      "id": "assignment",
+      "id": "blender-codegen-assignment",
       "label": "assignment",
       "kind": "Individual"
     },
     {
-      "id": "loop-header",
+      "id": "blender-codegen-loop-header",
       "label": "loop header",
       "kind": "Individual"
     },
     {
-      "id": "condition",
+      "id": "blender-codegen-condition",
       "label": "condition",
       "kind": "Individual"
     },
     {
-      "id": "none",
+      "id": "blender-codegen-none",
       "label": "none",
       "kind": "Individual"
     },
     {
-      "id": "call",
+      "id": "blender-codegen-call",
       "label": "call",
       "kind": "Individual"
     },
     {
-      "id": "step-import-bpy",
+      "id": "blender-codegen-step-import-bpy",
       "label": "Import the Blender API",
       "kind": "Individual"
     },
     {
-      "id": "step-import-re",
+      "id": "blender-codegen-step-import-re",
       "label": "Import regular expressions",
       "kind": "Individual"
     },
     {
-      "id": "step-set-target-name",
+      "id": "blender-codegen-step-set-target-name",
       "label": "Set the target object name",
       "kind": "Individual"
     },
     {
-      "id": "step-build-name-pattern",
+      "id": "blender-codegen-step-build-name-pattern",
       "label": "Build the object-name pattern",
       "kind": "Individual"
     },
     {
-      "id": "step-continue-nonmatch",
+      "id": "blender-codegen-step-continue-nonmatch",
       "label": "Skip objects that do not match",
       "kind": "Individual"
     },
     {
-      "id": "step-snapshot-collections",
+      "id": "blender-codegen-step-snapshot-collections",
       "label": "Snapshot original collections",
       "kind": "Individual"
     },
     {
-      "id": "step-check-collections",
+      "id": "blender-codegen-step-check-collections",
       "label": "Check whether original collections exist",
       "kind": "Individual"
     },
     {
-      "id": "step-iterate-collections",
+      "id": "blender-codegen-step-iterate-collections",
       "label": "Iterate over original collections",
       "kind": "Individual"
     },
     {
-      "id": "step-else",
+      "id": "blender-codegen-step-else",
       "label": "Use the scene collection when none exist",
       "kind": "Individual"
     },
     {
-      "id": "step-fallback-link",
+      "id": "blender-codegen-step-fallback-link",
       "label": "Link the light into the scene collection",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-import-bpy-module",
+      "id": "blender-codegen-binding-step-import-bpy-module",
       "label": "module",
       "kind": "Individual"
     },
     {
-      "id": "value-step-import-bpy-module",
+      "id": "blender-codegen-value-step-import-bpy-module",
       "label": "bpy",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-import-re-module",
+      "id": "blender-codegen-binding-step-import-re-module",
       "label": "module",
       "kind": "Individual"
     },
     {
-      "id": "value-step-import-re-module",
+      "id": "blender-codegen-value-step-import-re-module",
       "label": "re",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-set-target-name-target",
+      "id": "blender-codegen-binding-step-set-target-name-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-set-target-name-target",
+      "id": "blender-codegen-value-step-set-target-name-target",
       "label": "target_name",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-set-target-name-string-value",
+      "id": "blender-codegen-binding-step-set-target-name-string-value",
       "label": "string-value",
       "kind": "Individual"
     },
     {
-      "id": "value-step-set-target-name-string-value",
+      "id": "blender-codegen-value-step-set-target-name-string-value",
       "label": "YourObjectName",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-build-name-pattern-target",
+      "id": "blender-codegen-binding-step-build-name-pattern-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-build-name-pattern-target",
+      "id": "blender-codegen-value-step-build-name-pattern-target",
       "label": "name_pattern",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-build-name-pattern-expression",
+      "id": "blender-codegen-binding-step-build-name-pattern-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-build-name-pattern-expression",
+      "id": "blender-codegen-value-step-build-name-pattern-expression",
       "label": "re.compile(rf\"{re.escape(target_name)}(?:\\.\\d+)?$\")",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-snapshot-objects-target",
+      "id": "blender-codegen-binding-step-snapshot-objects-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-snapshot-objects-target",
+      "id": "blender-codegen-value-step-snapshot-objects-target",
       "label": "objects",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-snapshot-objects-expression",
+      "id": "blender-codegen-binding-step-snapshot-objects-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-snapshot-objects-expression",
+      "id": "blender-codegen-value-step-snapshot-objects-expression",
       "label": "list(bpy.data.objects)",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-iterate-objects-variable",
+      "id": "blender-codegen-binding-step-iterate-objects-variable",
       "label": "variable",
       "kind": "Individual"
     },
     {
-      "id": "value-step-iterate-objects-variable",
+      "id": "blender-codegen-value-step-iterate-objects-variable",
       "label": "obj",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-iterate-objects-iterable",
+      "id": "blender-codegen-binding-step-iterate-objects-iterable",
       "label": "iterable",
       "kind": "Individual"
     },
     {
-      "id": "value-step-iterate-objects-iterable",
+      "id": "blender-codegen-value-step-iterate-objects-iterable",
       "label": "objects",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-match-name-condition",
+      "id": "blender-codegen-binding-step-match-name-condition",
       "label": "condition",
       "kind": "Individual"
     },
     {
-      "id": "value-step-match-name-condition",
+      "id": "blender-codegen-value-step-match-name-condition",
       "label": "name_pattern.fullmatch(obj.name) is None",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-create-light-data-target",
+      "id": "blender-codegen-binding-step-create-light-data-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-create-light-data-target",
+      "id": "blender-codegen-value-step-create-light-data-target",
       "label": "light_data",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-create-light-data-expression",
+      "id": "blender-codegen-binding-step-create-light-data-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-create-light-data-expression",
+      "id": "blender-codegen-value-step-create-light-data-expression",
       "label": "bpy.data.lights.new(name=f\"{obj.name}_Point\", type=\"POINT\")",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-create-light-object-target",
+      "id": "blender-codegen-binding-step-create-light-object-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-create-light-object-target",
+      "id": "blender-codegen-value-step-create-light-object-target",
       "label": "light_obj",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-create-light-object-expression",
+      "id": "blender-codegen-binding-step-create-light-object-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-create-light-object-expression",
+      "id": "blender-codegen-value-step-create-light-object-expression",
       "label": "bpy.data.objects.new(name=f\"{obj.name}_Point\", object_data=light_data)",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-copy-world-position-target",
+      "id": "blender-codegen-binding-step-copy-world-position-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-copy-world-position-target",
+      "id": "blender-codegen-value-step-copy-world-position-target",
       "label": "light_obj.location",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-copy-world-position-expression",
+      "id": "blender-codegen-binding-step-copy-world-position-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-copy-world-position-expression",
+      "id": "blender-codegen-value-step-copy-world-position-expression",
       "label": "obj.matrix_world.translation.copy()",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-snapshot-collections-target",
+      "id": "blender-codegen-binding-step-snapshot-collections-target",
       "label": "target",
       "kind": "Individual"
     },
     {
-      "id": "value-step-snapshot-collections-target",
+      "id": "blender-codegen-value-step-snapshot-collections-target",
       "label": "collections",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-snapshot-collections-expression",
+      "id": "blender-codegen-binding-step-snapshot-collections-expression",
       "label": "expression",
       "kind": "Individual"
     },
     {
-      "id": "value-step-snapshot-collections-expression",
+      "id": "blender-codegen-value-step-snapshot-collections-expression",
       "label": "list(obj.users_collection)",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-check-collections-condition",
+      "id": "blender-codegen-binding-step-check-collections-condition",
       "label": "condition",
       "kind": "Individual"
     },
     {
-      "id": "value-step-check-collections-condition",
+      "id": "blender-codegen-value-step-check-collections-condition",
       "label": "collections",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-iterate-collections-variable",
+      "id": "blender-codegen-binding-step-iterate-collections-variable",
       "label": "variable",
       "kind": "Individual"
     },
     {
-      "id": "value-step-iterate-collections-variable",
+      "id": "blender-codegen-value-step-iterate-collections-variable",
       "label": "collection",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-iterate-collections-iterable",
+      "id": "blender-codegen-binding-step-iterate-collections-iterable",
       "label": "iterable",
       "kind": "Individual"
     },
     {
-      "id": "value-step-iterate-collections-iterable",
+      "id": "blender-codegen-value-step-iterate-collections-iterable",
       "label": "collections",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-link-collections-function",
+      "id": "blender-codegen-binding-step-link-collections-function",
       "label": "function",
       "kind": "Individual"
     },
     {
-      "id": "value-step-link-collections-function",
+      "id": "blender-codegen-value-step-link-collections-function",
       "label": "collection.objects.link",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-link-collections-arguments",
+      "id": "blender-codegen-binding-step-link-collections-arguments",
       "label": "arguments",
       "kind": "Individual"
     },
     {
-      "id": "value-step-link-collections-arguments",
+      "id": "blender-codegen-value-step-link-collections-arguments",
       "label": "light_obj",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-fallback-link-function",
+      "id": "blender-codegen-binding-step-fallback-link-function",
       "label": "function",
       "kind": "Individual"
     },
     {
-      "id": "value-step-fallback-link-function",
+      "id": "blender-codegen-value-step-fallback-link-function",
       "label": "bpy.context.scene.collection.objects.link",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-fallback-link-arguments",
+      "id": "blender-codegen-binding-step-fallback-link-arguments",
       "label": "arguments",
       "kind": "Individual"
     },
     {
-      "id": "value-step-fallback-link-arguments",
+      "id": "blender-codegen-value-step-fallback-link-arguments",
       "label": "light_obj",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-remove-original-function",
+      "id": "blender-codegen-binding-step-remove-original-function",
       "label": "function",
       "kind": "Individual"
     },
     {
-      "id": "value-step-remove-original-function",
+      "id": "blender-codegen-value-step-remove-original-function",
       "label": "bpy.data.objects.remove",
       "kind": "Individual"
     },
     {
-      "id": "binding-step-remove-original-arguments",
+      "id": "blender-codegen-binding-step-remove-original-arguments",
       "label": "arguments",
       "kind": "Individual"
     },
     {
-      "id": "value-step-remove-original-arguments",
+      "id": "blender-codegen-value-step-remove-original-arguments",
       "label": "obj, do_unlink=True",
       "kind": "Individual"
     },
     {
-      "id": "code-generation-safety-note",
+      "id": "blender-codegen-code-generation-safety-note",
       "label": "code generation safety note",
       "kind": "Type"
     },
     {
-      "id": "safety-save-copy-before-run",
+      "id": "blender-codegen-safety-save-copy-before-run",
       "label": "Save a copy of your Blender file before running; the script removes the original objects.",
       "kind": "Individual"
     },
     {
-      "id": "api-scene-collection-link",
+      "id": "blender-codegen-api-scene-collection-link",
       "label": "bpy.context.scene.collection.objects.link",
       "kind": "Individual"
     }
@@ -598,8 +598,8 @@
   ],
   "relations": [
     {
-      "id": "application-uses-language",
-      "domain": "software-application",
+      "id": "blender-codegen-application-uses-language",
+      "domain": "blender-codegen-software-application",
       "range": "programming-language",
       "verb": "uses programming language",
       "subjectKind": "Individual",
@@ -608,9 +608,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "has-generation-step",
-      "domain": "code-generation-task",
-      "range": "generation-step",
+      "id": "blender-codegen-has-generation-step",
+      "domain": "blender-codegen-code-generation-task",
+      "range": "blender-codegen-generation-step",
       "verb": "has generation step",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -618,9 +618,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "step-has-generation-effect",
-      "domain": "generation-step",
-      "range": "generation-effect",
+      "id": "blender-codegen-step-has-generation-effect",
+      "domain": "blender-codegen-generation-step",
+      "range": "blender-codegen-generation-effect",
       "verb": "has generation effect",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -628,9 +628,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "step-has-argument-kind",
-      "domain": "generation-step",
-      "range": "generation-argument-kind",
+      "id": "blender-codegen-step-has-argument-kind",
+      "domain": "blender-codegen-generation-step",
+      "range": "blender-codegen-generation-argument-kind",
       "verb": "requires argument kind",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -638,9 +638,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "step-has-binding",
-      "domain": "generation-step",
-      "range": "generation-binding",
+      "id": "blender-codegen-step-has-binding",
+      "domain": "blender-codegen-generation-step",
+      "range": "blender-codegen-generation-binding",
       "verb": "has binding",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -648,9 +648,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "binding-has-value",
-      "domain": "generation-binding",
-      "range": "generation-binding-value",
+      "id": "blender-codegen-binding-has-value",
+      "domain": "blender-codegen-generation-binding",
+      "range": "blender-codegen-generation-binding-value",
       "verb": "has value",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -658,9 +658,9 @@
       "comparisonPriority": 0
     },
     {
-      "id": "code-generation-task-has-safety-note",
-      "domain": "code-generation-task",
-      "range": "code-generation-safety-note",
+      "id": "blender-codegen-code-generation-task-has-safety-note",
+      "domain": "blender-codegen-code-generation-task",
+      "range": "blender-codegen-code-generation-safety-note",
       "verb": "has safety note",
       "subjectKind": "Individual",
       "objectKind": "Individual",
@@ -668,8 +668,8 @@
       "comparisonPriority": 0
     },
     {
-      "id": "step-references-api",
-      "domain": "generation-step",
+      "id": "blender-codegen-step-references-api",
+      "domain": "blender-codegen-generation-step",
       "range": "application-programming-interface",
       "verb": "references API",
       "subjectKind": "Individual",
@@ -698,49 +698,49 @@
       "sufficientExpression": null
     },
     {
-      "concept": "code-generation-task",
+      "concept": "blender-codegen-code-generation-task",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "generation-step",
+      "concept": "blender-codegen-generation-step",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "generation-effect",
+      "concept": "blender-codegen-generation-effect",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "generation-argument-kind",
+      "concept": "blender-codegen-generation-argument-kind",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "generation-binding",
+      "concept": "blender-codegen-generation-binding",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "generation-binding-value",
+      "concept": "blender-codegen-generation-binding-value",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "software-application",
+      "concept": "blender-codegen-software-application",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
     },
     {
-      "concept": "code-generation-safety-note",
+      "concept": "blender-codegen-code-generation-safety-note",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -749,1301 +749,1301 @@
   "relationAssertions": [
     {
       "subject": "blender-code-generation-task",
-      "relation": "is-a",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
       "subject": "blender-script-step",
-      "relation": "is-a",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
       "subject": "blender-api",
-      "relation": "is-a",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-code-generation-task"
     },
     {
       "subject": "step-snapshot-objects",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-iterate-objects",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-match-name",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-create-light-data",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-create-light-object",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-link-collections",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "step-remove-original",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "api-object-datablocks",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-object-name",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-light-datablocks",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-object-construction",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-world-matrix",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-object-collections",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-collection-link",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "api-object-removal",
-      "relation": "instance-of",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
-      "subject": "code-generation-task",
-      "relation": "is-a",
+      "subject": "blender-codegen-code-generation-task",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "generation-step",
-      "relation": "is-a",
+      "subject": "blender-codegen-generation-step",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "generation-effect",
-      "relation": "is-a",
+      "subject": "blender-codegen-generation-effect",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "generation-argument-kind",
-      "relation": "is-a",
+      "subject": "blender-codegen-generation-argument-kind",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "generation-binding",
-      "relation": "is-a",
+      "subject": "blender-codegen-generation-binding",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "generation-binding-value",
-      "relation": "is-a",
+      "subject": "blender-codegen-generation-binding-value",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "software-application",
-      "relation": "is-a",
+      "subject": "blender-codegen-software-application",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
       "subject": "blender-code-generation-task",
-      "relation": "is-a",
-      "object": "code-generation-task"
+      "relation": "blender-codegen-is-a",
+      "object": "blender-codegen-code-generation-task"
     },
     {
       "subject": "blender-script-step",
-      "relation": "is-a",
-      "object": "generation-step"
+      "relation": "blender-codegen-is-a",
+      "object": "blender-codegen-generation-step"
     },
     {
-      "subject": "blender",
-      "relation": "instance-of",
-      "object": "software-application"
+      "subject": "blender-codegen-blender",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-software-application"
     },
     {
-      "subject": "emit-import",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-import",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-string-assignment",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-string-assignment",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-assignment",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-assignment",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-loop-header",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-loop-header",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-indented-conditional-header",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-indented-conditional-header",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-continue",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-continue",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-assignment",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-assignment",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-conditional-header",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-conditional-header",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-loop-header",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-loop-header",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-quadruple-indented-call",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-quadruple-indented-call",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-else",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-else",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-triple-indented-call",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-triple-indented-call",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "emit-double-indented-call",
-      "relation": "instance-of",
-      "object": "generation-effect"
+      "subject": "blender-codegen-emit-double-indented-call",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-effect"
     },
     {
-      "subject": "module-name",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-module-name",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "assignment",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-assignment",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "loop-header",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-loop-header",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "condition",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-condition",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "none",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-none",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "call",
-      "relation": "instance-of",
-      "object": "generation-argument-kind"
+      "subject": "blender-codegen-call",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-argument-kind"
     },
     {
-      "subject": "step-import-bpy",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-import-bpy",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-import-re",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-import-re",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-set-target-name",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-set-target-name",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-build-name-pattern",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-build-name-pattern",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-continue-nonmatch",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-continue-nonmatch",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-snapshot-collections",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-check-collections",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-check-collections",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-iterate-collections",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-else",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-else",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
-      "subject": "step-fallback-link",
-      "relation": "instance-of",
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-script-step"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-import-bpy"
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-import-bpy"
     },
     {
-      "subject": "step-import-bpy",
-      "relation": "step-has-generation-effect",
-      "object": "emit-import"
+      "subject": "blender-codegen-step-import-bpy",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-import"
     },
     {
-      "subject": "step-import-bpy",
-      "relation": "step-has-argument-kind",
-      "object": "module-name"
+      "subject": "blender-codegen-step-import-bpy",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-module-name"
     },
     {
-      "subject": "binding-step-import-bpy-module",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-import-bpy-module",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-import-bpy-module",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-import-bpy-module",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-import-bpy",
-      "relation": "step-has-binding",
-      "object": "binding-step-import-bpy-module"
+      "subject": "blender-codegen-step-import-bpy",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-import-bpy-module"
     },
     {
-      "subject": "binding-step-import-bpy-module",
-      "relation": "binding-has-value",
-      "object": "value-step-import-bpy-module"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-import-re"
-    },
-    {
-      "subject": "step-import-re",
-      "relation": "step-has-generation-effect",
-      "object": "emit-import"
-    },
-    {
-      "subject": "step-import-re",
-      "relation": "step-has-argument-kind",
-      "object": "module-name"
-    },
-    {
-      "subject": "binding-step-import-re-module",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-import-re-module",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-import-re",
-      "relation": "step-has-binding",
-      "object": "binding-step-import-re-module"
-    },
-    {
-      "subject": "binding-step-import-re-module",
-      "relation": "binding-has-value",
-      "object": "value-step-import-re-module"
+      "subject": "blender-codegen-binding-step-import-bpy-module",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-import-bpy-module"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-set-target-name"
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-import-re"
     },
     {
-      "subject": "step-set-target-name",
-      "relation": "step-has-generation-effect",
-      "object": "emit-string-assignment"
+      "subject": "blender-codegen-step-import-re",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-import"
     },
     {
-      "subject": "step-set-target-name",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "subject": "blender-codegen-step-import-re",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-module-name"
     },
     {
-      "subject": "binding-step-set-target-name-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-import-re-module",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-set-target-name-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-import-re-module",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-set-target-name",
-      "relation": "step-has-binding",
-      "object": "binding-step-set-target-name-target"
+      "subject": "blender-codegen-step-import-re",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-import-re-module"
     },
     {
-      "subject": "binding-step-set-target-name-target",
-      "relation": "binding-has-value",
-      "object": "value-step-set-target-name-target"
-    },
-    {
-      "subject": "binding-step-set-target-name-string-value",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-set-target-name-string-value",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-set-target-name",
-      "relation": "step-has-binding",
-      "object": "binding-step-set-target-name-string-value"
-    },
-    {
-      "subject": "binding-step-set-target-name-string-value",
-      "relation": "binding-has-value",
-      "object": "value-step-set-target-name-string-value"
+      "subject": "blender-codegen-binding-step-import-re-module",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-import-re-module"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-build-name-pattern"
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-set-target-name"
     },
     {
-      "subject": "step-build-name-pattern",
-      "relation": "step-has-generation-effect",
-      "object": "emit-assignment"
+      "subject": "blender-codegen-step-set-target-name",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-string-assignment"
     },
     {
-      "subject": "step-build-name-pattern",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "subject": "blender-codegen-step-set-target-name",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-build-name-pattern-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-set-target-name-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-build-name-pattern-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-set-target-name-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-build-name-pattern",
-      "relation": "step-has-binding",
-      "object": "binding-step-build-name-pattern-target"
+      "subject": "blender-codegen-step-set-target-name",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-set-target-name-target"
     },
     {
-      "subject": "binding-step-build-name-pattern-target",
-      "relation": "binding-has-value",
-      "object": "value-step-build-name-pattern-target"
+      "subject": "blender-codegen-binding-step-set-target-name-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-set-target-name-target"
     },
     {
-      "subject": "binding-step-build-name-pattern-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-set-target-name-string-value",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-build-name-pattern-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-set-target-name-string-value",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-build-name-pattern",
-      "relation": "step-has-binding",
-      "object": "binding-step-build-name-pattern-expression"
+      "subject": "blender-codegen-step-set-target-name",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-set-target-name-string-value"
     },
     {
-      "subject": "binding-step-build-name-pattern-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-build-name-pattern-expression"
+      "subject": "blender-codegen-binding-step-set-target-name-string-value",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-set-target-name-string-value"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-build-name-pattern"
+    },
+    {
+      "subject": "blender-codegen-step-build-name-pattern",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-assignment"
+    },
+    {
+      "subject": "blender-codegen-step-build-name-pattern",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
+    },
+    {
+      "subject": "blender-codegen-binding-step-build-name-pattern-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-build-name-pattern-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-build-name-pattern",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-build-name-pattern-target"
+    },
+    {
+      "subject": "blender-codegen-binding-step-build-name-pattern-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-build-name-pattern-target"
+    },
+    {
+      "subject": "blender-codegen-binding-step-build-name-pattern-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-build-name-pattern-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-build-name-pattern",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-build-name-pattern-expression"
+    },
+    {
+      "subject": "blender-codegen-binding-step-build-name-pattern-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-build-name-pattern-expression"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-snapshot-objects"
     },
     {
       "subject": "step-snapshot-objects",
-      "relation": "step-has-generation-effect",
-      "object": "emit-assignment"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-assignment"
     },
     {
       "subject": "step-snapshot-objects",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-snapshot-objects-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-snapshot-objects-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-snapshot-objects-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-snapshot-objects",
-      "relation": "step-has-binding",
-      "object": "binding-step-snapshot-objects-target"
-    },
-    {
-      "subject": "binding-step-snapshot-objects-target",
-      "relation": "binding-has-value",
-      "object": "value-step-snapshot-objects-target"
-    },
-    {
-      "subject": "binding-step-snapshot-objects-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-snapshot-objects-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-snapshot-objects-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-snapshot-objects",
-      "relation": "step-has-binding",
-      "object": "binding-step-snapshot-objects-expression"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-snapshot-objects-target"
     },
     {
-      "subject": "binding-step-snapshot-objects-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-snapshot-objects-expression"
+      "subject": "blender-codegen-binding-step-snapshot-objects-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-snapshot-objects-target"
+    },
+    {
+      "subject": "blender-codegen-binding-step-snapshot-objects-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-snapshot-objects-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "step-snapshot-objects",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-snapshot-objects-expression"
+    },
+    {
+      "subject": "blender-codegen-binding-step-snapshot-objects-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-snapshot-objects-expression"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-iterate-objects"
     },
     {
       "subject": "step-iterate-objects",
-      "relation": "step-has-generation-effect",
-      "object": "emit-loop-header"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-loop-header"
     },
     {
       "subject": "step-iterate-objects",
-      "relation": "step-has-argument-kind",
-      "object": "loop-header"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-loop-header"
     },
     {
-      "subject": "binding-step-iterate-objects-variable",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-iterate-objects-variable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-iterate-objects-variable",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-iterate-objects",
-      "relation": "step-has-binding",
-      "object": "binding-step-iterate-objects-variable"
-    },
-    {
-      "subject": "binding-step-iterate-objects-variable",
-      "relation": "binding-has-value",
-      "object": "value-step-iterate-objects-variable"
-    },
-    {
-      "subject": "binding-step-iterate-objects-iterable",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-iterate-objects-iterable",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-iterate-objects-variable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-iterate-objects",
-      "relation": "step-has-binding",
-      "object": "binding-step-iterate-objects-iterable"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-iterate-objects-variable"
     },
     {
-      "subject": "binding-step-iterate-objects-iterable",
-      "relation": "binding-has-value",
-      "object": "value-step-iterate-objects-iterable"
+      "subject": "blender-codegen-binding-step-iterate-objects-variable",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-iterate-objects-variable"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-objects-iterable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-iterate-objects-iterable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "step-iterate-objects",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-iterate-objects-iterable"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-objects-iterable",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-iterate-objects-iterable"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-match-name"
     },
     {
       "subject": "step-match-name",
-      "relation": "step-has-generation-effect",
-      "object": "emit-indented-conditional-header"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-indented-conditional-header"
     },
     {
       "subject": "step-match-name",
-      "relation": "step-has-argument-kind",
-      "object": "condition"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-condition"
     },
     {
-      "subject": "binding-step-match-name-condition",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-match-name-condition",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-match-name-condition",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-match-name-condition",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-match-name",
-      "relation": "step-has-binding",
-      "object": "binding-step-match-name-condition"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-match-name-condition"
     },
     {
-      "subject": "binding-step-match-name-condition",
-      "relation": "binding-has-value",
-      "object": "value-step-match-name-condition"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-continue-nonmatch"
-    },
-    {
-      "subject": "step-continue-nonmatch",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-continue"
-    },
-    {
-      "subject": "step-continue-nonmatch",
-      "relation": "step-has-argument-kind",
-      "object": "none"
+      "subject": "blender-codegen-binding-step-match-name-condition",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-match-name-condition"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-continue-nonmatch"
+    },
+    {
+      "subject": "blender-codegen-step-continue-nonmatch",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-continue"
+    },
+    {
+      "subject": "blender-codegen-step-continue-nonmatch",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-none"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-create-light-data"
     },
     {
       "subject": "step-create-light-data",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-assignment"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
       "subject": "step-create-light-data",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-create-light-data-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-create-light-data-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-create-light-data-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-create-light-data",
-      "relation": "step-has-binding",
-      "object": "binding-step-create-light-data-target"
-    },
-    {
-      "subject": "binding-step-create-light-data-target",
-      "relation": "binding-has-value",
-      "object": "value-step-create-light-data-target"
-    },
-    {
-      "subject": "binding-step-create-light-data-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-create-light-data-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-create-light-data-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-create-light-data",
-      "relation": "step-has-binding",
-      "object": "binding-step-create-light-data-expression"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-create-light-data-target"
     },
     {
-      "subject": "binding-step-create-light-data-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-create-light-data-expression"
+      "subject": "blender-codegen-binding-step-create-light-data-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-create-light-data-target"
+    },
+    {
+      "subject": "blender-codegen-binding-step-create-light-data-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-create-light-data-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-data",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-create-light-data-expression"
+    },
+    {
+      "subject": "blender-codegen-binding-step-create-light-data-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-create-light-data-expression"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-create-light-object"
     },
     {
       "subject": "step-create-light-object",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-assignment"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
       "subject": "step-create-light-object",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-create-light-object-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-create-light-object-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-create-light-object-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-create-light-object",
-      "relation": "step-has-binding",
-      "object": "binding-step-create-light-object-target"
-    },
-    {
-      "subject": "binding-step-create-light-object-target",
-      "relation": "binding-has-value",
-      "object": "value-step-create-light-object-target"
-    },
-    {
-      "subject": "binding-step-create-light-object-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-create-light-object-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-create-light-object-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-create-light-object",
-      "relation": "step-has-binding",
-      "object": "binding-step-create-light-object-expression"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-create-light-object-target"
     },
     {
-      "subject": "binding-step-create-light-object-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-create-light-object-expression"
+      "subject": "blender-codegen-binding-step-create-light-object-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-create-light-object-target"
+    },
+    {
+      "subject": "blender-codegen-binding-step-create-light-object-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-create-light-object-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "step-create-light-object",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-create-light-object-expression"
+    },
+    {
+      "subject": "blender-codegen-binding-step-create-light-object-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-create-light-object-expression"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-copy-world-position"
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-assignment"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-copy-world-position-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-copy-world-position-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-copy-world-position-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-copy-world-position",
-      "relation": "step-has-binding",
-      "object": "binding-step-copy-world-position-target"
-    },
-    {
-      "subject": "binding-step-copy-world-position-target",
-      "relation": "binding-has-value",
-      "object": "value-step-copy-world-position-target"
-    },
-    {
-      "subject": "binding-step-copy-world-position-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-copy-world-position-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-copy-world-position-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "step-has-binding",
-      "object": "binding-step-copy-world-position-expression"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-copy-world-position-target"
     },
     {
-      "subject": "binding-step-copy-world-position-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-copy-world-position-expression"
+      "subject": "blender-codegen-binding-step-copy-world-position-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-copy-world-position-target"
     },
     {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-snapshot-collections"
+      "subject": "blender-codegen-binding-step-copy-world-position-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "step-snapshot-collections",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-assignment"
+      "subject": "blender-codegen-value-step-copy-world-position-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-snapshot-collections",
-      "relation": "step-has-argument-kind",
-      "object": "assignment"
+      "subject": "step-copy-world-position",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-copy-world-position-expression"
     },
     {
-      "subject": "binding-step-snapshot-collections-target",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-snapshot-collections-target",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-snapshot-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-snapshot-collections-target"
-    },
-    {
-      "subject": "binding-step-snapshot-collections-target",
-      "relation": "binding-has-value",
-      "object": "value-step-snapshot-collections-target"
-    },
-    {
-      "subject": "binding-step-snapshot-collections-expression",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-snapshot-collections-expression",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-snapshot-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-snapshot-collections-expression"
-    },
-    {
-      "subject": "binding-step-snapshot-collections-expression",
-      "relation": "binding-has-value",
-      "object": "value-step-snapshot-collections-expression"
+      "subject": "blender-codegen-binding-step-copy-world-position-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-copy-world-position-expression"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-check-collections"
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-snapshot-collections"
     },
     {
-      "subject": "step-check-collections",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-conditional-header"
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-assignment"
     },
     {
-      "subject": "step-check-collections",
-      "relation": "step-has-argument-kind",
-      "object": "condition"
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-assignment"
     },
     {
-      "subject": "binding-step-check-collections-condition",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-snapshot-collections-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-check-collections-condition",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-snapshot-collections-target",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-check-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-check-collections-condition"
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-snapshot-collections-target"
     },
     {
-      "subject": "binding-step-check-collections-condition",
-      "relation": "binding-has-value",
-      "object": "value-step-check-collections-condition"
+      "subject": "blender-codegen-binding-step-snapshot-collections-target",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-snapshot-collections-target"
     },
     {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-iterate-collections"
+      "subject": "blender-codegen-binding-step-snapshot-collections-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "step-iterate-collections",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-loop-header"
+      "subject": "blender-codegen-value-step-snapshot-collections-expression",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-iterate-collections",
-      "relation": "step-has-argument-kind",
-      "object": "loop-header"
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-snapshot-collections-expression"
     },
     {
-      "subject": "binding-step-iterate-collections-variable",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-iterate-collections-variable",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-iterate-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-iterate-collections-variable"
-    },
-    {
-      "subject": "binding-step-iterate-collections-variable",
-      "relation": "binding-has-value",
-      "object": "value-step-iterate-collections-variable"
-    },
-    {
-      "subject": "binding-step-iterate-collections-iterable",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-iterate-collections-iterable",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-iterate-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-iterate-collections-iterable"
-    },
-    {
-      "subject": "binding-step-iterate-collections-iterable",
-      "relation": "binding-has-value",
-      "object": "value-step-iterate-collections-iterable"
+      "subject": "blender-codegen-binding-step-snapshot-collections-expression",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-snapshot-collections-expression"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-check-collections"
+    },
+    {
+      "subject": "blender-codegen-step-check-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-conditional-header"
+    },
+    {
+      "subject": "blender-codegen-step-check-collections",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-condition"
+    },
+    {
+      "subject": "blender-codegen-binding-step-check-collections-condition",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-check-collections-condition",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-check-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-check-collections-condition"
+    },
+    {
+      "subject": "blender-codegen-binding-step-check-collections-condition",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-check-collections-condition"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-iterate-collections"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-loop-header"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-loop-header"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-collections-variable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-iterate-collections-variable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-iterate-collections-variable"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-collections-variable",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-iterate-collections-variable"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-collections-iterable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-iterate-collections-iterable",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-iterate-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-iterate-collections-iterable"
+    },
+    {
+      "subject": "blender-codegen-binding-step-iterate-collections-iterable",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-iterate-collections-iterable"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-link-collections"
     },
     {
       "subject": "step-link-collections",
-      "relation": "step-has-generation-effect",
-      "object": "emit-quadruple-indented-call"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-quadruple-indented-call"
     },
     {
       "subject": "step-link-collections",
-      "relation": "step-has-argument-kind",
-      "object": "call"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-call"
     },
     {
-      "subject": "binding-step-link-collections-function",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-link-collections-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-link-collections-function",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-link-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-link-collections-function"
-    },
-    {
-      "subject": "binding-step-link-collections-function",
-      "relation": "binding-has-value",
-      "object": "value-step-link-collections-function"
-    },
-    {
-      "subject": "binding-step-link-collections-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-link-collections-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-link-collections-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-link-collections",
-      "relation": "step-has-binding",
-      "object": "binding-step-link-collections-arguments"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-link-collections-function"
     },
     {
-      "subject": "binding-step-link-collections-arguments",
-      "relation": "binding-has-value",
-      "object": "value-step-link-collections-arguments"
+      "subject": "blender-codegen-binding-step-link-collections-function",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-link-collections-function"
     },
     {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-else"
+      "subject": "blender-codegen-binding-step-link-collections-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "step-else",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-else"
+      "subject": "blender-codegen-value-step-link-collections-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
-      "subject": "step-else",
-      "relation": "step-has-argument-kind",
-      "object": "none"
+      "subject": "step-link-collections",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-link-collections-arguments"
     },
     {
-      "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
-      "object": "step-fallback-link"
-    },
-    {
-      "subject": "step-fallback-link",
-      "relation": "step-has-generation-effect",
-      "object": "emit-triple-indented-call"
-    },
-    {
-      "subject": "step-fallback-link",
-      "relation": "step-has-argument-kind",
-      "object": "call"
-    },
-    {
-      "subject": "binding-step-fallback-link-function",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-fallback-link-function",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-fallback-link",
-      "relation": "step-has-binding",
-      "object": "binding-step-fallback-link-function"
-    },
-    {
-      "subject": "binding-step-fallback-link-function",
-      "relation": "binding-has-value",
-      "object": "value-step-fallback-link-function"
-    },
-    {
-      "subject": "binding-step-fallback-link-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-fallback-link-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-fallback-link",
-      "relation": "step-has-binding",
-      "object": "binding-step-fallback-link-arguments"
-    },
-    {
-      "subject": "binding-step-fallback-link-arguments",
-      "relation": "binding-has-value",
-      "object": "value-step-fallback-link-arguments"
+      "subject": "blender-codegen-binding-step-link-collections-arguments",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-link-collections-arguments"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "has-generation-step",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-else"
+    },
+    {
+      "subject": "blender-codegen-step-else",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-else"
+    },
+    {
+      "subject": "blender-codegen-step-else",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-none"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
+      "object": "blender-codegen-step-fallback-link"
+    },
+    {
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-triple-indented-call"
+    },
+    {
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-call"
+    },
+    {
+      "subject": "blender-codegen-binding-step-fallback-link-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-fallback-link-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-fallback-link-function"
+    },
+    {
+      "subject": "blender-codegen-binding-step-fallback-link-function",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-fallback-link-function"
+    },
+    {
+      "subject": "blender-codegen-binding-step-fallback-link-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-fallback-link-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-fallback-link-arguments"
+    },
+    {
+      "subject": "blender-codegen-binding-step-fallback-link-arguments",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-fallback-link-arguments"
+    },
+    {
+      "subject": "blender-object-replacement",
+      "relation": "blender-codegen-has-generation-step",
       "object": "step-remove-original"
     },
     {
       "subject": "step-remove-original",
-      "relation": "step-has-generation-effect",
-      "object": "emit-double-indented-call"
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-double-indented-call"
     },
     {
       "subject": "step-remove-original",
-      "relation": "step-has-argument-kind",
-      "object": "call"
+      "relation": "blender-codegen-step-has-argument-kind",
+      "object": "blender-codegen-call"
     },
     {
-      "subject": "binding-step-remove-original-function",
-      "relation": "instance-of",
-      "object": "generation-binding"
+      "subject": "blender-codegen-binding-step-remove-original-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
     },
     {
-      "subject": "value-step-remove-original-function",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
-    },
-    {
-      "subject": "step-remove-original",
-      "relation": "step-has-binding",
-      "object": "binding-step-remove-original-function"
-    },
-    {
-      "subject": "binding-step-remove-original-function",
-      "relation": "binding-has-value",
-      "object": "value-step-remove-original-function"
-    },
-    {
-      "subject": "binding-step-remove-original-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding"
-    },
-    {
-      "subject": "value-step-remove-original-arguments",
-      "relation": "instance-of",
-      "object": "generation-binding-value"
+      "subject": "blender-codegen-value-step-remove-original-function",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
     },
     {
       "subject": "step-remove-original",
-      "relation": "step-has-binding",
-      "object": "binding-step-remove-original-arguments"
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-remove-original-function"
     },
     {
-      "subject": "binding-step-remove-original-arguments",
-      "relation": "binding-has-value",
-      "object": "value-step-remove-original-arguments"
+      "subject": "blender-codegen-binding-step-remove-original-function",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-remove-original-function"
     },
     {
-      "subject": "code-generation-safety-note",
-      "relation": "is-a",
+      "subject": "blender-codegen-binding-step-remove-original-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding"
+    },
+    {
+      "subject": "blender-codegen-value-step-remove-original-arguments",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-generation-binding-value"
+    },
+    {
+      "subject": "step-remove-original",
+      "relation": "blender-codegen-step-has-binding",
+      "object": "blender-codegen-binding-step-remove-original-arguments"
+    },
+    {
+      "subject": "blender-codegen-binding-step-remove-original-arguments",
+      "relation": "blender-codegen-binding-has-value",
+      "object": "blender-codegen-value-step-remove-original-arguments"
+    },
+    {
+      "subject": "blender-codegen-code-generation-safety-note",
+      "relation": "blender-codegen-is-a",
       "object": "entity"
     },
     {
-      "subject": "safety-save-copy-before-run",
-      "relation": "instance-of",
-      "object": "code-generation-safety-note"
+      "subject": "blender-codegen-safety-save-copy-before-run",
+      "relation": "blender-codegen-instance-of",
+      "object": "blender-codegen-code-generation-safety-note"
     },
     {
       "subject": "blender-object-replacement",
-      "relation": "code-generation-task-has-safety-note",
-      "object": "safety-save-copy-before-run"
+      "relation": "blender-codegen-code-generation-task-has-safety-note",
+      "object": "blender-codegen-safety-save-copy-before-run"
     },
     {
       "subject": "blender-api",
-      "relation": "is-a",
+      "relation": "blender-codegen-is-a",
       "object": "application-programming-interface"
     },
     {
-      "subject": "api-scene-collection-link",
-      "relation": "instance-of",
+      "subject": "blender-codegen-api-scene-collection-link",
+      "relation": "blender-codegen-instance-of",
       "object": "blender-api"
     },
     {
       "subject": "step-snapshot-objects",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-datablocks"
     },
     {
       "subject": "step-iterate-objects",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-datablocks"
     },
     {
       "subject": "step-match-name",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-name"
     },
     {
       "subject": "step-create-light-data",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-light-datablocks"
     },
     {
       "subject": "step-create-light-object",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-construction"
     },
     {
       "subject": "step-copy-world-position",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-world-matrix"
     },
     {
-      "subject": "step-snapshot-collections",
-      "relation": "step-references-api",
+      "subject": "blender-codegen-step-snapshot-collections",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-collections"
     },
     {
       "subject": "step-link-collections",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-collection-link"
     },
     {
-      "subject": "step-fallback-link",
-      "relation": "step-references-api",
-      "object": "api-scene-collection-link"
+      "subject": "blender-codegen-step-fallback-link",
+      "relation": "blender-codegen-step-references-api",
+      "object": "blender-codegen-api-scene-collection-link"
     },
     {
       "subject": "step-remove-original",
-      "relation": "step-references-api",
+      "relation": "blender-codegen-step-references-api",
       "object": "api-object-removal"
     }
   ],
   "dataProperties": [
     {
-      "id": "generation-step-order",
-      "domainType": "generation-step",
+      "id": "blender-codegen-generation-step-order",
+      "domainType": "blender-codegen-generation-step",
       "valueType": "number"
     }
   ],
   "dataAssertions": [
     {
-      "subject": "step-import-bpy",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-import-bpy",
+      "property": "blender-codegen-generation-step-order",
       "value": "1"
     },
     {
-      "subject": "step-import-re",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-import-re",
+      "property": "blender-codegen-generation-step-order",
       "value": "2"
     },
     {
-      "subject": "step-set-target-name",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-set-target-name",
+      "property": "blender-codegen-generation-step-order",
       "value": "3"
     },
     {
-      "subject": "step-build-name-pattern",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-build-name-pattern",
+      "property": "blender-codegen-generation-step-order",
       "value": "4"
     },
     {
       "subject": "step-snapshot-objects",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "5"
     },
     {
       "subject": "step-iterate-objects",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "6"
     },
     {
       "subject": "step-match-name",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "7"
     },
     {
-      "subject": "step-continue-nonmatch",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-continue-nonmatch",
+      "property": "blender-codegen-generation-step-order",
       "value": "8"
     },
     {
       "subject": "step-create-light-data",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "9"
     },
     {
       "subject": "step-create-light-object",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "10"
     },
     {
       "subject": "step-copy-world-position",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "11"
     },
     {
-      "subject": "step-snapshot-collections",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-snapshot-collections",
+      "property": "blender-codegen-generation-step-order",
       "value": "12"
     },
     {
-      "subject": "step-check-collections",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-check-collections",
+      "property": "blender-codegen-generation-step-order",
       "value": "13"
     },
     {
-      "subject": "step-iterate-collections",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-iterate-collections",
+      "property": "blender-codegen-generation-step-order",
       "value": "14"
     },
     {
       "subject": "step-link-collections",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "15"
     },
     {
-      "subject": "step-else",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-else",
+      "property": "blender-codegen-generation-step-order",
       "value": "16"
     },
     {
-      "subject": "step-fallback-link",
-      "property": "generation-step-order",
+      "subject": "blender-codegen-step-fallback-link",
+      "property": "blender-codegen-generation-step-order",
       "value": "17"
     },
     {
       "subject": "step-remove-original",
-      "property": "generation-step-order",
+      "property": "blender-codegen-generation-step-order",
       "value": "18"
     }
   ]
