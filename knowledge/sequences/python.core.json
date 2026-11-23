@@ -7209,7 +7209,7 @@
       "tokenBinding": {
         "factId": "program.conditional-function.false-return",
         "valueId": "expression",
-        "prefix": "    else:\n        return ",
+        "prefix": "    return ",
         "suffix": "\n"
       },
       "satisfiesFacts": [
