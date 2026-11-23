@@ -4,16 +4,6 @@
   "name": "Blender object replacement with point lights",
   "concepts": [
     {
-      "id": "blender-code-generation-task",
-      "label": "Blender code-generation task",
-      "kind": "Type"
-    },
-    {
-      "id": "blender-script-step",
-      "label": "Blender script step",
-      "kind": "Type"
-    },
-    {
       "id": "blender-api",
       "label": "Blender Python API element",
       "kind": "Type"
@@ -700,18 +690,6 @@
   ],
   "definitions": [
     {
-      "concept": "blender-code-generation-task",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
-      "concept": "blender-script-step",
-      "definitionKind": "primitive",
-      "necessaryConditions": [],
-      "sufficientExpression": null
-    },
-    {
       "concept": "blender-api",
       "definitionKind": "primitive",
       "necessaryConditions": [],
@@ -768,16 +746,6 @@
   ],
   "relationAssertions": [
     {
-      "subject": "blender-code-generation-task",
-      "relation": "is-a",
-      "object": "entity"
-    },
-    {
-      "subject": "blender-script-step",
-      "relation": "is-a",
-      "object": "entity"
-    },
-    {
       "subject": "blender-api",
       "relation": "is-a",
       "object": "entity"
@@ -785,47 +753,47 @@
     {
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "relation": "instance-of",
-      "object": "blender-code-generation-task"
+      "object": "blender-codegen-code-generation-task"
     },
     {
       "subject": "step-snapshot-objects",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-iterate-objects",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-match-name",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-create-light-data",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-create-light-object",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-copy-world-position",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-link-collections",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "step-remove-original",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "api-object-datablocks",
@@ -901,16 +869,6 @@
       "subject": "blender-codegen-software-application",
       "relation": "is-a",
       "object": "entity"
-    },
-    {
-      "subject": "blender-code-generation-task",
-      "relation": "is-a",
-      "object": "blender-codegen-code-generation-task"
-    },
-    {
-      "subject": "blender-script-step",
-      "relation": "is-a",
-      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender",
@@ -1015,52 +973,52 @@
     {
       "subject": "blender-codegen-step-import-bpy",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-import-re",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-set-target-name",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-build-name-pattern",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-continue-nonmatch",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-snapshot-collections",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-check-collections",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-iterate-collections",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-else",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "blender-codegen-step-fallback-link",
       "relation": "instance-of",
-      "object": "blender-script-step"
+      "object": "blender-codegen-generation-step"
     },
     {
       "subject": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
