@@ -28,10 +28,11 @@ internal static class UniversalRuleFactory
             if (!TryGetBoundRulePremises(
                     implication.Premise,
                     variable,
-                    out var existentialPremises,
+                    out var existentialPositivePremises,
                     out var existentialNegativePremises,
                     out var existentialRelationalPremises,
-                    out var existentialNegativeRelationalPremises) ||
+                    out var existentialNegativeRelationalPremises,
+                    out var existentialRelationPremises) ||
                 !TryCreateExistentialConclusion(
                     existentialConclusion,
                     variable,
@@ -41,7 +42,7 @@ internal static class UniversalRuleFactory
             }
 
             rule = new UniversalRule(
-                existentialPremises,
+                existentialPositivePremises,
                 existentialRuleConclusion!.Relation,
                 sourceText,
                 sourceKind,
@@ -51,6 +52,7 @@ internal static class UniversalRuleFactory
                 NegativePremises = existentialNegativePremises,
                 RelationalPremises = existentialRelationalPremises,
                 NegativeRelationalPremises = existentialNegativeRelationalPremises,
+                ExistentialPremises = existentialRelationPremises,
                 ExistentialConclusion = existentialRuleConclusion
             };
 
@@ -74,7 +76,8 @@ internal static class UniversalRuleFactory
                 out var premises,
                 out var negativePremises,
                 out var relationalPremises,
-                out var negativeRelationalPremises) ||
+                out var negativeRelationalPremises,
+                out var existentialPremises) ||
             !TryNormalizeUniversalConclusion(
                 ruleConclusion,
                 variable,
@@ -94,7 +97,8 @@ internal static class UniversalRuleFactory
             ConclusionPolarity = rulePolarity,
             NegativePremises = negativePremises,
             RelationalPremises = relationalPremises,
-            NegativeRelationalPremises = negativeRelationalPremises
+            NegativeRelationalPremises = negativeRelationalPremises,
+            ExistentialPremises = existentialPremises
         };
 
         descriptionFacts = conclusionDescriptionFacts
@@ -187,16 +191,19 @@ internal static class UniversalRuleFactory
         out ImmutableArray<PredicateApplication> positivePremises,
         out ImmutableArray<PredicateApplication> negativePremises,
         out ImmutableArray<PredicateApplication> relationalPremises,
-        out ImmutableArray<PredicateApplication> negativeRelationalPremises)
+        out ImmutableArray<PredicateApplication> negativeRelationalPremises,
+        out ImmutableArray<ExistentialRulePremise> existentialPremises)
     {
         positivePremises = ImmutableArray<PredicateApplication>.Empty;
         negativePremises = ImmutableArray<PredicateApplication>.Empty;
         relationalPremises = ImmutableArray<PredicateApplication>.Empty;
         negativeRelationalPremises = ImmutableArray<PredicateApplication>.Empty;
+        existentialPremises = ImmutableArray<ExistentialRulePremise>.Empty;
 
         var conjuncts = formula switch
         {
             PredicateApplication predicate => ImmutableArray.Create<SemanticFormula>(predicate),
+            ExistentialQuantification existential => ImmutableArray.Create<SemanticFormula>(existential),
             Negation { Formula: PredicateApplication predicate } =>
                 ImmutableArray.Create<SemanticFormula>(new Negation(predicate)),
             Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
@@ -215,9 +222,21 @@ internal static class UniversalRuleFactory
         var negativeBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
         var negativeRelationalBuilder = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var existentialBuilder = ImmutableArray.CreateBuilder<ExistentialRulePremise>();
 
         foreach (var conjunct in conjuncts)
         {
+            if (conjunct is ExistentialQuantification existential)
+            {
+                if (!TryCreateExistentialPremise(existential, variable, out var existentialPremise))
+                {
+                    return false;
+                }
+
+                existentialBuilder.Add(existentialPremise!);
+                continue;
+            }
+
             var isNegative = conjunct is Negation;
             var predicate = conjunct switch
             {
@@ -248,7 +267,75 @@ internal static class UniversalRuleFactory
         negativePremises = negativeBuilder.ToImmutable();
         relationalPremises = relationalBuilder.ToImmutable();
         negativeRelationalPremises = negativeRelationalBuilder.ToImmutable();
+        existentialPremises = existentialBuilder.ToImmutable();
         return !positivePremises.IsEmpty || !negativePremises.IsEmpty;
+    }
+
+    private static bool TryCreateExistentialPremise(
+        ExistentialQuantification existential,
+        VariableTerm subject,
+        out ExistentialRulePremise? premise)
+    {
+        premise = null;
+        if (string.IsNullOrWhiteSpace(existential.Variable.Identifier.Value) ||
+            existential.Variable.Identifier == subject.Identifier)
+        {
+            return false;
+        }
+
+        var conjuncts = existential.Body switch
+        {
+            PredicateApplication predicate => ImmutableArray.Create<SemanticFormula>(predicate),
+            Conjunction conjunction when !conjunction.Conjuncts.IsDefaultOrEmpty =>
+                conjunction.Conjuncts,
+            _ => ImmutableArray<SemanticFormula>.Empty
+        };
+        if (conjuncts.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var relations = ImmutableArray.CreateBuilder<PredicateApplication>();
+        foreach (var conjunct in conjuncts)
+        {
+            if (conjunct is not PredicateApplication predicate ||
+                string.IsNullOrWhiteSpace(predicate.Predicate.Value) ||
+                predicate.Arguments.IsDefault)
+            {
+                return false;
+            }
+
+            if (predicate.Arguments.Length == 1 &&
+                KnowledgeFactFactory.IsBoundUnaryPredicate(predicate, existential.Variable))
+            {
+                conditions.Add(predicate);
+                continue;
+            }
+
+            if (predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm relationSubject &&
+                relationSubject.Identifier == subject.Identifier &&
+                predicate.Arguments[1] is VariableTerm relationWitness &&
+                relationWitness.Identifier == existential.Variable.Identifier)
+            {
+                relations.Add(predicate);
+                continue;
+            }
+
+            return false;
+        }
+
+        if (conditions.Count == 0 || relations.Count == 0)
+        {
+            return false;
+        }
+
+        premise = new ExistentialRulePremise(
+            existential.Variable,
+            conditions.ToImmutable(),
+            relations.ToImmutable());
+        return true;
     }
 
     private static bool TryNormalizeUniversalConclusion(

@@ -56,7 +56,7 @@ internal static class FactDeriver
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty ||
+                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty && rule.ExistentialPremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
@@ -132,7 +132,7 @@ internal static class FactDeriver
         foreach (var rule in knowledgeBase.Rules)
         {
             if (rule.ConclusionPolarity != polarity ||
-                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty ||
+                rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty && rule.ExistentialPremises.IsDefaultOrEmpty ||
                 rule.Conclusion.Arguments.IsDefault ||
                 rule.Conclusion.Arguments.Length != 2 ||
                 rule.Conclusion.Arguments[0] is not VariableTerm ||
