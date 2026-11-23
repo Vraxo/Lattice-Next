@@ -230,6 +230,7 @@ internal static class EnglishDescriptionParser
                 objectEnd,
                 expectPluralHead: false,
                 out var objectDescription,
+                allowNegatedRelativePredicates: true,
                 allowRelationalRelativePredicates: true,
                 relationSubject: witness,
                 allowExistentialRelationalObjects: true,

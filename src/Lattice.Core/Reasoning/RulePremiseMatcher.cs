@@ -27,6 +27,7 @@ internal static class RulePremiseMatcher
             rule.ExistentialPremises.IsDefault ? ImmutableArray<ExistentialRulePremise>.Empty : rule.ExistentialPremises,
             individual,
             positiveFacts,
+            negativeFacts,
             positiveRelationalFacts);
         var combinations = new List<ImmutableArray<ProofNode>>(
             positivePremises.Count *
@@ -56,6 +57,7 @@ internal static class RulePremiseMatcher
         IEnumerable<ExistentialRulePremise> requiredPremises,
         SemanticTerm individual,
         IReadOnlyList<ProofNode> knownUnaryFacts,
+        IReadOnlyList<ProofNode> knownNegativeUnaryFacts,
         IReadOnlyList<ProofNode> knownRelationalFacts)
     {
         var premiseCombinations = new List<ImmutableArray<ProofNode>>
@@ -69,6 +71,7 @@ internal static class RulePremiseMatcher
                 required,
                 individual,
                 knownUnaryFacts,
+                knownNegativeUnaryFacts,
                 knownRelationalFacts);
             if (matchedPremises.Count == 0)
             {
@@ -93,6 +96,7 @@ internal static class RulePremiseMatcher
         ExistentialRulePremise required,
         SemanticTerm subject,
         IReadOnlyList<ProofNode> knownUnaryFacts,
+        IReadOnlyList<ProofNode> knownNegativeUnaryFacts,
         IReadOnlyList<ProofNode> knownRelationalFacts)
     {
         var witnessMatches = new List<(SemanticTerm Witness, ImmutableArray<ProofNode> Relations)>();
@@ -183,18 +187,25 @@ internal static class RulePremiseMatcher
                 required.Conditions,
                 witness.Witness,
                 knownUnaryFacts);
+            var negativeConditionCombinations = GetAdditionalPremiseCombinations(
+                required.NegativeConditions,
+                witness.Witness,
+                knownNegativeUnaryFacts);
             var nestedCombinations = GetExistentialPremiseCombinations(
                 required.NestedPremises,
                 witness.Witness,
                 knownUnaryFacts,
+                knownNegativeUnaryFacts,
                 knownRelationalFacts);
 
             foreach (var conditions in conditionCombinations)
+            foreach (var negativeConditions in negativeConditionCombinations)
             foreach (var nested in nestedCombinations)
             {
                 matchedPremises.Add(
                     witness.Relations
                         .AddRange(conditions)
+                        .AddRange(negativeConditions)
                         .AddRange(nested));
             }
         }

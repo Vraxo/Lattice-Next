@@ -267,6 +267,7 @@ public sealed class KnowledgeBase
         return left.Zip(right).All(pair =>
             pair.First.Witness.Identifier == pair.Second.Witness.Identifier &&
             AreSamePremises(pair.First.Conditions, pair.Second.Conditions) &&
+            AreSamePremises(pair.First.NegativeConditions, pair.Second.NegativeConditions) &&
             AreSamePremises(pair.First.Relations, pair.Second.Relations) &&
             AreSamePremises(pair.First.FixedObjectRelations, pair.Second.FixedObjectRelations) &&
             AreSameExistentialPremises(pair.First.NestedPremises, pair.Second.NestedPremises));

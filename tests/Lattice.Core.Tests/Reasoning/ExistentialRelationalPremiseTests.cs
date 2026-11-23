@@ -168,6 +168,54 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Parses_explicit_negative_unary_conditions_on_existential_witnesses()
+    {
+        var result = parser.Parse(
+            "Every dog that chases a cat that is not a mouse is friendly.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), exists(y, and(cat(y), not(mouse(y)), chases(x, y)))), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Requires_explicit_negative_evidence_for_existential_witness_conditions()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that chases a cat that is not a mouse is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido chases Rover.");
+        Add(complete, "Rover is a cat.");
+        Add(complete, "Rover is not a mouse.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Contains(result.Proof!.AdditionalPremises, proof =>
+            proof.SourceText == "Rover is not a mouse.");
+
+        var missingNegativeEvidence = new KnowledgeBase();
+        Add(missingNegativeEvidence, "Every dog that chases a cat that is not a mouse is friendly.");
+        Add(missingNegativeEvidence, "Fido is a dog.");
+        Add(missingNegativeEvidence, "Fido chases Rover.");
+        Add(missingNegativeEvidence, "Rover is a cat.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(missingNegativeEvidence, ParseQuestion("Is Fido friendly?")).TruthValue);
+
+        var onlyPositiveEvidence = new KnowledgeBase();
+        Add(onlyPositiveEvidence, "Every dog that chases a cat that is not a mouse is friendly.");
+        Add(onlyPositiveEvidence, "Fido is a dog.");
+        Add(onlyPositiveEvidence, "Fido chases Rover.");
+        Add(onlyPositiveEvidence, "Rover is a cat.");
+        Add(onlyPositiveEvidence, "Rover is a mouse.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(onlyPositiveEvidence, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Rejects_negated_existential_relation_conditions()
     {
         var result = parser.Parse("Every dog that does not chase a cat is friendly.");
