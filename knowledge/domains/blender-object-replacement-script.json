@@ -582,6 +582,11 @@
       "id": "blender-codegen-api-scene-collection-link",
       "label": "bpy.context.scene.collection.objects.link",
       "kind": "Individual"
+    },
+    {
+      "id": "blender-codegen-emit-triple-indented-loop-header",
+      "label": "emit triple indented loop header",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -1946,6 +1951,16 @@
       "subject": "step-remove-original",
       "relation": "blender-codegen-step-references-api",
       "object": "api-object-removal"
+    },
+    {
+      "subject": "blender-codegen-emit-triple-indented-loop-header",
+      "relation": "instance-of",
+      "object": "blender-codegen-generation-effect"
+    },
+    {
+      "subject": "step-iterate-collections",
+      "relation": "blender-codegen-step-has-generation-effect",
+      "object": "blender-codegen-emit-triple-indented-loop-header"
     }
   ],
   "dataProperties": [
