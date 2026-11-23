@@ -68,7 +68,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 - [x] Support explicit negative unary premises in universal rules; match them against explicit or safely derived negative ground unary evidence, never absence.
 - [x] Reuse positive and negative unary rule conclusions in iterative, polarity-separated inference closure with cycle-safe proof ancestry.
 - [x] Support multiple fixed-object positive or explicitly negative relational premises alongside unary conditions in universal rules, matching explicit same-polarity evidence for the same subject and each exact object while preserving proof provenance.
-- [x] Reject universal rules with multiple fixed-object relational premises rather than implicitly expanding the supported relational language.
+- [x] Support multiple fixed-object relational premises in universal rules, requiring explicit same-subject, exact-object evidence for every premise.
 - [x] Represent one existentially quantified related individual in a universal rule, scoped to each matched subject, with unary witness conditions and provenance-preserving derived relation facts.
 - [ ] Add general multi-variable relation joins, arbitrary relational premises, nested existential structures, and broader quantified rules only after concrete use cases and tests exist.
 
