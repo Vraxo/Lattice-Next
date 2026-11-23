@@ -14,7 +14,8 @@ internal static class EnglishDescriptionParser
         bool allowNegatedRelativePredicates = false,
         bool allowRelationalRelativePredicates = false,
         VariableTerm? relationSubject = null,
-        bool allowExistentialRelationalObjects = true)
+        bool allowExistentialRelationalObjects = true,
+        bool allowNegativeRelationalRelativePredicates = true)
     {
         description = null;
 
@@ -79,7 +80,8 @@ internal static class EnglishDescriptionParser
                         relationSubject ?? new VariableTerm(EnglishGrammarTokens.CreateIdentifier("x")),
                         relativeRelations,
                         existentialRelativeConditions,
-                        allowExistentialRelationalObjects)) return false;
+                        allowExistentialRelationalObjects,
+                        allowNegativeRelationalRelativePredicates)) return false;
                 continue;
             }
             if (!EnglishGrammarTokens.Is(tokens[index], "that")) return false;
@@ -152,7 +154,8 @@ internal static class EnglishDescriptionParser
         VariableTerm relationSubject,
         List<(string Predicate, SemanticTerm Object, bool IsNegative)> relations,
         List<SemanticFormula> existentialConditions,
-        bool allowExistentialRelationalObjects)
+        bool allowExistentialRelationalObjects,
+        bool allowNegativeRelationalRelativePredicates)
     {
         if (index + 1 >= end)
         {
@@ -161,6 +164,11 @@ internal static class EnglishDescriptionParser
 
         var auxiliary = tokens[index + 1];
         var isNegative = EnglishGrammarTokens.Is(auxiliary, pluralSubject ? "do" : "does");
+        if (isNegative && !allowNegativeRelationalRelativePredicates)
+        {
+            return false;
+        }
+
         int verbIndex;
         int objectStart;
 
@@ -218,7 +226,8 @@ internal static class EnglishDescriptionParser
                     out var objectDescription,
                     allowRelationalRelativePredicates: true,
                     relationSubject: witness,
-                    allowExistentialRelationalObjects: false))
+                    allowExistentialRelationalObjects: false,
+                    allowNegativeRelationalRelativePredicates: false))
             {
                 return false;
             }
