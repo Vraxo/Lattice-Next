@@ -6919,17 +6919,13 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.output",
-        "program.output.start",
         "program.collection-filter.threshold"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start"
+        "program.function"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
@@ -6948,17 +6944,13 @@
         "intent.program-generation",
         "language.python",
         "program.function",
-        "program.output",
-        "program.output.start",
         "program.collection-filter.average"
       ],
       "nextToken": "```python\n",
       "satisfiesFacts": [
         "intent.program-generation",
         "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start"
+        "program.function"
       ],
       "weight": 30,
       "requiresCompletedFacts": [],
