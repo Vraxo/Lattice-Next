@@ -244,11 +244,6 @@ internal static class UniversalRuleFactory
             return false;
         }
 
-        if (relationalBuilder.Count + negativeRelationalBuilder.Count > 1)
-        {
-            return false;
-        }
-
         positivePremises = positiveBuilder.ToImmutable();
         negativePremises = negativeBuilder.ToImmutable();
         relationalPremises = relationalBuilder.ToImmutable();
