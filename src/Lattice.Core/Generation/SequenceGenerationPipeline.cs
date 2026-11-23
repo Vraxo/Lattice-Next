@@ -42,6 +42,9 @@ public sealed class SequenceGenerationPipeline
             {
                 "selected-operation" => selectedOperation!.Symbol,
                 "goal-argument" => goal.ArgumentValue,
+                "goal-binding" => binding.Key is { } key && goal.Bindings.TryGetValue(key, out var boundValue)
+                    ? boundValue
+                    : string.Empty,
                 _ => string.Empty
             };
 
