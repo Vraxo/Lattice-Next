@@ -25,6 +25,7 @@ This is the active queue for the clean-slate Lattice repository. Keep it short, 
 
 ## Completed maintenance
 
+- [x] Remove the final Python-specific program request parser; derive generation intent and language from semantic facts and validate through the declarative generator.
 - [x] Split Python program parsing into focused expression, collection, function, file, control-flow, class, basic-program, and request-parsing components. Keep `CompositionalTaskParser` as the small dispatch coordinator.
 
 ## Bootstrap
