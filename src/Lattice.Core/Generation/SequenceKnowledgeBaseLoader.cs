@@ -283,7 +283,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences", "repeatMatches") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -298,6 +298,7 @@ public static class SequenceKnowledgeBaseLoader
                 (literalValue is not null && (valueId is null || literalValue.Length > 16_384)) ||
                 !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
+                !TryGetOptionalBoolean(item, "repeatMatches", out var repeatMatches) ||
                 !TryGetNestedStringArray(item, "requiredAnySequences", out var requiredAnySequences) ||
                 requiredAnySequences.Length > 16 ||
                 !TryGetNestedStringArray(item, "requiredAllSequences", out var requiredAllSequences) ||
@@ -321,7 +322,8 @@ public static class SequenceKnowledgeBaseLoader
                 SearchAllSentences = searchAllSentences,
                 RequiredAnySequences = requiredAnySequences,
                 RequiredAllSequences = requiredAllSequences,
-                ForbiddenAnySequences = forbiddenAnySequences
+                ForbiddenAnySequences = forbiddenAnySequences,
+                RepeatMatches = repeatMatches
             });
         }
 
@@ -346,7 +348,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "preserveRawValue", "normalization", "numericOffset") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "normalization", "numericOffset") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -363,6 +365,8 @@ public static class SequenceKnowledgeBaseLoader
                 (literalValue is not null && literalValue.Length > 16_384) ||
                 !TryGetOptionalString(item, "collectionDelimiter", out var collectionDelimiter) ||
                 (collectionDelimiter is not null && collectionDelimiter.Length > 32) ||
+                !TryGetOptionalString(item, "collectionItemSeparator", out var collectionItemSeparator) ||
+                (collectionItemSeparator is not null && collectionItemSeparator.Length > 32) ||
                 !TryGetStringArray(item, "collectionDelimiters", out var collectionDelimiters) ||
                 collectionDelimiters.Length > 16 ||
                 (collectionDelimiter is not null && !collectionDelimiters.IsDefaultOrEmpty) ||
@@ -410,7 +414,8 @@ public static class SequenceKnowledgeBaseLoader
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
                 PreserveRawValue = preserveRawValue,
                 Normalization = normalization,
-                NumericOffset = numericOffset ?? 0
+                NumericOffset = numericOffset ?? 0,
+                CollectionItemSeparator = collectionItemSeparator
             });
         }
 
