@@ -298,6 +298,7 @@ internal static class UniversalRuleFactory
         var conditions = ImmutableArray.CreateBuilder<PredicateApplication>();
         var negativeConditions = ImmutableArray.CreateBuilder<PredicateApplication>();
         var relations = ImmutableArray.CreateBuilder<PredicateApplication>();
+        var variableRelations = ImmutableArray.CreateBuilder<PredicateApplication>();
         var fixedObjectRelations = ImmutableArray.CreateBuilder<PredicateApplication>();
         var nestedPremises = ImmutableArray.CreateBuilder<ExistentialRulePremise>();
         foreach (var conjunct in conjuncts)
@@ -370,6 +371,16 @@ internal static class UniversalRuleFactory
                 continue;
             }
 
+            if (predicate.Arguments.Length == 2 &&
+                predicate.Arguments[0] is VariableTerm relatedWitness &&
+                relatedWitness.Identifier == existential.Variable.Identifier &&
+                predicate.Arguments[1] is VariableTerm relatedSubject &&
+                relatedSubject.Identifier == subject.Identifier)
+            {
+                variableRelations.Add(predicate);
+                continue;
+            }
+
             return false;
         }
 
@@ -383,6 +394,7 @@ internal static class UniversalRuleFactory
             conditions.ToImmutable(),
             negativeConditions.ToImmutable(),
             relations.ToImmutable(),
+            variableRelations.ToImmutable(),
             fixedObjectRelations.ToImmutable(),
             nestedPremises.ToImmutable());
         return true;
