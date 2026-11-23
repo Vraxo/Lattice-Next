@@ -488,6 +488,117 @@
           "value": ")"
         }
       ]
+    },
+    {
+      "head": "bound-assignment-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-for-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-if-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "if "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-import-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "import "
+        },
+        {
+          "kind": "binding",
+          "value": "module"
+        }
+      ]
+    },
+    {
+      "head": "bound-call-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "else-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "else:"
+        }
+      ]
+    },
+    {
+      "head": "continue-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "continue"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -510,6 +621,54 @@
       "name": "argument-assignment",
       "source": "goal-argument",
       "encoding": "none"
+    },
+    {
+      "name": "target",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "target"
+    },
+    {
+      "name": "expression",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "expression"
+    },
+    {
+      "name": "variable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "variable"
+    },
+    {
+      "name": "iterable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "iterable"
+    },
+    {
+      "name": "condition",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "condition"
+    },
+    {
+      "name": "module",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "module"
+    },
+    {
+      "name": "function",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "function"
+    },
+    {
+      "name": "arguments",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "arguments"
     }
   ],
   "operations": [
@@ -770,6 +929,62 @@
       "argumentKind": "expression",
       "prerequisites": [],
       "startSymbol": "triple-indented-call-expression"
+    },
+    {
+      "id": "python-bound-assignment",
+      "symbol": "=",
+      "effect": "assign-variable",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-assignment-statement"
+    },
+    {
+      "id": "python-bound-for-loop",
+      "symbol": "for",
+      "effect": "begin-loop",
+      "argumentKind": "loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-for-statement"
+    },
+    {
+      "id": "python-bound-conditional",
+      "symbol": "if",
+      "effect": "begin-conditional",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-if-statement"
+    },
+    {
+      "id": "python-bound-import",
+      "symbol": "import",
+      "effect": "import-module",
+      "argumentKind": "module-name",
+      "prerequisites": [],
+      "startSymbol": "bound-import-statement"
+    },
+    {
+      "id": "python-bound-call",
+      "symbol": "call",
+      "effect": "call-function",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-call-statement"
+    },
+    {
+      "id": "python-else",
+      "symbol": "else",
+      "effect": "begin-else",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "else-statement"
+    },
+    {
+      "id": "python-continue",
+      "symbol": "continue",
+      "effect": "continue-loop",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "continue-statement"
     }
   ],
   "stringLiteralFormat": {
