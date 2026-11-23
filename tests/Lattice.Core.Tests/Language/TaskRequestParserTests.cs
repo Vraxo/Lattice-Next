@@ -64,11 +64,11 @@ public sealed class TaskRequestParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("program-generation", request.Subject);
         Assert.Equal("python", request.Context);
-        Assert.Equal("python-source", request.OutputFormat);
-        Assert.Equal("write-standard-output", request.Scope);
-        Assert.Equal(new[] { "text-output" }, request.Requirements);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Equal("program-generation", request.Scope);
+        Assert.Contains("intent.program-generation", request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
 
