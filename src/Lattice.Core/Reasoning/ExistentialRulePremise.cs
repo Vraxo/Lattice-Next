@@ -8,5 +8,6 @@ public sealed record ExistentialRulePremise(
     ImmutableArray<PredicateApplication> Conditions,
     ImmutableArray<PredicateApplication> NegativeConditions,
     ImmutableArray<PredicateApplication> Relations,
+    ImmutableArray<PredicateApplication> VariableRelations,
     ImmutableArray<PredicateApplication> FixedObjectRelations,
     ImmutableArray<ExistentialRulePremise> NestedPremises);
