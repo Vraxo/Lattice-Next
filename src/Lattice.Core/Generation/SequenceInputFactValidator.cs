@@ -279,7 +279,7 @@ public static class SequenceInputFactValidator
 
             var calledFunctions = Regex.Matches(
                     expressions[index],
-                    @"([A-Za-z_][A-Za-z0-9_]*)\\s*\\(")
+                    @"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
                 .Select(match => match.Groups[1].Value)
                 .ToArray();
             if (calledFunctions.Any(name => !previousFunctions.Contains(name)) ||
