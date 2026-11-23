@@ -216,6 +216,55 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Parses_a_nested_relation_back_to_the_parent_subject()
+    {
+        var result = parser.Parse(
+            "Every dog that chases a cat that likes it is friendly.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), exists(y, and(cat(y), likes(y, x), chases(x, y)))), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Requires_a_witness_relation_to_match_the_parent_subject()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that chases a cat that likes it is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido chases Rover.");
+        Add(complete, "Rover is a cat.");
+        Add(complete, "Rover likes Fido.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Contains(result.Proof!.AdditionalPremises, proof =>
+            proof.SourceText == "Rover likes Fido.");
+
+        var wrongParent = new KnowledgeBase();
+        Add(wrongParent, "Every dog that chases a cat that likes it is friendly.");
+        Add(wrongParent, "Fido is a dog.");
+        Add(wrongParent, "Fido chases Rover.");
+        Add(wrongParent, "Rover is a cat.");
+        Add(wrongParent, "Rover likes Rex.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(wrongParent, ParseQuestion("Is Fido friendly?")).TruthValue);
+
+        var wrongWitness = new KnowledgeBase();
+        Add(wrongWitness, "Every dog that chases a cat that likes it is friendly.");
+        Add(wrongWitness, "Fido is a dog.");
+        Add(wrongWitness, "Fido chases Rover.");
+        Add(wrongWitness, "Rover is a cat.");
+        Add(wrongWitness, "Whiskers likes Fido.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(wrongWitness, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Rejects_negated_existential_relation_conditions()
     {
         var result = parser.Parse("Every dog that does not chase a cat is friendly.");
