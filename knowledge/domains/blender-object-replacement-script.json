@@ -1944,6 +1944,11 @@
       "subject": "step-remove-original",
       "relation": "blender-codegen-step-has-generation-effect",
       "object": "blender-codegen-emit-indented-call"
+    },
+    {
+      "subject": "blender",
+      "relation": "blender-codegen-application-uses-language",
+      "object": "python"
     }
   ],
   "dataProperties": [
