@@ -94,31 +94,31 @@ public sealed class PythonProgramGenerationTests
         "Ada 3\nGrace 5\nLinus 6")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(70).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(70))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(70))",
         "senior")]
     [InlineData(
         "Build a Python script with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(30).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(30))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(30))",
         "adult")]
     [InlineData(
         "Generate a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(15).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(15))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(15))",
         "teen")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(8).",
-        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(8))",
+        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(8))",
         "child")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(95).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(95))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(95))",
         "high")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(75).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(75))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(75))",
         "pass")]
     [InlineData(
         "Generate a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(40).",
-        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(40))",
+        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(40))",
         "fail")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
