@@ -7149,7 +7149,8 @@
     {
       "id": "python-conditional-function-first-branch",
       "contextSuffix": [
-        "```python\n"
+        "```python\n",
+        "*\n"
       ],
       "requiredFacts": [
         "program.conditional-function.branches"
