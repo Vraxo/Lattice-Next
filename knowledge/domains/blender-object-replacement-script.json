@@ -598,16 +598,6 @@
   ],
   "relations": [
     {
-      "id": "script-has-step",
-      "domain": "blender-code-generation-task",
-      "range": "blender-script-step",
-      "verb": "has script step",
-      "subjectKind": "Individual",
-      "objectKind": "Individual",
-      "order": 0,
-      "comparisonPriority": 0
-    },
-    {
       "id": "application-uses-language",
       "domain": "software-application",
       "range": "programming-language",
@@ -856,46 +846,6 @@
       "subject": "api-object-removal",
       "relation": "instance-of",
       "object": "blender-api"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-snapshot-objects"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-iterate-objects"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-match-name"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-create-light-data"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-create-light-object"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-copy-world-position"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-link-collections"
-    },
-    {
-      "subject": "blender-object-replacement",
-      "relation": "script-has-step",
-      "object": "step-remove-original"
     },
     {
       "subject": "code-generation-task",
@@ -2000,57 +1950,12 @@
   ],
   "dataProperties": [
     {
-      "id": "script-step-number",
-      "domainType": "blender-script-step",
-      "valueType": "number"
-    },
-    {
       "id": "generation-step-order",
       "domainType": "generation-step",
       "valueType": "number"
     }
   ],
   "dataAssertions": [
-    {
-      "subject": "step-snapshot-objects",
-      "property": "script-step-number",
-      "value": "1"
-    },
-    {
-      "subject": "step-iterate-objects",
-      "property": "script-step-number",
-      "value": "2"
-    },
-    {
-      "subject": "step-match-name",
-      "property": "script-step-number",
-      "value": "3"
-    },
-    {
-      "subject": "step-create-light-data",
-      "property": "script-step-number",
-      "value": "4"
-    },
-    {
-      "subject": "step-create-light-object",
-      "property": "script-step-number",
-      "value": "5"
-    },
-    {
-      "subject": "step-copy-world-position",
-      "property": "script-step-number",
-      "value": "6"
-    },
-    {
-      "subject": "step-link-collections",
-      "property": "script-step-number",
-      "value": "7"
-    },
-    {
-      "subject": "step-remove-original",
-      "property": "script-step-number",
-      "value": "8"
-    },
     {
       "subject": "step-import-bpy",
       "property": "generation-step-order",
