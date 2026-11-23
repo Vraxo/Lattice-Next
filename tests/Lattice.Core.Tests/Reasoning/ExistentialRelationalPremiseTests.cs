@@ -64,6 +64,63 @@ public sealed class ExistentialRelationalPremiseTests
     }
 
     [Fact]
+    public void Parses_multiple_existential_relation_witnesses_in_one_description()
+    {
+        var result = parser.Parse(
+            "Every dog that chases a cat and follows a person is friendly.");
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Equal(
+            "forall(x, implies(and(dog(x), exists(y, and(cat(y), chases(x, y))), exists(z, and(person(z), follows(x, z)))), friendly(x)))",
+            SemanticFormatter.Format(result.Utterance!));
+    }
+
+    [Fact]
+    public void Requires_each_existential_relation_witness_to_match_its_own_conditions()
+    {
+        var complete = new KnowledgeBase();
+        Add(complete, "Every dog that chases a cat and follows a person is friendly.");
+        Add(complete, "Fido is a dog.");
+        Add(complete, "Fido chases Rover.");
+        Add(complete, "Rover is a cat.");
+        Add(complete, "Fido follows Alice.");
+        Add(complete, "Alice is a person.");
+
+        var result = engine.Ask(complete, ParseQuestion("Is Fido friendly?"));
+
+        Assert.Equal(TruthValue.True, result.TruthValue);
+        Assert.Contains(result.Proof!.AdditionalPremises, proof =>
+            proof.SourceText == "Fido chases Rover.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Rover is a cat.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Fido follows Alice.");
+        Assert.Contains(result.Proof.AdditionalPremises, proof =>
+            proof.SourceText == "Alice is a person.");
+
+        var missingPerson = new KnowledgeBase();
+        Add(missingPerson, "Every dog that chases a cat and follows a person is friendly.");
+        Add(missingPerson, "Fido is a dog.");
+        Add(missingPerson, "Fido chases Rover.");
+        Add(missingPerson, "Rover is a cat.");
+        Add(missingPerson, "Fido follows Alice.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(missingPerson, ParseQuestion("Is Fido friendly?")).TruthValue);
+
+        var wrongSubject = new KnowledgeBase();
+        Add(wrongSubject, "Every dog that chases a cat and follows a person is friendly.");
+        Add(wrongSubject, "Fido is a dog.");
+        Add(wrongSubject, "Fido chases Rover.");
+        Add(wrongSubject, "Rover is a cat.");
+        Add(wrongSubject, "Rex follows Alice.");
+        Add(wrongSubject, "Alice is a person.");
+        Assert.Equal(
+            TruthValue.Unknown,
+            engine.Ask(wrongSubject, ParseQuestion("Is Fido friendly?")).TruthValue);
+    }
+
+    [Fact]
     public void Rejects_negated_existential_relation_conditions()
     {
         var result = parser.Parse("Every dog that does not chase a cat is friendly.");
