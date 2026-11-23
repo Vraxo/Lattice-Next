@@ -12,7 +12,7 @@ internal static class ComparisonOperatorNormalizer
             return false;
         }
 
-        var phrase = Regex.Replace(value.Trim(), @"\\s+", " ").ToLowerInvariant();
+        var phrase = Regex.Replace(value.Trim(), @"\s+", " ").ToLowerInvariant();
         normalized = phrase switch
         {
             ">" or "greater than" or "more than" => ">",
