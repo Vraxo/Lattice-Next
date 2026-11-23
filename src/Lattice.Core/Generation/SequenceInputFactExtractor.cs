@@ -591,13 +591,11 @@ public static class SequenceInputFactExtractor
         var patterns = delimiters
             .Select(delimiter => delimiter.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Where(terms => terms.Length > 0)
-            .Select(terms => string.Join(string.Empty, terms.Select((term, index) =>
+            .Select(terms =>
             {
-                var punctuation = term.All(char.IsPunctuation);
-                var before = index == 0 || punctuation ? @"\s*" : @"\s+";
-                var after = punctuation ? @"\s*" : @"\s+";
-                return before + Regex.Escape(term) + after;
-            })))
+                var separator = terms.All(term => term.All(char.IsPunctuation)) ? @"\s*" : @"\s+";
+                return separator + string.Join(separator, terms.Select(Regex.Escape)) + separator;
+            })
             .ToArray();
         if (patterns.Length == 0)
         {
