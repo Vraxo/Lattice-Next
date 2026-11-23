@@ -3657,6 +3657,11 @@
       ],
       "requiredAllSequences": [
         [
+          "function",
+          "named",
+          "that"
+        ],
+        [
           "new",
           "list",
           "containing",
