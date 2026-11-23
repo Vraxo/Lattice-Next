@@ -14,7 +14,7 @@ public sealed class CompositionalTaskParserTests
     [InlineData("I want to create a Python program that prints Hello World.")]
     [InlineData("Could you write a simple Python script to display Hello, world?")]
     [InlineData("Can you make a Python program which outputs 'Hello, world!'?")]
-    public void Parses_python_output_requests_with_different_word_orders(string input)
+    public void Parses_program_requests_from_semantic_facts(string input)
     {
         var result = new LceParser().ParseText(input);
 
@@ -23,10 +23,11 @@ public sealed class CompositionalTaskParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("program-generation", request.Subject);
         Assert.Equal("python", request.Context);
-        Assert.Equal("python-source", request.OutputFormat);
-        Assert.Equal("write-standard-output", request.Scope);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Equal("program-generation", request.Scope);
+        Assert.Contains("intent.program-generation", request.Requirements);
         Assert.Equal(input, utterance.SourceText);
     }
 
@@ -72,7 +73,7 @@ public sealed class CompositionalTaskParserTests
         var request = Assert.IsType<TaskRequestFormula>(utterance.Meaning);
 
         Assert.Equal(TaskRequestAction.Code, request.Action);
-        Assert.Equal("python-program", request.Subject);
+        Assert.Equal("program-generation", request.Subject);
         Assert.Equal(input, utterance.SourceText);
     }
 
