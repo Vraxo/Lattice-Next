@@ -1077,6 +1077,10 @@ public sealed class PythonProgramGenerationTests
         "Create a Python function named transform that takes value and returns value * 2 when value is greater than 5, returns value + 10 when value is at least 0, and otherwise returns 0, then print transform(3).",
         "def transform(value):\n    if value > 5:\n        return value * 2\n    elif value >= 0:\n        return value + 10\n    return 0\nprint(transform(3))",
         "13")]
+    [InlineData(
+        "Create a Python function named classify that takes score and returns 'High' when score is greater than 90, and returns 'Pass' when score is at least 50, and otherwise returns 'Fail', then print classify(75).",
+        "def classify(score):\n    if score > 90:\n        return 'High'\n    elif score >= 50:\n        return 'Pass'\n    return 'Fail'\nprint(classify(75))",
+        "Pass")]
     public async Task Generates_and_executes_multi_conditional_functions(
         string prompt,
         string expectedCode,

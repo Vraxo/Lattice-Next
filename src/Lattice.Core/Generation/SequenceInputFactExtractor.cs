@@ -593,7 +593,8 @@ public static class SequenceInputFactExtractor
             .Select(terms =>
             {
                 var separator = terms.All(term => term.All(char.IsPunctuation)) ? @"\s*" : @"\s+";
-                return separator + string.Join(separator, terms.Select(Regex.Escape)) + separator;
+                var leadingSeparator = terms[0].All(char.IsPunctuation) ? @"\s*" : separator;
+                return leadingSeparator + string.Join(separator, terms.Select(Regex.Escape)) + separator;
             })
             .ToArray();
         if (patterns.Length == 0)

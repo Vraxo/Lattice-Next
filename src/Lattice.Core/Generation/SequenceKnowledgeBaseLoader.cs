@@ -837,7 +837,8 @@ public static class SequenceKnowledgeBaseLoader
             {
                 if (value.Length > MaximumDelimiterLength ||
                     value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length == 0 ||
-                    value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Any(token => !IsValidIdentifier(token)))
+                    value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Any(token =>
+                        !IsValidIdentifier(token) && !token.All(char.IsPunctuation)))
                 {
                     return false;
                 }

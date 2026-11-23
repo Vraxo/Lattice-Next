@@ -3565,12 +3565,15 @@
               "returns"
             ]
           ],
-          "collectionDelimiter": ", returns",
           "collectionFieldDelimiter": "when",
           "collectionFieldIndex": 0,
           "stopBeforeTokens": [],
           "preserveRawValue": true,
-          "trimSuffixCharacters": ","
+          "trimSuffixCharacters": ",",
+          "collectionDelimiters": [
+            ", returns",
+            ", and returns"
+          ]
         },
         {
           "factId": "program.conditional-function.branches",
@@ -3585,13 +3588,16 @@
               "returns"
             ]
           ],
-          "collectionDelimiter": ", returns",
           "collectionFieldDelimiter": "when",
           "collectionFieldIndex": 1,
           "stopBeforeTokens": [],
           "preserveRawValue": true,
           "normalization": "booleanExpression",
-          "trimSuffixCharacters": ","
+          "trimSuffixCharacters": ",",
+          "collectionDelimiters": [
+            ", returns",
+            ", and returns"
+          ]
         },
         {
           "factId": "program.conditional-function.false-return",
