@@ -98,7 +98,7 @@ The semantic model format currently contains:
 - **Concepts:** uniquely identified `type` and `individual` nodes. Labels identify nodes for language realization; labels alone do not define them.
 - **Lexemes:** word forms associated with declared concept identities and parts of speech.
 - **Relations:** named relations with declared domain and range types.
-- **Type definitions:** parent types plus conjunctive existential restrictions. Every restriction requires a relation from the candidate individual to a filler of the declared target type.
+- **Type definitions:** parent types, necessary conditions, and sufficient class expressions. Sufficient expressions support positive existential (`some`) and universal (`all`) relation restrictions, nested fillers, conjunction, and disjunction.
 - **Type assertions:** explicit individual/type memberships.
 - **Relation assertions:** explicit subject/relation/object connections.
 - **Data properties and assertions:** currently only typed URI values, used for documentation and DOI links.
@@ -143,7 +143,7 @@ An individual may satisfy several definitions at once. A piano qualifies as a ke
 
 ### Expressive limits
 
-The current reasoner supports type inheritance and conjunctive existential restrictions. It does not yet support disjunction, universal restrictions, cardinality/inequality constraints, arbitrary recursive expressions, or unrestricted first-order logic. In particular, the polygon slice models the existence of typed boundary elements and endpoints, but does not yet prove arbitrary polygon topology or distinguish all geometric cases.
+The current class-expression reasoner supports type inheritance, positive existential (`some`) and universal (`all`) relation restrictions, nested fillers, conjunction, and disjunction. A universal restriction constrains every asserted filler reached through its relation; pair it with an existential restriction when at least one filler must exist, so an empty relation does not satisfy a non-emptiness requirement by vacuity. The expression language does not support negation, cardinality, equality/inequality, inverse-role reasoning, or unrestricted first-order logic. The polygon fixture demonstrates a bounded structural definition; it does not prove every possible polygon topology or geometric case.
 
 ### Boundary with version 1 task packs
 
