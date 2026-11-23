@@ -130,6 +130,17 @@ public static class SequenceInputFactExtractor
                     capturedValue = normalizedValue;
                 }
 
+                if (capture.Normalization == "comparisonOperator")
+                {
+                    if (!ComparisonOperatorNormalizer.TryNormalize(capturedValue, out var normalizedValue))
+                    {
+                        error = $"Input rule '{rule.Id}' captured an unsupported comparison operator.";
+                        return false;
+                    }
+
+                    capturedValue = normalizedValue;
+                }
+
                 if (capture.NumericOffset != 0)
                 {
                     if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
