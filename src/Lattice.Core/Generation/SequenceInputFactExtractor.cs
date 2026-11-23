@@ -169,6 +169,7 @@ public static class SequenceInputFactExtractor
                     var items = ImmutableArray.CreateBuilder<string>(rawItems.Length);
                     foreach (var rawItem in rawItems)
                     {
+                        string itemValue;
                         if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
                         {
                             var fields = SplitText(rawItem, ImmutableArray.Create(fieldDelimiter));
@@ -188,18 +189,25 @@ public static class SequenceInputFactExtractor
                                     return false;
                                 }
 
-                                items.Add(template.Replace("{0}", fields[0], StringComparison.Ordinal)
-                                    .Replace("{1}", fields[1], StringComparison.Ordinal));
+                                itemValue = template.Replace("{0}", fields[0], StringComparison.Ordinal)
+                                    .Replace("{1}", fields[1], StringComparison.Ordinal);
                             }
                             else
                             {
-                                items.Add(fields[capture.CollectionFieldIndex!.Value]);
+                                itemValue = fields[capture.CollectionFieldIndex!.Value];
                             }
                         }
                         else
                         {
-                            items.Add(rawItem);
+                            itemValue = rawItem;
                         }
+
+                        if (!TryNormalizeCapture(rule.Id, capture.Normalization, itemValue, out itemValue, out error))
+                        {
+                            return false;
+                        }
+
+                        items.Add(itemValue);
                     }
 
                     var immutableItems = items.ToImmutable();
