@@ -125,6 +125,22 @@ public sealed class TaskRequestParserTests
     }
 
     [Fact]
+    public void Parses_script_creation_requests_for_other_applications_without_task_routing()
+    {
+        const string input = "How would I create a script for Maya that creates a cube?";
+
+        var result = parser.ParseText(input);
+
+        Assert.True(result.IsSuccess, result.Error);
+        var request = Assert.IsType<TaskRequestFormula>(Assert.Single(result.Utterances).Meaning);
+        Assert.Equal(TaskRequestAction.Code, request.Action);
+        Assert.Equal("creates-a-cube", request.Subject);
+        Assert.Equal("maya", request.Context);
+        Assert.Equal("source-code", request.OutputFormat);
+        Assert.Equal("program-generation", request.Scope);
+    }
+
+    [Fact]
     public void Parses_a_counted_potential_uses_request_with_its_object_brand()
     {
         const string input = "What are 5 potential uses for an empty La Croix can?";
