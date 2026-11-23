@@ -56,7 +56,7 @@ internal static class FactDeriver
 
             foreach (var rule in knowledgeBase.Rules)
             {
-                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty ||
+                if (rule.Premises.IsDefaultOrEmpty && rule.NegativePremises.IsDefaultOrEmpty && rule.RelationalPremises.IsDefaultOrEmpty && rule.NegativeRelationalPremises.IsDefaultOrEmpty && rule.ExistentialPremises.IsDefaultOrEmpty ||
                     rule.Conclusion.Arguments.IsDefault ||
                     rule.Conclusion.Arguments.Length != 1)
                 {
