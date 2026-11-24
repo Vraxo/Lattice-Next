@@ -87,6 +87,16 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
 
+## M-05B expression input inventory — boolean rules (M-05B.1c)
+
+This inventory covers input captures tagged `semanticExpressionKind: boolean` and boolean-specific recognizers in `python.core.json`. There is one boolean capture site and no standalone Boolean-operator input rule family.
+
+| Rule ID | Match conditions | Captures / emitted fact IDs |
+|---|---|---|
+| `recognize-declarative-conditional-function` | Matches `function`; requires `named`, `takes`, `when`, `and otherwise returns`, and `then` | Captures function name and parameters into `program.conditional-function.signature`; captures parallel branch `returns` and `conditions` collections into `program.conditional-function.branches`. Conditions are extracted from each `when`-delimited field, preserving raw text, trimming a trailing comma, and tagged `semanticExpressionKind: boolean`. Branch return values are tagged `value`; the otherwise return and call are likewise captured as `value` and `functionCall`. Other emitted fact IDs are `program.conditional-function`, `.false-return`, and `.call`. No boolean operator or operand is captured separately. |
+
+The match conditions constrain the outer function/branch frame, not the Boolean expression syntax. The Boolean payload is an unparsed string collection; there are no input rules that independently capture logical `and`/`or`/`not`, grouping, or ordered Boolean operands. The collection-filter rules' `or`/`not` tokens belong to comparison-phrase recognition and emit comparison facts, not boolean-expression facts.
+
 ## M-05B expression input inventory — comparison rules (M-05B.1b)
 
 This subsection is inventory-only; it does not change recognition or generation. Comparison coverage in `python.core.json` is concentrated in a task-specific collection-filter schema, plus three fully fixed conditional-output recognizers.
