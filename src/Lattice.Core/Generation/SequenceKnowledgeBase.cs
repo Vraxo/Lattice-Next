@@ -11,6 +11,15 @@ public sealed record SequenceSemanticFact(
 
     public ImmutableDictionary<string, SemanticCollection> SemanticCollections { get; init; } =
         ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal);
+
+    public ImmutableDictionary<string, SemanticExpression> Expressions { get; init; } =
+        ImmutableDictionary<string, SemanticExpression>.Empty.WithComparers(StringComparer.Ordinal);
+
+    public ImmutableDictionary<string, ImmutableArray<SemanticExpression>> ExpressionCollections { get; init; } =
+        ImmutableDictionary<string, ImmutableArray<SemanticExpression>>.Empty.WithComparers(StringComparer.Ordinal);
+
+    public ImmutableDictionary<string, SemanticExpressionOperator> ComparisonOperators { get; init; } =
+        ImmutableDictionary<string, SemanticExpressionOperator>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
 public sealed record SequenceTokenBinding(
@@ -95,7 +104,7 @@ public sealed record SequenceInputFactCapture(
 
     public bool PreserveRawValue { get; init; }
 
-    public string? Normalization { get; init; }
+    public string? SemanticExpressionKind { get; init; }
 
     public int NumericOffset { get; init; }
 }
@@ -124,6 +133,8 @@ public sealed record SequenceInputFactRule(
     public bool SearchAllSentences { get; init; }
 
     public bool RepeatMatches { get; init; }
+
+    public string? SemanticExpressionKind { get; init; }
 
     public ImmutableArray<ImmutableArray<string>> RequiredAnySequences { get; init; } =
         ImmutableArray<ImmutableArray<string>>.Empty;

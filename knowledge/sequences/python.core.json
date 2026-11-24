@@ -403,7 +403,8 @@
           "stopBeforeTokens": [
             "and",
             "then"
-          ]
+          ],
+          "semanticExpressionKind": "value"
         }
       ],
       "forbiddenAnySequences": [
@@ -436,7 +437,8 @@
           "stopBeforeTokens": [
             "and",
             "then"
-          ]
+          ],
+          "semanticExpressionKind": "value"
         }
       ],
       "forbiddenAnySequences": [
@@ -469,7 +471,8 @@
           "stopBeforeTokens": [
             "and",
             "then"
-          ]
+          ],
+          "semanticExpressionKind": "value"
         }
       ],
       "forbiddenAnySequences": [
@@ -502,7 +505,8 @@
           "stopBeforeTokens": [
             "and",
             "then"
-          ]
+          ],
+          "semanticExpressionKind": "value"
         }
       ],
       "forbiddenAnySequences": [
@@ -1055,7 +1059,8 @@
       ],
       "factId": "program.assignment.first.value",
       "valueId": "value",
-      "literalValue": "10"
+      "literalValue": "10",
+      "semanticExpressionKind": "value"
     },
     {
       "id": "capture-second-addition-target",
@@ -1081,7 +1086,8 @@
       ],
       "factId": "program.assignment.second.value",
       "valueId": "value",
-      "literalValue": "20"
+      "literalValue": "20",
+      "semanticExpressionKind": "value"
     },
     {
       "id": "capture-result-addition-target",
@@ -1101,7 +1107,8 @@
       ],
       "factId": "program.assignment.result.value",
       "valueId": "value",
-      "literalValue": "first_number + second_number"
+      "literalValue": "first_number + second_number",
+      "semanticExpressionKind": "value"
     },
     {
       "id": "recognize-addition-output",
@@ -1858,34 +1865,8 @@
               "and",
               "set"
             ]
-          ]
-        },
-        {
-          "factId": "program.function-local-variables",
-          "valueId": "assignments",
-          "stopBeforeSequences": [
-            [
-              "and",
-              "returns"
-            ]
           ],
-          "collectionFieldDelimiter": "to",
-          "collectionTemplate": "{0} = {1}\n",
-          "stopBeforeTokens": [],
-          "collectionDelimiters": [
-            "and sets",
-            "and set"
-          ],
-          "startAfterSequences": [
-            [
-              "and",
-              "sets"
-            ],
-            [
-              "and",
-              "set"
-            ]
-          ]
+          "semanticExpressionKind": "arithmetic"
         },
         {
           "factId": "program.function-local-return",
@@ -1900,7 +1881,8 @@
             ]
           ],
           "trimSuffixCharacters": ",",
-          "stopBeforeTokens": []
+          "stopBeforeTokens": [],
+          "semanticExpressionKind": "arithmetic"
         },
         {
           "factId": "program.function-local-call",
@@ -1913,7 +1895,8 @@
             "display",
             "output"
           ],
-          "stopBeforeTokens": []
+          "stopBeforeTokens": [],
+          "semanticExpressionKind": "functionCall"
         }
       ],
       "requiredAnySequences": [
@@ -2246,7 +2229,8 @@
               "named"
             ]
           ],
-          "trimSuffixCharacters": ","
+          "trimSuffixCharacters": ",",
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAnySequences": [
@@ -3712,7 +3696,8 @@
           "collectionDelimiters": [
             ", returns",
             ", and returns"
-          ]
+          ],
+          "semanticExpressionKind": "value"
         },
         {
           "factId": "program.conditional-function.branches",
@@ -3731,12 +3716,12 @@
           "collectionFieldIndex": 1,
           "stopBeforeTokens": [],
           "preserveRawValue": true,
-          "normalization": "booleanExpression",
           "trimSuffixCharacters": ",",
           "collectionDelimiters": [
             ", returns",
             ", and returns"
-          ]
+          ],
+          "semanticExpressionKind": "boolean"
         },
         {
           "factId": "program.conditional-function.false-return",
@@ -3755,7 +3740,8 @@
           ],
           "trimSuffixCharacters": ",",
           "stopBeforeTokens": [],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "value"
         },
         {
           "factId": "program.conditional-function.call",
@@ -3769,7 +3755,8 @@
             "output"
           ],
           "stopBeforeTokens": [],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "functionCall"
         }
       ],
       "requiredAnySequences": [],
@@ -4045,7 +4032,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": ">="
+          "literalValue": ">=",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4068,7 +4056,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": ">="
+          "literalValue": ">=",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4094,7 +4083,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "<="
+          "literalValue": "<=",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4117,7 +4107,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "<="
+          "literalValue": "<=",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4140,7 +4131,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": ">"
+          "literalValue": ">",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4163,7 +4155,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": ">"
+          "literalValue": ">",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4186,7 +4179,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "<"
+          "literalValue": "<",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4208,7 +4202,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "<"
+          "literalValue": "<",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4232,7 +4227,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "!="
+          "literalValue": "!=",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4255,7 +4251,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "=="
+          "literalValue": "==",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4277,7 +4274,8 @@
         {
           "factId": "program.collection-filter.comparison",
           "valueId": "operator",
-          "literalValue": "=="
+          "literalValue": "==",
+          "semanticExpressionKind": "comparisonOperator"
         }
       ],
       "requiredAllSequences": [
@@ -4339,7 +4337,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4372,7 +4371,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4408,7 +4408,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4441,7 +4442,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4474,7 +4476,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4507,7 +4510,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4540,7 +4544,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4572,7 +4577,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4606,7 +4612,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4639,7 +4646,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4671,7 +4679,8 @@
             "then"
           ],
           "trimSuffixCharacters": ",",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "semanticExpressionKind": "arithmetic"
         }
       ],
       "requiredAllSequences": [
@@ -4708,7 +4717,8 @@
             [
               "output"
             ]
-          ]
+          ],
+          "semanticExpressionKind": "functionCall"
         },
         {
           "factId": "program.arithmetic-function-close",
@@ -5813,14 +5823,16 @@
       ],
       "tokenBinding": {
         "factId": "program.function-local-variables",
-        "valueId": "assignments",
+        "valueId": "locals",
         "collection": true,
-        "prefix": "    "
+        "prefix": "    ",
+        "secondaryValueId": "expressions",
+        "secondaryValueIsCollection": true,
+        "valueTemplate": "{0} = {1}\n"
       },
       "advanceCollections": [
         "program.function-local-variables:locals",
-        "program.function-local-variables:expressions",
-        "program.function-local-variables:assignments"
+        "program.function-local-variables:expressions"
       ]
     },
     {
@@ -5833,15 +5845,17 @@
       ],
       "tokenBinding": {
         "factId": "program.function-local-variables",
-        "valueId": "assignments",
+        "valueId": "locals",
         "collection": true,
         "prefix": "    ",
-        "minimumCollectionCursor": 1
+        "minimumCollectionCursor": 1,
+        "secondaryValueId": "expressions",
+        "secondaryValueIsCollection": true,
+        "valueTemplate": "{0} = {1}\n"
       },
       "advanceCollections": [
         "program.function-local-variables:locals",
-        "program.function-local-variables:expressions",
-        "program.function-local-variables:assignments"
+        "program.function-local-variables:expressions"
       ]
     },
     {

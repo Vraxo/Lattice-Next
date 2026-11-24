@@ -293,7 +293,11 @@ public sealed class GenerationLanguagePackLoader
             syntax.StringLiteralFormats.Length > 8 ||
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
             syntax.GroupingDelimiters.IsDefault ||
-            syntax.GroupingDelimiters.Length > 16)
+            syntax.GroupingDelimiters.Length > 16 ||
+            syntax.ExpressionOperators.IsDefaultOrEmpty ||
+            syntax.ExpressionOperators.Length > 32 ||
+            !IsValidExpressionOperators(syntax.ExpressionOperators) ||
+            !IsValidExpressionGroupingDelimiter(syntax.ExpressionGroupingDelimiter))
         {
             return false;
         }
@@ -317,11 +321,14 @@ public sealed class GenerationLanguagePackLoader
 
             var escapeSequences = new HashSet<string>(StringComparer.Ordinal);
             if (format.EscapeSequences.Any(sequence =>
-                    string.IsNullOrEmpty(sequence) ||
-                    sequence.Length > 16 ||
-                    !sequence.StartsWith(format.EscapePrefix, StringComparison.Ordinal) ||
-                    sequence.Length == format.EscapePrefix.Length ||
-                    !escapeSequences.Add(sequence)))
+                    sequence is null ||
+                    string.IsNullOrEmpty(sequence.Sequence) ||
+                    sequence.Sequence.Length > 16 ||
+                    sequence.Value is null ||
+                    sequence.Value.Length > 16 ||
+                    !sequence.Sequence.StartsWith(format.EscapePrefix, StringComparison.Ordinal) ||
+                    sequence.Sequence.Length == format.EscapePrefix.Length ||
+                    !escapeSequences.Add(sequence.Sequence)))
             {
                 return false;
             }
@@ -350,15 +357,38 @@ public sealed class GenerationLanguagePackLoader
             }
         }
 
+        var expressionGroupingDelimiter = syntax.ExpressionGroupingDelimiter!;
+        var declaredDelimiters = syntax.GroupingDelimiters.Add(new GenerationDelimiterPair(
+            syntax.FunctionCallFormat.OpeningDelimiter,
+            syntax.FunctionCallFormat.ClosingDelimiter));
+        if (declaredDelimiters.Any(delimiter =>
+                delimiter != expressionGroupingDelimiter &&
+                (delimiter.OpeningDelimiter == expressionGroupingDelimiter.OpeningDelimiter ||
+                 delimiter.ClosingDelimiter == expressionGroupingDelimiter.ClosingDelimiter ||
+                 delimiter.OpeningDelimiter == expressionGroupingDelimiter.ClosingDelimiter ||
+                 delimiter.ClosingDelimiter == expressionGroupingDelimiter.OpeningDelimiter)))
+        {
+            return false;
+        }
+
         return true;
     }
+
+    private static bool IsValidExpressionGroupingDelimiter(GenerationDelimiterPair? delimiter) =>
+        delimiter is not null &&
+        !string.IsNullOrEmpty(delimiter.OpeningDelimiter) &&
+        delimiter.OpeningDelimiter.Length <= 16 &&
+        !string.IsNullOrEmpty(delimiter.ClosingDelimiter) &&
+        delimiter.ClosingDelimiter.Length <= 16 &&
+        delimiter.OpeningDelimiter != delimiter.ClosingDelimiter;
 
     private static bool IsValidNumberLiteralFormat(GenerationNumberLiteralFormat format)
     {
         return format is not null &&
             !string.IsNullOrEmpty(format.Digits) &&
-            format.Digits.Length <= 64 &&
+            format.Digits.Length == 10 &&
             format.Digits.Distinct().Count() == format.Digits.Length &&
+            !format.Digits.Any(char.IsWhiteSpace) &&
             !string.IsNullOrEmpty(format.DecimalSeparator) &&
             format.DecimalSeparator.Length <= 8 &&
             !string.IsNullOrEmpty(format.PositiveSign) &&
@@ -378,9 +408,56 @@ public sealed class GenerationLanguagePackLoader
         !string.IsNullOrEmpty(format.OpeningDelimiter) && format.OpeningDelimiter.Length <= 16 &&
         !string.IsNullOrEmpty(format.ClosingDelimiter) && format.ClosingDelimiter.Length <= 16 &&
         !string.IsNullOrEmpty(format.ArgumentSeparator) && format.ArgumentSeparator.Length <= 16 &&
+        (format.RenderingArgumentSeparator is null ||
+         format.RenderingArgumentSeparator.Length is > 0 and <= 16) &&
         format.OpeningDelimiter != format.ClosingDelimiter &&
         format.OpeningDelimiter != format.ArgumentSeparator &&
         format.ClosingDelimiter != format.ArgumentSeparator;
+
+    private static bool IsValidExpressionOperators(
+        ImmutableArray<GenerationInputExpressionOperatorFormat> operators)
+    {
+        var supportedKinds = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["add"] = "infix",
+            ["subtract"] = "infix",
+            ["multiply"] = "infix",
+            ["divide"] = "infix",
+            ["remainder"] = "infix",
+            ["equal"] = "infix",
+            ["notEqual"] = "infix",
+            ["lessThan"] = "infix",
+            ["lessThanOrEqual"] = "infix",
+            ["greaterThan"] = "infix",
+            ["greaterThanOrEqual"] = "infix",
+            ["and"] = "infix",
+            ["or"] = "infix",
+            ["not"] = "prefix",
+            ["positive"] = "prefix",
+            ["negative"] = "prefix"
+        };
+        var uniqueKinds = new HashSet<string>(StringComparer.Ordinal);
+        var uniqueTokens = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var format in operators)
+        {
+            if (format is null ||
+                string.IsNullOrEmpty(format.Kind) ||
+                string.IsNullOrEmpty(format.Fixity) ||
+                !supportedKinds.TryGetValue(format.Kind, out var expectedFixity) ||
+                format.Fixity != expectedFixity ||
+                string.IsNullOrEmpty(format.Token) ||
+                format.Token.Length > 8 ||
+                format.Token.Any(char.IsWhiteSpace) ||
+                format.Precedence is < 1 or > 100 ||
+                !uniqueKinds.Add($"{format.Kind}:{format.Fixity}") ||
+                !uniqueTokens.Add($"{format.Fixity}:{format.Token}"))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static bool IsCapabilityIdentifier(string? value)
     {

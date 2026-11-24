@@ -1531,21 +1531,72 @@
         "openingDelimiter": "\"",
         "closingDelimiter": "\"",
         "escapePrefix": "\\",
-        "escapeSequences": ["\\\\", "\\\"", "\\'", "\\n", "\\r", "\\t"],
+        "escapeSequences": [
+          {
+            "sequence": "\\\\",
+            "value": "\\"
+          },
+          {
+            "sequence": "\\\"",
+            "value": "\""
+          },
+          {
+            "sequence": "\\'",
+            "value": "'"
+          },
+          {
+            "sequence": "\\n",
+            "value": "\n"
+          },
+          {
+            "sequence": "\\r",
+            "value": "\r"
+          },
+          {
+            "sequence": "\\t",
+            "value": "\t"
+          }
+        ],
         "allowUnknownEscapes": true
       },
       {
         "openingDelimiter": "'",
         "closingDelimiter": "'",
         "escapePrefix": "\\",
-        "escapeSequences": ["\\\\", "\\\"", "\\'", "\\n", "\\r", "\\t"],
+        "escapeSequences": [
+          {
+            "sequence": "\\\\",
+            "value": "\\"
+          },
+          {
+            "sequence": "\\\"",
+            "value": "\""
+          },
+          {
+            "sequence": "\\'",
+            "value": "'"
+          },
+          {
+            "sequence": "\\n",
+            "value": "\n"
+          },
+          {
+            "sequence": "\\r",
+            "value": "\r"
+          },
+          {
+            "sequence": "\\t",
+            "value": "\t"
+          }
+        ],
         "allowUnknownEscapes": true
       }
     ],
     "functionCallFormat": {
       "openingDelimiter": "(",
       "closingDelimiter": ")",
-      "argumentSeparator": ","
+      "argumentSeparator": ",",
+      "renderingArgumentSeparator": ", "
     },
     "groupingDelimiters": [
       {
@@ -1556,6 +1607,108 @@
         "openingDelimiter": "{",
         "closingDelimiter": "}"
       }
-    ]
+    ],
+    "expressionOperators": [
+      {
+        "kind": "add",
+        "token": "+",
+        "fixity": "infix",
+        "precedence": 50
+      },
+      {
+        "kind": "subtract",
+        "token": "-",
+        "fixity": "infix",
+        "precedence": 50
+      },
+      {
+        "kind": "multiply",
+        "token": "*",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "divide",
+        "token": "/",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "remainder",
+        "token": "%",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "equal",
+        "token": "==",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "notEqual",
+        "token": "!=",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "lessThan",
+        "token": "<",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "lessThanOrEqual",
+        "token": "<=",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "greaterThan",
+        "token": ">",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "greaterThanOrEqual",
+        "token": ">=",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "and",
+        "token": "and",
+        "fixity": "infix",
+        "precedence": 20
+      },
+      {
+        "kind": "or",
+        "token": "or",
+        "fixity": "infix",
+        "precedence": 10
+      },
+      {
+        "kind": "not",
+        "token": "not",
+        "fixity": "prefix",
+        "precedence": 30
+      },
+      {
+        "kind": "positive",
+        "token": "+",
+        "fixity": "prefix",
+        "precedence": 80
+      },
+      {
+        "kind": "negative",
+        "token": "-",
+        "fixity": "prefix",
+        "precedence": 80
+      }
+    ],
+    "expressionGroupingDelimiter": {
+      "openingDelimiter": "(",
+      "closingDelimiter": ")"
+    }
   }
 }

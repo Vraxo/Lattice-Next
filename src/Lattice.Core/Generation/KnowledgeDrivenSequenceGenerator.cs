@@ -59,6 +59,7 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
+        var languagePack = request.LanguagePack ?? GenerationLanguagePackSelector.Select(request.FactValues);
         if (request.BeamWidth is < 1 or > 128 ||
             request.MaxTokens is < 1 or > MaximumGeneratedTokens)
         {
@@ -105,7 +106,7 @@ public static class KnowledgeDrivenSequenceGenerator
                             facts,
                             state.CollectionCursors,
                             encodings,
-                            request.LanguagePack,
+                            languagePack,
                             out var token))
                     {
                         continue;
@@ -232,25 +233,10 @@ public static class KnowledgeDrivenSequenceGenerator
         foreach (var fact in request.FactValues)
         {
             if (fact is null ||
+                !IsValidIdentifier(fact.Id) ||
                 !activeFacts.Contains(fact.Id) ||
-                fact.Values is null ||
-                !factBuilder.TryAdd(fact.Id, fact) ||
-                fact.Values.Any(value =>
-                    string.IsNullOrWhiteSpace(value.Key) ||
-                    value.Key.Length > 128 ||
-                    value.Value is null ||
-                    value.Value.Length > MaximumFactValueLength) ||
-                fact.Collections.Any(collection =>
-                    string.IsNullOrWhiteSpace(collection.Key) || collection.Key.Length > 128 ||
-                    collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
-                    collection.Value.Any(value => value is null || value.Length > MaximumFactValueLength)) ||
-                fact.SemanticCollections is null ||
-                fact.SemanticCollections.Any(collection =>
-                    string.IsNullOrWhiteSpace(collection.Key) ||
-                    collection.Key.Length > 128 ||
-                    !SemanticCollectionValidator.IsValid(collection.Value)) ||
-                fact.SemanticCollections.Keys.Any(key =>
-                    fact.Values.ContainsKey(key) || fact.Collections.ContainsKey(key)))
+                !IsValidSemanticFact(fact) ||
+                !factBuilder.TryAdd(fact.Id, fact))
             {
                 error = "Every semantic value binding must reference one active fact and contain valid named values.";
                 return false;
@@ -353,6 +339,54 @@ public static class KnowledgeDrivenSequenceGenerator
         return true;
     }
 
+    private static bool IsValidSemanticFact(SequenceSemanticFact fact)
+    {
+        if (fact.Values is null || fact.Collections is null ||
+            fact.SemanticCollections is null || fact.Expressions is null ||
+            fact.ExpressionCollections is null || fact.ComparisonOperators is null ||
+            fact.Values.Count > MaximumFacts || fact.Collections.Count > MaximumFacts ||
+            fact.SemanticCollections.Count > MaximumFacts || fact.Expressions.Count > MaximumFacts ||
+            fact.ExpressionCollections.Count > MaximumFacts || fact.ComparisonOperators.Count > MaximumFacts)
+        {
+            return false;
+        }
+
+        var usedValueIds = new HashSet<string>(StringComparer.Ordinal);
+        if (fact.Values.Any(value =>
+                value.Value is null || value.Value.Length > MaximumFactValueLength) ||
+            fact.Collections.Any(collection =>
+                collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
+                collection.Value.Any(value => value is null || value.Length > MaximumFactValueLength)) ||
+            fact.SemanticCollections.Any(collection =>
+                !SemanticCollectionValidator.IsValid(collection.Value)) ||
+            fact.Expressions.Any(expression => !SemanticExpressionAnalysis.IsValid(expression.Value)) ||
+            fact.ExpressionCollections.Any(collection =>
+                collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
+                collection.Value.Any(expression => !SemanticExpressionAnalysis.IsValid(expression))) ||
+            fact.ComparisonOperators.Any(pair => !IsComparisonExpressionOperator(pair.Value)))
+        {
+            return false;
+        }
+
+        return AddSemanticValueIds(fact.Values.Keys, usedValueIds) &&
+            AddSemanticValueIds(fact.Collections.Keys, usedValueIds) &&
+            AddSemanticValueIds(fact.SemanticCollections.Keys, usedValueIds) &&
+            AddSemanticValueIds(fact.Expressions.Keys, usedValueIds) &&
+            AddSemanticValueIds(fact.ExpressionCollections.Keys, usedValueIds) &&
+            AddSemanticValueIds(fact.ComparisonOperators.Keys, usedValueIds);
+    }
+
+    private static bool AddSemanticValueIds(IEnumerable<string> valueIds, HashSet<string> usedValueIds) =>
+        valueIds.All(valueId => IsValidIdentifier(valueId) && usedValueIds.Add(valueId));
+
+    private static bool IsComparisonExpressionOperator(SemanticExpressionOperator expressionOperator) =>
+        expressionOperator is SemanticExpressionOperator.Equal or
+            SemanticExpressionOperator.NotEqual or
+            SemanticExpressionOperator.LessThan or
+            SemanticExpressionOperator.LessThanOrEqual or
+            SemanticExpressionOperator.GreaterThan or
+            SemanticExpressionOperator.GreaterThanOrEqual;
+
     private static bool TryResolveToken(
         SequenceTokenRule rule,
         ImmutableDictionary<string, SequenceSemanticFact> facts,
@@ -374,24 +408,20 @@ public static class KnowledgeDrivenSequenceGenerator
             return false;
         }
 
+        var collectionKey = BuildCollectionKey(binding.FactId, binding.ValueId);
+        var collectionIndex = collectionCursors.GetValueOrDefault(collectionKey);
         string value;
         if (binding.ValueTemplate is { } valueTemplate)
         {
-            string firstValue;
-            if (binding.UseCollection)
-            {
-                var key = BuildCollectionKey(binding.FactId, binding.ValueId);
-                var index = collectionCursors.GetValueOrDefault(key);
-                if (index < binding.MinimumCollectionCursor ||
-                    !fact.Collections.TryGetValue(binding.ValueId, out var primaryValues) ||
-                    index >= primaryValues.Length)
-                {
-                    return false;
-                }
-
-                firstValue = primaryValues[index];
-            }
-            else if (!fact.Values.TryGetValue(binding.ValueId, out firstValue!))
+            if (binding.UseCollection && collectionIndex < binding.MinimumCollectionCursor ||
+                !TryGetBindingValue(
+                    fact,
+                    binding.ValueId,
+                    binding.UseCollection,
+                    collectionIndex,
+                    binding.CollectionSeparator,
+                    languagePack,
+                    out var firstValue))
             {
                 return false;
             }
@@ -399,29 +429,20 @@ public static class KnowledgeDrivenSequenceGenerator
             string secondaryValue;
             if (binding.SecondaryValueIsCollection)
             {
-                if (!fact.Collections.TryGetValue(binding.SecondaryValueId!, out var secondaryValues) ||
-                    secondaryValues.IsDefaultOrEmpty)
+                if (!TryGetBindingValue(
+                        fact,
+                        binding.SecondaryValueId!,
+                        binding.UseCollection,
+                        collectionIndex,
+                        binding.SecondaryCollectionSeparator,
+                        languagePack,
+                        out secondaryValue))
                 {
                     return false;
                 }
-
-                if (binding.UseCollection)
-                {
-                    var key = BuildCollectionKey(binding.FactId, binding.ValueId);
-                    var index = collectionCursors.GetValueOrDefault(key);
-                    if (index >= secondaryValues.Length)
-                    {
-                        return false;
-                    }
-
-                    secondaryValue = secondaryValues[index];
-                }
-                else
-                {
-                    secondaryValue = string.Join(binding.SecondaryCollectionSeparator!, secondaryValues);
-                }
             }
-            else if (!fact.Values.TryGetValue(binding.SecondaryValueId!, out secondaryValue!))
+            else if (!TryGetScalarValue(
+                         fact, binding.SecondaryValueId!, languagePack, out secondaryValue))
             {
                 return false;
             }
@@ -431,36 +452,20 @@ public static class KnowledgeDrivenSequenceGenerator
         }
         else if (binding.CollectionSeparator is { } separator)
         {
-            if (!fact.Collections.TryGetValue(binding.ValueId, out var collection) ||
-                collection.IsDefaultOrEmpty)
+            if (!TryJoinCollection(fact, binding.ValueId, separator, languagePack, out value))
             {
                 return false;
             }
-
-            value = string.Join(separator, collection);
         }
         else if (binding.UseCollection)
         {
-            var key = BuildCollectionKey(binding.FactId, binding.ValueId);
-            var index = collectionCursors.GetValueOrDefault(key);
-            if (index < binding.MinimumCollectionCursor ||
-                !fact.Collections.TryGetValue(binding.ValueId, out var collection) ||
-                index >= collection.Length)
-            {
-                return false;
-            }
-
-            value = collection[index];
-        }
-        else if (fact.SemanticCollections.TryGetValue(binding.ValueId, out var semanticCollection))
-        {
-            if (languagePack is null ||
-                !SemanticCollectionLiteralRenderer.TryRender(semanticCollection, languagePack, out value))
+            if (collectionIndex < binding.MinimumCollectionCursor ||
+                !TryGetCollectionItem(fact, binding.ValueId, collectionIndex, languagePack, out value))
             {
                 return false;
             }
         }
-        else if (!fact.Values.TryGetValue(binding.ValueId, out value!))
+        else if (!TryGetScalarValue(fact, binding.ValueId, languagePack, out value))
         {
             return false;
         }
@@ -474,27 +479,201 @@ public static class KnowledgeDrivenSequenceGenerator
             token != SequenceTokenModel.EndToken;
     }
 
-    private static bool TryAdvanceCollections(ImmutableArray<string> keys, ImmutableDictionary<string, SequenceSemanticFact> facts, ImmutableDictionary<string, int> current, ImmutableHashSet<string> currentCompleted, out ImmutableDictionary<string, int> cursors, out ImmutableHashSet<string> completed)
+    private static bool TryGetBindingValue(
+        SequenceSemanticFact fact,
+        string valueId,
+        bool useCollection,
+        int collectionIndex,
+        string? collectionSeparator,
+        GenerationLanguagePack? languagePack,
+        out string value)
+    {
+        if (useCollection)
+        {
+            return TryGetCollectionItem(fact, valueId, collectionIndex, languagePack, out value);
+        }
+
+        return collectionSeparator is not null
+            ? TryJoinCollection(fact, valueId, collectionSeparator, languagePack, out value)
+            : TryGetScalarValue(fact, valueId, languagePack, out value);
+    }
+
+    private static bool TryGetScalarValue(
+        SequenceSemanticFact fact,
+        string valueId,
+        GenerationLanguagePack? languagePack,
+        out string value)
+    {
+        value = string.Empty;
+        if (fact.Values.TryGetValue(valueId, out value!))
+        {
+            return value.Length <= MaximumFactValueLength;
+        }
+
+        if (fact.Expressions.TryGetValue(valueId, out var expression))
+        {
+            return languagePack is not null &&
+                SemanticExpressionRenderer.TryRender(expression, languagePack, out value);
+        }
+
+        if (fact.ComparisonOperators.TryGetValue(valueId, out var expressionOperator))
+        {
+            return SemanticExpressionRenderer.TryRenderOperator(expressionOperator, languagePack, out value);
+        }
+
+        if (fact.SemanticCollections.TryGetValue(valueId, out var semanticCollection))
+        {
+            return languagePack is not null &&
+                SemanticCollectionLiteralRenderer.TryRender(semanticCollection, languagePack, out value);
+        }
+
+        return false;
+    }
+
+    private static bool TryGetCollectionItem(
+        SequenceSemanticFact fact,
+        string valueId,
+        int index,
+        GenerationLanguagePack? languagePack,
+        out string value)
+    {
+        value = string.Empty;
+        if (fact.Collections.TryGetValue(valueId, out var values))
+        {
+            if (values.IsDefault || index < 0 || index >= values.Length)
+            {
+                return false;
+            }
+
+            value = values[index];
+            return value.Length <= MaximumFactValueLength;
+        }
+
+        if (fact.ExpressionCollections.TryGetValue(valueId, out var expressions))
+        {
+            return !expressions.IsDefault && index >= 0 && index < expressions.Length &&
+                languagePack is not null &&
+                SemanticExpressionRenderer.TryRender(expressions[index], languagePack, out value);
+        }
+
+        return false;
+    }
+
+    private static bool TryJoinCollection(
+        SequenceSemanticFact fact,
+        string valueId,
+        string separator,
+        GenerationLanguagePack? languagePack,
+        out string value)
+    {
+        value = string.Empty;
+        if (fact.Collections.TryGetValue(valueId, out var values))
+        {
+            if (values.IsDefaultOrEmpty || values.Any(item => item.Length > MaximumFactValueLength))
+            {
+                return false;
+            }
+
+            value = string.Join(separator, values);
+            return value.Length <= MaximumFactValueLength;
+        }
+
+        if (fact.ExpressionCollections.TryGetValue(valueId, out var expressions))
+        {
+            if (expressions.IsDefaultOrEmpty || languagePack is null)
+            {
+                return false;
+            }
+
+            var renderedItems = new List<string>(expressions.Length);
+            foreach (var expression in expressions)
+            {
+                if (!SemanticExpressionRenderer.TryRender(expression, languagePack, out var renderedItem))
+                {
+                    return false;
+                }
+
+                renderedItems.Add(renderedItem);
+            }
+
+            value = string.Join(separator, renderedItems);
+            return value.Length <= MaximumFactValueLength;
+        }
+
+        return false;
+    }
+
+    private static bool TryAdvanceCollections(
+        ImmutableArray<string> keys,
+        ImmutableDictionary<string, SequenceSemanticFact> facts,
+        ImmutableDictionary<string, int> current,
+        ImmutableHashSet<string> currentCompleted,
+        out ImmutableDictionary<string, int> cursors,
+        out ImmutableHashSet<string> completed)
     {
         cursors = current;
         completed = currentCompleted;
-        if (keys.IsDefaultOrEmpty) return true;
+        if (keys.IsDefaultOrEmpty)
+        {
+            return true;
+        }
+
         var builder = current.ToBuilder();
         foreach (var key in keys)
         {
             var split = key.IndexOf(':');
-            if (split <= 0) return false;
+            if (split <= 0)
+            {
+                return false;
+            }
+
             var factId = key[..split];
             var valueId = key[(split + 1)..];
-            if (!facts.TryGetValue(factId, out var fact) || !fact.Collections.TryGetValue(valueId, out var items) || items.IsDefaultOrEmpty) return false;
+            if (!facts.TryGetValue(factId, out var fact) ||
+                !TryGetCollectionLength(fact, valueId, out var itemCount) || itemCount == 0)
+            {
+                return false;
+            }
+
             var next = builder.GetValueOrDefault(key) + 1;
-            if (next > items.Length) return false;
+            if (next > itemCount)
+            {
+                return false;
+            }
+
             builder[key] = next;
-            if (fact.Collections.All(pair => builder.GetValueOrDefault($"{factId}:{pair.Key}") >= pair.Value.Length))
+            var collectionIds = fact.Collections.Keys.Concat(fact.ExpressionCollections.Keys);
+            if (collectionIds.All(collectionId =>
+                    TryGetCollectionLength(fact, collectionId, out var count) &&
+                    builder.GetValueOrDefault(BuildCollectionKey(factId, collectionId)) >= count))
+            {
                 completed = completed.Add(factId);
+            }
         }
+
         cursors = builder.ToImmutable();
         return true;
+    }
+
+    private static bool TryGetCollectionLength(
+        SequenceSemanticFact fact,
+        string valueId,
+        out int length)
+    {
+        if (fact.Collections.TryGetValue(valueId, out var values))
+        {
+            length = values.Length;
+            return !values.IsDefault;
+        }
+
+        if (fact.ExpressionCollections.TryGetValue(valueId, out var expressions))
+        {
+            length = expressions.Length;
+            return !expressions.IsDefault;
+        }
+
+        length = 0;
+        return false;
     }
 
     private static string BuildCollectionKey(string factId, string valueId) => $"{factId}:{valueId}";

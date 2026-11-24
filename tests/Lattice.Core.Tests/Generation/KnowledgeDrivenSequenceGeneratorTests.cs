@@ -62,8 +62,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal(new[] { "score > 90", "score >= 50" }, branches.Collections["conditions"]);
-        Assert.Equal(new[] { "\"High\"", "\"Pass\"" }, branches.Collections["returns"]);
+        Assert.Equal(
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNameExpression("score"),
+                new SemanticNumberExpression("90")),
+            branches.ExpressionCollections["conditions"][0]);
+        Assert.Equal(
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.GreaterThanOrEqual,
+                new SemanticNameExpression("score"),
+                new SemanticNumberExpression("50")),
+            branches.ExpressionCollections["conditions"][1]);
+        Assert.Equal(new SemanticTextExpression("High"), branches.ExpressionCollections["returns"][0]);
+        Assert.Equal(new SemanticTextExpression("Pass"), branches.ExpressionCollections["returns"][1]);
     }
 
     [Fact]
@@ -198,13 +210,13 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "score >= 10 or (score < 5 and score != 0)", "'accepted'", "'rejected'")]
+        "score >= 10 or score < 5 and score != 0", "\"accepted\"", "\"rejected\"")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
-        "not (score >= 10 or score < 5)", "'accepted'", "'rejected'")]
+        "not (score >= 10 or score < 5)", "\"accepted\"", "\"rejected\"")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is greater than or equal to 10 and otherwise returns 'rejected', then print classify(12).",
-        "score >= 10", "'accepted'", "'rejected'")]
+        "score >= 10", "\"accepted\"", "\"rejected\"")]
     [InlineData(
         "Create a Python program with a function named discount that takes price and limit and returns price * 0.9 when price is at least limit and otherwise returns price, then print discount(120, 100).",
         "price >= limit", "price * 0.9", "price")]
@@ -213,7 +225,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         "price >= limit and price < limit + 50", "price * 0.9", "price")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
-        "role == 'admin'", "'allowed'", "'denied'")]
+        "role == \"admin\"", "\"allowed\"", "\"denied\"")]
     public void Extracts_and_generates_boolean_conditions_from_declarative_semantics(
         string prompt,
         string expectedCondition,
@@ -224,7 +236,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
 
         var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal(expectedCondition, Assert.Single(branches.Collections["conditions"]));
+        Assert.Equal(expectedCondition, RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -1073,7 +1085,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
 
         Assert.Equal("total", target.Values["name"]);
-        Assert.Equal("5", value.Values["value"]);
+        Assert.Equal(new SemanticNumberExpression("5"), value.Expressions["value"]);
         Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
         Assert.Contains(facts, fact => fact.Id == "program.output");
         Assert.Contains(facts, fact => fact.Id == "value.output");
@@ -1930,10 +1942,21 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         string condition,
         bool expectedValid)
     {
+        var pack = LoadPythonLanguagePack();
+        var expressions = ImmutableDictionary<string, SemanticExpression>.Empty;
+        if (SemanticExpressionParser.TryParse(
+                "boolean", condition, pack.InputSyntax, out var parsedExpression))
+        {
+            expressions = expressions.Add("expression", parsedExpression!);
+        }
+
         var facts = ImmutableArray.Create(
             new SequenceSemanticFact(
                 "program.condition",
-                ImmutableDictionary<string, string>.Empty.Add("expression", condition)),
+                ImmutableDictionary<string, string>.Empty)
+            {
+                Expressions = expressions
+            },
             new SequenceSemanticFact(
                 "program.signature",
                 ImmutableDictionary<string, string>.Empty)
@@ -1968,7 +1991,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal("score >= 10", Assert.Single(branches.Collections["conditions"]));
+        Assert.Equal("score >= 10", RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -2000,7 +2023,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal("above_average", signature.Values["name"]);
         Assert.Equal("measurements", signature.Values["parameter"]);
         Assert.Equal("measurement", signature.Values["item"]);
-        Assert.Equal("<", Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison").Values["operator"]);
+        Assert.Equal(
+            SemanticExpressionOperator.LessThan,
+            Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison")
+                .ComparisonOperators["operator"]);
 
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
@@ -2036,7 +2062,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             extractionError);
 
         var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal(expectedExpression, Assert.Single(branches.Collections["conditions"]));
+        Assert.Equal(
+            expectedExpression,
+            RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
     }
 
     [Fact]
@@ -2049,5 +2077,17 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out _));
     }
 
+    private static GenerationLanguagePack LoadPythonLanguagePack()
+    {
+        var loader = new GenerationLanguagePackLoader();
+        Assert.True(loader.TryLoadEmbedded(out var packs, out var error), error);
+        return packs["python"];
+    }
 
+    private static string RenderExpression(SemanticExpression expression)
+    {
+        Assert.True(SemanticExpressionRenderer.TryRender(
+            expression, LoadPythonLanguagePack(), out var rendered));
+        return rendered;
+    }
 }

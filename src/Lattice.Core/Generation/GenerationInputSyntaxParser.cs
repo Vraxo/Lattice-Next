@@ -45,22 +45,8 @@ internal static class GenerationInputSyntaxParser
                 : format.NegativeSign.Length;
         }
 
-        var integerDigits = ConsumeDigits(value, ref index, format.Digits);
-        if (integerDigits == 0)
-        {
-            return false;
-        }
-
-        if (StartsWith(value, index, format.DecimalSeparator))
-        {
-            index += format.DecimalSeparator.Length;
-            if (ConsumeDigits(value, ref index, format.Digits) == 0)
-            {
-                return false;
-            }
-        }
-
-        return index == value.Length;
+        return TryReadUnsignedNumberAt(value, index, format, out _, out var end) &&
+            end == value.Length;
     }
 
     public static bool IsStringLiteral(string value, GenerationInputSyntax? syntax)
@@ -70,12 +56,71 @@ internal static class GenerationInputSyntaxParser
             return false;
         }
 
-        foreach (var format in syntax.StringLiteralFormats)
+        return TryReadStringLiteral(value, 0, syntax, out _, out var end) && end == value.Length;
+    }
+
+    internal static bool TryReadStringLiteral(
+        string source,
+        int start,
+        GenerationInputSyntax? syntax,
+        out string value,
+        out int end)
+    {
+        value = string.Empty;
+        end = start;
+        if (syntax is null || syntax.StringLiteralFormats.IsDefaultOrEmpty)
         {
-            if (TryReadStringLiteralAt(value, 0, format, out var end) && end == value.Length)
+            return false;
+        }
+
+        foreach (var format in syntax.StringLiteralFormats
+                     .OrderByDescending(format => format.OpeningDelimiter.Length))
+        {
+            if (!StartsWith(source, start, format.OpeningDelimiter))
             {
-                return true;
+                continue;
             }
+
+            if (!TryReadStringLiteralAt(source, start, format, out end))
+            {
+                return false;
+            }
+
+            var contentStart = start + format.OpeningDelimiter.Length;
+            var contentEnd = end - format.ClosingDelimiter.Length;
+            var builder = new System.Text.StringBuilder(contentEnd - contentStart);
+            var index = contentStart;
+            while (index < contentEnd)
+            {
+                if (StartsWith(source, index, format.EscapePrefix))
+                {
+                    var escape = format.EscapeSequences
+                        .OrderByDescending(sequence => sequence.Sequence.Length)
+                        .FirstOrDefault(sequence => StartsWith(source, index, sequence.Sequence));
+                    if (escape is not null)
+                    {
+                        builder.Append(escape.Value);
+                        index += escape.Sequence.Length;
+                        continue;
+                    }
+
+                    if (!format.AllowUnknownEscapes ||
+                        index + format.EscapePrefix.Length >= contentEnd)
+                    {
+                        return false;
+                    }
+
+                    builder.Append(format.EscapePrefix);
+                    index += format.EscapePrefix.Length;
+                    builder.Append(source[index++]);
+                    continue;
+                }
+
+                builder.Append(source[index++]);
+            }
+
+            value = builder.ToString();
+            return true;
         }
 
         return false;
@@ -117,7 +162,141 @@ internal static class GenerationInputSyntaxParser
         return SkipWhitespace(source, index) == source.Length;
     }
 
-    private static bool TryReadIdentifier(
+    internal static ImmutableArray<GenerationDelimiterPair> GetDelimiters(
+        GenerationInputSyntax syntax,
+        GenerationFunctionCallFormat? functionCallFormat = null)
+    {
+        var delimiters = syntax.GroupingDelimiters.IsDefault
+            ? ImmutableArray<GenerationDelimiterPair>.Empty
+            : syntax.GroupingDelimiters;
+        if (syntax.ExpressionGroupingDelimiter is { } expressionGrouping &&
+            !delimiters.Contains(expressionGrouping))
+        {
+            delimiters = delimiters.Add(expressionGrouping);
+        }
+
+        var callFormat = functionCallFormat ?? syntax.FunctionCallFormat;
+        if (callFormat is not null)
+        {
+            var functionCallDelimiter = new GenerationDelimiterPair(
+                callFormat.OpeningDelimiter,
+                callFormat.ClosingDelimiter);
+            if (!delimiters.Contains(functionCallDelimiter))
+            {
+                delimiters = delimiters.Add(functionCallDelimiter);
+            }
+        }
+
+        return delimiters
+            .OrderByDescending(delimiter => delimiter.OpeningDelimiter.Length)
+            .ToImmutableArray();
+    }
+
+    internal static bool TryReadUnsignedNumberAt(
+        string source,
+        int start,
+        GenerationNumberLiteralFormat format,
+        out string literal,
+        out int end)
+    {
+        literal = string.Empty;
+        end = start;
+        if (start < 0 || start >= source.Length ||
+            string.IsNullOrEmpty(format.Digits) ||
+            string.IsNullOrEmpty(format.DecimalSeparator))
+        {
+            return false;
+        }
+
+        var index = start;
+        if (ConsumeDigits(source, ref index, format.Digits) == 0)
+        {
+            return false;
+        }
+
+        if (StartsWith(source, index, format.DecimalSeparator))
+        {
+            var decimalEnd = index + format.DecimalSeparator.Length;
+            var fractionalDigitCount = ConsumeDigits(source, ref decimalEnd, format.Digits);
+            if (fractionalDigitCount > 0)
+            {
+                index = decimalEnd;
+            }
+        }
+
+        literal = source[start..index];
+        end = index;
+        return true;
+    }
+
+    internal static bool TryNormalizeNumberLiteral(
+        string literal,
+        GenerationNumberLiteralFormat format,
+        out string canonical)
+    {
+        canonical = string.Empty;
+        if (format.Digits.Length != 10 ||
+            !TryReadUnsignedNumberAt(literal, 0, format, out _, out var end) ||
+            end != literal.Length)
+        {
+            return false;
+        }
+
+        var builder = new System.Text.StringBuilder(literal.Length);
+        var index = 0;
+        while (index < literal.Length)
+        {
+            if (StartsWith(literal, index, format.DecimalSeparator))
+            {
+                builder.Append('.');
+                index += format.DecimalSeparator.Length;
+                continue;
+            }
+
+            var digit = format.Digits.IndexOf(literal[index]);
+            if (digit < 0)
+            {
+                return false;
+            }
+
+            builder.Append((char)('0' + digit));
+            index++;
+        }
+
+        canonical = builder.ToString();
+        return true;
+    }
+
+    internal static bool TryFormatNumberLiteral(
+        string canonical,
+        GenerationNumberLiteralFormat format,
+        out string literal)
+    {
+        literal = string.Empty;
+        if (format.Digits.Length != 10 ||
+            !SemanticExpressionAnalysis.IsValid(new SemanticNumberExpression(canonical)))
+        {
+            return false;
+        }
+
+        var builder = new System.Text.StringBuilder(canonical.Length);
+        foreach (var character in canonical)
+        {
+            if (character == '.')
+            {
+                builder.Append(format.DecimalSeparator);
+            }
+            else
+            {
+                builder.Append(format.Digits[character - '0']);
+            }
+        }
+
+        literal = builder.ToString();
+        return true;
+    }
+
+    internal static bool TryReadIdentifier(
         string source,
         int start,
         GenerationInputSyntax syntax,
@@ -155,13 +334,7 @@ internal static class GenerationInputSyntaxParser
         var argumentStart = start;
         var hasSeparator = false;
         var index = start;
-        var groupingDelimiters = syntax.GroupingDelimiters.IsDefault
-            ? ImmutableArray<GenerationDelimiterPair>.Empty
-            : syntax.GroupingDelimiters;
-        var delimiters = groupingDelimiters
-            .Add(new GenerationDelimiterPair(format.OpeningDelimiter, format.ClosingDelimiter))
-            .OrderByDescending(delimiter => delimiter.OpeningDelimiter.Length)
-            .ToArray();
+        var delimiters = GetDelimiters(syntax, format).ToArray();
         var closingDelimiters = delimiters
             .Select(delimiter => delimiter.ClosingDelimiter)
             .Distinct(StringComparer.Ordinal)
@@ -260,7 +433,7 @@ internal static class GenerationInputSyntaxParser
             return false;
         }
 
-        foreach (var format in formats)
+        foreach (var format in formats.OrderByDescending(format => format.OpeningDelimiter.Length))
         {
             if (!StartsWith(source, start, format.OpeningDelimiter))
             {
@@ -296,16 +469,16 @@ internal static class GenerationInputSyntaxParser
 
         var index = start + format.OpeningDelimiter.Length;
         var escapes = format.EscapeSequences
-            .OrderByDescending(sequence => sequence.Length)
+            .OrderByDescending(sequence => sequence.Sequence.Length)
             .ToArray();
         while (index < source.Length)
         {
             if (StartsWith(source, index, format.EscapePrefix))
             {
-                var escape = escapes.FirstOrDefault(sequence => StartsWith(source, index, sequence));
+                var escape = escapes.FirstOrDefault(sequence => StartsWith(source, index, sequence.Sequence));
                 if (escape is not null)
                 {
-                    index += escape.Length;
+                    index += escape.Sequence.Length;
                     continue;
                 }
 

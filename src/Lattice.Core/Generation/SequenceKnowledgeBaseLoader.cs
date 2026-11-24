@@ -283,7 +283,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences", "repeatMatches") ||
+                !HasOnlyProperties(item, "id", "matchTokens", "factId", "valueId", "literalValue", "captures", "searchAllSentences", "requiredAnySequences", "requiredAllSequences", "forbiddenAnySequences", "repeatMatches", "semanticExpressionKind") ||
                 !TryGetString(item, "id", out var id) ||
                 !IsValidIdentifier(id) ||
                 !identifiers.Add(id) ||
@@ -299,6 +299,9 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetArray(item, "captures", 16, required: false, out var captureElements) ||
                 !TryGetOptionalBoolean(item, "searchAllSentences", out var searchAllSentences) ||
                 !TryGetOptionalBoolean(item, "repeatMatches", out var repeatMatches) ||
+                !TryGetOptionalString(item, "semanticExpressionKind", out var semanticExpressionKind) ||
+                !IsValidSemanticExpressionKind(semanticExpressionKind) ||
+                (semanticExpressionKind is not null && valueId is null) ||
                 !TryGetNestedStringArray(item, "requiredAnySequences", out var requiredAnySequences) ||
                 requiredAnySequences.Length > 16 ||
                 !TryGetNestedStringArray(item, "requiredAllSequences", out var requiredAllSequences) ||
@@ -323,7 +326,8 @@ public static class SequenceKnowledgeBaseLoader
                 RequiredAnySequences = requiredAnySequences,
                 RequiredAllSequences = requiredAllSequences,
                 ForbiddenAnySequences = forbiddenAnySequences,
-                RepeatMatches = repeatMatches
+                RepeatMatches = repeatMatches,
+                SemanticExpressionKind = semanticExpressionKind
             });
         }
 
@@ -348,7 +352,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "semanticCollectionFormat", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "normalization", "numericOffset") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "semanticCollectionFormat", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "numericOffset", "semanticExpressionKind") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -383,9 +387,10 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
-                !TryGetOptionalString(item, "normalization", out var normalization) ||
-                (normalization is not null && normalization is not ("booleanExpression" or "comparisonOperator")) ||
+                !TryGetOptionalString(item, "semanticExpressionKind", out var semanticExpressionKind) ||
+                !IsValidSemanticExpressionKind(semanticExpressionKind) ||
                 !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
+                (semanticExpressionKind is not null && numericOffset is not null && numericOffset.Value != 0) ||
                 (collectionItemSeparator is not null && collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
                 ((collectionFieldIndex is not null || collectionTemplate is not null) &&
                     ((collectionDelimiter is null && collectionDelimiters.IsDefaultOrEmpty) ||
@@ -402,7 +407,7 @@ public static class SequenceKnowledgeBaseLoader
                      collectionFieldDelimiter is not null ||
                      collectionFieldIndex is not null ||
                      collectionTemplate is not null ||
-                     normalization is not null ||
+                     semanticExpressionKind is not null ||
                      (numericOffset is not null && numericOffset.Value != 0))))
             {
                 error = "Every input capture requires a unique fact/value pair and valid optional start, stop, and literal data.";
@@ -427,7 +432,7 @@ public static class SequenceKnowledgeBaseLoader
                 TrimPrefixTokens = trimPrefixTokens,
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
                 PreserveRawValue = preserveRawValue,
-                Normalization = normalization,
+                SemanticExpressionKind = semanticExpressionKind,
                 NumericOffset = numericOffset ?? 0,
                 CollectionItemSeparator = collectionItemSeparator
             });
@@ -992,6 +997,9 @@ public static class SequenceKnowledgeBaseLoader
 
     private static bool HasUniqueIdentifiers(ImmutableArray<string> values) =>
         values.Distinct(StringComparer.Ordinal).Count() == values.Length;
+
+    private static bool IsValidSemanticExpressionKind(string? kind) =>
+        kind is null or "arithmetic" or "boolean" or "value" or "functionCall" or "comparisonOperator";
 
     private static bool IsValidCollectionKey(string value)
     {

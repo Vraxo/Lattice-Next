@@ -11,6 +11,11 @@ public sealed record GenerationInputSyntax(
 {
     public ImmutableArray<GenerationDelimiterPair> GroupingDelimiters { get; init; } =
         ImmutableArray<GenerationDelimiterPair>.Empty;
+
+    public ImmutableArray<GenerationInputExpressionOperatorFormat> ExpressionOperators { get; init; } =
+        ImmutableArray<GenerationInputExpressionOperatorFormat>.Empty;
+
+    public GenerationDelimiterPair? ExpressionGroupingDelimiter { get; init; }
 }
 
 public sealed record GenerationNumberLiteralFormat(
@@ -23,14 +28,27 @@ public sealed record GenerationInputStringLiteralFormat(
     string OpeningDelimiter,
     string ClosingDelimiter,
     string EscapePrefix,
-    ImmutableArray<string> EscapeSequences,
+    ImmutableArray<GenerationInputEscapeSequence> EscapeSequences,
     bool AllowUnknownEscapes = false,
     bool AllowUnescapedLineBreaks = false);
+
+public sealed record GenerationInputEscapeSequence(
+    string Sequence,
+    string Value);
+
+public sealed record GenerationInputExpressionOperatorFormat(
+    string Kind,
+    string Token,
+    string Fixity,
+    int Precedence);
 
 public sealed record GenerationFunctionCallFormat(
     string OpeningDelimiter,
     string ClosingDelimiter,
-    string ArgumentSeparator);
+    string ArgumentSeparator)
+{
+    public string? RenderingArgumentSeparator { get; init; }
+}
 
 public sealed record GenerationDelimiterPair(
     string OpeningDelimiter,
