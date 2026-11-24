@@ -8,10 +8,28 @@ namespace Lattice.Core.Generation;
 public static class SequenceInputFactExtractor
 {
     private const int MaximumInputLength = 65_536;
+    private static readonly Lazy<ImmutableDictionary<string, GenerationLanguagePack>?> EmbeddedLanguagePacks =
+        new(LoadEmbeddedLanguagePacks);
 
     public static bool TryExtract(
         SequenceKnowledgeBase knowledge,
         string input,
+        out ImmutableArray<SequenceSemanticFact> facts,
+        out string? error) =>
+        TryExtractCore(knowledge, input, ResolveEmbeddedLanguagePack, out facts, out error);
+
+    public static bool TryExtract(
+        SequenceKnowledgeBase knowledge,
+        string input,
+        GenerationLanguagePack? languagePack,
+        out ImmutableArray<SequenceSemanticFact> facts,
+        out string? error) =>
+        TryExtractCore(knowledge, input, _ => languagePack, out facts, out error);
+
+    private static bool TryExtractCore(
+        SequenceKnowledgeBase knowledge,
+        string input,
+        Func<ImmutableArray<SequenceSemanticFact>, GenerationLanguagePack?> resolveLanguagePack,
         out ImmutableArray<SequenceSemanticFact> facts,
         out string? error)
     {
@@ -327,13 +345,36 @@ public static class SequenceInputFactExtractor
             })
             .ToImmutableArray();
 
-        if (!SequenceInputFactValidator.TryValidate(knowledge.Validations, extractedFacts, out error))
+        var languagePack = resolveLanguagePack(extractedFacts);
+        if (!SequenceInputFactValidator.TryValidate(
+                knowledge.Validations, extractedFacts, languagePack, out error))
         {
             return false;
         }
 
         facts = extractedFacts;
         return true;
+    }
+
+    private static ImmutableDictionary<string, GenerationLanguagePack>? LoadEmbeddedLanguagePacks()
+    {
+        var loader = new GenerationLanguagePackLoader();
+        return loader.TryLoadEmbedded(out var packs, out _) ? packs : null;
+    }
+
+    private static GenerationLanguagePack? ResolveEmbeddedLanguagePack(
+        ImmutableArray<SequenceSemanticFact> facts)
+    {
+        var languageFacts = facts
+            .Where(fact => fact.Id.StartsWith("language.", StringComparison.Ordinal))
+            .ToArray();
+        if (languageFacts.Length != 1 || EmbeddedLanguagePacks.Value is not { } packs)
+        {
+            return null;
+        }
+
+        var language = languageFacts[0].Id["language.".Length..];
+        return packs.TryGetValue(language, out var pack) ? pack : null;
     }
 
     private static bool TryNormalizeCapture(

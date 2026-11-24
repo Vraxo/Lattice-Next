@@ -1516,5 +1516,46 @@
         "encoding": "string-literal"
       }
     ]
+  },
+  "inputSyntax": {
+    "identifierStartCharacters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_",
+    "identifierContinuationCharacters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789",
+    "numberLiteralFormat": {
+      "digits": "0123456789",
+      "decimalSeparator": ".",
+      "positiveSign": "+",
+      "negativeSign": "-"
+    },
+    "stringLiteralFormats": [
+      {
+        "openingDelimiter": "\"",
+        "closingDelimiter": "\"",
+        "escapePrefix": "\\",
+        "escapeSequences": ["\\\\", "\\\"", "\\'", "\\n", "\\r", "\\t"],
+        "allowUnknownEscapes": true
+      },
+      {
+        "openingDelimiter": "'",
+        "closingDelimiter": "'",
+        "escapePrefix": "\\",
+        "escapeSequences": ["\\\\", "\\\"", "\\'", "\\n", "\\r", "\\t"],
+        "allowUnknownEscapes": true
+      }
+    ],
+    "functionCallFormat": {
+      "openingDelimiter": "(",
+      "closingDelimiter": ")",
+      "argumentSeparator": ","
+    },
+    "groupingDelimiters": [
+      {
+        "openingDelimiter": "[",
+        "closingDelimiter": "]"
+      },
+      {
+        "openingDelimiter": "{",
+        "closingDelimiter": "}"
+      }
+    ]
   }
 }
