@@ -247,6 +247,36 @@
       "id": "callable",
       "label": "callable",
       "kind": "Type"
+    },
+    {
+      "id": "programming-operation",
+      "label": "programming operation",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-input",
+      "label": "operation input slot",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-result",
+      "label": "operation result slot",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-effect",
+      "label": "programming effect",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-capability",
+      "label": "programming capability",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-constraint",
+      "label": "operation constraint",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -499,6 +529,36 @@
       "form": "binding",
       "concept": "binding",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming operation",
+      "concept": "programming-operation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation input slot",
+      "concept": "operation-input",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation result slot",
+      "concept": "operation-result",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming effect",
+      "concept": "programming-effect",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming capability",
+      "concept": "programming-capability",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation constraint",
+      "concept": "operation-constraint",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -726,6 +786,126 @@
       "verb": "supplies value",
       "order": 23,
       "comparisonPriority": 0
+    },
+    {
+      "id": "operation-has-input",
+      "domain": "programming-operation",
+      "range": "operation-input",
+      "verb": "accepts input slot",
+      "order": 24,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-has-result",
+      "domain": "programming-operation",
+      "range": "operation-result",
+      "verb": "produces result slot",
+      "order": 25,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-requires-type",
+      "domain": "operation-input",
+      "range": null,
+      "verb": "requires value type",
+      "order": 26,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "type"
+    },
+    {
+      "id": "operation-result-has-type",
+      "domain": "operation-result",
+      "range": null,
+      "verb": "has value type",
+      "order": 27,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "type"
+    },
+    {
+      "id": "operation-has-effect",
+      "domain": "programming-operation",
+      "range": "programming-effect",
+      "verb": "has effect",
+      "order": 28,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-requires-capability",
+      "domain": "programming-operation",
+      "range": "programming-capability",
+      "verb": "requires capability",
+      "order": 29,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-has-constraint",
+      "domain": "programming-operation",
+      "range": "operation-constraint",
+      "verb": "has constraint",
+      "order": 30,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-requires-operation",
+      "domain": "programming-operation",
+      "range": "programming-operation",
+      "verb": "requires operation",
+      "order": 31,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-receives-value",
+      "domain": "operation-input",
+      "range": "value",
+      "verb": "receives value",
+      "order": 32,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-reads-variable",
+      "domain": "operation-input",
+      "range": "variable",
+      "verb": "reads variable",
+      "order": 33,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-produces-value",
+      "domain": "operation-result",
+      "range": "value",
+      "verb": "produces value",
+      "order": 34,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-writes-variable",
+      "domain": "operation-result",
+      "range": "variable",
+      "verb": "writes variable",
+      "order": 35,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
     }
   ],
   "definitions": [
@@ -995,6 +1175,42 @@
     },
     {
       "concept": "binding",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-operation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-input",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-result",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-capability",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-constraint",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1382,6 +1598,17 @@
       "object": "callable"
     }
   ],
-  "dataProperties": [],
+  "dataProperties": [
+    {
+      "id": "operation-input-position",
+      "domainType": "operation-input",
+      "valueType": "number"
+    },
+    {
+      "id": "operation-result-position",
+      "domainType": "operation-result",
+      "valueType": "number"
+    }
+  ],
   "dataAssertions": []
 }
