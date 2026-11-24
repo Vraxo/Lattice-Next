@@ -1120,6 +1120,31 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
+    public void Captures_assignment_references_and_arithmetic_operator_as_typed_tree()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            "Create a Python program that assigns subtotal to unit_price * quantity + 7.",
+            out var facts,
+            out var error), error);
+
+        var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
+        var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
+        Assert.Equal("subtotal", target.Values["name"]);
+        Assert.Empty(value.Values);
+        Assert.Equal(
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Multiply,
+                    new SemanticNameExpression("unit_price"),
+                    new SemanticNameExpression("quantity")),
+                new SemanticNumberExpression("7")),
+            value.Expressions["value"]);
+    }
+
+    [Fact]
     public void Composes_assignment_and_output_facts_in_one_generated_sequence()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
