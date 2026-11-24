@@ -107,7 +107,7 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
 ### M-06 — Add the minimum operational programming model
 
 - [x] **M-06.1 — Map existing model types and relations to generation needs.** Compare `python-language-foundations.json`, the world-model loader/reasoner, and current `GenerationGoal` / `GenerationOperation` contracts. List only missing concepts or relations required by the queued migration tasks.
-- [ ] **M-06.2 — Add core program structure concepts.** Represent program goals, values, expressions, statements, variables, and bindings with language-neutral types and relations. Avoid adding concepts that have no current consumer.
+- [x] **M-06.2 — Add core program structure concepts.** Represent program goals, values, expressions, statements, variables, and bindings with language-neutral types and relations. Avoid adding concepts that have no current consumer.
 - [ ] **M-06.3 — Add reusable operation contracts.** Represent operation inputs and results with types, and describe effects, prerequisites, and constraints in the world model rather than relying only on the current effect/argument-kind string match.
 - [ ] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
 - [ ] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
