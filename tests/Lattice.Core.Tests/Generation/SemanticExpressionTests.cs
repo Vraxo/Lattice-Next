@@ -13,7 +13,10 @@ public sealed class SemanticExpressionTests
         var reference = new SemanticNameExpression("enabled");
         var expression = new SemanticBinaryExpression(
             SemanticExpressionOperator.And,
-            reference,
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Equal,
+                reference,
+                new SemanticBooleanExpression(true)),
             new SemanticBinaryExpression(
                 SemanticExpressionOperator.Equal,
                 new SemanticBooleanExpression(false),
@@ -28,7 +31,8 @@ public sealed class SemanticExpressionTests
         Assert.Equal(new SemanticNumberExpression("12.5"), call.Arguments[0]);
         Assert.Equal(new SemanticTextExpression("raw text"), call.Arguments[1]);
         Assert.True(SemanticExpressionAnalysis.IsValid(call));
-        Assert.Same(reference, expression.Left);
+        var leftComparison = Assert.IsType<SemanticBinaryExpression>(expression.Left);
+        Assert.Same(reference, leftComparison.Left);
         var nested = Assert.IsType<SemanticBinaryExpression>(expression.Right);
         Assert.Equal(SemanticExpressionOperator.Equal, nested.Operator);
         Assert.Equal(new SemanticBooleanExpression(false), nested.Left);

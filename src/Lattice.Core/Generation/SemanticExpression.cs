@@ -63,8 +63,7 @@ internal static class SemanticExpressionAnalysis
         IsValid(expression) && IsArithmeticCore(expression);
 
     public static bool IsValue(SemanticExpression expression) =>
-        IsValid(expression) &&
-        (expression is SemanticTextExpression || IsArithmeticCore(expression));
+        IsValid(expression) && IsValueCore(expression);
 
     public static bool IsBoolean(SemanticExpression expression) =>
         IsValid(expression) && IsBooleanCore(expression);
