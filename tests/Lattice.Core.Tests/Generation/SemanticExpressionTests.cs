@@ -150,7 +150,7 @@ public sealed class SemanticExpressionTests
             (SemanticExpressionOperator)int.MaxValue,
             new SemanticNumberExpression("1"),
             new SemanticNumberExpression("2"));
-        SemanticExpression invalidNumber = new SemanticNumberExpression("01.0");
+        SemanticExpression invalidNumber = new SemanticNumberExpression("1..0");
 
         Assert.False(SemanticExpressionAnalysis.IsValid(missingOperand));
         Assert.False(SemanticExpressionAnalysis.IsValid(invalidOperator));
