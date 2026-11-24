@@ -866,6 +866,46 @@
       "comparisonPriority": 0,
       "subjectKind": "individual",
       "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-receives-value",
+      "domain": "operation-input",
+      "range": "value",
+      "verb": "receives value",
+      "order": 32,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-reads-variable",
+      "domain": "operation-input",
+      "range": "variable",
+      "verb": "reads variable",
+      "order": 33,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-produces-value",
+      "domain": "operation-result",
+      "range": "value",
+      "verb": "produces value",
+      "order": 34,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-writes-variable",
+      "domain": "operation-result",
+      "range": "variable",
+      "verb": "writes variable",
+      "order": 35,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
     }
   ],
   "definitions": [

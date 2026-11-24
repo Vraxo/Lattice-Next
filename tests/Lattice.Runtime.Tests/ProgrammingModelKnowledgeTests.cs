@@ -7,7 +7,7 @@ namespace Lattice.Runtime.Tests;
 public sealed class ProgrammingModelKnowledgeTests
 {
     [Fact]
-    public void Loads_core_program_goal_and_binding_types_with_typed_relations()
+    public void Loads_core_programming_types_and_operation_contract_signatures()
     {
         var model = SemanticWorldModelResourceLoader.Load();
 
@@ -35,6 +35,10 @@ public sealed class ProgrammingModelKnowledgeTests
         AssertRelation("operation-requires-capability", "programming-operation", "programming-capability");
         AssertRelation("operation-has-constraint", "programming-operation", "operation-constraint");
         AssertRelation("operation-requires-operation", "programming-operation", "programming-operation");
+        AssertRelation("operation-input-receives-value", "operation-input", "value");
+        AssertRelation("operation-input-reads-variable", "operation-input", "variable");
+        AssertRelation("operation-result-produces-value", "operation-result", "value");
+        AssertRelation("operation-result-writes-variable", "operation-result", "variable");
 
         var inputType = Assert.IsType<SemanticRelationDefinition>(model.FindRelation("operation-input-requires-type"));
         Assert.Equal("operation-input", inputType.DomainType);
