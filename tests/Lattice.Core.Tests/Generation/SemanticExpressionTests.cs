@@ -7,6 +7,41 @@ namespace Lattice.Core.Tests.Generation;
 public sealed class SemanticExpressionTests
 {
     [Fact]
+    public void Semantic_model_preserves_typed_literals_references_nesting_and_operand_order()
+    {
+        var literal = new SemanticBooleanExpression(true);
+        var reference = new SemanticNameExpression("enabled");
+        var expression = new SemanticBinaryExpression(
+            SemanticExpressionOperator.And,
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Equal,
+                reference,
+                new SemanticBooleanExpression(true)),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Equal,
+                new SemanticBooleanExpression(false),
+                new SemanticBooleanExpression(true)));
+
+        Assert.Equal(true, literal.Value);
+        Assert.Equal("enabled", reference.Name);
+        var call = new SemanticFunctionCallExpression(
+            "threshold",
+            [new SemanticNumberExpression("12.5"), new SemanticTextExpression("raw text")]);
+        Assert.Equal("threshold", call.Name);
+        Assert.Equal(new SemanticNumberExpression("12.5"), call.Arguments[0]);
+        Assert.Equal(new SemanticTextExpression("raw text"), call.Arguments[1]);
+        Assert.True(SemanticExpressionAnalysis.IsValid(call));
+        var leftComparison = Assert.IsType<SemanticBinaryExpression>(expression.Left);
+        Assert.Same(reference, leftComparison.Left);
+        var nested = Assert.IsType<SemanticBinaryExpression>(expression.Right);
+        Assert.Equal(SemanticExpressionOperator.Equal, nested.Operator);
+        Assert.Equal(new SemanticBooleanExpression(false), nested.Left);
+        Assert.Equal(new SemanticBooleanExpression(true), nested.Right);
+        Assert.True(SemanticExpressionAnalysis.IsValid(expression));
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(expression));
+    }
+
+    [Fact]
     public void Parses_and_renders_expression_operators_numbers_calls_and_strings_from_selected_syntax()
     {
         var pack = CreateCustomPack();
@@ -43,6 +78,39 @@ public sealed class SemanticExpressionTests
         Assert.Equal("combine(١٫٥; \"a\\n b\")", renderedCall);
     }
 
+    [Theory]
+    [InlineData("True", true)]
+    [InlineData("False", false)]
+    public void Parses_and_renders_boolean_literals_from_language_pack(string source, bool value)
+    {
+        var pack = LoadPythonPack();
+        Assert.True(SemanticExpressionParser.TryParse(
+            "boolean", source, pack.InputSyntax, out var expression));
+        Assert.Equal(new SemanticBooleanExpression(value), expression);
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(expression!));
+        Assert.True(SemanticExpressionRenderer.TryRender(expression!, pack, out var rendered));
+        Assert.Equal(source, rendered);
+    }
+
+    [Fact]
+    public void Boolean_literal_spellings_are_selected_by_language_pack_metadata()
+    {
+        var pack = CreateCustomPack();
+        var syntax = pack.InputSyntax! with
+        {
+            BooleanLiteralFormat = new GenerationBooleanLiteralFormat("yes", "no")
+        };
+
+        Assert.True(SemanticExpressionParser.TryParse("value", "yes", syntax, out var trueExpression));
+        Assert.Equal(new SemanticBooleanExpression(true), trueExpression);
+        Assert.True(SemanticExpressionParser.TryParse("value", "no", syntax, out var falseExpression));
+        Assert.Equal(new SemanticBooleanExpression(false), falseExpression);
+        Assert.True(SemanticExpressionRenderer.TryRender(trueExpression!, pack with { InputSyntax = syntax }, out var trueText));
+        Assert.Equal("yes", trueText);
+        Assert.True(SemanticExpressionRenderer.TryRender(falseExpression!, pack with { InputSyntax = syntax }, out var falseText));
+        Assert.Equal("no", falseText);
+    }
+
     [Fact]
     public void Parses_boolean_and_comparison_expressions_as_operator_trees()
     {
@@ -70,6 +138,39 @@ public sealed class SemanticExpressionTests
         Assert.True(SemanticExpressionParser.TryParseComparisonOperator(
             "≤", syntax, out var comparisonOperator));
         Assert.Equal(SemanticExpressionOperator.LessThanOrEqual, comparisonOperator);
+    }
+
+    [Fact]
+    public void Rejects_malformed_semantic_expression_nodes()
+    {
+        SemanticExpression missingOperand = new SemanticUnaryExpression(
+            SemanticExpressionOperator.Negative,
+            null!);
+        SemanticExpression invalidOperator = new SemanticBinaryExpression(
+            (SemanticExpressionOperator)int.MaxValue,
+            new SemanticNumberExpression("1"),
+            new SemanticNumberExpression("2"));
+        SemanticExpression invalidNumber = new SemanticNumberExpression("1..0");
+
+        Assert.False(SemanticExpressionAnalysis.IsValid(missingOperand));
+        Assert.False(SemanticExpressionAnalysis.IsValid(invalidOperator));
+        Assert.False(SemanticExpressionAnalysis.IsArithmetic(invalidNumber));
+    }
+
+    [Fact]
+    public void Rejects_comparisons_between_incompatible_known_literal_types()
+    {
+        var mixed = new SemanticBinaryExpression(
+            SemanticExpressionOperator.Equal,
+            new SemanticNumberExpression("1"),
+            new SemanticTextExpression("one"));
+        var compatibleUnknown = new SemanticBinaryExpression(
+            SemanticExpressionOperator.Equal,
+            new SemanticNameExpression("value"),
+            new SemanticTextExpression("one"));
+
+        Assert.False(SemanticExpressionAnalysis.IsBoolean(mixed));
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(compatibleUnknown));
     }
 
     [Theory]

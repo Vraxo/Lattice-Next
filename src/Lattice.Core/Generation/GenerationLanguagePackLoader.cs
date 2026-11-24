@@ -289,6 +289,7 @@ public sealed class GenerationLanguagePackLoader
             syntax.IdentifierContinuationCharacters.Distinct().Count() != syntax.IdentifierContinuationCharacters.Length ||
             syntax.IdentifierStartCharacters.Any(character => !syntax.IdentifierContinuationCharacters.Contains(character)) ||
             !IsValidNumberLiteralFormat(syntax.NumberLiteralFormat) ||
+            (syntax.BooleanLiteralFormat is { } booleanFormat && !IsValidBooleanLiteralFormat(booleanFormat, syntax)) ||
             syntax.StringLiteralFormats.IsDefaultOrEmpty ||
             syntax.StringLiteralFormats.Length > 8 ||
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
@@ -298,6 +299,14 @@ public sealed class GenerationLanguagePackLoader
             syntax.ExpressionOperators.Length > 32 ||
             !IsValidExpressionOperators(syntax.ExpressionOperators) ||
             !IsValidExpressionGroupingDelimiter(syntax.ExpressionGroupingDelimiter))
+        {
+            return false;
+        }
+
+        if (syntax.BooleanLiteralFormat is { } booleanLiteralFormat &&
+            syntax.ExpressionOperators.Any(operation =>
+                operation.Token == booleanLiteralFormat.TrueLiteral ||
+                operation.Token == booleanLiteralFormat.FalseLiteral))
         {
             return false;
         }
@@ -381,6 +390,17 @@ public sealed class GenerationLanguagePackLoader
         !string.IsNullOrEmpty(delimiter.ClosingDelimiter) &&
         delimiter.ClosingDelimiter.Length <= 16 &&
         delimiter.OpeningDelimiter != delimiter.ClosingDelimiter;
+
+    private static bool IsValidBooleanLiteralFormat(
+        GenerationBooleanLiteralFormat format,
+        GenerationInputSyntax syntax) =>
+        !string.IsNullOrWhiteSpace(format.TrueLiteral) &&
+        format.TrueLiteral.Length <= 32 &&
+        GenerationInputSyntaxParser.IsIdentifier(format.TrueLiteral, syntax) &&
+        !string.IsNullOrWhiteSpace(format.FalseLiteral) &&
+        format.FalseLiteral.Length <= 32 &&
+        GenerationInputSyntaxParser.IsIdentifier(format.FalseLiteral, syntax) &&
+        !string.Equals(format.TrueLiteral, format.FalseLiteral, StringComparison.Ordinal);
 
     private static bool IsValidNumberLiteralFormat(GenerationNumberLiteralFormat format)
     {

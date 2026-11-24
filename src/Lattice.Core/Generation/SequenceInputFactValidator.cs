@@ -68,9 +68,7 @@ public static class SequenceInputFactValidator
                     SemanticExpressionAnalysis.IsArithmetic(arithmeticValue),
                 "arithmeticValueReferences" => TryValidateArithmeticValue(factMap, validation),
                 "comparisonValueReferences" => TryValidateComparisonValue(factMap, validation),
-                "comparisonOperandsReferences" => TryValidateComparisonOperands(factMap, validation),
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
-                "booleanExpressionReferences" => TryValidateBooleanExpressionReferences(factMap, validation),
                 "booleanExpressionCollectionReferences" => TryValidateBooleanExpressionCollectionReferences(factMap, validation),
                 "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
                 "valueExpressionCollectionReferences" => TryValidateValueExpressionCollectionReferences(factMap, validation),
@@ -152,27 +150,6 @@ public static class SequenceInputFactValidator
                 expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
 
-    private static bool TryValidateComparisonOperands(
-        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
-    {
-        if (!facts.TryGetValue(validation.FactId, out var condition) ||
-            !condition.Expressions.TryGetValue("left", out var left) ||
-            !condition.ComparisonOperators.TryGetValue("operator", out var comparisonOperator) ||
-            !condition.Expressions.TryGetValue("right", out var right) ||
-            !IsComparisonOperator(comparisonOperator) ||
-            !SemanticExpressionAnalysis.IsValue(left) ||
-            !SemanticExpressionAnalysis.IsValue(right) ||
-            !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters))
-        {
-            return false;
-        }
-
-        var available = parameters.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return SemanticExpressionAnalysis.ReferencesOnlyAvailableNames(left, available) &&
-            SemanticExpressionAnalysis.ReferencesOnlyAvailableNames(right, available);
-    }
-
     private static bool TryValidateArithmeticExpressionReferences(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
         SequenceInputFactValidation validation)
@@ -180,17 +157,6 @@ public static class SequenceInputFactValidator
         return TryGetExpression(facts, validation.FactId, validation.ValueId, out var expression) &&
             TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
             SemanticExpressionAnalysis.IsArithmetic(expression) &&
-            SemanticExpressionAnalysis.ReferencesOnlyAvailableNames(
-                expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
-    }
-
-    private static bool TryValidateBooleanExpressionReferences(
-        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
-    {
-        return TryGetExpression(facts, validation.FactId, validation.ValueId, out var expression) &&
-            TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) &&
-            SemanticExpressionAnalysis.IsBoolean(expression) &&
             SemanticExpressionAnalysis.ReferencesOnlyAvailableNames(
                 expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
