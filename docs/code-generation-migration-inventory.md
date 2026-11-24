@@ -62,36 +62,35 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 | Validation kind | Current records | Current behavior and classification |
 |---|---:|---|
-| `identifierValue` | 24 | ASCII Python-shaped identifier test. Scope/name binding can be generic; identifier spelling belongs to a selected language grammar. |
-| `identifierCollection` | 4 | Same syntax constraint over a collection; combines name validity with collection structure. |
+| `identifierValue` | 24 | Validates identifier spelling with `GenerationInputSyntaxParser` and the selected pack's input syntax; scope/name binding remains a separate concern. |
+| `identifierCollection` | 4 | Same selected-pack syntax constraint over a collection; combines name validity with collection structure. |
 | `uniqueCollection` | 3 | Reusable uniqueness constraint (case-insensitive in implementation). |
 | `disjointCollections` | 1 | Reusable scope/no-shadowing constraint between local and parameter collections. |
 | `integerValue` | 2 | Generic integer-value constraint, currently limited to non-negative `Int32` parsing. |
 | `ascendingIntegerRange` | 2 | Generic range ordering/bounds constraint. |
-| `pythonListLiteral` | 1 | **Explicit Python syntax validator** for a subset of list literals; implemented as `IsPythonListLiteral` in shared Core and whitelisted by the loader. |
-| `arithmeticCollectionReferences` | 1 | Python-shaped arithmetic parsing plus ordered local/parameter reference checking. |
-| `arithmeticValue` | 1 | Validates a source string using the shared Python-like arithmetic grammar. |
-| `arithmeticValueReferences` | 1 | Same grammar plus available-name/function-call checks and a local-name requirement. |
-| `comparisonValueReferences` | 0 | Supported but unused by the checked-in sequence module; parses a comparison from one source string and checks operand references. |
-| `comparisonOperandsReferences` | 0 | Supported but unused; accepts structured `left/operator/right` facts but still parses source-shaped arithmetic operands. |
-| `arithmeticExpressionReferences` | 0 | Supported but unused; Python-like arithmetic syntax plus name-reference validation. |
-| `booleanExpressionReferences` | 0 | Supported but unused; delegates to the Python-shaped boolean normalizer and checks references. |
-| `booleanExpressionCollectionReferences` | 1 | Python boolean syntax and parameter references over a string collection. |
-| `valueExpressionReferences` | 1 | Accepts a simplified quoted string literal or Python-shaped arithmetic source, then checks names. |
-| `valueExpressionCollectionReferences` | 1 | Same checks over a collection. |
+| `arithmeticCollectionReferences` | 1 | Consumes materialized arithmetic ASTs, enforces local/parameter reference availability and ordered-local scope. Source syntax parsing occurs during extraction via selected `InputSyntax`. |
+| `arithmeticValue` | 1 | Checks the already-materialized expression with `SemanticExpressionAnalysis.IsArithmetic`; does not parse source text in the validator. |
+| `arithmeticValueReferences` | 1 | Checks typed arithmetic structure and available-name/function-call scope; source parsing occurs before validation. |
+| `comparisonValueReferences` | 0 | Supported but unused by this module; validates a structured comparison expression and operand references. |
+| `comparisonOperandsReferences` | 0 | Supported but unused; consumes typed left/right operands plus a semantic operator identity and checks references. |
+| `arithmeticExpressionReferences` | 0 | Supported but unused; validates typed arithmetic structure plus references. |
+| `booleanExpressionReferences` | 0 | Supported but unused; validates a typed Boolean tree plus references. |
+| `booleanExpressionCollectionReferences` | 1 | Validates materialized Boolean trees and parameter references over an expression collection. |
+| `valueExpressionReferences` | 1 | Validates a materialized value-expression tree and references; literal/source parsing happens during extraction. |
+| `valueExpressionCollectionReferences` | 1 | Same typed-tree checks over an expression collection. |
 | `matchingCollections` | 3 | Reusable aligned-collection length constraint. |
-| `orderedArithmeticFunctionExpressions` | 1 | Ordered scope/reference and function-call check, but parses names, parameters, expressions, and calls from strings. |
-| `matchingLastNumericFunctionCall` | 1 | Python-like call syntax plus function name, arity and numeric-argument checks against the last definition. |
-| `matchingFunctionCall` | 1 | Python-like call syntax plus name/arity and numeric-or-string literal arguments. |
-| `matchingNumericFunctionCall` | 1 | Python-like call syntax plus name/arity and numeric arguments. |
+| `orderedArithmeticFunctionExpressions` | 1 | Checks ordered scopes/references and function calls from materialized expression trees; signature/parameter collections remain string-named values. |
+| `matchingLastNumericFunctionCall` | 1 | Checks a materialized function-call node's name, arity and numeric-literal arguments against the last definition; call syntax is parsed using selected-pack metadata before validation. |
+| `matchingFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric-or-string literal arguments. |
+| `matchingNumericFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric arguments. |
 
-The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
+The four zero-use kinds are nevertheless live shared validator/loader code. Expression syntax parsing occurs in `SemanticExpressionParser` / `BooleanExpressionNormalizer` using selected-pack `InputSyntax`; `SequenceInputFactValidator` consumes typed nodes and contains no former arithmetic, list-literal, or quoted-string source parsers. `pythonListLiteral` was removed from the active knowledge format and shared validator in M-04. The duplicate dead `PythonExpressionParser` was removed in M-03.
 
 ## M-05B semantic expression model decision (M-05B.2a)
 
 **Decision:** keep the expression model in `src/Lattice.Core/Generation/SemanticExpression.cs` for this migration, rather than introducing a parallel `Semantics` AST. The existing public `SemanticExpression` record hierarchy is already consumed by extraction, validation, and generation, and explicitly documents that syntax is supplied by a selected language pack. Reusing it is the smallest architectural change and avoids a second representation/conversion layer.
 
-The current shape already provides name, number, text, unary, binary, and function-call nodes; `SemanticExpressionOperator` provides language-neutral arithmetic, comparison, Boolean, and unary operator identities. Ordered binary children preserve operand order; nested nodes represent precedence/grouping semantically without retaining parentheses as source text. Number values are canonical invariant decimal strings and text nodes retain their semantic text, not target quoting/escaping. Target formatting belongs in `SemanticExpressionRenderer` and selected language-pack syntax.
+The current shape provides name, number, text, Boolean, unary, binary, and function-call nodes; `SemanticExpressionOperator` provides language-neutral arithmetic, comparison, Boolean, and unary operator identities. Expression-category analysis rejects incompatible known literal types while allowing unknown variable types to be resolved through bindings. Ordered binary children preserve operand order; nested nodes represent precedence/grouping semantically without retaining parentheses as source text. Number values are canonical invariant decimal strings and text nodes retain their semantic text, not target quoting/escaping. Target formatting belongs in `SemanticExpressionRenderer` and selected language-pack syntax.
 
 **Known fit/gap:** this model was already present on the baseline, so M-05B.2 reuses it rather than creating duplicate node classes. The expression model includes a Boolean literal node whose payload is a `bool`. The Python language pack now declares its true/false spellings, and the shared parser/renderer consume that metadata; shared code contains no Python Boolean token branch. Identifier identity remains a string name, and public constructors can create invalid combinations that are rejected later by `SemanticExpressionAnalysis`. The M-05B.2 model test covers typed literal/reference data, nesting, and operand order without changing parser or generation behavior.
 
