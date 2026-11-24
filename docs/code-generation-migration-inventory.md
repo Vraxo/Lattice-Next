@@ -87,6 +87,18 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
 
+## M-05B expression input inventory — value rules (M-05B.1d)
+
+“Value” here means captures tagged `semanticExpressionKind: value`, not every rule whose field happens to be named `value`. The tagged captures are limited to the rules below; the broader print/output capture families store raw text without this metadata and are inventoried in the main 231-rule table.
+
+| Rule IDs | Match conditions | Captured value / emitted fact IDs |
+|---|---|---|
+| `capture-assignment-components-set`, `-sets`, `-assign`, `-assigns` | Match the corresponding verb token; exclude the `function named` sequence | Capture target text up to `to` as `name` in `program.assignment.target`; capture the text after `to` up to `and` or `then` as `value`, tagged `value`, in `program.assignment.value`. The payload is raw request text, not a typed literal/reference/expression. |
+| `recognize-declarative-conditional-function` — branch returns capture | Match `function`; requires `named`, `takes`, `when`, `and otherwise returns`, and `then` | Captures the return text from each `when`-delimited branch field, up to the otherwise clause; removes trailing comma and preserves raw value. Emits a `returns` collection in `program.conditional-function.branches`, tagged `value`. |
+| `recognize-declarative-conditional-function` — otherwise return capture | Same outer function conditions | Captures raw expression after `and otherwise returns` up to `then`, trims trailing comma and preserves raw value; emits `program.conditional-function.false-return` with `valueId: expression`, tagged `value`. |
+
+There are no literal/reference sub-kinds in this capture metadata. The separate two-number addition task captures fixed `10`, `20`, and `first_number + second_number` values; these task-specific literal facts are documented in the main rule inventory and are not general value-expression extraction. Likewise, common output rules capture printed/displayed text without an expression-kind tag; those remain raw strings rather than structured values.
+
 ## M-05B expression input inventory — boolean rules (M-05B.1c)
 
 This inventory covers input captures tagged `semanticExpressionKind: boolean` and boolean-specific recognizers in `python.core.json`. There is one boolean capture site and no standalone Boolean-operator input rule family.
