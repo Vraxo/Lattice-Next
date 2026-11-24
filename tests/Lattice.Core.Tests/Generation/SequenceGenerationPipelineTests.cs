@@ -38,6 +38,37 @@ public sealed class SequenceGenerationPipelineTests
     }
 
     [Fact]
+    public void Renders_structured_collection_items_with_the_language_pack()
+    {
+        var loader = new GenerationLanguagePackLoader();
+        Assert.True(loader.TryLoadEmbedded(out var packs, out var loadError), loadError);
+
+        var goal = new GenerationGoal(
+            "emit-loop-header",
+            "collection-loop-header",
+            "collection-loop",
+            ImmutableArray<string>.Empty)
+        {
+            Bindings = ImmutableDictionary<string, string>.Empty
+                .Add("variable", "entry"),
+            CollectionBindings = ImmutableDictionary<string, SemanticCollection>.Empty
+                .Add("iterable", new SemanticCollection([
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, "2"),
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Text, "red, blue"),
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, "-1.5")
+                ]))
+        };
+
+        Assert.True(new SequenceGenerationPipeline().TryGenerate(
+            packs["python"],
+            goal,
+            out var result,
+            out var error), error);
+        Assert.Equal("for entry in [2, \"red, blue\", -1.5]:", result!.Text);
+        Assert.Equal("python-bound-for-collection-loop", result.SelectedOperationId);
+    }
+
+    [Fact]
     public void Rejects_a_goal_without_a_known_semantic_operation()
     {
         var loader = new GenerationLanguagePackLoader();

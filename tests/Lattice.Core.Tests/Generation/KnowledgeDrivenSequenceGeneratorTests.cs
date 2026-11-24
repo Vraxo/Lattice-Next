@@ -491,27 +491,37 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [InlineData(
         "Create a Python program that prints each number in the list [2, 4, 6].",
         "number",
-        "[2, 4, 6]",
-        "for number in [2, 4, 6]:\\n    print(number)")]
+        "number:2|number:4|number:6",
+        "for number in [2, 4, 6]:\n    print(number)")]
     [InlineData(
         "Build a Python script that displays each value from [1, 3.5, -2].",
         "value",
-        "[1, 3.5, -2]",
-        "for value in [1, 3.5, -2]:\\n    print(value)")]
+        "number:1|number:3.5|number:-2",
+        "for value in [1, 3.5, -2]:\n    print(value)")]
     [InlineData(
         "Create a Python program that prints each name in the list ['Ada', 'Grace'].",
         "name",
-        "['Ada', 'Grace']",
-        "for name in ['Ada', 'Grace']:\\n    print(name)")]
+        "text:Ada|text:Grace",
+        "for name in [\"Ada\", \"Grace\"]:\n    print(name)")]
     [InlineData(
-        """Build a Python script that displays each label from ["red, blue", 'green'].""",
+        "Build a Python script that displays each label from [\"red, blue\", 'green'].",
         "label",
-        """["red, blue", 'green']""",
-        """for label in ["red, blue", 'green']:\n    print(label)""")]
-    public void Generates_collection_iteration_from_declarative_facts(
+        "text:red, blue|text:green",
+        "for label in [\"red, blue\", \"green\"]:\n    print(label)")]
+    [InlineData(
+        "Create a Python program that prints each item from [2, \"Ada\", 3.5, -1.5].",
+        "item",
+        "number:2|text:Ada|number:3.5|number:-1.5",
+        "for item in [2, \"Ada\", 3.5, -1.5]:\n    print(item)")]
+    [InlineData(
+        "Create a Python program that prints each item in the list [].",
+        "item",
+        "",
+        "for item in []:\n    print(item)")]
+    public void Generates_collection_iteration_from_structured_semantic_facts(
         string input,
         string expectedItem,
-        string expectedCollection,
+        string expectedSemanticItems,
         string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
@@ -519,13 +529,28 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var collectionLoop = Assert.Single(facts.Where(fact => fact.Id == "program.collection-loop"));
         Assert.Equal(expectedItem, collectionLoop.Values["item"]);
-        Assert.Equal(expectedCollection, collectionLoop.Values["collection"]);
+        Assert.False(collectionLoop.Values.ContainsKey("collection"));
+        var expectedItems = string.IsNullOrEmpty(expectedSemanticItems)
+            ? ImmutableArray<SemanticCollectionItem>.Empty
+            : expectedSemanticItems.Split('|')
+                .Select(item =>
+                {
+                    var separator = item.IndexOf(':');
+                    return new SemanticCollectionItem(
+                        Enum.Parse<SemanticCollectionItemKind>(item[..separator], ignoreCase: true),
+                        item[(separator + 1)..]);
+                })
+                .ToImmutableArray();
+        Assert.Equal(expectedItems, collectionLoop.SemanticCollections["collection"].Items);
 
+        var languagePackLoader = new GenerationLanguagePackLoader();
+        Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var packLoadError), packLoadError);
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
             facts.Select(fact => fact.Id).ToImmutableArray())
         {
-            FactValues = facts
+            FactValues = facts,
+            LanguagePack = languagePacks["python"]
         };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!, null, request, out var generated, out var generationError),
@@ -533,21 +558,50 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var fence = new string((char)96, 3);
         Assert.Equal(
-            string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\\n", Environment.NewLine), fence),
+            string.Join(Environment.NewLine, fence + "python", expectedCode, fence),
             generated!.Text);
     }
 
     [Fact]
-    public void Accepts_mixed_quoted_string_items_in_a_list_literal()
+    public void Loads_declarative_semantic_collection_input_formats()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        var captures = knowledge!.InputRules
+            .SelectMany(rule => rule.Captures)
+            .Where(capture => capture.SemanticCollectionFormat is not null)
+            .ToArray();
+
+        Assert.Equal(2, captures.Length);
+        Assert.All(captures, capture =>
+        {
+            Assert.Equal("[", capture.SemanticCollectionFormat!.OpeningDelimiter);
+            Assert.Equal("]", capture.SemanticCollectionFormat.ClosingDelimiter);
+            Assert.Equal(",", capture.SemanticCollectionFormat.ItemSeparator);
+            Assert.Contains(capture.SemanticCollectionFormat.ItemFormats,
+                format => format.Kind == SemanticCollectionItemKind.Number);
+            Assert.Contains(capture.SemanticCollectionFormat.ItemFormats,
+                format => format.Kind == SemanticCollectionItemKind.Text);
+        });
+    }
+
+    [Fact]
+    public void Validates_semantic_collection_items_and_their_types()
     {
         var fact = new SequenceSemanticFact(
             "program.collection-loop",
-            ImmutableDictionary<string, string>.Empty.Add(
+            ImmutableDictionary<string, string>.Empty)
+        {
+            SemanticCollections = ImmutableDictionary<string, SemanticCollection>.Empty.Add(
                 "collection",
-                """["red, blue", 'green']"""));
+                new SemanticCollection([
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Text, "red, blue"),
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, "3.5")
+                ]))
+        };
         var validation = new SequenceInputFactValidation(
-            "collection-loop-list-literal",
-            "pythonListLiteral",
+            "collection-loop-has-semantic-values",
+            "semanticCollection",
             "program.collection-loop",
             "collection");
 
@@ -557,7 +611,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Rejects_collection_loop_values_that_are_not_safe_list_literals()
+    public void Rejects_collection_items_that_do_not_match_the_declared_semantic_types()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 

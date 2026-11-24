@@ -8,6 +8,9 @@ public sealed record SequenceSemanticFact(
 {
     public ImmutableDictionary<string, ImmutableArray<string>> Collections { get; init; } =
         ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal);
+
+    public ImmutableDictionary<string, SemanticCollection> SemanticCollections { get; init; } =
+        ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
 public sealed record SequenceTokenBinding(
@@ -83,6 +86,8 @@ public sealed record SequenceInputFactCapture(
     public int? CollectionFieldIndex { get; init; }
 
     public string? CollectionTemplate { get; init; }
+
+    public SemanticCollectionInputFormat? SemanticCollectionFormat { get; init; }
 
     public ImmutableArray<string> TrimPrefixTokens { get; init; } = ImmutableArray<string>.Empty;
 

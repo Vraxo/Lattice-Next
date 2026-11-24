@@ -1948,6 +1948,79 @@
             "from"
           ],
           "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
           "trimSuffixCharacters": "."
         }
       ],
@@ -1998,6 +2071,79 @@
             "list"
           ],
           "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
           "trimSuffixCharacters": "."
         }
       ],
@@ -7464,8 +7610,8 @@
       "appliesWhenFactId": "program.collection-loop"
     },
     {
-      "id": "collection-loop-value-is-list-literal",
-      "kind": "pythonListLiteral",
+      "id": "collection-loop-has-semantic-values",
+      "kind": "semanticCollection",
       "factId": "program.collection-loop",
       "valueId": "collection",
       "appliesWhenFactId": "program.collection-loop"

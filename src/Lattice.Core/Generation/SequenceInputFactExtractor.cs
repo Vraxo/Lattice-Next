@@ -34,6 +34,7 @@ public static class SequenceInputFactExtractor
         var tokens = EnglishLexer.Tokenize(input);
         var extracted = new Dictionary<string, Dictionary<string, (string Value, int Specificity)>>(StringComparer.Ordinal);
         var collections = new Dictionary<string, Dictionary<string, ImmutableArray<string>>>(StringComparer.Ordinal);
+        var semanticCollections = new Dictionary<string, Dictionary<string, SemanticCollection>>(StringComparer.Ordinal);
         var matchedAnyRule = false;
 
         foreach (var rule in knowledge.InputRules)
@@ -138,6 +139,32 @@ public static class SequenceInputFactExtractor
                         capture.PreserveRawValue,
                         out capturedValue))
                 {
+                    continue;
+                }
+
+                if (capture.SemanticCollectionFormat is { } semanticCollectionFormat)
+                {
+                    if (!SemanticCollectionInputParser.TryParse(
+                        capturedValue,
+                        semanticCollectionFormat,
+                        out var semanticCollection))
+                    {
+                        error = $"Input rule '{rule.Id}' could not parse a structured semantic collection.";
+                        return false;
+                    }
+
+                    EnsureFact(extracted, capture.FactId);
+                    if (!TryAddSemanticCollection(
+                        semanticCollections,
+                        capture.FactId,
+                        capture.ValueId,
+                        semanticCollection!,
+                        rule.RepeatMatches,
+                        out error))
+                    {
+                        return false;
+                    }
+
                     continue;
                 }
 
@@ -293,7 +320,10 @@ public static class SequenceInputFactExtractor
             {
                 Collections = collections.TryGetValue(item.Key, out var factCollections)
                     ? factCollections.ToImmutableDictionary(StringComparer.Ordinal)
-                    : ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal),
+                SemanticCollections = semanticCollections.TryGetValue(item.Key, out var typedCollections)
+                    ? typedCollections.ToImmutableDictionary(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal)
             })
             .ToImmutableArray();
 
@@ -398,6 +428,55 @@ public static class SequenceInputFactExtractor
         values[valueId] = values.TryGetValue(valueId, out var existing)
             ? existing.AddRange(items)
             : items;
+        return true;
+    }
+
+    private static bool TryAddSemanticCollection(
+        Dictionary<string, Dictionary<string, SemanticCollection>> extracted,
+        string factId,
+        string valueId,
+        SemanticCollection collection,
+        bool append,
+        out string? error)
+    {
+        error = null;
+        if (!SemanticCollectionValidator.IsValid(collection))
+        {
+            error = $"Input rule produced an invalid semantic collection for fact '{factId}'.";
+            return false;
+        }
+
+        if (!extracted.TryGetValue(factId, out var values))
+        {
+            values = new Dictionary<string, SemanticCollection>(StringComparer.Ordinal);
+            extracted.Add(factId, values);
+        }
+
+        if (!values.TryGetValue(valueId, out var existing))
+        {
+            values.Add(valueId, collection);
+            return true;
+        }
+
+        if (append)
+        {
+            var combined = new SemanticCollection(existing.Items.AddRange(collection.Items));
+            if (!SemanticCollectionValidator.IsValid(combined))
+            {
+                error = $"Repeated input matches exceeded the supported semantic collection size for fact '{factId}'.";
+                return false;
+            }
+
+            values[valueId] = combined;
+            return true;
+        }
+
+        if (!existing.Items.SequenceEqual(collection.Items))
+        {
+            error = $"Input rules produced conflicting semantic collections for fact '{factId}'.";
+            return false;
+        }
+
         return true;
     }
 
@@ -578,9 +657,6 @@ public static class SequenceInputFactExtractor
         }
 
         var capturedText = input[captureStart..captureEnd].Trim();
-        var isBracketedCollection = capturedText.Length >= 2 &&
-            capturedText[0] == '[' &&
-            capturedText[^1] == ']';
         var quotedValue = tokens
             .Skip(startToken + 1)
             .TakeWhile(token => token.Start < captureEnd)
@@ -589,7 +665,7 @@ public static class SequenceInputFactExtractor
         {
             value = capturedText;
         }
-        else if (quotedValue.IsQuoted && !isBracketedCollection)
+        else if (quotedValue.IsQuoted)
         {
             value = quotedValue.Value;
         }

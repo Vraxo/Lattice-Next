@@ -10,4 +10,7 @@ public sealed record GenerationGoal(
 {
     public ImmutableDictionary<string, string> Bindings { get; init; } =
         ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal);
+
+    public ImmutableDictionary<string, SemanticCollection> CollectionBindings { get; init; } =
+        ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal);
 }

@@ -11,6 +11,8 @@ public sealed record KnowledgeDrivenSequenceGenerationRequest(
 {
     public ImmutableArray<SequenceSemanticFact> FactValues { get; init; } =
         ImmutableArray<SequenceSemanticFact>.Empty;
+
+    public GenerationLanguagePack? LanguagePack { get; init; }
 }
 
 public static class KnowledgeDrivenSequenceGenerator
@@ -98,7 +100,13 @@ public static class KnowledgeDrivenSequenceGenerator
                         !RequiredFactsAreComplete(rule.RequiresCompletedFacts, state.CompletedFacts) ||
                         HasForbiddenActiveFact(rule.ForbiddenFacts, activeFacts) ||
                         !SatisfiesOnlyActiveFacts(rule.SatisfiesFacts, activeFacts) ||
-                        !TryResolveToken(rule, facts, state.CollectionCursors, encodings, out var token))
+                        !TryResolveToken(
+                            rule,
+                            facts,
+                            state.CollectionCursors,
+                            encodings,
+                            request.LanguagePack,
+                            out var token))
                     {
                         continue;
                     }
@@ -235,7 +243,14 @@ public static class KnowledgeDrivenSequenceGenerator
                 fact.Collections.Any(collection =>
                     string.IsNullOrWhiteSpace(collection.Key) || collection.Key.Length > 128 ||
                     collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
-                    collection.Value.Any(value => value is null || value.Length > MaximumFactValueLength)))
+                    collection.Value.Any(value => value is null || value.Length > MaximumFactValueLength)) ||
+                fact.SemanticCollections is null ||
+                fact.SemanticCollections.Any(collection =>
+                    string.IsNullOrWhiteSpace(collection.Key) ||
+                    collection.Key.Length > 128 ||
+                    !SemanticCollectionValidator.IsValid(collection.Value)) ||
+                fact.SemanticCollections.Keys.Any(key =>
+                    fact.Values.ContainsKey(key) || fact.Collections.ContainsKey(key)))
             {
                 error = "Every semantic value binding must reference one active fact and contain valid named values.";
                 return false;
@@ -343,6 +358,7 @@ public static class KnowledgeDrivenSequenceGenerator
         ImmutableDictionary<string, SequenceSemanticFact> facts,
         ImmutableDictionary<string, int> collectionCursors,
         ImmutableDictionary<string, SequenceTokenEncoding> encodings,
+        GenerationLanguagePack? languagePack,
         out string token)
     {
         token = string.Empty;
@@ -435,6 +451,14 @@ public static class KnowledgeDrivenSequenceGenerator
             }
 
             value = collection[index];
+        }
+        else if (fact.SemanticCollections.TryGetValue(binding.ValueId, out var semanticCollection))
+        {
+            if (languagePack is null ||
+                !SemanticCollectionLiteralRenderer.TryRender(semanticCollection, languagePack, out value))
+            {
+                return false;
+            }
         }
         else if (!fact.Values.TryGetValue(binding.ValueId, out value!))
         {

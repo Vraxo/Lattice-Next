@@ -9,4 +9,5 @@ public sealed record GenerationLanguagePack(
     ImmutableArray<GenerationProduction> Productions,
     ImmutableArray<GenerationBinding> Bindings,
     ImmutableArray<GenerationOperation> Operations,
-    GenerationStringLiteralFormat StringLiteralFormat);
+    GenerationStringLiteralFormat StringLiteralFormat,
+    GenerationCollectionLiteralFormat? CollectionLiteralFormat = null);

@@ -40,22 +40,37 @@ public sealed class SequenceGenerationPipeline
 
         foreach (var binding in pack.Bindings.Where(binding => requiredBindings.Contains(binding.Name)))
         {
-            var sourceValue = binding.Source switch
+            string value;
+            if (binding.Source == "goal-collection")
             {
-                "selected-operation" => selectedOperation!.Symbol,
-                "goal-argument" => goal.ArgumentValue,
-                "goal-binding" => binding.Key is { } key && goal.Bindings.TryGetValue(key, out var boundValue)
-                    ? boundValue
-                    : string.Empty,
-                _ => string.Empty
-            };
+                if (binding.Encoding != "collection-literal" ||
+                    binding.Key is null ||
+                    !goal.CollectionBindings.TryGetValue(binding.Key, out var collection) ||
+                    !SemanticCollectionLiteralRenderer.TryRender(collection, pack, out value))
+                {
+                    error = $"The generation binding '{binding.Name}' could not render its semantic collection.";
+                    return false;
+                }
+            }
+            else
+            {
+                var sourceValue = binding.Source switch
+                {
+                    "selected-operation" => selectedOperation!.Symbol,
+                    "goal-argument" => goal.ArgumentValue,
+                    "goal-binding" => binding.Key is { } key && goal.Bindings.TryGetValue(key, out var boundValue)
+                        ? boundValue
+                        : string.Empty,
+                    _ => string.Empty
+                };
 
-            var value = binding.Encoding switch
-            {
-                "none" => sourceValue,
-                "string-literal" => EncodeStringLiteral(sourceValue, pack.StringLiteralFormat),
-                _ => string.Empty
-            };
+                value = binding.Encoding switch
+                {
+                    "none" => sourceValue,
+                    "string-literal" => EncodeStringLiteral(sourceValue, pack.StringLiteralFormat),
+                    _ => string.Empty
+                };
+            }
 
             if (value.Length == 0 ||
                 !bindings.TryAdd(binding.Name, ImmutableArray.Create(value)))
@@ -174,7 +189,7 @@ public sealed class SequenceGenerationPipeline
                 $"The validated generation symbol kind '{symbol.Kind}' is unsupported.")
         };
 
-    private static string EncodeStringLiteral(
+    internal static string EncodeStringLiteral(
         string value,
         GenerationStringLiteralFormat format)
     {

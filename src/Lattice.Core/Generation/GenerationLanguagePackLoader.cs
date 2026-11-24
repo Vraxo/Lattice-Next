@@ -52,7 +52,9 @@ public sealed class GenerationLanguagePackLoader
             string.IsNullOrEmpty(pack.StringLiteralFormat.ClosingDelimiter) ||
             pack.StringLiteralFormat.OpeningDelimiter.Length > 4 ||
             pack.StringLiteralFormat.ClosingDelimiter.Length > 4 ||
-            pack.StringLiteralFormat.Escapes.IsDefault)
+            pack.StringLiteralFormat.Escapes.IsDefault ||
+            (pack.CollectionLiteralFormat is { } collectionFormat &&
+                !IsValidCollectionLiteralFormat(collectionFormat)))
         {
             error = "The generation language pack metadata or collection sizes are invalid.";
             pack = null;
@@ -99,10 +101,14 @@ public sealed class GenerationLanguagePackLoader
         {
             if (binding is null ||
                 !IsIdentifier(binding.Name) ||
-                binding.Source is not ("selected-operation" or "goal-argument" or "goal-binding") ||
-                binding.Encoding is not ("none" or "string-literal") ||
-                (binding.Source == "goal-binding" && !IsIdentifier(binding.Key)) ||
-                (binding.Source != "goal-binding" && binding.Key is not null) ||
+                binding.Source is not ("selected-operation" or "goal-argument" or "goal-binding" or "goal-collection") ||
+                binding.Encoding is not ("none" or "string-literal" or "collection-literal") ||
+                ((binding.Source == "goal-binding" || binding.Source == "goal-collection") &&
+                    !IsIdentifier(binding.Key)) ||
+                (binding.Source != "goal-binding" && binding.Source != "goal-collection" &&
+                    binding.Key is not null) ||
+                (binding.Source == "goal-collection" && binding.Encoding != "collection-literal") ||
+                (binding.Encoding == "collection-literal" && binding.Source != "goal-collection") ||
                 !bindings.TryAdd(binding.Name, binding))
             {
                 error = "Every generation binding requires a unique name and a supported source and encoding.";
@@ -116,6 +122,14 @@ public sealed class GenerationLanguagePackLoader
                 pack = null;
                 return false;
             }
+        }
+
+        if (bindings.Values.Any(binding => binding.Encoding == "collection-literal") &&
+            pack.CollectionLiteralFormat is null)
+        {
+            error = "A collection-literal binding requires a declarative collection format in the language pack.";
+            pack = null;
+            return false;
         }
 
         foreach (var symbol in pack.Productions.SelectMany(production => production.Symbols))
@@ -228,6 +242,37 @@ public sealed class GenerationLanguagePackLoader
 
         packs = builder.ToImmutable();
         return true;
+    }
+
+    private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
+    {
+        if (string.IsNullOrWhiteSpace(format.OpeningDelimiter) ||
+            format.OpeningDelimiter.Length > 32 ||
+            string.IsNullOrWhiteSpace(format.ClosingDelimiter) ||
+            format.ClosingDelimiter.Length > 32 ||
+            string.IsNullOrWhiteSpace(format.ItemSeparator) ||
+            format.ItemSeparator.Length > 32 ||
+            format.ItemFormats.IsDefaultOrEmpty ||
+            format.ItemFormats.Length > 8)
+        {
+            return false;
+        }
+
+        var itemEncodings = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var itemFormat in format.ItemFormats)
+        {
+            if (itemFormat is null ||
+                itemFormat.Kind is not ("number" or "text") ||
+                itemFormat.Encoding is not ("none" or "string-literal") ||
+                (itemFormat.Kind == "number" && itemFormat.Encoding != "none") ||
+                (itemFormat.Kind == "text" && itemFormat.Encoding != "string-literal") ||
+                !itemEncodings.TryAdd(itemFormat.Kind, itemFormat.Encoding))
+            {
+                return false;
+            }
+        }
+
+        return itemEncodings.ContainsKey("number") && itemEncodings.ContainsKey("text");
     }
 
     private static bool IsCapabilityIdentifier(string? value)
