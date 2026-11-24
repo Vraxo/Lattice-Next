@@ -87,6 +87,14 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
 
+## M-05B semantic expression model decision (M-05B.2a)
+
+**Decision:** keep the expression model in `src/Lattice.Core/Generation/SemanticExpression.cs` for this migration, rather than introducing a parallel `Semantics` AST. The existing public `SemanticExpression` record hierarchy is already consumed by extraction, validation, and generation, and explicitly documents that syntax is supplied by a selected language pack. Reusing it is the smallest architectural change and avoids a second representation/conversion layer.
+
+The current shape already provides name, number, text, unary, binary, and function-call nodes; `SemanticExpressionOperator` provides language-neutral arithmetic, comparison, Boolean, and unary operator identities. Ordered binary children preserve operand order; nested nodes represent precedence/grouping semantically without retaining parentheses as source text. Number values are canonical invariant decimal strings and text nodes retain their semantic text, not target quoting/escaping. Target formatting belongs in `SemanticExpressionRenderer` and selected language-pack syntax.
+
+**Known fit/gap to address in subsequent M-05B.2 tasks:** this model is present on the baseline, so the remaining work should audit and tighten its contracts/tests, not create duplicate node classes. It currently lacks an explicit Boolean-literal node; identifier identity is represented only by a string name; and its public constructors can create invalid combinations that are rejected later by `SemanticExpressionAnalysis`. Keep this migration narrowly scoped: add only the typed literal/reference/operator representation required by the queue, with model-level tests before changing parser or generation behavior.
+
 ## M-05B check classification (M-05B.1h)
 
 Classification of the current expression and adjacent checks in `SequenceInputFactValidator` / extraction, without changing behavior:
