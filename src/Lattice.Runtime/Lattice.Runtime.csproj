@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="../../knowledge/domains/**/*.json" LogicalName="Lattice.Runtime.SemanticWorldModel.%(RecursiveDir)%(Filename)%(Extension)" />
+    <InternalsVisibleTo Include="Lattice.Runtime.Tests" />
   </ItemGroup>
 
   <ItemGroup>

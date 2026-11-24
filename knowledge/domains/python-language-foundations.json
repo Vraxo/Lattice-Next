@@ -14,6 +14,11 @@
       "kind": "Type"
     },
     {
+      "id": "program-goal",
+      "label": "program goal",
+      "kind": "Type"
+    },
+    {
       "id": "statement",
       "label": "statement",
       "kind": "Type"
@@ -41,6 +46,11 @@
     {
       "id": "variable",
       "label": "variable",
+      "kind": "Type"
+    },
+    {
+      "id": "binding",
+      "label": "binding",
       "kind": "Type"
     },
     {
@@ -479,6 +489,16 @@
       "form": "callable",
       "concept": "callable",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "program goal",
+      "concept": "program-goal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "binding",
+      "concept": "binding",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -666,6 +686,46 @@
       "comparisonPriority": 0,
       "subjectKind": "type",
       "objectKind": "type"
+    },
+    {
+      "id": "program-goal-has-statement",
+      "domain": "program-goal",
+      "range": "statement",
+      "verb": "requires statement",
+      "order": 19,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "statement-has-expression",
+      "domain": "statement",
+      "range": "expression",
+      "verb": "uses expression",
+      "order": 20,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "assignment-targets-variable",
+      "domain": "assignment-statement",
+      "range": "variable",
+      "verb": "targets variable",
+      "order": 21,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "binding-binds-variable",
+      "domain": "binding",
+      "range": "variable",
+      "verb": "binds variable",
+      "order": 22,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "binding-supplies-value",
+      "domain": "binding",
+      "range": "value",
+      "verb": "supplies value",
+      "order": 23,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -923,6 +983,18 @@
     },
     {
       "concept": "callable",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "program-goal",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "binding",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
