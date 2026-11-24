@@ -21,6 +21,13 @@ public sealed class SemanticExpressionTests
 
         Assert.Equal(true, literal.Value);
         Assert.Equal("enabled", reference.Name);
+        var call = new SemanticFunctionCallExpression(
+            "threshold",
+            [new SemanticNumberExpression("12.5"), new SemanticTextExpression("raw text")]);
+        Assert.Equal("threshold", call.Name);
+        Assert.Equal(new SemanticNumberExpression("12.5"), call.Arguments[0]);
+        Assert.Equal(new SemanticTextExpression("raw text"), call.Arguments[1]);
+        Assert.True(SemanticExpressionAnalysis.IsValid(call));
         Assert.Same(reference, expression.Left);
         var nested = Assert.IsType<SemanticBinaryExpression>(expression.Right);
         Assert.Equal(SemanticExpressionOperator.Equal, nested.Operator);

@@ -147,11 +147,18 @@ internal static class SemanticExpressionAnalysis
         return leftType is null || rightType is null || leftType == rightType;
     }
 
-    private static Type? GetKnownValueType(SemanticExpression expression) => expression switch
+    private enum KnownValueType
     {
-        SemanticTextExpression => typeof(string),
-        SemanticBooleanExpression => typeof(bool),
-        SemanticNumberExpression or SemanticUnaryExpression or SemanticBinaryExpression or SemanticFunctionCallExpression => typeof(decimal),
+        Number,
+        Text,
+        Boolean
+    }
+
+    private static KnownValueType? GetKnownValueType(SemanticExpression expression) => expression switch
+    {
+        SemanticTextExpression => KnownValueType.Text,
+        SemanticBooleanExpression => KnownValueType.Boolean,
+        SemanticNumberExpression or SemanticUnaryExpression or SemanticBinaryExpression or SemanticFunctionCallExpression => KnownValueType.Number,
         _ => null
     };
 
