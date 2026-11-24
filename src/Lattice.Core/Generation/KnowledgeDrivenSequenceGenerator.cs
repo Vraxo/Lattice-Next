@@ -527,6 +527,18 @@ public static class KnowledgeDrivenSequenceGenerator
                 SemanticCollectionLiteralRenderer.TryRender(semanticCollection, languagePack, out value);
         }
 
+        if (fact.Collections.TryGetValue(valueId, out var values) && values.Length == 1)
+        {
+            value = values[0];
+            return value.Length <= MaximumFactValueLength;
+        }
+
+        if (fact.ExpressionCollections.TryGetValue(valueId, out var expressions) && expressions.Length == 1)
+        {
+            return languagePack is not null &&
+                SemanticExpressionRenderer.TryRender(expressions[0], languagePack, out value);
+        }
+
         return false;
     }
 

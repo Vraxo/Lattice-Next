@@ -1129,8 +1129,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
         var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
 
-        Assert.Equal("total", target.Values["name"]);
-        Assert.Equal(new SemanticNumberExpression("5"), value.Expressions["value"]);
+        Assert.Equal("total", Assert.Single(target.Collections["name"]));
+        Assert.Equal(new SemanticNumberExpression("5"), Assert.Single(value.ExpressionCollections["value"]));
         Assert.Contains(facts, fact => fact.Id == "program.assignment.operator");
         Assert.Contains(facts, fact => fact.Id == "program.output");
         Assert.Contains(facts, fact => fact.Id == "value.output");
@@ -1155,12 +1155,42 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
         var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
-        Assert.Equal(expectedName, target.Values["name"]);
-        var expression = value.Expressions["value"];
+        Assert.Equal(expectedName, Assert.Single(target.Collections["name"]));
+        var expression = Assert.Single(value.ExpressionCollections["value"]);
         SemanticExpression expected = expectedValueKind == "number"
             ? new SemanticNumberExpression(expectedValue)
             : new SemanticTextExpression(expectedValue);
         Assert.Equal(expected, expression);
+    }
+
+    [Fact]
+    public void Extracts_generic_scalar_requirements_without_task_specific_fact_ids()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that assigns subtotal to 23.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        var assignment = Assert.IsType<AssignmentRequirement>(program!.Requirements[0]);
+        Assert.Equal("subtotal", assignment.VariableName);
+        Assert.Equal(new SemanticNumberExpression("23"), assignment.Value);
+        Assert.Single(program.Requirements);
+    }
+
+    [Fact]
+    public void Extracts_multiple_generic_assignments_in_request_order()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that sets first_count to 2 then sets final_count to 9.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(
+                new AssignmentRequirement("first_count", new SemanticNumberExpression("2")), requirement),
+            requirement => Assert.Equal(
+                new AssignmentRequirement("final_count", new SemanticNumberExpression("9")), requirement));
     }
 
     [Fact]
@@ -1175,7 +1205,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
         var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
-        Assert.Equal("subtotal", target.Values["name"]);
+        Assert.Equal("subtotal", Assert.Single(target.Collections["name"]));
         Assert.Empty(value.Values);
         Assert.Equal(
             new SemanticBinaryExpression(
@@ -1185,7 +1215,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                     new SemanticNameExpression("unit_price"),
                     new SemanticNameExpression("quantity")),
                 new SemanticNumberExpression("7")),
-            value.Expressions["value"]);
+            Assert.Single(value.ExpressionCollections["value"]));
     }
 
     [Fact]

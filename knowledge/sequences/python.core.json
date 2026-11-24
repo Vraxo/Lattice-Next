@@ -413,7 +413,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-sets",
@@ -448,7 +449,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-assign",
@@ -483,7 +485,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-assigns",
@@ -518,7 +521,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "recognize-assignment-operator-set",
