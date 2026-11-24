@@ -1194,6 +1194,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Extracts_assignments_in_request_order_across_different_capture_rules()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that assigns second_count to 9 then sets first_count to 2.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(
+                new AssignmentRequirement("second_count", new SemanticNumberExpression("9")), requirement),
+            requirement => Assert.Equal(
+                new AssignmentRequirement("first_count", new SemanticNumberExpression("2")), requirement));
+    }
+
+    [Fact]
     public void Captures_assignment_references_and_arithmetic_operator_as_typed_tree()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);

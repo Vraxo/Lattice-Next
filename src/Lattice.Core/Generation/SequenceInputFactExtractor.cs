@@ -71,6 +71,8 @@ public static class SequenceInputFactExtractor
         var collections = new Dictionary<string, Dictionary<string, ImmutableArray<string>>>(StringComparer.Ordinal);
         var semanticCollections = new Dictionary<string, Dictionary<string, SemanticCollection>>(StringComparer.Ordinal);
         var semanticExpressionCaptures = new Dictionary<(string FactId, string ValueId), SemanticExpressionCapture>();
+        var orderedAssignmentCaptures = new Dictionary<(string FactId, string ValueId), List<(int Position, int Order, string Value)>>();
+        var captureOrder = 0;
         var matchedAnyRule = false;
 
         foreach (var rule in knowledge.InputRules)
@@ -277,6 +279,18 @@ public static class SequenceInputFactExtractor
                         }
                     }
 
+                    if (rule.RepeatMatches && capture.FactId is ("program.assignment.target" or "program.assignment.value"))
+                    {
+                        var key = (capture.FactId, capture.ValueId);
+                        if (!orderedAssignmentCaptures.TryGetValue(key, out var orderedValues))
+                        {
+                            orderedValues = [];
+                            orderedAssignmentCaptures.Add(key, orderedValues);
+                        }
+
+                        orderedValues.Add((captureMatchToken, captureOrder++, capturedValue));
+                    }
+
                     var specificity = rule.MatchTokens.Length +
                         (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
                     var rawItems = !capture.CollectionDelimiters.IsDefaultOrEmpty
@@ -381,6 +395,19 @@ public static class SequenceInputFactExtractor
         {
             error = "No semantic input rule matched the supplied text.";
             return false;
+        }
+
+        foreach (var (key, orderedValues) in orderedAssignmentCaptures)
+        {
+            if (collections.TryGetValue(key.FactId, out var factCollections) &&
+                factCollections.ContainsKey(key.ValueId))
+            {
+                factCollections[key.ValueId] = orderedValues
+                    .OrderBy(item => item.Position)
+                    .ThenBy(item => item.Order)
+                    .Select(item => item.Value)
+                    .ToImmutableArray();
+            }
         }
 
         var extractedFacts = extracted
