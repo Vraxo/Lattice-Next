@@ -1213,7 +1213,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Extracts_generic_condition_and_branch_output_after_assignment()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        const string prompt = "Create a Python program that sets age to 21 then when age >= 18 then prints 'adult'.";
+        const string prompt = "Create a Python program that sets age to 21 then when age is at least 18 then prints 'adult'.";
 
         Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
 
