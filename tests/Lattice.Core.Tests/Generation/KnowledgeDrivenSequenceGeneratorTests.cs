@@ -1137,6 +1137,32 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
+    [Theory]
+    [InlineData("assigns units to 17", "units", "number", "17")]
+    [InlineData("sets title to 'New: value!'", "title", "text", "New: value!")]
+    public void Captures_changed_assignment_names_and_literal_values(
+        string assignmentPhrase,
+        string expectedName,
+        string expectedValueKind,
+        string expectedValue)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            $"Create a Python program that {assignmentPhrase}.",
+            out var facts,
+            out var error), error);
+
+        var target = Assert.Single(facts, fact => fact.Id == "program.assignment.target");
+        var value = Assert.Single(facts, fact => fact.Id == "program.assignment.value");
+        Assert.Equal(expectedName, target.Values["name"]);
+        var expression = value.Expressions["value"];
+        SemanticExpression expected = expectedValueKind == "number"
+            ? new SemanticNumberExpression(expectedValue)
+            : new SemanticTextExpression(expectedValue);
+        Assert.Equal(expected, expression);
+    }
+
     [Fact]
     public void Captures_assignment_references_and_arithmetic_operator_as_typed_tree()
     {
