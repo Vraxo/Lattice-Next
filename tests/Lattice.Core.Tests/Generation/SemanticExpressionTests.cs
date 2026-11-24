@@ -194,9 +194,9 @@ public sealed class SemanticExpressionTests
                 "\"",
                 "\"",
                 [
-                    new GenerationStringEscape("\\", "\\\\"),
-                    new GenerationStringEscape("\"", "\\\""),
-                    new GenerationStringEscape("\n", "\\n")
+                    new GenerationEscapeSequence("\\", "\\\\"),
+                    new GenerationEscapeSequence("\"", "\\\""),
+                    new GenerationEscapeSequence("\n", "\\n")
                 ]))
         {
             InputSyntax = syntax
