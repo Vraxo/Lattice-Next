@@ -54,7 +54,9 @@ public sealed class GenerationLanguagePackLoader
             pack.StringLiteralFormat.ClosingDelimiter.Length > 4 ||
             pack.StringLiteralFormat.Escapes.IsDefault ||
             (pack.CollectionLiteralFormat is { } collectionFormat &&
-                !IsValidCollectionLiteralFormat(collectionFormat)))
+                !IsValidCollectionLiteralFormat(collectionFormat)) ||
+            (pack.InputSyntax is { } inputSyntax &&
+                !IsValidInputSyntax(inputSyntax)))
         {
             error = "The generation language pack metadata or collection sizes are invalid.";
             pack = null;
@@ -274,6 +276,111 @@ public sealed class GenerationLanguagePackLoader
 
         return itemEncodings.ContainsKey("number") && itemEncodings.ContainsKey("text");
     }
+
+    private static bool IsValidInputSyntax(GenerationInputSyntax syntax)
+    {
+        if (string.IsNullOrEmpty(syntax.IdentifierStartCharacters) ||
+            syntax.IdentifierStartCharacters.Length > 128 ||
+            string.IsNullOrEmpty(syntax.IdentifierContinuationCharacters) ||
+            syntax.IdentifierContinuationCharacters.Length > 128 ||
+            syntax.IdentifierStartCharacters.Any(char.IsWhiteSpace) ||
+            syntax.IdentifierContinuationCharacters.Any(char.IsWhiteSpace) ||
+            syntax.IdentifierStartCharacters.Distinct().Count() != syntax.IdentifierStartCharacters.Length ||
+            syntax.IdentifierContinuationCharacters.Distinct().Count() != syntax.IdentifierContinuationCharacters.Length ||
+            syntax.IdentifierStartCharacters.Any(character => !syntax.IdentifierContinuationCharacters.Contains(character)) ||
+            !IsValidNumberLiteralFormat(syntax.NumberLiteralFormat) ||
+            syntax.StringLiteralFormats.IsDefaultOrEmpty ||
+            syntax.StringLiteralFormats.Length > 8 ||
+            !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
+            syntax.GroupingDelimiters.IsDefault ||
+            syntax.GroupingDelimiters.Length > 16)
+        {
+            return false;
+        }
+
+        var literalKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var format in syntax.StringLiteralFormats)
+        {
+            if (format is null ||
+                string.IsNullOrEmpty(format.OpeningDelimiter) ||
+                format.OpeningDelimiter.Length > 8 ||
+                string.IsNullOrEmpty(format.ClosingDelimiter) ||
+                format.ClosingDelimiter.Length > 8 ||
+                string.IsNullOrEmpty(format.EscapePrefix) ||
+                format.EscapePrefix.Length > 4 ||
+                format.EscapeSequences.IsDefault ||
+                format.EscapeSequences.Length > 32 ||
+                !literalKeys.Add($"{format.OpeningDelimiter}\\0{format.ClosingDelimiter}"))
+            {
+                return false;
+            }
+
+            var escapeSequences = new HashSet<string>(StringComparer.Ordinal);
+            if (format.EscapeSequences.Any(sequence =>
+                    string.IsNullOrEmpty(sequence) ||
+                    sequence.Length > 16 ||
+                    !sequence.StartsWith(format.EscapePrefix, StringComparison.Ordinal) ||
+                    sequence.Length == format.EscapePrefix.Length ||
+                    !escapeSequences.Add(sequence)))
+            {
+                return false;
+            }
+        }
+
+        var delimiterOpenings = new HashSet<string>(StringComparer.Ordinal)
+        {
+            syntax.FunctionCallFormat.OpeningDelimiter
+        };
+        var delimiterClosings = new HashSet<string>(StringComparer.Ordinal)
+        {
+            syntax.FunctionCallFormat.ClosingDelimiter
+        };
+        foreach (var delimiter in syntax.GroupingDelimiters)
+        {
+            if (delimiter is null ||
+                string.IsNullOrEmpty(delimiter.OpeningDelimiter) ||
+                delimiter.OpeningDelimiter.Length > 16 ||
+                string.IsNullOrEmpty(delimiter.ClosingDelimiter) ||
+                delimiter.ClosingDelimiter.Length > 16 ||
+                delimiter.OpeningDelimiter == delimiter.ClosingDelimiter ||
+                !delimiterOpenings.Add(delimiter.OpeningDelimiter) ||
+                !delimiterClosings.Add(delimiter.ClosingDelimiter))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidNumberLiteralFormat(GenerationNumberLiteralFormat format)
+    {
+        return format is not null &&
+            !string.IsNullOrEmpty(format.Digits) &&
+            format.Digits.Length <= 64 &&
+            format.Digits.Distinct().Count() == format.Digits.Length &&
+            !string.IsNullOrEmpty(format.DecimalSeparator) &&
+            format.DecimalSeparator.Length <= 8 &&
+            !string.IsNullOrEmpty(format.PositiveSign) &&
+            format.PositiveSign.Length <= 4 &&
+            !string.IsNullOrEmpty(format.NegativeSign) &&
+            format.NegativeSign.Length <= 4 &&
+            format.PositiveSign != format.NegativeSign &&
+            !format.Digits.Contains(format.DecimalSeparator, StringComparison.Ordinal) &&
+            !format.Digits.Contains(format.PositiveSign, StringComparison.Ordinal) &&
+            !format.Digits.Contains(format.NegativeSign, StringComparison.Ordinal) &&
+            !format.DecimalSeparator.Contains(format.PositiveSign, StringComparison.Ordinal) &&
+            !format.DecimalSeparator.Contains(format.NegativeSign, StringComparison.Ordinal);
+    }
+
+    private static bool IsValidFunctionCallFormat(GenerationFunctionCallFormat format) =>
+        format is not null &&
+        !string.IsNullOrEmpty(format.OpeningDelimiter) && format.OpeningDelimiter.Length <= 16 &&
+        !string.IsNullOrEmpty(format.ClosingDelimiter) && format.ClosingDelimiter.Length <= 16 &&
+        !string.IsNullOrEmpty(format.ArgumentSeparator) && format.ArgumentSeparator.Length <= 16 &&
+        format.OpeningDelimiter != format.ClosingDelimiter &&
+        format.OpeningDelimiter != format.ArgumentSeparator &&
+        format.ClosingDelimiter != format.ArgumentSeparator;
 
     private static bool IsCapabilityIdentifier(string? value)
     {

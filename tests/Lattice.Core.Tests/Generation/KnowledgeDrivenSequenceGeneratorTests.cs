@@ -770,7 +770,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(extracted, $"{extractionError}. Captures: {captureSummary}");
         Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
         Assert.Contains(facts, fact => fact.Id == expectedFact);
-        Assert.True(SequenceInputFactValidator.TryValidate(knowledge!.Validations, facts, out var validationError), validationError);
+        var languagePackLoader = new GenerationLanguagePackLoader();
+        Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var languagePackError), languagePackError);
+        Assert.True(SequenceInputFactValidator.TryValidate(
+            knowledge!.Validations, facts, languagePacks["python"], out var validationError), validationError);
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!,
             null,

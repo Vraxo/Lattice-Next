@@ -14,13 +14,16 @@ public static class SequenceInputFactValidator
         @"^[+-]?\d+(?:\.\d+)?$",
         RegexOptions.CultureInvariant);
 
-    private static readonly Regex FunctionCallPattern = new(
-        @"^\s*(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*\(\s*(?<arguments>[^()]*)\s*\)\s*$",
-        RegexOptions.CultureInvariant);
+    public static bool TryValidate(
+        ImmutableArray<SequenceInputFactValidation> validations,
+        ImmutableArray<SequenceSemanticFact> facts,
+        out string? error) =>
+        TryValidate(validations, facts, languagePack: null, out error);
 
     public static bool TryValidate(
         ImmutableArray<SequenceInputFactValidation> validations,
         ImmutableArray<SequenceSemanticFact> facts,
+        GenerationLanguagePack? languagePack,
         out string? error)
     {
         error = null;
@@ -47,7 +50,7 @@ public static class SequenceInputFactValidator
             var valid = validation.Kind switch
             {
                 "identifierValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var value) &&
-                    IsIdentifier(value),
+                    GenerationInputSyntaxParser.IsIdentifier(value, languagePack?.InputSyntax),
                 "integerValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var integerValue) &&
                     int.TryParse(integerValue, NumberStyles.None, CultureInfo.InvariantCulture, out _),
                 "ascendingIntegerRange" => TryValidateAscendingIntegerRange(factMap, validation),
@@ -55,7 +58,8 @@ public static class SequenceInputFactValidator
                     factMap, validation.FactId, validation.ValueId, out var semanticCollection) &&
                     SemanticCollectionValidator.IsValid(semanticCollection),
                 "identifierCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var identifiers) &&
-                    identifiers.All(IsIdentifier),
+                    identifiers.All(identifier =>
+                        GenerationInputSyntaxParser.IsIdentifier(identifier, languagePack?.InputSyntax)),
                 "uniqueCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var uniqueValues) &&
                     uniqueValues.Distinct(StringComparer.OrdinalIgnoreCase).Count() == uniqueValues.Length,
                 "disjointCollections" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var first) &&
@@ -73,13 +77,19 @@ public static class SequenceInputFactValidator
                 "arithmeticExpressionReferences" => TryValidateArithmeticExpressionReferences(factMap, validation),
                 "booleanExpressionReferences" => TryValidateBooleanExpressionReferences(factMap, validation),
                 "booleanExpressionCollectionReferences" => TryValidateBooleanExpressionCollectionReferences(factMap, validation),
-                "valueExpressionReferences" => TryValidateValueExpressionReferences(factMap, validation),
-                "valueExpressionCollectionReferences" => TryValidateValueExpressionCollectionReferences(factMap, validation),
+                "valueExpressionReferences" => TryValidateValueExpressionReferences(
+                    factMap, validation, languagePack?.InputSyntax),
+                "valueExpressionCollectionReferences" => TryValidateValueExpressionCollectionReferences(
+                    factMap, validation, languagePack?.InputSyntax),
                 "matchingCollections" => TryValidateMatchingCollections(factMap, validation),
-                "orderedArithmeticFunctionExpressions" => TryValidateOrderedArithmeticFunctionExpressions(factMap, validation),
-                "matchingLastNumericFunctionCall" => TryValidateLastNumericFunctionCall(factMap, validation),
-                "matchingFunctionCall" => TryValidateFunctionCall(factMap, validation, allowStringArguments: true),
-                "matchingNumericFunctionCall" => TryValidateFunctionCall(factMap, validation),
+                "orderedArithmeticFunctionExpressions" => TryValidateOrderedArithmeticFunctionExpressions(
+                    factMap, validation, languagePack?.InputSyntax),
+                "matchingLastNumericFunctionCall" => TryValidateLastNumericFunctionCall(
+                    factMap, validation, languagePack?.InputSyntax),
+                "matchingFunctionCall" => TryValidateFunctionCall(
+                    factMap, validation, languagePack?.InputSyntax, allowStringArguments: true),
+                "matchingNumericFunctionCall" => TryValidateFunctionCall(
+                    factMap, validation, languagePack?.InputSyntax),
                 _ => false
             };
 
@@ -228,7 +238,8 @@ public static class SequenceInputFactValidator
 
     private static bool TryValidateValueExpressionCollectionReferences(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
+        SequenceInputFactValidation validation,
+        GenerationInputSyntax? inputSyntax)
     {
         if (!TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) ||
             !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters) ||
@@ -239,16 +250,18 @@ public static class SequenceInputFactValidator
 
         var availableNames = parameters.ToHashSet(StringComparer.OrdinalIgnoreCase);
         return expressions.All(expression =>
-            IsQuotedStringLiteral(expression) ||
+            GenerationInputSyntaxParser.IsStringLiteral(expression, inputSyntax) ||
             (IsArithmeticExpression(expression) &&
              ReferencesOnlyAvailableNames(expression, availableNames)));
     }
 
     private static bool TryValidateOrderedArithmeticFunctionExpressions(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
+        SequenceInputFactValidation validation,
+        GenerationInputSyntax? inputSyntax)
     {
-        if (!TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) ||
+        if (inputSyntax?.FunctionCallFormat is not { } functionCallFormat ||
+            !TryGetCollection(facts, validation.FactId, validation.ValueId, out var expressions) ||
             !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameterLists) ||
             !TryGetCollection(facts, validation.AdditionalFactId, validation.AdditionalValueId, out var functionNames) ||
             expressions.Length == 0 ||
@@ -262,9 +275,11 @@ public static class SequenceInputFactValidator
         for (var index = 0; index < expressions.Length; index++)
         {
             var parameters = parameterLists[index]
-                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                .Split(functionCallFormat.ArgumentSeparator,
+                    StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             if (parameters.Length == 0 ||
-                parameters.Any(parameter => !IsIdentifier(parameter)) ||
+                parameters.Any(parameter =>
+                    !GenerationInputSyntaxParser.IsIdentifier(parameter, inputSyntax)) ||
                 parameters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != parameters.Length ||
                 !IsArithmeticExpression(expressions[index]))
             {
@@ -296,7 +311,8 @@ public static class SequenceInputFactValidator
 
     private static bool TryValidateLastNumericFunctionCall(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
+        SequenceInputFactValidation validation,
+        GenerationInputSyntax? inputSyntax)
     {
         if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var call) ||
             !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var functionNames) ||
@@ -305,22 +321,20 @@ public static class SequenceInputFactValidator
             return false;
         }
 
-        var match = FunctionCallPattern.Match(call);
-        if (!match.Success ||
-            !match.Groups["name"].Value.Equals(functionNames[^1], StringComparison.OrdinalIgnoreCase))
+        if (inputSyntax?.FunctionCallFormat is not { } functionCallFormat ||
+            !GenerationInputSyntaxParser.TryParseFunctionCall(
+                call, inputSyntax, out var parsedFunctionName, out var arguments) ||
+            !parsedFunctionName.Equals(functionNames[^1], StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
-        var argumentsText = match.Groups["arguments"].Value.Trim();
-        var arguments = argumentsText.Length == 0
-            ? Array.Empty<string>()
-            : argumentsText.Split(',', StringSplitOptions.TrimEntries);
         var parameters = parameterLists[^1]
-            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            .Split(functionCallFormat.ArgumentSeparator,
+                StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         return arguments.Length == parameters.Length &&
             arguments.Length > 0 &&
-            arguments.All(argument => NumberPattern.IsMatch(argument));
+            arguments.All(argument => GenerationInputSyntaxParser.IsNumberLiteral(argument, inputSyntax));
     }
 
     private static bool TryValidateMatchingCollections(
@@ -335,7 +349,8 @@ public static class SequenceInputFactValidator
 
     private static bool TryValidateValueExpressionReferences(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
-        SequenceInputFactValidation validation)
+        SequenceInputFactValidation validation,
+        GenerationInputSyntax? inputSyntax)
     {
         if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var expression) ||
             !TryGetCollection(facts, validation.RelatedFactId, validation.RelatedValueId, out var parameters))
@@ -343,7 +358,7 @@ public static class SequenceInputFactValidator
             return false;
         }
 
-        return IsQuotedStringLiteral(expression) ||
+        return GenerationInputSyntaxParser.IsStringLiteral(expression, inputSyntax) ||
             (IsArithmeticExpression(expression) &&
              ReferencesOnlyAvailableNames(expression, parameters.ToHashSet(StringComparer.OrdinalIgnoreCase)));
     }
@@ -351,6 +366,7 @@ public static class SequenceInputFactValidator
     private static bool TryValidateFunctionCall(
         IReadOnlyDictionary<string, SequenceSemanticFact> facts,
         SequenceInputFactValidation validation,
+        GenerationInputSyntax? inputSyntax,
         bool allowStringArguments = false)
     {
         if (!TryGetValue(facts, validation.FactId, validation.ValueId, out var call) ||
@@ -360,21 +376,14 @@ public static class SequenceInputFactValidator
             return false;
         }
 
-        var match = FunctionCallPattern.Match(call);
-        if (!match.Success ||
-            !match.Groups["name"].Value.Equals(functionName, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var argumentsText = match.Groups["arguments"].Value.Trim();
-        var arguments = argumentsText.Length == 0
-            ? Array.Empty<string>()
-            : argumentsText.Split(',', StringSplitOptions.TrimEntries);
-        return arguments.Length == parameters.Length &&
+        return GenerationInputSyntaxParser.TryParseFunctionCall(
+                call, inputSyntax, out var parsedFunctionName, out var arguments) &&
+            parsedFunctionName.Equals(functionName, StringComparison.OrdinalIgnoreCase) &&
+            arguments.Length == parameters.Length &&
             arguments.Length > 0 &&
-            arguments.All(argument => NumberPattern.IsMatch(argument) ||
-                (allowStringArguments && IsQuotedStringLiteral(argument)));
+            arguments.All(argument =>
+                GenerationInputSyntaxParser.IsNumberLiteral(argument, inputSyntax) ||
+                (allowStringArguments && GenerationInputSyntaxParser.IsStringLiteral(argument, inputSyntax)));
     }
 
 
@@ -596,5 +605,4 @@ public static class SequenceInputFactValidator
             fact.SemanticCollections.TryGetValue(valueId, out collection!);
     }
 
-    private static bool IsIdentifier(string value) => IdentifierPattern.IsMatch(value);
 }

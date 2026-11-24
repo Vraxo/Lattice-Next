@@ -10,4 +10,5 @@ public sealed record GenerationLanguagePack(
     ImmutableArray<GenerationBinding> Bindings,
     ImmutableArray<GenerationOperation> Operations,
     GenerationStringLiteralFormat StringLiteralFormat,
-    GenerationCollectionLiteralFormat? CollectionLiteralFormat = null);
+    GenerationCollectionLiteralFormat? CollectionLiteralFormat = null,
+    GenerationInputSyntax? InputSyntax = null);
