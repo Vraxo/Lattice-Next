@@ -40,31 +40,24 @@ jobs:
         run: dotnet build Lattice.slnx --configuration Release
 
       - name: Test
-        run: dotnet test Lattice.slnx --configuration Release --no-build --logger "trx;LogFileName=ci-results.trx"
-
-      - name: Report failed tests
-        if: always()
         run: |
-          python - <<'PY'
+          set +e
+          dotnet test Lattice.slnx --configuration Release --no-build --logger "console;verbosity=normal" > test-output.log 2>&1
+          test_status=$?
+          set -e
+          cat test-output.log
+          if [ "$test_status" -ne 0 ]; then
+            python - <<'PY'
           from pathlib import Path
-          from xml.etree import ElementTree as ET
-
-          namespace = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
-          result_files = list(Path(".").rglob("ci-results.trx"))
-          failures = 0
-          for result_file in result_files:
-              root = ET.parse(result_file).getroot()
-              for result in root.findall("t:Results/t:UnitTestResult", namespace):
-                  if result.get("outcome") != "Failed":
-                      continue
-                  test_name = result.get("testName", "unknown test")
-                  message = result.findtext("t:Output/t:ErrorInfo/t:Message", default="", namespaces=namespace)
-                  detail = " ".join(message.split())
-                  annotation = f"{test_name}: {detail}".replace("%", "%25").replace("\\r", "%0D").replace("\\n", "%0A")
-                  print(f"::error title=Failed test::{annotation}")
-                  failures += 1
-          print(f"Found {failures} failed test(s) across {len(result_files)} TRX file(s).")
+          output = Path("test-output.log").read_text(errors="replace")
+          tail = "\n".join(output.splitlines()[-60:])
+          if len(tail) > 20000:
+              tail = tail[-20000:]
+          message = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print(f"::error title=Test failure details::{message}")
           PY
+          fi
+          exit "$test_status"
 
       - name: Install web-search dependency
         run: python -m pip install -r tools/web-search/requirements.txt
