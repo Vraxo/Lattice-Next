@@ -23,17 +23,21 @@ public static class SemanticProgramFactMapper
         var assignmentValue = facts.FirstOrDefault(fact => fact.Id == "program.assignment.value");
         if (assignmentTarget is not null || assignmentValue is not null)
         {
-            if (assignmentTarget is null ||
-                !assignmentTarget.Values.TryGetValue("name", out var variableName) ||
-                string.IsNullOrWhiteSpace(variableName) ||
-                assignmentValue is null ||
-                !assignmentValue.Expressions.TryGetValue("value", out var value))
+            if (assignmentTarget is null || assignmentValue is null ||
+                !TryGetNames(assignmentTarget, out var variableNames) ||
+                !TryGetExpressions(assignmentValue, out var values) ||
+                variableNames.IsDefaultOrEmpty ||
+                variableNames.Length != values.Length ||
+                variableNames.Any(string.IsNullOrWhiteSpace))
             {
-                error = "A generic assignment requires a captured variable name and typed value expression.";
+                error = "A generic assignment requires aligned variable names and typed value expressions.";
                 return false;
             }
 
-            requirements.Add(new AssignmentRequirement(variableName, value));
+            for (var index = 0; index < variableNames.Length; index++)
+            {
+                requirements.Add(new AssignmentRequirement(variableNames[index], values[index]));
+            }
         }
 
         if (requirements.Count == 0)
@@ -44,5 +48,31 @@ public static class SemanticProgramFactMapper
 
         program = new SemanticProgram(requirements.ToImmutable());
         return true;
+    }
+
+    private static bool TryGetNames(
+        SequenceSemanticFact fact,
+        out ImmutableArray<string> values)
+    {
+        if (fact.Values.TryGetValue("name", out var value))
+        {
+            values = [value];
+            return true;
+        }
+
+        return fact.Collections.TryGetValue("name", out values);
+    }
+
+    private static bool TryGetExpressions(
+        SequenceSemanticFact fact,
+        out ImmutableArray<SemanticExpression> expressions)
+    {
+        if (fact.Expressions.TryGetValue("value", out var expression))
+        {
+            expressions = [expression];
+            return true;
+        }
+
+        return fact.ExpressionCollections.TryGetValue("value", out expressions);
     }
 }
