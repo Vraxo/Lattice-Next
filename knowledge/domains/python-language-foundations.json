@@ -710,22 +710,22 @@
     },
     {
       "id": "call-invokes-callable",
-      "domain": "function-call",
-      "range": "callable",
+      "domain": null,
+      "range": null,
       "verb": "invokes callable",
       "order": 14,
       "comparisonPriority": 0,
-      "subjectKind": "individual",
-      "objectKind": "individual"
+      "subjectKind": "type",
+      "objectKind": "type"
     },
     {
       "id": "print-produces-output",
       "domain": "built-in-function",
-      "range": "output",
+      "range": null,
       "verb": "produces output",
       "order": 15,
       "comparisonPriority": 0,
-      "objectKind": "individual",
+      "objectKind": "type",
       "subjectKind": "individual"
     },
     {

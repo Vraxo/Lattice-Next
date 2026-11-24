@@ -52,7 +52,11 @@ public sealed class ProgrammingModelKnowledgeTests
         AssertRelation("operation-result-writes-variable", "operation-result", "variable");
         AssertRelation("function-has-parameter", "function", "parameter");
         AssertRelation("call-passes-argument", "function-call", "argument");
-        AssertRelation("call-invokes-callable", "function-call", "callable");
+        var invokesCallable = Assert.IsType<SemanticRelationDefinition>(model.FindRelation("call-invokes-callable"));
+        Assert.Null(invokesCallable.DomainType);
+        Assert.Null(invokesCallable.RangeType);
+        Assert.Equal(SemanticRelationArgumentKind.Type, invokesCallable.SubjectKind);
+        Assert.Equal(SemanticRelationArgumentKind.Type, invokesCallable.ObjectKind);
         AssertRelation("function-returns-value", "function", "value");
         AssertRelation("function-definition-defines-function", "function-definition", "function");
         AssertRelation("function-definition-has-body-statement", "function-definition", "statement");
@@ -71,7 +75,10 @@ public sealed class ProgrammingModelKnowledgeTests
         AssertRelation("import-targets-module", "import-statement", "module");
         AssertRelation("program-receives-input", "program", "input");
         AssertRelation("program-produces-output", "program", "output");
-        AssertRelation("print-produces-output", "built-in-function", "output");
+        var printOutput = Assert.IsType<SemanticRelationDefinition>(model.FindRelation("print-produces-output"));
+        Assert.Equal("built-in-function", printOutput.DomainType);
+        Assert.Null(printOutput.RangeType);
+        Assert.Equal(SemanticRelationArgumentKind.Type, printOutput.ObjectKind);
         Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("function-parameter-position")?.ValueKind);
         Assert.Equal("parameter", model.FindDataProperty("function-parameter-position")?.DomainType);
         Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("call-argument-position")?.ValueKind);
