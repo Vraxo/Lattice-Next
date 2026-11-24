@@ -41,12 +41,68 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
 
 ### M-05B — Make expression input language-neutral
 
-- [ ] **M-05B.1 — Inventory active expression capture and validation.** Trace every arithmetic, comparison, boolean, and value-expression fact from input-rule capture through `SequenceInputFactValidator`, loader validation-kind handling, and generation bindings. Record which checks are semantic/reference checks and which parse source syntax.
-- [ ] **M-05B.2 — Define the semantic expression value shape.** Add the smallest typed representation needed for literals, variable references, arithmetic, comparisons, boolean composition, and grouped expressions. Keep operator meaning separate from language token spelling.
-- [ ] **M-05B.3 — Capture expressions as structured values.** Update the existing input extraction path to populate the expression representation instead of passing Python-shaped expression strings as semantic values. Preserve request-derived names, literals, and operand order.
-- [ ] **M-05B.4 — Move reference and scope checks onto expression nodes.** Validate referenced values, bindings, and scope using the structured representation. Keep these checks language-neutral and reject unresolved references instead of guessing.
-- [ ] **M-05B.5 — Add expression syntax declarations to language packs.** Extend the selected pack's grammar/metadata to express supported operator forms and precedence, then realize structured expressions through the existing sequence-generation mechanism.
-- [ ] **M-05B.6 — Remove Python-shaped expression validation from shared Core.** Delete obsolete expression-string parsing/validation branches and loader allow-list entries; add tests proving that the same semantic expression can be validated and rendered by the selected pack.
+#### M-05B.1 — Inventory the existing expression path
+
+- [ ] **M-05B.1a — Inventory arithmetic-expression input rules.** Locate each arithmetic-expression input rule in `python.core.json`; record its match conditions, captured values, and emitted fact IDs.
+- [ ] **M-05B.1b — Inventory comparison-expression input rules.** Record comparison rules, captured operands/operators, and emitted fact IDs.
+- [ ] **M-05B.1c — Inventory boolean-expression input rules.** Record boolean rules, captured operands/operators, and emitted fact IDs.
+- [ ] **M-05B.1d — Inventory value-expression input rules.** Record other expression/value rules and the exact values they capture.
+- [ ] **M-05B.1e — Trace expression facts into validation.** Follow each inventoried fact from extraction into `SequenceInputFactValidator`; identify which validation kinds consume it.
+- [ ] **M-05B.1f — Trace validation-kind loading.** Find the corresponding validation-kind allow-list/schema handling in `SequenceKnowledgeBaseLoader` and record the relevant tests.
+- [ ] **M-05B.1g — Trace expression values into generation.** Follow validated values through semantic facts, bindings, and the sequence-generation path; identify where raw source strings are expected.
+- [ ] **M-05B.1h — Classify the existing checks.** Record each check as syntax parsing, semantic validation, reference/scope validation, or structural validation. Add the findings to the migration inventory without changing behavior.
+
+#### M-05B.2 — Define the semantic expression model
+
+- [ ] **M-05B.2a — Choose the expression model location and shape.** Inspect existing semantic value/fact types and define the smallest typed expression representation that fits the current architecture.
+- [ ] **M-05B.2b — Represent literal expressions.** Add typed literal nodes that preserve the literal's semantic value and type without storing target-language formatting.
+- [ ] **M-05B.2c — Represent variable references.** Add reference nodes that preserve the referenced semantic name/identity without embedding source syntax.
+- [ ] **M-05B.2d — Represent arithmetic expressions.** Add arithmetic nodes with language-neutral operator identities and ordered operands.
+- [ ] **M-05B.2e — Represent comparison expressions.** Add comparison nodes with language-neutral comparison identities and ordered operands.
+- [ ] **M-05B.2f — Represent boolean expressions.** Add boolean composition nodes for supported logical operations, preserving operand order.
+- [ ] **M-05B.2g — Represent grouped expressions.** Support explicit grouping/nesting without encoding parentheses as Python text.
+- [ ] **M-05B.2h — Add model-level tests.** Test construction, nested combinations, operand order, and preservation of literal/reference data. Do not add parsing or generation behavior in this task.
+
+#### M-05B.3 — Capture structured expressions
+
+- [ ] **M-05B.3a — Add literal capture conversion.** Convert already-captured literal facts into semantic literal nodes without changing how requests are recognized.
+- [ ] **M-05B.3b — Add variable-reference capture conversion.** Convert captured identifiers/references into reference nodes while preserving their request-derived names.
+- [ ] **M-05B.3c — Capture arithmetic expressions structurally.** Populate arithmetic nodes from the existing capture path; preserve operator identity and operand order.
+- [ ] **M-05B.3d — Capture comparison expressions structurally.** Populate comparison nodes from the existing capture path without retaining a Python operator spelling as semantic meaning.
+- [ ] **M-05B.3e — Capture boolean expressions structurally.** Populate boolean nodes from existing captured facts, preserving composition and order.
+- [ ] **M-05B.3f — Capture nested/grouped expressions.** Preserve nested expression structure rather than flattening it into a source string.
+- [ ] **M-05B.3g — Verify captured data.** Add focused extraction tests with changed literals, identifiers, operators, and nested operands. Assert the structured values, not generated code.
+
+#### M-05B.4 — Validate expression semantics
+
+- [ ] **M-05B.4a — Validate expression node structure.** Reject missing operands, unsupported node shapes, and invalid child combinations.
+- [ ] **M-05B.4b — Validate variable references.** Resolve each reference against the available semantic bindings and reject unresolved names.
+- [ ] **M-05B.4c — Validate reference scope.** Check that references are visible at the point where the expression is used; keep scope rules language-neutral.
+- [ ] **M-05B.4d — Validate operand and result types.** Check type compatibility for the currently supported arithmetic, comparison, and boolean operations.
+- [ ] **M-05B.4e — Integrate semantic expression validation.** Route structured expressions through the existing validation flow without parsing target-language source text.
+- [ ] **M-05B.4f — Add positive and negative validation tests.** Cover valid expressions, missing bindings, out-of-scope references, malformed trees, and incompatible operand types.
+
+#### M-05B.5 — Realize expressions using language packs
+
+- [ ] **M-05B.5a — Define language-neutral operator identities.** Settle stable semantic identifiers for the currently supported arithmetic, comparison, and boolean operators.
+- [ ] **M-05B.5b — Declare arithmetic syntax in language packs.** Describe each supported arithmetic operator's target-language spelling and grammatical form declaratively.
+- [ ] **M-05B.5c — Declare comparison syntax in language packs.** Describe comparison spellings/forms without putting target-language tokens in shared Core.
+- [ ] **M-05B.5d — Declare boolean syntax in language packs.** Describe logical operator spellings/forms declaratively.
+- [ ] **M-05B.5e — Represent precedence and grouping.** Extend the pack grammar/metadata to express operator precedence and explicit grouping for supported expressions.
+- [ ] **M-05B.5f — Generate arithmetic expressions.** Realize structured arithmetic expressions through the existing sequence-generation mechanism.
+- [ ] **M-05B.5g — Generate comparison and boolean expressions.** Realize comparison and boolean trees through the same mechanism, including required grouping.
+- [ ] **M-05B.5h — Test pack-based expression realization.** Verify equivalent semantic trees render correctly using the selected language pack; keep assertions independent of Python-specific logic in shared code.
+
+#### M-05B.6 — Remove the old expression-string path
+
+- [ ] **M-05B.6a — Identify obsolete expression-string checks.** Map each existing string-based expression validation branch to its structured-model replacement and tests.
+- [ ] **M-05B.6b — Remove arithmetic source-string validation.** Delete the obsolete arithmetic expression parsing/validation branch once structured validation covers its behavior.
+- [ ] **M-05B.6c — Remove comparison source-string validation.** Delete the obsolete comparison expression parsing/validation branch once structured validation covers its behavior.
+- [ ] **M-05B.6d — Remove boolean source-string validation.** Delete the obsolete boolean expression parsing/validation branch once structured validation covers its behavior.
+- [ ] **M-05B.6e — Remove value-expression source-string validation.** Delete the obsolete value-expression parsing/validation branch once structured validation covers its behavior.
+- [ ] **M-05B.6f — Remove obsolete loader entries.** Remove validation-kind allow-list/schema entries that no longer have consumers; retain generic structural validations.
+- [ ] **M-05B.6g — Remove dead expression-string helpers and tests.** Delete only helpers/tests proven unused after migration; retain tests for language-pack syntax and semantic expression behavior.
+- [ ] **M-05B.6h — Verify the old path is gone.** Run focused and full relevant tests; confirm no production path still treats Python-shaped expression strings as semantic values.
 
 ### M-06 — Add the minimum operational programming model
 
