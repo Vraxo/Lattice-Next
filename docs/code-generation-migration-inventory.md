@@ -58,7 +58,7 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 ### Active validation kinds
 
-`SequenceKnowledgeBaseLoader` supports 22 validation kinds; the current Python sequence module uses 18 of them (all 50 validation records). Four supported kinds have no declaration in the current module. A name regex or expression parser below is a target-language/syntax concern even when its check also enforces a useful generic invariant.
+`SequenceKnowledgeBaseLoader` supports 20 validation kinds after M-05B.6f removed the unused `comparisonOperandsReferences` and `booleanExpressionReferences` kinds. The current Python sequence module uses 18 of the remaining kinds (all 50 validation records); `comparisonValueReferences` and `arithmeticExpressionReferences` remain supported and are exercised directly by tests, although not declared in this module. A name regex or expression parser below is a target-language/syntax concern even when its check also enforces a useful generic invariant.
 
 | Validation kind | Current records | Current behavior and classification |
 |---|---:|---|
@@ -73,9 +73,7 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 | `arithmeticValue` | 1 | Checks the already-materialized expression with `SemanticExpressionAnalysis.IsArithmetic`; does not parse source text in the validator. |
 | `arithmeticValueReferences` | 1 | Checks typed arithmetic structure and available-name/function-call scope; source parsing occurs before validation. |
 | `comparisonValueReferences` | 0 | Supported but unused by this module; validates a structured comparison expression and operand references. |
-| `comparisonOperandsReferences` | 0 | Supported but unused; consumes typed left/right operands plus a semantic operator identity and checks references. |
 | `arithmeticExpressionReferences` | 0 | Supported but unused; validates typed arithmetic structure plus references. |
-| `booleanExpressionReferences` | 0 | Supported but unused; validates a typed Boolean tree plus references. |
 | `booleanExpressionCollectionReferences` | 1 | Validates materialized Boolean trees and parameter references over an expression collection. |
 | `valueExpressionReferences` | 1 | Validates a materialized value-expression tree and references; literal/source parsing happens during extraction. |
 | `valueExpressionCollectionReferences` | 1 | Same typed-tree checks over an expression collection. |
@@ -85,7 +83,7 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 | `matchingFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric-or-string literal arguments. |
 | `matchingNumericFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric arguments. |
 
-The four zero-use kinds are nevertheless live shared validator/loader code. Expression syntax parsing occurs in `SemanticExpressionParser` / `BooleanExpressionNormalizer` using selected-pack `InputSyntax`; `SequenceInputFactValidator` consumes typed nodes and contains no former arithmetic, list-literal, or quoted-string source parsers. `pythonListLiteral` was removed from the active knowledge format and shared validator in M-04. The duplicate dead `PythonExpressionParser` was removed in M-03.
+The two supported-but-undeclared kinds are nevertheless exercised by shared validator tests. Expression syntax parsing occurs in `SemanticExpressionParser` / `BooleanExpressionNormalizer` using selected-pack `InputSyntax`; `SequenceInputFactValidator` consumes typed nodes and contains no former arithmetic, list-literal, or quoted-string source parsers. `pythonListLiteral` was removed from the active knowledge format and shared validator in M-04. The duplicate dead `PythonExpressionParser` was removed in M-03.
 
 ## M-05B semantic expression model decision (M-05B.2a)
 
