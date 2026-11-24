@@ -81,6 +81,25 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
+    public void Boolean_literal_spellings_are_selected_by_language_pack_metadata()
+    {
+        var pack = CreateCustomPack();
+        var syntax = pack.InputSyntax! with
+        {
+            BooleanLiteralFormat = new GenerationBooleanLiteralFormat("yes", "no")
+        };
+
+        Assert.True(SemanticExpressionParser.TryParse("value", "yes", syntax, out var trueExpression));
+        Assert.Equal(new SemanticBooleanExpression(true), trueExpression);
+        Assert.True(SemanticExpressionParser.TryParse("value", "no", syntax, out var falseExpression));
+        Assert.Equal(new SemanticBooleanExpression(false), falseExpression);
+        Assert.True(SemanticExpressionRenderer.TryRender(trueExpression!, pack with { InputSyntax = syntax }, out var trueText));
+        Assert.Equal("yes", trueText);
+        Assert.True(SemanticExpressionRenderer.TryRender(falseExpression!, pack with { InputSyntax = syntax }, out var falseText));
+        Assert.Equal("no", falseText);
+    }
+
+    [Fact]
     public void Parses_boolean_and_comparison_expressions_as_operator_trees()
     {
         var pack = CreateCustomPack();
