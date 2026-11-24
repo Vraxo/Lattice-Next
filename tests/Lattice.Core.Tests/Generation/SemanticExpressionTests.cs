@@ -81,8 +81,9 @@ public sealed class SemanticExpressionTests
     {
         var pack = LoadPythonPack();
         Assert.True(SemanticExpressionParser.TryParse(
-            "value", source, pack.InputSyntax, out var expression));
+            "boolean", source, pack.InputSyntax, out var expression));
         Assert.Equal(new SemanticBooleanExpression(value), expression);
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(expression!));
         Assert.True(SemanticExpressionRenderer.TryRender(expression!, pack, out var rendered));
         Assert.Equal(source, rendered);
     }

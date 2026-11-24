@@ -123,6 +123,7 @@ internal static class SemanticExpressionAnalysis
 
     private static bool IsBooleanCore(SemanticExpression expression) => expression switch
     {
+        SemanticBooleanExpression => true,
         SemanticUnaryExpression { Operator: SemanticExpressionOperator.Not } unary =>
             IsBooleanCore(unary.Operand),
         SemanticBinaryExpression { Operator: SemanticExpressionOperator.And or SemanticExpressionOperator.Or } binary =>
