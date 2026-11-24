@@ -1210,6 +1210,56 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Extracts_generic_condition_and_branch_output_after_assignment()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that sets age to 21 then when age is at least 18 then prints 'adult'.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(
+                new AssignmentRequirement("age", new SemanticNumberExpression("21")), requirement),
+            requirement =>
+            {
+                var conditional = Assert.IsType<ConditionalRequirement>(requirement);
+                Assert.Equal(
+                    new SemanticBinaryExpression(
+                        SemanticExpressionOperator.GreaterThanOrEqual,
+                        new SemanticNameExpression("age"),
+                        new SemanticNumberExpression("18")),
+                    conditional.Condition);
+                Assert.Equal(
+                    new OutputRequirement(new SemanticTextExpression("adult")),
+                    Assert.Single(conditional.ThenRequirements));
+                Assert.Empty(conditional.ElseRequirements);
+            });
+    }
+
+    [Theory]
+    [InlineData("Create a Python program that assigns balance to 41 then displays balance.", "balance", "41")]
+    [InlineData("Make a Python program that sets greeting to 'Welcome, Ada!' then prints greeting.", "greeting", "Welcome, Ada!")]
+    public void Extracts_changed_assignment_and_output_values(
+        string prompt,
+        string variableName,
+        string expectedValue)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        SemanticExpression assignedValue = expectedValue == "41"
+            ? new SemanticNumberExpression(expectedValue)
+            : new SemanticTextExpression(expectedValue);
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(new AssignmentRequirement(variableName, assignedValue), requirement),
+            requirement => Assert.Equal(
+                new OutputRequirement(new SemanticNameExpression(variableName)), requirement));
+    }
+
+    [Fact]
     public void Extracts_assignments_in_request_order_across_different_capture_rules()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);

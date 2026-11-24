@@ -25,7 +25,7 @@ public static class SemanticProgramFactMapper
         {
             if (assignmentTarget is null || assignmentValue is null ||
                 !TryGetNames(assignmentTarget, out var variableNames) ||
-                !TryGetExpressions(assignmentValue, out var values) ||
+                !TryGetExpressions(assignmentValue, "value", out var values) ||
                 variableNames.IsDefaultOrEmpty ||
                 variableNames.Length != values.Length ||
                 variableNames.Any(string.IsNullOrWhiteSpace))
@@ -41,14 +41,34 @@ public static class SemanticProgramFactMapper
         }
 
         var outputFact = facts.FirstOrDefault(fact => fact.Id == "program.requirement.output");
-        if (outputFact is not null)
+        ImmutableArray<SemanticExpression> outputValues = ImmutableArray<SemanticExpression>.Empty;
+        if (outputFact is not null &&
+            (!TryGetExpressions(outputFact, "value", out outputValues) || outputValues.IsDefaultOrEmpty))
         {
-            if (!TryGetExpressions(outputFact, out var outputValues) || outputValues.IsDefaultOrEmpty)
+            error = "A generic output requirement requires typed value expressions.";
+            return false;
+        }
+
+        var conditionFact = facts.FirstOrDefault(fact => fact.Id == "program.requirement.condition");
+        if (conditionFact is not null)
+        {
+            if (!TryGetExpressions(conditionFact, "condition", out var conditions) ||
+                conditions.Length != 1)
             {
-                error = "A generic output requirement requires typed value expressions.";
+                error = "A generic scalar conditional requires exactly one typed condition expression.";
                 return false;
             }
 
+            var thenRequirements = outputValues
+                .Select(value => (ProgramRequirement)new OutputRequirement(value))
+                .ToImmutableArray();
+            requirements.Add(new ConditionalRequirement(
+                conditions[0],
+                thenRequirements,
+                ImmutableArray<ProgramRequirement>.Empty));
+        }
+        else
+        {
             requirements.AddRange(outputValues.Select(value => new OutputRequirement(value)));
         }
 
@@ -77,14 +97,15 @@ public static class SemanticProgramFactMapper
 
     private static bool TryGetExpressions(
         SequenceSemanticFact fact,
+        string valueId,
         out ImmutableArray<SemanticExpression> expressions)
     {
-        if (fact.Expressions.TryGetValue("value", out var expression))
+        if (fact.Expressions.TryGetValue(valueId, out var expression))
         {
             expressions = [expression];
             return true;
         }
 
-        return fact.ExpressionCollections.TryGetValue("value", out expressions);
+        return fact.ExpressionCollections.TryGetValue(valueId, out expressions);
     }
 }

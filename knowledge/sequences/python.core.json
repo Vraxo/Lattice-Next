@@ -381,6 +381,36 @@
       "factId": "program.condition"
     },
     {
+      "id": "capture-generic-scalar-condition-when",
+      "matchTokens": [
+        "when"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ],
+      "repeatMatches": true
+    },
+    {
       "id": "capture-generic-output-print",
       "matchTokens": [
         "print"
