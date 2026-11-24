@@ -137,6 +137,23 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
+    public void Rejects_malformed_semantic_expression_nodes()
+    {
+        SemanticExpression missingOperand = new SemanticUnaryExpression(
+            SemanticExpressionOperator.Negative,
+            null!);
+        SemanticExpression invalidOperator = new SemanticBinaryExpression(
+            (SemanticExpressionOperator)int.MaxValue,
+            new SemanticNumberExpression("1"),
+            new SemanticNumberExpression("2"));
+        SemanticExpression invalidNumber = new SemanticNumberExpression("01.0");
+
+        Assert.False(SemanticExpressionAnalysis.IsValid(missingOperand));
+        Assert.False(SemanticExpressionAnalysis.IsValid(invalidOperator));
+        Assert.False(SemanticExpressionAnalysis.IsArithmetic(invalidNumber));
+    }
+
+    [Fact]
     public void Rejects_comparisons_between_incompatible_known_literal_types()
     {
         var mixed = new SemanticBinaryExpression(
