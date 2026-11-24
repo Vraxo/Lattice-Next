@@ -381,6 +381,82 @@
       "factId": "program.condition"
     },
     {
+      "id": "capture-generic-output-print",
+      "matchTokens": [
+        "print"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "startAfterTokens": [
+            "print"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "repeatMatches": true
+    },
+    {
+      "id": "capture-generic-output-prints",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "startAfterTokens": [
+            "prints"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "repeatMatches": true
+    },
+    {
+      "id": "capture-generic-output-display",
+      "matchTokens": [
+        "display"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "startAfterTokens": [
+            "display"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "repeatMatches": true
+    },
+    {
+      "id": "capture-generic-output-displays",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "startAfterTokens": [
+            "displays"
+          ],
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ],
+      "repeatMatches": true
+    },
+    {
       "id": "capture-assignment-components-set",
       "matchTokens": [
         "set"

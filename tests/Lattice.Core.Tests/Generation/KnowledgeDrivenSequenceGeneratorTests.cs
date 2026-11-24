@@ -1194,6 +1194,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Extracts_generic_assignment_and_output_requirements()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that assigns subtotal to 23 then prints subtotal.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(
+                new AssignmentRequirement("subtotal", new SemanticNumberExpression("23")), requirement),
+            requirement => Assert.Equal(
+                new OutputRequirement(new SemanticNameExpression("subtotal")), requirement));
+    }
+
+    [Fact]
     public void Extracts_assignments_in_request_order_across_different_capture_rules()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);

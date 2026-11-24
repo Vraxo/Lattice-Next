@@ -40,6 +40,18 @@ public static class SemanticProgramFactMapper
             }
         }
 
+        var outputFact = facts.FirstOrDefault(fact => fact.Id == "program.requirement.output");
+        if (outputFact is not null)
+        {
+            if (!TryGetExpressions(outputFact, out var outputValues) || outputValues.IsDefaultOrEmpty)
+            {
+                error = "A generic output requirement requires typed value expressions.";
+                return false;
+            }
+
+            requirements.AddRange(outputValues.Select(value => new OutputRequirement(value)));
+        }
+
         if (requirements.Count == 0)
         {
             error = "No supported generic scalar program requirements were found.";
