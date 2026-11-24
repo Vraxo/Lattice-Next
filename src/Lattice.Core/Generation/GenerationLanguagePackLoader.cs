@@ -303,6 +303,14 @@ public sealed class GenerationLanguagePackLoader
             return false;
         }
 
+        if (syntax.BooleanLiteralFormat is { } booleanLiteralFormat &&
+            syntax.ExpressionOperators.Any(operation =>
+                operation.Token == booleanLiteralFormat.TrueLiteral ||
+                operation.Token == booleanLiteralFormat.FalseLiteral))
+        {
+            return false;
+        }
+
         var literalKeys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var format in syntax.StringLiteralFormats)
         {

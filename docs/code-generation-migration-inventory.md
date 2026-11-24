@@ -66,6 +66,7 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 | `identifierCollection` | 4 | Same selected-pack syntax constraint over a collection; combines name validity with collection structure. |
 | `uniqueCollection` | 3 | Reusable uniqueness constraint (case-insensitive in implementation). |
 | `disjointCollections` | 1 | Reusable scope/no-shadowing constraint between local and parameter collections. |
+| `semanticCollection` | 1 | Validates a typed semantic collection's structure and item constraints. |
 | `integerValue` | 2 | Generic integer-value constraint, currently limited to non-negative `Int32` parsing. |
 | `ascendingIntegerRange` | 2 | Generic range ordering/bounds constraint. |
 | `arithmeticCollectionReferences` | 1 | Consumes materialized arithmetic ASTs, enforces local/parameter reference availability and ordered-local scope. Source syntax parsing occurs during extraction via selected `InputSyntax`. |
@@ -106,7 +107,7 @@ Classification of the current expression and adjacent checks in `SequenceInputFa
 | `uniqueCollection`, `disjointCollections`, `matchingCollections`, non-empty/maximum-size fact checks | **Structural validation** | Enforces uniqueness, disjointness, collection alignment and schema/value bounds; it does not parse expression grammar. |
 | `integerValue`, `ascendingIntegerRange`, `semanticCollection` | **Semantic/structural validation** | Enforces numeric/range or collection-shape constraints; integer text parsing is value interpretation rather than target syntax parsing. |
 | `GenerationInputSyntaxParser.IsIdentifier` | **Syntax parsing/validation** | Identifier spelling is delegated to selected input syntax metadata; identifier identity/scope remains a separate reference concern. |
-| Legacy expression validator helpers that parse comparison/call/value forms from strings | **Syntax parsing mixed with semantics/reference checks** | Some supported-but-unused validation kinds combine grammar, operator shape, arity, literal constraints and name resolution; the responsibility is not cleanly separated in the legacy kind boundaries. |
+| Expression-related `SequenceInputFactValidator` branches | **Semantic/reference/structural validation** | Active branches consume materialized expression nodes. Call-matching kinds check call name, arity and allowed literal argument nodes. The former source-string arithmetic/list/string parsing helpers are no longer in the validator; parsing occurs during extraction against selected-pack syntax. |
 
 **Classification finding:** the active expression capture path has begun separating syntax parsing (language-pack input syntax), typed expression semantics, and name/scope checks. However, a number of validation-kind implementations still combine these responsibilities, and untagged values bypass expression parsing entirely. Structural checks should remain generic; syntax-specific acceptance belongs to the selected language parser/pack. This is a classification of present implementation, not a completion claim for M-05B.
 
