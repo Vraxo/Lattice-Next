@@ -374,11 +374,58 @@
       "factId": "program.iteration"
     },
     {
-      "id": "unsupported-condition-if",
+      "id": "capture-condition-expression",
       "matchTokens": [
         "if"
       ],
-      "factId": "program.condition"
+      "factId": "program.condition",
+      "captures": [
+        {
+          "factId": "program.condition.expression",
+          "valueId": "expression",
+          "startAfterTokens": [
+            "if"
+          ],
+          "stopBeforeTokens": [
+            "then",
+            "print",
+            "prints",
+            "display",
+            "displays",
+            "output",
+            "outputs",
+            "return",
+            "otherwise"
+          ],
+          "preserveRawValue": true,
+          "semanticExpressionKind": "boolean"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "=="
+        ],
+        [
+          "!="
+        ],
+        [
+          "<"
+        ],
+        [
+          "<="
+        ],
+        [
+          ">"
+        ],
+        [
+          ">="
+        ]
+      ],
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ]
     },
     {
       "id": "capture-assignment-components-set",
