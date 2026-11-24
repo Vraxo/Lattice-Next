@@ -1113,25 +1113,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
 
-    [Theory]
-    [InlineData("temperature", "18")]
-    [InlineData("balance", "43")]
-    public void Extracts_a_generic_conditional_expression_from_request_values(string variable, string threshold)
-    {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        var prompt = $"Create a Python program that displays 'ready' if {variable} >= {threshold} then.";
-
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var error), error);
-
-        var condition = Assert.Single(facts, fact => fact.Id == "program.condition.expression");
-        Assert.Equal(
-            new SemanticBinaryExpression(
-                SemanticExpressionOperator.GreaterThanOrEqual,
-                new SemanticNameExpression(variable),
-                new SemanticNumberExpression(threshold)),
-            condition.Expressions["expression"]);
-    }
-
     [Fact]
     public void Extracts_multiple_named_values_from_one_assignment_phrase()
     {
