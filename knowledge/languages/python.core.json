@@ -532,6 +532,31 @@
       ]
     },
     {
+      "head": "bound-for-collection-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable-collection"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
       "head": "bound-if-statement",
       "symbols": [
         {
@@ -963,6 +988,12 @@
       "key": "iterable"
     },
     {
+      "name": "iterable-collection",
+      "source": "goal-collection",
+      "encoding": "collection-literal",
+      "key": "iterable"
+    },
+    {
       "name": "condition",
       "source": "goal-binding",
       "encoding": "none",
@@ -1269,6 +1300,14 @@
       "startSymbol": "bound-for-statement"
     },
     {
+      "id": "python-bound-for-collection-loop",
+      "symbol": "for",
+      "effect": "emit-loop-header",
+      "argumentKind": "collection-loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-for-collection-statement"
+    },
+    {
       "id": "python-bound-conditional",
       "symbol": "if",
       "effect": "emit-conditional-header",
@@ -1460,6 +1499,21 @@
       {
         "character": "\t",
         "replacement": "\\t"
+      }
+    ]
+  },
+  "collectionLiteralFormat": {
+    "openingDelimiter": "[",
+    "closingDelimiter": "]",
+    "itemSeparator": ", ",
+    "itemFormats": [
+      {
+        "kind": "number",
+        "encoding": "none"
+      },
+      {
+        "kind": "text",
+        "encoding": "string-literal"
       }
     ]
   }

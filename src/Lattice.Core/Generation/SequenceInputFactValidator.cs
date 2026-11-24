@@ -51,8 +51,9 @@ public static class SequenceInputFactValidator
                 "integerValue" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var integerValue) &&
                     int.TryParse(integerValue, NumberStyles.None, CultureInfo.InvariantCulture, out _),
                 "ascendingIntegerRange" => TryValidateAscendingIntegerRange(factMap, validation),
-                "pythonListLiteral" => TryGetValue(factMap, validation.FactId, validation.ValueId, out var listLiteral) &&
-                    IsPythonListLiteral(listLiteral),
+                "semanticCollection" => TryGetSemanticCollection(
+                    factMap, validation.FactId, validation.ValueId, out var semanticCollection) &&
+                    SemanticCollectionValidator.IsValid(semanticCollection),
                 "identifierCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var identifiers) &&
                     identifiers.All(IsIdentifier),
                 "uniqueCollection" => TryGetCollection(factMap, validation.FactId, validation.ValueId, out var uniqueValues) &&
@@ -394,120 +395,6 @@ public static class SequenceInputFactValidator
             end > start;
     }
 
-    private static bool IsPythonListLiteral(string value)
-    {
-        if (value.Length < 3 || value[0] != '[' || value[^1] != ']')
-        {
-            return false;
-        }
-
-        var end = value.Length - 1;
-        var index = 1;
-        var itemCount = 0;
-
-        while (index < end)
-        {
-            while (index < end && char.IsWhiteSpace(value[index]))
-            {
-                index++;
-            }
-
-            if (index >= end)
-            {
-                return itemCount > 0;
-            }
-
-            if (value[index] is '\'' or '"')
-            {
-                var quote = value[index++];
-                var closed = false;
-                while (index < end)
-                {
-                    var character = value[index++];
-                    if (character == '\\')
-                    {
-                        if (index >= end)
-                        {
-                            return false;
-                        }
-
-                        index++;
-                        continue;
-                    }
-
-                    if (character == quote)
-                    {
-                        closed = true;
-                        break;
-                    }
-
-                    if (character is '\r' or '\n')
-                    {
-                        return false;
-                    }
-                }
-
-                if (!closed)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (value[index] is '+' or '-')
-                {
-                    index++;
-                }
-
-                var integerStart = index;
-                while (index < end && char.IsAsciiDigit(value[index]))
-                {
-                    index++;
-                }
-
-                if (integerStart == index)
-                {
-                    return false;
-                }
-
-                if (index < end && value[index] == '.')
-                {
-                    index++;
-                    var fractionStart = index;
-                    while (index < end && char.IsAsciiDigit(value[index]))
-                    {
-                        index++;
-                    }
-
-                    if (fractionStart == index)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            itemCount++;
-            while (index < end && char.IsWhiteSpace(value[index]))
-            {
-                index++;
-            }
-
-            if (index == end)
-            {
-                return itemCount > 0;
-            }
-
-            if (value[index] != ',')
-            {
-                return false;
-            }
-
-            index++;
-        }
-
-        return false;
-    }
-
     internal static bool IsArithmeticExpression(string expression)
     {
         const string tokenPattern = @"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[(),+\-*/%]";
@@ -695,6 +582,18 @@ public static class SequenceInputFactValidator
             facts.TryGetValue(factId, out var fact) &&
             fact.Collections.TryGetValue(valueId, out values) &&
             !values.IsDefaultOrEmpty;
+    }
+
+    private static bool TryGetSemanticCollection(
+        IReadOnlyDictionary<string, SequenceSemanticFact> facts,
+        string factId,
+        string valueId,
+        out SemanticCollection collection)
+    {
+        collection = null!;
+        return facts.TryGetValue(factId, out var fact) &&
+            fact.SemanticCollections is not null &&
+            fact.SemanticCollections.TryGetValue(valueId, out collection!);
     }
 
     private static bool IsIdentifier(string value) => IdentifierPattern.IsMatch(value);

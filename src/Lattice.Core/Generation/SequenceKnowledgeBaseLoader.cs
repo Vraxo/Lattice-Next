@@ -348,7 +348,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "normalization", "numericOffset") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "semanticCollectionFormat", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "normalization", "numericOffset") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -378,6 +378,7 @@ public static class SequenceKnowledgeBaseLoader
                     (collectionTemplate.Length > 256 ||
                      !collectionTemplate.Contains("{0}", StringComparison.Ordinal) ||
                      !collectionTemplate.Contains("{1}", StringComparison.Ordinal))) ||
+                !TryReadOptionalSemanticCollectionFormat(item, out var semanticCollectionFormat) ||
                 !TryGetNestedStringArray(item, "stopBeforeSequences", out var stopBeforeSequences) ||
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
@@ -391,7 +392,18 @@ public static class SequenceKnowledgeBaseLoader
                      collectionFieldDelimiter is null)) ||
                 (collectionFieldDelimiter is not null &&
                     collectionFieldIndex is null && collectionTemplate is null) ||
-                (collectionTemplate is not null && collectionFieldIndex is not null))
+                (collectionTemplate is not null && collectionFieldIndex is not null) ||
+                (semanticCollectionFormat is not null &&
+                    (!preserveRawValue ||
+                     literalValue is not null ||
+                     collectionDelimiter is not null ||
+                     !collectionDelimiters.IsDefaultOrEmpty ||
+                     collectionItemSeparator is not null ||
+                     collectionFieldDelimiter is not null ||
+                     collectionFieldIndex is not null ||
+                     collectionTemplate is not null ||
+                     normalization is not null ||
+                     (numericOffset is not null && numericOffset.Value != 0))))
             {
                 error = "Every input capture requires a unique fact/value pair and valid optional start, stop, and literal data.";
                 return false;
@@ -411,6 +423,7 @@ public static class SequenceKnowledgeBaseLoader
                 CollectionFieldDelimiter = collectionFieldDelimiter,
                 CollectionFieldIndex = collectionFieldIndex,
                 CollectionTemplate = collectionTemplate,
+                SemanticCollectionFormat = semanticCollectionFormat,
                 TrimPrefixTokens = trimPrefixTokens,
                 TrimSuffixCharacters = trimSuffixCharacters ?? string.Empty,
                 PreserveRawValue = preserveRawValue,
@@ -421,6 +434,105 @@ public static class SequenceKnowledgeBaseLoader
         }
 
         captures = builder.ToImmutable();
+        return true;
+    }
+
+    private static bool TryReadOptionalSemanticCollectionFormat(
+        JsonElement capture,
+        out SemanticCollectionInputFormat? format)
+    {
+        format = null;
+        if (!capture.TryGetProperty("semanticCollectionFormat", out var property))
+        {
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.Object ||
+            !HasOnlyProperties(property, "openingDelimiter", "closingDelimiter", "itemSeparator", "itemFormats") ||
+            !TryGetString(property, "openingDelimiter", out var openingDelimiter) ||
+            !IsValidDelimiter(openingDelimiter) ||
+            string.IsNullOrWhiteSpace(openingDelimiter) ||
+            !TryGetString(property, "closingDelimiter", out var closingDelimiter) ||
+            !IsValidDelimiter(closingDelimiter) ||
+            string.IsNullOrWhiteSpace(closingDelimiter) ||
+            !TryGetString(property, "itemSeparator", out var itemSeparator) ||
+            !IsValidDelimiter(itemSeparator) ||
+            string.IsNullOrWhiteSpace(itemSeparator) ||
+            !TryGetArray(property, "itemFormats", 16, required: true, out var itemElements) ||
+            itemElements.GetArrayLength() == 0)
+        {
+            return false;
+        }
+
+        var itemFormats = ImmutableArray.CreateBuilder<SemanticCollectionInputItemFormat>(itemElements.GetArrayLength());
+        var formatKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var itemElement in itemElements.EnumerateArray())
+        {
+            if (itemElement.ValueKind != JsonValueKind.Object ||
+                !HasOnlyProperties(itemElement, "kind", "openingDelimiter", "closingDelimiter", "escapes") ||
+                !TryGetString(itemElement, "kind", out var kindText) ||
+                !TryGetOptionalString(itemElement, "openingDelimiter", out var itemOpeningDelimiter) ||
+                !TryGetOptionalString(itemElement, "closingDelimiter", out var itemClosingDelimiter) ||
+                !TryGetArray(itemElement, "escapes", 16, required: true, out var escapeElements))
+            {
+                return false;
+            }
+
+            var kind = kindText switch
+            {
+                "number" => SemanticCollectionItemKind.Number,
+                "text" => SemanticCollectionItemKind.Text,
+                _ => (SemanticCollectionItemKind?)null
+            };
+            var itemOpen = itemOpeningDelimiter ?? string.Empty;
+            var itemClose = itemClosingDelimiter ?? string.Empty;
+            if (kind is null ||
+                (kind == SemanticCollectionItemKind.Number &&
+                    (itemOpen.Length != 0 || itemClose.Length != 0 || escapeElements.GetArrayLength() != 0)) ||
+                (kind == SemanticCollectionItemKind.Text &&
+                    (itemOpen.Length == 0 || itemClose.Length == 0 ||
+                     itemOpen.Length > MaximumDelimiterLength || itemClose.Length > MaximumDelimiterLength)) ||
+                !formatKeys.Add($"{kindText}\0{itemOpen}\0{itemClose}"))
+            {
+                return false;
+            }
+
+            var escapes = ImmutableArray.CreateBuilder<SemanticCollectionInputEscape>(escapeElements.GetArrayLength());
+            var escapeSequences = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var escapeElement in escapeElements.EnumerateArray())
+            {
+                if (escapeElement.ValueKind != JsonValueKind.Object ||
+                    !HasOnlyProperties(escapeElement, "sequence", "value") ||
+                    !TryGetString(escapeElement, "sequence", out var sequence) ||
+                    sequence.Length > 16 ||
+                    !TryGetString(escapeElement, "value", out var value) ||
+                    value.Length > 16 ||
+                    !escapeSequences.Add(sequence))
+                {
+                    return false;
+                }
+
+                escapes.Add(new SemanticCollectionInputEscape(sequence, value));
+            }
+
+            if (kind == SemanticCollectionItemKind.Text &&
+                escapes.Any(escape => escape.Sequence.Length == 0))
+            {
+                return false;
+            }
+
+            itemFormats.Add(new SemanticCollectionInputItemFormat(
+                kind.Value,
+                itemOpen,
+                itemClose,
+                escapes.ToImmutable()));
+        }
+
+        format = new SemanticCollectionInputFormat(
+            openingDelimiter,
+            closingDelimiter,
+            itemSeparator,
+            itemFormats.ToImmutable());
         return true;
     }
 
@@ -459,7 +571,7 @@ public static class SequenceKnowledgeBaseLoader
             "matchingLastNumericFunctionCall",
             "matchingFunctionCall",
             "matchingNumericFunctionCall",
-            "pythonListLiteral",
+            "semanticCollection",
             "integerValue",
             "ascendingIntegerRange"
         };

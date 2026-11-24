@@ -34,11 +34,19 @@ internal static class CompositionalTaskParser
             return false;
         }
 
+        var languagePackLoader = new GenerationLanguagePackLoader();
+        if (!languagePackLoader.TryLoadEmbedded(out var languagePacks, out _) ||
+            !languagePacks.TryGetValue(language, out var languagePack))
+        {
+            return false;
+        }
+
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
             facts.Select(fact => fact.Id).ToImmutableArray())
         {
-            FactValues = facts
+            FactValues = facts,
+            LanguagePack = languagePack
         };
         if (!KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!,
