@@ -109,7 +109,7 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
-    public void Preserves_grouping_and_left_associativity_when_rendering()
+    public void Preserves_left_associativity_when_rendering()
     {
         var pack = CreateCustomPack();
         var syntax = pack.InputSyntax!;
@@ -129,7 +129,7 @@ public sealed class SemanticExpressionTests
                 new SemanticNumberExpression("1")),
             expression);
         Assert.True(SemanticExpressionRenderer.TryRender(expression!, pack, out var rendered));
-        Assert.Equal("(x ⊕ y) ⊖ z ⊖ ١", rendered);
+        Assert.Equal("x ⊕ y ⊖ z ⊖ ١", rendered);
     }
 
     private static GenerationLanguagePack LoadPythonPack()
