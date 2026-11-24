@@ -623,33 +623,33 @@
     },
     {
       "id": "function-has-parameter",
-      "domain": null,
-      "range": null,
+      "domain": "function",
+      "range": "parameter",
       "verb": "has parameter",
       "order": 6,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "call-passes-argument",
-      "domain": null,
-      "range": null,
+      "domain": "function-call",
+      "range": "argument",
       "verb": "passes argument",
       "order": 7,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "function-returns-value",
-      "domain": null,
-      "range": null,
+      "domain": "function",
+      "range": "value",
       "verb": "returns value",
       "order": 8,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "import-brings-module-into-scope",
@@ -700,13 +700,13 @@
     },
     {
       "id": "call-invokes-callable",
-      "domain": null,
-      "range": null,
+      "domain": "function-call",
+      "range": "callable",
       "verb": "invokes callable",
       "order": 14,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "print-produces-output",
@@ -729,23 +729,23 @@
     },
     {
       "id": "function-definition-defines-function",
-      "domain": null,
-      "range": null,
+      "domain": "function-definition",
+      "range": "function",
       "verb": "defines function",
       "order": 17,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "class-has-method",
-      "domain": null,
-      "range": null,
+      "domain": "class",
+      "range": "method",
       "verb": "has method",
       "order": 18,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "program-goal-has-statement",
@@ -903,6 +903,96 @@
       "range": "variable",
       "verb": "writes variable",
       "order": 35,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "function-definition-has-body-statement",
+      "domain": "function-definition",
+      "range": "statement",
+      "verb": "has body statement",
+      "order": 36,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "call-argument-binds-parameter",
+      "domain": "argument",
+      "range": "parameter",
+      "verb": "binds parameter",
+      "order": 37,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-condition",
+      "domain": "conditional-statement",
+      "range": "expression",
+      "verb": "has condition",
+      "order": 38,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-then-statement",
+      "domain": "conditional-statement",
+      "range": "statement",
+      "verb": "has then statement",
+      "order": 39,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-else-statement",
+      "domain": "conditional-statement",
+      "range": "statement",
+      "verb": "has else statement",
+      "order": 40,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-has-iterable",
+      "domain": "loop-statement",
+      "range": "expression",
+      "verb": "iterates over",
+      "order": 41,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-binds-variable",
+      "domain": "loop-statement",
+      "range": "variable",
+      "verb": "binds iteration variable",
+      "order": 42,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-has-body-statement",
+      "domain": "loop-statement",
+      "range": "statement",
+      "verb": "has body statement",
+      "order": 43,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "statement-depends-on-statement",
+      "domain": "statement",
+      "range": "statement",
+      "verb": "depends on statement",
+      "order": 44,
       "comparisonPriority": 0,
       "subjectKind": "individual",
       "objectKind": "individual"
@@ -1607,6 +1697,21 @@
     {
       "id": "operation-result-position",
       "domainType": "operation-result",
+      "valueType": "number"
+    },
+    {
+      "id": "function-parameter-position",
+      "domainType": "parameter",
+      "valueType": "number"
+    },
+    {
+      "id": "call-argument-position",
+      "domainType": "argument",
+      "valueType": "number"
+    },
+    {
+      "id": "statement-sequence-position",
+      "domainType": "statement",
       "valueType": "number"
     }
   ],

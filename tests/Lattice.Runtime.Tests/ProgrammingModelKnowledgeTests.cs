@@ -23,6 +23,12 @@ public sealed class ProgrammingModelKnowledgeTests
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("programming-effect")?.Kind);
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("programming-capability")?.Kind);
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("operation-constraint")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("function-definition")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("function-call")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("parameter")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("argument")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("conditional-statement")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("loop-statement")?.Kind);
 
         AssertRelation("program-goal-has-statement", "program-goal", "statement");
         AssertRelation("statement-has-expression", "statement", "expression");
@@ -39,6 +45,25 @@ public sealed class ProgrammingModelKnowledgeTests
         AssertRelation("operation-input-reads-variable", "operation-input", "variable");
         AssertRelation("operation-result-produces-value", "operation-result", "value");
         AssertRelation("operation-result-writes-variable", "operation-result", "variable");
+        AssertRelation("function-has-parameter", "function", "parameter");
+        AssertRelation("call-passes-argument", "function-call", "argument");
+        AssertRelation("call-invokes-callable", "function-call", "callable");
+        AssertRelation("function-returns-value", "function", "value");
+        AssertRelation("function-definition-defines-function", "function-definition", "function");
+        AssertRelation("function-definition-has-body-statement", "function-definition", "statement");
+        AssertRelation("call-argument-binds-parameter", "argument", "parameter");
+        AssertRelation("conditional-has-condition", "conditional-statement", "expression");
+        AssertRelation("conditional-has-then-statement", "conditional-statement", "statement");
+        AssertRelation("conditional-has-else-statement", "conditional-statement", "statement");
+        AssertRelation("loop-has-iterable", "loop-statement", "expression");
+        AssertRelation("loop-binds-variable", "loop-statement", "variable");
+        AssertRelation("loop-has-body-statement", "loop-statement", "statement");
+        AssertRelation("statement-depends-on-statement", "statement", "statement");
+        Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("function-parameter-position")?.ValueKind);
+        Assert.Equal("parameter", model.FindDataProperty("function-parameter-position")?.DomainType);
+        Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("call-argument-position")?.ValueKind);
+        Assert.Equal("argument", model.FindDataProperty("call-argument-position")?.DomainType);
+        Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("statement-sequence-position")?.ValueKind);
 
         var inputType = Assert.IsType<SemanticRelationDefinition>(model.FindRelation("operation-input-requires-type"));
         Assert.Equal("operation-input", inputType.DomainType);
