@@ -32,6 +32,8 @@ public sealed record SemanticNumberExpression(string Value) : SemanticExpression
 
 public sealed record SemanticTextExpression(string Value) : SemanticExpression;
 
+public sealed record SemanticBooleanExpression(bool Value) : SemanticExpression;
+
 public sealed record SemanticUnaryExpression(
     SemanticExpressionOperator Operator,
     SemanticExpression Operand) : SemanticExpression;
@@ -136,7 +138,7 @@ internal static class SemanticExpressionAnalysis
     };
 
     private static bool IsValueCore(SemanticExpression expression) =>
-        expression is SemanticTextExpression || IsArithmeticCore(expression);
+        expression is SemanticTextExpression or SemanticBooleanExpression || IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
         SemanticExpression expression,
@@ -145,7 +147,7 @@ internal static class SemanticExpressionAnalysis
         HashSet<string>? availableFunctions) => expression switch
     {
         SemanticNameExpression name => availableNames.Contains(name.Name),
-        SemanticNumberExpression or SemanticTextExpression => true,
+        SemanticNumberExpression or SemanticTextExpression or SemanticBooleanExpression => true,
         SemanticFunctionCallExpression call =>
             allowFunctionCalls &&
             (availableFunctions is null || availableFunctions.Contains(call.Name)) &&
@@ -188,6 +190,7 @@ internal static class SemanticExpressionAnalysis
             SemanticNameExpression name => IsValidIdentifier(name.Name),
             SemanticNumberExpression number => IsValidCanonicalNumber(number.Value),
             SemanticTextExpression text => text.Value is not null && text.Value.Length <= MaximumValueLength,
+            SemanticBooleanExpression => true,
             SemanticUnaryExpression unary =>
                 Enum.IsDefined(unary.Operator) && IsValid(unary.Operand, depth + 1, ref nodeCount),
             SemanticBinaryExpression binary =>

@@ -7,6 +7,30 @@ namespace Lattice.Core.Tests.Generation;
 public sealed class SemanticExpressionTests
 {
     [Fact]
+    public void Semantic_model_preserves_typed_literals_references_nesting_and_operand_order()
+    {
+        var literal = new SemanticBooleanExpression(true);
+        var reference = new SemanticNameExpression("enabled");
+        var expression = new SemanticBinaryExpression(
+            SemanticExpressionOperator.And,
+            reference,
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Equal,
+                new SemanticBooleanExpression(false),
+                new SemanticBooleanExpression(true)));
+
+        Assert.Equal(true, literal.Value);
+        Assert.Equal("enabled", reference.Name);
+        Assert.Same(reference, expression.Left);
+        var nested = Assert.IsType<SemanticBinaryExpression>(expression.Right);
+        Assert.Equal(SemanticExpressionOperator.Equal, nested.Operator);
+        Assert.Equal(new SemanticBooleanExpression(false), nested.Left);
+        Assert.Equal(new SemanticBooleanExpression(true), nested.Right);
+        Assert.True(SemanticExpressionAnalysis.IsValid(expression));
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(expression));
+    }
+
+    [Fact]
     public void Parses_and_renders_expression_operators_numbers_calls_and_strings_from_selected_syntax()
     {
         var pack = CreateCustomPack();
