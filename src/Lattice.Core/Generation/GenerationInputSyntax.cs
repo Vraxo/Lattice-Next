@@ -16,7 +16,13 @@ public sealed record GenerationInputSyntax(
         ImmutableArray<GenerationInputExpressionOperatorFormat>.Empty;
 
     public GenerationDelimiterPair? ExpressionGroupingDelimiter { get; init; }
+
+    public GenerationBooleanLiteralFormat? BooleanLiteralFormat { get; init; }
 }
+
+public sealed record GenerationBooleanLiteralFormat(
+    string TrueLiteral,
+    string FalseLiteral);
 
 public sealed record GenerationNumberLiteralFormat(
     string Digits,

@@ -28,6 +28,21 @@ public static class SequenceInputFactExtractor
         out string? error) =>
         TryExtractCore(knowledge, input, _ => languagePack, out facts, out error);
 
+    public static bool TryExtractProgram(
+        SequenceKnowledgeBase knowledge,
+        string input,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        if (!TryExtract(knowledge, input, out var facts, out error))
+        {
+            return false;
+        }
+
+        return SemanticProgramFactMapper.TryCreate(facts, out program, out error);
+    }
+
     private static bool TryExtractCore(
         SequenceKnowledgeBase knowledge,
         string input,

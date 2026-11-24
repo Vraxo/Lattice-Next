@@ -404,7 +404,8 @@
             "and",
             "then"
           ],
-          "semanticExpressionKind": "value"
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
         }
       ],
       "forbiddenAnySequences": [
@@ -412,7 +413,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-sets",
@@ -438,7 +440,8 @@
             "and",
             "then"
           ],
-          "semanticExpressionKind": "value"
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
         }
       ],
       "forbiddenAnySequences": [
@@ -446,7 +449,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-assign",
@@ -472,7 +476,8 @@
             "and",
             "then"
           ],
-          "semanticExpressionKind": "value"
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
         }
       ],
       "forbiddenAnySequences": [
@@ -480,7 +485,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "capture-assignment-components-assigns",
@@ -506,7 +512,8 @@
             "and",
             "then"
           ],
-          "semanticExpressionKind": "value"
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
         }
       ],
       "forbiddenAnySequences": [
@@ -514,7 +521,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "repeatMatches": true
     },
     {
       "id": "recognize-assignment-operator-set",

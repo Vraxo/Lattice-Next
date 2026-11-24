@@ -72,6 +72,15 @@ internal static class SemanticExpressionRenderer
                     text.Value, languagePack.StringLiteralFormat);
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticBooleanExpression boolean:
+                if (syntax.BooleanLiteralFormat is not { } booleanFormat)
+                {
+                    return false;
+                }
+
+                rendered = boolean.Value ? booleanFormat.TrueLiteral : booleanFormat.FalseLiteral;
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticFunctionCallExpression call:
                 if (!TryRenderCall(call, languagePack, syntax, out rendered))
                 {

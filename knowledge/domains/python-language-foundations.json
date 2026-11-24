@@ -14,6 +14,11 @@
       "kind": "Type"
     },
     {
+      "id": "program-goal",
+      "label": "program goal",
+      "kind": "Type"
+    },
+    {
       "id": "statement",
       "label": "statement",
       "kind": "Type"
@@ -41,6 +46,11 @@
     {
       "id": "variable",
       "label": "variable",
+      "kind": "Type"
+    },
+    {
+      "id": "binding",
+      "label": "binding",
       "kind": "Type"
     },
     {
@@ -236,6 +246,41 @@
     {
       "id": "callable",
       "label": "callable",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-operation",
+      "label": "programming operation",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-input",
+      "label": "operation input slot",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-result",
+      "label": "operation result slot",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-effect",
+      "label": "programming effect",
+      "kind": "Type"
+    },
+    {
+      "id": "programming-capability",
+      "label": "programming capability",
+      "kind": "Type"
+    },
+    {
+      "id": "operation-constraint",
+      "label": "operation constraint",
+      "kind": "Type"
+    },
+    {
+      "id": "input",
+      "label": "program input",
       "kind": "Type"
     }
   ],
@@ -479,6 +524,51 @@
       "form": "callable",
       "concept": "callable",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "program goal",
+      "concept": "program-goal",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "binding",
+      "concept": "binding",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming operation",
+      "concept": "programming-operation",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation input slot",
+      "concept": "operation-input",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation result slot",
+      "concept": "operation-result",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming effect",
+      "concept": "programming-effect",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "programming capability",
+      "concept": "programming-capability",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "operation constraint",
+      "concept": "operation-constraint",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "program input",
+      "concept": "input",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -543,53 +633,53 @@
     },
     {
       "id": "function-has-parameter",
-      "domain": null,
-      "range": null,
+      "domain": "function",
+      "range": "parameter",
       "verb": "has parameter",
       "order": 6,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "call-passes-argument",
-      "domain": null,
-      "range": null,
+      "domain": "function-call",
+      "range": "argument",
       "verb": "passes argument",
       "order": 7,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "function-returns-value",
-      "domain": null,
-      "range": null,
+      "domain": "function",
+      "range": "value",
       "verb": "returns value",
       "order": 8,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "import-brings-module-into-scope",
-      "domain": null,
-      "range": null,
+      "domain": "import-statement",
+      "range": "module",
       "verb": "imports module",
       "order": 9,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "handler-handles-exception",
-      "domain": null,
-      "range": null,
+      "domain": "exception-handler",
+      "range": "exception",
       "verb": "handles exception",
       "order": 10,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "interpreter-executes-program",
@@ -635,7 +725,8 @@
       "verb": "produces output",
       "order": 15,
       "comparisonPriority": 0,
-      "objectKind": "type"
+      "objectKind": "type",
+      "subjectKind": "individual"
     },
     {
       "id": "collection-contains-element",
@@ -649,23 +740,323 @@
     },
     {
       "id": "function-definition-defines-function",
-      "domain": null,
-      "range": null,
+      "domain": "function-definition",
+      "range": "function",
       "verb": "defines function",
       "order": 17,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "class-has-method",
-      "domain": null,
-      "range": null,
+      "domain": "class",
+      "range": "method",
       "verb": "has method",
       "order": 18,
       "comparisonPriority": 0,
-      "subjectKind": "type",
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "program-goal-has-statement",
+      "domain": "program-goal",
+      "range": "statement",
+      "verb": "requires statement",
+      "order": 19,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "statement-has-expression",
+      "domain": "statement",
+      "range": "expression",
+      "verb": "uses expression",
+      "order": 20,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "assignment-targets-variable",
+      "domain": "assignment-statement",
+      "range": "variable",
+      "verb": "targets variable",
+      "order": 21,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "binding-binds-variable",
+      "domain": "binding",
+      "range": "variable",
+      "verb": "binds variable",
+      "order": 22,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "binding-supplies-value",
+      "domain": "binding",
+      "range": "value",
+      "verb": "supplies value",
+      "order": 23,
+      "comparisonPriority": 0
+    },
+    {
+      "id": "operation-has-input",
+      "domain": "programming-operation",
+      "range": "operation-input",
+      "verb": "accepts input slot",
+      "order": 24,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-has-result",
+      "domain": "programming-operation",
+      "range": "operation-result",
+      "verb": "produces result slot",
+      "order": 25,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-requires-type",
+      "domain": "operation-input",
+      "range": null,
+      "verb": "requires value type",
+      "order": 26,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
       "objectKind": "type"
+    },
+    {
+      "id": "operation-result-has-type",
+      "domain": "operation-result",
+      "range": null,
+      "verb": "has value type",
+      "order": 27,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "type"
+    },
+    {
+      "id": "operation-has-effect",
+      "domain": "programming-operation",
+      "range": "programming-effect",
+      "verb": "has effect",
+      "order": 28,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-requires-capability",
+      "domain": "programming-operation",
+      "range": "programming-capability",
+      "verb": "requires capability",
+      "order": 29,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-has-constraint",
+      "domain": "programming-operation",
+      "range": "operation-constraint",
+      "verb": "has constraint",
+      "order": 30,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-requires-operation",
+      "domain": "programming-operation",
+      "range": "programming-operation",
+      "verb": "requires operation",
+      "order": 31,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-receives-value",
+      "domain": "operation-input",
+      "range": "value",
+      "verb": "receives value",
+      "order": 32,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-input-reads-variable",
+      "domain": "operation-input",
+      "range": "variable",
+      "verb": "reads variable",
+      "order": 33,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-produces-value",
+      "domain": "operation-result",
+      "range": "value",
+      "verb": "produces value",
+      "order": 34,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "operation-result-writes-variable",
+      "domain": "operation-result",
+      "range": "variable",
+      "verb": "writes variable",
+      "order": 35,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "function-definition-has-body-statement",
+      "domain": "function-definition",
+      "range": "statement",
+      "verb": "has body statement",
+      "order": 36,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "call-argument-binds-parameter",
+      "domain": "argument",
+      "range": "parameter",
+      "verb": "binds parameter",
+      "order": 37,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-condition",
+      "domain": "conditional-statement",
+      "range": "expression",
+      "verb": "has condition",
+      "order": 38,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-then-statement",
+      "domain": "conditional-statement",
+      "range": "statement",
+      "verb": "has then statement",
+      "order": 39,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "conditional-has-else-statement",
+      "domain": "conditional-statement",
+      "range": "statement",
+      "verb": "has else statement",
+      "order": 40,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-has-iterable",
+      "domain": "loop-statement",
+      "range": "expression",
+      "verb": "iterates over",
+      "order": 41,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-binds-variable",
+      "domain": "loop-statement",
+      "range": "variable",
+      "verb": "binds iteration variable",
+      "order": 42,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "loop-has-body-statement",
+      "domain": "loop-statement",
+      "range": "statement",
+      "verb": "has body statement",
+      "order": 43,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "statement-depends-on-statement",
+      "domain": "statement",
+      "range": "statement",
+      "verb": "depends on statement",
+      "order": 44,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "program-receives-input",
+      "domain": "program",
+      "range": "input",
+      "verb": "receives input",
+      "order": 45,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "program-produces-output",
+      "domain": "program",
+      "range": "output",
+      "verb": "produces output",
+      "order": 46,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "statement-may-raise-exception",
+      "domain": "statement",
+      "range": "exception",
+      "verb": "may raise exception",
+      "order": 47,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "exception-handler-handles-statement",
+      "domain": "exception-handler",
+      "range": "statement",
+      "verb": "handles statement failure",
+      "order": 48,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "import-targets-module",
+      "domain": "import-statement",
+      "range": "module",
+      "verb": "imports module",
+      "order": 49,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
     }
   ],
   "definitions": [
@@ -923,6 +1314,60 @@
     },
     {
       "concept": "callable",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "program-goal",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "binding",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-operation",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-input",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-result",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-effect",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "programming-capability",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "operation-constraint",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "input",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1310,6 +1755,32 @@
       "object": "callable"
     }
   ],
-  "dataProperties": [],
+  "dataProperties": [
+    {
+      "id": "operation-input-position",
+      "domainType": "operation-input",
+      "valueType": "number"
+    },
+    {
+      "id": "operation-result-position",
+      "domainType": "operation-result",
+      "valueType": "number"
+    },
+    {
+      "id": "function-parameter-position",
+      "domainType": "parameter",
+      "valueType": "number"
+    },
+    {
+      "id": "call-argument-position",
+      "domainType": "argument",
+      "valueType": "number"
+    },
+    {
+      "id": "statement-sequence-position",
+      "domainType": "statement",
+      "valueType": "number"
+    }
+  ],
   "dataAssertions": []
 }
