@@ -124,7 +124,8 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
 - [x] **M-07.2 — Define request-derived scalar requirements.** Represent numeric/string values, variable names, assignments, comparisons, branch conditions, and output requirements as generic semantic facts. Do not encode benchmark task names as semantic identities.
 - [ ] **M-07.3 — Replace fixed-value captures with value captures.** Capture the actual literals and identifiers from the request; remove fixed sample values and task-specific facts from the active extraction path.
   - [x] **M-07.3a — Verify generic assignment captures.** Capture changed variable names and numeric/text values with the existing general assignment rules; preserve quoted literal syntax for typed parsing.
-  - [ ] **M-07.3b — Retire fixed scalar task facts.** Replace addition/sign/conditional-output sample markers in the active extraction path with generic requirements, without retaining a parallel router or breaking the queued composition work.
+  - [x] **M-07.3b — Project generic assignment facts.** Map the reusable assignment target/value facts to `AssignmentRequirement` values through the existing sequence fact extractor; do not map task-family fact IDs.
+  - [ ] **M-07.3c — Retire fixed scalar task facts.** Replace addition/sign/conditional-output sample markers in the active extraction path with generic requirements, without retaining a parallel router or breaking the queued composition work.
 - [ ] **M-07.4 — Preserve multiple requirements and their order.** Ensure a request containing assignment, condition, and output retains each requirement and its dependencies instead of collapsing into one task category.
 - [ ] **M-07.5 — Test scalar interpretation against variation.** Add tests with changed numbers, identifiers, output strings, and paraphrased requests; assert the extracted semantic values, not just the final code text.
 
