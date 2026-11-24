@@ -1209,6 +1209,28 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 new OutputRequirement(new SemanticNameExpression("subtotal")), requirement));
     }
 
+    [Fact]
+    public void Extracts_generic_condition_and_branch_output_after_assignment()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program that sets age to 21 then when age >= 18 then prints 'adult'.";
+
+        Assert.True(SequenceInputFactExtractor.TryExtractProgram(knowledge!, prompt, out var program, out var error), error);
+
+        Assert.Collection(
+            program!.Requirements,
+            requirement => Assert.Equal(
+                new AssignmentRequirement("age", new SemanticNumberExpression("21")), requirement),
+            requirement => Assert.Equal(
+                new ConditionalRequirement(
+                    new SemanticBinaryExpression(
+                        SemanticExpressionOperator.GreaterThanOrEqual,
+                        new SemanticNameExpression("age"),
+                        new SemanticNumberExpression("18")),
+                    [new OutputRequirement(new SemanticTextExpression("adult"))],
+                    []), requirement));
+    }
+
     [Theory]
     [InlineData("Create a Python program that assigns balance to 41 then displays balance.", "balance", "41")]
     [InlineData("Make a Python program that sets greeting to 'Welcome, Ada!' then prints greeting.", "greeting", "Welcome, Ada!")]
