@@ -374,6 +374,13 @@
       "factId": "program.iteration"
     },
     {
+      "id": "unsupported-condition-if",
+      "matchTokens": [
+        "if"
+      ],
+      "factId": "program.condition"
+    },
+    {
       "id": "capture-condition-expression",
       "matchTokens": [
         "if"
