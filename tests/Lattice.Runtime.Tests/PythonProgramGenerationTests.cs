@@ -94,7 +94,7 @@ public sealed class PythonProgramGenerationTests
         "Ada 3\nGrace 5\nLinus 6")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(70).",
-        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(70))",
+        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(70))",
         "senior")]
     [InlineData(
         "Build a Python script with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(30).",
@@ -126,7 +126,7 @@ public sealed class PythonProgramGenerationTests
         "accepted")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(3).",
-        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return 'accepted'\n    return 'rejected'\nprint(classify(3))",
+        "def classify(score):\n    if not (score >= 10 or score < 5):\n        return \"accepted\"\n    return \"rejected\"\nprint(classify(3))",
         "rejected")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
@@ -150,7 +150,7 @@ public sealed class PythonProgramGenerationTests
         "rejected")]
     [InlineData(
         "Create a Python program with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(4).",
-        "def nonzero(value):\n    if value != 0:\n        return 'nonzero'\n    return 'zero'\nprint(nonzero(4))",
+        "def nonzero(value):\n    if value != 0:\n        return \"nonzero\"\n    return \"zero\"\nprint(nonzero(4))",
         "nonzero")]
     [InlineData(
         "Build a Python script with a function named nonzero that takes value and returns 'nonzero' when value is not equal to 0 and otherwise returns 'zero', then print nonzero(0).",
@@ -190,7 +190,7 @@ public sealed class PythonProgramGenerationTests
         "6")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(20).",
-        "def classify(age):\n    if age >= 18:\n        return 'adult'\n    return 'minor'\nprint(classify(20))",
+        "def classify(age):\n    if age >= 18:\n        return \"adult\"\n    return \"minor\"\nprint(classify(20))",
         "adult")]
     [InlineData(
         "Build a Python script with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(16).",
@@ -1079,7 +1079,7 @@ public sealed class PythonProgramGenerationTests
         "13")]
     [InlineData(
         "Create a Python function named classify that takes score and returns 'High' when score is greater than 90, and returns 'Pass' when score is at least 50, and otherwise returns 'Fail', then print classify(75).",
-        "def classify(score):\n    if score > 90:\n        return 'High'\n    elif score >= 50:\n        return 'Pass'\n    return 'Fail'\nprint(classify(75))",
+        "def classify(score):\n    if score > 90:\n        return \"High\"\n    elif score >= 50:\n        return \"Pass\"\n    return \"Fail\"\nprint(classify(75))",
         "Pass")]
     public async Task Generates_and_executes_multi_conditional_functions(
         string prompt,
