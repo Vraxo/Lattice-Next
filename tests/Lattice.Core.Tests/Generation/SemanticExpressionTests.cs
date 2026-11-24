@@ -67,6 +67,19 @@ public sealed class SemanticExpressionTests
         Assert.Equal("combine(١٫٥; \"a\\n b\")", renderedCall);
     }
 
+    [Theory]
+    [InlineData("True", true)]
+    [InlineData("False", false)]
+    public void Parses_and_renders_boolean_literals_from_language_pack(string source, bool value)
+    {
+        var pack = LoadPythonPack();
+        Assert.True(SemanticExpressionParser.TryParse(
+            "value", source, pack.InputSyntax, out var expression));
+        Assert.Equal(new SemanticBooleanExpression(value), expression);
+        Assert.True(SemanticExpressionRenderer.TryRender(expression!, pack, out var rendered));
+        Assert.Equal(source, rendered);
+    }
+
     [Fact]
     public void Parses_boolean_and_comparison_expressions_as_operator_trees()
     {

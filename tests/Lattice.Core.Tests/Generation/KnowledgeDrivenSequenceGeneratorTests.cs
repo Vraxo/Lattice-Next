@@ -253,6 +253,33 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
+    public void Captures_changed_nested_boolean_expression_as_typed_semantic_nodes()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        const string prompt = "Create a Python program with a function named verify that takes amount and offset and returns 'yes' when amount is greater than 23 and (amount + offset) is not equal to 41, and otherwise returns 'no', then print verify(24, 2).";
+
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        var expression = Assert.IsType<SemanticBinaryExpression>(Assert.Single(branches.ExpressionCollections["conditions"]));
+        Assert.Equal(SemanticExpressionOperator.And, expression.Operator);
+        Assert.Equal(
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNameExpression("amount"),
+                new SemanticNumberExpression("23")),
+            expression.Left);
+        Assert.Equal(
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.NotEqual,
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    new SemanticNameExpression("amount"),
+                    new SemanticNameExpression("offset")),
+                new SemanticNumberExpression("41")),
+            expression.Right);
+    }
+
+    [Fact]
     public void Rejects_boolean_conditions_that_reference_undeclared_parameters()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
