@@ -87,6 +87,22 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
 
+## M-05B check classification (M-05B.1h)
+
+Classification of the current expression and adjacent checks in `SequenceInputFactValidator` / extraction, without changing behavior:
+
+| Check | Classification | Current responsibility / boundary |
+|---|---|---|
+| `SemanticExpressionParser.TryParse` called while materializing a tagged capture | **Syntax parsing** | Parses captured source text using selected `GenerationLanguagePack.InputSyntax` and constructs a typed `SemanticExpression`. It still needs to consume source spelling; it is not semantic capture directly from request meaning. |
+| `SemanticExpressionAnalysis.IsArithmetic`, `IsBoolean`, `IsValue`, comparison-node/operator shape checks | **Semantic validation** | Rejects expressions whose typed node/operator structure does not satisfy the requested semantic category (for example, an arithmetic expression or Boolean condition). |
+| `ReferencesOnlyAvailableNames`, `ReferencesAnyName`, function-name/call checks, ordered local/parameter scopes | **Reference/scope validation** | Checks that identifiers and calls refer to declared parameters, locals, or permitted functions and, in the ordered-local case, that prior values are available. This is useful language-neutral intent but currently operates on the parsed expression tree plus string-named scopes. |
+| `uniqueCollection`, `disjointCollections`, `matchingCollections`, non-empty/maximum-size fact checks | **Structural validation** | Enforces uniqueness, disjointness, collection alignment and schema/value bounds; it does not parse expression grammar. |
+| `integerValue`, `ascendingIntegerRange`, `semanticCollection` | **Semantic/structural validation** | Enforces numeric/range or collection-shape constraints; integer text parsing is value interpretation rather than target syntax parsing. |
+| `GenerationInputSyntaxParser.IsIdentifier` | **Syntax parsing/validation** | Identifier spelling is delegated to selected input syntax metadata; identifier identity/scope remains a separate reference concern. |
+| Legacy expression validator helpers that parse comparison/call/value forms from strings | **Syntax parsing mixed with semantics/reference checks** | Some supported-but-unused validation kinds combine grammar, operator shape, arity, literal constraints and name resolution; the responsibility is not cleanly separated in the legacy kind boundaries. |
+
+**Classification finding:** the active expression capture path has begun separating syntax parsing (language-pack input syntax), typed expression semantics, and name/scope checks. However, a number of validation-kind implementations still combine these responsibilities, and untagged values bypass expression parsing entirely. Structural checks should remain generic; syntax-specific acceptance belongs to the selected language parser/pack. This is a classification of present implementation, not a completion claim for M-05B.
+
 ## M-05B expression values through generation (M-05B.1g)
 
 The current extraction/generation path carries both raw and typed forms; the expression metadata does not itself make every value semantic.
