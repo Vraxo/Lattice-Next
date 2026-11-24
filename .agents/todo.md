@@ -114,13 +114,13 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
   - [x] **M-06.3c — Represent operation effects and prerequisites.** Link operation contracts to effects and required capabilities/dependencies as model relations rather than free-form selector strings.
   - [x] **M-06.3d — Connect request values to typed slots.** Define how input/result slots bind semantic values and variables while preserving language-neutral identity and ordering.
   - [x] **M-06.3e — Verify contracts through the world-model loader/reasoner.** Add focused tests for typed slots, result types, effects, and prerequisites; keep operation selection changes for the later generation-pipeline task.
-- [ ] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
-- [ ] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
-- [ ] **M-06.6 — Verify model loading and reasoning.** Add focused loader/reasoner tests for the new concepts, typed operation contracts, and relationships. Confirm existing domain modules still load without Python-specific behavior in shared code.
+- [x] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
+- [x] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
+- [x] **M-06.6 — Verify model loading and reasoning.** Add focused loader/reasoner tests for the new concepts, typed operation contracts, and relationships. Confirm existing domain modules still load without Python-specific behavior in shared code.
 
 ### M-07 — Interpret scalar program requests generically
 
-- [ ] **M-07.1 — Inventory scalar task-specific input rules.** Identify the exact rules and fact IDs for fixed comparisons, sign classification, two-number addition, assignments, and conditional output in `python.core.json`; map each to the values it currently captures.
+- [x] **M-07.1 — Inventory scalar task-specific input rules.** Identify the exact rules and fact IDs for fixed comparisons, sign classification, two-number addition, assignments, and conditional output in `python.core.json`; map each to the values it currently captures.
 - [ ] **M-07.2 — Define request-derived scalar requirements.** Represent numeric/string values, variable names, assignments, comparisons, branch conditions, and output requirements as generic semantic facts. Do not encode benchmark task names as semantic identities.
 - [ ] **M-07.3 — Replace fixed-value captures with value captures.** Capture the actual literals and identifiers from the request; remove fixed sample values and task-specific facts from the active extraction path.
 - [ ] **M-07.4 — Preserve multiple requirements and their order.** Ensure a request containing assignment, condition, and output retains each requirement and its dependencies instead of collapsing into one task category.
