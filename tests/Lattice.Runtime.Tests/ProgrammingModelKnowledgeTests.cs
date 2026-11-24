@@ -29,6 +29,11 @@ public sealed class ProgrammingModelKnowledgeTests
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("argument")?.Kind);
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("conditional-statement")?.Kind);
         Assert.Equal(SemanticConceptKind.Type, model.FindConcept("loop-statement")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("module")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("exception")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("exception-handler")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("input")?.Kind);
+        Assert.Equal(SemanticConceptKind.Type, model.FindConcept("output")?.Kind);
 
         AssertRelation("program-goal-has-statement", "program-goal", "statement");
         AssertRelation("statement-has-expression", "statement", "expression");
@@ -59,6 +64,14 @@ public sealed class ProgrammingModelKnowledgeTests
         AssertRelation("loop-binds-variable", "loop-statement", "variable");
         AssertRelation("loop-has-body-statement", "loop-statement", "statement");
         AssertRelation("statement-depends-on-statement", "statement", "statement");
+        AssertRelation("import-brings-module-into-scope", "import-statement", "module");
+        AssertRelation("handler-handles-exception", "exception-handler", "exception");
+        AssertRelation("statement-may-raise-exception", "statement", "exception");
+        AssertRelation("exception-handler-handles-statement", "exception-handler", "statement");
+        AssertRelation("import-targets-module", "import-statement", "module");
+        AssertRelation("program-receives-input", "program", "input");
+        AssertRelation("program-produces-output", "program", "output");
+        AssertRelation("print-produces-output", "built-in-function", "output");
         Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("function-parameter-position")?.ValueKind);
         Assert.Equal("parameter", model.FindDataProperty("function-parameter-position")?.DomainType);
         Assert.Equal(SemanticDataValueKind.Number, model.FindDataProperty("call-argument-position")?.ValueKind);
@@ -86,5 +99,16 @@ public sealed class ProgrammingModelKnowledgeTests
             Assert.Equal(SemanticRelationArgumentKind.Individual, relation.SubjectKind);
             Assert.Equal(SemanticRelationArgumentKind.Individual, relation.ObjectKind);
         }
+    }
+
+    [Fact]
+    public void Reasoner_keeps_shared_type_taxonomy_language_neutral()
+    {
+        var reasoner = new SemanticWorldModelReasoner(SemanticWorldModelResourceLoader.Load());
+
+        Assert.True(reasoner.IsSubtypeOf("function", "callable"));
+        Assert.True(reasoner.IsInstanceOf("python", "programming-language"));
+        Assert.True(reasoner.IsSubtypeOf("conditional-statement", "statement"));
+        Assert.True(reasoner.IsSubtypeOf("loop-statement", "statement"));
     }
 }

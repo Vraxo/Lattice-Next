@@ -277,6 +277,11 @@
       "id": "operation-constraint",
       "label": "operation constraint",
       "kind": "Type"
+    },
+    {
+      "id": "input",
+      "label": "program input",
+      "kind": "Type"
     }
   ],
   "lexemes": [
@@ -559,6 +564,11 @@
       "form": "operation constraint",
       "concept": "operation-constraint",
       "partOfSpeech": "noun"
+    },
+    {
+      "form": "program input",
+      "concept": "input",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -653,23 +663,23 @@
     },
     {
       "id": "import-brings-module-into-scope",
-      "domain": null,
-      "range": null,
+      "domain": "import-statement",
+      "range": "module",
       "verb": "imports module",
       "order": 9,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "handler-handles-exception",
-      "domain": null,
-      "range": null,
+      "domain": "exception-handler",
+      "range": "exception",
       "verb": "handles exception",
       "order": 10,
       "comparisonPriority": 0,
-      "subjectKind": "type",
-      "objectKind": "type"
+      "subjectKind": "individual",
+      "objectKind": "individual"
     },
     {
       "id": "interpreter-executes-program",
@@ -711,11 +721,12 @@
     {
       "id": "print-produces-output",
       "domain": "built-in-function",
-      "range": null,
+      "range": "output",
       "verb": "produces output",
       "order": 15,
       "comparisonPriority": 0,
-      "objectKind": "type"
+      "objectKind": "individual",
+      "subjectKind": "individual"
     },
     {
       "id": "collection-contains-element",
@@ -993,6 +1004,56 @@
       "range": "statement",
       "verb": "depends on statement",
       "order": 44,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "program-receives-input",
+      "domain": "program",
+      "range": "input",
+      "verb": "receives input",
+      "order": 45,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "program-produces-output",
+      "domain": "program",
+      "range": "output",
+      "verb": "produces output",
+      "order": 46,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "statement-may-raise-exception",
+      "domain": "statement",
+      "range": "exception",
+      "verb": "may raise exception",
+      "order": 47,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "exception-handler-handles-statement",
+      "domain": "exception-handler",
+      "range": "statement",
+      "verb": "handles statement failure",
+      "order": 48,
+      "comparisonPriority": 0,
+      "subjectKind": "individual",
+      "objectKind": "individual"
+    },
+    {
+      "id": "import-targets-module",
+      "domain": "import-statement",
+      "range": "module",
+      "verb": "imports module",
+      "order": 49,
       "comparisonPriority": 0,
       "subjectKind": "individual",
       "objectKind": "individual"
@@ -1301,6 +1362,12 @@
     },
     {
       "concept": "operation-constraint",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "input",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
