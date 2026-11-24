@@ -7,16 +7,18 @@ namespace Lattice.Core.Generation;
 
 public static class SequenceInputFactExtractor
 {
+    private sealed record SemanticExpressionCapture(
+        string Kind,
+        bool IsCollection);
+
     private const int MaximumInputLength = 65_536;
-    private static readonly Lazy<ImmutableDictionary<string, GenerationLanguagePack>?> EmbeddedLanguagePacks =
-        new(LoadEmbeddedLanguagePacks);
 
     public static bool TryExtract(
         SequenceKnowledgeBase knowledge,
         string input,
         out ImmutableArray<SequenceSemanticFact> facts,
         out string? error) =>
-        TryExtractCore(knowledge, input, ResolveEmbeddedLanguagePack, out facts, out error);
+        TryExtractCore(knowledge, input, GenerationLanguagePackSelector.Select, out facts, out error);
 
     public static bool TryExtract(
         SequenceKnowledgeBase knowledge,
@@ -53,6 +55,7 @@ public static class SequenceInputFactExtractor
         var extracted = new Dictionary<string, Dictionary<string, (string Value, int Specificity)>>(StringComparer.Ordinal);
         var collections = new Dictionary<string, Dictionary<string, ImmutableArray<string>>>(StringComparer.Ordinal);
         var semanticCollections = new Dictionary<string, Dictionary<string, SemanticCollection>>(StringComparer.Ordinal);
+        var semanticExpressionCaptures = new Dictionary<(string FactId, string ValueId), SemanticExpressionCapture>();
         var matchedAnyRule = false;
 
         foreach (var rule in knowledge.InputRules)
@@ -100,6 +103,18 @@ public static class SequenceInputFactExtractor
             }
 
             matchedAnyRule = true;
+            if (rule.ValueId is not null && rule.SemanticExpressionKind is { } ruleExpressionKind &&
+                !TryRegisterSemanticExpressionCapture(
+                    semanticExpressionCaptures,
+                    rule.FactId,
+                    rule.ValueId,
+                    ruleExpressionKind,
+                    rule.RepeatMatches,
+                    out error))
+            {
+                return false;
+            }
+
             if (rule.ValueId is null && rule.Captures.IsDefaultOrEmpty)
             {
                 EnsureFact(extracted, rule.FactId);
@@ -107,28 +122,55 @@ public static class SequenceInputFactExtractor
 
             if (rule.ValueId is not null)
             {
-                var capturedValue = rule.LiteralValue;
-                if (capturedValue is null &&
-                    !TryCaptureValue(
-                        input,
-                        tokens,
-                        lastMatchedToken,
-                        ImmutableArray<string>.Empty,
-                        ImmutableArray<ImmutableArray<string>>.Empty,
-                        ImmutableArray<string>.Empty,
-                        ImmutableArray<ImmutableArray<string>>.Empty,
-                        ImmutableArray<string>.Empty,
-                        string.Empty,
-                        preserveRawValue: false,
-                        out capturedValue))
+                var valueMatches = rule.RepeatMatches
+                    ? matchPositions
+                    : new List<int> { lastMatchedToken };
+                foreach (var valueMatch in valueMatches)
                 {
-                    capturedValue = null;
-                }
+                    var capturedValue = rule.LiteralValue;
+                    if (capturedValue is null &&
+                        !TryCaptureValue(
+                            input,
+                            tokens,
+                            valueMatch,
+                            ImmutableArray<string>.Empty,
+                            ImmutableArray<ImmutableArray<string>>.Empty,
+                            ImmutableArray<string>.Empty,
+                            ImmutableArray<ImmutableArray<string>>.Empty,
+                            ImmutableArray<string>.Empty,
+                            string.Empty,
+                            preserveRawValue: false,
+                            out capturedValue))
+                    {
+                        continue;
+                    }
 
-                if (capturedValue is not null &&
-                    !TryAddValue(extracted, rule.FactId, rule.ValueId, capturedValue, rule.MatchTokens.Length, out error))
-                {
-                    return false;
+                    if (capturedValue is null)
+                    {
+                        continue;
+                    }
+
+                    bool added;
+                    if (rule.RepeatMatches && rule.SemanticExpressionKind is not null)
+                    {
+                        EnsureFact(extracted, rule.FactId);
+                        added = TryAppendCollection(
+                            collections, rule.FactId, rule.ValueId, [capturedValue], out error);
+                    }
+                    else
+                    {
+                        added = TryAddValue(
+                            extracted,
+                            rule.FactId,
+                            rule.ValueId,
+                            capturedValue,
+                            rule.MatchTokens.Length,
+                            out error);
+                    }
+                    if (!added)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -141,182 +183,181 @@ public static class SequenceInputFactExtractor
             {
                 foreach (var capture in rule.Captures)
                 {
-                var captureMatchToken = captureMatch;
-                var capturedValue = capture.LiteralValue;
-                if (capturedValue is null &&
-                    !TryCaptureValue(
-                        input,
-                        tokens,
-                        captureMatchToken,
-                        capture.StartAfterTokens,
-                        capture.StartAfterSequences,
-                        capture.StopBeforeTokens,
-                        capture.StopBeforeSequences,
-                        capture.TrimPrefixTokens,
-                        capture.TrimSuffixCharacters,
-                        capture.PreserveRawValue,
-                        out capturedValue))
-                {
-                    continue;
-                }
-
-                if (capture.SemanticCollectionFormat is { } semanticCollectionFormat)
-                {
-                    if (!SemanticCollectionInputParser.TryParse(
-                        capturedValue,
-                        semanticCollectionFormat,
-                        out var semanticCollection))
-                    {
-                        error = $"Input rule '{rule.Id}' could not parse a structured semantic collection.";
-                        return false;
-                    }
-
-                    EnsureFact(extracted, capture.FactId);
-                    if (!TryAddSemanticCollection(
-                        semanticCollections,
-                        capture.FactId,
-                        capture.ValueId,
-                        semanticCollection!,
-                        rule.RepeatMatches,
-                        out error))
+                    var captureExpressionKind = capture.SemanticExpressionKind;
+                    if (captureExpressionKind is not null &&
+                        !TryRegisterSemanticExpressionCapture(
+                            semanticExpressionCaptures,
+                            capture.FactId,
+                            capture.ValueId,
+                            captureExpressionKind,
+                            rule.RepeatMatches || capture.CollectionDelimiter is not null ||
+                                !capture.CollectionDelimiters.IsDefaultOrEmpty,
+                            out error))
                     {
                         return false;
                     }
 
-                    continue;
-                }
-
-                if (capture.CollectionDelimiter is null && capture.CollectionDelimiters.IsDefaultOrEmpty)
-                {
-                    if (!TryNormalizeCapture(rule.Id, capture.Normalization, capturedValue, out var normalizedValue, out error))
+                    var captureMatchToken = captureMatch;
+                    var capturedValue = capture.LiteralValue;
+                    if (capturedValue is null &&
+                        !TryCaptureValue(
+                            input,
+                            tokens,
+                            captureMatchToken,
+                            capture.StartAfterTokens,
+                            capture.StartAfterSequences,
+                            capture.StopBeforeTokens,
+                            capture.StopBeforeSequences,
+                            capture.TrimPrefixTokens,
+                            capture.TrimSuffixCharacters,
+                            capture.PreserveRawValue,
+                            out capturedValue))
                     {
-                        return false;
+                        continue;
                     }
 
-                    capturedValue = normalizedValue;
-                }
-
-                if (capture.NumericOffset != 0)
-                {
-                    if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
+                    if (capture.SemanticCollectionFormat is { } semanticCollectionFormat)
                     {
-                        error = $"Input rule '{rule.Id}' applied a numeric offset to a non-integer value.";
-                        return false;
-                    }
-
-                    try
-                    {
-                        capturedValue = checked(numericValue + capture.NumericOffset)
-                            .ToString(CultureInfo.InvariantCulture);
-                    }
-                    catch (OverflowException)
-                    {
-                        error = $"Input rule '{rule.Id}' produced an integer outside the supported range.";
-                        return false;
-                    }
-                }
-
-                var specificity = rule.MatchTokens.Length +
-                    (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
-                var rawItems = !capture.CollectionDelimiters.IsDefaultOrEmpty
-                    ? SplitText(capturedValue, capture.CollectionDelimiters)
-                    : capture.CollectionDelimiter is { Length: > 0 } delimiter
-                        ? capturedValue.Split(
-                            delimiter,
-                            StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                            .ToImmutableArray()
-                        : ImmutableArray<string>.Empty;
-
-                if (!rawItems.IsDefaultOrEmpty)
-                {
-                    if (capture.CollectionItemSeparator is { } itemSeparator)
-                    {
-                        rawItems = [string.Join(itemSeparator, rawItems)];
-                    }
-
-                    if (rawItems.IsDefaultOrEmpty)
-                    {
-                        error = $"Input rule '{rule.Id}' produced an empty ordered collection.";
-                        return false;
-                    }
-
-                    var items = ImmutableArray.CreateBuilder<string>(rawItems.Length);
-                    foreach (var rawItem in rawItems)
-                    {
-                        string itemValue;
-                        if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
+                        if (!SemanticCollectionInputParser.TryParse(
+                            capturedValue,
+                            semanticCollectionFormat,
+                            out var semanticCollection))
                         {
-                            var fields = SplitText(rawItem, ImmutableArray.Create(fieldDelimiter));
-                            if (fields.Length < 2 ||
-                                (capture.CollectionFieldIndex is not null &&
-                                 capture.CollectionFieldIndex.Value >= fields.Length))
-                            {
-                                error = $"Input rule '{rule.Id}' produced a collection item with missing fields.";
-                                return false;
-                            }
-
-                            if (capture.CollectionTemplate is { } template)
-                            {
-                                if (fields.Length != 2)
-                                {
-                                    error = $"Input rule '{rule.Id}' produced an item with an unexpected number of fields.";
-                                    return false;
-                                }
-
-                                itemValue = template.Replace("{0}", fields[0], StringComparison.Ordinal)
-                                    .Replace("{1}", fields[1], StringComparison.Ordinal);
-                            }
-                            else
-                            {
-                                itemValue = fields[capture.CollectionFieldIndex!.Value];
-                            }
-                        }
-                        else
-                        {
-                            itemValue = rawItem;
+                            error = $"Input rule '{rule.Id}' could not parse a structured semantic collection.";
+                            return false;
                         }
 
-                        if (!TryNormalizeCapture(rule.Id, capture.Normalization, itemValue, out var normalizedItem, out error))
+                        EnsureFact(extracted, capture.FactId);
+                        if (!TryAddSemanticCollection(
+                            semanticCollections,
+                            capture.FactId,
+                            capture.ValueId,
+                            semanticCollection!,
+                            rule.RepeatMatches,
+                            out error))
                         {
                             return false;
                         }
 
-                        items.Add(normalizedItem);
+                        continue;
                     }
 
-                    var immutableItems = items.ToImmutable();
-                    if (immutableItems.Any(string.IsNullOrWhiteSpace))
+                    if (capture.NumericOffset != 0)
                     {
-                        error = $"Input rule '{rule.Id}' produced an empty collection value.";
-                        return false;
+                        if (!int.TryParse(capturedValue, NumberStyles.None, CultureInfo.InvariantCulture, out var numericValue))
+                        {
+                            error = $"Input rule '{rule.Id}' applied a numeric offset to a non-integer value.";
+                            return false;
+                        }
+
+                        try
+                        {
+                            capturedValue = checked(numericValue + capture.NumericOffset)
+                                .ToString(CultureInfo.InvariantCulture);
+                        }
+                        catch (OverflowException)
+                        {
+                            error = $"Input rule '{rule.Id}' produced an integer outside the supported range.";
+                            return false;
+                        }
                     }
 
-                    EnsureFact(extracted, capture.FactId);
-                    var added = rule.RepeatMatches
-                        ? TryAppendCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error)
-                        : TryAddCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error);
-                    if (!added)
+                    var specificity = rule.MatchTokens.Length +
+                        (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
+                    var rawItems = !capture.CollectionDelimiters.IsDefaultOrEmpty
+                        ? SplitText(capturedValue, capture.CollectionDelimiters)
+                        : capture.CollectionDelimiter is { Length: > 0 } delimiter
+                            ? capturedValue.Split(
+                                delimiter,
+                                StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                                .ToImmutableArray()
+                            : ImmutableArray<string>.Empty;
+
+                    if (!rawItems.IsDefaultOrEmpty)
+                    {
+                        if (capture.CollectionItemSeparator is { } itemSeparator)
+                        {
+                            rawItems = [string.Join(itemSeparator, rawItems)];
+                        }
+
+                        if (rawItems.IsDefaultOrEmpty)
+                        {
+                            error = $"Input rule '{rule.Id}' produced an empty ordered collection.";
+                            return false;
+                        }
+
+                        var items = ImmutableArray.CreateBuilder<string>(rawItems.Length);
+                        foreach (var rawItem in rawItems)
+                        {
+                            string itemValue;
+                            if (capture.CollectionFieldDelimiter is { Length: > 0 } fieldDelimiter)
+                            {
+                                var fields = SplitText(rawItem, ImmutableArray.Create(fieldDelimiter));
+                                if (fields.Length < 2 ||
+                                    (capture.CollectionFieldIndex is not null &&
+                                     capture.CollectionFieldIndex.Value >= fields.Length))
+                                {
+                                    error = $"Input rule '{rule.Id}' produced a collection item with missing fields.";
+                                    return false;
+                                }
+
+                                if (capture.CollectionTemplate is { } template)
+                                {
+                                    if (fields.Length != 2)
+                                    {
+                                        error = $"Input rule '{rule.Id}' produced an item with an unexpected number of fields.";
+                                        return false;
+                                    }
+
+                                    itemValue = template.Replace("{0}", fields[0], StringComparison.Ordinal)
+                                        .Replace("{1}", fields[1], StringComparison.Ordinal);
+                                }
+                                else
+                                {
+                                    itemValue = fields[capture.CollectionFieldIndex!.Value];
+                                }
+                            }
+                            else
+                            {
+                                itemValue = rawItem;
+                            }
+
+                            items.Add(itemValue);
+                        }
+
+                        var immutableItems = items.ToImmutable();
+                        if (immutableItems.Any(string.IsNullOrWhiteSpace))
+                        {
+                            error = $"Input rule '{rule.Id}' produced an empty collection value.";
+                            return false;
+                        }
+
+                        EnsureFact(extracted, capture.FactId);
+                        var added = rule.RepeatMatches
+                            ? TryAppendCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error)
+                            : TryAddCollection(collections, capture.FactId, capture.ValueId, immutableItems, out error);
+                        if (!added)
+                        {
+                            return false;
+                        }
+                    }
+                    else if (rule.RepeatMatches)
+                    {
+                        EnsureFact(extracted, capture.FactId);
+                        if (!TryAppendCollection(
+                            collections,
+                            capture.FactId,
+                            capture.ValueId,
+                            [capturedValue],
+                            out error))
+                        {
+                            return false;
+                        }
+                    }
+                    else if (!TryAddValue(extracted, capture.FactId, capture.ValueId, capturedValue, specificity, out error))
                     {
                         return false;
                     }
-                }
-                else if (rule.RepeatMatches)
-                {
-                    EnsureFact(extracted, capture.FactId);
-                    if (!TryAppendCollection(
-                        collections,
-                        capture.FactId,
-                        capture.ValueId,
-                        [capturedValue],
-                        out error))
-                    {
-                        return false;
-                    }
-                }
-                else if (!TryAddValue(extracted, capture.FactId, capture.ValueId, capturedValue, specificity, out error))
-                {
-                    return false;
-                }
                 }
             }
         }
@@ -346,63 +387,190 @@ public static class SequenceInputFactExtractor
             .ToImmutableArray();
 
         var languagePack = resolveLanguagePack(extractedFacts);
-        if (!SequenceInputFactValidator.TryValidate(
-                knowledge.Validations, extractedFacts, languagePack, out error))
+        if (!TryMaterializeSemanticExpressions(
+                extractedFacts,
+                semanticExpressionCaptures,
+                languagePack,
+                out var materializedFacts,
+                out error) ||
+            !SequenceInputFactValidator.TryValidate(
+                knowledge.Validations, materializedFacts, languagePack, out error))
         {
             return false;
         }
 
-        facts = extractedFacts;
+        facts = materializedFacts;
         return true;
     }
 
-    private static ImmutableDictionary<string, GenerationLanguagePack>? LoadEmbeddedLanguagePacks()
-    {
-        var loader = new GenerationLanguagePackLoader();
-        return loader.TryLoadEmbedded(out var packs, out _) ? packs : null;
-    }
-
-    private static GenerationLanguagePack? ResolveEmbeddedLanguagePack(
-        ImmutableArray<SequenceSemanticFact> facts)
-    {
-        var languageFacts = facts
-            .Where(fact => fact.Id.StartsWith("language.", StringComparison.Ordinal))
-            .ToArray();
-        if (languageFacts.Length != 1 || EmbeddedLanguagePacks.Value is not { } packs)
-        {
-            return null;
-        }
-
-        var language = languageFacts[0].Id["language.".Length..];
-        return packs.TryGetValue(language, out var pack) ? pack : null;
-    }
-
-    private static bool TryNormalizeCapture(
-        string ruleId,
-        string? normalization,
-        string value,
-        out string normalized,
+    private static bool TryRegisterSemanticExpressionCapture(
+        Dictionary<(string FactId, string ValueId), SemanticExpressionCapture> captures,
+        string factId,
+        string valueId,
+        string kind,
+        bool isCollection,
         out string? error)
     {
-        normalized = value;
         error = null;
-        if (normalization == "booleanExpression")
+        if (kind is not ("arithmetic" or "boolean" or "value" or "functionCall" or "comparisonOperator"))
         {
-            if (!BooleanExpressionNormalizer.TryNormalize(value, out normalized))
-            {
-                error = $"Input rule '{ruleId}' captured an invalid boolean expression.";
-                return false;
-            }
+            error = $"Semantic expression capture kind '{kind}' is unsupported.";
+            return false;
         }
-        else if (normalization == "comparisonOperator")
+
+        if (kind == "comparisonOperator" && isCollection)
         {
-            if (!ComparisonOperatorNormalizer.TryNormalize(value, out normalized))
-            {
-                error = $"Input rule '{ruleId}' captured an unsupported comparison operator.";
-                return false;
-            }
+            error = "A comparison-operator capture must be a single semantic value.";
+            return false;
         }
+
+        var key = (factId, valueId);
+        var capture = new SemanticExpressionCapture(kind, isCollection);
+        if (captures.TryGetValue(key, out var existing) && existing != capture)
+        {
+            error = $"Semantic input fact '{factId}.{valueId}' has conflicting expression capture metadata.";
+            return false;
+        }
+
+        captures[key] = capture;
         return true;
+    }
+
+    private static bool TryMaterializeSemanticExpressions(
+        ImmutableArray<SequenceSemanticFact> facts,
+        IReadOnlyDictionary<(string FactId, string ValueId), SemanticExpressionCapture> captures,
+        GenerationLanguagePack? languagePack,
+        out ImmutableArray<SequenceSemanticFact> materializedFacts,
+        out string? error)
+    {
+        materializedFacts = ImmutableArray<SequenceSemanticFact>.Empty;
+        error = null;
+        if (captures.Count == 0)
+        {
+            materializedFacts = facts;
+            return true;
+        }
+
+        var output = ImmutableArray.CreateBuilder<SequenceSemanticFact>(facts.Length);
+        foreach (var fact in facts)
+        {
+            var values = fact.Values.ToBuilder();
+            var collections = fact.Collections.ToBuilder();
+            var expressions = fact.Expressions.ToBuilder();
+            var expressionCollections = fact.ExpressionCollections.ToBuilder();
+            var comparisonOperators = fact.ComparisonOperators.ToBuilder();
+
+            foreach (var pair in captures.Where(pair => pair.Key.FactId == fact.Id))
+            {
+                var valueId = pair.Key.ValueId;
+                var capture = pair.Value;
+                if (capture.IsCollection)
+                {
+                    if (values.ContainsKey(valueId))
+                    {
+                        error = $"Semantic expression collection '{fact.Id}.{valueId}' was captured as a scalar value.";
+                        return false;
+                    }
+
+                    if (!collections.TryGetValue(valueId, out var rawItems))
+                    {
+                        continue;
+                    }
+
+                    if (capture.Kind == "comparisonOperator")
+                    {
+                        error = $"Semantic comparison-operator collection '{fact.Id}.{valueId}' is unsupported.";
+                        return false;
+                    }
+
+                    var parsedItems = ImmutableArray.CreateBuilder<SemanticExpression>(rawItems.Length);
+                    foreach (var rawItem in rawItems)
+                    {
+                        if (!TryParseCapturedExpression(
+                                capture, rawItem, languagePack, out var parsed, out error))
+                        {
+                            error ??= $"Semantic expression collection '{fact.Id}.{valueId}' contains invalid syntax.";
+                            return false;
+                        }
+
+                        parsedItems.Add(parsed!);
+                    }
+
+                    expressionCollections[valueId] = parsedItems.ToImmutable();
+                    collections.Remove(valueId);
+                    continue;
+                }
+
+                if (collections.ContainsKey(valueId))
+                {
+                    error = $"Semantic expression '{fact.Id}.{valueId}' was captured as a collection.";
+                    return false;
+                }
+
+                if (!values.TryGetValue(valueId, out var rawValue))
+                {
+                    continue;
+                }
+
+                if (capture.Kind == "comparisonOperator")
+                {
+                    if (languagePack?.InputSyntax is not { } syntax ||
+                        !SemanticExpressionParser.TryParseComparisonOperator(
+                            rawValue, syntax, out var parsedOperator))
+                    {
+                        error = $"Semantic input value '{fact.Id}.{valueId}' contains an unsupported comparison operator.";
+                        return false;
+                    }
+
+                    comparisonOperators[valueId] = parsedOperator;
+                }
+                else
+                {
+                    if (!TryParseCapturedExpression(
+                            capture, rawValue, languagePack, out var parsed, out error))
+                    {
+                        error ??= $"Semantic expression '{fact.Id}.{valueId}' contains invalid syntax.";
+                        return false;
+                    }
+
+                    expressions[valueId] = parsed!;
+                }
+
+                values.Remove(valueId);
+            }
+
+            output.Add(fact with
+            {
+                Values = values.ToImmutable(),
+                Collections = collections.ToImmutable(),
+                Expressions = expressions.ToImmutable(),
+                ExpressionCollections = expressionCollections.ToImmutable(),
+                ComparisonOperators = comparisonOperators.ToImmutable()
+            });
+        }
+
+        materializedFacts = output.ToImmutable();
+        return true;
+    }
+
+    private static bool TryParseCapturedExpression(
+        SemanticExpressionCapture capture,
+        string source,
+        GenerationLanguagePack? languagePack,
+        out SemanticExpression? expression,
+        out string? error)
+    {
+        expression = null;
+        error = null;
+        if (languagePack?.InputSyntax is not { } inputSyntax)
+        {
+            error = $"No selected language pack provides syntax for semantic expression '{capture.Kind}'.";
+            return false;
+        }
+
+        return SemanticExpressionParser.TryParse(
+                capture.Kind, source, inputSyntax, out expression) &&
+            SemanticExpressionAnalysis.IsValid(expression);
     }
 
     private static void EnsureFact(

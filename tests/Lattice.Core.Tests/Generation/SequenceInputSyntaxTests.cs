@@ -47,9 +47,17 @@ public sealed class SequenceInputSyntaxTests
     [Fact]
     public void Function_call_validation_uses_pack_delimiters_separators_numbers_and_strings()
     {
+        var syntax = CreateSyntax();
+        const string source = "$compute[−1,5; 'red; blue']";
+        Assert.True(SemanticExpressionParser.TryParse(
+            "functionCall", source, syntax, out var parsedCall));
         var call = new SequenceSemanticFact(
             "call",
-            ImmutableDictionary<string, string>.Empty.Add("expression", "$compute[1,5; 'red; blue']"));
+            ImmutableDictionary<string, string>.Empty)
+        {
+            Expressions = ImmutableDictionary<string, SemanticExpression>.Empty
+                .Add("expression", parsedCall!)
+        };
         var signature = new SequenceSemanticFact(
             "signature",
             ImmutableDictionary<string, string>.Empty.Add("name", "$compute"))
@@ -66,30 +74,24 @@ public sealed class SequenceInputSyntaxTests
             "name",
             "signature",
             "parameters");
-        var pack = CreatePack(CreateSyntax());
+        var pack = CreatePack(syntax);
 
         Assert.True(SequenceInputFactValidator.TryValidate([validation], [call, signature], pack, out var error), error);
+        Assert.False(SemanticExpressionParser.TryParse(
+            "functionCall", "$compute(1,5, 'red; blue')", syntax, out _));
 
-        var wrongSeparator = call with
-        {
-            Values = ImmutableDictionary<string, string>.Empty
-                .Add("expression", "$compute(1,5, 'red; blue')")
-        };
-        Assert.False(SequenceInputFactValidator.TryValidate([validation], [wrongSeparator, signature], pack, out _));
-
+        Assert.True(SemanticExpressionParser.TryParse(
+            "functionCall", "$compute[1,5; 'red; blue'; 3]", syntax, out var parsedWrongArity));
         var wrongArity = call with
         {
-            Values = ImmutableDictionary<string, string>.Empty
-                .Add("expression", "$compute[1,5; 'red; blue'; 3]")
+            Expressions = ImmutableDictionary<string, SemanticExpression>.Empty
+                .Add("expression", parsedWrongArity!)
         };
-        Assert.False(SequenceInputFactValidator.TryValidate([validation], [wrongArity, signature], pack, out _));
+        Assert.False(SequenceInputFactValidator.TryValidate(
+            [validation], [wrongArity, signature], pack, out _));
 
-        var wrongNumberSyntax = call with
-        {
-            Values = ImmutableDictionary<string, string>.Empty
-                .Add("expression", "$compute[1.5; 'red; blue']")
-        };
-        Assert.False(SequenceInputFactValidator.TryValidate([validation], [wrongNumberSyntax, signature], pack, out _));
+        Assert.False(SemanticExpressionParser.TryParse(
+            "functionCall", "$compute[1.5; 'red; blue']", syntax, out _));
     }
 
     [Fact]
@@ -113,14 +115,40 @@ public sealed class SequenceInputSyntaxTests
         new GenerationNumberLiteralFormat("0123456789", ",", "+", "−"),
         [
             new GenerationInputStringLiteralFormat(
-                "\"", "\"", "\\", ["\\\\", "\\\"", "\\'", "\\n"], AllowUnknownEscapes: true),
+                "\"", "\"", "\\", CreateEscapes(), AllowUnknownEscapes: true),
             new GenerationInputStringLiteralFormat(
-                "'", "'", "\\", ["\\\\", "\\\"", "\\'", "\\n"], AllowUnknownEscapes: true)
+                "'", "'", "\\", CreateEscapes(), AllowUnknownEscapes: true)
         ],
-        new GenerationFunctionCallFormat("[", "]", ";"))
+        new GenerationFunctionCallFormat("[", "]", ";") { RenderingArgumentSeparator = "; " })
     {
-        GroupingDelimiters = [new GenerationDelimiterPair("(", ")"), new GenerationDelimiterPair("{", "}")]
+        GroupingDelimiters = [new GenerationDelimiterPair("(", ")"), new GenerationDelimiterPair("{", "}")],
+        ExpressionGroupingDelimiter = new GenerationDelimiterPair("(", ")"),
+        ExpressionOperators = [
+            new GenerationInputExpressionOperatorFormat("add", "+", "infix", 50),
+            new GenerationInputExpressionOperatorFormat("subtract", "-", "infix", 50),
+            new GenerationInputExpressionOperatorFormat("multiply", "*", "infix", 60),
+            new GenerationInputExpressionOperatorFormat("divide", "/", "infix", 60),
+            new GenerationInputExpressionOperatorFormat("remainder", "%", "infix", 60),
+            new GenerationInputExpressionOperatorFormat("equal", "==", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("notEqual", "!=", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("lessThan", "<", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("lessThanOrEqual", "<=", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("greaterThan", ">", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("greaterThanOrEqual", ">=", "infix", 40),
+            new GenerationInputExpressionOperatorFormat("and", "and", "infix", 20),
+            new GenerationInputExpressionOperatorFormat("or", "or", "infix", 10),
+            new GenerationInputExpressionOperatorFormat("not", "not", "prefix", 30),
+            new GenerationInputExpressionOperatorFormat("positive", "+", "prefix", 80),
+            new GenerationInputExpressionOperatorFormat("negative", "−", "prefix", 80)
+        ]
     };
+
+    private static ImmutableArray<GenerationInputEscapeSequence> CreateEscapes() => [
+        new GenerationInputEscapeSequence("\\\\", "\\"),
+        new GenerationInputEscapeSequence("\\\"", "\""),
+        new GenerationInputEscapeSequence("\\'", "'"),
+        new GenerationInputEscapeSequence("\\n", "\n")
+    ];
 
     private static GenerationLanguagePack CreatePack(GenerationInputSyntax inputSyntax) => new(
         1,

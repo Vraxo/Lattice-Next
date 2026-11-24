@@ -5,232 +5,272 @@ namespace Lattice.Core.Generation;
 internal static class BooleanExpressionNormalizer
 {
     private static readonly Regex ComparisonPattern = new(
-        @"^\s*(?<left>[A-Za-z_][A-Za-z0-9_]*)\s+(?<operator>>=|<=|==|!=|>|<|is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+greater\s+than\s+or\s+equal\s+to|greater\s+than\s+or\s+equal\s+to|is\s+less\s+than\s+or\s+equal\s+to|less\s+than\s+or\s+equal\s+to|is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|is\s+equal\s+to|equal\s+to|equals?)\s+(?<right>.+?)\s*$",
+        @"^\s*(?<left>.+?)\s+(?<operator>is\s+not\s+equal\s+to|not\s+equal\s+to|is\s+greater\s+than\s+or\s+equal\s+to|greater\s+than\s+or\s+equal\s+to|is\s+less\s+than\s+or\s+equal\s+to|less\s+than\s+or\s+equal\s+to|is\s+at\s+least|at\s+least|is\s+at\s+most|at\s+most|is\s+greater\s+than|greater\s+than|is\s+less\s+than|less\s+than|more\s+than|below|is\s+equal\s+to|equal\s+to|equal|equals?)\s+(?<right>.+?)\s*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-    internal static bool TryNormalize(string expression, out string normalized)
+    public static bool TryParse(
+        string source,
+        GenerationInputSyntax syntax,
+        out SemanticExpression? expression)
     {
-        normalized = string.Empty;
-        return !string.IsNullOrWhiteSpace(expression) &&
-            TryNormalizeExpression(expression, out normalized);
-    }
-
-    internal static bool TryValidateReferences(
-        string expression,
-        IEnumerable<string> availableNames)
-    {
-        if (!TryNormalizeExpression(expression, out var normalized))
+        expression = null;
+        if (string.IsNullOrWhiteSpace(source))
         {
             return false;
         }
 
-        var withoutStrings = Regex.Replace(
-            normalized,
-            @"'(?:\\.|[^'\\])*'|""(?:\\.|[^""\\])*""",
-            string.Empty);
-        var available = availableNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return Regex.Matches(withoutStrings, @"[A-Za-z_][A-Za-z0-9_]*")
-            .Select(match => match.Value)
-            .Where(identifier => identifier is not "and" and not "or" and not "not")
-            .All(available.Contains);
-    }
-
-    private static bool TryNormalizeExpression(string source, out string normalized)
-    {
-        normalized = string.Empty;
-        var expression = source.Trim();
-        if (expression.Length == 0)
+        var value = source.Trim();
+        if (SemanticExpressionParser.TryParseBooleanSyntax(value, syntax, out expression))
         {
-            return false;
+            return true;
         }
 
-        var isGrouped = false;
-        while (HasEnclosingParentheses(expression))
+        while (TryStripEnclosingDelimiters(value, syntax, out var inner))
         {
-            isGrouped = true;
-            expression = expression[1..^1].Trim();
+            value = inner.Trim();
         }
 
-        if (TryNormalizeComparison(expression, isGrouped, out normalized))
+        var comparison = ComparisonPattern.Match(value);
+        if (comparison.Success &&
+            SemanticExpressionParser.TryParseComparisonOperator(
+                comparison.Groups["operator"].Value, syntax, out var comparisonOperator) &&
+            SemanticExpressionParser.TryParseValue(comparison.Groups["left"].Value.Trim(), syntax, out var leftOperand) &&
+            SemanticExpressionParser.TryParseValue(comparison.Groups["right"].Value.Trim(), syntax, out var rightOperand))
         {
+            expression = new SemanticBinaryExpression(comparisonOperator, leftOperand!, rightOperand!);
             return true;
         }
 
         foreach (var operation in new[] { "or", "and" })
         {
-            var operatorIndex = FindTopLevelBooleanOperator(expression, operation);
+            var operatorIndex = FindTopLevelBooleanOperator(value, operation, syntax);
             if (operatorIndex < 0)
             {
                 continue;
             }
 
-            if (!TryNormalizeExpression(expression[..operatorIndex], out var left) ||
-                !TryNormalizeExpression(expression[(operatorIndex + operation.Length)..], out var right))
+            var rightStart = operatorIndex + operation.Length;
+            if (!TryParse(value[..operatorIndex], syntax, out var left) ||
+                !TryParse(value[rightStart..], syntax, out var right))
             {
                 return false;
             }
 
-            var combined = $"{left} {operation} {right}";
-            normalized = isGrouped ? $"({combined})" : combined;
+            expression = new SemanticBinaryExpression(
+                operation == "or" ? SemanticExpressionOperator.Or : SemanticExpressionOperator.And,
+                left!,
+                right!);
             return true;
         }
 
-        if (expression.StartsWith("not ", StringComparison.OrdinalIgnoreCase))
+        if (TryReadLeadingWord(value, "not", syntax, out var negatedText))
         {
-            if (!TryNormalizeExpression(expression[4..], out var negated))
+            if (!TryParse(negatedText, syntax, out var negated))
             {
                 return false;
             }
 
-            var combined = $"not {negated}";
-            normalized = isGrouped ? $"({combined})" : combined;
+            expression = new SemanticUnaryExpression(SemanticExpressionOperator.Not, negated!);
             return true;
+        }
+
+        return SemanticExpressionParser.TryParseBooleanSyntax(value, syntax, out expression);
+    }
+
+    private static int FindTopLevelBooleanOperator(
+        string expression,
+        string operation,
+        GenerationInputSyntax syntax)
+    {
+        var delimiters = GenerationInputSyntaxParser.GetDelimiters(syntax).ToArray();
+        var expectedClosings = new Stack<string>();
+        var index = 0;
+
+        while (index < expression.Length)
+        {
+            if (GenerationInputSyntaxParser.TryReadStringLiteral(
+                    expression, index, syntax, out _, out var stringEnd))
+            {
+                index = stringEnd;
+                continue;
+            }
+
+            var opening = delimiters.FirstOrDefault(delimiter =>
+                StartsWith(expression, index, delimiter.OpeningDelimiter));
+            if (opening is not null)
+            {
+                expectedClosings.Push(opening.ClosingDelimiter);
+                index += opening.OpeningDelimiter.Length;
+                continue;
+            }
+
+            if (expectedClosings.TryPeek(out var expectedClosing))
+            {
+                if (StartsWith(expression, index, expectedClosing))
+                {
+                    expectedClosings.Pop();
+                    index += expectedClosing.Length;
+                    continue;
+                }
+
+                if (delimiters.Any(delimiter => StartsWith(expression, index, delimiter.ClosingDelimiter)))
+                {
+                    return -1;
+                }
+            }
+            else if (delimiters.Any(delimiter => StartsWith(expression, index, delimiter.ClosingDelimiter)))
+            {
+                return -1;
+            }
+
+            if (expectedClosings.Count == 0 &&
+                StartsWith(expression, index, operation) &&
+                IsWordBoundary(expression, index, operation.Length, syntax))
+            {
+                if (operation == "or" && IsComparisonPhraseOr(expression, index))
+                {
+                    index += operation.Length;
+                    continue;
+                }
+
+                return index;
+            }
+
+            index++;
+        }
+
+        return expectedClosings.Count == 0 ? -1 : -1;
+    }
+
+    private static bool IsComparisonPhraseOr(string expression, int operatorIndex)
+    {
+        var left = expression[..operatorIndex].TrimEnd();
+        var right = expression[(operatorIndex + "or".Length)..].TrimStart();
+        var leftIsOrderedComparison =
+            left.EndsWith("greater than", StringComparison.OrdinalIgnoreCase) ||
+            left.EndsWith("less than", StringComparison.OrdinalIgnoreCase);
+        return leftIsOrderedComparison &&
+            right.StartsWith("equal to", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryStripEnclosingDelimiters(
+        string expression,
+        GenerationInputSyntax syntax,
+        out string inner)
+    {
+        inner = string.Empty;
+        if (expression.Length < 2)
+        {
+            return false;
+        }
+
+        var allDelimiters = GenerationInputSyntaxParser.GetDelimiters(syntax);
+        var delimiters = allDelimiters
+            .Where(delimiter => StartsWith(expression, 0, delimiter.OpeningDelimiter));
+
+        foreach (var delimiter in delimiters)
+        {
+            if (!expression.EndsWith(delimiter.ClosingDelimiter, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var expectedClosings = new Stack<string>();
+            var index = 0;
+            while (index < expression.Length)
+            {
+                if (GenerationInputSyntaxParser.TryReadStringLiteral(
+                        expression, index, syntax, out _, out var stringEnd))
+                {
+                    index = stringEnd;
+                    continue;
+                }
+
+                var opening = allDelimiters.FirstOrDefault(candidate =>
+                    StartsWith(expression, index, candidate.OpeningDelimiter));
+                if (opening is not null)
+                {
+                    expectedClosings.Push(opening.ClosingDelimiter);
+                    index += opening.OpeningDelimiter.Length;
+                    continue;
+                }
+
+                if (expectedClosings.TryPeek(out var expectedClosing) &&
+                    StartsWith(expression, index, expectedClosing))
+                {
+                    expectedClosings.Pop();
+                    index += expectedClosing.Length;
+                    if (expectedClosings.Count == 0)
+                    {
+                        if (index != expression.Length)
+                        {
+                            break;
+                        }
+
+                        inner = expression[delimiter.OpeningDelimiter.Length..^delimiter.ClosingDelimiter.Length];
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if (allDelimiters.Any(candidate =>
+                        StartsWith(expression, index, candidate.ClosingDelimiter)))
+                {
+                    break;
+                }
+
+                index++;
+            }
         }
 
         return false;
     }
 
-    private static bool TryNormalizeComparison(
+    private static bool TryReadLeadingWord(
         string expression,
-        bool isGrouped,
-        out string normalized)
+        string word,
+        GenerationInputSyntax syntax,
+        out string remainder)
     {
-        normalized = string.Empty;
-        var match = ComparisonPattern.Match(expression);
-        if (!match.Success)
+        remainder = string.Empty;
+        if (!StartsWith(expression, 0, word) ||
+            !IsWordBoundary(expression, 0, word.Length, syntax))
         {
             return false;
         }
 
-        var leftOperand = match.Groups["left"].Value;
-        var rightOperand = match.Groups["right"].Value.Trim();
-        if (!SequenceInputFactValidator.IsArithmeticExpression(rightOperand) &&
-            !SequenceInputFactValidator.IsQuotedStringLiteral(rightOperand))
+        var index = word.Length;
+        while (index < expression.Length && char.IsWhiteSpace(expression[index]))
+        {
+            index++;
+        }
+
+        if (index == word.Length || index == expression.Length)
         {
             return false;
         }
 
-        var comparison = Regex.Replace(match.Groups["operator"].Value, @"\s+", " ")
-            .Trim()
-            .ToLowerInvariant();
-        var symbol = comparison switch
-        {
-            ">=" or "<=" or "==" or "!=" or ">" or "<" => comparison,
-            "is at least" or "at least" => ">=",
-            "is at most" or "at most" => "<=",
-            "is greater than or equal to" or "greater than or equal to" => ">=",
-            "is less than or equal to" or "less than or equal to" => "<=",
-            "is greater than" or "greater than" => ">",
-            "is less than" or "less than" => "<",
-            "is not equal to" or "not equal to" => "!=",
-            "is equal to" or "equal to" or "equal" or "equals" => "==",
-            _ => string.Empty
-        };
-        if (symbol.Length == 0)
-        {
-            return false;
-        }
-
-        var normalizedComparison = $"{leftOperand} {symbol} {rightOperand}";
-        normalized = isGrouped ? $"({normalizedComparison})" : normalizedComparison;
+        remainder = expression[index..];
         return true;
     }
 
-
-    private static int FindTopLevelBooleanOperator(string expression, string operation)
+    private static bool IsWordBoundary(
+        string source,
+        int index,
+        int tokenLength,
+        GenerationInputSyntax syntax)
     {
-        var depth = 0;
-        var quote = '\0';
-        for (var index = 0; index <= expression.Length - operation.Length; index++)
-        {
-            var character = expression[index];
-            if (quote != '\0')
-            {
-                if (character == quote && (index == 0 || expression[index - 1] != '\\'))
-                {
-                    quote = '\0';
-                }
-
-                continue;
-            }
-
-            if (character is '\'' or '"')
-            {
-                quote = character;
-                continue;
-            }
-
-            if (character == '(')
-            {
-                depth++;
-                continue;
-            }
-
-            if (character == ')')
-            {
-                depth--;
-                if (depth < 0)
-                {
-                    return -1;
-                }
-
-                continue;
-            }
-
-            if (depth == 0 &&
-                string.Compare(expression, index, operation, 0, operation.Length, StringComparison.OrdinalIgnoreCase) == 0 &&
-                index > 0 &&
-                index + operation.Length < expression.Length &&
-                char.IsWhiteSpace(expression[index - 1]) &&
-                char.IsWhiteSpace(expression[index + operation.Length]))
-            {
-                return index;
-            }
-        }
-
-        return -1;
+        var beforeIsIdentifier = index > 0 && syntax.IdentifierContinuationCharacters.Contains(source[index - 1]);
+        var afterIndex = index + tokenLength;
+        var afterIsIdentifier = afterIndex < source.Length &&
+            syntax.IdentifierContinuationCharacters.Contains(source[afterIndex]);
+        return !beforeIsIdentifier && !afterIsIdentifier;
     }
 
-    private static bool HasEnclosingParentheses(string expression)
-    {
-        if (expression.Length < 2 || expression[0] != '(' || expression[^1] != ')')
-        {
-            return false;
-        }
-
-        var depth = 0;
-        var quote = '\0';
-        for (var index = 0; index < expression.Length; index++)
-        {
-            var character = expression[index];
-            if (quote != '\0')
-            {
-                if (character == quote && (index == 0 || expression[index - 1] != '\\'))
-                {
-                    quote = '\0';
-                }
-
-                continue;
-            }
-
-            if (character is '\'' or '"')
-            {
-                quote = character;
-            }
-            else if (character == '(')
-            {
-                depth++;
-            }
-            else if (character == ')')
-            {
-                depth--;
-                if (depth == 0 && index != expression.Length - 1)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return depth == 0 && quote == '\0';
-    }
+    private static bool StartsWith(string value, int index, string prefix) =>
+        prefix.Length > 0 &&
+        index >= 0 &&
+        index + prefix.Length <= value.Length &&
+        value.AsSpan(index, prefix.Length).SequenceEqual(prefix.AsSpan());
 }
