@@ -87,6 +87,20 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
 
+## M-05B expression input inventory — comparison rules (M-05B.1b)
+
+This subsection is inventory-only; it does not change recognition or generation. Comparison coverage in `python.core.json` is concentrated in a task-specific collection-filter schema, plus three fully fixed conditional-output recognizers.
+
+| Rule IDs | Match conditions | Captures / emitted fact IDs |
+|---|---|---|
+| `capture-collection-filter-operator-1` through `-11` | Each requires the phrase `new list containing only`; matches respectively `greater than or equal to`, `at least`, `less than or equal to`, `at most`, `greater than`, `more than`, `less than`, `below`, `not equal to`, `equal to`, or `equals` | Each captures a constant `operator` value tagged `comparisonOperator` into `program.collection-filter.comparison`: `>=`, `>=`, `<=`, `<=`, `>`, `>`, `<`, `<`, `!=`, `==`, `==`. No operand is captured by these rules. |
+| `capture-collection-filter-threshold-1` through `-11` | The same comparison phrase family, with the same required list-filter frame; excludes `average` | Each captures the raw `expression` substring after the matched condition through `then`, trims a trailing comma, and tags it `arithmetic`; emits `program.collection-filter.threshold`. This is the threshold/other side of the comparison, but the item/left operand is supplied by a separate fixed schema/template, not represented as a captured comparison node. |
+| `recognize-conditional-output-adult-at-least` | Exact token sequence `prints if 20 is at least 18` | Emits `program.conditional-output.adult-at-least`; no captures. Both operands and the relation are embedded in the match condition. |
+| `recognize-conditional-output-minor-less-than` | Exact token sequence `displays if 16 is less than 18` | Emits `program.conditional-output.minor-less-than`; no captures. Both operands and the relation are embedded in the match condition. |
+| `recognize-conditional-output-match-equals` | Exact token sequence `outputs if 7 equals 7` | Emits `program.conditional-output.match-equals`; no captures. Both operands and the relation are embedded in the match condition. |
+
+Comparison operators are therefore represented as source-symbol strings in captures rather than language-neutral operator identities. The filter rules capture an operator and threshold separately but do not capture ordered left/right operands as an expression; the conditional rules recognize fixed sample comparisons without extracting either value. Related `capture-collection-filter-threshold-*` rules and their arithmetic-kind metadata are detailed in the arithmetic inventory below.
+
 ## M-05B expression input inventory — arithmetic rules (M-05B.1a)
 
 This subsection is inventory-only; no matching or generation behavior is changed. It records each arithmetic-oriented input-rule family in `python.core.json` (the exact rule IDs and JSON entries remain authoritative).
