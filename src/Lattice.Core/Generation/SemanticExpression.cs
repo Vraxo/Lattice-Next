@@ -133,8 +133,26 @@ internal static class SemanticExpressionAnalysis
             SemanticExpressionOperator.LessThanOrEqual or
             SemanticExpressionOperator.GreaterThan or
             SemanticExpressionOperator.GreaterThanOrEqual } binary =>
-            IsValueCore(binary.Left) && IsValueCore(binary.Right),
+            IsValueCore(binary.Left) && IsValueCore(binary.Right) &&
+            AreKnownOperandTypesCompatible(binary.Left, binary.Right),
         _ => false
+    };
+
+    private static bool AreKnownOperandTypesCompatible(
+        SemanticExpression left,
+        SemanticExpression right)
+    {
+        var leftType = GetKnownValueType(left);
+        var rightType = GetKnownValueType(right);
+        return leftType is null || rightType is null || leftType == rightType;
+    }
+
+    private static Type? GetKnownValueType(SemanticExpression expression) => expression switch
+    {
+        SemanticTextExpression => typeof(string),
+        SemanticBooleanExpression => typeof(bool),
+        SemanticNumberExpression or SemanticUnaryExpression or SemanticBinaryExpression or SemanticFunctionCallExpression => typeof(decimal),
+        _ => null
     };
 
     private static bool IsValueCore(SemanticExpression expression) =>

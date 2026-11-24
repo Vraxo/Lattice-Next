@@ -128,6 +128,22 @@ public sealed class SemanticExpressionTests
         Assert.Equal(SemanticExpressionOperator.LessThanOrEqual, comparisonOperator);
     }
 
+    [Fact]
+    public void Rejects_comparisons_between_incompatible_known_literal_types()
+    {
+        var mixed = new SemanticBinaryExpression(
+            SemanticExpressionOperator.Equal,
+            new SemanticNumberExpression("1"),
+            new SemanticTextExpression("one"));
+        var compatibleUnknown = new SemanticBinaryExpression(
+            SemanticExpressionOperator.Equal,
+            new SemanticNameExpression("value"),
+            new SemanticTextExpression("one"));
+
+        Assert.False(SemanticExpressionAnalysis.IsBoolean(mixed));
+        Assert.True(SemanticExpressionAnalysis.IsBoolean(compatibleUnknown));
+    }
+
     [Theory]
     [InlineData("x ⊕ × y")]
     [InlineData("x ≤")]
