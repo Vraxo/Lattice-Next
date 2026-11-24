@@ -1526,6 +1526,10 @@
       "positiveSign": "+",
       "negativeSign": "-"
     },
+    "booleanLiteralFormat": {
+      "trueLiteral": "True",
+      "falseLiteral": "False"
+    },
     "stringLiteralFormats": [
       {
         "openingDelimiter": "\"",

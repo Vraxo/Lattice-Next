@@ -123,6 +123,23 @@ internal static class SemanticExpressionParser
                 return false;
             }
 
+            if (syntax.BooleanLiteralFormat is { } booleanFormat)
+            {
+                if (Current.Value == booleanFormat.TrueLiteral)
+                {
+                    expression = new SemanticBooleanExpression(true);
+                    position++;
+                    return true;
+                }
+
+                if (Current.Value == booleanFormat.FalseLiteral)
+                {
+                    expression = new SemanticBooleanExpression(false);
+                    position++;
+                    return true;
+                }
+            }
+
             var name = Current.Value;
             position++;
             if (Current.Kind != TokenKind.OpenDelimiter ||

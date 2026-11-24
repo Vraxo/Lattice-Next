@@ -32,6 +32,8 @@ public sealed record SemanticNumberExpression(string Value) : SemanticExpression
 
 public sealed record SemanticTextExpression(string Value) : SemanticExpression;
 
+public sealed record SemanticBooleanExpression(bool Value) : SemanticExpression;
+
 public sealed record SemanticUnaryExpression(
     SemanticExpressionOperator Operator,
     SemanticExpression Operand) : SemanticExpression;
@@ -61,8 +63,7 @@ internal static class SemanticExpressionAnalysis
         IsValid(expression) && IsArithmeticCore(expression);
 
     public static bool IsValue(SemanticExpression expression) =>
-        IsValid(expression) &&
-        (expression is SemanticTextExpression || IsArithmeticCore(expression));
+        IsValid(expression) && IsValueCore(expression);
 
     public static bool IsBoolean(SemanticExpression expression) =>
         IsValid(expression) && IsBooleanCore(expression);
@@ -121,6 +122,7 @@ internal static class SemanticExpressionAnalysis
 
     private static bool IsBooleanCore(SemanticExpression expression) => expression switch
     {
+        SemanticBooleanExpression => true,
         SemanticUnaryExpression { Operator: SemanticExpressionOperator.Not } unary =>
             IsBooleanCore(unary.Operand),
         SemanticBinaryExpression { Operator: SemanticExpressionOperator.And or SemanticExpressionOperator.Or } binary =>
@@ -131,12 +133,37 @@ internal static class SemanticExpressionAnalysis
             SemanticExpressionOperator.LessThanOrEqual or
             SemanticExpressionOperator.GreaterThan or
             SemanticExpressionOperator.GreaterThanOrEqual } binary =>
-            IsValueCore(binary.Left) && IsValueCore(binary.Right),
+            IsValueCore(binary.Left) && IsValueCore(binary.Right) &&
+            AreKnownOperandTypesCompatible(binary.Left, binary.Right),
         _ => false
     };
 
+    private static bool AreKnownOperandTypesCompatible(
+        SemanticExpression left,
+        SemanticExpression right)
+    {
+        var leftType = GetKnownValueType(left);
+        var rightType = GetKnownValueType(right);
+        return leftType is null || rightType is null || leftType == rightType;
+    }
+
+    private enum KnownValueType
+    {
+        Number,
+        Text,
+        Boolean
+    }
+
+    private static KnownValueType? GetKnownValueType(SemanticExpression expression) => expression switch
+    {
+        SemanticTextExpression => KnownValueType.Text,
+        SemanticBooleanExpression => KnownValueType.Boolean,
+        SemanticNumberExpression or SemanticUnaryExpression or SemanticBinaryExpression or SemanticFunctionCallExpression => KnownValueType.Number,
+        _ => null
+    };
+
     private static bool IsValueCore(SemanticExpression expression) =>
-        expression is SemanticTextExpression || IsArithmeticCore(expression);
+        expression is SemanticTextExpression or SemanticBooleanExpression || IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
         SemanticExpression expression,
@@ -145,7 +172,7 @@ internal static class SemanticExpressionAnalysis
         HashSet<string>? availableFunctions) => expression switch
     {
         SemanticNameExpression name => availableNames.Contains(name.Name),
-        SemanticNumberExpression or SemanticTextExpression => true,
+        SemanticNumberExpression or SemanticTextExpression or SemanticBooleanExpression => true,
         SemanticFunctionCallExpression call =>
             allowFunctionCalls &&
             (availableFunctions is null || availableFunctions.Contains(call.Name)) &&
@@ -188,6 +215,7 @@ internal static class SemanticExpressionAnalysis
             SemanticNameExpression name => IsValidIdentifier(name.Name),
             SemanticNumberExpression number => IsValidCanonicalNumber(number.Value),
             SemanticTextExpression text => text.Value is not null && text.Value.Length <= MaximumValueLength,
+            SemanticBooleanExpression => true,
             SemanticUnaryExpression unary =>
                 Enum.IsDefined(unary.Operator) && IsValid(unary.Operand, depth + 1, ref nodeCount),
             SemanticBinaryExpression binary =>

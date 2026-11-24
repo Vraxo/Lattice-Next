@@ -62,30 +62,124 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 | Validation kind | Current records | Current behavior and classification |
 |---|---:|---|
-| `identifierValue` | 24 | ASCII Python-shaped identifier test. Scope/name binding can be generic; identifier spelling belongs to a selected language grammar. |
-| `identifierCollection` | 4 | Same syntax constraint over a collection; combines name validity with collection structure. |
+| `identifierValue` | 24 | Validates identifier spelling with `GenerationInputSyntaxParser` and the selected pack's input syntax; scope/name binding remains a separate concern. |
+| `identifierCollection` | 4 | Same selected-pack syntax constraint over a collection; combines name validity with collection structure. |
 | `uniqueCollection` | 3 | Reusable uniqueness constraint (case-insensitive in implementation). |
 | `disjointCollections` | 1 | Reusable scope/no-shadowing constraint between local and parameter collections. |
+| `semanticCollection` | 1 | Validates a typed semantic collection's structure and item constraints. |
 | `integerValue` | 2 | Generic integer-value constraint, currently limited to non-negative `Int32` parsing. |
 | `ascendingIntegerRange` | 2 | Generic range ordering/bounds constraint. |
-| `pythonListLiteral` | 1 | **Explicit Python syntax validator** for a subset of list literals; implemented as `IsPythonListLiteral` in shared Core and whitelisted by the loader. |
-| `arithmeticCollectionReferences` | 1 | Python-shaped arithmetic parsing plus ordered local/parameter reference checking. |
-| `arithmeticValue` | 1 | Validates a source string using the shared Python-like arithmetic grammar. |
-| `arithmeticValueReferences` | 1 | Same grammar plus available-name/function-call checks and a local-name requirement. |
-| `comparisonValueReferences` | 0 | Supported but unused by the checked-in sequence module; parses a comparison from one source string and checks operand references. |
-| `comparisonOperandsReferences` | 0 | Supported but unused; accepts structured `left/operator/right` facts but still parses source-shaped arithmetic operands. |
-| `arithmeticExpressionReferences` | 0 | Supported but unused; Python-like arithmetic syntax plus name-reference validation. |
-| `booleanExpressionReferences` | 0 | Supported but unused; delegates to the Python-shaped boolean normalizer and checks references. |
-| `booleanExpressionCollectionReferences` | 1 | Python boolean syntax and parameter references over a string collection. |
-| `valueExpressionReferences` | 1 | Accepts a simplified quoted string literal or Python-shaped arithmetic source, then checks names. |
-| `valueExpressionCollectionReferences` | 1 | Same checks over a collection. |
+| `arithmeticCollectionReferences` | 1 | Consumes materialized arithmetic ASTs, enforces local/parameter reference availability and ordered-local scope. Source syntax parsing occurs during extraction via selected `InputSyntax`. |
+| `arithmeticValue` | 1 | Checks the already-materialized expression with `SemanticExpressionAnalysis.IsArithmetic`; does not parse source text in the validator. |
+| `arithmeticValueReferences` | 1 | Checks typed arithmetic structure and available-name/function-call scope; source parsing occurs before validation. |
+| `comparisonValueReferences` | 0 | Supported but unused by this module; validates a structured comparison expression and operand references. |
+| `comparisonOperandsReferences` | 0 | Supported but unused; consumes typed left/right operands plus a semantic operator identity and checks references. |
+| `arithmeticExpressionReferences` | 0 | Supported but unused; validates typed arithmetic structure plus references. |
+| `booleanExpressionReferences` | 0 | Supported but unused; validates a typed Boolean tree plus references. |
+| `booleanExpressionCollectionReferences` | 1 | Validates materialized Boolean trees and parameter references over an expression collection. |
+| `valueExpressionReferences` | 1 | Validates a materialized value-expression tree and references; literal/source parsing happens during extraction. |
+| `valueExpressionCollectionReferences` | 1 | Same typed-tree checks over an expression collection. |
 | `matchingCollections` | 3 | Reusable aligned-collection length constraint. |
-| `orderedArithmeticFunctionExpressions` | 1 | Ordered scope/reference and function-call check, but parses names, parameters, expressions, and calls from strings. |
-| `matchingLastNumericFunctionCall` | 1 | Python-like call syntax plus function name, arity and numeric-argument checks against the last definition. |
-| `matchingFunctionCall` | 1 | Python-like call syntax plus name/arity and numeric-or-string literal arguments. |
-| `matchingNumericFunctionCall` | 1 | Python-like call syntax plus name/arity and numeric arguments. |
+| `orderedArithmeticFunctionExpressions` | 1 | Checks ordered scopes/references and function calls from materialized expression trees; signature/parameter collections remain string-named values. |
+| `matchingLastNumericFunctionCall` | 1 | Checks a materialized function-call node's name, arity and numeric-literal arguments against the last definition; call syntax is parsed using selected-pack metadata before validation. |
+| `matchingFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric-or-string literal arguments. |
+| `matchingNumericFunctionCall` | 1 | Checks a materialized function-call node's name/arity and numeric arguments. |
 
-The four zero-use kinds are nevertheless live shared validator/loader code. The shared parser helpers are [`IsArithmeticExpression` / `IsPythonListLiteral` / `IsQuotedStringLiteral`](../src/Lattice.Core/Generation/SequenceInputFactValidator.cs) and [`BooleanExpressionNormalizer`](../src/Lattice.Core/Generation/BooleanExpressionNormalizer.cs). The duplicate dead parser [`PythonExpressionParser`](https://github.com/Vraxo/Lattice-Next/blob/e31e28e2196176f1de6b20e15b66de3292057f57/src/Lattice.Core/Language/PythonExpressionParser.cs) had no references beyond its own definitions and is removed in M-03.
+The four zero-use kinds are nevertheless live shared validator/loader code. Expression syntax parsing occurs in `SemanticExpressionParser` / `BooleanExpressionNormalizer` using selected-pack `InputSyntax`; `SequenceInputFactValidator` consumes typed nodes and contains no former arithmetic, list-literal, or quoted-string source parsers. `pythonListLiteral` was removed from the active knowledge format and shared validator in M-04. The duplicate dead `PythonExpressionParser` was removed in M-03.
+
+## M-05B semantic expression model decision (M-05B.2a)
+
+**Decision:** keep the expression model in `src/Lattice.Core/Generation/SemanticExpression.cs` for this migration, rather than introducing a parallel `Semantics` AST. The existing public `SemanticExpression` record hierarchy is already consumed by extraction, validation, and generation, and explicitly documents that syntax is supplied by a selected language pack. Reusing it is the smallest architectural change and avoids a second representation/conversion layer.
+
+The current shape provides name, number, text, Boolean, unary, binary, and function-call nodes; `SemanticExpressionOperator` provides language-neutral arithmetic, comparison, Boolean, and unary operator identities. Expression-category analysis rejects incompatible known literal types while allowing unknown variable types to be resolved through bindings. Ordered binary children preserve operand order; nested nodes represent precedence/grouping semantically without retaining parentheses as source text. Number values are canonical invariant decimal strings and text nodes retain their semantic text, not target quoting/escaping. Target formatting belongs in `SemanticExpressionRenderer` and selected language-pack syntax.
+
+**Known fit/gap:** this model was already present on the baseline, so M-05B.2 reuses it rather than creating duplicate node classes. The expression model includes a Boolean literal node whose payload is a `bool`. The Python language pack now declares its true/false spellings, and the shared parser/renderer consume that metadata; shared code contains no Python Boolean token branch. Identifier identity remains a string name, and public constructors can create invalid combinations that are rejected later by `SemanticExpressionAnalysis`. The M-05B.2 model test covers typed literal/reference data, nesting, and operand order. Follow-on M-05B.5 work now parses/renders Boolean literals only through declarative pack metadata, without adding language-specific shared branches.
+
+## M-05B check classification (M-05B.1h)
+
+Classification of the current expression and adjacent checks in `SequenceInputFactValidator` / extraction, without changing behavior:
+
+| Check | Classification | Current responsibility / boundary |
+|---|---|---|
+| `SemanticExpressionParser.TryParse` called while materializing a tagged capture | **Syntax parsing** | Parses captured source text using selected `GenerationLanguagePack.InputSyntax` and constructs a typed `SemanticExpression`. It still needs to consume source spelling; it is not semantic capture directly from request meaning. |
+| `SemanticExpressionAnalysis.IsArithmetic`, `IsBoolean`, `IsValue`, comparison-node/operator shape checks | **Semantic validation** | Rejects expressions whose typed node/operator structure does not satisfy the requested semantic category (for example, an arithmetic expression or Boolean condition). |
+| `ReferencesOnlyAvailableNames`, `ReferencesAnyName`, function-name/call checks, ordered local/parameter scopes | **Reference/scope validation** | Checks that identifiers and calls refer to declared parameters, locals, or permitted functions and, in the ordered-local case, that prior values are available. This is useful language-neutral intent but currently operates on the parsed expression tree plus string-named scopes. |
+| `uniqueCollection`, `disjointCollections`, `matchingCollections`, non-empty/maximum-size fact checks | **Structural validation** | Enforces uniqueness, disjointness, collection alignment and schema/value bounds; it does not parse expression grammar. |
+| `integerValue`, `ascendingIntegerRange`, `semanticCollection` | **Semantic/structural validation** | Enforces numeric/range or collection-shape constraints; integer text parsing is value interpretation rather than target syntax parsing. |
+| `GenerationInputSyntaxParser.IsIdentifier` | **Syntax parsing/validation** | Identifier spelling is delegated to selected input syntax metadata; identifier identity/scope remains a separate reference concern. |
+| Expression-related `SequenceInputFactValidator` branches | **Semantic/reference/structural validation** | Active branches consume materialized expression nodes. Call-matching kinds check call name, arity and allowed literal argument nodes. The former source-string arithmetic/list/string parsing helpers are no longer in the validator; parsing occurs during extraction against selected-pack syntax. |
+
+**Classification finding:** the active expression capture path has begun separating syntax parsing (language-pack input syntax), typed expression semantics, and name/scope checks. However, a number of validation-kind implementations still combine these responsibilities, and untagged values bypass expression parsing entirely. Structural checks should remain generic; syntax-specific acceptance belongs to the selected language parser/pack. This is a classification of present implementation, not a completion claim for M-05B.
+
+## M-05B expression values through generation (M-05B.1g)
+
+The current extraction/generation path carries both raw and typed forms; the expression metadata does not itself make every value semantic.
+
+1. `SequenceInputFactExtractor` first matches token rules and builds each `SequenceSemanticFact` with scalar `Values` and string `Collections`. For rules/captures tagged with `semanticExpressionKind`, it registers a `(factId, valueId)` capture descriptor. It then resolves a language pack (through the caller-supplied resolver) and `TryMaterializeSemanticExpressions` parses each captured string using `SemanticExpressionParser` and the selected pack's `InputSyntax`. Scalars move from `Values` to typed `Expressions` or `ComparisonOperators`; collections move from `Collections` to `ExpressionCollections`. Raw expression strings are therefore not retained in those same slots after successful materialization.
+2. The parser still receives the captured source text. `SemanticExpression` preserves expression structure/operator identity, but literal/reference values are derived by parsing that source and are not independently extracted by the English capture rules. Captures without the metadata (including assignment value and most output values) stay raw strings in `Values`/`Collections`.
+3. `SequenceInputFactValidator` validates the typed expression slots: arithmetic/boolean/value kinds and reference checks operate on `SemanticExpression`; comparison-operator facts are materialized into enum identities. These validations run on extracted facts and reject invalid syntax/references, but do not convert raw untagged values.
+4. `KnowledgeDrivenSequenceGenerator` receives `FactValues` (the runtime responder passes the extracted facts) and indexes each fact's scalar values, collections, expressions, expression collections, comparison operators, and semantic collections. Its token-rule binding helpers call `SemanticExpressionRenderer` / `TryRenderOperator` with the selected `GenerationLanguagePack` to turn typed expressions back into target-language strings before inserting them into generated output. Thus raw source strings are not required for the tagged expression bindings, but source-like strings are reintroduced at the realization boundary. Untagged raw values are interpolated directly by the sequence-token generator and may contain target-language syntax.
+5. In the current runtime raw-input path, `KnowledgeDrivenGenerationResponder` calls the extractor overload whose default resolver is `GenerationLanguagePackSelector.Select`, so extraction can parse expressions when the request facts select a known language pack. It then selects a pack again for the generation request and passes a null token model. The parsed task/sequence path and tests have other pack-resolution arrangements. The expression pipeline is not yet a single, neutral AST-to-language-pack production route.
+
+Relevant implementation: `SequenceInputFactExtractor.TryMaterializeSemanticExpressions` / `TryParseCapturedExpression`, `SequenceSemanticFact` in `SequenceKnowledgeBase.cs`, `SequenceInputFactValidator`, and scalar/collection binding resolution in `KnowledgeDrivenSequenceGenerator`. This records current flow only; no behavior changed.
+
+## M-05B validation-kind loader and test trace (M-05B.1f)
+
+`SequenceKnowledgeBaseLoader.TryReadInputValidations` in `src/Lattice.Core/Generation/SequenceKnowledgeBaseLoader.cs` owns a local, ordinal `supportedKinds` allow-list. It accepts the expression-related kinds `arithmeticCollectionReferences`, `arithmeticValue`, `arithmeticValueReferences`, `comparisonValueReferences`, `comparisonOperandsReferences`, `arithmeticExpressionReferences`, `booleanExpressionReferences`, `booleanExpressionCollectionReferences`, `valueExpressionReferences`, `valueExpressionCollectionReferences`, and `orderedArithmeticFunctionExpressions`. It also accepts adjacent call-matching kinds used by expression/call validation (`matchingLastNumericFunctionCall`, `matchingFunctionCall`, `matchingNumericFunctionCall`). `TryReadInputValidations` rejects a record whose kind is not in this set; this is validation-kind schema handling, separate from validator execution.
+
+Relevant existing coverage is in `tests/Lattice.Core.Tests/Generation/KnowledgeDrivenSequenceGeneratorTests.cs`: `Validates_comparison_conditions_against_declared_parameters` directly exercises `comparisonValueReferences` using a Python language pack and checks valid arithmetic operands, missing references, malformed syntax, and chained comparisons. Nearby conditional-function extraction/generation tests exercise the Boolean capture path and its resulting normalized condition; they do not test every supported loader kind. `tests/Lattice.Core.Tests/Generation/SequenceInputFactValidatorTests.cs` covers validator behavior more generally. `ComparisonOperatorNormalizerTests` covers accepted/rejected phrase-to-operator capture normalization, not the validation-kind allow-list. No behavior changed as part of this trace.
+
+## M-05B expression fact-to-validation trace (M-05B.1e)
+
+The extractor assembles the capture values under their declared `factId`/`valueId`; the validator then resolves the matching `SequenceInputFact` and applies the declared `kind`. The current Python sequence module has seven validations in the expression-related families:
+
+| Validation ID / kind | Fact and value consumed | Related scope/facts | Effect of validation |
+|---|---|---|---|
+| `function-local-expressions-reference-earlier-names` / `arithmeticCollectionReferences` | `program.function-local-variables.expressions` | Parameters from `program.function-local-signature.parameters`; locals from `program.function-local-variables.locals`; applies when the local-variables fact exists | Parses each raw arithmetic expression and validates references against the allowed earlier parameters/locals and ordering constraints. |
+| `function-local-return-references-available-names` / `arithmeticValueReferences` | `program.function-local-return.expression` | Parameters and locals as above; applies when local variables exist | Parses raw arithmetic expression and checks referenced names against available names. |
+| `conditional-function-false-return-references-parameters` / `valueExpressionReferences` | `program.conditional-function.false-return.expression` | Parameters from `program.conditional-function.signature.parameters`; applies when signature exists | Accepts the current simplified value-expression forms and checks references. |
+| `collection-filter-threshold-is-arithmetic` / `arithmeticValue` | `program.collection-filter.threshold.expression` | Applies when threshold fact exists | Checks that the raw value parses as an arithmetic expression; this is not comparison validation. |
+| `conditional-function-branch-conditions-reference-parameters` / `booleanExpressionCollectionReferences` | `program.conditional-function.branches.conditions` | Parameters from `program.conditional-function.signature.parameters`; applies when signature exists | Parses each Boolean expression string and checks referenced names against parameters. |
+| `conditional-function-branch-returns-reference-parameters` / `valueExpressionCollectionReferences` | `program.conditional-function.branches.returns` | Parameters from the conditional-function signature; applies when signature exists | Validates each raw return value and its references. |
+| `arithmetic-function-expressions-use-ordered-scopes` / `orderedArithmeticFunctionExpressions` | `program.arithmetic-function-return.expression` | Function parameters and name from `program.arithmetic-function-signature`; applies when signature exists | Parses arithmetic expression/call strings and checks ordered scope and call constraints. |
+
+The captured assignment payload `program.assignment.value` has no expression validation declaration in this module. The comparison operator/threshold facts (`program.collection-filter.comparison.operator` and `.threshold.expression`) have no comparison-kind validation; only the threshold gets the arithmetic syntax check above. The fixed conditional-output comparison rules emit task-specific marker facts and have no extracted operands to validate. `comparisonValueReferences`, `comparisonOperandsReferences`, `arithmeticExpressionReferences`, and `booleanExpressionReferences` are supported validator kinds but are not used by the current module's validation declarations. These findings trace the current data path only; they do not alter validation behavior.
+
+## M-05B expression input inventory — value rules (M-05B.1d)
+
+“Value” here means captures tagged `semanticExpressionKind: value`, not every rule whose field happens to be named `value`. The tagged captures are limited to the rules below; the broader print/output capture families store raw text without this metadata and are inventoried in the main 231-rule table.
+
+| Rule IDs | Match conditions | Captured value / emitted fact IDs |
+|---|---|---|
+| `capture-assignment-components-set`, `-sets`, `-assign`, `-assigns` | Match the corresponding verb token; exclude the `function named` sequence | Capture target text up to `to` as `name` in `program.assignment.target`; capture the text after `to` up to `and` or `then` as `value`, tagged `value`, in `program.assignment.value`. The payload is raw request text, not a typed literal/reference/expression. |
+| `recognize-declarative-conditional-function` — branch returns capture | Match `function`; requires `named`, `takes`, `when`, `and otherwise returns`, and `then` | Captures the return text from each `when`-delimited branch field, up to the otherwise clause; removes trailing comma and preserves raw value. Emits a `returns` collection in `program.conditional-function.branches`, tagged `value`. |
+| `recognize-declarative-conditional-function` — otherwise return capture | Same outer function conditions | Captures raw expression after `and otherwise returns` up to `then`, trims trailing comma and preserves raw value; emits `program.conditional-function.false-return` with `valueId: expression`, tagged `value`. |
+
+There are no literal/reference sub-kinds in this capture metadata. The separate two-number addition task captures fixed `10`, `20`, and `first_number + second_number` values; these task-specific literal facts are documented in the main rule inventory and are not general value-expression extraction. Likewise, common output rules capture printed/displayed text without an expression-kind tag; those remain raw strings rather than structured values.
+
+## M-05B expression input inventory — boolean rules (M-05B.1c)
+
+This inventory covers input captures tagged `semanticExpressionKind: boolean` and boolean-specific recognizers in `python.core.json`. There is one boolean capture site and no standalone Boolean-operator input rule family.
+
+| Rule ID | Match conditions | Captures / emitted fact IDs |
+|---|---|---|
+| `recognize-declarative-conditional-function` | Matches `function`; requires `named`, `takes`, `when`, `and otherwise returns`, and `then` | Captures function name and parameters into `program.conditional-function.signature`; captures parallel branch `returns` and `conditions` collections into `program.conditional-function.branches`. Conditions are extracted from each `when`-delimited field, preserving raw text, trimming a trailing comma, and tagged `semanticExpressionKind: boolean`. Branch return values are tagged `value`; the otherwise return and call are likewise captured as `value` and `functionCall`. Other emitted fact IDs are `program.conditional-function`, `.false-return`, and `.call`. No boolean operator or operand is captured separately. |
+
+The match conditions constrain the outer function/branch frame, not the Boolean expression syntax. The Boolean payload is an unparsed string collection; there are no input rules that independently capture logical `and`/`or`/`not`, grouping, or ordered Boolean operands. The collection-filter rules' `or`/`not` tokens belong to comparison-phrase recognition and emit comparison facts, not boolean-expression facts.
+
+## M-05B expression input inventory — comparison rules (M-05B.1b)
+
+This subsection is inventory-only; it does not change recognition or generation. Comparison coverage in `python.core.json` is concentrated in a task-specific collection-filter schema, plus three fully fixed conditional-output recognizers.
+
+| Rule IDs | Match conditions | Captures / emitted fact IDs |
+|---|---|---|
+| `capture-collection-filter-operator-1` through `-11` | Each requires the phrase `new list containing only`; matches respectively `greater than or equal to`, `at least`, `less than or equal to`, `at most`, `greater than`, `more than`, `less than`, `below`, `not equal to`, `equal to`, or `equals` | Each captures a constant `operator` value tagged `comparisonOperator` into `program.collection-filter.comparison`: `>=`, `>=`, `<=`, `<=`, `>`, `>`, `<`, `<`, `!=`, `==`, `==`. No operand is captured by these rules. |
+| `capture-collection-filter-threshold-1` through `-11` | The same comparison phrase family, with the same required list-filter frame; excludes `average` | Each captures the raw `expression` substring after the matched condition through `then`, trims a trailing comma, and tags it `arithmetic`; emits `program.collection-filter.threshold`. This is the threshold/other side of the comparison, but the item/left operand is supplied by a separate fixed schema/template, not represented as a captured comparison node. |
+| `recognize-conditional-output-adult-at-least` | Exact token sequence `prints if 20 is at least 18` | Emits `program.conditional-output.adult-at-least`; no captures. Both operands and the relation are embedded in the match condition. |
+| `recognize-conditional-output-minor-less-than` | Exact token sequence `displays if 16 is less than 18` | Emits `program.conditional-output.minor-less-than`; no captures. Both operands and the relation are embedded in the match condition. |
+| `recognize-conditional-output-match-equals` | Exact token sequence `outputs if 7 equals 7` | Emits `program.conditional-output.match-equals`; no captures. Both operands and the relation are embedded in the match condition. |
+
+Comparison operators are therefore represented as source-symbol strings in captures rather than language-neutral operator identities. The filter rules capture an operator and threshold separately but do not capture ordered left/right operands as an expression; the conditional rules recognize fixed sample comparisons without extracting either value. Related `capture-collection-filter-threshold-*` rules and their arithmetic-kind metadata are detailed in the arithmetic inventory below.
 
 ## M-05B expression input inventory — arithmetic rules (M-05B.1a)
 
