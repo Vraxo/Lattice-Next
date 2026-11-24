@@ -1221,14 +1221,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             program!.Requirements,
             requirement => Assert.Equal(
                 new AssignmentRequirement("age", new SemanticNumberExpression("21")), requirement),
-            requirement => Assert.Equal(
-                new ConditionalRequirement(
+            requirement =>
+            {
+                var conditional = Assert.IsType<ConditionalRequirement>(requirement);
+                Assert.Equal(
                     new SemanticBinaryExpression(
                         SemanticExpressionOperator.GreaterThanOrEqual,
                         new SemanticNameExpression("age"),
                         new SemanticNumberExpression("18")),
-                    [new OutputRequirement(new SemanticTextExpression("adult"))],
-                    []), requirement));
+                    conditional.Condition);
+                Assert.Equal(
+                    new OutputRequirement(new SemanticTextExpression("adult")),
+                    Assert.Single(conditional.ThenRequirements));
+                Assert.Empty(conditional.ElseRequirements);
+            });
     }
 
     [Theory]
