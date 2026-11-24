@@ -108,20 +108,20 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
 
 - [x] **M-06.1 — Map existing model types and relations to generation needs.** Compare `python-language-foundations.json`, the world-model loader/reasoner, and current `GenerationGoal` / `GenerationOperation` contracts. List only missing concepts or relations required by the queued migration tasks.
 - [x] **M-06.2 — Add core program structure concepts.** Represent program goals, values, expressions, statements, variables, and bindings with language-neutral types and relations. Avoid adding concepts that have no current consumer.
-- [ ] **M-06.3 — Add reusable operation contracts.** Represent operation inputs and results with types, and describe effects, prerequisites, and constraints in the world model rather than relying only on the current effect/argument-kind string match.
-  - [ ] **M-06.3a — Inventory the minimal generation operation set.** Map only the operations required by M-07/M-08 and the current M-09–M-11 inventory to their input, result, effect, prerequisite, and constraint needs.
-  - [ ] **M-06.3b — Define typed operation and slot concepts.** Add reusable operation/input/result/effect types and typed relation signatures; do not duplicate language-pack syntax or expression AST data.
-  - [ ] **M-06.3c — Represent operation effects and prerequisites.** Link operation contracts to effects and required capabilities/dependencies as model relations rather than free-form selector strings.
-  - [ ] **M-06.3d — Connect request values to typed slots.** Define how input/result slots bind semantic values and variables while preserving language-neutral identity and ordering.
-  - [ ] **M-06.3e — Verify contracts through the world-model loader/reasoner.** Add focused tests for typed slots, result types, effects, and prerequisites; keep operation selection changes for the later generation-pipeline task.
-- [ ] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
-- [ ] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
-- [ ] **M-06.6 — Verify model loading and reasoning.** Add focused loader/reasoner tests for the new concepts, typed operation contracts, and relationships. Confirm existing domain modules still load without Python-specific behavior in shared code.
+- [x] **M-06.3 — Add reusable operation contracts.** Represent operation inputs and results with types, and describe effects, prerequisites, and constraints in the world model rather than relying only on the current effect/argument-kind string match.
+  - [x] **M-06.3a — Inventory the minimal generation operation set.** Map only the operations required by M-07/M-08 and the current M-09–M-11 inventory to their input, result, effect, prerequisite, and constraint needs.
+  - [x] **M-06.3b — Define typed operation and slot concepts.** Add reusable operation/input/result/effect types and typed relation signatures; do not duplicate language-pack syntax or expression AST data.
+  - [x] **M-06.3c — Represent operation effects and prerequisites.** Link operation contracts to effects and required capabilities/dependencies as model relations rather than free-form selector strings.
+  - [x] **M-06.3d — Connect request values to typed slots.** Define how input/result slots bind semantic values and variables while preserving language-neutral identity and ordering.
+  - [x] **M-06.3e — Verify contracts through the world-model loader/reasoner.** Add focused tests for typed slots, result types, effects, and prerequisites; keep operation selection changes for the later generation-pipeline task.
+- [x] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
+- [x] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
+- [x] **M-06.6 — Verify model loading and reasoning.** Add focused loader/reasoner tests for the new concepts, typed operation contracts, and relationships. Confirm existing domain modules still load without Python-specific behavior in shared code.
 
 ### M-07 — Interpret scalar program requests generically
 
-- [ ] **M-07.1 — Inventory scalar task-specific input rules.** Identify the exact rules and fact IDs for fixed comparisons, sign classification, two-number addition, assignments, and conditional output in `python.core.json`; map each to the values it currently captures.
-- [ ] **M-07.2 — Define request-derived scalar requirements.** Represent numeric/string values, variable names, assignments, comparisons, branch conditions, and output requirements as generic semantic facts. Do not encode benchmark task names as semantic identities.
+- [x] **M-07.1 — Inventory scalar task-specific input rules.** Identify the exact rules and fact IDs for fixed comparisons, sign classification, two-number addition, assignments, and conditional output in `python.core.json`; map each to the values it currently captures.
+- [x] **M-07.2 — Define request-derived scalar requirements.** Represent numeric/string values, variable names, assignments, comparisons, branch conditions, and output requirements as generic semantic facts. Do not encode benchmark task names as semantic identities.
 - [ ] **M-07.3 — Replace fixed-value captures with value captures.** Capture the actual literals and identifiers from the request; remove fixed sample values and task-specific facts from the active extraction path.
 - [ ] **M-07.4 — Preserve multiple requirements and their order.** Ensure a request containing assignment, condition, and output retains each requirement and its dependencies instead of collapsing into one task category.
 - [ ] **M-07.5 — Test scalar interpretation against variation.** Add tests with changed numbers, identifiers, output strings, and paraphrased requests; assert the extracted semantic values, not just the final code text.
