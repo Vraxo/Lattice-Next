@@ -49,10 +49,20 @@ jobs:
           if [ "$test_status" -ne 0 ]; then
             python - <<'PY'
           from pathlib import Path
+          import re
           output = Path("test-output.log").read_text(errors="replace")
-          tail = "\n".join(output.splitlines()[-60:])
-          if len(tail) > 20000:
-              tail = tail[-20000:]
+          output = re.sub(r"\x1b\[[0-9;]*m", "", output)
+          failed_tests = [
+              line.strip() for line in output.splitlines()
+              if line.strip().lower().startswith("failed ") and ".tests." in line.lower()
+          ]
+          for failed_test in failed_tests:
+              annotation = failed_test.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::error title=Failed test::{annotation}")
+          print(f"Found {len(failed_tests)} failed test case(s).")
+          tail = "\n".join(output.splitlines()[-40:])
+          if len(tail) > 12000:
+              tail = tail[-12000:]
           message = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
           print(f"::error title=Test failure details::{message}")
           PY

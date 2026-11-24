@@ -102,7 +102,7 @@ public sealed class PythonProgramGenerationTests
         "adult")]
     [InlineData(
         "Generate a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(15).",
-        "def classify(age):\n    if age >= 65:\n        return 'senior'\n    elif age >= 18:\n        return 'adult'\n    elif age >= 13:\n        return 'teen'\n    return 'child'\nprint(classify(15))",
+        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(15))",
         "teen")]
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(8).",
@@ -110,7 +110,7 @@ public sealed class PythonProgramGenerationTests
         "child")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(95).",
-        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(95))",
+        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(95))",
         "high")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(75).",
@@ -138,7 +138,7 @@ public sealed class PythonProgramGenerationTests
         "allowed")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('guest').",
-        "def access(role):\n    if role == 'admin':\n        return 'allowed'\n    return 'denied'\nprint(access('guest'))",
+        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access(\"guest\"))",
         "denied")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
