@@ -455,6 +455,24 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Null(knowledge);
     }
 
+    [Theory]
+    [InlineData("comparisonOperandsReferences")]
+    [InlineData("booleanExpressionReferences")]
+    public void Rejects_removed_unused_expression_validation_kinds(string kind)
+    {
+        var json = $$"""
+        {
+          "formatVersion": 1,
+          "validations": [
+            { "id": "obsolete-expression-check", "kind": "{{kind}}", "factId": "condition", "valueId": "expression" }
+          ]
+        }
+        """;
+
+        Assert.False(SequenceKnowledgeBaseLoader.TryLoad(json, out var knowledge, out _));
+        Assert.Null(knowledge);
+    }
+
     [Fact]
     public void Rejects_generation_when_active_facts_cannot_be_satisfied()
     {
