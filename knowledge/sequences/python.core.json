@@ -394,7 +394,26 @@
           "preserveRawValue": true
         }
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ]
     },
     {
       "id": "capture-generic-output-prints",
@@ -410,7 +429,26 @@
           "preserveRawValue": true
         }
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ]
     },
     {
       "id": "capture-generic-output-display",
@@ -426,7 +464,26 @@
           "preserveRawValue": true
         }
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ]
     },
     {
       "id": "capture-generic-output-displays",
@@ -442,7 +499,26 @@
           "preserveRawValue": true
         }
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ]
     },
     {
       "id": "capture-assignment-components-set",
