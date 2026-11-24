@@ -289,7 +289,7 @@ public sealed class GenerationLanguagePackLoader
             syntax.IdentifierContinuationCharacters.Distinct().Count() != syntax.IdentifierContinuationCharacters.Length ||
             syntax.IdentifierStartCharacters.Any(character => !syntax.IdentifierContinuationCharacters.Contains(character)) ||
             !IsValidNumberLiteralFormat(syntax.NumberLiteralFormat) ||
-            (syntax.BooleanLiteralFormat is { } booleanFormat && !IsValidBooleanLiteralFormat(booleanFormat)) ||
+            (syntax.BooleanLiteralFormat is { } booleanFormat && !IsValidBooleanLiteralFormat(booleanFormat, syntax)) ||
             syntax.StringLiteralFormats.IsDefaultOrEmpty ||
             syntax.StringLiteralFormats.Length > 8 ||
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
@@ -383,13 +383,15 @@ public sealed class GenerationLanguagePackLoader
         delimiter.ClosingDelimiter.Length <= 16 &&
         delimiter.OpeningDelimiter != delimiter.ClosingDelimiter;
 
-    private static bool IsValidBooleanLiteralFormat(GenerationBooleanLiteralFormat format) =>
+    private static bool IsValidBooleanLiteralFormat(
+        GenerationBooleanLiteralFormat format,
+        GenerationInputSyntax syntax) =>
         !string.IsNullOrWhiteSpace(format.TrueLiteral) &&
         format.TrueLiteral.Length <= 32 &&
-        !format.TrueLiteral.Any(char.IsWhiteSpace) &&
+        GenerationInputSyntaxParser.IsIdentifier(format.TrueLiteral, syntax) &&
         !string.IsNullOrWhiteSpace(format.FalseLiteral) &&
         format.FalseLiteral.Length <= 32 &&
-        !format.FalseLiteral.Any(char.IsWhiteSpace) &&
+        GenerationInputSyntaxParser.IsIdentifier(format.FalseLiteral, syntax) &&
         !string.Equals(format.TrueLiteral, format.FalseLiteral, StringComparison.Ordinal);
 
     private static bool IsValidNumberLiteralFormat(GenerationNumberLiteralFormat format)
