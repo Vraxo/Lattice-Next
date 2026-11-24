@@ -107,8 +107,13 @@ Complete the groups in order. Each checkbox is one small, concrete implementatio
 ### M-06 — Add the minimum operational programming model
 
 - [x] **M-06.1 — Map existing model types and relations to generation needs.** Compare `python-language-foundations.json`, the world-model loader/reasoner, and current `GenerationGoal` / `GenerationOperation` contracts. List only missing concepts or relations required by the queued migration tasks.
-- [ ] **M-06.2 — Add core program structure concepts.** Represent program goals, values, expressions, statements, variables, and bindings with language-neutral types and relations. Avoid adding concepts that have no current consumer.
+- [x] **M-06.2 — Add core program structure concepts.** Represent program goals, values, expressions, statements, variables, and bindings with language-neutral types and relations. Avoid adding concepts that have no current consumer.
 - [ ] **M-06.3 — Add reusable operation contracts.** Represent operation inputs and results with types, and describe effects, prerequisites, and constraints in the world model rather than relying only on the current effect/argument-kind string match.
+  - [ ] **M-06.3a — Inventory the minimal generation operation set.** Map only the operations required by M-07/M-08 and the current M-09–M-11 inventory to their input, result, effect, prerequisite, and constraint needs.
+  - [ ] **M-06.3b — Define typed operation and slot concepts.** Add reusable operation/input/result/effect types and typed relation signatures; do not duplicate language-pack syntax or expression AST data.
+  - [ ] **M-06.3c — Represent operation effects and prerequisites.** Link operation contracts to effects and required capabilities/dependencies as model relations rather than free-form selector strings.
+  - [ ] **M-06.3d — Connect request values to typed slots.** Define how input/result slots bind semantic values and variables while preserving language-neutral identity and ordering.
+  - [ ] **M-06.3e — Verify contracts through the world-model loader/reasoner.** Add focused tests for typed slots, result types, effects, and prerequisites; keep operation selection changes for the later generation-pipeline task.
 - [ ] **M-06.4 — Add function and control-flow relationships.** Represent functions, parameters, arguments, calls, returns, branches, loops, and their dependencies in a form the reasoner can query.
 - [ ] **M-06.5 — Add module, exception, and I/O effect relationships.** Model imports/modules, failure behavior, input/output, and external effects only to the extent needed by M-10 and M-11.
 - [ ] **M-06.6 — Verify model loading and reasoning.** Add focused loader/reasoner tests for the new concepts, typed operation contracts, and relationships. Confirm existing domain modules still load without Python-specific behavior in shared code.
