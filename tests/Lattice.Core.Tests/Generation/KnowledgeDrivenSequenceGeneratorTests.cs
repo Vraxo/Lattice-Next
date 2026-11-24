@@ -210,7 +210,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or (score is less than 5 and score is not equal to 0) and otherwise returns 'rejected', then print classify(3).",
-        "score >= 10 or (score < 5 and score != 0)", "\"accepted\"", "\"rejected\"")]
+        "score >= 10 or score < 5 and score != 0", "\"accepted\"", "\"rejected\"")]
     [InlineData(
         "Create a Python program with a function named classify that takes score and returns 'accepted' when not (score is at least 10 or score is less than 5) and otherwise returns 'rejected', then print classify(7).",
         "not (score >= 10 or score < 5)", "\"accepted\"", "\"rejected\"")]

@@ -114,7 +114,7 @@ public sealed class PythonProgramGenerationTests
         "high")]
     [InlineData(
         "Build a Python script with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(75).",
-        "def classify(score):\n    if score >= 90:\n        return 'high'\n    elif score >= 60:\n        return 'pass'\n    return 'fail'\nprint(classify(75))",
+        "def classify(score):\n    if score >= 90:\n        return \"high\"\n    elif score >= 60:\n        return \"pass\"\n    return \"fail\"\nprint(classify(75))",
         "pass")]
     [InlineData(
         "Generate a Python program with a function named classify that takes score and returns 'high' when score is at least 90, returns 'pass' when score is at least 60, and otherwise returns 'fail', then print classify(40).",
@@ -130,7 +130,7 @@ public sealed class PythonProgramGenerationTests
         "rejected")]
     [InlineData(
         "Create a Python program with a function named access that takes role and returns 'allowed' when role equals 'admin' and otherwise returns 'denied', then print access('admin').",
-        "def access(role):\n    if role == 'admin':\n        return 'allowed'\n    return 'denied'\nprint(access('admin'))",
+        "def access(role):\n    if role == \"admin\":\n        return \"allowed\"\n    return \"denied\"\nprint(access(\"admin\"))",
         "allowed")]
     [InlineData(
         "Build a Python script with a function named access that takes role and returns 'allowed' when role is not equal to 'admin' and otherwise returns 'denied', then print access('guest').",
