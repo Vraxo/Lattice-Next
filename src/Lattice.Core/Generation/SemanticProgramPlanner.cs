@@ -44,7 +44,7 @@ public static class SemanticProgramPlanner
     /// </summary>
     private static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        "program.arithmetic-function",
+        "program.arithmetic-function-signature",
         "program.assignment.classification",
         "program.assignment.first",
         "program.assignment.second",
