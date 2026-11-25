@@ -264,6 +264,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case ClassRequirement declaredClass:
+                    if (!TryPlanClass(declaredClass, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case CallRequirement call:
                     if (!TryPlanCall(call, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -474,6 +481,158 @@ public static class SemanticProgramPlanner
         return true;
     }
 
+    private static bool TryPlanClass(
+        ClassRequirement declaredClass,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "A class declaration is planned only at the top level of a program.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(declaredClass.Name, pack, "class name", out error) ||
+            !TryRequireIdentifier(declaredClass.InstanceName, pack, "instance name", out error))
+        {
+            return false;
+        }
+
+        if (!TryEmit(
+                pack,
+                pipeline,
+                "emit-class-header",
+                argumentKind: "class-header",
+                argumentValue: declaredClass.Name,
+                ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        if (!declaredClass.Fields.IsDefaultOrEmpty)
+        {
+            if (!TryEmit(
+                    pack,
+                    pipeline,
+                    "emit-indented-function-header",
+                    argumentKind: "function-header",
+                    argumentValue: "__init__",
+                    ImmutableDictionary<string, string>.Empty
+                        .WithComparers(StringComparer.Ordinal)
+                        .Add("function", "__init__")
+                        .Add("arguments", declaredClass.InstanceName),
+                    depth: 1,
+                    defined,
+                    planned,
+                    out error))
+            {
+                return false;
+            }
+
+            foreach (var field in declaredClass.Fields)
+            {
+                if (!TryRequireIdentifier(field.Name, pack, "class field", out error))
+                {
+                    return false;
+                }
+
+                if (!SemanticExpressionRenderer.TryRender(field.InitialValue, pack, out var renderedInitial))
+                {
+                    error = $"The '{pack.Language}' language pack cannot render the initial value of " +
+                        $"'{declaredClass.Name}.{field.Name}'.";
+                    return false;
+                }
+
+                var fieldBindings = ImmutableDictionary<string, string>.Empty
+                    .WithComparers(StringComparer.Ordinal)
+                    .Add("instance", declaredClass.InstanceName)
+                    .Add("target", field.Name)
+                    .Add("expression", renderedInitial);
+                if (!TryEmit(
+                        pack,
+                        pipeline,
+                        "emit-double-indented-field-assignment",
+                        argumentKind: "field-assignment",
+                        argumentValue: field.Name,
+                        fieldBindings,
+                        depth: 2,
+                        defined,
+                        planned,
+                        out error))
+                {
+                    return false;
+                }
+            }
+        }
+
+        foreach (var method in declaredClass.Methods)
+        {
+            if (!TryRequireIdentifier(method.Name, pack, "method name", out error))
+            {
+                return false;
+            }
+
+            var parameterNames = new List<string>(method.Parameters.Length);
+            foreach (var parameter in method.Parameters)
+            {
+                if (!TryRequireIdentifier(parameter.Name, pack, "method parameter", out error))
+                {
+                    return false;
+                }
+
+                parameterNames.Add(parameter.Name);
+            }
+
+            var arguments = string.Join(
+                ", ",
+                parameterNames.Prepend(declaredClass.InstanceName));
+            var methodBindings = ImmutableDictionary<string, string>.Empty
+                .WithComparers(StringComparer.Ordinal)
+                .Add("function", method.Name)
+                .Add("arguments", arguments);
+            if (!TryEmit(
+                    pack,
+                    pipeline,
+                    "emit-indented-function-header",
+                    argumentKind: "function-header",
+                    argumentValue: method.Name,
+                    methodBindings,
+                    depth: 1,
+                    defined,
+                    planned,
+                    out error))
+            {
+                return false;
+            }
+
+            var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal)
+            {
+                declaredClass.InstanceName
+            };
+            foreach (var name in parameterNames)
+            {
+                bodyDefined.Add(name);
+            }
+
+            if (!TryPlanRequirements(method.Body, depth + 2, bodyDefined, pack, pipeline, planned, out error))
+            {
+                return false;
+            }
+        }
+
+        defined.Add(declaredClass.Name);
+        return true;
+    }
+
     private static bool TryPlanFunction(
         FunctionRequirement function,
         int depth,
@@ -613,6 +772,33 @@ public static class SemanticProgramPlanner
             return false;
         }
 
+        string callee;
+        if (call.Receiver is { } receiver)
+        {
+            if (!TryRequireIdentifier(receiver, pack, "call receiver", out error))
+            {
+                return false;
+            }
+
+            if (pack.InputSyntax?.MemberAccessFormat is not { } memberAccessFormat)
+            {
+                error = $"The '{pack.Language}' language pack cannot render a method call.";
+                return false;
+            }
+
+            if (!defined.Contains(receiver))
+            {
+                error = $"The program uses the value '{receiver}' before any requirement defines it.";
+                return false;
+            }
+
+            callee = receiver + memberAccessFormat.Separator + call.FunctionName;
+        }
+        else
+        {
+            callee = call.FunctionName;
+        }
+
         var arguments = new List<string>(call.Arguments.Length);
         foreach (var argument in call.Arguments)
         {
@@ -646,7 +832,7 @@ public static class SemanticProgramPlanner
 
         var bindings = ImmutableDictionary<string, string>.Empty
             .WithComparers(StringComparer.Ordinal)
-            .Add("function", call.FunctionName);
+            .Add("function", callee);
         if (arguments.Count == 0)
         {
             effect = $"emit-{prefix}nullary-call";
@@ -662,7 +848,7 @@ public static class SemanticProgramPlanner
             pipeline,
             effect,
             argumentKind: "call",
-            argumentValue: call.FunctionName,
+            argumentValue: callee,
             bindings,
             depth,
             defined,

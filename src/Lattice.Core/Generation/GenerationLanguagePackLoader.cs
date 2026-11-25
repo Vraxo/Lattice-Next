@@ -293,6 +293,8 @@ public sealed class GenerationLanguagePackLoader
             syntax.StringLiteralFormats.IsDefaultOrEmpty ||
             syntax.StringLiteralFormats.Length > 8 ||
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
+            (syntax.MemberAccessFormat is { } memberAccessFormat &&
+                !IsValidMemberAccessFormat(memberAccessFormat, syntax)) ||
             syntax.GroupingDelimiters.IsDefault ||
             syntax.GroupingDelimiters.Length > 16 ||
             syntax.ExpressionOperators.IsDefaultOrEmpty ||
@@ -382,6 +384,16 @@ public sealed class GenerationLanguagePackLoader
 
         return true;
     }
+
+    private static bool IsValidMemberAccessFormat(
+        GenerationMemberAccessFormat format,
+        GenerationInputSyntax syntax) =>
+        !string.IsNullOrEmpty(format.Separator) &&
+        format.Separator.Length <= 4 &&
+        !format.Separator.Any(char.IsWhiteSpace) &&
+        !format.Separator.Any(character =>
+            syntax.IdentifierStartCharacters.Contains(character) ||
+            syntax.IdentifierContinuationCharacters.Contains(character));
 
     private static bool IsValidExpressionGroupingDelimiter(GenerationDelimiterPair? delimiter) =>
         delimiter is not null &&

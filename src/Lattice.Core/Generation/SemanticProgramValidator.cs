@@ -187,11 +187,17 @@ public static class SemanticProgramValidator
     private static bool IsValidCall(CallRequirement call, RequirementContext context)
     {
         if (!IsValidName(call.FunctionName) ||
+            (call.Receiver is not null && !IsValidName(call.Receiver)) ||
             call.Arguments.IsDefault ||
             call.Arguments.Length > MaximumParameters ||
             !call.Arguments.All(argument => SemanticExpressionAnalysis.IsValid(argument)))
         {
             return false;
+        }
+
+        if (call.Receiver is not null)
+        {
+            return true;
         }
 
         if (!context.Functions.TryGetValue(call.FunctionName, out var signature))
@@ -225,6 +231,7 @@ public static class SemanticProgramValidator
         RequirementContext context)
     {
         if (!IsValidName(declaredClass.Name) ||
+            !IsValidName(declaredClass.InstanceName) ||
             declaredClass.Fields.IsDefault ||
             declaredClass.Fields.Length > MaximumParameters ||
             declaredClass.Methods.IsDefault ||

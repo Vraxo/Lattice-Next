@@ -607,6 +607,137 @@ public sealed class SemanticProgramPlanningTests
         Assert.Contains("missing", error, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Realizes_a_class_with_initialized_fields_and_methods()
+    {
+        var statements = Plan(
+            new ClassRequirement(
+                "Counter",
+                [new ClassField("count", new SemanticNumberExpression("0"))],
+                [
+                    new MethodRequirement(
+                        "report",
+                        [new FunctionParameter("amount", SemanticValueKind.Number)],
+                        null,
+                        [
+                            new AssignmentRequirement(
+                                "count",
+                                new SemanticBinaryExpression(
+                                    SemanticExpressionOperator.Add,
+                                    new SemanticNameExpression("amount"),
+                                    new SemanticNumberExpression("1"))),
+                            new OutputRequirement(new SemanticMemberAccessExpression("self", "count"))
+                        ])
+                ]));
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "class Counter:",
+                "    def __init__(self):",
+                "        self.count = 0",
+                "    def report(self, amount):",
+                "        count = amount + 1",
+                "        print(self.count)"),
+            SemanticProgramPlanner.Render(statements));
+        Assert.Equal(
+            new[]
+            {
+                "python-bound-class-header",
+                "python-indented-bound-function-header",
+                "python-bound-double-indented-field-assignment",
+                "python-indented-bound-function-header",
+                "python-bound-double-indented-assignment",
+                "python-print-double-indented-expression"
+            },
+            statements.Select(statement => statement.OperationId));
+    }
+
+    [Fact]
+    public void Realizes_a_class_without_fields_from_its_methods_only()
+    {
+        var statements = Plan(
+            new ClassRequirement(
+                "Greeter",
+                [],
+                [
+                    new MethodRequirement(
+                        "describe",
+                        [],
+                        SemanticValueKind.Text,
+                        [new ReturnRequirement(new SemanticTextExpression("hello"))])
+                ]));
+
+        Assert.Equal(
+            string.Join('\n', "class Greeter:", "    def describe(self):", "        return \"hello\""),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_a_member_access_expression()
+    {
+        var statements = PlanWithCollections(
+            ["accounts"],
+            new IterationRequirement(
+                "account",
+                new SemanticNameExpression("accounts"),
+                [new OutputRequirement(new SemanticMemberAccessExpression("account", "balance"))]));
+
+        Assert.Equal(
+            string.Join('\n', "for account in accounts:", "    print(account.balance)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_a_method_call_on_a_bound_instance()
+    {
+        var statements = Plan(
+            new AssignmentRequirement(
+                "counter",
+                new SemanticFunctionCallExpression("Counter", [])),
+            new CallRequirement("report", [])
+            {
+                Receiver = "counter"
+            });
+
+        Assert.Equal(
+            string.Join('\n', "counter = Counter()", "counter.report()"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Rejects_a_class_declaration_inside_a_block()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([
+                new ConditionalRequirement(
+                    new SemanticBooleanExpression(true),
+                    [new ClassRequirement("Counter", [new ClassField("count", new SemanticNumberExpression("0"))], [])],
+                    [])
+            ]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("top level", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_a_method_call_on_an_instance_no_requirement_defines()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([new CallRequirement("report", []) { Receiver = "counter" }]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("counter", error, StringComparison.Ordinal);
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

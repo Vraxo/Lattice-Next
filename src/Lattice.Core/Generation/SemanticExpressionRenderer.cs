@@ -89,6 +89,17 @@ internal static class SemanticExpressionRenderer
 
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticMemberAccessExpression member:
+                if (!GenerationInputSyntaxParser.IsIdentifier(member.Target, syntax) ||
+                    !GenerationInputSyntaxParser.IsIdentifier(member.Member, syntax) ||
+                    syntax.MemberAccessFormat is not { } memberAccessFormat)
+                {
+                    return false;
+                }
+
+                rendered = member.Target + memberAccessFormat.Separator + member.Member;
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticUnaryExpression unary:
                 if (!TryFindOperator(syntax, unary.Operator, out var prefixFormat) ||
                     prefixFormat.Fixity != "prefix" ||
