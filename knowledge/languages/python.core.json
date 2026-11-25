@@ -1707,6 +1707,123 @@
           "value": "expression"
         }
       ]
+    },
+    {
+      "head": "bound-try-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "try:"
+        }
+      ]
+    },
+    {
+      "head": "bound-handler-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "except "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-raise",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "raise "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-try-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    try:"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-handler-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    except "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-raise",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    raise "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-try-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        try:"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-handler-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        except "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-raise",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        raise "
+        },
+        {
+          "kind": "binding",
+          "value": "error-type"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1813,6 +1930,12 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "instance"
+    },
+    {
+      "name": "error-type",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "error-type"
     }
   ],
   "operations": [
@@ -2449,6 +2572,78 @@
       "argumentKind": "field-assignment",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-field-assignment"
+    },
+    {
+      "id": "python-bound-try-header",
+      "symbol": "try",
+      "effect": "emit-try-header",
+      "argumentKind": "try-header",
+      "prerequisites": [],
+      "startSymbol": "bound-try-header"
+    },
+    {
+      "id": "python-bound-handler-header",
+      "symbol": "except",
+      "effect": "emit-handler-header",
+      "argumentKind": "handler-header",
+      "prerequisites": [],
+      "startSymbol": "bound-handler-header"
+    },
+    {
+      "id": "python-bound-raise",
+      "symbol": "raise",
+      "effect": "emit-raise",
+      "argumentKind": "raise",
+      "prerequisites": [],
+      "startSymbol": "bound-raise"
+    },
+    {
+      "id": "python-indented-bound-try-header",
+      "symbol": "try",
+      "effect": "emit-indented-try-header",
+      "argumentKind": "try-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-try-header"
+    },
+    {
+      "id": "python-indented-bound-handler-header",
+      "symbol": "except",
+      "effect": "emit-indented-handler-header",
+      "argumentKind": "handler-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-handler-header"
+    },
+    {
+      "id": "python-indented-bound-raise",
+      "symbol": "raise",
+      "effect": "emit-indented-raise",
+      "argumentKind": "raise",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-raise"
+    },
+    {
+      "id": "python-double-indented-bound-try-header",
+      "symbol": "try",
+      "effect": "emit-double-indented-try-header",
+      "argumentKind": "try-header",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-try-header"
+    },
+    {
+      "id": "python-double-indented-bound-handler-header",
+      "symbol": "except",
+      "effect": "emit-double-indented-handler-header",
+      "argumentKind": "handler-header",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-handler-header"
+    },
+    {
+      "id": "python-double-indented-bound-raise",
+      "symbol": "raise",
+      "effect": "emit-double-indented-raise",
+      "argumentKind": "raise",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-raise"
     }
   ],
   "stringLiteralFormat": {

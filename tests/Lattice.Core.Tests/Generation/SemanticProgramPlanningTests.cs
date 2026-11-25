@@ -738,6 +738,122 @@ public sealed class SemanticProgramPlanningTests
         Assert.Contains("counter", error, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Realizes_a_handled_failure_with_its_recovery_body()
+    {
+        var statements = Plan(
+            new TryRequirement(
+                [
+                    new AssignmentRequirement(
+                        "parsed",
+                        new SemanticFunctionCallExpression("int", [new SemanticTextExpression("42")]))
+                ],
+                [
+                    new HandlerRequirement(
+                        "ValueError",
+                        [new OutputRequirement(new SemanticTextExpression("not a number"))])
+                ],
+                "parsed"),
+            new OutputRequirement(new SemanticNameExpression("parsed")));
+
+        Assert.Equal(
+            new[]
+            {
+                "python-bound-try-header",
+                "python-bound-assignment",
+                "python-bound-handler-header",
+                "python-print-indented-expression",
+                "python-print-expression"
+            },
+            statements.Select(statement => statement.OperationId));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "try:",
+                "    parsed = int(\"42\")",
+                "except ValueError:",
+                "    print(\"not a number\")",
+                "print(parsed)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_a_raise_guarded_by_a_condition()
+    {
+        var statements = Plan(
+            new RaiseRequirement(
+                "ValueError",
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.GreaterThan,
+                    new SemanticNumberExpression("5"),
+                    new SemanticNumberExpression("3"))));
+
+        Assert.Equal(
+            string.Join('\n', "if 5 > 3:", "    raise ValueError"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_an_unguarded_raise()
+    {
+        var statements = Plan(new RaiseRequirement("RuntimeError", null));
+
+        var statement = Assert.Single(statements);
+        Assert.Equal("python-bound-raise", statement.OperationId);
+        Assert.Equal("raise RuntimeError", statement.Text);
+    }
+
+    [Fact]
+    public void Realizes_a_handled_failure_inside_a_function_body()
+    {
+        var statements = Plan(
+            new FunctionRequirement(
+                "parse_count",
+                [new FunctionParameter("text", SemanticValueKind.Text)],
+                SemanticValueKind.Number,
+                [
+                    new TryRequirement(
+                        [new ReturnRequirement(new SemanticFunctionCallExpression(
+                            "int",
+                            [new SemanticNameExpression("text")]))],
+                        [
+                            new HandlerRequirement(
+                                "ValueError",
+                                [new ReturnRequirement(new SemanticNumberExpression("0"))])
+                        ],
+                        null)
+                ]));
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "def parse_count(text):",
+                "    try:",
+                "        return int(text)",
+                "    except ValueError:",
+                "        return 0"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Rejects_a_handled_result_the_attempt_never_binds()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([
+                new TryRequirement(
+                    [new OutputRequirement(new SemanticTextExpression("attempt"))],
+                    [new HandlerRequirement("ValueError", [new OutputRequirement(new SemanticTextExpression("fail"))])],
+                    "parsed")
+            ]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("parsed", error, StringComparison.Ordinal);
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)
