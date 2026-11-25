@@ -181,8 +181,8 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
-        var parameters = GetParameterLists(declaration, functionNames.Length, out error);
-        if (parameters is null)
+        var declaredParameters = GetParameterLists(declaration, functionNames.Length, out error);
+        if (declaredParameters is not { } parameters)
         {
             return false;
         }

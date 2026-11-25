@@ -246,7 +246,8 @@ public static class SemanticProgramValidator
                 call.Arguments[index],
                 context.Names,
                 context.FunctionResults);
-            if (!SemanticValueKindAnalysis.IsCompatible(inferred, signature.ParameterKinds[index]))
+            if (signature.ParameterKinds[index] is { } parameterKind &&
+                !SemanticValueKindAnalysis.IsCompatible(inferred, parameterKind))
             {
                 return false;
             }
