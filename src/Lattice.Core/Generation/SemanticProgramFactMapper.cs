@@ -331,6 +331,14 @@ public static class SemanticProgramFactMapper
                 return false;
             }
 
+            if (calls.Any(call =>
+                    call is not SemanticFunctionCallExpression declaredCall ||
+                    !functionNames.Contains(declaredCall.Name, StringComparer.Ordinal)))
+            {
+                error = "A generic function call must call one of the declared functions.";
+                return false;
+            }
+
             var callPositions = GetCollectionPositions(callFact, CallValueId, calls.Length);
             for (var index = 0; index < calls.Length; index++)
             {

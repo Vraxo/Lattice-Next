@@ -290,11 +290,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Rejects_boolean_conditions_that_reference_undeclared_parameters()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(
+        Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or other is less than 5 and otherwise returns 'rejected', then print classify(3).",
+            out var facts,
+            out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
             out _,
-            out _));
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     [Fact]
