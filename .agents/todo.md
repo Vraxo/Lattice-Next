@@ -87,11 +87,11 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [x] **9.14 — Represent a map transformation.** `MapRequirement` carries the per-item value expression and requires it to reference the item name.
 - [x] **9.15 — Represent a sort key.** `SortRequirement.Key` is a semantic expression the validator requires to reference the item name.
 - [x] **9.16 — Represent sort direction and ordering.** `SortRequirement.Descending` records the requested direction; both directions validate and are preserved.
-- [ ] **9.17 — Realize iteration in the Python language pack.** Emit a loop from the generic iteration structure.
-- [ ] **9.18 — Realize filtering in the Python language pack.** Emit a filter operation from source and predicate semantics.
-- [ ] **9.19 — Realize mapping in the Python language pack.** Emit a transformation from source and map expression.
-- [ ] **9.20 — Realize accumulation in the Python language pack.** Emit initialization, update, and result binding from accumulator semantics.
-- [ ] **9.21 — Realize sorting in the Python language pack.** Emit a sort operation from key and direction semantics.
+- [x] **9.17 — Realize iteration in the Python language pack.** `IterationRequirement` plans onto the pack's existing bound loop-header operations (`emit-loop-header` and its indented variants) with the item as `variable` and the rendered source as `iterable`; the body plans one level deeper with the item in scope.
+- [x] **9.18 — Realize filtering in the Python language pack.** New `bound-filter-assignment` production and `emit-filter-binding` operations (three indentation levels) render `target = [item for item in iterable if predicate]`; source and predicate are rendered from their semantic expressions.
+- [x] **9.19 — Realize mapping in the Python language pack.** New `bound-map-assignment` production and `emit-map-binding` operations render `target = [value for item in iterable]` at three indentation levels.
+- [x] **9.20 — Realize accumulation in the Python language pack.** One `AccumulationRequirement` plans to three statements: the initialization assignment, the loop header over the source, and the update assignment one level deeper; the accumulator name stays bound afterwards as the aggregate result.
+- [x] **9.21 — Realize sorting in the Python language pack.** New `bound-sort-assignment` / `bound-reverse-sort-assignment` productions and `emit-sort-binding` / `emit-reverse-sort-binding` operations render `target = sorted(iterable, key=lambda item: key)`, adding `, reverse=True` for descending, at three indentation levels.
 - [ ] **9.22 — Remove fixed list-filter solutions.** Delete replaced task-specific facts and complete output fragments.
 - [ ] **9.23 — Remove fixed loop/total solutions.** Delete replaced task-specific facts and complete output fragments.
 - [ ] **9.24 — Remove fixed dictionary-mapping solutions.** Delete replaced task-specific facts and complete output fragments.
