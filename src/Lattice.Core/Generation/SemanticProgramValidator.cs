@@ -101,6 +101,13 @@ public static class SemanticProgramValidator
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
             ImportRequirement import => IsValidModuleName(import.Module),
+            DirectoryListingRequirement listing =>
+                SemanticExpressionAnalysis.IsValid(listing.Directory) &&
+                IsValidName(listing.ItemName) &&
+                SemanticExpressionAnalysis.IsValid(listing.SortKey) &&
+                ReferencesName(listing.SortKey, listing.ItemName) &&
+                !listing.Body.IsDefaultOrEmpty &&
+                AreValid(listing.Body, depth + 1, context),
             FileReadRequirement fileRead =>
                 IsValidPath(fileRead.Path) &&
                 IsValidName(fileRead.StreamName) &&

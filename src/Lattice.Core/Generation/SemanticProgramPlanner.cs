@@ -253,6 +253,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case DirectoryListingRequirement listing:
+                    if (!TryPlanDirectoryListing(listing, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case ImportRequirement import:
                     if (!TryPlanImport(import, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -1662,6 +1669,9 @@ public static class SemanticProgramPlanner
             case 2:
                 effect = "write-standard-output-double-indented-expression";
                 break;
+            case 3:
+                effect = "write-standard-output-triple-indented-expression";
+                break;
             default:
                 error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
                 return false;
@@ -1843,6 +1853,63 @@ public static class SemanticProgramPlanner
                 LeavesBody(conditional.ElseRequirements),
             _ => false
         };
+
+    /// <summary>
+    /// Plans a directory listing: the pack supplies the scan, the ordering, and the entry binding, while
+    /// the sort key and the body come from the requirement.
+    /// </summary>
+    private static bool TryPlanDirectoryListing(
+        DirectoryListingRequirement listing,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth > 1)
+        {
+            error = "A directory listing is planned one level deep at most.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(listing.Directory, defined, out error) ||
+            !TryRequireAvailable(
+                listing.SortKey,
+                defined,
+                out error,
+                listing.ItemName) ||
+            !SemanticExpressionRenderer.TryRender(listing.Directory, pack, out var renderedDirectory) ||
+            !SemanticExpressionRenderer.TryRender(listing.SortKey, pack, out var renderedKey))
+        {
+            return false;
+        }
+
+        var effect = depth == 0 ? "emit-directory-loop-header" : "emit-indented-directory-loop-header";
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("directory", renderedDirectory)
+            .Add("item", listing.ItemName)
+            .Add("key", renderedKey);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "directory-loop-header",
+                argumentValue: renderedDirectory,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(listing.ItemName);
+        return TryPlanRequirements(listing.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
 
     /// <summary>
     /// Plans one import: the pack spells how a module is made available, so no language syntax is

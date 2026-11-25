@@ -39,6 +39,7 @@ public static class SemanticProgramFactMapper
     /// <summary>The separators a request's multi-word class identity is read through.</summary>
     private static readonly char[] ClassIdentitySeparators =
         [' ', '\t', '\r', '\n', '-', '_', ',', '.', ':', ';', '/', '\\'];
+    private const string DirectoryListingFactId = "program.requirement.directory-listing";
     private const string FileLinesFactId = "program.requirement.file-lines";
     private const string FileLinesPathValueId = "path";
     private const string FileLinesStreamValueId = "stream";
@@ -87,6 +88,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectClasses(facts, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectDirectoryListings(facts, declarations, out error))
         {
             return false;
         }
@@ -631,6 +637,162 @@ public static class SemanticProgramFactMapper
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Projects a request that lists the files of a directory and reports each one's name and size, with a
+    /// named failure handled. The request supplies every name and text fragment; the requirement model
+    /// supplies the shape, and the pack spells the scan, the ordering, and the handler.
+    /// </summary>
+    private static bool TryProjectDirectoryListings(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == DirectoryListingFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        string[] required =
+        [
+            "directory",
+            "item",
+            "member",
+            "size-call",
+            "size-member",
+            "filter",
+            "error",
+            "position",
+            "message",
+            "recovery",
+            "imports"
+        ];
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        var modules = ImmutableArray<string>.Empty;
+        foreach (var valueId in required)
+        {
+            if (!TryGetCollection(fact, valueId, out var captured) || captured.IsDefaultOrEmpty)
+            {
+                error = $"A directory listing requires a '{valueId}' value.";
+                return false;
+            }
+
+            if (!string.Equals(valueId, "imports", StringComparison.Ordinal) && captured.Length != 1)
+            {
+                error = $"A directory listing requires exactly one '{valueId}' value.";
+                return false;
+            }
+
+            if (string.Equals(valueId, "imports", StringComparison.Ordinal))
+            {
+                modules = captured;
+                continue;
+            }
+
+            values[valueId] = captured[0];
+        }
+
+        if (!int.TryParse(
+                values["position"],
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var position))
+        {
+            error = "A directory listing requires an argument position the program reads.";
+            return false;
+        }
+
+        foreach (var module in modules)
+        {
+            declarations.Add(new ImportRequirement(module));
+        }
+
+        var directory = values["directory"];
+        var item = values["item"];
+        declarations.Add(new AssignmentRequirement(
+            directory,
+            new SemanticProgramArgumentExpression(position)));
+        declarations.Add(new TryRequirement(
+            [
+                new DirectoryListingRequirement(
+                    new SemanticNameExpression(directory),
+                    item,
+                    new SemanticMemberAccessExpression(new SemanticNameExpression(item), values["member"]),
+                    [
+                        new ConditionalRequirement(
+                            new SemanticMethodCallExpression(
+                                new SemanticNameExpression(item),
+                                values["filter"],
+                                []),
+                            [
+                                new OutputRequirement(BuildMessage(
+                                    values["message"],
+                                    [
+                                        new SemanticMemberAccessExpression(
+                                            new SemanticNameExpression(item),
+                                            values["member"]),
+                                        new SemanticMemberAccessExpression(
+                                            new SemanticMethodCallExpression(
+                                                new SemanticNameExpression(item),
+                                                values["size-call"],
+                                                []),
+                                            values["size-member"])
+                                    ]))
+                            ],
+                            [])
+                    ])
+            ],
+            [
+                new HandlerRequirement(
+                    values["error"],
+                    [
+                        new OutputRequirement(BuildMessage(
+                            values["recovery"],
+                            [new SemanticNameExpression(directory)]))
+                    ])
+            ],
+            ResultName: null));
+        return true;
+    }
+
+    /// <summary>
+    /// Builds one text template from a message the request declares and the values it reports. The text
+    /// between placeholders stays request data, in placeholder order, so no shared code spells it.
+    /// </summary>
+    private static SemanticTextTemplateExpression BuildMessage(
+        string template,
+        ImmutableArray<SemanticExpression> values)
+    {
+        var parts = ImmutableArray.CreateBuilder<SemanticExpression>();
+        var remaining = template;
+        for (var index = 0; index < values.Length; index++)
+        {
+            var marker = "{" + index.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
+            var position = remaining.IndexOf(marker, StringComparison.Ordinal);
+            if (position < 0)
+            {
+                parts.Add(values[index]);
+                continue;
+            }
+
+            if (position > 0)
+            {
+                parts.Add(new SemanticTextExpression(remaining[..position]));
+            }
+
+            parts.Add(values[index]);
+            remaining = remaining[(position + marker.Length)..];
+        }
+
+        if (remaining.Length > 0)
+        {
+            parts.Add(new SemanticTextExpression(remaining));
+        }
+
+        return new SemanticTextTemplateExpression([.. parts]);
     }
 
     /// <summary>

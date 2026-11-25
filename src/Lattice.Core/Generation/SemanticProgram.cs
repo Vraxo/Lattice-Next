@@ -50,6 +50,17 @@ public sealed record OutputRequirement(
 public sealed record ImportRequirement(string Module) : ProgramRequirement;
 
 /// <summary>
+/// Iterates the entries of one directory in a stable order, binding each entry to an item name. The sort
+/// key is an expression over that item, and the body holds the statements that consume the entries. The
+/// selected language pack spells how a directory is scanned and ordered, so nothing here names an API.
+/// </summary>
+public sealed record DirectoryListingRequirement(
+    SemanticExpression Directory,
+    string ItemName,
+    SemanticExpression SortKey,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
 /// Reads the text lines of one file. The read stream binds to a name the body iterates, and the body
 /// holds the statements that consume it, so a file read composes with the same model as any other
 /// block. The selected language pack spells how a file is opened for reading; the path stays request

@@ -1995,6 +1995,88 @@
           "value": ":"
         }
       ]
+    },
+    {
+      "head": "bound-directory-iteration-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": " in sorted(os.scandir("
+        },
+        {
+          "kind": "binding",
+          "value": "directory"
+        },
+        {
+          "kind": "terminal",
+          "value": "), key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-directory-iteration-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    for "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": " in sorted(os.scandir("
+        },
+        {
+          "kind": "binding",
+          "value": "directory"
+        },
+        {
+          "kind": "terminal",
+          "value": "), key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2125,6 +2207,18 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "file"
+    },
+    {
+      "name": "directory",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "directory"
+    },
+    {
+      "name": "item",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "item"
     }
   ],
   "operations": [
@@ -2889,6 +2983,22 @@
       "argumentKind": "path",
       "prerequisites": [],
       "startSymbol": "bound-with-open-read-statement"
+    },
+    {
+      "id": "python-bound-directory-loop",
+      "symbol": "for",
+      "effect": "emit-directory-loop-header",
+      "argumentKind": "directory-loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-directory-iteration-statement"
+    },
+    {
+      "id": "python-bound-indented-directory-loop",
+      "symbol": "for",
+      "effect": "emit-indented-directory-loop-header",
+      "argumentKind": "directory-loop-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-directory-iteration-statement"
     }
   ],
   "stringLiteralFormat": {

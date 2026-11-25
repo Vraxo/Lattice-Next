@@ -70,6 +70,36 @@ public sealed class SemanticProgramGenerationTests
         Assert.NotEmpty(statements);
     }
 
+    [Fact]
+    public void Generates_a_directory_listing_from_request_derived_facts()
+    {
+        const string input =
+            "Write a Python program that accepts a directory path and reports the names and sizes of all " +
+            "files directly inside it, handling a missing directory cleanly.";
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.directory-listing");
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "import os",
+                "import sys",
+                "directory = sys.argv[1]",
+                "try:",
+                "    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):",
+                "        if entry.is_file():",
+                "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
+                "except FileNotFoundError:",
+                "    print(f\"Directory not found: {directory}\")"),
+            code);
+        Assert.DoesNotContain("directory-file-listing", code);
+    }
+
     [Theory]
     [InlineData("is at least", "20", "18", "if 20 >= 18:")]
     [InlineData("is at most", "20", "18", "if 20 <= 18:")]

@@ -2421,23 +2421,6 @@
       "factId": "program.name-length-dictionary-mapping"
     },
     {
-      "id": "recognize-directory-file-listing",
-      "matchTokens": [
-        "directory",
-        "path",
-        "reports",
-        "names",
-        "sizes",
-        "files",
-        "inside",
-        "handling",
-        "missing",
-        "directory",
-        "cleanly"
-      ],
-      "factId": "program.directory-file-listing"
-    },
-    {
       "id": "recognize-multi-field-record-sorting",
       "matchTokens": [
         "list",
@@ -5500,6 +5483,102 @@
           "collectionDelimiter": "|"
         }
       ]
+    },
+    {
+      "id": "recognize-declared-directory-listing",
+      "matchTokens": [
+        "directory",
+        "path",
+        "reports",
+        "names",
+        "sizes",
+        "files",
+        "inside",
+        "handling",
+        "missing",
+        "directory",
+        "cleanly"
+      ],
+      "factId": "program.requirement.directory-listing",
+      "captures": [
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "directory",
+          "stopBeforeTokens": [],
+          "literalValue": "directory",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "item",
+          "stopBeforeTokens": [],
+          "literalValue": "entry",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "member",
+          "stopBeforeTokens": [],
+          "literalValue": "name",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "size-call",
+          "stopBeforeTokens": [],
+          "literalValue": "stat",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "size-member",
+          "stopBeforeTokens": [],
+          "literalValue": "st_size",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "filter",
+          "stopBeforeTokens": [],
+          "literalValue": "is_file",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "error",
+          "stopBeforeTokens": [],
+          "literalValue": "FileNotFoundError",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "position",
+          "stopBeforeTokens": [],
+          "literalValue": "1",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "recovery",
+          "stopBeforeTokens": [],
+          "literalValue": "Directory not found: {0}",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "imports",
+          "stopBeforeTokens": [],
+          "literalValue": "os|sys",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "message",
+          "stopBeforeTokens": [],
+          "literalValue": "{0}: {1} bytes",
+          "collectionDelimiter": "|"
+        }
+      ]
     }
   ],
   "rules": [
@@ -6311,22 +6390,6 @@
         "program.output",
         "program.iteration",
         "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-directory-file-listing",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.directory-file-listing"
-      ],
-      "nextToken": "```python\nimport os\nimport sys\ndirectory = sys.argv[1]\ntry:\n    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):\n        if entry.is_file():\n            print(f\"{entry.name}: {entry.stat().st_size} bytes\")\nexcept FileNotFoundError:\n    print(f\"Directory not found: {directory}\")\n```",
-      "satisfiesFacts": [
-        "program.directory-file-listing",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
       ]
     },
     {
