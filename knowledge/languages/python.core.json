@@ -1858,89 +1858,6 @@
           "value": "error-type"
         }
       ]
-    },
-    {
-      "head": "bound-augmented-assignment-statement",
-      "symbols": [
-        {
-          "kind": "binding",
-          "value": "target"
-        },
-        {
-          "kind": "terminal",
-          "value": " "
-        },
-        {
-          "kind": "binding",
-          "value": "operator"
-        },
-        {
-          "kind": "terminal",
-          "value": "= "
-        },
-        {
-          "kind": "binding",
-          "value": "expression"
-        }
-      ]
-    },
-    {
-      "head": "bound-indented-augmented-assignment",
-      "symbols": [
-        {
-          "kind": "terminal",
-          "value": "    "
-        },
-        {
-          "kind": "binding",
-          "value": "target"
-        },
-        {
-          "kind": "terminal",
-          "value": " "
-        },
-        {
-          "kind": "binding",
-          "value": "operator"
-        },
-        {
-          "kind": "terminal",
-          "value": "= "
-        },
-        {
-          "kind": "binding",
-          "value": "expression"
-        }
-      ]
-    },
-    {
-      "head": "bound-double-indented-augmented-assignment",
-      "symbols": [
-        {
-          "kind": "terminal",
-          "value": "        "
-        },
-        {
-          "kind": "binding",
-          "value": "target"
-        },
-        {
-          "kind": "terminal",
-          "value": " "
-        },
-        {
-          "kind": "binding",
-          "value": "operator"
-        },
-        {
-          "kind": "terminal",
-          "value": "= "
-        },
-        {
-          "kind": "binding",
-          "value": "expression"
-        }
-      ]
     }
   ],
   "bindings": [
@@ -2053,12 +1970,6 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "error-type"
-    },
-    {
-      "name": "operator",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "operator"
     }
   ],
   "operations": [
@@ -2783,30 +2694,6 @@
       "argumentKind": "raise",
       "prerequisites": [],
       "startSymbol": "double-indented-bound-raise"
-    },
-    {
-      "id": "python-bound-augmented-assignment",
-      "symbol": "=",
-      "effect": "emit-augmented-assignment",
-      "argumentKind": "augmented-assignment",
-      "prerequisites": [],
-      "startSymbol": "bound-augmented-assignment-statement"
-    },
-    {
-      "id": "python-bound-indented-augmented-assignment",
-      "symbol": "=",
-      "effect": "emit-indented-augmented-assignment",
-      "argumentKind": "augmented-assignment",
-      "prerequisites": [],
-      "startSymbol": "bound-indented-augmented-assignment"
-    },
-    {
-      "id": "python-bound-double-indented-augmented-assignment",
-      "symbol": "=",
-      "effect": "emit-double-indented-augmented-assignment",
-      "argumentKind": "augmented-assignment",
-      "prerequisites": [],
-      "startSymbol": "bound-double-indented-augmented-assignment"
     }
   ],
   "stringLiteralFormat": {
