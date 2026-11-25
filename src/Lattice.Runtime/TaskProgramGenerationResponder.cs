@@ -53,6 +53,8 @@ internal static class TaskProgramGenerationResponder
             return false;
         }
 
+        // The knowledge decides the order: the steps are planned in the order its has-generation-step
+        // assertions declare them, so no stored sequence number has to agree with the declarations.
         var stepAssertions = reasoner.GetRelations(task.Id, "has-generation-step");
         var steps = stepAssertions
             .Select(assertion => new
@@ -61,27 +63,12 @@ internal static class TaskProgramGenerationResponder
                 Step = model.FindConcept(assertion.Object, SemanticConceptKind.Individual)
             })
             .Where(item => item.Step is not null)
-            .Select(item => new
-            {
-                item.Assertion,
-                Step = item.Step!,
-                Order = model.GetDataAssertions(item.Step!.Id, "code-generation-step-order")
-                    .FirstOrDefault()?.Value
-            })
-            .Select(item => int.TryParse(
-                item.Order,
-                System.Globalization.NumberStyles.None,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out var order)
-                    ? new { item.Assertion, item.Step, Order = order }
-                    : null)
-            .Where(item => item is not null)
-            .OrderBy(item => item!.Order)
+            .Select(item => new { item.Assertion, Step = item.Step! })
             .ToArray();
 
         if (steps.Length == 0 ||
             steps.Length != stepAssertions.Length ||
-            steps.Select(step => step!.Order).Distinct().Count() != steps.Length)
+            steps.Select(step => step.Step.Id).Distinct(StringComparer.Ordinal).Count() != steps.Length)
         {
             return false;
         }
@@ -148,8 +135,6 @@ internal static class TaskProgramGenerationResponder
             });
 
             sources.Add(step.Assertion.Source);
-            sources.AddRange(model.GetDataAssertions(step.Step.Id, "code-generation-step-order")
-                .Select(assertion => assertion.Source));
             sources.Add(effectAssertion!.Source);
             sources.Add(argumentKindAssertion!.Source);
             sources.AddRange(reasoner.GetMembershipEvidence(step.Step.Id, "code-generation-step"));
