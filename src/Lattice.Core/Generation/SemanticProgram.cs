@@ -95,3 +95,31 @@ public sealed record SortRequirement(
     SemanticExpression Source,
     SemanticExpression Key,
     bool Descending) : ProgramRequirement;
+
+/// <summary>
+/// Declares a function: its request-derived name, ordered parameters with their declared value kinds,
+/// the declared result kind, and an ordered body of requirements. Nothing here names a target-language
+/// keyword; the language pack decides how a declaration is written.
+/// </summary>
+public sealed record FunctionRequirement(
+    string Name,
+    ImmutableArray<FunctionParameter> Parameters,
+    SemanticValueKind ReturnKind,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>A declared parameter: the name the body can use and the value kind a caller must supply.</summary>
+public sealed record FunctionParameter(
+    string Name,
+    SemanticValueKind Kind);
+
+/// <summary>Returns an expression as the result of the enclosing function declaration.</summary>
+public sealed record ReturnRequirement(
+    SemanticExpression Value) : ProgramRequirement;
+
+/// <summary>
+/// Calls a declared function with ordered argument expressions. When the program also declares the
+/// callee, the arguments must match its parameters in count and kind.
+/// </summary>
+public sealed record CallRequirement(
+    string FunctionName,
+    ImmutableArray<SemanticExpression> Arguments) : ProgramRequirement;

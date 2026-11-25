@@ -4,14 +4,39 @@ namespace Lattice.Core.Generation;
 
 /// <summary>
 /// Structural validation for the language-neutral requirement model. It checks that a program is
-/// well formed — identifiers, expressions, branch bodies, nesting, and collection bindings — without
-/// picking a target language; the selected language pack still decides whether a name is writable.
+/// well formed — identifiers, expressions, branch bodies, nesting, function declarations, calls,
+/// returns, and collection bindings — without picking a target language; the selected language pack
+/// still decides whether a name is writable.
 /// </summary>
 public static class SemanticProgramValidator
 {
     public const int MaximumRequirements = 64;
     public const int MaximumDepth = 3;
     public const int MaximumNameLength = 64;
+    public const int MaximumParameters = 8;
+
+    /// <summary>The parameters and result kind of one declared function.</summary>
+    private sealed record FunctionSignature(
+        ImmutableArray<SemanticValueKind> ParameterKinds,
+        SemanticValueKind ReturnKind);
+
+    /// <summary>
+    /// What the surrounding requirements make available to the requirement being validated: the
+    /// program's function declarations, the enclosing function's declared names, and the enclosing
+    /// function's result kind when the requirement is inside a function body.
+    /// </summary>
+    private sealed record RequirementContext(
+        ImmutableDictionary<string, FunctionSignature> Functions,
+        ImmutableDictionary<string, SemanticValueKind> FunctionResults,
+        ImmutableDictionary<string, SemanticValueKind> Names,
+        SemanticValueKind? ReturnKind)
+    {
+        public static RequirementContext Empty { get; } = new(
+            ImmutableDictionary.Create<string, FunctionSignature>(StringComparer.Ordinal),
+            ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
+            ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
+            null);
+    }
 
     /// <summary>Returns true when the program is structurally valid.</summary>
     public static bool IsValid(SemanticProgram? program)
@@ -30,10 +55,18 @@ public static class SemanticProgramValidator
             return false;
         }
 
-        return AreValid(program.Requirements, depth: 0);
+        if (!TryCollectFunctions(program.Requirements, out var context))
+        {
+            return false;
+        }
+
+        return AreValid(program.Requirements, depth: 0, context);
     }
 
-    private static bool AreValid(ImmutableArray<ProgramRequirement> requirements, int depth)
+    private static bool AreValid(
+        ImmutableArray<ProgramRequirement> requirements,
+        int depth,
+        RequirementContext context)
     {
         if (requirements.IsDefault ||
             requirements.Length > MaximumRequirements ||
@@ -42,62 +75,189 @@ public static class SemanticProgramValidator
             return false;
         }
 
-        return requirements.All(requirement => IsValid(requirement, depth));
+        return requirements.All(requirement => IsValid(requirement, depth, context));
     }
 
-    private static bool IsValid(ProgramRequirement requirement, int depth) => requirement switch
+    private static bool IsValid(ProgramRequirement requirement, int depth, RequirementContext context) =>
+        requirement switch
+        {
+            AssignmentRequirement assignment =>
+                IsValidName(assignment.VariableName) &&
+                SemanticExpressionAnalysis.IsValid(assignment.Value),
+            OutputRequirement output => SemanticExpressionAnalysis.IsValid(output.Value),
+            ConditionalRequirement conditional =>
+                SemanticExpressionAnalysis.IsValid(conditional.Condition) &&
+                (!conditional.ThenRequirements.IsDefaultOrEmpty ||
+                 !conditional.ElseRequirements.IsDefaultOrEmpty) &&
+                AreValid(conditional.ThenRequirements, depth + 1, context) &&
+                AreValid(conditional.ElseRequirements, depth + 1, context),
+            IterationRequirement iteration =>
+                IsValidName(iteration.ItemName) &&
+                SemanticExpressionAnalysis.IsValid(iteration.Source) &&
+                !iteration.Body.IsDefaultOrEmpty &&
+                AreValid(iteration.Body, depth + 1, context),
+            FilterRequirement filter =>
+                IsValidName(filter.ResultName) &&
+                IsValidName(filter.ItemName) &&
+                !string.Equals(filter.ResultName, filter.ItemName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(filter.Source) &&
+                ReferencesName(filter.Predicate, filter.ItemName),
+            MapRequirement map =>
+                IsValidName(map.ResultName) &&
+                IsValidName(map.ItemName) &&
+                !string.Equals(map.ResultName, map.ItemName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(map.Source) &&
+                ReferencesName(map.Value, map.ItemName),
+            AccumulationRequirement accumulation =>
+                IsValidName(accumulation.AccumulatorName) &&
+                IsValidName(accumulation.ItemName) &&
+                !string.Equals(accumulation.AccumulatorName, accumulation.ItemName, StringComparison.Ordinal) &&
+                accumulation.AccumulatorKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text &&
+                SemanticExpressionAnalysis.IsValid(accumulation.Source) &&
+                SemanticExpressionAnalysis.IsValid(accumulation.InitialValue) &&
+                ReferencesName(accumulation.Update, accumulation.AccumulatorName) &&
+                ReferencesName(accumulation.Update, accumulation.ItemName),
+            SortRequirement sort =>
+                IsValidName(sort.ResultName) &&
+                IsValidName(sort.ItemName) &&
+                !string.Equals(sort.ResultName, sort.ItemName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(sort.Source) &&
+                ReferencesName(sort.Key, sort.ItemName),
+            DictionaryIterationRequirement iteration =>
+                IsValidName(iteration.KeyName) &&
+                IsValidName(iteration.ValueName) &&
+                !string.Equals(iteration.KeyName, iteration.ValueName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(iteration.Source) &&
+                !iteration.Body.IsDefaultOrEmpty &&
+                AreValid(iteration.Body, depth + 1, context),
+            FunctionRequirement function => IsValidFunction(function, depth, context),
+            ReturnRequirement ret => IsValidReturn(ret, context),
+            CallRequirement call => IsValidCall(call, context),
+            _ => false
+        };
+
+    private static bool IsValidFunction(
+        FunctionRequirement function,
+        int depth,
+        RequirementContext context)
     {
-        AssignmentRequirement assignment =>
-            IsValidName(assignment.VariableName) &&
-            SemanticExpressionAnalysis.IsValid(assignment.Value),
-        OutputRequirement output => SemanticExpressionAnalysis.IsValid(output.Value),
-        ConditionalRequirement conditional =>
-            SemanticExpressionAnalysis.IsValid(conditional.Condition) &&
-            (!conditional.ThenRequirements.IsDefaultOrEmpty ||
-             !conditional.ElseRequirements.IsDefaultOrEmpty) &&
-            AreValid(conditional.ThenRequirements, depth + 1) &&
-            AreValid(conditional.ElseRequirements, depth + 1),
-        IterationRequirement iteration =>
-            IsValidName(iteration.ItemName) &&
-            SemanticExpressionAnalysis.IsValid(iteration.Source) &&
-            !iteration.Body.IsDefaultOrEmpty &&
-            AreValid(iteration.Body, depth + 1),
-        FilterRequirement filter =>
-            IsValidName(filter.ResultName) &&
-            IsValidName(filter.ItemName) &&
-            !string.Equals(filter.ResultName, filter.ItemName, StringComparison.Ordinal) &&
-            SemanticExpressionAnalysis.IsValid(filter.Source) &&
-            ReferencesName(filter.Predicate, filter.ItemName),
-        MapRequirement map =>
-            IsValidName(map.ResultName) &&
-            IsValidName(map.ItemName) &&
-            !string.Equals(map.ResultName, map.ItemName, StringComparison.Ordinal) &&
-            SemanticExpressionAnalysis.IsValid(map.Source) &&
-            ReferencesName(map.Value, map.ItemName),
-        AccumulationRequirement accumulation =>
-            IsValidName(accumulation.AccumulatorName) &&
-            IsValidName(accumulation.ItemName) &&
-            !string.Equals(accumulation.AccumulatorName, accumulation.ItemName, StringComparison.Ordinal) &&
-            accumulation.AccumulatorKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text &&
-            SemanticExpressionAnalysis.IsValid(accumulation.Source) &&
-            SemanticExpressionAnalysis.IsValid(accumulation.InitialValue) &&
-            ReferencesName(accumulation.Update, accumulation.AccumulatorName) &&
-            ReferencesName(accumulation.Update, accumulation.ItemName),
-        SortRequirement sort =>
-            IsValidName(sort.ResultName) &&
-            IsValidName(sort.ItemName) &&
-            !string.Equals(sort.ResultName, sort.ItemName, StringComparison.Ordinal) &&
-            SemanticExpressionAnalysis.IsValid(sort.Source) &&
-            ReferencesName(sort.Key, sort.ItemName),
-        DictionaryIterationRequirement iteration =>
-            IsValidName(iteration.KeyName) &&
-            IsValidName(iteration.ValueName) &&
-            !string.Equals(iteration.KeyName, iteration.ValueName, StringComparison.Ordinal) &&
-            SemanticExpressionAnalysis.IsValid(iteration.Source) &&
-            !iteration.Body.IsDefaultOrEmpty &&
-            AreValid(iteration.Body, depth + 1),
-        _ => false
-    };
+        if (!IsValidName(function.Name) ||
+            function.Parameters.IsDefaultOrEmpty ||
+            function.Parameters.Length > MaximumParameters ||
+            !IsValidValueKind(function.ReturnKind) ||
+            function.Body.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        if (!function.Parameters.All(parameter =>
+                parameter is not null && IsValidName(parameter.Name) && IsValidValueKind(parameter.Kind)))
+        {
+            return false;
+        }
+
+        if (function.Parameters
+            .Select(parameter => parameter.Name)
+            .Distinct(StringComparer.Ordinal)
+            .Count() != function.Parameters.Length)
+        {
+            return false;
+        }
+
+        var bodyContext = context with
+        {
+            Names = function.Parameters
+                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind, StringComparer.Ordinal),
+            ReturnKind = function.ReturnKind
+        };
+
+        return AreValid(function.Body, depth + 1, bodyContext);
+    }
+
+    private static bool IsValidReturn(ReturnRequirement requirement, RequirementContext context) =>
+        context.ReturnKind is { } returnKind &&
+        SemanticExpressionAnalysis.IsValid(requirement.Value) &&
+        SemanticValueKindAnalysis.IsCompatible(
+            SemanticValueKindAnalysis.Infer(requirement.Value, context.Names, context.FunctionResults),
+            returnKind);
+
+    private static bool IsValidCall(CallRequirement call, RequirementContext context)
+    {
+        if (!IsValidName(call.FunctionName) ||
+            call.Arguments.IsDefault ||
+            call.Arguments.Length > MaximumParameters ||
+            !call.Arguments.All(argument => SemanticExpressionAnalysis.IsValid(argument)))
+        {
+            return false;
+        }
+
+        if (!context.Functions.TryGetValue(call.FunctionName, out var signature))
+        {
+            return true;
+        }
+
+        if (signature.ParameterKinds.Length != call.Arguments.Length)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < call.Arguments.Length; index++)
+        {
+            var inferred = SemanticValueKindAnalysis.Infer(
+                call.Arguments[index],
+                context.Names,
+                context.FunctionResults);
+            if (!SemanticValueKindAnalysis.IsCompatible(inferred, signature.ParameterKinds[index]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Collects the program's top-level function declarations so a call can be checked against a
+    /// declaration that appears later, and rejects two declarations that share one name.
+    /// </summary>
+    private static bool TryCollectFunctions(
+        ImmutableArray<ProgramRequirement> requirements,
+        out RequirementContext context)
+    {
+        context = RequirementContext.Empty;
+        var functions = ImmutableDictionary.CreateBuilder<string, FunctionSignature>(StringComparer.Ordinal);
+        var results = ImmutableDictionary.CreateBuilder<string, SemanticValueKind>(StringComparer.Ordinal);
+
+        foreach (var function in requirements.OfType<FunctionRequirement>())
+        {
+            if (function is null ||
+                !IsValidName(function.Name) ||
+                function.Parameters.IsDefaultOrEmpty ||
+                function.Parameters.Length > MaximumParameters ||
+                !function.Parameters.All(parameter => parameter is not null && IsValidValueKind(parameter.Kind)) ||
+                !IsValidValueKind(function.ReturnKind))
+            {
+                return false;
+            }
+
+            var parameterKinds = function.Parameters
+                .Select(parameter => parameter.Kind)
+                .ToImmutableArray();
+            if (!functions.TryAdd(function.Name, new FunctionSignature(parameterKinds, function.ReturnKind)))
+            {
+                return false;
+            }
+
+            results[function.Name] = function.ReturnKind;
+        }
+
+        context = context with
+        {
+            Functions = functions.ToImmutable(),
+            FunctionResults = results.ToImmutable()
+        };
+        return true;
+    }
 
     private static bool ReferencesName(SemanticExpression expression, string name) =>
         SemanticExpressionAnalysis.IsValid(expression) &&
@@ -107,6 +267,8 @@ public static class SemanticProgramValidator
         binding is not null &&
         IsValidName(binding.Name) &&
         binding.ElementKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text;
+
+    private static bool IsValidValueKind(SemanticValueKind kind) => Enum.IsDefined(kind);
 
     private static bool IsValidName(string? name)
     {
