@@ -51,3 +51,47 @@ public sealed record DictionaryIterationRequirement(
     string ValueName,
     SemanticExpression Source,
     ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
+/// Binds a collection of the items of a source that satisfy a predicate. The predicate is an ordinary
+/// semantic expression over the item name, so any expressible comparison or boolean tree works.
+/// </summary>
+public sealed record FilterRequirement(
+    string ResultName,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Predicate) : ProgramRequirement;
+
+/// <summary>
+/// Binds a collection built by evaluating one expression for every item of a source. The value
+/// expression is an ordinary semantic expression over the item name.
+/// </summary>
+public sealed record MapRequirement(
+    string ResultName,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Value) : ProgramRequirement;
+
+/// <summary>
+/// Binds an accumulator that starts at an initial value and folds a source through an update
+/// expression. The update expression must depend on both the accumulator and the current item, and the
+/// accumulated name stays available to later requirements.
+/// </summary>
+public sealed record AccumulationRequirement(
+    string AccumulatorName,
+    SemanticCollectionItemKind AccumulatorKind,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression InitialValue,
+    SemanticExpression Update) : ProgramRequirement;
+
+/// <summary>
+/// Binds an ordered collection of the items of a source, ordered by a key expression over the item
+/// name, in ascending or descending order.
+/// </summary>
+public sealed record SortRequirement(
+    string ResultName,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Key,
+    bool Descending) : ProgramRequirement;

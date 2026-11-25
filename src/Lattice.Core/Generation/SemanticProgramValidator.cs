@@ -62,6 +62,33 @@ public static class SemanticProgramValidator
             SemanticExpressionAnalysis.IsValid(iteration.Source) &&
             !iteration.Body.IsDefaultOrEmpty &&
             AreValid(iteration.Body, depth + 1),
+        FilterRequirement filter =>
+            IsValidName(filter.ResultName) &&
+            IsValidName(filter.ItemName) &&
+            !string.Equals(filter.ResultName, filter.ItemName, StringComparison.Ordinal) &&
+            SemanticExpressionAnalysis.IsValid(filter.Source) &&
+            ReferencesName(filter.Predicate, filter.ItemName),
+        MapRequirement map =>
+            IsValidName(map.ResultName) &&
+            IsValidName(map.ItemName) &&
+            !string.Equals(map.ResultName, map.ItemName, StringComparison.Ordinal) &&
+            SemanticExpressionAnalysis.IsValid(map.Source) &&
+            ReferencesName(map.Value, map.ItemName),
+        AccumulationRequirement accumulation =>
+            IsValidName(accumulation.AccumulatorName) &&
+            IsValidName(accumulation.ItemName) &&
+            !string.Equals(accumulation.AccumulatorName, accumulation.ItemName, StringComparison.Ordinal) &&
+            accumulation.AccumulatorKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text &&
+            SemanticExpressionAnalysis.IsValid(accumulation.Source) &&
+            SemanticExpressionAnalysis.IsValid(accumulation.InitialValue) &&
+            ReferencesName(accumulation.Update, accumulation.AccumulatorName) &&
+            ReferencesName(accumulation.Update, accumulation.ItemName),
+        SortRequirement sort =>
+            IsValidName(sort.ResultName) &&
+            IsValidName(sort.ItemName) &&
+            !string.Equals(sort.ResultName, sort.ItemName, StringComparison.Ordinal) &&
+            SemanticExpressionAnalysis.IsValid(sort.Source) &&
+            ReferencesName(sort.Key, sort.ItemName),
         DictionaryIterationRequirement iteration =>
             IsValidName(iteration.KeyName) &&
             IsValidName(iteration.ValueName) &&
@@ -71,6 +98,10 @@ public static class SemanticProgramValidator
             AreValid(iteration.Body, depth + 1),
         _ => false
     };
+
+    private static bool ReferencesName(SemanticExpression expression, string name) =>
+        SemanticExpressionAnalysis.IsValid(expression) &&
+        SemanticExpressionAnalysis.GetReferencedNames(expression).Contains(name, StringComparer.Ordinal);
 
     private static bool IsValidBinding(CollectionBinding binding) =>
         binding is not null &&

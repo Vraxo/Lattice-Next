@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Lattice.Core.Generation;
 using Xunit;
 
@@ -126,6 +127,143 @@ public sealed class SemanticProgramRequirementTests
                 new SemanticNameExpression("prices"),
                 [new OutputRequirement(new SemanticNameExpression("prices"))])
         ])));
+    }
+
+    [Theory]
+    [InlineData("scores", SemanticCollectionItemKind.Number, 3)]
+    [InlineData("scores", SemanticCollectionItemKind.Number, 5)]
+    [InlineData("names", SemanticCollectionItemKind.Text, 2)]
+    public void Projections_keep_the_binding_while_contents_vary(
+        string name,
+        SemanticCollectionItemKind elementKind,
+        int itemCount)
+    {
+        var items = Enumerable.Range(1, itemCount)
+            .Select(index => new SemanticCollectionItem(
+                elementKind,
+                elementKind == SemanticCollectionItemKind.Number ? index.ToString() : $"item{index}"))
+            .ToImmutableArray();
+        var contents = new SemanticCollection(items);
+
+        var program = new SemanticProgram([
+            new OutputRequirement(new SemanticNameExpression(name))
+        ])
+        {
+            Collections = [new CollectionBinding(name, elementKind)]
+        };
+
+        Assert.True(SemanticCollectionValidator.IsValid(contents));
+        Assert.Equal(itemCount, contents.Items.Length);
+        Assert.True(SemanticProgramValidator.IsValid(program));
+        var binding = Assert.Single(program.Collections);
+        Assert.Equal(name, binding.Name);
+        Assert.Equal(elementKind, binding.ElementKind);
+    }
+
+    [Fact]
+    public void Represents_a_filter_predicate_over_the_item_name()
+    {
+        var requirement = new FilterRequirement(
+            "large",
+            "score",
+            new SemanticNameExpression("scores"),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNameExpression("score"),
+                new SemanticNumberExpression("2")));
+
+        Assert.True(SemanticProgramValidator.IsValid(new SemanticProgram([requirement])));
+
+        var withoutItem = new FilterRequirement(
+            "large",
+            "score",
+            new SemanticNameExpression("scores"),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNameExpression("other"),
+                new SemanticNumberExpression("2")));
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([withoutItem])));
+
+        var sharedName = requirement with { ResultName = "score" };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([sharedName])));
+    }
+
+    [Fact]
+    public void Represents_a_map_transformation_over_the_item_name()
+    {
+        var requirement = new MapRequirement(
+            "doubled",
+            "score",
+            new SemanticNameExpression("scores"),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Multiply,
+                new SemanticNameExpression("score"),
+                new SemanticNumberExpression("2")));
+
+        Assert.True(SemanticProgramValidator.IsValid(new SemanticProgram([requirement])));
+
+        var withoutItem = requirement with { Value = new SemanticNumberExpression("2") };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([withoutItem])));
+    }
+
+    [Fact]
+    public void Represents_an_accumulator_with_its_initial_value_kind_and_dependent_update()
+    {
+        var requirement = new AccumulationRequirement(
+            "total",
+            SemanticCollectionItemKind.Number,
+            "score",
+            new SemanticNameExpression("scores"),
+            new SemanticNumberExpression("0"),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                new SemanticNameExpression("total"),
+                new SemanticNameExpression("score")));
+
+        Assert.True(SemanticProgramValidator.IsValid(new SemanticProgram([requirement])));
+
+        var withoutAccumulator = requirement with
+        {
+            Update = new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                new SemanticNumberExpression("1"),
+                new SemanticNameExpression("score"))
+        };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([withoutAccumulator])));
+
+        var withoutItem = requirement with
+        {
+            Update = new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                new SemanticNameExpression("total"),
+                new SemanticNumberExpression("1"))
+        };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([withoutItem])));
+
+        var invalidInitial = requirement with { InitialValue = new SemanticNameExpression(string.Empty) };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([invalidInitial])));
+
+        var unknownKind = requirement with { AccumulatorKind = (SemanticCollectionItemKind) 99 };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([unknownKind])));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Represents_a_sort_key_and_direction(bool descending)
+    {
+        var requirement = new SortRequirement(
+            "ordered",
+            "score",
+            new SemanticNameExpression("scores"),
+            new SemanticNameExpression("score"),
+            descending);
+
+        Assert.True(SemanticProgramValidator.IsValid(new SemanticProgram([requirement])));
+        Assert.Equal(descending, requirement.Descending);
+
+        var withoutItem = requirement with { Key = new SemanticNumberExpression("1") };
+        Assert.False(SemanticProgramValidator.IsValid(new SemanticProgram([withoutItem])));
     }
 
     [Fact]
