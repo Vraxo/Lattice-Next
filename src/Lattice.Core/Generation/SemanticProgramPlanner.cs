@@ -195,6 +195,11 @@ public static class SemanticProgramPlanner
                 CarriesDeclaredIntent(conditional.ThenRequirements) ||
                 CarriesDeclaredIntent(conditional.ElseRequirements),
             IterationRequirement iteration => CarriesDeclaredIntent(iteration.Body),
+            DirectoryListingRequirement listing => CarriesDeclaredIntent(listing.Body),
+            FileReadRequirement fileRead => CarriesDeclaredIntent(fileRead.Body),
+            TryRequirement attempt =>
+                CarriesDeclaredIntent(attempt.Body) ||
+                attempt.Handlers.Any(handler => CarriesDeclaredIntent(handler.Body)),
             _ => false
         });
 

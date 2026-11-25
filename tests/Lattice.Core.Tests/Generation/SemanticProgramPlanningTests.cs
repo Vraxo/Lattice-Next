@@ -480,7 +480,10 @@ public sealed class SemanticProgramPlanningTests
                         [new IterationRequirement(
                             "third",
                             new SemanticNameExpression("scores"),
-                            [new OutputRequirement(new SemanticNameExpression("third"))])])])
+                            [new IterationRequirement(
+                                "fourth",
+                                new SemanticNameExpression("scores"),
+                                [new OutputRequirement(new SemanticNameExpression("fourth"))])])])])
             ])
             {
                 Collections = [new CollectionBinding("scores", SemanticCollectionItemKind.Number)]
