@@ -13,7 +13,7 @@ public sealed class AaaDiagnosticsTests
     {
         var assembly = typeof(SequenceKnowledgeBaseLoader).Assembly;
         var resource = assembly.GetManifestResourceNames()
-            .Single(name => name.EndsWith("sequences.python.core.json", StringComparison.Ordinal));
+            .Single(name => name.EndsWith("python.core.json", StringComparison.Ordinal) && name.StartsWith("Lattice.Core.SequenceKnowledge.", StringComparison.Ordinal));
         using var stream = assembly.GetManifestResourceStream(resource)!;
         using var reader = new StreamReader(stream, Encoding.UTF8);
         var document = JsonNode.Parse(reader.ReadToEnd())!.AsObject();
