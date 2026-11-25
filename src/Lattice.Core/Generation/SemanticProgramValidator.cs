@@ -86,7 +86,9 @@ public static class SemanticProgramValidator
             AssignmentRequirement assignment =>
                 IsValidName(assignment.VariableName) &&
                 SemanticExpressionAnalysis.IsValid(assignment.Value),
-            OutputRequirement output => SemanticExpressionAnalysis.IsValid(output.Value),
+            OutputRequirement output =>
+                SemanticExpressionAnalysis.IsValid(output.Value) &&
+                IsValidDeclaredCall(output.Value, context),
             ConditionalRequirement conditional =>
                 SemanticExpressionAnalysis.IsValid(conditional.Condition) &&
                 (!conditional.ThenRequirements.IsDefaultOrEmpty ||
@@ -214,6 +216,46 @@ public static class SemanticProgramValidator
             AreValid(chain.Otherwise, depth + 1, context);
     }
 
+    /// <summary>
+    /// A printed call of a declared function must supply the arguments that declaration accepts, so a
+    /// program never calls a declared function with another arity or value kind.
+    /// </summary>
+    private static bool IsValidDeclaredCall(SemanticExpression value, RequirementContext context) =>
+        value is not SemanticFunctionCallExpression call ||
+        !context.Functions.TryGetValue(call.Name, out var signature) ||
+        MatchesSignature(call, signature, context);
+
+    /// <summary>Returns true when a call supplies one compatible argument per declared parameter.</summary>
+    private static bool MatchesSignature(
+        SemanticFunctionCallExpression call,
+        FunctionSignature signature,
+        RequirementContext context)
+    {
+        if (signature.ParameterKinds.Length != call.Arguments.Length)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < call.Arguments.Length; index++)
+        {
+            if (signature.ParameterKinds[index] is not { } parameterKind)
+            {
+                continue;
+            }
+
+            var inferred = SemanticValueKindAnalysis.Infer(
+                call.Arguments[index],
+                context.Names,
+                context.FunctionResults);
+            if (!SemanticValueKindAnalysis.IsCompatible(inferred, parameterKind))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static bool IsValidCall(CallRequirement call, RequirementContext context)
     {
         if (!IsValidName(call.FunctionName) ||
@@ -235,25 +277,10 @@ public static class SemanticProgramValidator
             return true;
         }
 
-        if (signature.ParameterKinds.Length != call.Arguments.Length)
-        {
-            return false;
-        }
-
-        for (var index = 0; index < call.Arguments.Length; index++)
-        {
-            var inferred = SemanticValueKindAnalysis.Infer(
-                call.Arguments[index],
-                context.Names,
-                context.FunctionResults);
-            if (signature.ParameterKinds[index] is { } parameterKind &&
-                !SemanticValueKindAnalysis.IsCompatible(inferred, parameterKind))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return MatchesSignature(
+            new SemanticFunctionCallExpression(call.FunctionName, call.Arguments),
+            signature,
+            context);
     }
 
     private static bool IsValidClass(

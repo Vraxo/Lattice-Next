@@ -2378,14 +2378,14 @@
       ]
     },
     {
-      "id": "recognize-declarative-function-local-variables",
+      "id": "recognize-declared-function-locals",
       "matchTokens": [
         "function"
       ],
-      "factId": "program.function-local-signature",
+      "factId": "program.requirement.function",
       "captures": [
         {
-          "factId": "program.function-local-signature",
+          "factId": "program.requirement.function",
           "valueId": "name",
           "startAfterTokens": [
             "named"
@@ -2398,7 +2398,7 @@
           "stopBeforeTokens": []
         },
         {
-          "factId": "program.function-local-signature",
+          "factId": "program.requirement.function",
           "valueId": "parameters",
           "startAfterTokens": [
             "takes"
@@ -2417,8 +2417,8 @@
           "stopBeforeTokens": []
         },
         {
-          "factId": "program.function-local-variables",
-          "valueId": "locals",
+          "factId": "program.requirement.function.body",
+          "valueId": "name",
           "stopBeforeSequences": [
             [
               "and",
@@ -2444,8 +2444,8 @@
           ]
         },
         {
-          "factId": "program.function-local-variables",
-          "valueId": "expressions",
+          "factId": "program.requirement.function.body",
+          "valueId": "value",
           "stopBeforeSequences": [
             [
               "and",
@@ -2472,8 +2472,8 @@
           "semanticExpressionKind": "arithmetic"
         },
         {
-          "factId": "program.function-local-return",
-          "valueId": "expression",
+          "factId": "program.requirement.function.result",
+          "valueId": "value",
           "startAfterTokens": [
             "and",
             "returns"
@@ -2488,7 +2488,7 @@
           "semanticExpressionKind": "arithmetic"
         },
         {
-          "factId": "program.function-local-call",
+          "factId": "program.requirement.function.call",
           "valueId": "call",
           "startAfterTokens": [
             "then"
@@ -2759,14 +2759,14 @@
       ]
     },
     {
-      "id": "recognize-declarative-arithmetic-function-program",
+      "id": "recognize-declared-arithmetic-function",
       "matchTokens": [
         "function"
       ],
-      "factId": "program.arithmetic-function-signature",
+      "factId": "program.requirement.function",
       "captures": [
         {
-          "factId": "program.arithmetic-function-signature",
+          "factId": "program.requirement.function",
           "valueId": "name",
           "startAfterTokens": [
             "named"
@@ -2778,7 +2778,7 @@
           ]
         },
         {
-          "factId": "program.arithmetic-function-signature",
+          "factId": "program.requirement.function",
           "valueId": "parameters",
           "startAfterTokens": [
             "takes"
@@ -2793,8 +2793,8 @@
           "collectionItemSeparator": ", "
         },
         {
-          "factId": "program.arithmetic-function-return",
-          "valueId": "expression",
+          "factId": "program.requirement.function.result",
+          "valueId": "value",
           "startAfterTokens": [
             "returns"
           ],
@@ -5301,14 +5301,14 @@
       ]
     },
     {
-      "id": "recognize-arithmetic-function-composition-call",
+      "id": "recognize-declared-arithmetic-function-call",
       "matchTokens": [
         "then"
       ],
-      "factId": "program.arithmetic-function-call",
+      "factId": "program.requirement.function.call",
       "captures": [
         {
-          "factId": "program.arithmetic-function-call",
+          "factId": "program.requirement.function.call",
           "valueId": "call",
           "startAfterSequences": [
             [
@@ -5323,11 +5323,6 @@
           ],
           "semanticExpressionKind": "functionCall",
           "optionalExpression": true
-        },
-        {
-          "factId": "program.arithmetic-function-close",
-          "valueId": "required",
-          "literalValue": "true"
         }
       ],
       "requiredAnySequences": [
@@ -6306,180 +6301,6 @@
       ]
     },
     {
-      "id": "python-local-function-open-fence",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.function-local-signature",
-        "program.function-local-variables",
-        "program.function-local-return",
-        "program.function-local-call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start",
-        "program.assignment",
-        "program.assignment.operator",
-        "program.assignment.prefix",
-        "program.arithmetic",
-        "value.output"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start",
-        "program.assignment",
-        "program.assignment.operator",
-        "program.assignment.prefix",
-        "program.arithmetic",
-        "value.output"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-local-function-header",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.function-local-signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.function-local-signature",
-        "valueId": "name",
-        "valueTemplate": "{0}({1})",
-        "secondaryValueId": "parameters",
-        "secondaryCollectionSeparator": ", ",
-        "prefix": "def ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-local-function-first-assignment",
-      "contextSuffix": [
-        "*):\n"
-      ],
-      "requiredFacts": [
-        "program.function-local-variables"
-      ],
-      "tokenBinding": {
-        "factId": "program.function-local-variables",
-        "valueId": "locals",
-        "collection": true,
-        "prefix": "    ",
-        "secondaryValueId": "expressions",
-        "secondaryValueIsCollection": true,
-        "valueTemplate": "{0} = {1}\n"
-      },
-      "advanceCollections": [
-        "program.function-local-variables:locals",
-        "program.function-local-variables:expressions"
-      ]
-    },
-    {
-      "id": "python-local-function-next-assignment",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.function-local-variables"
-      ],
-      "tokenBinding": {
-        "factId": "program.function-local-variables",
-        "valueId": "locals",
-        "collection": true,
-        "prefix": "    ",
-        "minimumCollectionCursor": 1,
-        "secondaryValueId": "expressions",
-        "secondaryValueIsCollection": true,
-        "valueTemplate": "{0} = {1}\n"
-      },
-      "advanceCollections": [
-        "program.function-local-variables:locals",
-        "program.function-local-variables:expressions"
-      ]
-    },
-    {
-      "id": "python-local-function-return-start",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.function-local-return",
-        "program.function-local-call"
-      ],
-      "requiresCompletedFacts": [
-        "program.function-local-variables"
-      ],
-      "nextToken": "    return "
-    },
-    {
-      "id": "python-local-function-return-expression",
-      "contextSuffix": [
-        "    return "
-      ],
-      "requiredFacts": [
-        "program.function-local-return"
-      ],
-      "requiresCompletedFacts": [
-        "program.function-local-variables"
-      ],
-      "tokenBinding": {
-        "factId": "program.function-local-return",
-        "valueId": "expression",
-        "suffix": "\nprint("
-      },
-      "satisfiesFacts": [
-        "program.function-local-return"
-      ]
-    },
-    {
-      "id": "python-local-function-call",
-      "contextSuffix": [
-        "*\nprint("
-      ],
-      "requiredFacts": [
-        "program.function-local-call"
-      ],
-      "requiresCompletedFacts": [
-        "program.function-local-return"
-      ],
-      "tokenBinding": {
-        "factId": "program.function-local-call",
-        "valueId": "call"
-      },
-      "satisfiesFacts": [
-        "program.function-local-call"
-      ]
-    },
-    {
-      "id": "python-local-function-close-fence",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.function-local-signature"
-      ],
-      "requiresCompletedFacts": [
-        "program.function-local-variables",
-        "program.function-local-return",
-        "program.function-local-call"
-      ],
-      "nextToken": ")\n```",
-      "satisfiesFacts": [
-        "program.function-local-signature",
-        "program.function-local-variables",
-        "program.function-local-return",
-        "program.function-local-call"
-      ]
-    },
-    {
       "id": "python-collection-loop-variable",
       "contextSuffix": [
         "```python\n"
@@ -6554,159 +6375,6 @@
         "value.output",
         "program.collection"
       ]
-    },
-    {
-      "id": "python-arithmetic-function-open-fence",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-signature",
-        "program.arithmetic-function-return",
-        "program.arithmetic-function-call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start",
-        "program.arithmetic",
-        "value.output"
-      ],
-      "weight": 12,
-      "forbiddenFacts": [
-        "value.output.expression"
-      ]
-    },
-    {
-      "id": "python-arithmetic-function-header",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.arithmetic-function-signature",
-        "valueId": "name",
-        "valueTemplate": "{0}({1})",
-        "secondaryValueId": "parameters",
-        "secondaryCollectionSeparator": ", ",
-        "prefix": "def ",
-        "suffix": ":\n",
-        "secondaryValueIsCollection": true,
-        "collection": true
-      },
-      "satisfiesFacts": [],
-      "advanceCollections": [
-        "program.arithmetic-function-signature:name",
-        "program.arithmetic-function-signature:parameters"
-      ]
-    },
-    {
-      "id": "python-arithmetic-function-return-prefix",
-      "contextSuffix": [
-        "*):\n"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-return"
-      ],
-      "nextToken": "    return "
-    },
-    {
-      "id": "python-arithmetic-function-return-expression",
-      "contextSuffix": [
-        "    return "
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-return"
-      ],
-      "tokenBinding": {
-        "factId": "program.arithmetic-function-return",
-        "valueId": "expression",
-        "suffix": "\n",
-        "collection": true
-      },
-      "advanceCollections": [
-        "program.arithmetic-function-return:expression"
-      ]
-    },
-    {
-      "id": "python-arithmetic-function-call",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-call"
-      ],
-      "requiresCompletedFacts": [
-        "program.arithmetic-function-return"
-      ],
-      "tokenBinding": {
-        "factId": "program.arithmetic-function-call",
-        "valueId": "call",
-        "prefix": "print("
-      },
-      "satisfiesFacts": [
-        "program.arithmetic-function-call"
-      ]
-    },
-    {
-      "id": "python-arithmetic-function-close-fence",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-close"
-      ],
-      "requiresCompletedFacts": [
-        "program.arithmetic-function-signature",
-        "program.arithmetic-function-return",
-        "program.arithmetic-function-call"
-      ],
-      "nextToken": ")\n```",
-      "satisfiesFacts": [
-        "program.arithmetic-function-signature",
-        "program.arithmetic-function-return",
-        "program.arithmetic-function-call",
-        "program.arithmetic-function-close"
-      ]
-    },
-    {
-      "id": "python-arithmetic-function-open-fence-with-expression",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-signature",
-        "program.arithmetic-function-return",
-        "program.arithmetic-function-call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start",
-        "value.output.expression"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.output.start",
-        "program.arithmetic",
-        "value.output",
-        "value.output.expression"
-      ],
-      "weight": 12
     },
     {
       "id": "python-range-loop-open",
@@ -7846,105 +7514,9 @@
       "forbiddenFacts": [],
       "advanceCollections": [],
       "weight": 32
-    },
-    {
-      "id": "python-arithmetic-function-next-header",
-      "contextSuffix": [
-        "    return ",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.arithmetic-function-signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.arithmetic-function-signature",
-        "valueId": "name",
-        "valueTemplate": "{0}({1})",
-        "secondaryValueId": "parameters",
-        "secondaryCollectionSeparator": ", ",
-        "prefix": "def ",
-        "suffix": ":\n",
-        "secondaryValueIsCollection": true,
-        "collection": true
-      },
-      "satisfiesFacts": [],
-      "advanceCollections": [
-        "program.arithmetic-function-signature:name",
-        "program.arithmetic-function-signature:parameters"
-      ]
     }
   ],
   "validations": [
-    {
-      "id": "function-local-function-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.function-local-signature",
-      "valueId": "name",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-parameters-are-identifiers",
-      "kind": "identifierCollection",
-      "factId": "program.function-local-signature",
-      "valueId": "parameters",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-names-are-identifiers",
-      "kind": "identifierCollection",
-      "factId": "program.function-local-variables",
-      "valueId": "locals",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-names-are-unique",
-      "kind": "uniqueCollection",
-      "factId": "program.function-local-variables",
-      "valueId": "locals",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-names-do-not-shadow-parameters",
-      "kind": "disjointCollections",
-      "factId": "program.function-local-variables",
-      "valueId": "locals",
-      "relatedFactId": "program.function-local-signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-expressions-reference-earlier-names",
-      "kind": "arithmeticCollectionReferences",
-      "factId": "program.function-local-variables",
-      "valueId": "expressions",
-      "relatedFactId": "program.function-local-signature",
-      "relatedValueId": "parameters",
-      "additionalFactId": "program.function-local-variables",
-      "additionalValueId": "locals",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-return-references-available-names",
-      "kind": "arithmeticValueReferences",
-      "factId": "program.function-local-return",
-      "valueId": "expression",
-      "relatedFactId": "program.function-local-signature",
-      "relatedValueId": "parameters",
-      "additionalFactId": "program.function-local-variables",
-      "additionalValueId": "locals",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
-    {
-      "id": "function-local-call-matches-function-and-parameters",
-      "kind": "matchingNumericFunctionCall",
-      "factId": "program.function-local-call",
-      "valueId": "call",
-      "relatedFactId": "program.function-local-signature",
-      "relatedValueId": "name",
-      "additionalFactId": "program.function-local-signature",
-      "additionalValueId": "parameters",
-      "appliesWhenFactId": "program.function-local-variables"
-    },
     {
       "id": "collection-loop-item-is-identifier",
       "kind": "identifierValue",
@@ -8146,126 +7718,81 @@
       "appliesWhenFactId": "program.collection-filter.condition"
     },
     {
-      "id": "arithmetic-function-names-are-identifiers",
-      "kind": "identifierCollection",
-      "factId": "program.arithmetic-function-signature",
-      "valueId": "name",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
-      "id": "arithmetic-function-names-are-unique",
-      "kind": "uniqueCollection",
-      "factId": "program.arithmetic-function-signature",
-      "valueId": "name",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
-      "id": "arithmetic-function-signatures-and-returns-align",
-      "kind": "matchingCollections",
-      "factId": "program.arithmetic-function-signature",
-      "valueId": "name",
-      "relatedFactId": "program.arithmetic-function-return",
-      "relatedValueId": "expression",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
-      "id": "arithmetic-function-parameters-align-with-names",
-      "kind": "matchingCollections",
-      "factId": "program.arithmetic-function-signature",
-      "valueId": "name",
-      "relatedFactId": "program.arithmetic-function-signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
-      "id": "arithmetic-function-expressions-use-ordered-scopes",
-      "kind": "orderedArithmeticFunctionExpressions",
-      "factId": "program.arithmetic-function-return",
-      "valueId": "expression",
-      "relatedFactId": "program.arithmetic-function-signature",
-      "relatedValueId": "parameters",
-      "additionalFactId": "program.arithmetic-function-signature",
-      "additionalValueId": "name",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
-      "id": "arithmetic-function-call-matches-last-definition",
-      "kind": "matchingLastNumericFunctionCall",
-      "factId": "program.arithmetic-function-call",
-      "valueId": "call",
-      "relatedFactId": "program.arithmetic-function-signature",
-      "relatedValueId": "name",
-      "additionalFactId": "program.arithmetic-function-signature",
-      "additionalValueId": "parameters",
-      "appliesWhenFactId": "program.arithmetic-function-signature"
-    },
-    {
       "id": "function-name-is-identifier",
       "kind": "identifierValue",
       "factId": "program.requirement.function",
       "valueId": "name",
-      "appliesWhenFactId": "program.requirement.function"
+      "appliesWhenFactId": "program.requirement.function.body"
     },
     {
       "id": "function-parameters-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.requirement.function",
       "valueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
+      "appliesWhenFactId": "program.requirement.function.body"
     },
     {
       "id": "function-parameters-are-unique",
       "kind": "uniqueCollection",
       "factId": "program.requirement.function",
       "valueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
+      "appliesWhenFactId": "program.requirement.function.body"
     },
     {
-      "id": "function-otherwise-references-parameters",
-      "kind": "valueExpressionReferences",
-      "factId": "program.requirement.function.otherwise",
+      "id": "function-local-names-are-identifiers",
+      "kind": "identifierCollection",
+      "factId": "program.requirement.function.body",
+      "valueId": "name",
+      "appliesWhenFactId": "program.requirement.function.body"
+    },
+    {
+      "id": "function-local-names-are-unique",
+      "kind": "uniqueCollection",
+      "factId": "program.requirement.function.body",
+      "valueId": "name",
+      "appliesWhenFactId": "program.requirement.function.body"
+    },
+    {
+      "id": "function-local-names-do-not-shadow-parameters",
+      "kind": "disjointCollections",
+      "factId": "program.requirement.function.body",
+      "valueId": "name",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function.body"
+    },
+    {
+      "id": "function-local-expressions-reference-earlier-names",
+      "kind": "arithmeticCollectionReferences",
+      "factId": "program.requirement.function.body",
       "valueId": "value",
       "relatedFactId": "program.requirement.function",
       "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
+      "additionalFactId": "program.requirement.function.body",
+      "additionalValueId": "name",
+      "appliesWhenFactId": "program.requirement.function.body"
     },
     {
-      "id": "function-call-matches-signature",
-      "kind": "matchingFunctionCall",
+      "id": "function-local-return-references-available-names",
+      "kind": "arithmeticValueReferences",
+      "factId": "program.requirement.function.result",
+      "valueId": "value",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "parameters",
+      "additionalFactId": "program.requirement.function.body",
+      "additionalValueId": "name",
+      "appliesWhenFactId": "program.requirement.function.body"
+    },
+    {
+      "id": "function-local-call-matches-function-and-parameters",
+      "kind": "matchingNumericFunctionCall",
       "factId": "program.requirement.function.call",
       "valueId": "call",
       "relatedFactId": "program.requirement.function",
       "relatedValueId": "name",
       "additionalFactId": "program.requirement.function",
       "additionalValueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
-    },
-    {
-      "id": "function-branches-have-matching-counts",
-      "kind": "matchingCollections",
-      "factId": "program.requirement.function.branches",
-      "valueId": "condition",
-      "relatedFactId": "program.requirement.function.branches",
-      "relatedValueId": "value",
-      "appliesWhenFactId": "program.requirement.function"
-    },
-    {
-      "id": "function-branch-conditions-reference-parameters",
-      "kind": "booleanExpressionCollectionReferences",
-      "factId": "program.requirement.function.branches",
-      "valueId": "condition",
-      "relatedFactId": "program.requirement.function",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
-    },
-    {
-      "id": "function-branch-values-reference-parameters",
-      "kind": "valueExpressionCollectionReferences",
-      "factId": "program.requirement.function.branches",
-      "valueId": "value",
-      "relatedFactId": "program.requirement.function",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.requirement.function"
+      "appliesWhenFactId": "program.requirement.function.body"
     }
   ]
 }

@@ -84,9 +84,17 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python function named classify that takes score and returns \"High\" when other is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).";
 
-        Assert.False(
-            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out var extractionError));
-        Assert.Contains("rejected", extractionError, StringComparison.OrdinalIgnoreCase);
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
+            out _,
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -1984,46 +1992,37 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             return;
         }
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
                 out var generated,
+                out _,
                 out var generationError),
             generationError);
         Assert.Equal(
-            "\u0060\u0060\u0060python\n" +
             "def transform(value):\n" +
             "    shifted = value + 2\n" +
             "    scaled = shifted * 4\n" +
             "    return scaled - shifted\n" +
-            "print(transform(3))\n" +
-            "\u0060\u0060\u0060",
-            generated!.Text);
+            "print(transform(3))",
+            generated);
     }
 
 
     [Theory]
     [InlineData(
         "Create a Python program with a function named double that takes value and returns value * 2, then print double(4).",
-        "```python\ndef double(value):\n    return value * 2\nprint(double(4))\n```")]
+        "def double(value):\n    return value * 2\nprint(double(4))")]
     [InlineData(
         "Build a Python script with a function named scale that takes value and factor and returns (value + 3) * factor, then print scale(2, 4).",
-        "```python\ndef scale(value, factor):\n    return (value + 3) * factor\nprint(scale(2, 4))\n```")]
+        "def scale(value, factor):\n    return (value + 3) * factor\nprint(scale(2, 4))")]
     [InlineData(
         "Create a Python program with a function named sum_three that takes first and second and third and returns first + second + third, then print sum_three(2, 3, 4).",
-        "```python\ndef sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))\n```")]
+        "def sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))")]
     [InlineData(
         "Create a Python program with a function named clamp_floor that takes value and returns max(abs(value), 10) + 2, then print clamp_floor(-4).",
-        "```python\ndef clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))\n```")]
+        "def clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))")]
     public void Extracts_and_generates_arithmetic_functions_declaratively(
         string input,
         string expectedCode)
@@ -2038,22 +2037,15 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out var extractionError),
             extractionError);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
                 out var generated,
+                out _,
                 out var generationError),
             generationError);
-        Assert.Equal(expectedCode, generated!.Text);
+        Assert.Equal(expectedCode, generated);
     }
 
     [Theory]
@@ -2066,13 +2058,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
+        var extracted = SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out _);
+
         Assert.False(
-            SequenceInputFactExtractor.TryExtract(
-                knowledge!,
-                input,
-                out var facts,
+            extracted &&
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out _,
+                out _,
                 out _));
-        Assert.Empty(facts);
     }
 
 
@@ -2253,8 +2252,17 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python program with a function named compare that takes value and returns value + 1 when missing is greater than 10 and otherwise returns value - 1, then print compare(12).";
 
-        Assert.False(
-            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out _));
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
+            out _,
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     private static GenerationLanguagePack LoadPythonLanguagePack()
