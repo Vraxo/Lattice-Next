@@ -93,18 +93,21 @@ public sealed class SemanticProgramPlanningTests
     [Fact]
     public void Realizes_both_branches_of_a_requested_conditional()
     {
-        var statements = Plan(new ConditionalRequirement(
-            new SemanticBinaryExpression(
-                SemanticExpressionOperator.GreaterThanOrEqual,
-                new SemanticNameExpression("score"),
-                new SemanticNumberExpression("10")),
-            [new OutputRequirement(new SemanticTextExpression("pass"))],
-            [new OutputRequirement(new SemanticTextExpression("fail"))]));
+        var statements = Plan(
+            new AssignmentRequirement("score", new SemanticNumberExpression("42")),
+            new ConditionalRequirement(
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.GreaterThanOrEqual,
+                    new SemanticNameExpression("score"),
+                    new SemanticNumberExpression("10")),
+                [new OutputRequirement(new SemanticTextExpression("pass"))],
+                [new OutputRequirement(new SemanticTextExpression("fail"))]));
 
         var text = SemanticProgramPlanner.Render(statements);
         Assert.Equal(
             string.Join(
                 '\n',
+                "score = 42",
                 "if score >= 10:",
                 "    print(\"pass\")",
                 "else:",
