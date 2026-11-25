@@ -61,21 +61,21 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        var branches = Assert.Single(facts, fact => fact.Id == "program.requirement.function.branches");
         Assert.Equal(
             new SemanticBinaryExpression(
                 SemanticExpressionOperator.GreaterThan,
                 new SemanticNameExpression("score"),
                 new SemanticNumberExpression("90")),
-            branches.ExpressionCollections["conditions"][0]);
+            branches.ExpressionCollections["condition"][0]);
         Assert.Equal(
             new SemanticBinaryExpression(
                 SemanticExpressionOperator.GreaterThanOrEqual,
                 new SemanticNameExpression("score"),
                 new SemanticNumberExpression("50")),
-            branches.ExpressionCollections["conditions"][1]);
-        Assert.Equal(new SemanticTextExpression("High"), branches.ExpressionCollections["returns"][0]);
-        Assert.Equal(new SemanticTextExpression("Pass"), branches.ExpressionCollections["returns"][1]);
+            branches.ExpressionCollections["condition"][1]);
+        Assert.Equal(new SemanticTextExpression("High"), branches.ExpressionCollections["value"][0]);
+        Assert.Equal(new SemanticTextExpression("Pass"), branches.ExpressionCollections["value"][1]);
     }
 
     [Fact]
@@ -84,9 +84,17 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python function named classify that takes score and returns \"High\" when other is greater than 90, returns \"Pass\" when score is at least 50, and otherwise returns \"Fail\", then print classify(75).";
 
-        Assert.False(
-            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out var extractionError));
-        Assert.Contains("rejected", extractionError, StringComparison.OrdinalIgnoreCase);
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
+            out _,
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -125,30 +133,34 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Extracts_and_generates_greeting_function_requests_from_natural_language()
+    public void Extracts_greeting_function_requests_as_generic_function_facts()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.";
 
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function");
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function.template");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function.samples");
         Assert.Contains(facts, fact => fact.Id == "language.python");
         Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
-            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("def greet(name):", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains("print(greet(\"Ada\"))", generated.Text, StringComparison.Ordinal);
-        Assert.Contains("print(greet(\"Grace\"))", generated.Text, StringComparison.Ordinal);
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "def greet(name):",
+                "    return f\"Hello, {name}!\"",
+                "print(greet(\"Ada\"))",
+                "print(greet(\"Grace\"))"),
+            code);
     }
 
     [Fact]
@@ -235,21 +247,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
 
-        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal(expectedCondition, RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
+        var branches = Assert.Single(facts, fact => fact.Id == "program.requirement.function.branches");
+        Assert.Equal(expectedCondition, RenderExpression(Assert.Single(branches.ExpressionCollections["condition"])));
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var generated,
+                out _,
+                out var generationError),
             $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains($"if {expectedCondition}:", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"return {expectedTrueReturn}", generated.Text, StringComparison.Ordinal);
-        Assert.Contains($"return {expectedFalseReturn}", generated.Text, StringComparison.Ordinal);
+        Assert.Contains($"if {expectedCondition}:", generated, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedTrueReturn}", generated, StringComparison.Ordinal);
+        Assert.Contains($"return {expectedFalseReturn}", generated, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -259,8 +270,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         const string prompt = "Create a Python program with a function named verify that takes amount and offset and returns 'yes' when amount is greater than 23 and (amount + offset) is not equal to 41, and otherwise returns 'no', then print verify(24, 2).";
 
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
-        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        var expression = Assert.IsType<SemanticBinaryExpression>(Assert.Single(branches.ExpressionCollections["conditions"]));
+        var branches = Assert.Single(facts, fact => fact.Id == "program.requirement.function.branches");
+        var expression = Assert.IsType<SemanticBinaryExpression>(Assert.Single(branches.ExpressionCollections["condition"]));
         Assert.Equal(SemanticExpressionOperator.And, expression.Operator);
         Assert.Equal(
             new SemanticBinaryExpression(
@@ -283,11 +294,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     public void Rejects_boolean_conditions_that_reference_undeclared_parameters()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(
+        Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             "Create a Python program with a function named classify that takes score and returns 'accepted' when score is at least 10 or other is less than 5 and otherwise returns 'rejected', then print classify(3).",
+            out var facts,
+            out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
             out _,
-            out _));
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1837,73 +1857,47 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
-    [Fact]
-    public void Generates_greeting_function_from_declarative_semantic_facts()
-    {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        const string input = "Write a Python program that defines a function that accepts a person's name and returns a greeting. Call it with two different names.";
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function");
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), generationError);
-        Assert.Equal(
-            string.Join(Environment.NewLine,
-                "```python",
-                "def greet(name):",
-                "    return f\"Hello, {name}!\"",
-                "print(greet(\"Ada\"))",
-                "print(greet(\"Grace\"))",
-                "```"),
-            result!.Text);
-    }
-    [Fact]
-    public void Generates_bank_account_class_from_declarative_semantic_facts()
-    {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        const string input = "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.";
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.class-model");
-        Assert.Contains(facts, fact => fact.Id == "program.class");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Equal(string.Join(Environment.NewLine,
-            "```python",
-            "class BankAccount:",
-            "    def __init__(self, balance):",
-            "        self.balance = balance",
-            "    def deposit(self, amount):",
-            "        self.balance += amount",
-            "    def withdraw(self, amount):",
-            "        if amount > self.balance:",
-            "            return False",
-            "        self.balance -= amount",
-            "        return True",
-            "```"), result!.Text);
-    }
-
     [Theory]
-    [InlineData("Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.", "program.integer-conversion-function", "convert_to_integer", "text")]
-    [InlineData("Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.", "program.named-integer-conversion-function", "parse_count", "raw_text")]
-    public void Generates_integer_conversion_function_from_declarative_semantic_facts(string input, string factId, string functionName, string parameter)
+    [InlineData("Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    [InlineData("Write a Python program that fulfills this request: Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    public void Extracts_and_generates_class_requests_as_generic_class_facts(string input)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == factId);
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Equal(string.Join(Environment.NewLine,
-            "```python",
-            $"def {functionName}({parameter}):",
-            "    try:",
-            $"        return int({parameter})",
-            "    except ValueError:",
-            "        return \"Invalid integer\"",
-            $"print({functionName}(\"42\"))",
-            $"print({functionName}(\"not-a-number\"))",
-            "```"), result!.Text);
-    }
 
+        var declaration = Assert.Single(facts, fact => fact.Id == "program.requirement.class");
+        Assert.Equal(["bank account"], declaration.Collections["name"]);
+
+        var fields = Assert.Single(facts, fact => fact.Id == "program.requirement.class.field");
+        Assert.Equal(["balance"], fields.Collections["field"]);
+
+        var methods = Assert.Single(facts, fact => fact.Id == "program.requirement.class.method");
+        Assert.Equal(["deposit", "withdraw"], methods.Collections["method"]);
+        Assert.Equal(["none", "Boolean"], methods.Collections["result"]);
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "class BankAccount:",
+                "    def __init__(self, balance):",
+                "        self.balance = balance",
+                "    def deposit(self, amount):",
+                "        self.balance += amount",
+                "    def withdraw(self, amount):",
+                "        if amount > self.balance:",
+                "            return False",
+                "        self.balance -= amount",
+                "        return True"),
+            code);
+    }
 
     [Fact]
     public void Generates_directory_file_listing_from_declarative_semantic_facts()
@@ -1985,46 +1979,37 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             return;
         }
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
                 out var generated,
+                out _,
                 out var generationError),
             generationError);
         Assert.Equal(
-            "\u0060\u0060\u0060python\n" +
             "def transform(value):\n" +
             "    shifted = value + 2\n" +
             "    scaled = shifted * 4\n" +
             "    return scaled - shifted\n" +
-            "print(transform(3))\n" +
-            "\u0060\u0060\u0060",
-            generated!.Text);
+            "print(transform(3))",
+            generated);
     }
 
 
     [Theory]
     [InlineData(
         "Create a Python program with a function named double that takes value and returns value * 2, then print double(4).",
-        "```python\ndef double(value):\n    return value * 2\nprint(double(4))\n```")]
+        "def double(value):\n    return value * 2\nprint(double(4))")]
     [InlineData(
         "Build a Python script with a function named scale that takes value and factor and returns (value + 3) * factor, then print scale(2, 4).",
-        "```python\ndef scale(value, factor):\n    return (value + 3) * factor\nprint(scale(2, 4))\n```")]
+        "def scale(value, factor):\n    return (value + 3) * factor\nprint(scale(2, 4))")]
     [InlineData(
         "Create a Python program with a function named sum_three that takes first and second and third and returns first + second + third, then print sum_three(2, 3, 4).",
-        "```python\ndef sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))\n```")]
+        "def sum_three(first, second, third):\n    return first + second + third\nprint(sum_three(2, 3, 4))")]
     [InlineData(
         "Create a Python program with a function named clamp_floor that takes value and returns max(abs(value), 10) + 2, then print clamp_floor(-4).",
-        "```python\ndef clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))\n```")]
+        "def clamp_floor(value):\n    return max(abs(value), 10) + 2\nprint(clamp_floor(-4))")]
     public void Extracts_and_generates_arithmetic_functions_declaratively(
         string input,
         string expectedCode)
@@ -2039,22 +2024,15 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out var extractionError),
             extractionError);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
                 out var generated,
+                out _,
                 out var generationError),
             generationError);
-        Assert.Equal(expectedCode, generated!.Text);
+        Assert.Equal(expectedCode, generated);
     }
 
     [Theory]
@@ -2067,13 +2045,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
+        var extracted = SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out _);
+
         Assert.False(
-            SequenceInputFactExtractor.TryExtract(
-                knowledge!,
-                input,
-                out var facts,
+            extracted &&
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out _,
+                out _,
                 out _));
-        Assert.Empty(facts);
     }
 
 
@@ -2173,22 +2158,20 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
-        Assert.Equal("score >= 10", RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
-
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var branches = Assert.Single(facts, fact => fact.Id == "program.requirement.function.branches");
+        Assert.Equal("score >= 10", RenderExpression(Assert.Single(branches.ExpressionCollections["condition"])));
 
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
+                out var generationError),
             $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
         Assert.Equal(
-            "\u0060\u0060\u0060python\ndef classify(score):\n    if score >= 10:\n        return score + 1\n    return score - 1\nprint(classify(12))\n\u0060\u0060\u0060",
-            string.Join(string.Empty, result!.Tokens));
+            "def classify(score):\n    if score >= 10:\n        return score + 1\n    return score - 1\nprint(classify(12))",
+            code);
     }
 
 
@@ -2244,10 +2227,10 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var branches = Assert.Single(facts, fact => fact.Id == "program.conditional-function.branches");
+        var branches = Assert.Single(facts, fact => fact.Id == "program.requirement.function.branches");
         Assert.Equal(
             expectedExpression,
-            RenderExpression(Assert.Single(branches.ExpressionCollections["conditions"])));
+            RenderExpression(Assert.Single(branches.ExpressionCollections["condition"])));
     }
 
     [Fact]
@@ -2256,8 +2239,17 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python program with a function named compare that takes value and returns value + 1 when missing is greater than 10 and otherwise returns value - 1, then print compare(12).";
 
-        Assert.False(
-            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out _, out _));
+        Assert.True(
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            LoadPythonLanguagePack(),
+            out _,
+            out _,
+            out var generationError));
+        Assert.Contains("before any requirement defines it", generationError, StringComparison.Ordinal);
     }
 
     private static GenerationLanguagePack LoadPythonLanguagePack()

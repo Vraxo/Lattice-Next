@@ -48,12 +48,20 @@ internal static class CompositionalTaskParser
             FactValues = facts,
             LanguagePack = languagePack
         };
+        // A request is realistic when either a learned sequence or the generic program planner can
+        // fulfil it, so a family that has moved onto generic facts keeps parsing as a code request.
         if (!KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out _,
-            out _))
+                knowledge!,
+                null,
+                request,
+                out _,
+                out _) &&
+            !SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                languagePack,
+                out _,
+                out _,
+                out _))
         {
             return false;
         }

@@ -56,7 +56,11 @@ public sealed class GenerationLanguagePackLoader
             (pack.CollectionLiteralFormat is { } collectionFormat &&
                 !IsValidCollectionLiteralFormat(collectionFormat)) ||
             (pack.InputSyntax is { } inputSyntax &&
-                !IsValidInputSyntax(inputSyntax)))
+                !IsValidInputSyntax(inputSyntax)) ||
+            (pack.InterpolationFormat is { } interpolationFormat &&
+                !IsValidInterpolationFormat(interpolationFormat)) ||
+            (!pack.ConversionFormats.IsDefaultOrEmpty &&
+                !IsValidConversionFormats(pack.ConversionFormats)))
         {
             error = "The generation language pack metadata or collection sizes are invalid.";
             pack = null;
@@ -384,6 +388,32 @@ public sealed class GenerationLanguagePackLoader
 
         return true;
     }
+
+    private static bool IsValidInterpolationFormat(GenerationInterpolationFormat format) =>
+        format is not null &&
+        !string.IsNullOrEmpty(format.Opening) &&
+        format.Opening.Length <= 8 &&
+        !string.IsNullOrEmpty(format.PlaceholderOpening) &&
+        format.PlaceholderOpening.Length <= 4 &&
+        !string.IsNullOrEmpty(format.PlaceholderClosing) &&
+        format.PlaceholderClosing.Length <= 4 &&
+        !string.IsNullOrEmpty(format.Closing) &&
+        format.Closing.Length <= 8;
+
+    private static bool IsValidConversionFormats(ImmutableArray<GenerationConversionFormat> formats) =>
+        formats.Length <= 8 &&
+        formats.All(format =>
+            format is not null &&
+            Enum.TryParse<SemanticValueKind>(format.Target, ignoreCase: false, out var target) &&
+            Enum.IsDefined(target) &&
+            target is SemanticValueKind.Number or SemanticValueKind.Text &&
+            !string.IsNullOrEmpty(format.Format) &&
+            format.Format.Length <= 64 &&
+            format.Format.Contains("{0}", StringComparison.Ordinal)) &&
+        formats
+            .Select(format => format.Target)
+            .Distinct(StringComparer.Ordinal)
+            .Count() == formats.Length;
 
     private static bool IsValidMemberAccessFormat(
         GenerationMemberAccessFormat format,

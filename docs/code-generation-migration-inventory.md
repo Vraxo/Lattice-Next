@@ -418,9 +418,9 @@ Captured: the call expression text when the request writes one. Fixed: greeting'
 | Family | Rules | Facts and captured values | Emitted fragments |
 | --- | --- | --- | --- |
 | **Class marker** | `recognize-class-requirement` | Marker fact `program.class` | None by itself |
-| **Bank-account model** | `recognize-bank-account-class` (13 captures) | `program.class-model#kind/className/attributeName/initializerParameter/depositMethodName/withdrawalMethodName/amountParameter` and five `program.class-model.stage.*` markers, all `literalValue` constants (`BankAccount`, `balance`, `deposit`, `withdraw`, `amount`, `class-definition`, `deposit-header`, `deposit-body`, `withdraw-header`, `withdraw-body`) | `python-class-model-*`: fence + `class BankAccount:` with `__init__`, a `deposit` method, and a `withdraw` method that refuses overdraws, then a fixed demonstration call sequence |
+| **Bank-account model** (removed in M-10.23) | `recognize-bank-account-class` (13 captures) — replaced by `recognize-declared-class` | Was `program.class-model#kind/className/attributeName/initializerParameter/depositMethodName/withdrawalMethodName/amountParameter` and five `program.class-model.stage.*` markers, all `literalValue` constants; now `program.requirement.class#name`, `program.requirement.class.field#field/initial`, `program.requirement.class.method#method/parameter/result`, `.method.guard#method/left/right/operator/value`, `.method.update#method/field/operator/value`, and `.method.result#method/value` | `python-class-model-*` deleted; the declaration now renders from the pack's `class`/method/indented-statement productions through `SemanticProgramPlanner.TryPlanClass` |
 
-Fixed: class name, the single attribute, the initializer parameter, both method names, the amount parameter, the method bodies, and the demonstration output. Captured from the request: nothing — every value is a literal capture. Not represented: a class identity, ordered fields with initial values, method parameter lists, method bodies as requirements, or member access.
+Before M-10.23 the class name, the attribute, the initializer parameter, both method names, the amount parameter, the method bodies, and the demonstration output were all fixed. Captured from the request now: the class identity. Declared by the recognized rule as the shape the request describes: one field whose initial value is the constructor argument of the same name, two methods with one parameter each, a declared result kind per method, a guard that refuses a withdrawal larger than the balance, and in-place field updates. Still not represented: a request-derived method body expression, member access outside the declaration, and the demonstration call sequence, which the benchmark appends in its own harness rather than in generated code.
 
 #### M-10.4 Exception rules and templates (3 input rules, 3 sequence rules)
 
@@ -431,6 +431,23 @@ Fixed: class name, the single attribute, the initializer parameter, both method 
 
 Fixed: the exception types (`ValueError`, `FileNotFoundError`), the recovery bodies, and the messages. Captured: nothing. Not represented: a raised error with a type and condition, a handler with a type and recovery body, or the distinction between a successful result and a handled failure.
 
+#### M-10.23 Result: class declarations plan from request-derived facts
+
+`recognize-declared-class` replaces `recognize-bank-account-class`. It matches a class declaration request and captures the identity the request names; the member shape is declared as ordered literal columns on the same rule (16 captures, one per fact/value pair, which is the loader's per-rule budget):
+
+| Fact | Values | Consumed by |
+| --- | --- | --- |
+| `program.requirement.class#name` | captured identity, prefix `a`/`an`/`the` trimmed | `ClassRequirement.Name` through `TryDeriveClassName` |
+| `program.requirement.class.field#field` | `balance` | `ClassField.Name`; its initial value defaults to the constructor parameter of the same name |
+| `program.requirement.class.method#method/parameter/result` | `deposit|withdraw`, `amount|amount`, `none|Boolean` | one `MethodRequirement` per method, with `none` as the no-result marker and `Boolean` as the declared result kind |
+| `program.requirement.class.method.guard#method/left/right/operator/value` | `withdraw`, `amount`, `balance`, `GreaterThan`, `False` | the guarded `ConditionalRequirement` and its early `ReturnRequirement` |
+| `program.requirement.class.method.update#method/field/operator/value` | `deposit|withdraw`, `balance|balance`, `Add|Subtract`, `amount|amount` | one `UpdateRequirement` per method (`this.balance += amount` / `-= amount`) |
+| `program.requirement.class.method.result#method/value` | `withdraw`, `True` | the trailing `ReturnRequirement` on the success path |
+
+Deleted with the migration: `recognize-bank-account-class`, the six `python-class-model-*` sequence rules, and the six `bank-account-class-model-*` validations. Added: `declared-class-field-is-identifier`, `declared-class-method-is-identifier`, and `declared-class-method-is-unique`. The module now carries 98 sequence rules and 34 validations.
+
+Two loader limits shaped the rule and are worth recording: an input rule may declare at most 16 captures, and every capture token in `startAfterTokens`/`stopBeforeTokens` must be an identifier (letters, digits, `.`, `-`, `_`, `:`), so punctuation such as `,` cannot terminate a capture. Both failures surface only as a generic "Every input fact rule requires..." error that fails the whole knowledge module, which in turn makes every knowledge-driven request produce no utterance at all — a knowledge-load failure looks like a runtime regression.
+
 #### Consequences for M-10.5 through M-10.27
 
-Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. Classes and exceptions are further behind: both are single fixed examples driven entirely by literal captures, so their generic path needs class/field/method/member-access and raise/handler requirements before any template can be deleted. M-10.22 and M-10.23 therefore depend on the same request-derived fact layer that M-09.22 through M-09.25 wait for.
+Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. M-10.22 and M-10.23 have since deleted the function, conversion, and class templates: function requests and class declarations now plan from request-derived requirements. Exception fragments survive in one place only — `python-directory-file-listing`, which still emits a whole program because the planner has no import or directory-iteration requirement; M-10.29 removes it once those land.

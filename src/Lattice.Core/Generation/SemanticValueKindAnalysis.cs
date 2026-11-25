@@ -27,6 +27,10 @@ internal static class SemanticValueKindAnalysis
                 return names.TryGetValue(name.Name, out var nameKind) ? nameKind : null;
             case SemanticFunctionCallExpression call:
                 return functionResults.TryGetValue(call.Name, out var resultKind) ? resultKind : null;
+            case SemanticConversionExpression conversion:
+                return conversion.Target;
+            case SemanticTextTemplateExpression:
+                return SemanticValueKind.Text;
             case SemanticUnaryExpression unary:
                 return unary.Operator == SemanticExpressionOperator.Not
                     ? SemanticValueKind.Boolean

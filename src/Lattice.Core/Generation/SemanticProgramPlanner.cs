@@ -16,7 +16,7 @@ public sealed record PlannedProgramStatement(
 /// </summary>
 public static class SemanticProgramPlanner
 {
-    private const int MaximumDepth = 2;
+    private const int MaximumDepth = 3;
     private const int MaximumRequirements = 64;
     private const int MaximumStatements = 256;
 
@@ -38,9 +38,9 @@ public static class SemanticProgramPlanner
     ];
 
     /// <summary>
-    /// Request facts that describe capabilities planned by a later migration group (functions,
-    /// collections, files, classes, loops, and the stored scalar task families). A request that carries
-    /// one of them is left to its own path instead of being planned as a scalar program.
+    /// Request facts that describe capabilities planned by a later migration group (function bodies and
+    /// stored task families, collections, files, classes, loops). A request that carries one of them is
+    /// left to its own path instead of being planned from its generic requirements.
     /// </summary>
     private static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
@@ -49,15 +49,12 @@ public static class SemanticProgramPlanner
         "program.assignment.second",
         "program.assignment.result",
         "program.classification",
-        "program.class",
         "program.collection",
         "program.dictionary",
         "program.directory",
         "program.even",
         "program.file",
         "program.for",
-        "program.function",
-        "program.greeting",
         "program.import",
         "program.json",
         "program.list",
@@ -148,7 +145,7 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (!ContainsOutputRequirement(program.Requirements) && HasUnmappedScalarIntent(facts))
+        if (!CarriesDeclaredIntent(program.Requirements) && HasUnmappedScalarIntent(facts))
         {
             error = "The request expresses an output or arithmetic intent that its requirements do not carry.";
             return false;
@@ -184,14 +181,20 @@ public static class SemanticProgramPlanner
             UnmappedScalarIntentFactPrefixes.Any(prefix =>
                 fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
 
-    private static bool ContainsOutputRequirement(ImmutableArray<ProgramRequirement> requirements) =>
+    /// <summary>
+    /// Whether the planned requirements already carry the intent the request expresses: either a scalar
+    /// program that prints something, or a class declaration whose members and results carry it.
+    /// </summary>
+    private static bool CarriesDeclaredIntent(ImmutableArray<ProgramRequirement> requirements) =>
         !requirements.IsDefaultOrEmpty &&
         requirements.Any(requirement => requirement switch
         {
             OutputRequirement => true,
+            ClassRequirement => true,
             ConditionalRequirement conditional =>
-                ContainsOutputRequirement(conditional.ThenRequirements) ||
-                ContainsOutputRequirement(conditional.ElseRequirements),
+                CarriesDeclaredIntent(conditional.ThenRequirements) ||
+                CarriesDeclaredIntent(conditional.ElseRequirements),
+            IterationRequirement iteration => CarriesDeclaredIntent(iteration.Body),
             _ => false
         });
 
@@ -222,6 +225,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case AugmentedAssignmentRequirement update:
+                    if (!TryPlanAugmentedAssignment(update, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case OutputRequirement output:
                     if (!TryPlanOutput(output, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -231,6 +241,13 @@ public static class SemanticProgramPlanner
                     break;
                 case ConditionalRequirement conditional:
                     if (!TryPlanConditional(conditional, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case ConditionalChainRequirement chain:
+                    if (!TryPlanChain(chain, depth, defined, pack, pipeline, planned, out error))
                     {
                         return false;
                     }
@@ -444,6 +461,69 @@ public static class SemanticProgramPlanner
             effect,
             argumentKind: "assignment",
             argumentValue: variableName,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    /// <summary>
+    /// Plans an in-place update: the pack supplies the compound operator symbol, so no target-language
+    /// punctuation is decided here.
+    /// </summary>
+    private static bool TryPlanAugmentedAssignment(
+        AugmentedAssignmentRequirement update,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(update.Target, defined, out error) ||
+            !TryRequireAvailable(update.Value, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(update.Target, pack, out var renderedTarget) ||
+            !SemanticExpressionRenderer.TryRender(update.Value, pack, out var renderedValue) ||
+            !SemanticExpressionRenderer.TryRenderOperator(update.Operator, pack, out var renderedOperator))
+        {
+            error = "The language pack cannot render the requested in-place update.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-augmented-assignment";
+                break;
+            case 1:
+                effect = "emit-indented-augmented-assignment";
+                break;
+            case 2:
+                effect = "emit-double-indented-augmented-assignment";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", renderedTarget)
+            .Add("operator", renderedOperator)
+            .Add("expression", renderedValue);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "augmented-assignment",
+            argumentValue: renderedTarget,
             bindings,
             depth,
             defined,
@@ -786,6 +866,15 @@ public static class SemanticProgramPlanner
 
         if (!declaredClass.Fields.IsDefaultOrEmpty)
         {
+            // The constructor receives whatever the fields start from, in field order, so a field that
+            // starts at a request-declared value is initialized from the argument of that name.
+            var initializedFrom = string.Join(
+                ", ",
+                declaredClass.Fields
+                    .SelectMany(field => SemanticExpressionAnalysis.GetReferencedNames(field.InitialValue))
+                    .Where(name => !string.Equals(name, declaredClass.InstanceName, StringComparison.Ordinal))
+                    .Distinct(StringComparer.Ordinal)
+                    .Prepend(declaredClass.InstanceName));
             if (!TryEmit(
                     pack,
                     pipeline,
@@ -795,7 +884,7 @@ public static class SemanticProgramPlanner
                     ImmutableDictionary<string, string>.Empty
                         .WithComparers(StringComparer.Ordinal)
                         .Add("function", "__init__")
-                        .Add("arguments", declaredClass.InstanceName),
+                        .Add("arguments", initializedFrom),
                     depth: 1,
                     defined,
                     planned,
@@ -1005,8 +1094,11 @@ public static class SemanticProgramPlanner
             case 2:
                 effect = "return-value-double-indented-expression";
                 break;
+            case 3:
+                effect = "return-value-triple-indented-expression";
+                break;
             default:
-                error = "A return is planned inside a function or method body, one or two levels deep.";
+                error = "A return is planned inside a function or method body, one to three levels deep.";
                 return false;
         }
 
@@ -1570,6 +1662,170 @@ public static class SemanticProgramPlanner
             planned,
             out error);
     }
+
+    /// <summary>
+    /// Plans a multi-way branch: the first condition becomes the opening block header and every later
+    /// one continues the same block as an alternative. When every branch leaves the enclosing body the
+    /// otherwise statements follow the block at the same level; otherwise they form the final block so
+    /// they run only when no condition matched.
+    /// </summary>
+    private static bool TryPlanChain(
+        ConditionalChainRequirement chain,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth >= MaximumDepth)
+        {
+            error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+            return false;
+        }
+
+        if (chain.Branches.IsDefaultOrEmpty)
+        {
+            error = "A branch chain needs at least one condition.";
+            return false;
+        }
+
+        for (var index = 0; index < chain.Branches.Length; index++)
+        {
+            var branch = chain.Branches[index];
+            if (branch is null || branch.Body.IsDefaultOrEmpty)
+            {
+                error = "A branch chain needs a statement under every condition.";
+                return false;
+            }
+
+            if (!TryRequireAvailable(branch.Condition, defined, out error))
+            {
+                return false;
+            }
+
+            if (!SemanticExpressionRenderer.TryRender(branch.Condition, pack, out var renderedCondition))
+            {
+                error = $"The '{pack.Language}' language pack cannot render a requested condition.";
+                return false;
+            }
+
+            var effect = index == 0
+                ? (depth switch
+                {
+                    0 => "emit-conditional-header",
+                    1 => "emit-indented-conditional-header",
+                    _ => "emit-double-indented-conditional-header"
+                })
+                : (depth switch
+                {
+                    0 => "begin-elif",
+                    1 => "begin-elif-indented",
+                    _ => "begin-elif-double-indented"
+                });
+
+            var conditionBindings = ImmutableDictionary<string, string>.Empty
+                .WithComparers(StringComparer.Ordinal)
+                .Add("condition", renderedCondition);
+            if (!TryEmit(
+                    pack,
+                    pipeline,
+                    effect,
+                    argumentKind: "condition",
+                    argumentValue: renderedCondition,
+                    conditionBindings,
+                    depth,
+                    defined,
+                    planned,
+                    out error))
+            {
+                return false;
+            }
+
+            var branchDefined = new HashSet<string>(defined, StringComparer.Ordinal);
+            if (!TryPlanRequirements(
+                    branch.Body,
+                    depth + 1,
+                    branchDefined,
+                    pack,
+                    pipeline,
+                    planned,
+                    out error))
+            {
+                return false;
+            }
+        }
+
+        var otherwise = chain.Otherwise.IsDefault
+            ? ImmutableArray<ProgramRequirement>.Empty
+            : chain.Otherwise;
+        if (otherwise.IsEmpty)
+        {
+            return true;
+        }
+
+        if (BranchesLeaveBody(chain.Branches))
+        {
+            return TryPlanRequirements(otherwise, depth, defined, pack, pipeline, planned, out error);
+        }
+
+        var elseEffect = depth switch
+        {
+            0 => "emit-else",
+            1 => "emit-indented-else",
+            _ => "emit-double-indented-else"
+        };
+        if (!TryEmit(
+                pack,
+                pipeline,
+                elseEffect,
+                argumentKind: "none",
+                argumentValue: "else",
+                ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        return TryPlanRequirements(
+            otherwise,
+            depth + 1,
+            new HashSet<string>(defined, StringComparer.Ordinal),
+            pack,
+            pipeline,
+            planned,
+            out error);
+    }
+
+    /// <summary>Returns true when every branch ends by leaving the enclosing body instead of falling through.</summary>
+    private static bool BranchesLeaveBody(ImmutableArray<ConditionalBranch> branches) =>
+        !branches.IsDefaultOrEmpty && branches.All(branch => LeavesBody(branch.Body));
+
+    /// <summary>
+    /// Returns true when a requirement sequence cannot fall through to the requirement after it: it ends
+    /// with a return or a raise, or with a branch whose every path does.
+    /// </summary>
+    private static bool LeavesBody(ImmutableArray<ProgramRequirement> requirements) =>
+        !requirements.IsDefaultOrEmpty &&
+        requirements[^1] switch
+        {
+            ReturnRequirement => true,
+            RaiseRequirement => true,
+            ConditionalChainRequirement chain =>
+                !chain.Otherwise.IsDefaultOrEmpty &&
+                BranchesLeaveBody(chain.Branches) &&
+                LeavesBody(chain.Otherwise),
+            ConditionalRequirement conditional =>
+                !conditional.ThenRequirements.IsDefaultOrEmpty &&
+                !conditional.ElseRequirements.IsDefaultOrEmpty &&
+                LeavesBody(conditional.ThenRequirements) &&
+                LeavesBody(conditional.ElseRequirements),
+            _ => false
+        };
 
     private static bool TryPlanConditional(
         ConditionalRequirement conditional,

@@ -59,15 +59,40 @@ jobs:
           for failed_test in failed_tests:
               annotation = failed_test.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
               print(f"::error title=Failed test::{annotation}")
-          print(f"Found {len(failed_tests)} failed test case(s).")
+          print(f"::notice title=Test failure count::{len(failed_tests)} failed test case(s).")
           tail = "\n".join(output.splitlines()[-40:])
           if len(tail) > 12000:
               tail = tail[-12000:]
           message = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-          print(f"::error title=Test failure details::{message}")
+          print(f"::notice title=Test failure details::{message}")
           PY
           fi
           exit "$test_status"
+
+      - name: Report failing test context
+        if: failure()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          log = Path("test-output.log")
+          if log.exists():
+              lines = re.sub(r"\x1b\[[0-9;]*m", "", log.read_text(errors="replace")).splitlines()
+              starts = [
+                  index for index, line in enumerate(lines)
+                  if line.strip().lower().startswith("failed ") and ".tests." in line.lower()
+              ]
+              emitted = 0
+              last_end = -1
+              for start in starts:
+                  if start <= last_end or emitted >= 6:
+                      continue
+                  window = "\n".join(lines[start:start + 8])
+                  last_end = start + 7
+                  emitted += 1
+                  message = window.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+                  print(f"::notice title=Failing test {emitted}::{message}")
+          PY
 
       - name: Install web-search dependency
         run: python -m pip install -r tools/web-search/requirements.txt

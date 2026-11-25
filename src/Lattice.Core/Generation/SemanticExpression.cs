@@ -55,6 +55,21 @@ public sealed record SemanticMemberAccessExpression(
     string Target,
     string Member) : SemanticExpression;
 
+/// <summary>
+/// Converts one value to a target value kind, for example reading text as a number. The selected
+/// language pack spells the conversion for each target kind, so no requirement names a language construct.
+/// </summary>
+public sealed record SemanticConversionExpression(
+    SemanticValueKind Target,
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// One text value assembled from literal fragments and embedded values, for example a greeting around a
+/// name. The selected language pack spells how a text value is built from its parts.
+/// </summary>
+public sealed record SemanticTextTemplateExpression(
+    ImmutableArray<SemanticExpression> Parts) : SemanticExpression;
+
 internal static class SemanticExpressionAnalysis
 {
     private const int MaximumDepth = 64;
@@ -153,6 +168,16 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticConversionExpression conversion:
+                CollectReferencedNames(conversion.Value, names);
+                break;
+            case SemanticTextTemplateExpression template:
+                foreach (var part in template.Parts)
+                {
+                    CollectReferencedNames(part, names);
+                }
+
+                break;
             case SemanticUnaryExpression unary:
                 CollectReferencedNames(unary.Operand, names);
                 break;
@@ -221,11 +246,20 @@ internal static class SemanticExpressionAnalysis
         SemanticTextExpression => KnownValueType.Text,
         SemanticBooleanExpression => KnownValueType.Boolean,
         SemanticNumberExpression or SemanticUnaryExpression or SemanticBinaryExpression or SemanticFunctionCallExpression => KnownValueType.Number,
+        SemanticConversionExpression conversion => conversion.Target switch
+        {
+            SemanticValueKind.Number => KnownValueType.Number,
+            SemanticValueKind.Text => KnownValueType.Text,
+            _ => null
+        },
+        SemanticTextTemplateExpression => KnownValueType.Text,
         _ => null
     };
 
     private static bool IsValueCore(SemanticExpression expression) =>
-        expression is SemanticTextExpression or SemanticBooleanExpression || IsArithmeticCore(expression);
+        expression is SemanticTextExpression or SemanticBooleanExpression ||
+        expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
+        IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
         SemanticExpression expression,
@@ -244,6 +278,12 @@ internal static class SemanticExpressionAnalysis
         SemanticUnaryExpression unary =>
             ReferencesOnlyAvailableNamesCore(
                 unary.Operand, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticConversionExpression conversion =>
+            ReferencesOnlyAvailableNamesCore(
+                conversion.Value, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticTextTemplateExpression template =>
+            template.Parts.All(part => ReferencesOnlyAvailableNamesCore(
+                part, availableNames, allowFunctionCalls, availableFunctions)),
         SemanticBinaryExpression binary =>
             ReferencesOnlyAvailableNamesCore(
                 binary.Left, availableNames, allowFunctionCalls, availableFunctions) &&
@@ -261,6 +301,9 @@ internal static class SemanticExpressionAnalysis
         SemanticFunctionCallExpression call =>
             call.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticUnaryExpression unary => ReferencesAnyNameCore(unary.Operand, names),
+        SemanticConversionExpression conversion => ReferencesAnyNameCore(conversion.Value, names),
+        SemanticTextTemplateExpression template =>
+            template.Parts.Any(part => ReferencesAnyNameCore(part, names)),
         SemanticBinaryExpression binary =>
             ReferencesAnyNameCore(binary.Left, names) || ReferencesAnyNameCore(binary.Right, names),
         _ => false
@@ -289,8 +332,33 @@ internal static class SemanticExpressionAnalysis
             SemanticFunctionCallExpression call => IsValidCallArguments(call, depth, ref nodeCount),
             SemanticMemberAccessExpression member =>
                 IsValidIdentifier(member.Target) && IsValidIdentifier(member.Member),
+            SemanticConversionExpression conversion =>
+                conversion.Target is SemanticValueKind.Number or SemanticValueKind.Text &&
+                IsValid(conversion.Value, depth + 1, ref nodeCount),
+            SemanticTextTemplateExpression template => IsValidTemplate(template, depth, ref nodeCount),
             _ => false
         };
+    }
+
+    private static bool IsValidTemplate(
+        SemanticTextTemplateExpression template,
+        int depth,
+        ref int nodeCount)
+    {
+        if (template.Parts.IsDefaultOrEmpty || template.Parts.Length > 8)
+        {
+            return false;
+        }
+
+        foreach (var part in template.Parts)
+        {
+            if (!IsValid(part, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool IsValidCallArguments(
@@ -356,6 +424,16 @@ internal static class SemanticExpressionAnalysis
             case SemanticBinaryExpression binary:
                 CollectFunctionNames(binary.Left, names);
                 CollectFunctionNames(binary.Right, names);
+                break;
+            case SemanticConversionExpression conversion:
+                CollectFunctionNames(conversion.Value, names);
+                break;
+            case SemanticTextTemplateExpression template:
+                foreach (var part in template.Parts)
+                {
+                    CollectFunctionNames(part, names);
+                }
+
                 break;
         }
     }

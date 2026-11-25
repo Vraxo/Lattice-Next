@@ -85,7 +85,7 @@ public sealed class SemanticProgramClassAndErrorTests
     }
 
     [Fact]
-    public void Rejects_a_return_inside_a_method_that_declares_no_result()
+    public void Accepts_a_return_inside_a_method_that_declares_no_result()
     {
         var program = new SemanticProgram([
             new ClassRequirement(
@@ -100,7 +100,8 @@ public sealed class SemanticProgramClassAndErrorTests
                 ])
         ]);
 
-        Assert.False(SemanticProgramValidator.IsValid(program));
+        // A request that never states a result kind still returns a value, so an undeclared kind accepts it.
+        Assert.True(SemanticProgramValidator.IsValid(program));
     }
 
     [Fact]
@@ -190,6 +191,59 @@ public sealed class SemanticProgramClassAndErrorTests
         {
             Collections = [new CollectionBinding("records", SemanticCollectionItemKind.Text)]
         };
+
+        Assert.False(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
+    public void Updates_a_declared_field_in_place()
+    {
+        var program = new SemanticProgram([
+            new ClassRequirement(
+                "Counter",
+                [new ClassField("count", new SemanticNameExpression("start"))],
+                [
+                    new MethodRequirement(
+                        "add",
+                        [new FunctionParameter("amount", SemanticValueKind.Number)],
+                        null,
+                        [
+                            new AugmentedAssignmentRequirement(
+                                new SemanticMemberAccessExpression("self", "count"),
+                                SemanticExpressionOperator.Add,
+                                new SemanticNameExpression("amount"))
+                        ])
+                ])
+        ]);
+
+        Assert.True(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
+    public void Rejects_an_in_place_update_with_a_comparison_operator()
+    {
+        var program = new SemanticProgram([
+            new AugmentedAssignmentRequirement(
+                new SemanticNameExpression("total"),
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNumberExpression("1"))
+        ]);
+
+        Assert.False(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
+    public void Rejects_an_in_place_update_of_a_computed_value()
+    {
+        var program = new SemanticProgram([
+            new AugmentedAssignmentRequirement(
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    new SemanticNameExpression("total"),
+                    new SemanticNumberExpression("1")),
+                SemanticExpressionOperator.Add,
+                new SemanticNumberExpression("1"))
+        ]);
 
         Assert.False(SemanticProgramValidator.IsValid(program));
     }
