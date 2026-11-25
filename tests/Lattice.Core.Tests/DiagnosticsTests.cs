@@ -1,4 +1,6 @@
-using System.Collections.Immutable;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Lattice.Core.Generation;
 using Xunit;
 
@@ -7,50 +9,56 @@ namespace Lattice.Core.Tests;
 public sealed class AaaDiagnosticsTests
 {
     [Fact]
-    public void Reports_the_hello_world_pipeline_state()
+    public void Reports_which_declared_class_capture_is_invalid()
     {
-        const string prompt = "Create a Python program that prints \"Hello, world!\".";
+        var assembly = typeof(SequenceKnowledgeBaseLoader).Assembly;
+        var resource = assembly.GetManifestResourceNames()
+            .Single(name => name.EndsWith("sequences.python.core.json", StringComparison.Ordinal));
+        using var stream = assembly.GetManifestResourceStream(resource)!;
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        var document = JsonNode.Parse(reader.ReadToEnd())!.AsObject();
+        var rules = document["inputRules"]!.AsArray();
+        var declaration = rules
+            .Select(node => node!.AsObject())
+            .Single(node => (string?)node["id"] == "recognize-declared-class");
+        var captures = declaration["captures"]!.AsArray();
 
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var knowledgeError), knowledgeError);
-        Assert.True(new GenerationLanguagePackLoader().TryLoadEmbedded(out var packs, out var packError), packError);
-        Assert.True(packs.TryGetValue("python", out var pack), "no python pack");
-
-        var extracted = SequenceInputFactExtractor.TryExtract(knowledge, prompt, out var facts, out var extractError);
-        var requestedFacts = extracted ? facts.Select(fact => fact.Id).ToImmutableArray() : ImmutableArray<string>.Empty;
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, requestedFacts)
+        var results = new StringBuilder();
+        for (var index = 0; index < captures.Count; index++)
         {
-            FactValues = extracted ? facts : ImmutableArray<SequenceSemanticFact>.Empty,
-            LanguagePack = pack
-        };
-        var generated = SequenceKnowledgeDrivenState(
-            knowledge,
-            request,
-            out var generateError,
-            out var text);
-        var validated = extracted &&
-            SequenceInputFactValidator.TryValidate(knowledge.Validations, facts, pack, out var validateError) &&
-            validateError is null;
-        var validationDetail = extracted &&
-            SequenceInputFactValidator.TryValidate(knowledge.Validations, facts, pack, out var detail)
-            ? "none"
-            : "failed";
+            var variant = JsonNode.Parse(document.ToJsonString())!.AsObject();
+            var variantRule = JsonNode.Parse(declaration.ToJsonString())!.AsObject();
+            var variantCaptures = variantRule["captures"]!.AsArray();
+            for (var remove = variantCaptures.Count - 1; remove >= 0; remove--)
+            {
+                if (remove != index)
+                {
+                    variantCaptures.RemoveAt(remove);
+                }
+            }
 
-        Assert.True(
-            false,
-            $"DIAG extract={extracted} extractError={extractError} "
-                + $"facts={string.Join(",", requestedFacts)} "
-                + $"generate={generated} generateError={generateError} "
-                + $"text={text} validate={validated} validationDetail={validationDetail}");
+            var ok = TryLoadSingle(variant, variantRule, out var error);
+            results.Append($" c{index}={(ok ? "ok" : "FAIL")}");
+            if (!ok)
+            {
+                results.Append($":[{(captures[index]!.ToJsonString().Length > 220 ? captures[index]!.ToJsonString()[..220] : captures[index]!.ToJsonString())}]");
+            }
+        }
+
+        var bare = JsonNode.Parse(declaration.ToJsonString())!.AsObject();
+        bare.Remove("captures");
+        var bareOk = TryLoadSingle(
+            JsonNode.Parse(document.ToJsonString())!.AsObject(),
+            bare,
+            out _);
+        Assert.True(false, $"bare={bareOk}{results}");
     }
 
-    private static bool SequenceKnowledgeDrivenState(
-        SequenceKnowledgeBase knowledge,
-        KnowledgeDrivenSequenceGenerationRequest request,
-        out string? error,
-        out string text)
+    private static bool TryLoadSingle(JsonObject document, JsonObject rule, out string? error)
     {
-        var ok = KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge, null, request, out var result, out error);
-        text = result?.Text is { } value ? value.Replace("\n", "\\n", StringComparison.Ordinal) : "none";
-        return ok;
+        var inputRules = document["inputRules"]!.AsArray();
+        inputRules.Clear();
+        inputRules.Add(rule);
+        return SequenceKnowledgeBaseLoader.TryLoad(document.ToJsonString(), out _, out error);
     }
 }
