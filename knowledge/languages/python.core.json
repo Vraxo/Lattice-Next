@@ -940,6 +940,506 @@
           "value": "    else:"
         }
       ]
+    },
+    {
+      "head": "bound-filter-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": " if "
+        },
+        {
+          "kind": "binding",
+          "value": "predicate"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "bound-map-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "bound-sort-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-reverse-sort-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", reverse=True)"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-filter-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": " if "
+        },
+        {
+          "kind": "binding",
+          "value": "predicate"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-map-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-sort-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-reverse-sort-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", reverse=True)"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-filter-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": " if "
+        },
+        {
+          "kind": "binding",
+          "value": "predicate"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-map-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = ["
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "]"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-sort-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-reverse-sort-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = sorted("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ", key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", reverse=True)"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1022,6 +1522,18 @@
       "source": "goal-binding",
       "encoding": "string-literal",
       "key": "string-value"
+    },
+    {
+      "name": "predicate",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "predicate"
+    },
+    {
+      "name": "key",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "key"
     }
   ],
   "operations": [
@@ -1474,6 +1986,102 @@
       "argumentKind": "none",
       "prerequisites": [],
       "startSymbol": "bound-indented-else"
+    },
+    {
+      "id": "python-bound-filter",
+      "symbol": "[",
+      "effect": "emit-filter-binding",
+      "argumentKind": "filter-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-filter-assignment"
+    },
+    {
+      "id": "python-bound-map",
+      "symbol": "[",
+      "effect": "emit-map-binding",
+      "argumentKind": "map-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-map-assignment"
+    },
+    {
+      "id": "python-bound-sort",
+      "symbol": "sorted",
+      "effect": "emit-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-sort-assignment"
+    },
+    {
+      "id": "python-bound-reverse-sort",
+      "symbol": "sorted",
+      "effect": "emit-reverse-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-reverse-sort-assignment"
+    },
+    {
+      "id": "python-indented-bound-filter",
+      "symbol": "[",
+      "effect": "emit-indented-filter-binding",
+      "argumentKind": "filter-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-filter-assignment"
+    },
+    {
+      "id": "python-indented-bound-map",
+      "symbol": "[",
+      "effect": "emit-indented-map-binding",
+      "argumentKind": "map-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-map-assignment"
+    },
+    {
+      "id": "python-indented-bound-sort",
+      "symbol": "sorted",
+      "effect": "emit-indented-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-sort-assignment"
+    },
+    {
+      "id": "python-indented-bound-reverse-sort",
+      "symbol": "sorted",
+      "effect": "emit-indented-reverse-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-reverse-sort-assignment"
+    },
+    {
+      "id": "python-double-indented-bound-filter",
+      "symbol": "[",
+      "effect": "emit-double-indented-filter-binding",
+      "argumentKind": "filter-binding",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-filter-assignment"
+    },
+    {
+      "id": "python-double-indented-bound-map",
+      "symbol": "[",
+      "effect": "emit-double-indented-map-binding",
+      "argumentKind": "map-binding",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-map-assignment"
+    },
+    {
+      "id": "python-double-indented-bound-sort",
+      "symbol": "sorted",
+      "effect": "emit-double-indented-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-sort-assignment"
+    },
+    {
+      "id": "python-double-indented-bound-reverse-sort",
+      "symbol": "sorted",
+      "effect": "emit-double-indented-reverse-sort-binding",
+      "argumentKind": "sort-binding",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-reverse-sort-assignment"
     }
   ],
   "stringLiteralFormat": {

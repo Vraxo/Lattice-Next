@@ -95,7 +95,11 @@ public static class SemanticProgramPlanner
         }
 
         var planned = ImmutableArray.CreateBuilder<PlannedProgramStatement>();
-        var defined = new HashSet<string>(StringComparer.Ordinal);
+        var defined = new HashSet<string>(
+            program.Collections.IsDefault
+                ? Array.Empty<string>()
+                : program.Collections.Select(collection => collection.Name),
+            StringComparer.Ordinal);
         if (!TryPlanRequirements(
                 program.Requirements,
                 depth: 0,
@@ -232,6 +236,67 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case IterationRequirement iteration:
+                    if (!TryPlanIteration(iteration, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case AccumulationRequirement accumulation:
+                    if (!TryPlanAccumulation(accumulation, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case FilterRequirement filter:
+                    if (!TryPlanCollectionExpression(
+                            filter.ResultName,
+                            filter.ItemName,
+                            filter.Source,
+                            filter.Predicate,
+                            "predicate",
+                            "filter-binding",
+                            "filter",
+                            depth,
+                            defined,
+                            pack,
+                            pipeline,
+                            planned,
+                            out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case MapRequirement map:
+                    if (!TryPlanCollectionExpression(
+                            map.ResultName,
+                            map.ItemName,
+                            map.Source,
+                            map.Value,
+                            "expression",
+                            "map-binding",
+                            "map",
+                            depth,
+                            defined,
+                            pack,
+                            pipeline,
+                            planned,
+                            out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case SortRequirement sort:
+                    if (!TryPlanSort(sort, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 default:
                     error = $"The program requirement '{requirement.GetType().Name}' has no known operation.";
                     return false;
@@ -251,15 +316,6 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (string.IsNullOrWhiteSpace(assignment.VariableName) ||
-            pack.InputSyntax is not { } assignmentSyntax ||
-            !GenerationInputSyntaxParser.IsIdentifier(assignment.VariableName, assignmentSyntax))
-        {
-            error = $"The assignment target '{assignment.VariableName}' is not an identifier of the " +
-                $"'{pack.Language}' language pack.";
-            return false;
-        }
-
         if (!TryRequireAvailable(assignment.Value, defined, out error))
         {
             return false;
@@ -269,6 +325,39 @@ public static class SemanticProgramPlanner
         {
             error = $"The '{pack.Language}' language pack cannot render the value assigned to " +
                 $"'{assignment.VariableName}'.";
+            return false;
+        }
+
+        if (!TryEmitAssignment(
+                assignment.VariableName,
+                rendered,
+                depth,
+                defined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(assignment.VariableName);
+        return true;
+    }
+
+    private static bool TryEmitAssignment(
+        string variableName,
+        string renderedValue,
+        int depth,
+        IReadOnlySet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireIdentifier(variableName, pack, "assignment target", out error))
+        {
             return false;
         }
 
@@ -291,14 +380,230 @@ public static class SemanticProgramPlanner
 
         var bindings = ImmutableDictionary<string, string>.Empty
             .WithComparers(StringComparer.Ordinal)
-            .Add("target", assignment.VariableName)
-            .Add("expression", rendered);
+            .Add("target", variableName)
+            .Add("expression", renderedValue);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "assignment",
+            argumentValue: variableName,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    private static bool TryPlanIteration(
+        IterationRequirement iteration,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(iteration.Source, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(iteration.Source, pack, out var renderedSource))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the iterated collection.";
+            return false;
+        }
+
+        if (!TryEmitLoopHeader(
+                iteration.ItemName,
+                renderedSource,
+                depth,
+                defined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal) { iteration.ItemName };
+        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        {
+            return false;
+        }
+
+        defined.Add(iteration.ItemName);
+        return true;
+    }
+
+    private static bool TryPlanAccumulation(
+        AccumulationRequirement accumulation,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(accumulation.Source, defined, out error) ||
+            !TryRequireAvailable(accumulation.InitialValue, defined, out error))
+        {
+            return false;
+        }
+
+        if (!TryRequireAvailable(
+                accumulation.Update,
+                defined,
+                out error,
+                accumulation.AccumulatorName,
+                accumulation.ItemName))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(accumulation.Source, pack, out var renderedSource))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the accumulated collection.";
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(accumulation.InitialValue, pack, out var renderedInitial))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the accumulator's initial value.";
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(accumulation.Update, pack, out var renderedUpdate))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the accumulator update.";
+            return false;
+        }
+
+        if (!TryEmitAssignment(
+                accumulation.AccumulatorName,
+                renderedInitial,
+                depth,
+                defined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var loopDefined = new HashSet<string>(defined, StringComparer.Ordinal)
+        {
+            accumulation.AccumulatorName
+        };
+        if (!TryEmitLoopHeader(
+                accumulation.ItemName,
+                renderedSource,
+                depth,
+                loopDefined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var bodyDefined = new HashSet<string>(loopDefined, StringComparer.Ordinal)
+        {
+            accumulation.ItemName
+        };
+        if (!TryEmitAssignment(
+                accumulation.AccumulatorName,
+                renderedUpdate,
+                depth + 1,
+                bodyDefined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(accumulation.AccumulatorName);
+        defined.Add(accumulation.ItemName);
+        return true;
+    }
+
+    private static bool TryPlanCollectionExpression(
+        string resultName,
+        string itemName,
+        SemanticExpression source,
+        SemanticExpression itemExpression,
+        string itemBindingName,
+        string argumentKind,
+        string operationWord,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(source, defined, out error) ||
+            !TryRequireAvailable(itemExpression, defined, out error, itemName))
+        {
+            return false;
+        }
+
+        if (!TryRequireIdentifier(resultName, pack, $"{operationWord} result", out error) ||
+            !TryRequireIdentifier(itemName, pack, $"{operationWord} item", out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(source, pack, out var renderedSource))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the {operationWord} source.";
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(itemExpression, pack, out var renderedItemExpression))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the {operationWord} expression.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = $"emit-{argumentKind}";
+                break;
+            case 1:
+                effect = $"emit-indented-{argumentKind}";
+                break;
+            case 2:
+                effect = $"emit-double-indented-{argumentKind}";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", resultName)
+            .Add("variable", itemName)
+            .Add("iterable", renderedSource)
+            .Add(itemBindingName, renderedItemExpression);
         if (!TryEmit(
                 pack,
                 pipeline,
                 effect,
-                argumentKind: "assignment",
-                argumentValue: assignment.VariableName,
+                argumentKind,
+                resultName,
                 bindings,
                 depth,
                 defined,
@@ -308,7 +613,148 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        defined.Add(assignment.VariableName);
+        defined.Add(resultName);
+        return true;
+    }
+
+    private static bool TryPlanSort(
+        SortRequirement sort,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(sort.Source, defined, out error) ||
+            !TryRequireAvailable(sort.Key, defined, out error, sort.ItemName))
+        {
+            return false;
+        }
+
+        if (!TryRequireIdentifier(sort.ResultName, pack, "sorted result", out error) ||
+            !TryRequireIdentifier(sort.ItemName, pack, "sorted item", out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(sort.Source, pack, out var renderedSource) ||
+            !SemanticExpressionRenderer.TryRender(sort.Key, pack, out var renderedKey))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the requested sort.";
+            return false;
+        }
+
+        const string argumentKind = "sort-binding";
+        var direction = sort.Descending ? "reverse-sort" : "sort";
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = $"emit-{direction}-binding";
+                break;
+            case 1:
+                effect = $"emit-indented-{direction}-binding";
+                break;
+            case 2:
+                effect = $"emit-double-indented-{direction}-binding";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", sort.ResultName)
+            .Add("variable", sort.ItemName)
+            .Add("iterable", renderedSource)
+            .Add("key", renderedKey);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind,
+                sort.ResultName,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(sort.ResultName);
+        return true;
+    }
+
+    private static bool TryEmitLoopHeader(
+        string itemName,
+        string renderedSource,
+        int depth,
+        IReadOnlySet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireIdentifier(itemName, pack, "loop item", out error))
+        {
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-loop-header";
+                break;
+            case 1:
+                effect = "emit-indented-loop-header";
+                break;
+            case 2:
+                effect = "emit-double-indented-loop-header";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("variable", itemName)
+            .Add("iterable", renderedSource);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "loop-header",
+            argumentValue: renderedSource,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    private static bool TryRequireIdentifier(
+        string name,
+        GenerationLanguagePack pack,
+        string description,
+        out string? error)
+    {
+        error = null;
+        if (string.IsNullOrWhiteSpace(name) ||
+            pack.InputSyntax is not { } syntax ||
+            !GenerationInputSyntaxParser.IsIdentifier(name, syntax))
+        {
+            error = $"The {description} '{name}' is not an identifier of the '{pack.Language}' language pack.";
+            return false;
+        }
+
         return true;
     }
 
@@ -540,12 +986,14 @@ public static class SemanticProgramPlanner
     private static bool TryRequireAvailable(
         SemanticExpression expression,
         IReadOnlySet<string> defined,
-        out string? error)
+        out string? error,
+        params string[] boundByRequirement)
     {
         error = null;
         foreach (var name in SemanticExpressionAnalysis.GetReferencedNames(expression))
         {
-            if (!defined.Contains(name))
+            if (!defined.Contains(name) &&
+                !boundByRequirement.Contains(name, StringComparer.Ordinal))
             {
                 error = $"The program uses the value '{name}' before any requirement defines it.";
                 return false;
