@@ -113,13 +113,13 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [x] **10.8 — Represent a function call.** `CallRequirement(FunctionName, Arguments)` models a call statement with ordered argument expressions; calls used as values compose through the existing `SemanticFunctionCallExpression`.
 - [x] **10.9 — Represent return expressions.** `ReturnRequirement` is valid only inside a function or method whose declared result kind its value can satisfy; a return outside a declaration, or inside one that declares no result, is rejected.
 - [x] **10.10 — Validate call arguments against parameters.** The validator collects declarations before validating, so a call may precede its declaration: argument count must match, and each argument's inferred kind must match the parameter's, where inference resolves literals, parameters, and calls to declared functions and treats anything unprovable as compatible. Duplicate declarations are rejected.
-- [ ] **10.11 — Represent a class declaration.** Model class identity independently of source syntax.
-- [ ] **10.12 — Represent fields and initialization.** Model member values and constructor initialization requirements.
-- [ ] **10.13 — Represent methods.** Model method parameters, body, and return behavior.
-- [ ] **10.14 — Represent member access.** Bind an access expression to its owning instance and member.
-- [ ] **10.15 — Represent a raised error.** Model error type and triggering condition.
-- [ ] **10.16 — Represent a handled error.** Model handler type and recovery body.
-- [ ] **10.17 — Represent normal and exceptional control flow.** Preserve the distinction between successful result and handled failure.
+- [x] **10.11 — Represent a class declaration.** `ClassRequirement(Name, Fields, Methods)` carries the class identity, and the validator requires a valid name plus at least one field or method.
+- [x] **10.12 — Represent fields and initialization.** `ClassField(Name, InitialValue)` keeps field order and requires distinct names and valid initial values; a field list is the constructor's initialization requirement.
+- [x] **10.13 — Represent methods.** `MethodRequirement(Name, Parameters, ReturnKind?, Body)` models a method as an ordered parameter list and body with an optional result kind: a `null` result means the method returns nothing, and a return inside such a method is rejected.
+- [x] **10.14 — Represent member access.** `SemanticMemberAccessExpression(Target, Member)` binds one member to its owning instance; the target is the expression's only dependency, so it satisfies the item-dependency rules of sorting and filtering, and it is classified as an arithmetic value.
+- [x] **10.15 — Represent a raised error.** `RaiseRequirement(ErrorType, Condition)` models an unconditional raise or one guarded by a condition, and the condition must be boolean whenever its kind can be inferred.
+- [x] **10.16 — Represent a handled error.** `HandlerRequirement(ErrorType, Body)` is not a `ProgramRequirement`, so it can only exist inside a `TryRequirement`; the validator requires a valid error type, a non-empty body, and one handler per error type.
+- [x] **10.17 — Represent normal and exceptional control flow.** `TryRequirement(Body, Handlers, ResultName)` keeps the successful path distinct: the body's value can bind a result name for later requirements, while each handler describes its own recovery body. The body and handler bodies are validated at the same depth, and a handled failure composes inside a function body.
 - [ ] **10.18 — Realize function declarations and parameters.** Add Python pack syntax for the semantic declaration model.
 - [ ] **10.19 — Realize function calls and returns.** Add Python pack syntax for call and return structures.
 - [ ] **10.20 — Realize classes, fields, and methods.** Add Python pack syntax for the supported class model.

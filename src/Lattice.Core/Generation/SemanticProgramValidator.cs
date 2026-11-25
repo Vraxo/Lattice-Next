@@ -133,6 +133,9 @@ public static class SemanticProgramValidator
             FunctionRequirement function => IsValidFunction(function, depth, context),
             ReturnRequirement ret => IsValidReturn(ret, context),
             CallRequirement call => IsValidCall(call, context),
+            ClassRequirement declaredClass => IsValidClass(declaredClass, depth, context),
+            RaiseRequirement raise => IsValidRaise(raise, context),
+            TryRequirement attempt => IsValidTry(attempt, depth, context),
             _ => false
         };
 
@@ -214,6 +217,137 @@ public static class SemanticProgramValidator
         }
 
         return true;
+    }
+
+    private static bool IsValidClass(
+        ClassRequirement declaredClass,
+        int depth,
+        RequirementContext context)
+    {
+        if (!IsValidName(declaredClass.Name) ||
+            declaredClass.Fields.IsDefault ||
+            declaredClass.Fields.Length > MaximumParameters ||
+            declaredClass.Methods.IsDefault ||
+            declaredClass.Methods.Length > MaximumParameters ||
+            (declaredClass.Fields.IsDefaultOrEmpty && declaredClass.Methods.IsDefaultOrEmpty))
+        {
+            return false;
+        }
+
+        if (!declaredClass.Fields.All(field =>
+                field is not null &&
+                IsValidName(field.Name) &&
+                SemanticExpressionAnalysis.IsValid(field.InitialValue)) ||
+            declaredClass.Fields
+                .Select(field => field.Name)
+                .Distinct(StringComparer.Ordinal)
+                .Count() != declaredClass.Fields.Length)
+        {
+            return false;
+        }
+
+        if (!declaredClass.Methods.All(method => IsValidMethod(method, depth, context)))
+        {
+            return false;
+        }
+
+        return declaredClass.Methods
+            .Select(method => method.Name)
+            .Distinct(StringComparer.Ordinal)
+            .Count() == declaredClass.Methods.Length;
+    }
+
+    private static bool IsValidMethod(
+        MethodRequirement method,
+        int depth,
+        RequirementContext context)
+    {
+        if (method is null ||
+            !IsValidName(method.Name) ||
+            method.Parameters.IsDefault ||
+            method.Parameters.Length > MaximumParameters ||
+            (method.ReturnKind is { } returnKind && !IsValidValueKind(returnKind)) ||
+            method.Body.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        if (!method.Parameters.All(parameter =>
+                parameter is not null && IsValidName(parameter.Name) && IsValidValueKind(parameter.Kind)))
+        {
+            return false;
+        }
+
+        if (method.Parameters
+            .Select(parameter => parameter.Name)
+            .Distinct(StringComparer.Ordinal)
+            .Count() != method.Parameters.Length)
+        {
+            return false;
+        }
+
+        var bodyContext = context with
+        {
+            Names = method.Parameters
+                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind, StringComparer.Ordinal),
+            ReturnKind = method.ReturnKind
+        };
+
+        return AreValid(method.Body, depth + 1, bodyContext);
+    }
+
+    private static bool IsValidRaise(RaiseRequirement requirement, RequirementContext context)
+    {
+        if (!IsValidName(requirement.ErrorType))
+        {
+            return false;
+        }
+
+        if (requirement.Condition is null)
+        {
+            return true;
+        }
+
+        return SemanticExpressionAnalysis.IsValid(requirement.Condition) &&
+            SemanticValueKindAnalysis.IsCompatible(
+                SemanticValueKindAnalysis.Infer(
+                    requirement.Condition,
+                    context.Names,
+                    context.FunctionResults),
+                SemanticValueKind.Boolean);
+    }
+
+    private static bool IsValidTry(
+        TryRequirement attempt,
+        int depth,
+        RequirementContext context)
+    {
+        if (attempt.Body.IsDefaultOrEmpty ||
+            attempt.Handlers.IsDefaultOrEmpty ||
+            attempt.Handlers.Length > MaximumParameters ||
+            (attempt.ResultName is not null && !IsValidName(attempt.ResultName)))
+        {
+            return false;
+        }
+
+        if (!attempt.Handlers.All(handler =>
+                handler is not null &&
+                IsValidName(handler.ErrorType) &&
+                !handler.Body.IsDefaultOrEmpty &&
+                AreValid(handler.Body, depth + 1, context)))
+        {
+            return false;
+        }
+
+        if (attempt.Handlers
+            .Select(handler => handler.ErrorType)
+            .Distinct(StringComparer.Ordinal)
+            .Count() != attempt.Handlers.Length)
+        {
+            return false;
+        }
+
+        return AreValid(attempt.Body, depth + 1, context);
     }
 
     /// <summary>

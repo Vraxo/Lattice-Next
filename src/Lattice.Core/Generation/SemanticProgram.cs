@@ -123,3 +123,50 @@ public sealed record ReturnRequirement(
 public sealed record CallRequirement(
     string FunctionName,
     ImmutableArray<SemanticExpression> Arguments) : ProgramRequirement;
+
+/// <summary>One declared class field: the member name and the value the constructor starts it with.</summary>
+public sealed record ClassField(
+    string Name,
+    SemanticExpression InitialValue);
+
+/// <summary>
+/// One declared method: its name, ordered parameters, an optional declared result kind (nothing when
+/// the method returns no value), and an ordered body.
+/// </summary>
+public sealed record MethodRequirement(
+    string Name,
+    ImmutableArray<FunctionParameter> Parameters,
+    SemanticValueKind? ReturnKind,
+    ImmutableArray<ProgramRequirement> Body);
+
+/// <summary>
+/// Declares a class: its identity, the fields its constructor initializes, and its methods. Nothing
+/// here names a target-language construct; the language pack decides how a class is written.
+/// </summary>
+public sealed record ClassRequirement(
+    string Name,
+    ImmutableArray<ClassField> Fields,
+    ImmutableArray<MethodRequirement> Methods) : ProgramRequirement;
+
+/// <summary>
+/// Raises an error of one type, either unconditionally or when a condition holds. The condition is an
+/// ordinary boolean expression over values the surrounding requirements bind.
+/// </summary>
+public sealed record RaiseRequirement(
+    string ErrorType,
+    SemanticExpression? Condition) : ProgramRequirement;
+
+/// <summary>Handles one error type by running an ordered recovery body.</summary>
+public sealed record HandlerRequirement(
+    string ErrorType,
+    ImmutableArray<ProgramRequirement> Body);
+
+/// <summary>
+/// Runs a body and recovers from a failure of one of the handled error types. The optional result name
+/// binds the value the body produced on the successful path, so later requirements can consume a
+/// result while the handlers describe what happens when the attempt fails.
+/// </summary>
+public sealed record TryRequirement(
+    ImmutableArray<ProgramRequirement> Body,
+    ImmutableArray<HandlerRequirement> Handlers,
+    string? ResultName) : ProgramRequirement;
