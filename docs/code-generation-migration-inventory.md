@@ -737,3 +737,75 @@ Python token lives in `knowledge/languages/python.core.json`.
 | pack operations | 102 |
 | pack syntax additions | `inputSyntax.programArgumentFormat`, pack-level `recordLiteralFormat`, `GenerationOperation.MatchesArgumentValue` |
 | world-model data assertions | 57 (75 before M-12.10) |
+
+## M-13.7 through M-13.19 — outcome
+
+### M-13.7, M-13.8, M-13.9 — obsolete task fact routing
+
+`SemanticProgramPlanner.DeferredProgramFactPrefixes` held twenty-two task-family prefixes, and ten of them named
+facts no extraction rule can produce any more. Those ten are deleted:
+
+`program.directory`, `program.file`, `program.for`, `program.import`, `program.json`, `program.list`,
+`program.non-empty`, `program.try`, `program.while`, `program.with`.
+
+The twelve that remain each still gate a live family and now carry the owning ticket in a comment: 8.14
+(`program.classification`, `program.assignment.classification`), 9.22 (`program.collection`, `program.even`),
+9.23 (`program.loop`, the three `program.assignment.*` steps), 9.24 (`program.dictionary`), and 9.25
+(`program.single-field`, `program.multi-field`, `program.record`). `Keeps_deferred_program_prefixes_backed_by_knowledge`
+fails if a prefix stops matching a producible fact, so the list can only shrink as families move.
+
+File handling needs no marker at all now: line counts go through `FileReadRequirement` and directory listings
+through `DirectoryListingRequirement`, while class programs are planned from `program.requirement.class`.
+
+### M-13.10 — Blender
+
+Completed with M-12.6 and recorded here for the section: no Blender task fact or phrase match survives, and
+the domain/API knowledge is reused through `TaskProgramGenerationResponder` with neutral `code-generation-*`
+identifiers.
+
+### M-13.11, M-13.12, M-13.14 — fixed data and complete fragments (blocked)
+
+Twenty rules emit a multi-line program and every one of them belongs to a blocked family, so the fragments
+cannot leave before their generic replacements exist:
+
+| Family | Rules | Literal data carried |
+| --- | ---: | --- |
+| sign classification (8.14) | 3 | `Positive`, `Negative`, `Zero` outputs |
+| parity filters (9.22) | 3 | `[1, 2, 3, 4, 5]`, `[1, 2, 3, 4, 5, 6]`, `[-3, -2, -1, 0, 1, 2, 3]` |
+| loop totals (9.23) | 3 | `[1, 2, 3]`, `[1, 2, 3, 4, 5]`, `[-2, 4.5, 1.5]` |
+| dictionary mapping (9.24) | 6 | `{'apple': 1.5, 'banana': 0.75}`, `{'Ada': 3, 'Grace': 5, 'Linus': 6}`, sample names and numbers |
+| record sorting and aggregation (9.25) | 5 | `[{'name': 'ada', 'age': 36}, …]`, grouped totals |
+
+Those ids are the exception table in `SequenceKnowledgeGuardTests`, so a new fragment fails the build and a
+recorded one cannot disappear without editing the table.
+
+### M-13.13 — fixed function, class, and file outputs
+
+No sequence rule emits a function, class, or file program: the retained 88 rules cover assignment, output,
+arithmetic, range, filter, loop, dictionary, and sorting statements only, and none of the twenty multi-line
+fragments is a function or class. Function, class, and file programs are planned from requirements, and
+`grep -riE '"(create|write|generate) a python' src/` returns nothing, so no prompt literal survives in a
+generation module.
+
+### M-13.15, M-13.16, M-13.17 — guards
+
+New `tests/Lattice.Core.Tests/Generation/SequenceKnowledgeGuardTests.cs`, five tests:
+
+| Guard | What it proves |
+| --- | --- |
+| `Keeps_benchmark_and_task_identities_out_of_knowledge` | no `py-###` identifier and no `benchmark` token in the knowledge; every fact id stays in a generic namespace |
+| `Keeps_complete_solution_fragments_confined_to_recorded_families` | the set of rules emitting two or more lines equals the twenty pinned ids |
+| `Keeps_every_rule_and_validation_reachable_from_extraction` | no rule and no validation names a fact that extraction cannot produce |
+| `Keeps_deferred_program_prefixes_backed_by_knowledge` | no dead entry in the planner's deferred list |
+| `Generates_different_programs_when_the_request_values_change` / `…_names_change` | changing a value or a name changes the generated program, so a hard-coded answer fails |
+
+The first three read the embedded knowledge file through its manifest resource, so they guard the data, not a
+copy of it.
+
+### M-13.19 — retained knowledge, removed shortcuts
+
+Retained as reusable: 71 input rules that feed generic requirement facts, the 33 language-neutral
+validations, the `quoted-string` encoding, the 12 guarded deferred prefixes, and every pack production,
+binding, and operation. Removed: four migrated families (file lines, directory listing, serialization round
+trip, Blender scripts) with their replacement operations, one dead validation, and ten dead deferred prefixes.
+Blocked remainder: the twenty fixed fragments in the five families listed above, tracked by 8.14 and 9.22–9.25.
