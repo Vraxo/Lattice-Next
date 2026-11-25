@@ -88,8 +88,16 @@ public sealed class BlenderScriptGenerationTests
             {
                 Assert.Single(reasoner.GetRelations(step.Object, "step-has-generation-effect"));
                 Assert.Single(reasoner.GetRelations(step.Object, "step-has-argument-kind"));
-                Assert.NotEmpty(reasoner.GetRelations(step.Object, "step-has-binding"));
             });
+
+        // Sixteen steps carry bindings; the two control-only steps (skip and else) carry none.
+        var boundSteps = steps
+            .Where(step => !reasoner.GetRelations(step.Object, "step-has-binding").IsDefaultOrEmpty)
+            .ToArray();
+        Assert.Equal(16, boundSteps.Length);
+        Assert.All(
+            boundSteps.SelectMany(step => reasoner.GetRelations(step.Object, "step-has-binding")),
+            binding => Assert.Single(reasoner.GetRelations(binding.Object, "binding-has-value")));
     }
 
     [Fact]
@@ -111,11 +119,12 @@ public sealed class BlenderScriptGenerationTests
             utterance.Message,
             StringComparison.Ordinal);
 
+        // The answer cites the exact step bindings it read from the domain knowledge.
         Assert.Contains(
             utterance.SupportingEvidence.SelectMany(evidence => evidence.Sources),
-            source => source.SourceId.StartsWith(
-                "blender-object-replacement-script:",
-                StringComparison.Ordinal));
+            source => source.SourceId ==
+                "core-world-model:relation:step-set-target-name:step-has-binding:" +
+                "binding-step-set-target-name-string-value");
     }
 
     [Theory]
