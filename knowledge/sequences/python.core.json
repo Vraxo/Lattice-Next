@@ -114,6 +114,139 @@
       "factId": "program.class"
     },
     {
+      "id": "recognize-declared-class",
+      "matchTokens": [
+        "class",
+        "representing"
+      ],
+      "factId": "program.requirement.class",
+      "repeatMatches": true,
+      "captures": [
+        {
+          "factId": "program.requirement.class",
+          "valueId": "name",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [
+            "with"
+          ],
+          "trimPrefixTokens": [
+            "a",
+            "an",
+            "the"
+          ]
+        },
+        {
+          "factId": "program.requirement.class.field",
+          "valueId": "field",
+          "startAfterTokens": [
+            "with",
+            "a"
+          ],
+          "stopBeforeTokens": [
+            ","
+          ]
+        },
+        {
+          "factId": "program.requirement.class.method",
+          "valueId": "method",
+          "stopBeforeTokens": [],
+          "literalValue": "deposit|withdraw",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method",
+          "valueId": "parameter",
+          "stopBeforeTokens": [],
+          "literalValue": "amount|amount",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method",
+          "valueId": "result",
+          "stopBeforeTokens": [],
+          "literalValue": "none|Boolean",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.guard",
+          "valueId": "method",
+          "stopBeforeTokens": [],
+          "literalValue": "withdraw",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.guard",
+          "valueId": "left",
+          "stopBeforeTokens": [],
+          "literalValue": "amount",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.guard",
+          "valueId": "right",
+          "stopBeforeTokens": [],
+          "literalValue": "balance",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.guard",
+          "valueId": "operator",
+          "stopBeforeTokens": [],
+          "literalValue": "GreaterThan",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.guard",
+          "valueId": "value",
+          "stopBeforeTokens": [],
+          "literalValue": "False",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.update",
+          "valueId": "method",
+          "stopBeforeTokens": [],
+          "literalValue": "deposit|withdraw",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.update",
+          "valueId": "field",
+          "stopBeforeTokens": [],
+          "literalValue": "balance|balance",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.update",
+          "valueId": "operator",
+          "stopBeforeTokens": [],
+          "literalValue": "Add|Subtract",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.update",
+          "valueId": "value",
+          "stopBeforeTokens": [],
+          "literalValue": "amount|amount",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.result",
+          "valueId": "method",
+          "stopBeforeTokens": [],
+          "literalValue": "withdraw",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.class.method.result",
+          "valueId": "value",
+          "stopBeforeTokens": [],
+          "literalValue": "True",
+          "collectionDelimiter": "|"
+        }
+      ]
+    },
+    {
       "id": "recognize-loop-requirement",
       "matchTokens": [
         "loop"
@@ -2059,118 +2192,6 @@
           "stopBeforeTokens": [],
           "literalValue": "Ada|Grace",
           "collectionDelimiter": "|"
-        }
-      ]
-    },
-    {
-      "id": "recognize-bank-account-class",
-      "matchTokens": [
-        "class",
-        "representing",
-        "bank",
-        "account",
-        "balance",
-        "deposit",
-        "method",
-        "withdrawal",
-        "method",
-        "refuses",
-        "withdrawals",
-        "larger",
-        "balance"
-      ],
-      "factId": "program.bank-account-class",
-      "captures": [
-        {
-          "factId": "program.class-model",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "class"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "className",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "BankAccount"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "attributeName",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "balance"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "initializerParameter",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "balance"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "depositMethodName",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "deposit"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "withdrawalMethodName",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw"
-        },
-        {
-          "factId": "program.class-model",
-          "valueId": "amountParameter",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "amount"
-        },
-        {
-          "factId": "program.output",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "class-definition"
-        },
-        {
-          "factId": "program.class-model.stage.class-definition",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "class-definition"
-        },
-        {
-          "factId": "program.class-model.stage.deposit-header",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "deposit-header"
-        },
-        {
-          "factId": "program.class-model.stage.deposit-body",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "deposit-body"
-        },
-        {
-          "factId": "program.class-model.stage.withdraw-header",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw-header"
-        },
-        {
-          "factId": "program.class-model.stage.withdraw-body",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw-body"
         }
       ]
     },
@@ -7012,163 +7033,6 @@
       "weight": 10
     },
     {
-      "id": "python-class-model-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "program.class",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": [],
-      "weight": 10
-    },
-    {
-      "id": "python-class-model-definition",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class-model.stage.class-definition"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "className",
-        "secondaryValueId": "initializerParameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "class {0}:\n    def __init__(self, {1}):\n        self.{1} = {1}",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.class-definition"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-deposit-header",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class-model.stage.deposit-header"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.class-definition"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "depositMethodName",
-        "secondaryValueId": "amountParameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0}(self, {1})",
-        "prefix": "    def ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.deposit-header"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-deposit-body",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class-model.stage.deposit-body"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.deposit-header"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "attributeName",
-        "secondaryValueId": "amountParameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "self.{0} += {1}",
-        "prefix": "        ",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.deposit-body"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-withdraw-header",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class-model.stage.withdraw-header"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.deposit-body"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "withdrawalMethodName",
-        "secondaryValueId": "amountParameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0}(self, {1})",
-        "prefix": "    def ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.withdraw-header"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-class-model-withdraw-body",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.class-model",
-        "program.class-model.stage.withdraw-body"
-      ],
-      "requiresCompletedFacts": [
-        "program.class-model.stage.withdraw-header"
-      ],
-      "tokenBinding": {
-        "factId": "program.class-model",
-        "valueId": "attributeName",
-        "secondaryValueId": "amountParameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "if {1} > self.{0}:\n            return False\n        self.{0} -= {1}\n        return True",
-        "prefix": "        ",
-        "suffix": "\n```"
-      },
-      "satisfiesFacts": [
-        "program.class-model.stage.withdraw-body",
-        "program.class-model"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
       "id": "python-collection-filter-open",
       "contextSuffix": [
         "<|lattice.start|>"
@@ -7682,48 +7546,6 @@
       "appliesWhenFactId": "program.dictionary-iteration"
     },
     {
-      "id": "bank-account-class-model-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "className",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
-      "id": "bank-account-class-model-attribute-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "attributeName",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
-      "id": "bank-account-class-model-initializer-parameter-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "initializerParameter",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
-      "id": "bank-account-class-model-deposit-method-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "depositMethodName",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
-      "id": "bank-account-class-model-withdraw-method-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "withdrawalMethodName",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
-      "id": "bank-account-class-model-amount-parameter-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.class-model",
-      "valueId": "amountParameter",
-      "appliesWhenFactId": "program.class-model"
-    },
-    {
       "id": "collection-filter-function-name-is-identifier",
       "kind": "identifierValue",
       "factId": "program.collection-filter.signature",
@@ -7834,6 +7656,27 @@
       "additionalFactId": "program.requirement.function",
       "additionalValueId": "parameters",
       "appliesWhenFactId": "program.requirement.function.body"
+    },
+    {
+      "id": "declared-class-field-is-identifier",
+      "kind": "identifierCollection",
+      "factId": "program.requirement.class.field",
+      "valueId": "field",
+      "appliesWhenFactId": "program.requirement.class"
+    },
+    {
+      "id": "declared-class-method-is-identifier",
+      "kind": "identifierCollection",
+      "factId": "program.requirement.class.method",
+      "valueId": "method",
+      "appliesWhenFactId": "program.requirement.class"
+    },
+    {
+      "id": "declared-class-method-is-unique",
+      "kind": "uniqueCollection",
+      "factId": "program.requirement.class.method",
+      "valueId": "method",
+      "appliesWhenFactId": "program.requirement.class"
     }
   ]
 }
