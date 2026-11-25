@@ -5041,7 +5041,8 @@
               "output"
             ]
           ],
-          "semanticExpressionKind": "functionCall"
+          "semanticExpressionKind": "functionCall",
+          "optionalExpression": true
         },
         {
           "factId": "program.arithmetic-function-close",

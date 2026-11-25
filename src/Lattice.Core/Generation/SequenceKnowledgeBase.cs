@@ -120,6 +120,12 @@ public sealed record SequenceInputFactCapture(
 
     public string? SemanticExpressionKind { get; init; }
 
+    /// <summary>
+    /// When set, a captured value that cannot be materialized as the declared semantic expression is
+    /// dropped instead of rejecting the request. Use only for speculative captures.
+    /// </summary>
+    public bool OptionalExpression { get; init; }
+
     public int NumericOffset { get; init; }
 }
 

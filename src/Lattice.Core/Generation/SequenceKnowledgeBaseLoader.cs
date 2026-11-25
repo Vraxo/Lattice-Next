@@ -352,7 +352,7 @@ public static class SequenceKnowledgeBaseLoader
         foreach (var item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.Object ||
-                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "semanticCollectionFormat", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "numericOffset", "semanticExpressionKind") ||
+                !HasOnlyProperties(item, "factId", "valueId", "startAfterTokens", "startAfterSequences", "stopBeforeTokens", "stopBeforeSequences", "literalValue", "collectionDelimiter", "collectionFieldDelimiter", "collectionFieldIndex", "collectionTemplate", "semanticCollectionFormat", "trimPrefixTokens", "trimSuffixCharacters", "collectionDelimiters", "collectionItemSeparator", "preserveRawValue", "numericOffset", "semanticExpressionKind", "optionalExpression") ||
                 !TryGetString(item, "factId", out var factId) ||
                 !IsValidIdentifier(factId) ||
                 !TryGetString(item, "valueId", out var valueId) ||
@@ -387,6 +387,7 @@ public static class SequenceKnowledgeBaseLoader
                 !TryGetStringArray(item, "trimPrefixTokens", out var trimPrefixTokens) ||
                 !TryGetOptionalString(item, "trimSuffixCharacters", out var trimSuffixCharacters) ||
                 !TryGetOptionalBoolean(item, "preserveRawValue", out var preserveRawValue) ||
+                !TryGetOptionalBoolean(item, "optionalExpression", out var optionalExpression) ||
                 !TryGetOptionalString(item, "semanticExpressionKind", out var semanticExpressionKind) ||
                 !IsValidSemanticExpressionKind(semanticExpressionKind) ||
                 !TryGetOptionalInt32(item, "numericOffset", out var numericOffset) ||
@@ -434,7 +435,8 @@ public static class SequenceKnowledgeBaseLoader
                 PreserveRawValue = preserveRawValue,
                 SemanticExpressionKind = semanticExpressionKind,
                 NumericOffset = numericOffset ?? 0,
-                CollectionItemSeparator = collectionItemSeparator
+                CollectionItemSeparator = collectionItemSeparator,
+                OptionalExpression = optionalExpression
             });
         }
 

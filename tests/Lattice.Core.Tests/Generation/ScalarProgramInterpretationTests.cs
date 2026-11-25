@@ -175,6 +175,14 @@ public sealed class ScalarProgramInterpretationTests
     }
 
     [Fact]
+    public void Interprets_a_requested_output_after_then_without_requiring_a_function_call()
+    {
+        var program = Interpret("Create a Python program that sets total to 5 then print total.");
+
+        Assert.Equal("assign(total,5);output(total);", Describe(program));
+    }
+
+    [Fact]
     public void Projects_multiple_scalar_requirements_from_one_request()
     {
         var program = Interpret(
