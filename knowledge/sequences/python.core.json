@@ -132,7 +132,8 @@
             "a",
             "an",
             "the"
-          ]
+          ],
+          "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.field",
