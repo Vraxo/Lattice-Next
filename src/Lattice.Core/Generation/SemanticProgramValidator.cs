@@ -398,7 +398,7 @@ public static class SemanticProgramValidator
         {
             SemanticNameExpression name => IsValidName(name.Name),
             SemanticMemberAccessExpression member =>
-                IsValidName(member.Target) && IsValidName(member.Member),
+                IsValidName(member.Member) && SemanticExpressionAnalysis.IsValid(member.Target),
             _ => false
         };
 
