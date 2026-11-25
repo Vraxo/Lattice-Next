@@ -109,7 +109,14 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
-        program = new SemanticProgram(requirements.ToImmutable());
+        var projection = new SemanticProgram(requirements.ToImmutable());
+        if (!SemanticProgramValidator.IsValid(projection))
+        {
+            error = "The projected generic program requirements are not structurally valid.";
+            return false;
+        }
+
+        program = projection;
         return true;
     }
 

@@ -75,9 +75,9 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [x] **9.2 — Inventory iteration and accumulation rules and templates.** Recorded collection and range loop captures (item/collection/start/end), the manual-total marker, and both accumulator programs: fixed names, `0` initial value, fixed collections, fixed `+` update, and no represented accumulator type, update expression, or aggregate kind.
 - [x] **9.3 — Inventory dictionary mapping rules and templates.** Recorded key/value iteration captures (default collection `items` and the `items = {}  # Add dictionary entries here.` placeholder), the two fixed iteration programs, and the three fixed mapping comprehensions with literal sample data.
 - [x] **9.4 — Inventory sorting and record rules and templates.** Recorded single-field sort captures and defaults plus its eight templates, multi-field sort, grouped record aggregation, and directory listing: sort keys and directions are marker facts, records are literals, and the directory script is a fixed policy.
-- [ ] **9.5 — Represent collection values and element types.** Model a collection binding and its element type without fixed contents.
-- [ ] **9.6 — Represent iteration item bindings.** Model the relationship between an iteration source and its item variable.
-- [ ] **9.7 — Represent dictionary key/value bindings.** Model key and value variables as distinct typed bindings.
+- [x] **9.5 — Represent collection values and element types.** `SemanticProgram.Collections` binds a name to a `SemanticCollectionItemKind` element kind with no stored contents, and `SemanticProgramValidator` rejects missing names, unknown kinds, and over-budget bindings.
+- [x] **9.6 — Represent iteration item bindings.** `IterationRequirement` binds one item name to a source expression and carries an ordered requirement body, so loops compose with the same requirement model as top-level statements.
+- [x] **9.7 — Represent dictionary key/value bindings.** `DictionaryIterationRequirement` binds distinct key and value names over a source expression with an ordered body; the validator rejects shared or unusable names.
 - [ ] **9.8 — Test collection and element projections.** Verify different element types, names, and collection sizes.
 - [ ] **9.9 — Represent a generic iteration requirement.** Model source collection, item binding, and loop body.
 - [ ] **9.10 — Represent accumulator initialization.** Model initial value and accumulator type.
