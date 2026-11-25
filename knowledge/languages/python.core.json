@@ -1101,6 +1101,10 @@
       "head": "indented-bound-filter-assignment",
       "symbols": [
         {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
           "kind": "binding",
           "value": "target"
         },
@@ -1146,6 +1150,10 @@
       "head": "indented-bound-map-assignment",
       "symbols": [
         {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
           "kind": "binding",
           "value": "target"
         },
@@ -1182,6 +1190,10 @@
     {
       "head": "indented-bound-sort-assignment",
       "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
         {
           "kind": "binding",
           "value": "target"
@@ -1220,6 +1232,10 @@
       "head": "indented-bound-reverse-sort-assignment",
       "symbols": [
         {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
           "kind": "binding",
           "value": "target"
         },
@@ -1256,6 +1272,10 @@
     {
       "head": "double-indented-bound-filter-assignment",
       "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
         {
           "kind": "binding",
           "value": "target"
@@ -1302,6 +1322,10 @@
       "head": "double-indented-bound-map-assignment",
       "symbols": [
         {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
           "kind": "binding",
           "value": "target"
         },
@@ -1339,6 +1363,10 @@
       "head": "double-indented-bound-sort-assignment",
       "symbols": [
         {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
           "kind": "binding",
           "value": "target"
         },
@@ -1375,6 +1403,10 @@
     {
       "head": "double-indented-bound-reverse-sort-assignment",
       "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
         {
           "kind": "binding",
           "value": "target"
