@@ -411,6 +411,46 @@
       "repeatMatches": true
     },
     {
+      "id": "capture-generic-scalar-condition-if",
+      "matchTokens": [
+        "if"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
+        [
+          "only",
+          "if"
+        ]
+      ],
+      "repeatMatches": true
+    },
+    {
       "id": "capture-generic-output-print",
       "matchTokens": [
         "print"
@@ -421,7 +461,18 @@
           "factId": "program.requirement.output",
           "valueId": "value",
           "semanticExpressionKind": "value",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
         }
       ],
       "repeatMatches": true,
@@ -462,7 +513,18 @@
           "factId": "program.requirement.output",
           "valueId": "value",
           "semanticExpressionKind": "value",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
         }
       ],
       "repeatMatches": true,
@@ -503,7 +565,18 @@
           "factId": "program.requirement.output",
           "valueId": "value",
           "semanticExpressionKind": "value",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
         }
       ],
       "repeatMatches": true,
@@ -544,7 +617,18 @@
           "factId": "program.requirement.output",
           "valueId": "value",
           "semanticExpressionKind": "value",
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
         }
       ],
       "repeatMatches": true,
@@ -571,6 +655,80 @@
         [
           "function",
           "named"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-generic-branch-separator-otherwise",
+      "matchTokens": [
+        "otherwise"
+      ],
+      "factId": "program.requirement.output",
+      "valueId": "branch",
+      "literalValue": "otherwise",
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ],
+        [
+          "else"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-generic-branch-separator-else",
+      "matchTokens": [
+        "else"
+      ],
+      "factId": "program.requirement.output",
+      "valueId": "branch",
+      "literalValue": "else",
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ],
+        [
+          "otherwise"
         ]
       ]
     },
