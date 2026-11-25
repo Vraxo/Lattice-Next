@@ -159,9 +159,9 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 12. Remove the Blender-specific code-generation route
 
-- [ ] **12.1 — Trace Blender gates in `TaskCodeGenerationResponder`.** Record production callers and route conditions.
-- [ ] **12.2 — Trace `ScriptCreationPattern` in `TaskRequestParser`.** Record its callers and parser-specific behavior.
-- [ ] **12.3 — Trace Blender runtime dispatch and tests.** Identify the distinct path and assertions that depend on it.
+- [x] **12.1 — Trace Blender gates in `TaskCodeGenerationResponder`.** M-12.1 records the single production chain (`LatticeRuntimeSession.ProcessTaskRequest` → `TaskRequestResponder.TryRespond` → `TaskCodeGenerationResponder.TryGenerateCode`), every gate in order (scope, nine concept types, eight relations, the step-order data property, the API membership check), and the message shape — nine type ids, eight relation ids, one data property id, and the `##/###` section layout are fixed in shared code.
+- [x] **12.2 — Trace `ScriptCreationPattern` in `TaskRequestParser`.** M-12.2 records the regular expression, its single caller (`TryParse` → `TryParseScriptCreationRequest`), its position in the pattern chain, the formula it builds (task → subject id verbatim, application → context, `source-code`/`program-generation`), and the three parser tests including the Maya control — the pattern claims nothing about whether a task is modelled.
+- [x] **12.3 — Trace Blender runtime dispatch and tests.** M-12.3 records the four ways the path is distinct (type gate, stored step order, domain-specific relation names, printed step/safety sections), the domain file’s 118 concepts / 241 relation assertions / 18 data assertions, the fact that the stored orders already match assertion order, and a table of the three tests that depend on the path.
 - [ ] **12.4 — Route ordinary code requests through the shared semantic entry point.** Preserve existing supported behavior.
 - [ ] **12.5 — Route application-specific script requests through the same entry point.** Pass domain context as knowledge, not as a separate generator.
 - [ ] **12.6 — Remove the Blender-only dispatch gate.** Delete the obsolete branch after both request types use the shared entry point.

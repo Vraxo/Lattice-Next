@@ -544,3 +544,75 @@ the data back, so an incomplete request produces no requirement at all and is re
 Current knowledge counts after M-11.4–M-11.21: **88 sequence rules** (98 → 97 → 96 → 88) and **238 input
 rules** (241 → 238); the pack holds **100 productions**, **26 bindings**, and **102 operations**, plus
 `inputSyntax.programArgumentFormat` and the pack-level `recordLiteralFormat`.
+
+## M-12.1 — Blender gates in `TaskCodeGenerationResponder`
+
+Production callers, in order:
+
+1. `LatticeRuntimeSession.ProcessTaskRequest` calls `TaskRequestResponder.TryRespond` and maps `false` to
+   `LatticeUtteranceResultKind.InformationUnavailable`.
+2. `TaskRequestResponder.TryRespond` dispatches `TaskRequestAction.Code` to
+   `TaskCodeGenerationResponder.TryGenerateCode`; no other caller exists in `src/`.
+3. `TryGenerateCode` gates, in order: `request.Scope == "program-generation"`; the subject concept is an
+   individual and `instance-of blender-codegen-code-generation-task`; the context concept is an individual
+   and `instance-of blender-codegen-software-application`; the application has exactly one
+   `blender-codegen-application-uses-language` relation whose object is `instance-of programming-language`;
+   the task's `blender-codegen-has-generation-step` relations all resolve, each carries one parseable
+   `blender-codegen-generation-step-order` value, and the orders are distinct; each step has exactly one
+   effect and one argument kind of the matching `blender-codegen-generation-*` type; each binding resolves
+   to exactly one `blender-codegen-generation-binding-value`; each `blender-codegen-step-references-api`
+   object is `instance-of application-programming-interface`.
+
+Fixed in shared code today: all nine `blender-codegen-*` type identifiers, all eight relation identifiers,
+the one data property identifier, the `## {task}` / `### Script` / `### Steps` / `### Safety` message shape,
+and the assumption that steps are ordered by a stored integer.
+
+## M-12.2 — `ScriptCreationPattern` in `TaskRequestParser`
+
+- Declared at `TaskRequestParser.cs:34` as
+  `^\s*How would I create a script for (?<application>[A-Za-z][A-Za-z0-9 -]*?) that (?<task>.+?)\??\s*$`.
+- Sole caller: `TaskRequestParser.TryParse` → `TryParseScriptCreationRequest`, which runs *after* the
+  compositional task parser and before the hobby, brainstorm, concept, operation, learning, road-trip,
+  writing, and recommendation patterns.
+- It produces a `TaskRequestFormula(TaskRequestAction.Code, Subject: Normalize(task),
+  Context: Normalize(application), OutputFormat: "source-code", Scope: "program-generation",
+  Requirements: ["source-code"])`. The task phrase becomes the subject concept id verbatim, so the pattern
+  claims nothing about whether the task is modelled — that decision is deferred to the responder.
+- Parser tests: `Parses_a_Blender_object_replacement_script_request` (asserts action, subject, context,
+  output format, scope, requirements), `Parses_an_unsupported_Blender_script_request_without_claiming_its_task_is_known`
+  ("renames every object"), and `Parses_script_creation_requests_for_other_applications_without_task_routing`
+  ("Maya … creates a cube") as the application-agnostic control.
+
+## M-12.3 — Blender runtime dispatch and its dependent assertions
+
+The Blender path is distinct in four ways: the concept-type gate (M-12.1), the stored step order, the
+domain-specific relation names, and the message assembly that prints the ordered step labels and safety
+notes. `knowledge/domains/blender-object-replacement-script.json` holds 118 concepts (109 individuals, 9
+types), 241 relation assertions, and 18 data assertions; the 18 `blender-codegen-has-generation-step`
+assertions already appear in step order 1–18, so the stored order is redundant with declaration order.
+
+Assertions that depend on this path:
+
+| Test | Depends on |
+| --- | --- |
+| `TaskRequestResponseTests.Generates_a_Blender_script_that_replaces_matching_objects_with_point_lights` | the task label heading, the three sections, every script line listed in M-12.1's bindings, `target_name = "YourObjectName"`, the ordering of the 18 steps, and non-empty evidence |
+| `TaskRequestResponseTests.Does_not_generate_a_Blender_script_for_an_unmodeled_task` | the responder returning `false` when the subject concept has no generation steps, which must keep producing `InformationUnavailable` |
+| `TaskRequestParserTests.Parses_a_Blender_object_replacement_script_request` and the two control tests | the parser contract only — unaffected by responder work |
+
+## Consequences for M-12.4 through M-12.15
+
+- **M-12.4/M-12.5/M-12.6** can rename the nine types, eight relations, and one data property to
+  application-neutral identifiers in both `TaskCodeGenerationResponder` and the domain knowledge, and delete
+  the `blender-codegen-*` gate, without touching any label the runtime test asserts. The gate becomes a
+  capability check ("this subject is a code-generation task, this context is a software application, this
+  application declares one implementation language"), which is what makes it not Blender-only.
+- **M-12.10** can delete the step-order data property and all 18 assertions and order steps by the order of
+  their `has-generation-step` assertions, byte-identically, because the two orders already agree.
+- **M-12.7/M-12.8/M-12.9** need a knowledge-declared distinction between *API/structure* values (for example
+  `list(bpy.data.objects)`, `collection.objects.link`) and *request-derived* values. Only `YourObjectName`
+  is request-shaped today: it is the placeholder the request's "with a specific name" leaves open, so the
+  request-derived slot must be declared in knowledge and filled from the task phrase, with the declared
+  placeholder as the fallback.
+- **M-12.11/M-12.12** split the file's concepts into the reusable domain/API facts (`blender-api` instances,
+  object/scene vocabulary) and the generation scaffolding (`*-code-generation-task`, `*-step-*`,
+  `*-binding-*`), so only the scaffolding can be deleted once the pipeline derives it.
