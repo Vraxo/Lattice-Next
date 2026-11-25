@@ -256,7 +256,7 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
-    public void Rejects_a_method_call_whose_method_name_is_not_an_identifier()
+    public void Rejects_a_method_call_whose_method_name_the_pack_cannot_spell()
     {
         var pack = LoadPythonPack();
         var invalid = new SemanticMethodCallExpression(
@@ -264,7 +264,9 @@ public sealed class SemanticExpressionTests
             "strip()",
             []);
 
-        Assert.False(SemanticExpressionAnalysis.IsValid(invalid));
+        // The model accepts a call token; the pack decides which tokens are identifier-shaped, so the
+        // rejection lands in rendering rather than in the analysis.
+        Assert.True(SemanticExpressionAnalysis.IsValid(invalid));
         Assert.False(SemanticExpressionRenderer.TryRender(invalid, pack, out _));
     }
 
