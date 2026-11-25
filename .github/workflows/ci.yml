@@ -59,7 +59,7 @@ jobs:
           for failed_test in failed_tests:
               annotation = failed_test.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
               print(f"::error title=Failed test::{annotation}")
-          print(f"::error title=Test failure count::{len(failed_tests)} failed test case(s).")
+          print(f"::notice title=Test failure count::{len(failed_tests)} failed test case(s).")
           tail = "\n".join(output.splitlines()[-40:])
           if len(tail) > 12000:
               tail = tail[-12000:]
