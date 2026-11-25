@@ -38,34 +38,30 @@ public static class SemanticProgramPlanner
     ];
 
     /// <summary>
-    /// Request facts that describe capabilities planned by a later migration group (function bodies and
-    /// stored task families, collections, files, classes, loops). A request that carries one of them is
-    /// left to its own path instead of being planned from its generic requirements.
+    /// Request facts that describe capabilities planned by a later migration group. A request that carries
+    /// one of them is left to its own path instead of being planned from its generic requirements. Every
+    /// prefix here still matches a fact that extraction can produce; `SequenceKnowledgeGuardTests` fails when
+    /// one stops doing so, so the list shrinks as each family moves onto generic requirements.
     /// </summary>
-    private static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
+    internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
+        // 8.14 — sign classification.
         "program.assignment.classification",
+        "program.classification",
+        // 9.22 — collection filters.
+        "program.collection",
+        "program.even",
+        // 9.23 — loops and two-step arithmetic assignments.
         "program.assignment.first",
         "program.assignment.second",
         "program.assignment.result",
-        "program.classification",
-        "program.collection",
-        "program.dictionary",
-        "program.directory",
-        "program.even",
-        "program.file",
-        "program.for",
-        "program.import",
-        "program.json",
-        "program.list",
         "program.loop",
+        // 9.24 — dictionary iteration and mapping.
+        "program.dictionary",
+        // 9.25 — record sorting and grouped aggregation.
         "program.multi-field",
-        "program.non-empty",
         "program.record",
-        "program.single-field",
-        "program.try",
-        "program.while",
-        "program.with"
+        "program.single-field"
     ];
 
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>

@@ -91,40 +91,7 @@ public sealed class SequenceKnowledgeGuardTests
         using var document = JsonDocument.Parse(ReadKnowledge());
         var root = document.RootElement;
 
-        var producedFacts = new HashSet<string>(StringComparer.Ordinal)
-        {
-            "value.output",
-            "value.output.expression"
-        };
-        foreach (var rule in root.GetProperty("inputRules").EnumerateArray())
-        {
-            producedFacts.Add(rule.GetProperty("factId").GetString()!);
-            if (!rule.TryGetProperty("captures", out var captures))
-            {
-                continue;
-            }
-
-            foreach (var capture in captures.EnumerateArray())
-            {
-                if (capture.TryGetProperty("factId", out var captureFact))
-                {
-                    producedFacts.Add(captureFact.GetString()!);
-                }
-            }
-        }
-
-        foreach (var rule in root.GetProperty("rules").EnumerateArray())
-        {
-            if (!rule.TryGetProperty("satisfiesFacts", out var satisfies))
-            {
-                continue;
-            }
-
-            foreach (var fact in satisfies.EnumerateArray())
-            {
-                producedFacts.Add(fact.GetString()!);
-            }
-        }
+        var producedFacts = ProducibleFacts(root);
 
         var unreachable = root.GetProperty("rules").EnumerateArray()
             .SelectMany(rule => rule.GetProperty("requiredFacts").EnumerateArray()
@@ -172,6 +139,61 @@ public sealed class SequenceKnowledgeGuardTests
         Assert.Contains("print(label(20))", label, StringComparison.Ordinal);
         Assert.DoesNotContain("label", classify, StringComparison.Ordinal);
         Assert.DoesNotContain("classify", label, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Keeps_deferred_program_prefixes_backed_by_knowledge()
+    {
+        using var document = JsonDocument.Parse(ReadKnowledge());
+        var producedFacts = ProducibleFacts(document.RootElement);
+
+        var deadPrefixes = SemanticProgramPlanner.DeferredProgramFactPrefixes
+            .Where(prefix => !producedFacts.Any(fact =>
+                fact.StartsWith(prefix, StringComparison.Ordinal)))
+            .ToArray();
+
+        Assert.Empty(deadPrefixes.Select(prefix => $"{prefix} matches no producible fact"));
+    }
+
+    private static HashSet<string> ProducibleFacts(JsonElement root)
+    {
+        var producedFacts = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "value.output",
+            "value.output.expression"
+        };
+
+        foreach (var rule in root.GetProperty("inputRules").EnumerateArray())
+        {
+            producedFacts.Add(rule.GetProperty("factId").GetString()!);
+            if (!rule.TryGetProperty("captures", out var captures))
+            {
+                continue;
+            }
+
+            foreach (var capture in captures.EnumerateArray())
+            {
+                if (capture.TryGetProperty("factId", out var captureFact))
+                {
+                    producedFacts.Add(captureFact.GetString()!);
+                }
+            }
+        }
+
+        foreach (var rule in root.GetProperty("rules").EnumerateArray())
+        {
+            if (!rule.TryGetProperty("satisfiesFacts", out var satisfies))
+            {
+                continue;
+            }
+
+            foreach (var fact in satisfies.EnumerateArray())
+            {
+                producedFacts.Add(fact.GetString()!);
+            }
+        }
+
+        return producedFacts;
     }
 
     private static string Generate(string input)
