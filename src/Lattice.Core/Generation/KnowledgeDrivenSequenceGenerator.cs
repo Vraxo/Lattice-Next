@@ -344,6 +344,7 @@ public static class KnowledgeDrivenSequenceGenerator
         if (fact.Values is null || fact.Collections is null ||
             fact.SemanticCollections is null || fact.Expressions is null ||
             fact.ExpressionCollections is null || fact.ComparisonOperators is null ||
+            fact.ValuePositions is null || fact.CollectionPositions is null ||
             fact.Values.Count > MaximumFacts || fact.Collections.Count > MaximumFacts ||
             fact.SemanticCollections.Count > MaximumFacts || fact.Expressions.Count > MaximumFacts ||
             fact.ExpressionCollections.Count > MaximumFacts || fact.ComparisonOperators.Count > MaximumFacts)
@@ -363,7 +364,11 @@ public static class KnowledgeDrivenSequenceGenerator
             fact.ExpressionCollections.Any(collection =>
                 collection.Value.IsDefault || collection.Value.Length > MaximumFacts ||
                 collection.Value.Any(expression => !SemanticExpressionAnalysis.IsValid(expression))) ||
-            fact.ComparisonOperators.Any(pair => !IsComparisonExpressionOperator(pair.Value)))
+            fact.ComparisonOperators.Any(pair => !IsComparisonExpressionOperator(pair.Value)) ||
+            fact.ValuePositions.Any(position => position.Value < 0) ||
+            fact.CollectionPositions.Any(positions =>
+                positions.Value.IsDefault ||
+                positions.Value.Any(position => position < 0)))
         {
             return false;
         }
