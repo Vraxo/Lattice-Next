@@ -232,6 +232,12 @@ public static class SemanticProgramValidator
 
     private const int MaximumPathLength = 512;
 
+    private static bool IsValidQualifiedName(string? name) =>
+        !string.IsNullOrWhiteSpace(name) &&
+        name.Length <= 128 &&
+        name.Split('.', StringSplitOptions.None) is { Length: >= 1 and <= 4 } segments &&
+        segments.All(IsValidName);
+
     private static bool IsValidFormat(string? format) =>
         !string.IsNullOrWhiteSpace(format) &&
         format.Length <= 32 &&
@@ -469,7 +475,7 @@ public static class SemanticProgramValidator
 
         if (!attempt.Handlers.All(handler =>
                 handler is not null &&
-                IsValidName(handler.ErrorType) &&
+                IsValidQualifiedName(handler.ErrorType) &&
                 !handler.Body.IsDefaultOrEmpty &&
                 AreValid(handler.Body, depth + 1, context)))
         {

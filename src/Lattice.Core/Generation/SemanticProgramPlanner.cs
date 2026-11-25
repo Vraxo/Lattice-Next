@@ -139,7 +139,7 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (HasDeferredProgramIntent(facts))
+        if (HasDeferredProgramIntent(facts, program))
         {
             error = "The request describes a capability that is not planned by the scalar program planner.";
             return false;
@@ -171,9 +171,45 @@ public static class SemanticProgramPlanner
         return string.Join('\n', statements.Select(statement => statement.Text));
     }
 
-    private static bool HasDeferredProgramIntent(ImmutableArray<SequenceSemanticFact> facts) =>
+    private static bool HasDeferredProgramIntent(
+        ImmutableArray<SequenceSemanticFact> facts,
+        SemanticProgram program) =>
         facts.Any(fact => DeferredProgramFactPrefixes.Any(prefix =>
-            fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
+            fact.Id.StartsWith(prefix, StringComparison.Ordinal)) &&
+            !IsCarriedByRequirements(fact.Id, program.Requirements));
+
+    /// <summary>
+    /// Whether the planned requirements already carry the structure a deferred fact names, so that a request
+    /// which holds a collection of records is planned rather than refused.
+    /// </summary>
+    private static bool IsCarriedByRequirements(
+        string factId,
+        ImmutableArray<ProgramRequirement> requirements) =>
+        factId.StartsWith("program.collection", StringComparison.Ordinal) &&
+        CarriesCollection(requirements);
+
+    private static bool CarriesCollection(ImmutableArray<ProgramRequirement> requirements) =>
+        !requirements.IsDefaultOrEmpty &&
+        requirements.Any(requirement => requirement switch
+        {
+            AssignmentRequirement assignment =>
+                assignment.Value is SemanticListLiteralExpression or SemanticRecordLiteralExpression,
+            IterationRequirement => true,
+            DictionaryIterationRequirement => true,
+            FilterRequirement => true,
+            MapRequirement => true,
+            SortRequirement => true,
+            ConditionalRequirement conditional =>
+                CarriesCollection(conditional.ThenRequirements) ||
+                CarriesCollection(conditional.ElseRequirements),
+            FileReadRequirement fileRead => CarriesCollection(fileRead.Body),
+            FileWriteRequirement fileWrite => CarriesCollection(fileWrite.Body),
+            DirectoryListingRequirement listing => CarriesCollection(listing.Body),
+            TryRequirement attempt =>
+                CarriesCollection(attempt.Body) ||
+                attempt.Handlers.Any(handler => CarriesCollection(handler.Body)),
+            _ => false
+        });
 
     private static bool HasUnmappedScalarIntent(ImmutableArray<SequenceSemanticFact> facts) =>
         facts.Any(fact =>
@@ -716,7 +752,7 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (!TryRequireIdentifier(handler.ErrorType, pack, "handled error type", out error))
+        if (!TryRequireQualifiedName(handler.ErrorType, pack, "handled error type", out var errorType, out error))
         {
             return false;
         }
@@ -737,13 +773,13 @@ public static class SemanticProgramPlanner
 
         var bindings = ImmutableDictionary<string, string>.Empty
             .WithComparers(StringComparer.Ordinal)
-            .Add("error-type", handler.ErrorType);
+            .Add("error-type", errorType);
         if (!TryEmit(
                 pack,
                 pipeline,
                 effect,
                 argumentKind: "handler-header",
-                argumentValue: handler.ErrorType,
+                argumentValue: errorType,
                 bindings,
                 depth,
                 defined,
@@ -1642,6 +1678,37 @@ public static class SemanticProgramPlanner
             defined,
             planned,
             out error);
+    }
+
+    /// <summary>
+    /// Requires a name the pack can spell: one identifier, or identifiers joined by the separator the pack
+    /// writes between a module and the member it exposes, such as a library error type.
+    /// </summary>
+    private static bool TryRequireQualifiedName(
+        string name,
+        GenerationLanguagePack pack,
+        string description,
+        out string qualified,
+        out string? error)
+    {
+        qualified = string.Empty;
+        error = null;
+        if (string.IsNullOrWhiteSpace(name) || pack.InputSyntax is not { } syntax)
+        {
+            error = $"The {description} '{name}' is not a name of the '{pack.Language}' language pack.";
+            return false;
+        }
+
+        var segments = name.Split('.', StringSplitOptions.None);
+        if (segments.Length > 4 ||
+            segments.Any(segment => !GenerationInputSyntaxParser.IsIdentifier(segment, syntax)))
+        {
+            error = $"The {description} '{name}' is not a name of the '{pack.Language}' language pack.";
+            return false;
+        }
+
+        qualified = string.Join(syntax.MemberAccessFormat?.Separator ?? ".", segments);
+        return true;
     }
 
     private static bool TryRequireIdentifier(
