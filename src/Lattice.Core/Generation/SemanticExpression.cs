@@ -360,7 +360,6 @@ internal static class SemanticExpressionAnalysis
 
         return true;
     }
-    }
 
     private static bool IsValidCallArguments(
         SemanticFunctionCallExpression call,
