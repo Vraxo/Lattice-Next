@@ -56,6 +56,16 @@ public sealed record SemanticMemberAccessExpression(
     string Member) : SemanticExpression;
 
 /// <summary>
+/// Calls one method on a value the program already holds, for example asking a text value for its
+/// trimmed form. The selected language pack spells how a member is reached and how a call is written,
+/// so no requirement names a language construct.
+/// </summary>
+public sealed record SemanticMethodCallExpression(
+    SemanticExpression Target,
+    string Method,
+    ImmutableArray<SemanticExpression> Arguments) : SemanticExpression;
+
+/// <summary>
 /// Converts one value to a target value kind, for example reading text as a number. The selected
 /// language pack spells the conversion for each target kind, so no requirement names a language construct.
 /// </summary>
@@ -168,6 +178,14 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticMethodCallExpression methodCall:
+                CollectReferencedNames(methodCall.Target, names);
+                foreach (var argument in methodCall.Arguments)
+                {
+                    CollectReferencedNames(argument, names);
+                }
+
+                break;
             case SemanticConversionExpression conversion:
                 CollectReferencedNames(conversion.Value, names);
                 break;
@@ -275,6 +293,11 @@ internal static class SemanticExpressionAnalysis
             (availableFunctions is null || availableFunctions.Contains(call.Name)) &&
             call.Arguments.All(argument => ReferencesOnlyAvailableNamesCore(
                 argument, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticMethodCallExpression methodCall =>
+            ReferencesOnlyAvailableNamesCore(
+                methodCall.Target, availableNames, allowFunctionCalls, availableFunctions) &&
+            methodCall.Arguments.All(argument => ReferencesOnlyAvailableNamesCore(
+                argument, availableNames, allowFunctionCalls, availableFunctions)),
         SemanticUnaryExpression unary =>
             ReferencesOnlyAvailableNamesCore(
                 unary.Operand, availableNames, allowFunctionCalls, availableFunctions),
@@ -300,6 +323,9 @@ internal static class SemanticExpressionAnalysis
         SemanticMemberAccessExpression member => names.Contains(member.Target),
         SemanticFunctionCallExpression call =>
             call.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
+        SemanticMethodCallExpression methodCall =>
+            ReferencesAnyNameCore(methodCall.Target, names) ||
+            methodCall.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticUnaryExpression unary => ReferencesAnyNameCore(unary.Operand, names),
         SemanticConversionExpression conversion => ReferencesAnyNameCore(conversion.Value, names),
         SemanticTextTemplateExpression template =>
@@ -332,12 +358,37 @@ internal static class SemanticExpressionAnalysis
             SemanticFunctionCallExpression call => IsValidCallArguments(call, depth, ref nodeCount),
             SemanticMemberAccessExpression member =>
                 IsValidIdentifier(member.Target) && IsValidIdentifier(member.Member),
+            SemanticMethodCallExpression methodCall => IsValidMethodCall(methodCall, depth, ref nodeCount),
             SemanticConversionExpression conversion =>
                 conversion.Target is SemanticValueKind.Number or SemanticValueKind.Text &&
                 IsValid(conversion.Value, depth + 1, ref nodeCount),
             SemanticTextTemplateExpression template => IsValidTemplate(template, depth, ref nodeCount),
             _ => false
         };
+    }
+
+    private static bool IsValidMethodCall(
+        SemanticMethodCallExpression call,
+        int depth,
+        ref int nodeCount)
+    {
+        if (!IsValidIdentifier(call.Method) ||
+            call.Arguments.IsDefault ||
+            call.Arguments.Length > 8 ||
+            !IsValid(call.Target, depth + 1, ref nodeCount))
+        {
+            return false;
+        }
+
+        foreach (var argument in call.Arguments)
+        {
+            if (!IsValid(argument, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool IsValidTemplate(
@@ -417,6 +468,13 @@ internal static class SemanticExpressionAnalysis
                 {
                     CollectFunctionNames(argument, names);
                 }
+                break;
+            case SemanticMethodCallExpression methodCall:
+                foreach (var argument in methodCall.Arguments)
+                {
+                    CollectFunctionNames(argument, names);
+                }
+
                 break;
             case SemanticUnaryExpression unary:
                 CollectFunctionNames(unary.Operand, names);

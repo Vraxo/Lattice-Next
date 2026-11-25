@@ -16,7 +16,7 @@ public sealed record PlannedProgramStatement(
 /// </summary>
 public static class SemanticProgramPlanner
 {
-    private const int MaximumDepth = 3;
+    private const int MaximumDepth = 4;
     private const int MaximumRequirements = 64;
     private const int MaximumStatements = 256;
 
@@ -507,6 +507,9 @@ public static class SemanticProgramPlanner
                 break;
             case 2:
                 effect = "emit-double-indented-augmented-assignment";
+                break;
+            case 3:
+                effect = "emit-triple-indented-augmented-assignment";
                 break;
             default:
                 error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Lattice.Core.Generation;
 
 internal static class SemanticExpressionRenderer
@@ -100,6 +102,14 @@ internal static class SemanticExpressionRenderer
                 rendered = member.Target + memberAccessFormat.Separator + member.Member;
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticMethodCallExpression methodCall:
+                if (!TryRenderMethodCall(methodCall, languagePack, syntax, out rendered))
+                {
+                    return false;
+                }
+
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticConversionExpression conversion:
                 if (!TryRender(
                         conversion.Value,
@@ -183,6 +193,57 @@ internal static class SemanticExpressionRenderer
         return rendered.Length <= 16_384;
     }
 
+    private static bool TryRenderArguments(
+        ImmutableArray<SemanticExpression> arguments,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        var format = syntax.FunctionCallFormat;
+        var parts = new List<string>(arguments.Length);
+        foreach (var argument in arguments)
+        {
+            if (!TryRender(argument, languagePack, syntax, 0, isRightOperand: false, out var renderedArgument))
+            {
+                return false;
+            }
+
+            parts.Add(renderedArgument);
+        }
+
+        var separator = format.RenderingArgumentSeparator ?? format.ArgumentSeparator;
+        rendered = string.Join(separator, parts);
+        return rendered.Length <= 16_384;
+    }
+
+    private static bool TryRenderMethodCall(
+        SemanticMethodCallExpression call,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (!GenerationInputSyntaxParser.IsIdentifier(call.Method, syntax) ||
+            syntax.MemberAccessFormat is not { } memberAccessFormat ||
+            !TryRender(
+                call.Target,
+                languagePack,
+                syntax,
+                PrimaryPrecedence,
+                isRightOperand: false,
+                out var target) ||
+            !TryRenderArguments(call.Arguments, languagePack, syntax, out var arguments))
+        {
+            return false;
+        }
+
+        var format = syntax.FunctionCallFormat;
+        rendered = target + memberAccessFormat.Separator + call.Method +
+            format.OpeningDelimiter + arguments + format.ClosingDelimiter;
+        return true;
+    }
+
     private static bool TryRenderCall(
         SemanticFunctionCallExpression call,
         GenerationLanguagePack languagePack,
@@ -195,21 +256,13 @@ internal static class SemanticExpressionRenderer
             return false;
         }
 
-        var format = syntax.FunctionCallFormat;
-        var arguments = new List<string>(call.Arguments.Length);
-        foreach (var argument in call.Arguments)
+        if (!TryRenderArguments(call.Arguments, languagePack, syntax, out var arguments))
         {
-            if (!TryRender(argument, languagePack, syntax, 0, isRightOperand: false, out var renderedArgument))
-            {
-                return false;
-            }
-
-            arguments.Add(renderedArgument);
+            return false;
         }
 
-        var separator = format.RenderingArgumentSeparator ?? format.ArgumentSeparator;
-        rendered = call.Name + format.OpeningDelimiter +
-            string.Join(separator, arguments) + format.ClosingDelimiter;
+        var format = syntax.FunctionCallFormat;
+        rendered = call.Name + format.OpeningDelimiter + arguments + format.ClosingDelimiter;
         return rendered.Length <= 16_384;
     }
 

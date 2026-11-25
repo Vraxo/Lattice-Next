@@ -11,7 +11,7 @@ namespace Lattice.Core.Generation;
 public static class SemanticProgramValidator
 {
     public const int MaximumRequirements = 64;
-    public const int MaximumDepth = 3;
+    public const int MaximumDepth = 4;
     public const int MaximumNameLength = 64;
     public const int MaximumParameters = 8;
 

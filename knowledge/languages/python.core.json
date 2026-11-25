@@ -1941,6 +1941,60 @@
           "value": "expression"
         }
       ]
+    },
+    {
+      "head": "bound-triple-indented-augmented-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " "
+        },
+        {
+          "kind": "binding",
+          "value": "operator"
+        },
+        {
+          "kind": "terminal",
+          "value": "= "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-with-open-read-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"r\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2059,6 +2113,18 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "operator"
+    },
+    {
+      "name": "path",
+      "source": "goal-binding",
+      "encoding": "string-literal",
+      "key": "path"
+    },
+    {
+      "name": "file",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "file"
     }
   ],
   "operations": [
@@ -2807,6 +2873,22 @@
       "argumentKind": "augmented-assignment",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-augmented-assignment"
+    },
+    {
+      "id": "python-bound-triple-indented-augmented-assignment",
+      "symbol": "=",
+      "effect": "emit-triple-indented-augmented-assignment",
+      "argumentKind": "augmented-assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-augmented-assignment"
+    },
+    {
+      "id": "python-bound-with-open-read",
+      "symbol": "with",
+      "effect": "read-text-file",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "bound-with-open-read-statement"
     }
   ],
   "stringLiteralFormat": {

@@ -233,6 +233,41 @@ public sealed class SemanticExpressionTests
         Assert.Equal("x ⊕ y ⊖ z ⊖ ١", rendered);
     }
 
+    [Fact]
+    public void Renders_a_method_call_on_a_value_the_program_holds()
+    {
+        var pack = LoadPythonPack();
+        var noArguments = new SemanticMethodCallExpression(
+            new SemanticNameExpression("line"),
+            "strip",
+            []);
+        var withArguments = new SemanticMethodCallExpression(
+            new SemanticNameExpression("values"),
+            "count",
+            [new SemanticNumberExpression("2")]);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(noArguments));
+        Assert.True(SemanticExpressionRenderer.TryRender(noArguments, pack, out var renderedNoArguments));
+        Assert.Equal("line.strip()", renderedNoArguments);
+        Assert.True(SemanticExpressionRenderer.TryRender(withArguments, pack, out var renderedWithArguments));
+        Assert.Equal("values.count(2)", renderedWithArguments);
+        Assert.Equal(["line"], SemanticExpressionAnalysis.GetReferencedNames(noArguments));
+        Assert.Equal(["values"], SemanticExpressionAnalysis.GetReferencedNames(withArguments));
+    }
+
+    [Fact]
+    public void Rejects_a_method_call_whose_method_name_is_not_an_identifier()
+    {
+        var pack = LoadPythonPack();
+        var invalid = new SemanticMethodCallExpression(
+            new SemanticNameExpression("line"),
+            "strip()",
+            []);
+
+        Assert.False(SemanticExpressionAnalysis.IsValid(invalid));
+        Assert.False(SemanticExpressionRenderer.TryRender(invalid, pack, out _));
+    }
+
     private static GenerationLanguagePack LoadPythonPack()
     {
         var loader = new GenerationLanguagePackLoader();
