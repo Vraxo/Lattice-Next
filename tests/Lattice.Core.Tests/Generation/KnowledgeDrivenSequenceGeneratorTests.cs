@@ -680,31 +680,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Empty(facts);
     }
 
-    [Theory]
-    [InlineData("Create a Python program that prints 'adult' if 20 is at least 18.", "program.conditional-output.adult-at-least", "if 20 >= 18:\n    print(\"adult\")")]
-    [InlineData("Build a Python script that displays 'minor' if 16 is less than 18.", "program.conditional-output.minor-less-than", "if 16 < 18:\n    print(\"minor\")")]
-    [InlineData("Generate a Python program that outputs 'match' if 7 equals 7.", "program.conditional-output.match-equals", "if 7 == 7:\n    print(\"match\")")]
-    public void Generates_simple_conditional_output_from_declarative_facts(string input, string expectedFact, string expectedCode)
-    {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.True(facts.Any(fact => fact.Id == expectedFact),
-            $"Extracted facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var generated, out var generationError),
-            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), generated!.Text);
-    }
-
     [Fact]
     public void Generates_manual_list_totals_from_declarative_semantic_facts()
     {

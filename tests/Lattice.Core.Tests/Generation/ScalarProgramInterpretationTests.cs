@@ -342,4 +342,19 @@ public sealed class ScalarProgramInterpretationTests
         Assert.Contains(facts, fact => fact.Id == "program.requirement.condition");
         Assert.Contains(facts, fact => fact.Id == "program.requirement.output");
     }
+
+    [Fact]
+    public void Retires_fixed_comparison_sample_captures_and_fragments()
+    {
+        var knowledge = LoadKnowledge();
+
+        Assert.DoesNotContain(knowledge.InputRules, rule =>
+            rule.FactId.StartsWith("program.conditional-output", StringComparison.Ordinal));
+        Assert.DoesNotContain(knowledge.Rules, rule =>
+            rule.Id.Contains("conditional-output", StringComparison.Ordinal));
+
+        var facts = ExtractFacts("Create a Python program that prints 'adult' if 20 is at least 18.");
+        Assert.DoesNotContain(facts, fact =>
+            fact.Id.StartsWith("program.conditional-output", StringComparison.Ordinal));
+    }
 }

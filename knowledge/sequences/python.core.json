@@ -1712,43 +1712,6 @@
       "factId": "program.assignment"
     },
     {
-      "id": "recognize-conditional-output-adult-at-least",
-      "matchTokens": [
-        "prints",
-        "if",
-        "20",
-        "is",
-        "at",
-        "least",
-        "18"
-      ],
-      "factId": "program.conditional-output.adult-at-least"
-    },
-    {
-      "id": "recognize-conditional-output-minor-less-than",
-      "matchTokens": [
-        "displays",
-        "if",
-        "16",
-        "is",
-        "less",
-        "than",
-        "18"
-      ],
-      "factId": "program.conditional-output.minor-less-than"
-    },
-    {
-      "id": "recognize-conditional-output-match-equals",
-      "matchTokens": [
-        "outputs",
-        "if",
-        "7",
-        "equals",
-        "7"
-      ],
-      "factId": "program.conditional-output.match-equals"
-    },
-    {
       "id": "recognize-greeting-function-definition-request",
       "matchTokens": [
         "function"
@@ -5673,63 +5636,6 @@
         "program.arithmetic",
         "program.iteration",
         "program.output"
-      ]
-    },
-    {
-      "id": "python-conditional-output-adult-at-least",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-output.adult-at-least"
-      ],
-      "nextToken": "```python\nif 20 >= 18:\n    print(\"adult\")\n```",
-      "satisfiesFacts": [
-        "program.conditional-output.adult-at-least",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.condition",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-conditional-output-minor-less-than",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-output.minor-less-than"
-      ],
-      "nextToken": "```python\nif 16 < 18:\n    print(\"minor\")\n```",
-      "satisfiesFacts": [
-        "program.conditional-output.minor-less-than",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.condition",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-conditional-output-match-equals",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-output.match-equals"
-      ],
-      "nextToken": "```python\nif 7 == 7:\n    print(\"match\")\n```",
-      "satisfiesFacts": [
-        "program.conditional-output.match-equals",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.condition",
-        "value.output"
       ]
     },
     {

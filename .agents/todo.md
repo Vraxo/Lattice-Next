@@ -20,6 +20,7 @@
 - [x] **5 — Move basic syntax checks into language packs.** Identifier, number, string, and function-call syntax checks now use selected language-pack metadata.
 - [x] **5 — Make expression input language-neutral.** Completed expression inventory, semantic model, structured capture, semantic validation, pack-based realization, and removal of the old expression-string path.
 - [x] **6 — Add the minimum operational programming model.** Added program structure, typed operation contracts/slots, effects, prerequisites, function/control-flow, module, exception, and I/O relationships with loader/reasoner tests.
+- [x] **7 — Interpret scalar program requests generically.** Added request-order positions to semantic facts, projected comparison operands/operators, independent true/false branches, and request-derived output expressions into ordered `SemanticProgram` requirements, removed the fixed comparison sample captures, and added changed-value, changed-identifier, paraphrase, ordering, dependency, and mixed-requirement tests.
 
 ## Remaining work
 
@@ -31,18 +32,18 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [x] **7.2 — Define request-derived scalar requirements.** Represent numeric/string values, variable names, assignments, comparisons, branch conditions, and output requirements as generic semantic facts. Do not encode benchmark task names as semantic identities.
 - [x] **7.3 — Verify generic assignment captures.** Capture changed variable names and numeric/text values with the existing general assignment rules; preserve quoted literal syntax for typed parsing.
 - [x] **7.4 — Project generic assignment facts.** Map reusable assignment target/value facts to `AssignmentRequirement` values through the existing sequence fact extractor; do not map task-family fact IDs.
-- [ ] **7.5 — Capture comparison operands from requests.** Extract both comparison operands as request-derived values and verify that changing either operand changes the projected requirement.
-- [ ] **7.6 — Capture comparison operators from requests.** Extract equality and ordering operators as semantic operators, not as fixed phrase-to-task matches.
-- [ ] **7.7 — Capture conditional branch requirements.** Project condition, true-branch, and false-branch requirements independently from request content.
-- [ ] **7.8 — Capture output values from requests.** Project requested output text/values without relying on fixed greeting or classification strings.
-- [ ] **7.9 — Remove fixed scalar sample captures.** Delete obsolete fixed-value capture rules only after the preceding generic captures have focused tests.
-- [ ] **7.10 — Preserve multiple scalar requirements.** Ensure two or more assignments/expressions from one request are all projected.
-- [ ] **7.11 — Preserve requirement dependencies.** Retain which values feed which expressions, conditions, and outputs.
-- [ ] **7.12 — Preserve source-request order where order is meaningful.** Verify ordered statements are not reordered or collapsed during extraction.
-- [ ] **7.13 — Test changed numeric and string literals.** Assert exact extracted values for multiple inputs.
-- [ ] **7.14 — Test changed identifiers.** Assert variable and parameter names are request-derived.
-- [ ] **7.15 — Test paraphrased scalar requests.** Assert equivalent wording yields equivalent semantic requirements.
-- [ ] **7.16 — Test mixed scalar requirements.** Assert a request with assignment, comparison, branches, and output retains the complete ordered requirement set.
+- [x] **7.5 — Capture comparison operands from requests.** Extract both comparison operands as request-derived values and verify that changing either operand changes the projected requirement.
+- [x] **7.6 — Capture comparison operators from requests.** Extract equality and ordering operators as semantic operators, not as fixed phrase-to-task matches.
+- [x] **7.7 — Capture conditional branch requirements.** Project condition, true-branch, and false-branch requirements independently from request content.
+- [x] **7.8 — Capture output values from requests.** Project requested output text/values without relying on fixed greeting or classification strings.
+- [x] **7.9 — Remove fixed scalar sample captures.** Deleted the three marker-only fixed-comparison captures and their complete-program fragments; the addition and sign-classification facts remain only because their consumers are still required by the M-08 cutover (8.9, 8.14).
+- [x] **7.10 — Preserve multiple scalar requirements.** Ensure two or more assignments/expressions from one request are all projected.
+- [x] **7.11 — Preserve requirement dependencies.** Retain which values feed which expressions, conditions, and outputs.
+- [x] **7.12 — Preserve source-request order where order is meaningful.** Verify ordered statements are not reordered or collapsed during extraction.
+- [x] **7.13 — Test changed numeric and string literals.** Assert exact extracted values for multiple inputs.
+- [x] **7.14 — Test changed identifiers.** Assert variable and parameter names are request-derived.
+- [x] **7.15 — Test paraphrased scalar requests.** Assert equivalent wording yields equivalent semantic requirements.
+- [x] **7.16 — Test mixed scalar requirements.** Assert a request with assignment, comparison, branches, and output retains the complete ordered requirement set.
 
 ### 8. Compose scalar programs from reusable operations
 
