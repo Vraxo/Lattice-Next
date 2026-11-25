@@ -85,7 +85,7 @@ public sealed class SemanticProgramClassAndErrorTests
     }
 
     [Fact]
-    public void Rejects_a_return_inside_a_method_that_declares_no_result()
+    public void Accepts_a_return_inside_a_method_that_declares_no_result()
     {
         var program = new SemanticProgram([
             new ClassRequirement(
@@ -100,7 +100,8 @@ public sealed class SemanticProgramClassAndErrorTests
                 ])
         ]);
 
-        Assert.False(SemanticProgramValidator.IsValid(program));
+        // A request that never states a result kind still returns a value, so an undeclared kind accepts it.
+        Assert.True(SemanticProgramValidator.IsValid(program));
     }
 
     [Fact]

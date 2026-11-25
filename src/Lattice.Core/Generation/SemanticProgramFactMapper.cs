@@ -369,7 +369,30 @@ public static class SemanticProgramFactMapper
             return null;
         }
 
-        if (declared.IsDefault || declared.Length != count)
+        if (declared.IsDefault || declared.Length == 0)
+        {
+            error = "A generic function requirement requires declared parameters.";
+            return null;
+        }
+
+        if (count == 1)
+        {
+            // A single declaration captures one entry per spoken parameter, so every entry names a parameter.
+            var names = declared
+                .SelectMany(entry => entry.Split(
+                    ',',
+                    StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                .ToImmutableArray();
+            if (names.IsDefaultOrEmpty || names.Any(string.IsNullOrWhiteSpace))
+            {
+                error = "A generic function requirement requires named parameters.";
+                return null;
+            }
+
+            return [names.Select(name => new FunctionParameter(name, null)).ToImmutableArray()];
+        }
+
+        if (declared.Length != count)
         {
             error = "A generic function requirement requires one parameter list per declared function.";
             return null;

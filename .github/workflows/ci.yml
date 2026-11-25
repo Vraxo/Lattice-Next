@@ -69,20 +69,29 @@ jobs:
           fi
           exit "$test_status"
 
-      - name: Report test log windows
+      - name: Report failing test context
         if: failure()
         run: |
           python - <<'PY'
           from pathlib import Path
-          if Path("test-output.log").exists():
-              text = Path("test-output.log").read_text(errors="replace")
-              import re
-              text = re.sub(r"\x1b\[[0-9;]*m", "", text)
-              size = 11000
-              windows = [text[i:i + size] for i in range(0, len(text), size)] if len(text) <= 4 * size else [text[i:i + size] for i in range(0, 4 * size, size)]
-              for index, window in enumerate(windows):
+          import re
+          log = Path("test-output.log")
+          if log.exists():
+              lines = re.sub(r"\x1b\[[0-9;]*m", "", log.read_text(errors="replace")).splitlines()
+              starts = [
+                  index for index, line in enumerate(lines)
+                  if line.strip().lower().startswith("failed ") and ".tests." in line.lower()
+              ]
+              emitted = 0
+              last_end = -1
+              for start in starts:
+                  if start <= last_end or emitted >= 6:
+                      continue
+                  window = "\n".join(lines[start:start + 8])
+                  last_end = start + 7
+                  emitted += 1
                   message = window.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-                  print(f"::notice title=Test log window {index + 1}::{message}")
+                  print(f"::notice title=Failing test {emitted}::{message}")
           PY
 
       - name: Install web-search dependency
