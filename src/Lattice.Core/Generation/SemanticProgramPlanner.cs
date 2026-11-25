@@ -48,7 +48,6 @@ public static class SemanticProgramPlanner
         "program.assignment.first",
         "program.assignment.second",
         "program.assignment.result",
-        "program.assignment.prefix",
         "program.classification",
         "program.class",
         "program.collection",
