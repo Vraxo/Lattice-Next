@@ -226,7 +226,7 @@ public sealed class SequenceKnowledgeGuardTests
     {
         var assembly = typeof(SequenceKnowledgeBaseLoader).Assembly;
         var resource = assembly.GetManifestResourceNames()
-            .Single(name => name.EndsWith("sequences.python.core.json", StringComparison.Ordinal));
+            .Single(name => name.EndsWith("SequenceKnowledge.python.core.json", StringComparison.Ordinal));
         using var stream = assembly.GetManifestResourceStream(resource)!;
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
