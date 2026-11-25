@@ -149,47 +149,22 @@
         {
           "factId": "program.requirement.class.method",
           "valueId": "method",
-          "startAfterTokens": [
-            "balance",
-            "a"
-          ],
-          "stopBeforeTokens": [
-            "method"
-          ]
-        },
-        {
-          "factId": "program.requirement.class.method",
-          "valueId": "method",
           "stopBeforeTokens": [],
-          "literalValue": "withdraw",
+          "literalValue": "deposit|withdraw",
           "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.method",
           "valueId": "parameter",
           "stopBeforeTokens": [],
-          "literalValue": "amount",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method",
-          "valueId": "parameter",
-          "stopBeforeTokens": [],
-          "literalValue": "amount",
+          "literalValue": "amount|amount",
           "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.method",
           "valueId": "result",
           "stopBeforeTokens": [],
-          "literalValue": "none",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method",
-          "valueId": "result",
-          "stopBeforeTokens": [],
-          "literalValue": "Boolean",
+          "literalValue": "none|Boolean",
           "collectionDelimiter": "|"
         },
         {
@@ -231,56 +206,28 @@
           "factId": "program.requirement.class.method.update",
           "valueId": "method",
           "stopBeforeTokens": [],
-          "literalValue": "deposit",
+          "literalValue": "deposit|withdraw",
           "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.method.update",
           "valueId": "field",
           "stopBeforeTokens": [],
-          "literalValue": "balance",
+          "literalValue": "balance|balance",
           "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.method.update",
           "valueId": "operator",
           "stopBeforeTokens": [],
-          "literalValue": "Add",
+          "literalValue": "Add|Subtract",
           "collectionDelimiter": "|"
         },
         {
           "factId": "program.requirement.class.method.update",
           "valueId": "value",
           "stopBeforeTokens": [],
-          "literalValue": "amount",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method.update",
-          "valueId": "method",
-          "stopBeforeTokens": [],
-          "literalValue": "withdraw",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method.update",
-          "valueId": "field",
-          "stopBeforeTokens": [],
-          "literalValue": "balance",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method.update",
-          "valueId": "operator",
-          "stopBeforeTokens": [],
-          "literalValue": "Subtract",
-          "collectionDelimiter": "|"
-        },
-        {
-          "factId": "program.requirement.class.method.update",
-          "valueId": "value",
-          "stopBeforeTokens": [],
-          "literalValue": "amount",
+          "literalValue": "amount|amount",
           "collectionDelimiter": "|"
         },
         {
