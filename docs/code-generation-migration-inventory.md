@@ -492,3 +492,28 @@ The pack already carries `import-statement`, `bound-import-statement`, `python-i
 #### Consequences for M-11.4 through M-11.21
 
 The generic path needs five things these families assume implicitly: an **import requirement** (module name, so `import json`/`import os` are planned, not typed into a template), a **file-read requirement** (path, mode, encoding, and the bound content or line stream), a **file-write requirement** (path, mode, encoding, and the written value), a **directory-listing requirement** (directory expression and an entry collection whose items expose name/size), and a **failure requirement** for missing paths that binds a handler to the operation it guards. M-11.4/M-11.5/M-11.6/M-11.7 define those, and M-11.16 then retires `python-directory-file-listing` — closing M-10.29 — while M-11.18 removes the JSON and record families once their requirements render through the pack.
+
+## M-11.4 through M-11.7, M-11.14, M-11.16, M-10.29 — outcome
+
+The file and directory families now plan from facts:
+
+| Ticket | Model | Pack knowledge | Replaced |
+| --- | --- | --- | --- |
+| M-11.4 | `FileReadRequirement(path, stream, body)` | `read-text-file` effect, `path`/`file` bindings, `bound-with-open-read-statement` | `recognize-non-empty-file-line-count`, `python-non-empty-file-line-count` |
+| M-11.6 | `DirectoryListingRequirement(directory, item, sortKey, body)` | `bound-directory-iteration-statement`, `indented-` variant, `emit-directory-loop-header`, `directory`/`item` bindings | — (new capability) |
+| M-11.7 | `TryRequirement` + `HandlerRequirement(errorType, body)` bound to the guarded listing | handler header spellings already present | — (new capability) |
+| M-11.12 (partly) | `SemanticProgramArgumentExpression(position)` | `inputSyntax.programArgumentFormat` (`sys.argv[{0}]`) | hard-coded `sys.argv[1]` |
+| M-11.12 (partly) | `ImportRequirement(module)` | `emit-import`, `bound-import-statement`, `module` binding | hard-coded `import os` / `import sys` |
+
+Both directory rules (`recognize-directory-file-listing`, `python-directory-file-listing`) are deleted, so
+the directory family is one input rule with twelve declared values feeding the same planner as every other
+family. Current knowledge counts after M-11.4 and M-10.29: **96 sequence rules** (98 → 97 → 96) and
+**241 input rules**; the pack now holds **95 productions**, **24 bindings**, and **97 operations**, plus
+`inputSyntax.programArgumentFormat`.
+
+Two model consequences are worth recording for the remaining serialization work:
+
+- Statements may now sit at block depth 3 (`write-standard-output-triple-indented-expression`), because the
+  guarded listing nests an output inside `for` inside `try`.
+- Request-declared message text is carried as a `{0}`/`{1}` template in the fact, and the mapper turns it
+  into text-template fragments, so no message wording lives in shared code.
