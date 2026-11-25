@@ -104,13 +104,17 @@ public sealed record SortRequirement(
 public sealed record FunctionRequirement(
     string Name,
     ImmutableArray<FunctionParameter> Parameters,
-    SemanticValueKind ReturnKind,
+    SemanticValueKind? ReturnKind,
     ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
 
-/// <summary>A declared parameter: the name the body can use and the value kind a caller must supply.</summary>
+/// <summary>
+/// A declared parameter: the name the body can use and, when the request or the program specifies one,
+/// the value kind a caller must supply. A kind that no source declares stays null and never rejects a
+/// caller.
+/// </summary>
 public sealed record FunctionParameter(
     string Name,
-    SemanticValueKind Kind);
+    SemanticValueKind? Kind);
 
 /// <summary>Returns an expression as the result of the enclosing function declaration.</summary>
 public sealed record ReturnRequirement(
@@ -178,3 +182,16 @@ public sealed record TryRequirement(
     ImmutableArray<ProgramRequirement> Body,
     ImmutableArray<HandlerRequirement> Handlers,
     string? ResultName) : ProgramRequirement;
+
+/// <summary>One condition of a multi-way branch together with the requirements it guards.</summary>
+public sealed record ConditionalBranch(
+    SemanticExpression Condition,
+    ImmutableArray<ProgramRequirement> Body);
+
+/// <summary>
+/// A multi-way branch: the conditions are tried in order and the first satisfied one runs its body.
+/// The otherwise requirements describe what happens when none matched, and may be empty.
+/// </summary>
+public sealed record ConditionalChainRequirement(
+    ImmutableArray<ConditionalBranch> Branches,
+    ImmutableArray<ProgramRequirement> Otherwise) : ProgramRequirement;

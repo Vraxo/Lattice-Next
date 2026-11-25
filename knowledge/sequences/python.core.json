@@ -4244,14 +4244,14 @@
       ]
     },
     {
-      "id": "recognize-declarative-conditional-function",
+      "id": "recognize-declared-branching-function",
       "matchTokens": [
         "function"
       ],
-      "factId": "program.conditional-function",
+      "factId": "program.requirement.function",
       "captures": [
         {
-          "factId": "program.conditional-function.signature",
+          "factId": "program.requirement.function",
           "valueId": "name",
           "startAfterTokens": [
             "named"
@@ -4264,7 +4264,7 @@
           "stopBeforeTokens": []
         },
         {
-          "factId": "program.conditional-function.signature",
+          "factId": "program.requirement.function",
           "valueId": "parameters",
           "startAfterTokens": [
             "takes"
@@ -4279,8 +4279,8 @@
           "stopBeforeTokens": []
         },
         {
-          "factId": "program.conditional-function.branches",
-          "valueId": "returns",
+          "factId": "program.requirement.function.branches",
+          "valueId": "value",
           "startAfterTokens": [
             "returns"
           ],
@@ -4303,8 +4303,8 @@
           "semanticExpressionKind": "value"
         },
         {
-          "factId": "program.conditional-function.branches",
-          "valueId": "conditions",
+          "factId": "program.requirement.function.branches",
+          "valueId": "condition",
           "startAfterTokens": [
             "returns"
           ],
@@ -4327,8 +4327,8 @@
           "semanticExpressionKind": "boolean"
         },
         {
-          "factId": "program.conditional-function.false-return",
-          "valueId": "expression",
+          "factId": "program.requirement.function.otherwise",
+          "valueId": "value",
           "startAfterSequences": [
             [
               "and",
@@ -4347,8 +4347,8 @@
           "semanticExpressionKind": "value"
         },
         {
-          "factId": "program.conditional-function.call",
-          "valueId": "expression",
+          "factId": "program.requirement.function.call",
+          "valueId": "call",
           "startAfterTokens": [
             "then"
           ],
@@ -7848,224 +7848,6 @@
       "weight": 32
     },
     {
-      "id": "python-conditional-function-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature",
-        "program.conditional-function.branches",
-        "program.conditional-function.false-return",
-        "program.conditional-function.call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.arithmetic"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output",
-        "program.arithmetic"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-conditional-function-open-without-arithmetic",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature",
-        "program.conditional-function.branches",
-        "program.conditional-function.false-return",
-        "program.conditional-function.call",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.output"
-      ],
-      "forbiddenFacts": [
-        "program.arithmetic"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-conditional-function-header",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.signature",
-        "valueId": "name",
-        "valueTemplate": "{0}({1})",
-        "secondaryValueId": "parameters",
-        "secondaryCollectionSeparator": ", ",
-        "prefix": "def ",
-        "suffix": ":\n"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.signature"
-      ]
-    },
-    {
-      "id": "python-conditional-function-first-branch",
-      "contextSuffix": [
-        "```python\n",
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.branches"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.branches",
-        "valueId": "conditions",
-        "collection": true,
-        "secondaryValueId": "returns",
-        "secondaryValueIsCollection": true,
-        "valueTemplate": "{0}:\n        return {1}\n",
-        "prefix": "    if ",
-        "minimumCollectionCursor": 0
-      },
-      "advanceCollections": [
-        "program.conditional-function.branches:conditions",
-        "program.conditional-function.branches:returns"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.signature"
-      ]
-    },
-    {
-      "id": "python-conditional-function-next-branch",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.branches"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.branches",
-        "valueId": "conditions",
-        "collection": true,
-        "secondaryValueId": "returns",
-        "secondaryValueIsCollection": true,
-        "valueTemplate": "{0}:\n        return {1}\n",
-        "prefix": "    elif ",
-        "minimumCollectionCursor": 1
-      },
-      "advanceCollections": [
-        "program.conditional-function.branches:conditions",
-        "program.conditional-function.branches:returns"
-      ]
-    },
-    {
-      "id": "python-conditional-function-else-return",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.branches"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.false-return",
-        "valueId": "expression",
-        "prefix": "    return ",
-        "suffix": "\n"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.false-return"
-      ]
-    },
-    {
-      "id": "python-conditional-function-print",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "nextToken": "print(",
-      "forbiddenFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-conditional-function-print-with-output-start",
-      "contextSuffix": [
-        "*\n"
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call",
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "program.conditional-function.false-return"
-      ],
-      "nextToken": "print(",
-      "satisfiesFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-conditional-function-call",
-      "contextSuffix": [
-        "print("
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.call",
-        "valueId": "expression",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.call",
-        "program.conditional-function.signature"
-      ],
-      "forbiddenFacts": [
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-conditional-function-call-with-value-output",
-      "contextSuffix": [
-        "print("
-      ],
-      "requiredFacts": [
-        "program.conditional-function.call"
-      ],
-      "tokenBinding": {
-        "factId": "program.conditional-function.call",
-        "valueId": "expression",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.conditional-function.call",
-        "program.conditional-function.signature",
-        "value.output"
-      ]
-    },
-    {
       "id": "python-arithmetic-function-next-header",
       "contextSuffix": [
         "    return ",
@@ -8266,47 +8048,6 @@
       "appliesWhenFactId": "program.single-field-record-sorting"
     },
     {
-      "id": "conditional-function-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.conditional-function.signature",
-      "valueId": "name",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-parameters-are-identifiers",
-      "kind": "identifierCollection",
-      "factId": "program.conditional-function.signature",
-      "valueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-parameters-are-unique",
-      "kind": "uniqueCollection",
-      "factId": "program.conditional-function.signature",
-      "valueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-false-return-references-parameters",
-      "kind": "valueExpressionReferences",
-      "factId": "program.conditional-function.false-return",
-      "valueId": "expression",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-call-matches-signature",
-      "kind": "matchingFunctionCall",
-      "factId": "program.conditional-function.call",
-      "valueId": "expression",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "name",
-      "additionalFactId": "program.conditional-function.signature",
-      "additionalValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
       "id": "dictionary-iteration-key-is-identifier",
       "kind": "identifierValue",
       "factId": "program.dictionary-iteration",
@@ -8405,33 +8146,6 @@
       "appliesWhenFactId": "program.collection-filter.condition"
     },
     {
-      "id": "conditional-function-branches-have-matching-counts",
-      "kind": "matchingCollections",
-      "factId": "program.conditional-function.branches",
-      "valueId": "conditions",
-      "relatedFactId": "program.conditional-function.branches",
-      "relatedValueId": "returns",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-branch-conditions-reference-parameters",
-      "kind": "booleanExpressionCollectionReferences",
-      "factId": "program.conditional-function.branches",
-      "valueId": "conditions",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
-      "id": "conditional-function-branch-returns-reference-parameters",
-      "kind": "valueExpressionCollectionReferences",
-      "factId": "program.conditional-function.branches",
-      "valueId": "returns",
-      "relatedFactId": "program.conditional-function.signature",
-      "relatedValueId": "parameters",
-      "appliesWhenFactId": "program.conditional-function.signature"
-    },
-    {
       "id": "arithmetic-function-names-are-identifiers",
       "kind": "identifierCollection",
       "factId": "program.arithmetic-function-signature",
@@ -8484,6 +8198,74 @@
       "additionalFactId": "program.arithmetic-function-signature",
       "additionalValueId": "parameters",
       "appliesWhenFactId": "program.arithmetic-function-signature"
+    },
+    {
+      "id": "function-name-is-identifier",
+      "kind": "identifierValue",
+      "factId": "program.requirement.function",
+      "valueId": "name",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-parameters-are-identifiers",
+      "kind": "identifierCollection",
+      "factId": "program.requirement.function",
+      "valueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-parameters-are-unique",
+      "kind": "uniqueCollection",
+      "factId": "program.requirement.function",
+      "valueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-otherwise-references-parameters",
+      "kind": "valueExpressionReferences",
+      "factId": "program.requirement.function.otherwise",
+      "valueId": "value",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-call-matches-signature",
+      "kind": "matchingFunctionCall",
+      "factId": "program.requirement.function.call",
+      "valueId": "call",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "name",
+      "additionalFactId": "program.requirement.function",
+      "additionalValueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-branches-have-matching-counts",
+      "kind": "matchingCollections",
+      "factId": "program.requirement.function.branches",
+      "valueId": "condition",
+      "relatedFactId": "program.requirement.function.branches",
+      "relatedValueId": "value",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-branch-conditions-reference-parameters",
+      "kind": "booleanExpressionCollectionReferences",
+      "factId": "program.requirement.function.branches",
+      "valueId": "condition",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
+    },
+    {
+      "id": "function-branch-values-reference-parameters",
+      "kind": "valueExpressionCollectionReferences",
+      "factId": "program.requirement.function.branches",
+      "valueId": "value",
+      "relatedFactId": "program.requirement.function",
+      "relatedValueId": "parameters",
+      "appliesWhenFactId": "program.requirement.function"
     }
   ]
 }

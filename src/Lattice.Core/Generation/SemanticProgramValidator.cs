@@ -15,10 +15,10 @@ public static class SemanticProgramValidator
     public const int MaximumNameLength = 64;
     public const int MaximumParameters = 8;
 
-    /// <summary>The parameters and result kind of one declared function.</summary>
+    /// <summary>The parameters and result kind of one declared function; a null entry is undeclared.</summary>
     private sealed record FunctionSignature(
-        ImmutableArray<SemanticValueKind> ParameterKinds,
-        SemanticValueKind ReturnKind);
+        ImmutableArray<SemanticValueKind?> ParameterKinds,
+        SemanticValueKind? ReturnKind);
 
     /// <summary>
     /// What the surrounding requirements make available to the requirement being validated: the
@@ -29,12 +29,14 @@ public static class SemanticProgramValidator
         ImmutableDictionary<string, FunctionSignature> Functions,
         ImmutableDictionary<string, SemanticValueKind> FunctionResults,
         ImmutableDictionary<string, SemanticValueKind> Names,
+        bool InsideDeclaration,
         SemanticValueKind? ReturnKind)
     {
         public static RequirementContext Empty { get; } = new(
             ImmutableDictionary.Create<string, FunctionSignature>(StringComparer.Ordinal),
             ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
             ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
+            false,
             null);
     }
 
@@ -130,6 +132,7 @@ public static class SemanticProgramValidator
                 SemanticExpressionAnalysis.IsValid(iteration.Source) &&
                 !iteration.Body.IsDefaultOrEmpty &&
                 AreValid(iteration.Body, depth + 1, context),
+            ConditionalChainRequirement chain => IsValidChain(chain, depth, context),
             FunctionRequirement function => IsValidFunction(function, depth, context),
             ReturnRequirement ret => IsValidReturn(ret, context),
             CallRequirement call => IsValidCall(call, context),
@@ -147,14 +150,16 @@ public static class SemanticProgramValidator
         if (!IsValidName(function.Name) ||
             function.Parameters.IsDefaultOrEmpty ||
             function.Parameters.Length > MaximumParameters ||
-            !IsValidValueKind(function.ReturnKind) ||
+            (function.ReturnKind is { } declaredReturn && !IsValidValueKind(declaredReturn)) ||
             function.Body.IsDefaultOrEmpty)
         {
             return false;
         }
 
         if (!function.Parameters.All(parameter =>
-                parameter is not null && IsValidName(parameter.Name) && IsValidValueKind(parameter.Kind)))
+                parameter is not null &&
+                IsValidName(parameter.Name) &&
+                (parameter.Kind is not { } parameterKind || IsValidValueKind(parameterKind))))
         {
             return false;
         }
@@ -170,19 +175,44 @@ public static class SemanticProgramValidator
         var bodyContext = context with
         {
             Names = function.Parameters
-                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind, StringComparer.Ordinal),
+                .Where(parameter => parameter.Kind is not null)
+                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind!.Value, StringComparer.Ordinal),
+            InsideDeclaration = true,
             ReturnKind = function.ReturnKind
         };
 
         return AreValid(function.Body, depth + 1, bodyContext);
     }
 
+    /// <summary>
+    /// A return is valid inside a declared body; when the declaration states a result kind the returned
+    /// value must be compatible with it, and an undeclared kind accepts any value.
+    /// </summary>
     private static bool IsValidReturn(ReturnRequirement requirement, RequirementContext context) =>
-        context.ReturnKind is { } returnKind &&
+        context.InsideDeclaration &&
         SemanticExpressionAnalysis.IsValid(requirement.Value) &&
-        SemanticValueKindAnalysis.IsCompatible(
-            SemanticValueKindAnalysis.Infer(requirement.Value, context.Names, context.FunctionResults),
-            returnKind);
+        (context.ReturnKind is not { } returnKind ||
+         SemanticValueKindAnalysis.IsCompatible(
+             SemanticValueKindAnalysis.Infer(requirement.Value, context.Names, context.FunctionResults),
+             returnKind));
+
+    private static bool IsValidChain(
+        ConditionalChainRequirement chain,
+        int depth,
+        RequirementContext context)
+    {
+        if (chain.Branches.IsDefaultOrEmpty || chain.Branches.Length > MaximumRequirements)
+        {
+            return false;
+        }
+
+        return chain.Branches.All(branch =>
+                branch is not null &&
+                SemanticExpressionAnalysis.IsValid(branch.Condition) &&
+                !branch.Body.IsDefaultOrEmpty &&
+                AreValid(branch.Body, depth + 1, context)) &&
+            AreValid(chain.Otherwise, depth + 1, context);
+    }
 
     private static bool IsValidCall(CallRequirement call, RequirementContext context)
     {
@@ -280,7 +310,9 @@ public static class SemanticProgramValidator
         }
 
         if (!method.Parameters.All(parameter =>
-                parameter is not null && IsValidName(parameter.Name) && IsValidValueKind(parameter.Kind)))
+                parameter is not null &&
+                IsValidName(parameter.Name) &&
+                (parameter.Kind is not { } parameterKind || IsValidValueKind(parameterKind))))
         {
             return false;
         }
@@ -296,7 +328,9 @@ public static class SemanticProgramValidator
         var bodyContext = context with
         {
             Names = method.Parameters
-                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind, StringComparer.Ordinal),
+                .Where(parameter => parameter.Kind is not null)
+                .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind!.Value, StringComparer.Ordinal),
+            InsideDeclaration = true,
             ReturnKind = method.ReturnKind
         };
 
@@ -375,8 +409,10 @@ public static class SemanticProgramValidator
                 !IsValidName(function.Name) ||
                 function.Parameters.IsDefaultOrEmpty ||
                 function.Parameters.Length > MaximumParameters ||
-                !function.Parameters.All(parameter => parameter is not null && IsValidValueKind(parameter.Kind)) ||
-                !IsValidValueKind(function.ReturnKind))
+                !function.Parameters.All(parameter =>
+                    parameter is not null &&
+                    (parameter.Kind is not { } parameterKind || IsValidValueKind(parameterKind))) ||
+                (function.ReturnKind is { } declaredReturn && !IsValidValueKind(declaredReturn)))
             {
                 return false;
             }
@@ -389,7 +425,10 @@ public static class SemanticProgramValidator
                 return false;
             }
 
-            results[function.Name] = function.ReturnKind;
+            if (function.ReturnKind is { } resultKind)
+            {
+                results[function.Name] = resultKind;
+            }
         }
 
         context = context with

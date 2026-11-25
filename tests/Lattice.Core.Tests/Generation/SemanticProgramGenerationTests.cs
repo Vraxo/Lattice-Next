@@ -30,6 +30,12 @@ public sealed class SemanticProgramGenerationTests
     [InlineData(
         "Create a Python program that sets score to 12 then when score is at least 40 then prints 'pass' otherwise prints 'fail'.",
         "score = 12\nif score >= 40:\n    print(\"pass\")\nelse:\n    print(\"fail\")")]
+    [InlineData(
+        "Create a Python program with a function named classify that takes age and returns 'adult' when age is at least 18 and otherwise returns 'minor', then print classify(20).",
+        "def classify(age):\n    if age >= 18:\n        return \"adult\"\n    return \"minor\"\nprint(classify(20))")]
+    [InlineData(
+        "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(70).",
+        "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(70))")]
     public void Generates_requested_scalar_programs_from_their_requirements(
         string input,
         string expectedCode)

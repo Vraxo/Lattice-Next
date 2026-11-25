@@ -107,11 +107,45 @@
       ]
     },
     {
+      "head": "elif-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "elif "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
       "head": "indented-elif-statement",
       "symbols": [
         {
           "kind": "terminal",
           "value": "    elif "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-elif-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        elif "
         },
         {
           "kind": "binding",
@@ -1980,12 +2014,28 @@
       "startSymbol": "indented-if-statement"
     },
     {
+      "id": "python-elif",
+      "symbol": "elif",
+      "effect": "emit-elif",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "elif-statement"
+    },
+    {
       "id": "python-elif-indented",
       "symbol": "elif",
       "effect": "begin-elif-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "indented-elif-statement"
+    },
+    {
+      "id": "python-elif-double-indented",
+      "symbol": "elif",
+      "effect": "emit-elif-double-indented",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "double-indented-elif-statement"
     },
     {
       "id": "python-return-double-indented-expression",
