@@ -194,7 +194,7 @@ public static class SemanticProgramPlanner
             ConditionalRequirement conditional =>
                 CarriesDeclaredIntent(conditional.ThenRequirements) ||
                 CarriesDeclaredIntent(conditional.ElseRequirements),
-            IterationRequirement iteration => CarriesDeclaredIntent(iteration.BodyRequirements),
+            IterationRequirement iteration => CarriesDeclaredIntent(iteration.Body),
             _ => false
         });
 
