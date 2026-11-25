@@ -20,6 +20,58 @@ public static class SemanticProgramPlanner
     private const int MaximumRequirements = 64;
     private const int MaximumStatements = 256;
 
+    /// <summary>
+    /// Request facts that express an output or arithmetic intent which the generic requirement model
+    /// does not represent yet. A request that carries one of them is planned by another path until the
+    /// matching migration group replaces the fact.
+    /// </summary>
+    private static readonly ImmutableArray<string> UnmappedScalarIntentFactIds =
+    [
+        "program.arithmetic",
+        "program.output",
+        "program.output.start"
+    ];
+
+    private static readonly ImmutableArray<string> UnmappedScalarIntentFactPrefixes =
+    [
+        "value.output"
+    ];
+
+    /// <summary>
+    /// Request facts that describe capabilities planned by a later migration group (functions,
+    /// collections, files, classes, loops, and the stored scalar task families). A request that carries
+    /// one of them is left to its own path instead of being planned as a scalar program.
+    /// </summary>
+    private static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
+    [
+        "program.assignment.classification",
+        "program.assignment.first",
+        "program.assignment.second",
+        "program.assignment.result",
+        "program.assignment.prefix",
+        "program.classification",
+        "program.class",
+        "program.collection",
+        "program.dictionary",
+        "program.directory",
+        "program.even",
+        "program.file",
+        "program.for",
+        "program.function",
+        "program.greeting",
+        "program.import",
+        "program.json",
+        "program.list",
+        "program.loop",
+        "program.multi-field",
+        "program.non-empty",
+        "program.record",
+        "program.single-field",
+        "program.try",
+        "program.while",
+        "program.with"
+    ];
+
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>
     public static bool TryPlan(
         SemanticProgram program,
@@ -61,6 +113,53 @@ public static class SemanticProgramPlanner
         return true;
     }
 
+    /// <summary>
+    /// Plans and renders a program from extracted request facts. Returns false when the facts describe a
+    /// capability that another path still owns, so that no partial program is ever emitted.
+    /// </summary>
+    public static bool TryGenerateProgram(
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationLanguagePack pack,
+        out string code,
+        out ImmutableArray<PlannedProgramStatement> statements,
+        out string? error)
+    {
+        code = string.Empty;
+        statements = ImmutableArray<PlannedProgramStatement>.Empty;
+        error = null;
+
+        if (facts.IsDefaultOrEmpty)
+        {
+            error = "A generated program requires extracted semantic facts.";
+            return false;
+        }
+
+        if (!SemanticProgramFactMapper.TryCreate(facts, out var program, out error) || program is null)
+        {
+            return false;
+        }
+
+        if (HasDeferredProgramIntent(facts))
+        {
+            error = "The request describes a capability that is not planned by the scalar program planner.";
+            return false;
+        }
+
+        if (!ContainsOutputRequirement(program.Requirements) && HasUnmappedScalarIntent(facts))
+        {
+            error = "The request expresses an output or arithmetic intent that its requirements do not carry.";
+            return false;
+        }
+
+        if (!TryPlan(program, pack, out statements, out error))
+        {
+            return false;
+        }
+
+        code = Render(statements);
+        return code.Length > 0;
+    }
+
     /// <summary>Renders planned statements as ordered source lines.</summary>
     public static string Render(ImmutableArray<PlannedProgramStatement> statements)
     {
@@ -71,6 +170,27 @@ public static class SemanticProgramPlanner
 
         return string.Join('\n', statements.Select(statement => statement.Text));
     }
+
+    private static bool HasDeferredProgramIntent(ImmutableArray<SequenceSemanticFact> facts) =>
+        facts.Any(fact => DeferredProgramFactPrefixes.Any(prefix =>
+            fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
+
+    private static bool HasUnmappedScalarIntent(ImmutableArray<SequenceSemanticFact> facts) =>
+        facts.Any(fact =>
+            UnmappedScalarIntentFactIds.Contains(fact.Id, StringComparer.Ordinal) ||
+            UnmappedScalarIntentFactPrefixes.Any(prefix =>
+                fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
+
+    private static bool ContainsOutputRequirement(ImmutableArray<ProgramRequirement> requirements) =>
+        !requirements.IsDefaultOrEmpty &&
+        requirements.Any(requirement => requirement switch
+        {
+            OutputRequirement => true,
+            ConditionalRequirement conditional =>
+                ContainsOutputRequirement(conditional.ThenRequirements) ||
+                ContainsOutputRequirement(conditional.ElseRequirements),
+            _ => false
+        });
 
     private static bool TryPlanRequirements(
         ImmutableArray<ProgramRequirement> requirements,

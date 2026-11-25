@@ -27,12 +27,31 @@ internal static class KnowledgeDrivenGenerationResponder
             return false;
         }
 
+        var languagePack = SelectLanguagePack(facts);
+        if (languagePack is not null &&
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                languagePack,
+                out var programCode,
+                out var plannedStatements,
+                out _))
+        {
+            var fence = new string((char)96, 3);
+            result = new LatticeUtteranceResult(
+                LatticeUtteranceResultKind.TaskCompleted,
+                $"{fence}{languagePack.Language}\n{programCode}\n{fence}",
+                $"semantic-requirements({string.Join(", ", plannedStatements.Select(statement => statement.Effect).Distinct(StringComparer.Ordinal))})",
+                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty,
+                OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
+            return true;
+        }
+
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
             facts.Select(fact => fact.Id).ToImmutableArray())
         {
             FactValues = facts,
-            LanguagePack = SelectLanguagePack(facts)
+            LanguagePack = languagePack
         };
 
         if (!KnowledgeDrivenSequenceGenerator.TryGenerate(

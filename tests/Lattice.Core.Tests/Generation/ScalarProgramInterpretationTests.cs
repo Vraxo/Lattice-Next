@@ -113,6 +113,27 @@ public sealed class ScalarProgramInterpretationTests
     }
 
     [Theory]
+    [InlineData("Create a Python program that prints 'adult' if 20 is at least 18.", "20", "18", "adult")]
+    [InlineData("Create a Python program that displays 'minor' if 16 is less than 18.", "16", "18", "minor")]
+    public void Projects_a_trailing_comparison_and_its_true_branch(
+        string prompt,
+        string expectedLeft,
+        string expectedRight,
+        string expectedOutput)
+    {
+        var program = Interpret(prompt);
+
+        var conditional = Assert.IsType<ConditionalRequirement>(Assert.Single(program.Requirements));
+        var comparison = AssertComparison(conditional);
+        Assert.Equal(new SemanticNumberExpression(expectedLeft), comparison.Left);
+        Assert.Equal(new SemanticNumberExpression(expectedRight), comparison.Right);
+        Assert.Equal(
+            new OutputRequirement(new SemanticTextExpression(expectedOutput)),
+            Assert.Single(conditional.ThenRequirements));
+        Assert.Empty(conditional.ElseRequirements);
+    }
+
+    [Theory]
     [InlineData("otherwise")]
     [InlineData("else")]
     public void Projects_condition_true_branch_and_false_branch_independently(string branchSeparator)
