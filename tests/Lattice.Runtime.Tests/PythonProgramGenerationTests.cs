@@ -373,6 +373,77 @@ public sealed class PythonProgramGenerationTests
         await AssertPythonOutput(generatedCode, expectedOutput);
     }
 
+    [Theory]
+    [InlineData(
+        "Create a Python program that sets total to 5 then print total.",
+        "total = 5\nprint(total)",
+        "5")]
+    [InlineData(
+        "Create a Python program that sets total to 7 then print total.",
+        "total = 7\nprint(total)",
+        "7")]
+    [InlineData(
+        "Create a Python program that prints 'adult' if 20 is at least 18.",
+        "if 20 >= 18:\n    print(\"adult\")",
+        "adult")]
+    [InlineData(
+        "Create a Python program that prints 'minor' if 16 is less than 18.",
+        "if 16 < 18:\n    print(\"minor\")",
+        "minor")]
+    [InlineData(
+        "Create a Python program that sets amount to 12 then if amount is at least 10 then displays 'large'.",
+        "amount = 12\nif amount >= 10:\n    print(\"large\")",
+        "large")]
+    [InlineData(
+        "Create a Python program that sets score to 42 then when score is at least 40 then prints 'pass' otherwise prints 'fail'.",
+        "score = 42\nif score >= 40:\n    print(\"pass\")\nelse:\n    print(\"fail\")",
+        "pass")]
+    [InlineData(
+        "Create a Python program that sets score to 12 then when score is at least 40 then prints 'pass' otherwise prints 'fail'.",
+        "score = 12\nif score >= 40:\n    print(\"pass\")\nelse:\n    print(\"fail\")",
+        "fail")]
+    [InlineData(
+        "Create a Python program that sets total to 5 then print total + 3.",
+        "total = 5\nprint(total + 3)",
+        "8")]
+    [InlineData(
+        "Create a Python program that sets total to 9 then print total + 1.",
+        "total = 9\nprint(total + 1)",
+        "10")]
+    [InlineData(
+        "Create a Python program that sets total to 4 then sets doubled to total * 2 then prints doubled.",
+        "total = 4\ndoubled = total * 2\nprint(doubled)",
+        "8")]
+    [InlineData(
+        "Create a Python program that prints 'match' if 30 equals 30.",
+        "if 30 == 30:\n    print(\"match\")",
+        "match")]
+    public async Task Generates_and_executes_requested_scalar_programs(
+        string input,
+        string expectedCode,
+        string expectedOutput)
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(input);
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeTurnStatus.Completed, result.Status);
+        Assert.True(utterance.Kind == LatticeUtteranceResultKind.TaskCompleted, utterance.Message);
+        Assert.StartsWith("semantic-requirements(", utterance.Meaning, StringComparison.Ordinal);
+
+        var fence = new string((char)96, 3);
+        var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
+        var start = Array.IndexOf(lines, fence + "python");
+        var end = Array.IndexOf(lines, fence, start + 1);
+        Assert.True(start >= 0 && end > start, utterance.Message);
+
+        var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
+        Assert.Equal(expectedCode.Replace("\n", Environment.NewLine, StringComparison.Ordinal), generatedCode);
+        await AssertPythonOutput(generatedCode, expectedOutput);
+    }
+
     [Fact]
     public async Task Generates_generic_dictionary_key_value_iteration()
     {

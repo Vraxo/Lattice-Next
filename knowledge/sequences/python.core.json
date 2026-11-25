@@ -451,6 +451,86 @@
       "repeatMatches": true
     },
     {
+      "id": "capture-generic-scalar-condition-trailing-if",
+      "matchTokens": [
+        "if"
+      ],
+      "factId": "program.requirement.condition",
+      "captures": [
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "condition",
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "print"
+            ],
+            [
+              "prints"
+            ],
+            [
+              "display"
+            ],
+            [
+              "displays"
+            ],
+            [
+              "output"
+            ],
+            [
+              "outputs"
+            ],
+            [
+              "show"
+            ],
+            [
+              "shows"
+            ],
+            [
+              "say"
+            ],
+            [
+              "says"
+            ]
+          ],
+          "optionalExpression": true
+        },
+        {
+          "factId": "program.requirement.condition",
+          "valueId": "layout",
+          "literalValue": "trailing"
+        }
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
+        [
+          "function",
+          "named"
+        ],
+        [
+          "only",
+          "if"
+        ],
+        [
+          "and",
+          "sets"
+        ],
+        [
+          "and",
+          "set"
+        ]
+      ]
+    },
+    {
       "id": "capture-generic-output-print",
       "matchTokens": [
         "print"
@@ -652,6 +732,206 @@
         ]
       ],
       "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-print-trailing-if",
+      "matchTokens": [
+        "print"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ],
+            [
+              "if"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAnySequences": [
+        [
+          "if"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
+        [
+          "function",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-prints-trailing-if",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ],
+            [
+              "if"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAnySequences": [
+        [
+          "if"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
+        [
+          "function",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-display-trailing-if",
+      "matchTokens": [
+        "display"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ],
+            [
+              "if"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAnySequences": [
+        [
+          "if"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
+        [
+          "function",
+          "named"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-displays-trailing-if",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ],
+            [
+              "if"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAnySequences": [
+        [
+          "if"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ],
         [
           "function",
           "named"

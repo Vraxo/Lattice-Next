@@ -13,6 +13,8 @@ public static class SemanticProgramFactMapper
     private const string OutputFactId = "program.requirement.output";
     private const string OutputValueId = "value";
     private const string BranchSeparatorValueId = "branch";
+    private const string ConditionLayoutValueId = "layout";
+    private const string TrailingConditionLayout = "trailing";
 
     public static bool TryCreate(
         ImmutableArray<SequenceSemanticFact> facts,
@@ -53,6 +55,14 @@ public static class SemanticProgramFactMapper
 
             condition = conditions[0];
             conditionPosition = GetCollectionPositions(conditionFact, "condition", conditions.Length)[0];
+
+            // A trailing conditional states its requirement before the condition ("print 'adult' if ...",
+            // or "if ... print 'adult'"). Every requirement in such a request belongs to the true branch.
+            if (conditionFact.Values.TryGetValue(ConditionLayoutValueId, out var layout) &&
+                string.Equals(layout, TrailingConditionLayout, StringComparison.Ordinal))
+            {
+                conditionPosition = -1;
+            }
         }
 
         var requirements = ImmutableArray.CreateBuilder<ProgramRequirement>();
@@ -81,6 +91,12 @@ public static class SemanticProgramFactMapper
             if (thenRequirements.IsDefaultOrEmpty && elseRequirements.IsDefaultOrEmpty)
             {
                 error = "A generic scalar conditional requires at least one branch requirement.";
+                return false;
+            }
+
+            if (thenRequirements.IsDefaultOrEmpty)
+            {
+                error = "A generic scalar conditional requires a true-branch requirement before its false branch.";
                 return false;
             }
 

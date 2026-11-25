@@ -21,6 +21,7 @@
 - [x] **5 — Make expression input language-neutral.** Completed expression inventory, semantic model, structured capture, semantic validation, pack-based realization, and removal of the old expression-string path.
 - [x] **6 — Add the minimum operational programming model.** Added program structure, typed operation contracts/slots, effects, prerequisites, function/control-flow, module, exception, and I/O relationships with loader/reasoner tests.
 - [x] **7 — Interpret scalar program requests generically.** Added request-order positions to semantic facts, projected comparison operands/operators, independent true/false branches, and request-derived output expressions into ordered `SemanticProgram` requirements, removed the fixed comparison sample captures, and added changed-value, changed-identifier, paraphrase, ordering, dependency, and mixed-requirement tests.
+- [x] **8 — Compose scalar programs from reusable operations (partial).** Added `SemanticProgramPlanner`, which resolves assignment, conditional, and output requirements to declarative operations at their nesting depth, renders expressions from the language pack, enforces value-before-use prerequisites with per-branch scopes, and emits through `SequenceGenerationPipeline`. Added the trailing-conditional interpretation (`print 'text' if <comparison>`), a facts-to-code entry point with an explicit decline policy, and a runtime path that answers complete scalar requests from planned requirements. 8.9, 8.14, and 8.17 remain unchecked with recorded blockers (addition defaults, multi-conditional interpretation, function realization).
 
 ## Remaining work
 
@@ -47,26 +48,26 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 8. Compose scalar programs from reusable operations
 
-- [ ] **8.1 — Resolve assignment requirements to the assignment operation.** Select the reusable assignment contract from semantic requirements.
-- [ ] **8.2 — Resolve arithmetic requirements to arithmetic operations.** Select the required arithmetic contract from operand/operator semantics.
-- [ ] **8.3 — Resolve comparison requirements to comparison operations.** Select the comparison contract from the requested operator.
-- [ ] **8.4 — Resolve output requirements to output operations.** Select the output contract and preserve its input binding.
-- [ ] **8.5 — Resolve operation prerequisites.** Ensure required values and dependencies are available before each operation is planned.
-- [ ] **8.6 — Realize a scalar assignment statement.** Emit one assignment from a semantic target and expression.
-- [ ] **8.7 — Realize a binary arithmetic expression.** Emit one arithmetic expression from typed operands and an operator.
-- [ ] **8.8 — Compose multiple assignments and expressions.** Emit a sequence whose bindings preserve data dependencies.
-- [ ] **8.9 — Remove fixed assignment and addition fragments.** Delete replaced task-specific output fragments after generic realization is covered.
-- [ ] **8.10 — Realize a comparison expression.** Emit the requested comparison from semantic operands/operator.
-- [ ] **8.11 — Realize an if statement.** Emit a conditional with a semantic condition and true branch.
-- [ ] **8.12 — Realize an if/else statement.** Emit both branches from independent branch requirements.
-- [ ] **8.13 — Compose branch bodies with preceding assignments.** Preserve bindings from earlier statements into branch conditions and bodies.
-- [ ] **8.14 — Remove fixed sign-classification solutions.** Delete the replaced sign-task facts and complete output only after generic conditional behavior passes.
-- [ ] **8.15 — Bind a computed value to an output operation.** Pass the result of an earlier expression to output without converting it to a fixed sample.
-- [ ] **8.16 — Bind a requested literal to an output operation.** Preserve request-derived output content through realization.
-- [ ] **8.17 — Remove fixed greeting/output samples.** Delete complete or near-complete fixed output examples after generic output tests pass.
-- [ ] **8.18 — Execute assignment and arithmetic examples.** Verify computed values for multiple operand sets.
-- [ ] **8.19 — Execute comparison and branch examples.** Verify both true and false paths for each supported comparison family.
-- [ ] **8.20 — Execute composed scalar programs.** Verify values flow correctly across assignments, expressions, branches, and output.
+- [x] **8.1 — Resolve assignment requirements to the assignment operation.** Select the reusable assignment contract from semantic requirements.
+- [x] **8.2 — Resolve arithmetic requirements to arithmetic operations.** Select the required arithmetic contract from operand/operator semantics.
+- [x] **8.3 — Resolve comparison requirements to comparison operations.** Select the comparison contract from the requested operator.
+- [x] **8.4 — Resolve output requirements to output operations.** Select the output contract and preserve its input binding.
+- [x] **8.5 — Resolve operation prerequisites.** Ensure required values and dependencies are available before each operation is planned.
+- [x] **8.6 — Realize a scalar assignment statement.** Emit one assignment from a semantic target and expression.
+- [x] **8.7 — Realize a binary arithmetic expression.** Emit one arithmetic expression from typed operands and an operator.
+- [x] **8.8 — Compose multiple assignments and expressions.** Emit a sequence whose bindings preserve data dependencies.
+- [ ] **8.9 — Remove fixed assignment and addition fragments.** Blocked: the request (`stores two numbers in variables, adds them, and prints the result`, benchmark `py-002`) supplies no operands or names, and the fact schema cannot express "two new variables with declared defaults" without a task-shaped rule. `program.assignment.first/.second/.result` and `python-addition-*` therefore stay until that interpretation exists; deleting them now would disable a passing benchmark example with no replacement.
+- [x] **8.10 — Realize a comparison expression.** Emit the requested comparison from semantic operands/operator.
+- [x] **8.11 — Realize an if statement.** Emit a conditional with a semantic condition and true branch.
+- [x] **8.12 — Realize an if/else statement.** Emit both branches from independent branch requirements.
+- [x] **8.13 — Compose branch bodies with preceding assignments.** Preserve bindings from earlier statements into branch conditions and bodies.
+- [ ] **8.14 — Remove fixed sign-classification solutions.** Blocked: the replacement needs several independent conditionals with alternative branches in one request, while extraction aligns one condition per request. `program.assignment.classification`, `program.classification.*`, and `python-sign-classification-*` stay until multi-conditional interpretation exists.
+- [x] **8.15 — Bind a computed value to an output operation.** Pass the result of an earlier expression to output without converting it to a fixed sample.
+- [x] **8.16 — Bind a requested literal to an output operation.** Preserve request-derived output content through realization.
+- [ ] **8.17 — Remove fixed greeting/output samples.** Blocked for the greeting sample: `python-greeting-function` is the only producer for benchmark `py-006` and its replacement is function definition/call realization in M-10. The fixed conditional-output outputs were already deleted in 7.9, and scalar outputs are now request-derived (8.15, 8.16).
+- [x] **8.18 — Execute assignment and arithmetic examples.** Verify computed values for multiple operand sets.
+- [x] **8.19 — Execute comparison and branch examples.** Verify both true and false paths for each supported comparison family.
+- [x] **8.20 — Execute composed scalar programs.** Verify values flow correctly across assignments, expressions, branches, and output.
 
 ### 9. Compose collection and iteration programs generically
 
