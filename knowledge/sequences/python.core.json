@@ -2288,9 +2288,6 @@
         {
           "factId": "program.requirement.function",
           "valueId": "name",
-          "startAfterTokens": [
-            "named"
-          ],
           "stopBeforeSequences": [
             [
               "that"
