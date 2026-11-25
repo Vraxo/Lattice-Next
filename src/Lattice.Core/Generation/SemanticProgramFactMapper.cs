@@ -58,11 +58,12 @@ public static class SemanticProgramFactMapper
         var requirements = ImmutableArray.CreateBuilder<ProgramRequirement>();
         if (condition is null)
         {
-            requirements.AddRange(Ordered(events));
+            requirements.AddRange(Ordered(events).Select(item => item.Requirement));
         }
         else
         {
-            requirements.AddRange(Ordered(events.Where(item => item.Position < conditionPosition)));
+            requirements.AddRange(Ordered(events.Where(item => item.Position < conditionPosition))
+                .Select(item => item.Requirement));
             var branchEvents = Ordered(events.Where(item => item.Position >= conditionPosition)).ToArray();
             var separatorPosition = branchSeparatorPosition.GetValueOrDefault(-1);
             var hasSeparator = separatorPosition > conditionPosition;
