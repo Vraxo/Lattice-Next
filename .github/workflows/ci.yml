@@ -69,6 +69,22 @@ jobs:
           fi
           exit "$test_status"
 
+      - name: Report test log windows
+        if: failure()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          if Path("test-output.log").exists():
+              text = Path("test-output.log").read_text(errors="replace")
+              import re
+              text = re.sub(r"\x1b\[[0-9;]*m", "", text)
+              size = 11000
+              windows = [text[i:i + size] for i in range(0, len(text), size)] if len(text) <= 4 * size else [text[i:i + size] for i in range(0, 4 * size, size)]
+              for index, window in enumerate(windows):
+                  message = window.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+                  print(f"::notice title=Test log window {index + 1}::{message}")
+          PY
+
       - name: Install web-search dependency
         run: python -m pip install -r tools/web-search/requirements.txt
 

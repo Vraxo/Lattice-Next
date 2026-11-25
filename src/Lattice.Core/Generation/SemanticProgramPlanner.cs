@@ -1638,9 +1638,9 @@ public static class SemanticProgramPlanner
                 })
                 : (depth switch
                 {
-                    0 => "emit-elif",
-                    1 => "emit-elif-indented",
-                    _ => "emit-elif-double-indented"
+                    0 => "begin-elif",
+                    1 => "begin-elif-indented",
+                    _ => "begin-elif-double-indented"
                 });
 
             var conditionBindings = ImmutableDictionary<string, string>.Empty

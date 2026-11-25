@@ -2016,7 +2016,7 @@
     {
       "id": "python-elif",
       "symbol": "elif",
-      "effect": "emit-elif",
+      "effect": "begin-elif",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "elif-statement"
@@ -2032,7 +2032,7 @@
     {
       "id": "python-elif-double-indented",
       "symbol": "elif",
-      "effect": "emit-elif-double-indented",
+      "effect": "begin-elif-double-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "double-indented-elif-statement"
