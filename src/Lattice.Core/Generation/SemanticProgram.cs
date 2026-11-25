@@ -122,7 +122,11 @@ public sealed record ReturnRequirement(
 /// </summary>
 public sealed record CallRequirement(
     string FunctionName,
-    ImmutableArray<SemanticExpression> Arguments) : ProgramRequirement;
+    ImmutableArray<SemanticExpression> Arguments) : ProgramRequirement
+{
+    /// <summary>When set, the call is a method call on this instance rather than a free function.</summary>
+    public string? Receiver { get; init; }
+}
 
 /// <summary>One declared class field: the member name and the value the constructor starts it with.</summary>
 public sealed record ClassField(
@@ -146,7 +150,11 @@ public sealed record MethodRequirement(
 public sealed record ClassRequirement(
     string Name,
     ImmutableArray<ClassField> Fields,
-    ImmutableArray<MethodRequirement> Methods) : ProgramRequirement;
+    ImmutableArray<MethodRequirement> Methods) : ProgramRequirement
+{
+    /// <summary>The name a method body uses for the instance its method was called on.</summary>
+    public string InstanceName { get; init; } = "self";
+}
 
 /// <summary>
 /// Raises an error of one type, either unconditionally or when a condition holds. The condition is an

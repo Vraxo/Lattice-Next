@@ -1636,6 +1636,77 @@
           "value": "()"
         }
       ]
+    },
+    {
+      "head": "bound-class-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "class "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-function-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    def "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-field-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "instance"
+        },
+        {
+          "kind": "terminal",
+          "value": "."
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1736,6 +1807,12 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "value"
+    },
+    {
+      "name": "instance",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "instance"
     }
   ],
   "operations": [
@@ -2348,6 +2425,30 @@
       "argumentKind": "call",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-nullary-call"
+    },
+    {
+      "id": "python-bound-class-header",
+      "symbol": "class",
+      "effect": "emit-class-header",
+      "argumentKind": "class-header",
+      "prerequisites": [],
+      "startSymbol": "bound-class-header"
+    },
+    {
+      "id": "python-indented-bound-function-header",
+      "symbol": "def",
+      "effect": "emit-indented-function-header",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-function-header"
+    },
+    {
+      "id": "python-bound-double-indented-field-assignment",
+      "symbol": "self",
+      "effect": "emit-double-indented-field-assignment",
+      "argumentKind": "field-assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-field-assignment"
     }
   ],
   "stringLiteralFormat": {
@@ -2587,6 +2688,9 @@
     "expressionGroupingDelimiter": {
       "openingDelimiter": "(",
       "closingDelimiter": ")"
+    },
+    "memberAccessFormat": {
+      "separator": "."
     }
   }
 }

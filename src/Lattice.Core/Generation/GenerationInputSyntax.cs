@@ -18,7 +18,17 @@ public sealed record GenerationInputSyntax(
     public GenerationDelimiterPair? ExpressionGroupingDelimiter { get; init; }
 
     public GenerationBooleanLiteralFormat? BooleanLiteralFormat { get; init; }
+
+    /// <summary>
+    /// How one member of one instance is written. A pack without this format cannot render a member
+    /// access, so member requirements stay unrealizable rather than being emitted with invented syntax.
+    /// </summary>
+    public GenerationMemberAccessFormat? MemberAccessFormat { get; init; }
 }
+
+/// <summary>The separator a language writes between an instance and the member it exposes.</summary>
+public sealed record GenerationMemberAccessFormat(
+    string Separator);
 
 public sealed record GenerationBooleanLiteralFormat(
     string TrueLiteral,
