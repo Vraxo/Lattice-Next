@@ -61,6 +61,34 @@ public sealed record DirectoryListingRequirement(
     ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
 
 /// <summary>
+/// Writes into one file. The pack spells how the file is opened for writing and how the stream it yields is
+/// named; the body holds the statements that write through that stream.
+/// </summary>
+public sealed record FileWriteRequirement(
+    string Path,
+    string StreamName,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
+/// Writes one value into an already open stream in a serialized form. The format is data the request
+/// names, and the pack decides which call spells that format.
+/// </summary>
+public sealed record SerializeRequirement(
+    string Format,
+    SemanticExpression Value,
+    string StreamName,
+    string Indent) : ProgramRequirement;
+
+/// <summary>
+/// Reads one already open stream back as a value, binding the result to a name. A decode failure is an
+/// ordinary named error type and is handled by a surrounding attempt requirement.
+/// </summary>
+public sealed record DeserializeRequirement(
+    string Format,
+    string StreamName,
+    string ResultName) : ProgramRequirement;
+
+/// <summary>
 /// Reads the text lines of one file. The read stream binds to a name the body iterates, and the body
 /// holds the statements that consume it, so a file read composes with the same model as any other
 /// block. The selected language pack spells how a file is opened for reading; the path stays request

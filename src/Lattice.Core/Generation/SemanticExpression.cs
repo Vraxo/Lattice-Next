@@ -87,6 +87,23 @@ public sealed record SemanticConversionExpression(
 public sealed record SemanticTextTemplateExpression(
     ImmutableArray<SemanticExpression> Parts) : SemanticExpression;
 
+/// <summary>One field of a record literal: the field name and the value it holds.</summary>
+public sealed record SemanticRecordEntry(string Name, SemanticExpression Value);
+
+/// <summary>
+/// A literal list of values, used for request-declared data a program holds, such as a list of records it
+/// writes out. The selected language pack spells the brackets and the separators.
+/// </summary>
+public sealed record SemanticListLiteralExpression(
+    ImmutableArray<SemanticExpression> Items) : SemanticExpression;
+
+/// <summary>
+/// A literal record of named fields, used for request-declared data a program holds. The selected language
+/// pack spells the braces, the separators, and how one field name is written.
+/// </summary>
+public sealed record SemanticRecordLiteralExpression(
+    ImmutableArray<SemanticRecordEntry> Entries) : SemanticExpression;
+
 internal static class SemanticExpressionAnalysis
 {
     private const int MaximumDepth = 64;
@@ -199,6 +216,20 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectReferencedNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectReferencedNames(entry.Value, names);
+                }
+
+                break;
             case SemanticUnaryExpression unary:
                 CollectReferencedNames(unary.Operand, names);
                 break;
@@ -279,7 +310,8 @@ internal static class SemanticExpressionAnalysis
     };
 
     private static bool IsValueCore(SemanticExpression expression) =>
-        expression is SemanticTextExpression or SemanticBooleanExpression ||
+        expression is SemanticTextExpression or SemanticBooleanExpression or
+        SemanticListLiteralExpression or SemanticRecordLiteralExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
         IsArithmeticCore(expression);
 
@@ -319,6 +351,12 @@ internal static class SemanticExpressionAnalysis
                 binary.Left, availableNames, allowFunctionCalls, availableFunctions) &&
             ReferencesOnlyAvailableNamesCore(
                 binary.Right, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticListLiteralExpression list =>
+            list.Items.All(item => ReferencesOnlyAvailableNamesCore(
+                item, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticRecordLiteralExpression record =>
+            record.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
+                entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
         _ => false
     };
 
@@ -340,6 +378,9 @@ internal static class SemanticExpressionAnalysis
             template.Parts.Any(part => ReferencesAnyNameCore(part, names)),
         SemanticBinaryExpression binary =>
             ReferencesAnyNameCore(binary.Left, names) || ReferencesAnyNameCore(binary.Right, names),
+        SemanticListLiteralExpression list => list.Items.Any(item => ReferencesAnyNameCore(item, names)),
+        SemanticRecordLiteralExpression record =>
+            record.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
         _ => false
     };
 
@@ -373,6 +414,8 @@ internal static class SemanticExpressionAnalysis
                 conversion.Target is SemanticValueKind.Number or SemanticValueKind.Text &&
                 IsValid(conversion.Value, depth + 1, ref nodeCount),
             SemanticTextTemplateExpression template => IsValidTemplate(template, depth, ref nodeCount),
+            SemanticListLiteralExpression list => IsValidList(list, depth, ref nodeCount),
+            SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
             _ => false
         };
     }
@@ -393,6 +436,51 @@ internal static class SemanticExpressionAnalysis
         foreach (var argument in call.Arguments)
         {
             if (!IsValid(argument, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidList(
+        SemanticListLiteralExpression list,
+        int depth,
+        ref int nodeCount)
+    {
+        if (list.Items.IsDefaultOrEmpty || list.Items.Length > 64)
+        {
+            return false;
+        }
+
+        foreach (var item in list.Items)
+        {
+            if (!IsValid(item, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidRecord(
+        SemanticRecordLiteralExpression record,
+        int depth,
+        ref int nodeCount)
+    {
+        if (record.Entries.IsDefaultOrEmpty || record.Entries.Length > 64)
+        {
+            return false;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in record.Entries)
+        {
+            if (!IsValidIdentifier(entry.Name) ||
+                !seen.Add(entry.Name) ||
+                !IsValid(entry.Value, depth + 1, ref nodeCount))
             {
                 return false;
             }
@@ -500,6 +588,20 @@ internal static class SemanticExpressionAnalysis
                 foreach (var part in template.Parts)
                 {
                     CollectFunctionNames(part, names);
+                }
+
+                break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectFunctionNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectFunctionNames(entry.Value, names);
                 }
 
                 break;

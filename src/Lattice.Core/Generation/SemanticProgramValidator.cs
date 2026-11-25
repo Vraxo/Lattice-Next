@@ -101,6 +101,20 @@ public static class SemanticProgramValidator
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
             ImportRequirement import => IsValidModuleName(import.Module),
+            FileWriteRequirement fileWrite =>
+                IsValidPath(fileWrite.Path) &&
+                IsValidName(fileWrite.StreamName) &&
+                !fileWrite.Body.IsDefaultOrEmpty &&
+                AreValid(fileWrite.Body, depth + 1, context),
+            SerializeRequirement serialize =>
+                IsValidFormat(serialize.Format) &&
+                SemanticExpressionAnalysis.IsValid(serialize.Value) &&
+                IsValidName(serialize.StreamName) &&
+                IsValidIndent(serialize.Indent),
+            DeserializeRequirement deserialize =>
+                IsValidFormat(deserialize.Format) &&
+                IsValidName(deserialize.StreamName) &&
+                IsValidName(deserialize.ResultName),
             DirectoryListingRequirement listing =>
                 SemanticExpressionAnalysis.IsValid(listing.Directory) &&
                 IsValidName(listing.ItemName) &&
@@ -217,6 +231,16 @@ public static class SemanticProgramValidator
              returnKind));
 
     private const int MaximumPathLength = 512;
+
+    private static bool IsValidFormat(string? format) =>
+        !string.IsNullOrWhiteSpace(format) &&
+        format.Length <= 32 &&
+        format.All(character => char.IsAsciiLetterOrDigit(character) || character is '.' or '-' or '_');
+
+    private static bool IsValidIndent(string? indent) =>
+        !string.IsNullOrWhiteSpace(indent) &&
+        indent.Length <= 8 &&
+        indent.All(char.IsAsciiDigit);
 
     private static bool IsValidModuleName(string? module) =>
         !string.IsNullOrWhiteSpace(module) &&

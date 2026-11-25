@@ -164,7 +164,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Extracts_and_generates_json_round_trip_with_custom_names()
+    public void Extracts_and_plans_json_round_trip_with_custom_names()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
@@ -173,26 +173,22 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var roundTrip = Assert.Single(facts, fact => fact.Id == "program.json-round-trip");
+        var roundTrip = Assert.Single(
+            facts,
+            fact => fact.Id == "program.requirement.serialization-round-trip");
         Assert.Equal("people", roundTrip.Values["records"]);
         Assert.Equal("people-data.json", roundTrip.Values["path"]);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
-                out var generated,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
                 out var generationError),
-            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("people-data.json", generated!.Text, StringComparison.Ordinal);
+            generationError);
+        Assert.Contains("people-data.json", code, StringComparison.Ordinal);
+        Assert.Contains("loaded_people = json.load(input_file)", code, StringComparison.Ordinal);
     }
 
     [Theory]

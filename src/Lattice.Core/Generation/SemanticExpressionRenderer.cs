@@ -122,6 +122,55 @@ internal static class SemanticExpressionRenderer
                     StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticListLiteralExpression list:
+                if (syntax.CollectionLiteralFormat is not { } collectionLiteral ||
+                    !TryRenderLiteralItems(
+                        list.Items,
+                        languagePack,
+                        syntax,
+                        collectionLiteral.Separator,
+                        out var renderedItems))
+                {
+                    return false;
+                }
+
+                rendered = collectionLiteral.OpeningDelimiter +
+                    renderedItems +
+                    collectionLiteral.ClosingDelimiter;
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticRecordLiteralExpression record:
+                if (syntax.RecordLiteralFormat is not { } recordLiteral ||
+                    !recordLiteral.EntryFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !recordLiteral.EntryFormat.Contains("{1}", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                var entries = ImmutableArray.CreateBuilder<string>();
+                foreach (var entry in record.Entries)
+                {
+                    if (!TryRender(
+                            entry.Value,
+                            languagePack,
+                            syntax,
+                            parentPrecedence: 0,
+                            isRightOperand: false,
+                            out var renderedValue))
+                    {
+                        return false;
+                    }
+
+                    entries.Add(recordLiteral.EntryFormat
+                        .Replace("{0}", entry.Name, StringComparison.Ordinal)
+                        .Replace("{1}", renderedValue, StringComparison.Ordinal));
+                }
+
+                rendered = recordLiteral.OpeningDelimiter +
+                    string.Join(recordLiteral.Separator, entries) +
+                    recordLiteral.ClosingDelimiter;
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticMethodCallExpression methodCall:
                 if (!TryRenderMethodCall(methodCall, languagePack, syntax, out rendered))
                 {
@@ -235,6 +284,35 @@ internal static class SemanticExpressionRenderer
         var separator = format.RenderingArgumentSeparator ?? format.ArgumentSeparator;
         rendered = string.Join(separator, parts);
         return rendered.Length <= 16_384;
+    }
+
+    private static bool TryRenderLiteralItems(
+        ImmutableArray<SemanticExpression> items,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        string separator,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        var values = ImmutableArray.CreateBuilder<string>();
+        foreach (var item in items)
+        {
+            if (!TryRender(
+                    item,
+                    languagePack,
+                    syntax,
+                    parentPrecedence: 0,
+                    isRightOperand: false,
+                    out var renderedItem))
+            {
+                return false;
+            }
+
+            values.Add(renderedItem);
+        }
+
+        rendered = string.Join(separator, values);
+        return true;
     }
 
     private static bool TryRenderMethodCall(

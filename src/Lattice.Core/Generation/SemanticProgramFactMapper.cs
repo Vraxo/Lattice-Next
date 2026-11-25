@@ -40,6 +40,7 @@ public static class SemanticProgramFactMapper
     private static readonly char[] ClassIdentitySeparators =
         [' ', '\t', '\r', '\n', '-', '_', ',', '.', ':', ';', '/', '\\'];
     private const string DirectoryListingFactId = "program.requirement.directory-listing";
+    private const string SerializationRoundTripFactId = "program.requirement.serialization-round-trip";
     private const string FileLinesFactId = "program.requirement.file-lines";
     private const string FileLinesPathValueId = "path";
     private const string FileLinesStreamValueId = "stream";
@@ -88,6 +89,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectClasses(facts, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectSerializationRoundTrips(facts, declarations, out error))
         {
             return false;
         }
@@ -638,6 +644,121 @@ public static class SemanticProgramFactMapper
 
         return result;
     }
+
+    /// <summary>
+    /// Projects a request that writes held data to a file in a serialized form and reads it back. The request
+    /// supplies the data, the file, the format, and every name; the model supplies the encode and decode
+    /// steps, and the pack decides which calls spell the format.
+    /// </summary>
+    private static bool TryProjectSerializationRoundTrips(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == SerializationRoundTripFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!facts.Any(candidate =>
+                candidate.Id == SerializationRoundTripFactId + ".confirmed"))
+        {
+            error = "A serialization round trip requires the program to read the data back.";
+            return false;
+        }
+
+        string[] scalars =
+        [
+            "records",
+            "path",
+            "result-prefix",
+            "output-stream",
+            "input-stream",
+            "format",
+            "indent",
+            "module"
+        ];
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var valueId in scalars)
+        {
+            if (!TryGetCollection(fact, valueId, out var captured) || captured.Length != 1)
+            {
+                error = $"A serialization round trip requires exactly one '{valueId}' value.";
+                return false;
+            }
+
+            values[valueId] = captured[0];
+        }
+
+        if (!TryGetCollection(fact, "fields", out var fields) || fields.IsDefaultOrEmpty)
+        {
+            error = "A serialization round trip requires the field names of the data it holds.";
+            return false;
+        }
+
+        if (!TryGetCollection(fact, "values", out var cells) || cells.IsDefaultOrEmpty)
+        {
+            error = "A serialization round trip requires the values of the data it holds.";
+            return false;
+        }
+
+        if (fields.Length == 0 || cells.Length == 0 || cells.Length % fields.Length != 0)
+        {
+            error = "A serialization round trip needs one value per field for every record it holds.";
+            return false;
+        }
+
+        var records = ImmutableArray.CreateBuilder<SemanticExpression>();
+        for (var offset = 0; offset < cells.Length; offset += fields.Length)
+        {
+            var entries = ImmutableArray.CreateBuilder<SemanticRecordEntry>();
+            for (var index = 0; index < fields.Length; index++)
+            {
+                entries.Add(new SemanticRecordEntry(
+                    fields[index],
+                    DataValue(cells[offset + index])));
+            }
+
+            records.Add(new SemanticRecordLiteralExpression(entries.ToImmutable()));
+        }
+
+        var recordsName = values["records"];
+        var resultName = values["result-prefix"] + recordsName;
+        var inputStream = values["input-stream"];
+        declarations.Add(new ImportRequirement(values["module"]));
+        declarations.Add(new AssignmentRequirement(
+            recordsName,
+            new SemanticListLiteralExpression(records.ToImmutable())));
+        declarations.Add(new FileWriteRequirement(
+            values["path"],
+            values["output-stream"],
+            [
+                new SerializeRequirement(
+                    values["format"],
+                    new SemanticNameExpression(recordsName),
+                    values["output-stream"],
+                    values["indent"])
+            ]));
+        declarations.Add(new FileReadRequirement(
+            values["path"],
+            inputStream,
+            [
+                new DeserializeRequirement(values["format"], inputStream, resultName)
+            ]));
+        declarations.Add(new OutputRequirement(new SemanticNameExpression(resultName)));
+        return true;
+    }
+
+    /// <summary>
+    /// Reads one declared data cell as the value kind it names: a canonical number stays a number and every
+    /// other cell is text.
+    /// </summary>
+    private static SemanticExpression DataValue(string cell) =>
+        cell.Length > 0 && cell.All(char.IsAsciiDigit)
+            ? new SemanticNumberExpression(cell)
+            : new SemanticTextExpression(cell);
 
     /// <summary>
     /// Projects a request that lists the files of a directory and reports each one's name and size, with a

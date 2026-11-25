@@ -258,6 +258,27 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case FileWriteRequirement fileWrite:
+                    if (!TryPlanFileWrite(fileWrite, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case SerializeRequirement serialize:
+                    if (!TryPlanSerialize(serialize, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case DeserializeRequirement deserialize:
+                    if (!TryPlanDeserialize(deserialize, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case DirectoryListingRequirement listing:
                     if (!TryPlanDirectoryListing(listing, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -1956,6 +1977,167 @@ public static class SemanticProgramPlanner
     /// Plans a file read: the pack supplies the way a file is opened and bound to a name, and the body is
     /// planned one level deeper with the stream name available.
     /// </summary>
+    /// <summary>
+    /// Plans a file write: the pack spells the opening line, and the body writes through the stream it names.
+    /// </summary>
+    private static bool TryPlanFileWrite(
+        FileWriteRequirement fileWrite,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "A file write is planned at the top level of a program.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(fileWrite.StreamName, pack, "file stream name", out error))
+        {
+            return false;
+        }
+
+        if (fileWrite.Body.IsDefaultOrEmpty)
+        {
+            error = "A file write needs at least one statement in its body.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("path", fileWrite.Path)
+            .Add("file", fileWrite.StreamName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: "write-text-file",
+                argumentKind: "path",
+                argumentValue: fileWrite.Path,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(fileWrite.StreamName);
+        return TryPlanRequirements(fileWrite.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    /// <summary>
+    /// Plans one serialization step inside an open stream. The format name the request uses selects the
+    /// pack operation that spells it, so no call name is decided here.
+    /// </summary>
+    private static bool TryPlanSerialize(
+        SerializeRequirement serialize,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 1)
+        {
+            error = "A serialization step is planned inside the stream it writes through.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(serialize.Value, defined, out error) ||
+            !TryRequireStream(serialize.StreamName, defined, out error) ||
+            !SemanticExpressionRenderer.TryRender(serialize.Value, pack, out var renderedValue))
+        {
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("value", renderedValue)
+            .Add("file", serialize.StreamName)
+            .Add("indent", serialize.Indent);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect: "serialize-value-to-stream",
+            argumentKind: "serialization-format",
+            argumentValue: serialize.Format,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    /// <summary>
+    /// Plans one decode step inside an open stream, binding the value it reads back to a name.
+    /// </summary>
+    private static bool TryPlanDeserialize(
+        DeserializeRequirement deserialize,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 1)
+        {
+            error = "A decode step is planned inside the stream it reads from.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(deserialize.ResultName, pack, "decoded value name", out error) ||
+            !TryRequireStream(deserialize.StreamName, defined, out error))
+        {
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("file", deserialize.StreamName)
+            .Add("result", deserialize.ResultName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: "deserialize-value-from-stream",
+                argumentKind: "serialization-format",
+                argumentValue: deserialize.Format,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(deserialize.ResultName);
+        return true;
+    }
+
+    private static bool TryRequireStream(
+        string streamName,
+        IReadOnlySet<string> defined,
+        out string? error)
+    {
+        error = null;
+        if (!defined.Contains(streamName))
+        {
+            error = $"The program reads or writes the stream '{streamName}' before opening it.";
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool TryPlanFileRead(
         FileReadRequirement fileRead,
         int depth,

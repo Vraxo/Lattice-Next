@@ -2077,6 +2077,89 @@
           "value": "):"
         }
       ]
+    },
+    {
+      "head": "bound-write-with-open-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"w\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-serialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    json.dump("
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ", indent="
+        },
+        {
+          "kind": "binding",
+          "value": "indent"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "indented-deserialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "result"
+        },
+        {
+          "kind": "terminal",
+          "value": " = json.load("
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2219,6 +2302,18 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "item"
+    },
+    {
+      "name": "indent",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "indent"
+    },
+    {
+      "name": "result",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "result"
     }
   ],
   "operations": [
@@ -2999,6 +3094,32 @@
       "argumentKind": "directory-loop-header",
       "prerequisites": [],
       "startSymbol": "indented-bound-directory-iteration-statement"
+    },
+    {
+      "id": "python-bound-with-open-write",
+      "symbol": "with",
+      "effect": "write-text-file",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "bound-write-with-open-statement"
+    },
+    {
+      "id": "python-json-serialize",
+      "symbol": "json.dump",
+      "effect": "serialize-value-to-stream",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-serialize-statement",
+      "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-json-deserialize",
+      "symbol": "json.load",
+      "effect": "deserialize-value-from-stream",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-deserialize-statement",
+      "matchesArgumentValue": "json"
     }
   ],
   "stringLiteralFormat": {
@@ -3244,6 +3365,17 @@
     },
     "programArgumentFormat": {
       "format": "sys.argv[{0}]"
+    },
+    "collectionLiteralFormat": {
+      "openingDelimiter": "[",
+      "closingDelimiter": "]",
+      "separator": ", "
+    },
+    "recordLiteralFormat": {
+      "openingDelimiter": "{",
+      "closingDelimiter": "}",
+      "separator": ", ",
+      "entryFormat": "\"{0}\": {1}"
     }
   },
   "interpolationFormat": {
