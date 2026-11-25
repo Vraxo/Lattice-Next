@@ -616,3 +616,27 @@ Assertions that depend on this path:
 - **M-12.11/M-12.12** split the file's concepts into the reusable domain/API facts (`blender-api` instances,
   object/scene vocabulary) and the generation scaffolding (`*-code-generation-task`, `*-step-*`,
   `*-binding-*`), so only the scaffolding can be deleted once the pipeline derives it.
+
+## M-12.4 through M-12.15 — outcome
+
+| Ticket | Outcome |
+| --- | --- |
+| M-12.4 | `TaskRequestAction.Code` has one entry point, `TaskProgramGenerationResponder.TryGenerateProgram`; the vehicle-procedure explanation moved out to `TaskOperationExplanationResponder` |
+| M-12.5 | The entry point is application-neutral: the request names task and application, the domain knowledge supplies steps, effects, argument kinds, bindings, API references, and safety notes |
+| M-12.6 | Nine `blender-codegen-*` types, eight relations, and one data property renamed to `code-generation-*` / `step-*` / `binding-*` vocabulary in both code and knowledge; the gate is now a capability check |
+| M-12.7 | Blocked — needs early-continue loop, guarded-branch-with-fallback, and API-expression requirements (successors 12.7a–c) |
+| M-12.8 | Blocked on 12.7c — the API relations are cited but cannot select the pack's generic `emit-*` operations |
+| M-12.9 | Partly satisfied (no name or value in shared code); blocked for named objects, which needs slot-bearing lexemes (successors 12.9a–b) |
+| M-12.10 | Step-order property and 18 assertions deleted; steps are planned in assertion order; data-assertion floors 62 → 57 |
+| M-12.11 | No `blender-codegen-*` identifier remains; zero unreferenced concepts |
+| M-12.12 | Nine `blender-api` individuals, the `blender` application, and all ten API references asserted by `BlenderScriptGenerationTests` |
+| M-12.13 | Knowledge-only lines and the cited `step-has-binding` assertion prove the shared path |
+| M-12.14 | Blocked on 12.9a/b |
+| M-12.15 | Unmodelled task and unmodelled application both answer `InformationUnavailable` with no code fence |
+
+What the section changed in principle: the code-generation route is now a *capability*, not an application.
+Any knowledge module that declares a `code-generation-task` instance with `has-generation-step`,
+`step-has-generation-effect`, `step-has-argument-kind`, `step-has-binding`, and `binding-has-value`
+assertions, on a `software-application` instance with one `application-uses-language`, is answered by the same
+entry point and the same language pack. The remaining Blender-specific work is about *what* the requirements
+can express (M-12.7/M-12.8) and *how* a request phrase reaches a model (M-12.9/M-12.14), not about routing.
