@@ -304,6 +304,32 @@ public sealed class SemanticProgramPlanningTests
     }
 
     [Fact]
+    public void Realizes_dictionary_iteration_inside_a_nested_block()
+    {
+        var statements = PlanWithCollections(
+            ["entries"],
+            new ConditionalRequirement(
+                new SemanticBooleanExpression(true),
+                [new DictionaryIterationRequirement(
+                    "product",
+                    "price",
+                    new SemanticNameExpression("entries"),
+                    [new OutputRequirement(new SemanticNameExpression("price"))])],
+                []));
+
+        Assert.Equal(
+            new[] { "python-indented-bound-dictionary-loop", "python-print-double-indented-expression" },
+            statements.Skip(1).Select(statement => statement.OperationId));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "if True:",
+                "    for product, price in entries.items():",
+                "        print(price)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
     public void Realizes_an_accumulation_as_initialization_loop_and_update()
     {
         var statements = PlanWithCollections(

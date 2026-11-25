@@ -250,6 +250,20 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case DictionaryIterationRequirement dictionaryIteration:
+                    if (!TryPlanDictionaryIteration(
+                            dictionaryIteration,
+                            depth,
+                            defined,
+                            pack,
+                            pipeline,
+                            planned,
+                            out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case FilterRequirement filter:
                     if (!TryPlanCollectionExpression(
                             filter.ResultName,
@@ -436,6 +450,85 @@ public static class SemanticProgramPlanner
         }
 
         defined.Add(iteration.ItemName);
+        return true;
+    }
+
+    private static bool TryPlanDictionaryIteration(
+        DictionaryIterationRequirement iteration,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(iteration.Source, defined, out error))
+        {
+            return false;
+        }
+
+        if (!TryRequireIdentifier(iteration.KeyName, pack, "dictionary key item", out error) ||
+            !TryRequireIdentifier(iteration.ValueName, pack, "dictionary value item", out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(iteration.Source, pack, out var renderedSource))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the iterated dictionary.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-dictionary-loop-header";
+                break;
+            case 1:
+                effect = "emit-indented-dictionary-loop-header";
+                break;
+            case 2:
+                effect = "emit-double-indented-dictionary-loop-header";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("key", iteration.KeyName)
+            .Add("value", iteration.ValueName)
+            .Add("iterable", renderedSource);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "dictionary-loop-header",
+                argumentValue: renderedSource,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal)
+        {
+            iteration.KeyName,
+            iteration.ValueName
+        };
+        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        {
+            return false;
+        }
+
+        defined.Add(iteration.KeyName);
+        defined.Add(iteration.ValueName);
         return true;
     }
 
