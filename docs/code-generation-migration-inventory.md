@@ -387,3 +387,50 @@ Fixed: key expression, value expression, sample dictionary/list contents, functi
 | **Directory listing** | `recognize-directory-file-listing` | Marker fact `program.directory-file-listing` | Fixed script using `os.scandir`, `sorted(...)`, `entry.is_file()`, and a `FileNotFoundError` branch |
 
 Fixed: sort keys and directions are marker facts rather than request-derived key expressions, record samples are literals, and the directory listing is a fixed policy script. M-09.15 and M-09.16 need a request-derived key expression plus direction; M-09.25 removes these templates once that realization exists.
+
+### M-10.1 through M-10.4 function, call, class, and exception inventory (current state)
+
+Recorded before any change to these families, as the pre-migration baseline for M-10. Counts are per family and overlap where one rule feeds two families (the greeting and conversion markers also feed the call family). The module totals stay at 241 input-fact rules, 133 sequence rules, 50 validations, and 1 encoding; nothing is added or removed by this inventory.
+
+#### M-10.1 Function declaration rules and templates (8 input rules, 29 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Greeting function** | `recognize-greeting-function-definition-request` | Marker fact `program.greeting-function` (matched from `define/defines function accepts name returns greeting`) | One complete program: `def greet(name):` / `return f"Hello, {name}!"` |
+| **Integer conversion** | `recognize-integer-conversion-function`, `recognize-named-integer-conversion-function` | Marker facts `program.integer-conversion-function`, `program.named-integer-conversion-function`, plus `program.output#kind = function-return` and `program.function` | Complete programs: `def convert_to_integer(text)` / `def parse_count(raw_text)`, each wrapping `int(...)` in `try:` / `except ValueError:` and returning the fixed message `"Invalid integer"` |
+| **Local-variable composition** | `recognize-declarative-function-local-variables` | `program.function-local-signature#name/parameters`, `program.function-local-variables#locals/expressions` (arithmetic), `program.function-local-return#expression`, `program.function-local-call#call` | `python-local-function-*`: fence, header, one assignment per local, `    return ` + expression, the call, and the fence close |
+| **Arithmetic composition** | `recognize-declarative-arithmetic-function-program`, `recognize-arithmetic-function-composition-call` | `program.arithmetic-function-signature#name/parameters`, `.arithmetic-function-return#expression` (arithmetic), `.arithmetic-function-call#call`, `.arithmetic-function-close#required` | `python-arithmetic-function-*`: fence, header, `    return ` + expression, the call, and the close; two open variants (with and without a named call) |
+| **Conditional composition** | `recognize-declarative-conditional-function` | `program.conditional-function.signature#name/parameters`, `.branches#returns/conditions` (paired by collection delimiter `, returns` and field delimiter `when`), `.false-return#expression`, `.call#expression` | `python-conditional-function-*`: fence, header, one `if` per returned condition, `    return ` per branch, an optional `else` return (`else-return`), and the call/print variants |
+
+Captured from the request: function name, parameter list, local assignments, the returned expression, and the call. Fixed: every function template assumes a specific arity placement, the greeting's message format and both sample argument lists (`"Ada"`, `"Grace"`, `"42"`, `"not-a-number"`), and the conversion functions' message text and exception type. Not represented: parameter types, return types, a body as an ordered requirement sequence, and the relationship between a return expression and the parameters it depends on.
+
+#### M-10.2 Function-call rules and templates (4 input rules, 6 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Call in a composed function** | `recognize-declarative-function-local-variables` (`call`), `recognize-declarative-conditional-function` (`expression`), `recognize-arithmetic-function-composition-call` (`call`, plus `program.arithmetic-function-close#required`) | The call is captured as a `functionCall`- or `value`-kind expression, optionally (`optionalExpression`) | `python-local-function-call`, `python-arithmetic-function-call`, `python-conditional-function-call`, `python-conditional-function-call-with-value-output` |
+| **Call as an output** | `recognize-greeting-function-call-request`, `recognize-arithmetic-function-composition-call` | Marker fact `program.greeting-function.calls`; `program.arithmetic-function-call` | `python-conditional-function-print`, `python-conditional-function-print-with-output-start`, the greeting program's two `print(greet(...))` lines |
+
+Captured: the call expression text when the request writes one. Fixed: greeting's two argument values, conversion's two argument values, and which call is printed. Not represented: the callee as a reference to a declared function, ordered argument expressions, argument-to-parameter binding, or any check that a call's arguments match its declaration.
+
+#### M-10.3 Class rules and templates (2 input rules, 6 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Class marker** | `recognize-class-requirement` | Marker fact `program.class` | None by itself |
+| **Bank-account model** | `recognize-bank-account-class` (13 captures) | `program.class-model#kind/className/attributeName/initializerParameter/depositMethodName/withdrawalMethodName/amountParameter` and five `program.class-model.stage.*` markers, all `literalValue` constants (`BankAccount`, `balance`, `deposit`, `withdraw`, `amount`, `class-definition`, `deposit-header`, `deposit-body`, `withdraw-header`, `withdraw-body`) | `python-class-model-*`: fence + `class BankAccount:` with `__init__`, a `deposit` method, and a `withdraw` method that refuses overdraws, then a fixed demonstration call sequence |
+
+Fixed: class name, the single attribute, the initializer parameter, both method names, the amount parameter, the method bodies, and the demonstration output. Captured from the request: nothing — every value is a literal capture. Not represented: a class identity, ordered fields with initial values, method parameter lists, method bodies as requirements, or member access.
+
+#### M-10.4 Exception rules and templates (3 input rules, 3 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Conversion failures** | `recognize-integer-conversion-function`, `recognize-named-integer-conversion-function` | Marker facts only (`program.integer-conversion-function`, `program.named-integer-conversion-function`, `program.output#kind = function-return`) | `try:` / `        return int(text)` / `except ValueError:` / `        return "Invalid integer"` inside two complete programs |
+| **Missing directory** | `recognize-directory-file-listing` | Marker fact `program.directory-file-listing` | `try:` around the `os.scandir` loop with `except FileNotFoundError:` printing `Directory not found: {directory}` |
+
+Fixed: the exception types (`ValueError`, `FileNotFoundError`), the recovery bodies, and the messages. Captured: nothing. Not represented: a raised error with a type and condition, a handler with a type and recovery body, or the distinction between a successful result and a handled failure.
+
+#### Consequences for M-10.5 through M-10.27
+
+Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. Classes and exceptions are further behind: both are single fixed examples driven entirely by literal captures, so their generic path needs class/field/method/member-access and raise/handler requirements before any template can be deleted. M-10.22 and M-10.23 therefore depend on the same request-derived fact layer that M-09.22 through M-09.25 wait for.
