@@ -489,6 +489,124 @@ public sealed class SemanticProgramPlanningTests
         Assert.Contains("at most 2 levels", error, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Realizes_a_function_declaration_with_parameters_a_return_and_a_call()
+    {
+        var statements = Plan(
+            new FunctionRequirement(
+                "add",
+                [
+                    new FunctionParameter("left", SemanticValueKind.Number),
+                    new FunctionParameter("right", SemanticValueKind.Number)
+                ],
+                SemanticValueKind.Number,
+                [new ReturnRequirement(new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    new SemanticNameExpression("left"),
+                    new SemanticNameExpression("right")))]),
+            new CallRequirement(
+                "add",
+                [new SemanticNumberExpression("2"), new SemanticNumberExpression("3")]));
+
+        Assert.Equal(
+            new[]
+            {
+                "python-bound-function-header",
+                "python-return-indented-expression",
+                "python-bound-call"
+            },
+            statements.Select(statement => statement.OperationId));
+        Assert.Equal(new[] { 0, 1, 0 }, statements.Select(statement => statement.Depth));
+        Assert.Equal(
+            string.Join('\n', "def add(left, right):", "    return left + right", "add(2, 3)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_a_declaration_without_parameters_and_a_nullary_call()
+    {
+        var statements = Plan(
+            new FunctionRequirement(
+                "constant",
+                [],
+                SemanticValueKind.Number,
+                [new ReturnRequirement(new SemanticNumberExpression("5"))]),
+            new CallRequirement("constant", []));
+
+        Assert.Equal(
+            new[] { "python-bound-nullary-function-header", "python-return-indented-expression", "python-bound-nullary-call" },
+            statements.Select(statement => statement.OperationId));
+        Assert.Equal(
+            string.Join('\n', "def constant():", "    return 5", "constant()"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Realizes_a_call_inside_a_nested_block()
+    {
+        var statements = Plan(new ConditionalRequirement(
+            new SemanticBooleanExpression(true),
+            [new CallRequirement("refresh", [new SemanticTextExpression("now")])],
+            []));
+
+        Assert.Equal(
+            string.Join('\n', "if True:", "    refresh(\"now\")"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Rejects_a_return_at_the_top_level_of_a_program()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([new ReturnRequirement(new SemanticNumberExpression("5"))]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("inside a function", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_a_function_declaration_inside_a_block()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([
+                new ConditionalRequirement(
+                    new SemanticBooleanExpression(true),
+                    [
+                        new FunctionRequirement(
+                            "constant",
+                            [],
+                            SemanticValueKind.Number,
+                            [new ReturnRequirement(new SemanticNumberExpression("5"))])
+                    ],
+                    [])
+            ]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("top level", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Rejects_a_call_argument_that_no_requirement_defines()
+    {
+        var planned = SemanticProgramPlanner.TryPlan(
+            new SemanticProgram([new CallRequirement("add", [new SemanticNameExpression("missing")])]),
+            Pack,
+            out var statements,
+            out var error);
+
+        Assert.False(planned);
+        Assert.Empty(statements);
+        Assert.Contains("missing", error, StringComparison.Ordinal);
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

@@ -1547,6 +1547,95 @@
           "value": ".items():"
         }
       ]
+    },
+    {
+      "head": "bound-function-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "def "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
+    },
+    {
+      "head": "bound-nullary-function-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "def "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "():"
+        }
+      ]
+    },
+    {
+      "head": "bound-nullary-call",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "()"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-nullary-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "()"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-nullary-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "()"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2219,6 +2308,46 @@
       "argumentKind": "dictionary-loop-header",
       "prerequisites": [],
       "startSymbol": "double-indented-bound-dictionary-loop-header"
+    },
+    {
+      "id": "python-bound-function-header",
+      "symbol": "def",
+      "effect": "emit-function-header",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "bound-function-header"
+    },
+    {
+      "id": "python-bound-nullary-function-header",
+      "symbol": "def",
+      "effect": "emit-nullary-function-header",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "bound-nullary-function-header"
+    },
+    {
+      "id": "python-bound-nullary-call",
+      "symbol": "call",
+      "effect": "emit-nullary-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-nullary-call"
+    },
+    {
+      "id": "python-bound-indented-nullary-call",
+      "symbol": "call",
+      "effect": "emit-indented-nullary-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-nullary-call"
+    },
+    {
+      "id": "python-bound-double-indented-nullary-call",
+      "symbol": "call",
+      "effect": "emit-double-indented-nullary-call",
+      "argumentKind": "call",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-nullary-call"
     }
   ],
   "stringLiteralFormat": {
