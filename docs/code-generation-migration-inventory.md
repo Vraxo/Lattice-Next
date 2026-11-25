@@ -517,3 +517,30 @@ Two model consequences are worth recording for the remaining serialization work:
   guarded listing nests an output inside `for` inside `try`.
 - Request-declared message text is carried as a `{0}`/`{1}` template in the fact, and the mapper turns it
   into text-template fragments, so no message wording lives in shared code.
+
+## M-11.5 through M-11.21 — outcome
+
+The serialization family is planned like every other family:
+
+| Ticket | Model | Pack knowledge | Replaced |
+| --- | --- | --- | --- |
+| M-11.5 | `FileWriteRequirement(path, stream, body)` | `write-text-file`, `bound-write-with-open-statement` | — (new capability) |
+| M-11.8–11.10 | `SerializeRequirement`, `DeserializeRequirement`, `SemanticListLiteralExpression`, `SemanticRecordLiteralExpression` | `indented-serialize-statement`, `indented-deserialize-statement`, `collectionLiteralFormat`, `recordLiteralFormat` | — (new capability) |
+| M-11.11 | `TryRequirement` + `HandlerRequirement("json.JSONDecodeError", …)`, qualified error types spaced by the pack | `indented-bound-with-open-read-statement`, `indented-indented-deserialize-statement` | — (new capability) |
+| M-11.18 | — | — | all 8 `python-json-round-trip-*` rules, 4 `capture-json-round-trip-*` rules, 2 `recognize-json-round-trip-*` readiness rules |
+
+Two model facilities were added for this family:
+
+- **Operations can declare the argument value they realize** (`GenerationOperation.MatchesArgumentValue`). A
+  requirement names a format (`json`) and the pack decides which call spells it, so `json.dump` and
+  `json.load` stay in knowledge while the planner stays language-neutral.
+- **A request that holds a collection is planned, not refused.** The deferred-capability check now treats a
+  collection-naming fact as carried when the requirements already hold a literal, iteration, filter, map, or
+  sort, so "a list of dictionaries" no longer blocks the serializer.
+
+The family's gate is knowledge-side: the three round-trip input rules only fire for a request that also reads
+the data back, so an incomplete request produces no requirement at all and is rejected as before.
+
+Current knowledge counts after M-11.4–M-11.21: **88 sequence rules** (98 → 97 → 96 → 88) and **238 input
+rules** (241 → 238); the pack holds **100 productions**, **26 bindings**, and **102 operations**, plus
+`inputSyntax.programArgumentFormat` and the pack-level `recordLiteralFormat`.
