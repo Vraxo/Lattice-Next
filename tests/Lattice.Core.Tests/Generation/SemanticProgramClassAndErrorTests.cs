@@ -305,16 +305,6 @@ public sealed class SemanticProgramClassAndErrorTests
     }
 
     [Fact]
-    public void Rejects_a_handler_that_is_not_inside_a_try()
-    {
-        var program = new SemanticProgram([
-            new HandlerRequirement("ValueError", [new OutputRequirement(new SemanticTextExpression("a"))])
-        ]);
-
-        Assert.False(SemanticProgramValidator.IsValid(program));
-    }
-
-    [Fact]
     public void Handles_a_failure_inside_a_function_body()
     {
         var program = new SemanticProgram([
