@@ -339,6 +339,20 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case RaiseRequirement raise:
+                    if (!TryPlanRaise(raise, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case TryRequirement attempt:
+                    if (!TryPlanTry(attempt, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 default:
                     error = $"The program requirement '{requirement.GetType().Name}' has no known operation.";
                     return false;
@@ -479,6 +493,258 @@ public static class SemanticProgramPlanner
 
         defined.Add(iteration.ItemName);
         return true;
+    }
+
+    private static bool TryPlanTry(
+        TryRequirement attempt,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth > MaximumDepth)
+        {
+            error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-try-header";
+                break;
+            case 1:
+                effect = "emit-indented-try-header";
+                break;
+            default:
+                effect = "emit-double-indented-try-header";
+                break;
+        }
+
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "try-header",
+                argumentValue: "try",
+                ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var attemptDefined = new HashSet<string>(defined, StringComparer.Ordinal);
+        if (!TryPlanRequirements(
+                attempt.Body,
+                depth + 1,
+                attemptDefined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        foreach (var handler in attempt.Handlers)
+        {
+            if (!TryPlanHandler(handler, depth, defined, pack, pipeline, planned, out error))
+            {
+                return false;
+            }
+        }
+
+        if (attempt.ResultName is not { } resultName)
+        {
+            return true;
+        }
+
+        if (!attemptDefined.Contains(resultName))
+        {
+            error = $"The handled attempt never binds its result '{resultName}' inside the attempted body.";
+            return false;
+        }
+
+        defined.Add(resultName);
+        return true;
+    }
+
+    private static bool TryPlanHandler(
+        HandlerRequirement handler,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireIdentifier(handler.ErrorType, pack, "handled error type", out error))
+        {
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-handler-header";
+                break;
+            case 1:
+                effect = "emit-indented-handler-header";
+                break;
+            default:
+                effect = "emit-double-indented-handler-header";
+                break;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("error-type", handler.ErrorType);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "handler-header",
+                argumentValue: handler.ErrorType,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        return TryPlanRequirements(
+            handler.Body,
+            depth + 1,
+            new HashSet<string>(defined, StringComparer.Ordinal),
+            pack,
+            pipeline,
+            planned,
+            out error);
+    }
+
+    private static bool TryPlanRaise(
+        RaiseRequirement raise,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireIdentifier(raise.ErrorType, pack, "raised error type", out error))
+        {
+            return false;
+        }
+
+        if (raise.Condition is not { } condition)
+        {
+            return TryEmitRaise(raise.ErrorType, depth, defined, pack, pipeline, planned, out error);
+        }
+
+        if (depth >= MaximumDepth)
+        {
+            error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(condition, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(condition, pack, out var renderedCondition))
+        {
+            error = $"The '{pack.Language}' language pack cannot render a raise condition.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-conditional-header";
+                break;
+            case 1:
+                effect = "emit-indented-conditional-header";
+                break;
+            default:
+                effect = "emit-double-indented-conditional-header";
+                break;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("condition", renderedCondition);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "condition",
+                argumentValue: renderedCondition,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        return TryEmitRaise(raise.ErrorType, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    private static bool TryEmitRaise(
+        string errorType,
+        int depth,
+        IReadOnlySet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-raise";
+                break;
+            case 1:
+                effect = "emit-indented-raise";
+                break;
+            case 2:
+                effect = "emit-double-indented-raise";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("error-type", errorType);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "raise",
+            argumentValue: errorType,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
     }
 
     private static bool TryPlanClass(
