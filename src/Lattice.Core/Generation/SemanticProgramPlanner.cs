@@ -250,6 +250,27 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case FunctionRequirement function:
+                    if (!TryPlanFunction(function, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case ReturnRequirement returned:
+                    if (!TryPlanReturn(returned, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case CallRequirement call:
+                    if (!TryPlanCall(call, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case DictionaryIterationRequirement dictionaryIteration:
                     if (!TryPlanDictionaryIteration(
                             dictionaryIteration,
@@ -451,6 +472,202 @@ public static class SemanticProgramPlanner
 
         defined.Add(iteration.ItemName);
         return true;
+    }
+
+    private static bool TryPlanFunction(
+        FunctionRequirement function,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "A function declaration is planned only at the top level of a program.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(function.Name, pack, "function name", out error))
+        {
+            return false;
+        }
+
+        foreach (var parameter in function.Parameters)
+        {
+            if (!TryRequireIdentifier(parameter.Name, pack, "function parameter", out error))
+            {
+                return false;
+            }
+        }
+
+        var parameters = string.Join(
+            ", ",
+            function.Parameters.Select(parameter => parameter.Name));
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("function", function.Name);
+        string effect;
+        if (parameters.Length == 0)
+        {
+            effect = "emit-nullary-function-header";
+        }
+        else
+        {
+            effect = "emit-function-header";
+            bindings = bindings.Add("arguments", parameters);
+        }
+
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "function-header",
+                argumentValue: function.Name,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal);
+        foreach (var parameter in function.Parameters)
+        {
+            bodyDefined.Add(parameter.Name);
+        }
+
+        if (!TryPlanRequirements(function.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        {
+            return false;
+        }
+
+        defined.Add(function.Name);
+        return true;
+    }
+
+    private static bool TryPlanReturn(
+        ReturnRequirement returned,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(returned.Value, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(returned.Value, pack, out var rendered))
+        {
+            error = $"The '{pack.Language}' language pack cannot render the returned value.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 1:
+                effect = "return-value-indented-expression";
+                break;
+            case 2:
+                effect = "return-value-double-indented-expression";
+                break;
+            default:
+                error = "A return is planned inside a function or method body, one or two levels deep.";
+                return false;
+        }
+
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "expression",
+            argumentValue: rendered,
+            ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    private static bool TryPlanCall(
+        CallRequirement call,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireIdentifier(call.FunctionName, pack, "called function", out error))
+        {
+            return false;
+        }
+
+        var arguments = new List<string>(call.Arguments.Length);
+        foreach (var argument in call.Arguments)
+        {
+            if (!TryRequireAvailable(argument, defined, out error))
+            {
+                return false;
+            }
+
+            if (!SemanticExpressionRenderer.TryRender(argument, pack, out var renderedArgument))
+            {
+                error = $"The '{pack.Language}' language pack cannot render an argument of '{call.FunctionName}'.";
+                return false;
+            }
+
+            arguments.Add(renderedArgument);
+        }
+
+        string effect;
+        var prefix = depth switch
+        {
+            0 => string.Empty,
+            1 => "indented-",
+            2 => "double-indented-",
+            _ => null
+        };
+        if (prefix is null)
+        {
+            error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("function", call.FunctionName);
+        if (arguments.Count == 0)
+        {
+            effect = $"emit-{prefix}nullary-call";
+        }
+        else
+        {
+            effect = $"emit-{prefix}call";
+            bindings = bindings.Add("arguments", string.Join(", ", arguments));
+        }
+
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "call",
+            argumentValue: call.FunctionName,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
     }
 
     private static bool TryPlanDictionaryIteration(
