@@ -874,6 +874,35 @@ public sealed class SemanticProgramPlanningTests
             SemanticProgramPlanner.Render(statements));
     }
 
+    [Fact]
+    public void Plans_a_guarded_decode_with_a_named_invalid_data_failure()
+    {
+        var statements = Plan(
+            new TryRequirement(
+                [
+                    new FileReadRequirement(
+                        "data.json",
+                        "input_file",
+                        [new DeserializeRequirement("json", "input_file", "loaded")])
+                ],
+                [
+                    new HandlerRequirement(
+                        "json.JSONDecodeError",
+                        [new OutputRequirement(new SemanticTextExpression("invalid"))])
+                ],
+                ResultName: null));
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "try:",
+                "    with open(\"data.json\", \"r\", encoding=\"utf-8\") as input_file:",
+                "        loaded = json.load(input_file)",
+                "except json.JSONDecodeError:",
+                "    print(\"invalid\")"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

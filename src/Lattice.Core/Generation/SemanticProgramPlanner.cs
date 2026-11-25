@@ -2088,7 +2088,7 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (depth != 1)
+        if (depth is not (1 or 2))
         {
             error = "A decode step is planned inside the stream it reads from.";
             return false;
@@ -2107,7 +2107,9 @@ public static class SemanticProgramPlanner
         if (!TryEmit(
                 pack,
                 pipeline,
-                effect: "deserialize-value-from-stream",
+                effect: depth == 1
+                    ? "deserialize-value-from-stream"
+                    : "deserialize-value-from-stream-indented",
                 argumentKind: "serialization-format",
                 argumentValue: deserialize.Format,
                 bindings,
@@ -2148,9 +2150,9 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (depth != 0)
+        if (depth > 1)
         {
-            error = "A file read is planned at the top level of a program.";
+            error = "A file read is planned at the top level of a program or inside one guarded block.";
             return false;
         }
 
@@ -2172,7 +2174,7 @@ public static class SemanticProgramPlanner
         if (!TryEmit(
                 pack,
                 pipeline,
-                effect: "read-text-file",
+                effect: depth == 0 ? "read-text-file" : "read-text-file-indented",
                 argumentKind: "path",
                 argumentValue: fileRead.Path,
                 bindings,

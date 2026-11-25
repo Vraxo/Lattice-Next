@@ -2160,6 +2160,56 @@
           "value": ")"
         }
       ]
+    },
+    {
+      "head": "indented-bound-with-open-read-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"r\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-indented-deserialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "result"
+        },
+        {
+          "kind": "terminal",
+          "value": " = json.load("
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3119,6 +3169,23 @@
       "argumentKind": "serialization-format",
       "prerequisites": [],
       "startSymbol": "indented-deserialize-statement",
+      "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-bound-indented-with-open-read",
+      "symbol": "with",
+      "effect": "read-text-file-indented",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-with-open-read-statement"
+    },
+    {
+      "id": "python-indented-indented-json-deserialize",
+      "symbol": "json.load",
+      "effect": "deserialize-value-from-stream-indented",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-indented-deserialize-statement",
       "matchesArgumentValue": "json"
     }
   ],
