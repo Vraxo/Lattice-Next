@@ -760,7 +760,7 @@ public sealed class SemanticProgramPlanningTests
             new[]
             {
                 "python-bound-try-header",
-                "python-bound-assignment",
+                "python-bound-indented-assignment",
                 "python-bound-handler-header",
                 "python-print-indented-expression",
                 "python-print-expression"
