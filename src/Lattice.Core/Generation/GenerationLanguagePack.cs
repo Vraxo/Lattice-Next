@@ -11,4 +11,18 @@ public sealed record GenerationLanguagePack(
     ImmutableArray<GenerationOperation> Operations,
     GenerationStringLiteralFormat StringLiteralFormat,
     GenerationCollectionLiteralFormat? CollectionLiteralFormat = null,
-    GenerationInputSyntax? InputSyntax = null);
+    GenerationInputSyntax? InputSyntax = null,
+    GenerationInterpolationFormat? InterpolationFormat = null,
+    ImmutableArray<GenerationConversionFormat> ConversionFormats = default);
+
+/// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
+public sealed record GenerationInterpolationFormat(
+    string Opening,
+    string PlaceholderOpening,
+    string PlaceholderClosing,
+    string Closing);
+
+/// <summary>How a pack spells the conversion of a value to one target value kind.</summary>
+public sealed record GenerationConversionFormat(
+    string Target,
+    string Format);

@@ -36,6 +36,15 @@ public sealed class SemanticProgramGenerationTests
     [InlineData(
         "Create a Python program with a function named classify that takes age and returns 'senior' when age is at least 65, returns 'adult' when age is at least 18, returns 'teen' when age is at least 13, and otherwise returns 'child', then print classify(70).",
         "def classify(age):\n    if age >= 65:\n        return \"senior\"\n    elif age >= 18:\n        return \"adult\"\n    elif age >= 13:\n        return \"teen\"\n    return \"child\"\nprint(classify(70))")]
+    [InlineData(
+        "Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.",
+        "def convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))")]
+    [InlineData(
+        "Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.",
+        "def parse_count(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(parse_count(\"42\"))\nprint(parse_count(\"not-a-number\"))")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
+        "def greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))")]
     public void Generates_requested_scalar_programs_from_their_requirements(
         string input,
         string expectedCode)

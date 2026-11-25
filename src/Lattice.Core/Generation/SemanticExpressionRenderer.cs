@@ -100,6 +100,29 @@ internal static class SemanticExpressionRenderer
                 rendered = member.Target + memberAccessFormat.Separator + member.Member;
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticConversionExpression conversion:
+                if (!TryRender(
+                        conversion.Value,
+                        languagePack,
+                        syntax,
+                        parentPrecedence: 0,
+                        isRightOperand: false,
+                        out var converted) ||
+                    !TryFormatConversion(conversion.Target, converted, languagePack, out rendered))
+                {
+                    return false;
+                }
+
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticTextTemplateExpression template:
+                if (!TryRenderTextTemplate(template, languagePack, syntax, out rendered))
+                {
+                    return false;
+                }
+
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticUnaryExpression unary:
                 if (!TryFindOperator(syntax, unary.Operator, out var prefixFormat) ||
                     prefixFormat.Fixity != "prefix" ||
@@ -206,6 +229,82 @@ internal static class SemanticExpressionRenderer
 
         grouped = delimiter.OpeningDelimiter + expression + delimiter.ClosingDelimiter;
         return grouped.Length <= 16_384;
+    }
+
+    /// <summary>
+    /// Spells the conversion of one rendered value using the pack's format for the target kind, so a
+    /// request never names a language construct.
+    /// </summary>
+    private static bool TryFormatConversion(
+        SemanticValueKind target,
+        string renderedValue,
+        GenerationLanguagePack languagePack,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (languagePack.ConversionFormats.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var format = languagePack.ConversionFormats.FirstOrDefault(candidate =>
+            string.Equals(candidate.Target, target.ToString(), StringComparison.Ordinal));
+        if (format is null)
+        {
+            return false;
+        }
+
+        rendered = format.Format.Replace("{0}", renderedValue, StringComparison.Ordinal);
+        return rendered.Length > 0;
+    }
+
+    /// <summary>
+    /// Spells one text value built from literal fragments and embedded values using the pack's
+    /// interpolation format.
+    /// </summary>
+    private static bool TryRenderTextTemplate(
+        SemanticTextTemplateExpression template,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (languagePack.InterpolationFormat is not { } interpolation ||
+            template.Parts.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        var builder = new System.Text.StringBuilder(interpolation.Opening);
+        foreach (var part in template.Parts)
+        {
+            if (part is SemanticTextExpression text)
+            {
+                var literal = SequenceGenerationPipeline.EncodeStringLiteral(
+                    text.Value,
+                    languagePack.StringLiteralFormat);
+                var opening = languagePack.StringLiteralFormat.OpeningDelimiter;
+                var closing = languagePack.StringLiteralFormat.ClosingDelimiter;
+                if (literal.Length < opening.Length + closing.Length)
+                {
+                    return false;
+                }
+
+                builder.Append(literal, opening.Length, literal.Length - opening.Length - closing.Length);
+                continue;
+            }
+
+            if (!TryRender(part, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var value))
+            {
+                return false;
+            }
+
+            builder.Append(interpolation.PlaceholderOpening).Append(value).Append(interpolation.PlaceholderClosing);
+        }
+
+        builder.Append(interpolation.Closing);
+        rendered = builder.ToString();
+        return true;
     }
 
     private static bool TryFindOperator(

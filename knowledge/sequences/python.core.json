@@ -1992,11 +1992,11 @@
       "factId": "program.assignment"
     },
     {
-      "id": "recognize-greeting-function-definition-request",
+      "id": "recognize-declared-greeting-function",
       "matchTokens": [
         "function"
       ],
-      "factId": "program.greeting-function",
+      "factId": "program.requirement.function",
       "requiredAnySequences": [
         [
           "define",
@@ -2014,18 +2014,53 @@
           "returns",
           "greeting"
         ]
+      ],
+      "captures": [
+        {
+          "factId": "program.requirement.function",
+          "valueId": "name",
+          "stopBeforeTokens": [],
+          "literalValue": "greet"
+        },
+        {
+          "factId": "program.requirement.function",
+          "valueId": "parameters",
+          "stopBeforeTokens": [],
+          "literalValue": "name"
+        },
+        {
+          "factId": "program.requirement.function.template",
+          "valueId": "prefix",
+          "stopBeforeTokens": [],
+          "literalValue": "Hello, "
+        },
+        {
+          "factId": "program.requirement.function.template",
+          "valueId": "suffix",
+          "stopBeforeTokens": [],
+          "literalValue": "!"
+        }
       ]
     },
     {
-      "id": "recognize-greeting-function-call-request",
+      "id": "recognize-declared-greeting-samples",
       "matchTokens": [
         "call",
         "two",
         "different",
         "names"
       ],
-      "factId": "program.greeting-function.calls",
-      "searchAllSentences": true
+      "factId": "program.requirement.function.samples",
+      "searchAllSentences": true,
+      "captures": [
+        {
+          "factId": "program.requirement.function.samples",
+          "valueId": "sample",
+          "stopBeforeTokens": [],
+          "literalValue": "Ada|Grace",
+          "collectionDelimiter": "|"
+        }
+      ]
     },
     {
       "id": "recognize-bank-account-class",
@@ -2180,7 +2215,7 @@
       "searchAllSentences": true
     },
     {
-      "id": "recognize-integer-conversion-function",
+      "id": "recognize-declared-integer-conversion",
       "matchTokens": [
         "converts",
         "text",
@@ -2190,26 +2225,49 @@
         "clear",
         "result"
       ],
-      "factId": "program.integer-conversion-function",
+      "factId": "program.requirement.function",
       "captures": [
         {
-          "factId": "program.integer-conversion-function",
-          "valueId": "kind",
-          "startAfterTokens": [],
+          "factId": "program.requirement.function",
+          "valueId": "name",
           "stopBeforeTokens": [],
-          "literalValue": "integer-conversion"
+          "literalValue": "convert_to_integer"
         },
         {
-          "factId": "program.output",
-          "valueId": "kind",
-          "startAfterTokens": [],
+          "factId": "program.requirement.function",
+          "valueId": "parameters",
           "stopBeforeTokens": [],
-          "literalValue": "function-return"
+          "literalValue": "text"
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "target",
+          "stopBeforeTokens": [],
+          "literalValue": "Number"
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "error",
+          "stopBeforeTokens": [],
+          "literalValue": "ValueError"
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "fallback",
+          "stopBeforeTokens": [],
+          "literalValue": "Invalid integer"
+        },
+        {
+          "factId": "program.requirement.function.samples",
+          "valueId": "sample",
+          "stopBeforeTokens": [],
+          "literalValue": "42|not-a-number",
+          "collectionDelimiter": "|"
         }
       ]
     },
     {
-      "id": "recognize-named-integer-conversion-function",
+      "id": "recognize-declared-named-integer-conversion",
       "matchTokens": [
         "converts",
         "raw",
@@ -2220,21 +2278,59 @@
         "clear",
         "message"
       ],
-      "factId": "program.named-integer-conversion-function",
+      "factId": "program.requirement.function",
       "captures": [
         {
-          "factId": "program.named-integer-conversion-function",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "integer-conversion"
+          "factId": "program.requirement.function",
+          "valueId": "name",
+          "startAfterTokens": [
+            "named"
+          ],
+          "stopBeforeSequences": [
+            [
+              "that"
+            ]
+          ],
+          "stopBeforeTokens": []
         },
         {
-          "factId": "program.output",
-          "valueId": "kind",
-          "startAfterTokens": [],
+          "factId": "program.requirement.function",
+          "valueId": "parameters",
+          "startAfterTokens": [
+            "accepts"
+          ],
+          "stopBeforeSequences": [
+            [
+              "and",
+              "converts"
+            ]
+          ],
+          "stopBeforeTokens": []
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "target",
           "stopBeforeTokens": [],
-          "literalValue": "function-return"
+          "literalValue": "Number"
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "error",
+          "stopBeforeTokens": [],
+          "literalValue": "ValueError"
+        },
+        {
+          "factId": "program.requirement.function.conversion",
+          "valueId": "fallback",
+          "stopBeforeTokens": [],
+          "literalValue": "Invalid integer"
+        },
+        {
+          "factId": "program.requirement.function.samples",
+          "valueId": "sample",
+          "stopBeforeTokens": [],
+          "literalValue": "42|not-a-number",
+          "collectionDelimiter": "|"
         }
       ]
     },
@@ -5915,25 +6011,6 @@
       ]
     },
     {
-      "id": "python-greeting-function",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.greeting-function",
-        "program.greeting-function.calls"
-      ],
-      "nextToken": "```python\ndef greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))\n```",
-      "satisfiesFacts": [
-        "program.greeting-function",
-        "program.greeting-function.calls",
-        "language.python",
-        "intent.program-generation",
-        "program.function",
-        "program.output"
-      ]
-    },
-    {
       "id": "python-non-empty-file-line-count",
       "contextSuffix": [
         "<|lattice.start|>"
@@ -6105,44 +6182,6 @@
         "program.iteration",
         "program.output.start",
         "value.output"
-      ]
-    },
-    {
-      "id": "python-integer-conversion-function",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.integer-conversion-function",
-        "program.function"
-      ],
-      "nextToken": "```python\ndef convert_to_integer(text):\n    try:\n        return int(text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(convert_to_integer(\"42\"))\nprint(convert_to_integer(\"not-a-number\"))\n```",
-      "satisfiesFacts": [
-        "program.integer-conversion-function",
-        "language.python",
-        "intent.program-generation",
-        "program.function",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-named-integer-conversion-function",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.named-integer-conversion-function",
-        "program.function",
-        "program.condition"
-      ],
-      "nextToken": "```python\ndef parse_count(raw_text):\n    try:\n        return int(raw_text)\n    except ValueError:\n        return \"Invalid integer\"\nprint(parse_count(\"42\"))\nprint(parse_count(\"not-a-number\"))\n```",
-      "satisfiesFacts": [
-        "program.named-integer-conversion-function",
-        "language.python",
-        "intent.program-generation",
-        "program.function",
-        "program.condition",
-        "program.output"
       ]
     },
     {

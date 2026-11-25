@@ -25,6 +25,15 @@ public static class SemanticProgramFactMapper
     private const string ConditionValueId = "condition";
     private const string ReturnValueId = "value";
     private const string CallValueId = "call";
+    private const string FunctionConversionFactId = "program.requirement.function.conversion";
+    private const string FunctionTemplateFactId = "program.requirement.function.template";
+    private const string FunctionSamplesFactId = "program.requirement.function.samples";
+    private const string ConversionTargetValueId = "target";
+    private const string ConversionErrorValueId = "error";
+    private const string ConversionFallbackValueId = "fallback";
+    private const string TemplatePrefixValueId = "prefix";
+    private const string TemplateSuffixValueId = "suffix";
+    private const string SampleValueId = "sample";
     private const string FunctionKeywordFactId = "program.function";
 
     public static bool TryCreate(
@@ -263,6 +272,36 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
+        var conversionFact = facts.FirstOrDefault(fact => fact.Id == FunctionConversionFactId);
+        var templateFact = facts.FirstOrDefault(fact => fact.Id == FunctionTemplateFactId);
+        var samplesFact = facts.FirstOrDefault(fact => fact.Id == FunctionSamplesFactId);
+        if (functionNames.Length > 1 &&
+            (conversionFact is not null || templateFact is not null || samplesFact is not null))
+        {
+            error = "A generic program captures a converted, templated, or sampled result for one function at a time.";
+            return false;
+        }
+
+        if (parameters[0].IsDefaultOrEmpty)
+        {
+            error = "A generic function requirement requires named parameters.";
+            return false;
+        }
+
+        ProgramRequirement? conversion = null;
+        if (conversionFact is not null &&
+            !TryBuildConversion(conversionFact, parameters[0][0].Name, out conversion, out error))
+        {
+            return false;
+        }
+
+        ReturnRequirement? templateResult = null;
+        if (templateFact is not null &&
+            !TryBuildTemplateResult(templateFact, parameters[0][0].Name, out templateResult, out error))
+        {
+            return false;
+        }
+
         var bodies = ImmutableArray.CreateBuilder<ImmutableArray<ProgramRequirement>>();
         var returned = ImmutableArray.CreateBuilder<SemanticExpression>();
         for (var index = 0; index < functionNames.Length; index++)
@@ -302,6 +341,15 @@ public static class SemanticProgramFactMapper
                 body.Add(new ReturnRequirement(results[0]));
                 returned.Add(results[0]);
             }
+            else if (conversion is not null)
+            {
+                body.Add(conversion);
+            }
+            else if (templateResult is not null)
+            {
+                body.Add(templateResult);
+                returned.Add(templateResult.Value);
+            }
 
             if (body.Count == 0)
             {
@@ -320,6 +368,26 @@ public static class SemanticProgramFactMapper
                 parameters[index],
                 resultKind,
                 bodies[index]));
+        }
+
+        if (samplesFact is not null)
+        {
+            if (!samplesFact.Collections.TryGetValue(SampleValueId, out var samples) ||
+                samples.IsDefaultOrEmpty)
+            {
+                error = "A generic sample call requires the captured sample arguments.";
+                return false;
+            }
+
+            foreach (var sample in samples)
+            {
+                events.Add(new RequirementEvent(
+                    0,
+                    eventOrder++,
+                    new OutputRequirement(new SemanticFunctionCallExpression(
+                        functionNames[0],
+                        [new SemanticTextExpression(sample)]))));
+            }
         }
 
         var callFact = facts.FirstOrDefault(fact => fact.Id == FunctionCallFactId);
@@ -349,6 +417,71 @@ public static class SemanticProgramFactMapper
             }
         }
 
+        return true;
+    }
+
+    /// <summary>
+    /// Builds the attempted conversion a declaration performs and the recovery it describes: the body
+    /// converts the declared parameter and the handler returns the captured fallback message.
+    /// </summary>
+    private static bool TryBuildConversion(
+        SequenceSemanticFact fact,
+        string parameterName,
+        out ProgramRequirement? requirement,
+        out string? error)
+    {
+        requirement = null;
+        error = null;
+        if (!fact.Values.TryGetValue(ConversionTargetValueId, out var targetText) ||
+            !Enum.TryParse<SemanticValueKind>(targetText, ignoreCase: false, out var target) ||
+            target is not (SemanticValueKind.Number or SemanticValueKind.Text) ||
+            !fact.Values.TryGetValue(ConversionErrorValueId, out var errorType) ||
+            string.IsNullOrWhiteSpace(errorType) ||
+            !fact.Values.TryGetValue(ConversionFallbackValueId, out var fallback))
+        {
+            error = "A generic conversion requires a target kind, a handled error type, and a fallback message.";
+            return false;
+        }
+
+        requirement = new TryRequirement(
+            [
+                new ReturnRequirement(new SemanticConversionExpression(
+                    target,
+                    new SemanticNameExpression(parameterName)))
+            ],
+            [
+                new HandlerRequirement(
+                    errorType,
+                    [new ReturnRequirement(new SemanticTextExpression(fallback))])
+            ],
+            ResultName: null);
+        return true;
+    }
+
+    /// <summary>
+    /// Builds the text a declaration returns when it embeds one parameter between captured fragments.
+    /// </summary>
+    private static bool TryBuildTemplateResult(
+        SequenceSemanticFact fact,
+        string parameterName,
+        out ReturnRequirement? requirement,
+        out string? error)
+    {
+        requirement = null;
+        error = null;
+        if (!fact.Values.TryGetValue(TemplatePrefixValueId, out var prefix) ||
+            !fact.Values.TryGetValue(TemplateSuffixValueId, out var suffix))
+        {
+            error = "A generic text template requires the fragments that surround the embedded value.";
+            return false;
+        }
+
+        requirement = new ReturnRequirement(new SemanticTextTemplateExpression(
+            [
+                new SemanticTextExpression(prefix),
+                new SemanticNameExpression(parameterName),
+                new SemanticTextExpression(suffix)
+            ]));
         return true;
     }
 

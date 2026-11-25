@@ -2937,5 +2937,17 @@
     "memberAccessFormat": {
       "separator": "."
     }
-  }
+  },
+  "interpolationFormat": {
+    "opening": "f\"",
+    "placeholderOpening": "{",
+    "placeholderClosing": "}",
+    "closing": "\""
+  },
+  "conversionFormats": [
+    {
+      "target": "Number",
+      "format": "int({0})"
+    }
+  ]
 }
