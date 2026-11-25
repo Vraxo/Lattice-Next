@@ -2269,16 +2269,21 @@
     {
       "id": "recognize-declared-named-integer-conversion",
       "matchTokens": [
-        "converts",
-        "raw",
-        "text",
-        "to",
-        "integer",
-        "returns",
-        "clear",
-        "message"
+        "named"
       ],
       "factId": "program.requirement.function",
+      "requiredAnySequences": [
+        [
+          "named",
+          "accepts",
+          "converts",
+          "to",
+          "integer",
+          "returns",
+          "clear",
+          "message"
+        ]
+      ],
       "captures": [
         {
           "factId": "program.requirement.function",

@@ -133,30 +133,34 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Extracts_and_generates_greeting_function_requests_from_natural_language()
+    public void Extracts_greeting_function_requests_as_generic_function_facts()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string prompt = "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.";
 
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function");
-        Assert.Contains(facts, fact => fact.Id == "program.greeting-function.calls");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function.template");
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.function.samples");
         Assert.Contains(facts, fact => fact.Id == "language.python");
         Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
-            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("def greet(name):", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains("print(greet(\"Ada\"))", generated.Text, StringComparison.Ordinal);
-        Assert.Contains("print(greet(\"Grace\"))", generated.Text, StringComparison.Ordinal);
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "def greet(name):",
+                "    return f\"Hello, {name}!\"",
+                "print(greet(\"Ada\"))",
+                "print(greet(\"Grace\"))"),
+            code);
     }
 
     [Fact]
@@ -1899,27 +1903,48 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.", "program.integer-conversion-function", "convert_to_integer", "text")]
-    [InlineData("Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.", "program.named-integer-conversion-function", "parse_count", "raw_text")]
-    public void Generates_integer_conversion_function_from_declarative_semantic_facts(string input, string factId, string functionName, string parameter)
+    [InlineData("Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.", "convert_to_integer", "text")]
+    [InlineData("Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.", "parse_count", "raw_text")]
+    public void Extracts_and_generates_integer_conversion_functions_as_generic_facts(
+        string input,
+        string functionName,
+        string parameter)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == factId);
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Equal(string.Join(Environment.NewLine,
-            "```python",
-            $"def {functionName}({parameter}):",
-            "    try:",
-            $"        return int({parameter})",
-            "    except ValueError:",
-            "        return \"Invalid integer\"",
-            $"print({functionName}(\"42\"))",
-            $"print({functionName}(\"not-a-number\"))",
-            "```"), result!.Text);
-    }
 
+        var declaration = Assert.Single(facts, fact => fact.Id == "program.requirement.function");
+        Assert.Equal(functionName, declaration.Values["name"]);
+        Assert.Equal(parameter, declaration.Values["parameters"]);
+
+        var conversion = Assert.Single(facts, fact => fact.Id == "program.requirement.function.conversion");
+        Assert.Equal("Number", conversion.Values["target"]);
+        Assert.Equal("ValueError", conversion.Values["error"]);
+        Assert.Equal("Invalid integer", conversion.Values["fallback"]);
+
+        var samples = Assert.Single(facts, fact => fact.Id == "program.requirement.function.samples");
+        Assert.Equal(["42", "not-a-number"], samples.Collections["sample"]);
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+        Assert.Equal(
+            string.Join(
+                '\n',
+                $"def {functionName}({parameter}):",
+                "    try:",
+                $"        return int({parameter})",
+                "    except ValueError:",
+                "        return \"Invalid integer\"",
+                $"print({functionName}(\"42\"))",
+                $"print({functionName}(\"not-a-number\"))"),
+            code);
+    }
 
     [Fact]
     public void Generates_directory_file_listing_from_declarative_semantic_facts()

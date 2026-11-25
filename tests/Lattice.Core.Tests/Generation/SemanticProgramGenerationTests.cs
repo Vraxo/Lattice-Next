@@ -113,7 +113,6 @@ public sealed class SemanticProgramGenerationTests
     [InlineData("Create a Python program that sets total to 5 and prints total + 3.")]
     [InlineData("Write a Python program that stores two numbers in variables, adds them, and prints the result.")]
     [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
-    [InlineData("Write a Python program that defines a function that accepts a person's name and returns a greeting. Call it with two different names.")]
     public void Leaves_requests_with_deferred_capabilities_to_their_own_path(string input)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
