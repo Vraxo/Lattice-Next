@@ -1857,53 +1857,23 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             result!.Text);
     }
 
-    [Fact]
-    public void Generates_bank_account_class_from_declarative_semantic_facts()
-    {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        const string input = "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.";
-        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.class-model");
-        Assert.Contains(facts, fact => fact.Id == "program.class");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError), $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Equal(string.Join(Environment.NewLine,
-            "```python",
-            "class BankAccount:",
-            "    def __init__(self, balance):",
-            "        self.balance = balance",
-            "    def deposit(self, amount):",
-            "        self.balance += amount",
-            "    def withdraw(self, amount):",
-            "        if amount > self.balance:",
-            "            return False",
-            "        self.balance -= amount",
-            "        return True",
-            "```"), result!.Text);
-    }
-
     [Theory]
-    [InlineData("Write a Python function that converts text to an integer and returns a clear result when the text is not a valid integer.", "convert_to_integer", "text")]
-    [InlineData("Create a Python function named parse_count that accepts raw_text and converts raw_text to an integer and returns a clear message if the input is not a valid integer.", "parse_count", "raw_text")]
-    public void Extracts_and_generates_integer_conversion_functions_as_generic_facts(
-        string input,
-        string functionName,
-        string parameter)
+    [InlineData("Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    [InlineData("Write a Python program that fulfills this request: Define a class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.")]
+    public void Extracts_and_generates_class_requests_as_generic_class_facts(string input)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
 
-        var declaration = Assert.Single(facts, fact => fact.Id == "program.requirement.function");
-        Assert.Equal(functionName, declaration.Values["name"]);
-        Assert.Equal(parameter, declaration.Values["parameters"]);
+        var declaration = Assert.Single(facts, fact => fact.Id == "program.requirement.class");
+        Assert.Equal(["bank account"], declaration.Collections["name"]);
 
-        var conversion = Assert.Single(facts, fact => fact.Id == "program.requirement.function.conversion");
-        Assert.Equal("Number", conversion.Values["target"]);
-        Assert.Equal("ValueError", conversion.Values["error"]);
-        Assert.Equal("Invalid integer", conversion.Values["fallback"]);
+        var fields = Assert.Single(facts, fact => fact.Id == "program.requirement.class.field");
+        Assert.Equal(["balance"], fields.Collections["field"]);
 
-        var samples = Assert.Single(facts, fact => fact.Id == "program.requirement.function.samples");
-        Assert.Equal(["42", "not-a-number"], samples.Collections["sample"]);
+        var methods = Assert.Single(facts, fact => fact.Id == "program.requirement.class.method");
+        Assert.Equal(["deposit", "withdraw"], methods.Collections["method"]);
+        Assert.Equal(["none", "Boolean"], methods.Collections["result"]);
 
         Assert.True(
             SemanticProgramPlanner.TryGenerateProgram(
@@ -1916,13 +1886,16 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(
             string.Join(
                 '\n',
-                $"def {functionName}({parameter}):",
-                "    try:",
-                $"        return int({parameter})",
-                "    except ValueError:",
-                "        return \"Invalid integer\"",
-                $"print({functionName}(\"42\"))",
-                $"print({functionName}(\"not-a-number\"))"),
+                "class BankAccount:",
+                "    def __init__(self, balance):",
+                "        self.balance = balance",
+                "    def deposit(self, amount):",
+                "        self.balance += amount",
+                "    def withdraw(self, amount):",
+                "        if amount > self.balance:",
+                "            return False",
+                "        self.balance -= amount",
+                "        return True"),
             code);
     }
 

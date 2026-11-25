@@ -16,7 +16,7 @@ public sealed record PlannedProgramStatement(
 /// </summary>
 public static class SemanticProgramPlanner
 {
-    private const int MaximumDepth = 2;
+    private const int MaximumDepth = 3;
     private const int MaximumRequirements = 64;
     private const int MaximumStatements = 256;
 
@@ -49,7 +49,6 @@ public static class SemanticProgramPlanner
         "program.assignment.second",
         "program.assignment.result",
         "program.classification",
-        "program.class",
         "program.collection",
         "program.dictionary",
         "program.directory",
@@ -215,6 +214,13 @@ public static class SemanticProgramPlanner
             {
                 case AssignmentRequirement assignment:
                     if (!TryPlanAssignment(assignment, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case AugmentedAssignmentRequirement update:
+                    if (!TryPlanAugmentedAssignment(update, depth, defined, pack, pipeline, planned, out error))
                     {
                         return false;
                     }
@@ -449,6 +455,69 @@ public static class SemanticProgramPlanner
             effect,
             argumentKind: "assignment",
             argumentValue: variableName,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    /// <summary>
+    /// Plans an in-place update: the pack supplies the compound operator symbol, so no target-language
+    /// punctuation is decided here.
+    /// </summary>
+    private static bool TryPlanAugmentedAssignment(
+        AugmentedAssignmentRequirement update,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(update.Target, defined, out error) ||
+            !TryRequireAvailable(update.Value, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(update.Target, pack, out var renderedTarget) ||
+            !SemanticExpressionRenderer.TryRender(update.Value, pack, out var renderedValue) ||
+            !SemanticExpressionRenderer.TryRenderOperator(update.Operator, pack, out var renderedOperator))
+        {
+            error = "The language pack cannot render the requested in-place update.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-augmented-assignment";
+                break;
+            case 1:
+                effect = "emit-indented-augmented-assignment";
+                break;
+            case 2:
+                effect = "emit-double-indented-augmented-assignment";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", renderedTarget)
+            .Add("operator", renderedOperator)
+            .Add("expression", renderedValue);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "augmented-assignment",
+            argumentValue: renderedTarget,
             bindings,
             depth,
             defined,
@@ -791,6 +860,15 @@ public static class SemanticProgramPlanner
 
         if (!declaredClass.Fields.IsDefaultOrEmpty)
         {
+            // The constructor receives whatever the fields start from, in field order, so a field that
+            // starts at a request-declared value is initialized from the argument of that name.
+            var initializedFrom = string.Join(
+                ", ",
+                declaredClass.Fields
+                    .SelectMany(field => SemanticExpressionAnalysis.GetReferencedNames(field.InitialValue))
+                    .Where(name => !string.Equals(name, declaredClass.InstanceName, StringComparison.Ordinal))
+                    .Distinct(StringComparer.Ordinal)
+                    .Prepend(declaredClass.InstanceName));
             if (!TryEmit(
                     pack,
                     pipeline,
@@ -800,7 +878,7 @@ public static class SemanticProgramPlanner
                     ImmutableDictionary<string, string>.Empty
                         .WithComparers(StringComparer.Ordinal)
                         .Add("function", "__init__")
-                        .Add("arguments", declaredClass.InstanceName),
+                        .Add("arguments", initializedFrom),
                     depth: 1,
                     defined,
                     planned,
@@ -1010,8 +1088,11 @@ public static class SemanticProgramPlanner
             case 2:
                 effect = "return-value-double-indented-expression";
                 break;
+            case 3:
+                effect = "return-value-triple-indented-expression";
+                break;
             default:
-                error = "A return is planned inside a function or method body, one or two levels deep.";
+                error = "A return is planned inside a function or method body, one to three levels deep.";
                 return false;
         }
 

@@ -36,6 +36,30 @@ public static class SemanticProgramFactMapper
     private const string SampleValueId = "sample";
     private const string FunctionKeywordFactId = "program.function";
 
+    /// <summary>The separators a request's multi-word class identity is read through.</summary>
+    private static readonly char[] ClassIdentitySeparators =
+        [' ', '\t', '\r', '\n', '-', '_', ',', '.', ':', ';', '/', '\\'];
+    private const string ClassFactId = "program.requirement.class";
+    private const string ClassIdentityValueId = "name";
+    private const string ClassInstanceValueId = "instance";
+    private const string ClassFieldFactId = "program.requirement.class.field";
+    private const string ClassFieldNameValueId = "field";
+    private const string ClassFieldInitialValueId = "initial";
+    private const string ClassMethodFactId = "program.requirement.class.method";
+    private const string ClassMethodNameValueId = "method";
+    private const string ClassMethodParameterValueId = "parameter";
+    private const string ClassMethodResultValueId = "result";
+    private const string ClassMethodGuardFactId = "program.requirement.class.method.guard";
+    private const string ClassMethodUpdateFactId = "program.requirement.class.method.update";
+    private const string ClassMethodResultFactId = "program.requirement.class.method.result";
+    private const string GuardLeftValueId = "left";
+    private const string GuardRightValueId = "right";
+    private const string GuardOperatorValueId = "operator";
+    private const string GuardValueId = "value";
+    private const string ScenarioMethodValueId = "method";
+    private const string DefaultInstanceName = "self";
+    private const string NoResultMarker = "none";
+
     public static bool TryCreate(
         ImmutableArray<SequenceSemanticFact> facts,
         out SemanticProgram? program,
@@ -53,6 +77,11 @@ public static class SemanticProgramFactMapper
         var eventOrder = 0;
         var declarations = ImmutableArray.CreateBuilder<ProgramRequirement>();
         if (!TryProjectFunctions(facts, declarations, events, ref eventOrder, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectClasses(facts, declarations, out error))
         {
             return false;
         }
@@ -727,4 +756,519 @@ public static class SemanticProgramFactMapper
 
         return fact.ExpressionCollections.TryGetValue(valueId, out expressions);
     }
+
+    /// <summary>
+    /// Projects a declared class from request facts: the identity the request names, the fields it
+    /// declares with what they start from, and the methods with their parameters, in-place updates,
+    /// guards, and returned values. Method bodies keep request order: guards first, then updates, then
+    /// the value the method returns.
+    /// </summary>
+    private static bool TryProjectClasses(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var classFacts = facts.Where(fact => fact.Id == ClassFactId).ToArray();
+        if (classFacts.Length == 0)
+        {
+            return true;
+        }
+
+        if (classFacts.Length > 1)
+        {
+            error = "A generic program declares one class per request.";
+            return false;
+        }
+
+        var classFact = classFacts[0];
+        if (!TryGetCollection(classFact, ClassIdentityValueId, out var identities) ||
+            identities.Length != 1 ||
+            !TryDeriveClassName(identities[0], out var className))
+        {
+            error = "A generic class declaration requires an identity the request names.";
+            return false;
+        }
+
+        // The instance a body refers to is declared by the request when it says so, and otherwise takes
+        // the neutral default the model documents.
+        var instanceName = DefaultInstanceName;
+        if (TryGetCollection(classFact, ClassInstanceValueId, out var declaredInstances) &&
+            declaredInstances.Length == 1 &&
+            !string.IsNullOrWhiteSpace(declaredInstances[0]))
+        {
+            instanceName = declaredInstances[0];
+        }
+
+        var fields = ImmutableArray<ClassField>.Empty;
+        var fieldFact = facts.FirstOrDefault(fact => fact.Id == ClassFieldFactId);
+        if (fieldFact is not null)
+        {
+            if (!TryGetCollection(fieldFact, ClassFieldNameValueId, out var fieldNames) ||
+                fieldNames.IsDefaultOrEmpty ||
+                !TryGetOptionalCollection(fieldFact, ClassFieldInitialValueId, out var initialTexts) ||
+                (!initialTexts.IsDefaultOrEmpty && initialTexts.Length != fieldNames.Length))
+            {
+                error = "A generic class field requires one initial value per declared field.";
+                return false;
+            }
+
+            var fieldBuilder = ImmutableArray.CreateBuilder<ClassField>(fieldNames.Length);
+            for (var index = 0; index < fieldNames.Length; index++)
+            {
+                // A field the request gives no starting value for starts from the value the constructor
+                // receives for it, so the two names stay one value.
+                if (initialTexts.IsDefaultOrEmpty)
+                {
+                    fieldBuilder.Add(new ClassField(fieldNames[index], new SemanticNameExpression(fieldNames[index])));
+                    continue;
+                }
+
+                if (!TryReadInitialValue(initialTexts[index], out var initialValue))
+                {
+                    error = $"A generic class field '{fieldNames[index]}' starts from a value the request does not describe.";
+                    return false;
+                }
+
+                fieldBuilder.Add(new ClassField(fieldNames[index], initialValue));
+            }
+
+            fields = fieldBuilder.ToImmutable();
+        }
+
+        var methods = ImmutableArray<MethodRequirement>.Empty;
+        var methodFact = facts.FirstOrDefault(fact => fact.Id == ClassMethodFactId);
+        if (methodFact is not null)
+        {
+            if (!TryGetCollection(methodFact, ClassMethodNameValueId, out var methodNames) ||
+                methodNames.IsDefaultOrEmpty ||
+                !TryGetOptionalCollection(methodFact, ClassMethodParameterValueId, out var parameterLists) ||
+                (!parameterLists.IsDefaultOrEmpty && parameterLists.Length != methodNames.Length) ||
+                !TryGetOptionalCollection(methodFact, ClassMethodResultValueId, out var resultKinds) ||
+                (!resultKinds.IsDefaultOrEmpty && resultKinds.Length != methodNames.Length))
+            {
+                error = "A generic class method requires aligned names, parameters, and declared result kinds.";
+                return false;
+            }
+
+            var guards = facts.FirstOrDefault(fact => fact.Id == ClassMethodGuardFactId);
+            var updates = facts.FirstOrDefault(fact => fact.Id == ClassMethodUpdateFactId);
+            var results = facts.FirstOrDefault(fact => fact.Id == ClassMethodResultFactId);
+            var methodBuilder = ImmutableArray.CreateBuilder<MethodRequirement>(methodNames.Length);
+            for (var index = 0; index < methodNames.Length; index++)
+            {
+                var methodName = methodNames[index];
+                var parameters = parameterLists.IsDefaultOrEmpty
+                    ? ImmutableArray<FunctionParameter>.Empty
+                    : SplitParameters(parameterLists[index]);
+                SemanticValueKind? returnKind = null;
+                if (!resultKinds.IsDefaultOrEmpty &&
+                    !string.Equals(resultKinds[index], NoResultMarker, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!Enum.TryParse<SemanticValueKind>(resultKinds[index], ignoreCase: false, out var declaredKind) ||
+                        !Enum.IsDefined(declaredKind))
+                    {
+                        error = $"A generic class method '{methodName}' declares a result kind the model does not know.";
+                        return false;
+                    }
+
+                    returnKind = declaredKind;
+                }
+
+                var body = ImmutableArray.CreateBuilder<ProgramRequirement>();
+                if (!TryAddMethodGuards(
+                        guards,
+                        methodName,
+                        parameters,
+                        fields,
+                        instanceName,
+                        body,
+                        out error) ||
+                    !TryAddMethodUpdates(
+                        updates,
+                        methodName,
+                        parameters,
+                        fields,
+                        instanceName,
+                        body,
+                        out error) ||
+                    !TryAddMethodResults(results, methodName, parameters, fields, instanceName, body, out error))
+                {
+                    return false;
+                }
+
+                if (body.Count == 0)
+                {
+                    error = $"A generic class method '{methodName}' requires at least one body requirement.";
+                    return false;
+                }
+
+                methodBuilder.Add(new MethodRequirement(methodName, parameters, returnKind, body.ToImmutable()));
+            }
+
+            methods = methodBuilder.ToImmutable();
+        }
+
+        if (fields.IsDefaultOrEmpty && methods.IsDefaultOrEmpty)
+        {
+            error = "A generic class declaration requires at least one field or method.";
+            return false;
+        }
+
+        declarations.Add(new ClassRequirement(className, fields, methods)
+        {
+            InstanceName = instanceName
+        });
+        return true;
+    }
+
+    private static bool TryAddMethodGuards(
+        SequenceSemanticFact? guardFact,
+        string methodName,
+        ImmutableArray<FunctionParameter> parameters,
+        ImmutableArray<ClassField> fields,
+        string instanceName,
+        ImmutableArray<ProgramRequirement>.Builder body,
+        out string? error)
+    {
+        error = null;
+        if (!TryReadScopedEntries(
+                guardFact,
+                methodName,
+                [GuardLeftValueId, GuardRightValueId, GuardOperatorValueId, GuardValueId],
+                out var entries,
+                out error))
+        {
+            return false;
+        }
+
+        foreach (var entry in entries)
+        {
+            if (!TryReadOperand(entry[0], parameters, fields, instanceName, out var left) ||
+                !TryReadOperand(entry[1], parameters, fields, instanceName, out var right) ||
+                !TryReadOperator(entry[2], out var comparison) ||
+                !TryReadOperand(entry[3], parameters, fields, instanceName, out var returnedValue))
+            {
+                error = $"A generic class method '{methodName}' guards an update with a comparison the model cannot express.";
+                return false;
+            }
+
+            body.Add(new ConditionalChainRequirement(
+                [new ConditionalBranch(new SemanticBinaryExpression(comparison, left, right), [new ReturnRequirement(returnedValue)])],
+                ImmutableArray<ProgramRequirement>.Empty));
+        }
+
+        return true;
+    }
+
+    private static bool TryAddMethodUpdates(
+        SequenceSemanticFact? updateFact,
+        string methodName,
+        ImmutableArray<FunctionParameter> parameters,
+        ImmutableArray<ClassField> fields,
+        string instanceName,
+        ImmutableArray<ProgramRequirement>.Builder body,
+        out string? error)
+    {
+        error = null;
+        if (!TryReadScopedEntries(
+                updateFact,
+                methodName,
+                [ClassFieldNameValueId, GuardOperatorValueId, GuardValueId],
+                out var entries,
+                out error))
+        {
+            return false;
+        }
+
+        foreach (var entry in entries)
+        {
+            if (!fields.Any(field => string.Equals(field.Name, entry[0], StringComparison.Ordinal)) ||
+                !TryReadUpdateOperator(entry[1], out var updateOperator) ||
+                !TryReadOperand(entry[2], parameters, fields, instanceName, out var updatedBy))
+            {
+                error = $"A generic class method '{methodName}' updates a value the model cannot express.";
+                return false;
+            }
+
+            body.Add(new AugmentedAssignmentRequirement(
+                new SemanticMemberAccessExpression(instanceName, entry[0]),
+                updateOperator,
+                updatedBy));
+        }
+
+        return true;
+    }
+
+    private static bool TryAddMethodResults(
+        SequenceSemanticFact? resultFact,
+        string methodName,
+        ImmutableArray<FunctionParameter> parameters,
+        ImmutableArray<ClassField> fields,
+        string instanceName,
+        ImmutableArray<ProgramRequirement>.Builder body,
+        out string? error)
+    {
+        error = null;
+        if (!TryReadScopedEntries(resultFact, methodName, [GuardValueId], out var entries, out error))
+        {
+            return false;
+        }
+
+        foreach (var entry in entries)
+        {
+            if (!TryReadOperand(entry[0], parameters, fields, instanceName, out var returnedValue))
+            {
+                error = $"A generic class method '{methodName}' returns a value the model cannot express.";
+                return false;
+            }
+
+            body.Add(new ReturnRequirement(returnedValue));
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reads the entries of a fact that belongs to one method: the captured method names select the
+    /// entries, and every value id names one aligned column of that entry.
+    /// </summary>
+    private static bool TryReadScopedEntries(
+        SequenceSemanticFact? fact,
+        string methodName,
+        ImmutableArray<string> valueIds,
+        out ImmutableArray<ImmutableArray<string>> entries,
+        out string? error)
+    {
+        error = null;
+        entries = ImmutableArray<ImmutableArray<string>>.Empty;
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!TryGetCollection(fact, ScenarioMethodValueId, out var owners))
+        {
+            error = "A generic class method behaviour requires the method it belongs to.";
+            return false;
+        }
+
+        var columns = ImmutableArray.CreateBuilder<ImmutableArray<string>>(valueIds.Length);
+        foreach (var valueId in valueIds)
+        {
+            if (!TryGetCollection(fact, valueId, out var column) || column.Length != owners.Length)
+            {
+                error = "A generic class method behaviour requires one aligned value per captured entry.";
+                return false;
+            }
+
+            columns.Add(column);
+        }
+
+        var builder = ImmutableArray.CreateBuilder<ImmutableArray<string>>();
+        for (var index = 0; index < owners.Length; index++)
+        {
+            if (!string.Equals(owners[index], methodName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            builder.Add(columns.Select(column => column[index]).ToImmutableArray());
+        }
+
+        entries = builder.ToImmutable();
+        return true;
+    }
+
+    /// <summary>
+    /// Reads one request value: a name the method receives, a field of the declaring class, a boolean,
+    /// a number, or a quoted text.
+    /// </summary>
+    private static bool TryReadOperand(
+        string text,
+        ImmutableArray<FunctionParameter> parameters,
+        ImmutableArray<ClassField> fields,
+        string instanceName,
+        out SemanticExpression expression)
+    {
+        expression = null!;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        if (parameters.Any(parameter => string.Equals(parameter.Name, text, StringComparison.Ordinal)))
+        {
+            expression = new SemanticNameExpression(text);
+            return true;
+        }
+
+        if (fields.Any(field => string.Equals(field.Name, text, StringComparison.Ordinal)))
+        {
+            expression = new SemanticMemberAccessExpression(instanceName, text);
+            return true;
+        }
+
+        if (bool.TryParse(text, out var boolean))
+        {
+            expression = new SemanticBooleanExpression(boolean);
+            return true;
+        }
+
+        var number = new SemanticNumberExpression(text);
+        if (SemanticExpressionAnalysis.IsValid(number))
+        {
+            expression = number;
+            return true;
+        }
+
+        if (text.Length > 1 && text[0] == '"' && text[^1] == '"')
+        {
+            var quoted = new SemanticTextExpression(text[1..^1]);
+            if (SemanticExpressionAnalysis.IsValid(quoted))
+            {
+                expression = quoted;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Reads what a field starts from: a boolean, a number, a quoted text, or the name of the value the
+    /// constructor receives for it.
+    /// </summary>
+    private static bool TryReadInitialValue(string text, out SemanticExpression expression)
+    {
+        expression = null!;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        if (bool.TryParse(text, out var boolean))
+        {
+            expression = new SemanticBooleanExpression(boolean);
+            return true;
+        }
+
+        var number = new SemanticNumberExpression(text);
+        if (SemanticExpressionAnalysis.IsValid(number))
+        {
+            expression = number;
+            return true;
+        }
+
+        if (text.Length > 1 && text[0] == '"' && text[^1] == '"')
+        {
+            var quoted = new SemanticTextExpression(text[1..^1]);
+            if (SemanticExpressionAnalysis.IsValid(quoted))
+            {
+                expression = quoted;
+                return true;
+            }
+        }
+
+        if (IsIdentifierCharacters(text))
+        {
+            expression = new SemanticNameExpression(text);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadOperator(string text, out SemanticExpressionOperator comparison)
+    {
+        comparison = default;
+        return Enum.TryParse(text, ignoreCase: false, out comparison) &&
+            Enum.IsDefined(comparison) &&
+            comparison is SemanticExpressionOperator.Equal or
+                SemanticExpressionOperator.NotEqual or
+                SemanticExpressionOperator.LessThan or
+                SemanticExpressionOperator.LessThanOrEqual or
+                SemanticExpressionOperator.GreaterThan or
+                SemanticExpressionOperator.GreaterThanOrEqual;
+    }
+
+    private static bool TryReadUpdateOperator(string text, out SemanticExpressionOperator updateOperator)
+    {
+        updateOperator = default;
+        return Enum.TryParse(text, ignoreCase: false, out updateOperator) &&
+            Enum.IsDefined(updateOperator) &&
+            updateOperator is SemanticExpressionOperator.Add or SemanticExpressionOperator.Subtract;
+    }
+
+    private static ImmutableArray<FunctionParameter> SplitParameters(string parameterList) =>
+        string.IsNullOrWhiteSpace(parameterList)
+            ? ImmutableArray<FunctionParameter>.Empty
+            : parameterList
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(name => new FunctionParameter(name, null))
+                .ToImmutableArray();
+
+    /// <summary>
+    /// Turns the words a request uses for a class into an identifier: a name the request already spells
+    /// as one is kept, and a multi-word identity is joined with capitalized words.
+    /// </summary>
+    private static bool TryDeriveClassName(string words, out string className)
+    {
+        className = string.Empty;
+        if (string.IsNullOrWhiteSpace(words))
+        {
+            return false;
+        }
+
+        var trimmed = words.Trim();
+        var derived = IsIdentifierCharacters(trimmed)
+            ? trimmed
+            : string.Concat(trimmed
+                .Split(
+                    ClassIdentitySeparators,
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(word => char.ToUpperInvariant(word[0]) + word[1..].ToLowerInvariant()));
+        if (derived.Length == 0 || derived.Length > 128 || !IsIdentifierCharacters(derived))
+        {
+            return false;
+        }
+
+        className = derived;
+        return true;
+    }
+
+    private static bool IsIdentifierCharacters(string value) =>
+        (char.IsLetter(value[0]) || value[0] == '_') &&
+        value.All(character => char.IsLetterOrDigit(character) || character == '_');
+
+    private static bool TryGetCollection(
+        SequenceSemanticFact fact,
+        string valueId,
+        out ImmutableArray<string> values)
+    {
+        if (fact.Collections.TryGetValue(valueId, out values))
+        {
+            return true;
+        }
+
+        if (fact.Values.TryGetValue(valueId, out var single))
+        {
+            values = [single];
+            return true;
+        }
+
+        values = ImmutableArray<string>.Empty;
+        return false;
+    }
+
+    private static bool TryGetOptionalCollection(
+        SequenceSemanticFact fact,
+        string valueId,
+        out ImmutableArray<string> values)
+    {
+        values = ImmutableArray<string>.Empty;
+        return !fact.Collections.ContainsKey(valueId) && !fact.Values.ContainsKey(valueId) ||
+            TryGetCollection(fact, valueId, out values);
+    }
+
 }

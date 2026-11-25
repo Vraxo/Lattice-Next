@@ -25,6 +25,16 @@ public sealed record AssignmentRequirement(
     string VariableName,
     SemanticExpression Value) : ProgramRequirement;
 
+/// <summary>
+/// Updates a value in place by applying an arithmetic operator to its current value. The target is a
+/// name the surrounding body binds or a member access on the instance that body belongs to; nothing
+/// here names a target-language compound operator.
+/// </summary>
+public sealed record AugmentedAssignmentRequirement(
+    SemanticExpression Target,
+    SemanticExpressionOperator Operator,
+    SemanticExpression Value) : ProgramRequirement;
+
 public sealed record ConditionalRequirement(
     SemanticExpression Condition,
     ImmutableArray<ProgramRequirement> ThenRequirements,

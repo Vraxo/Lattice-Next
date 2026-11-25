@@ -86,6 +86,11 @@ public static class SemanticProgramValidator
             AssignmentRequirement assignment =>
                 IsValidName(assignment.VariableName) &&
                 SemanticExpressionAnalysis.IsValid(assignment.Value),
+            AugmentedAssignmentRequirement update =>
+                IsValidUpdateTarget(update.Target) &&
+                update.Operator is SemanticExpressionOperator.Add or SemanticExpressionOperator.Subtract &&
+                SemanticExpressionAnalysis.IsValid(update.Value) &&
+                SemanticExpressionAnalysis.IsArithmetic(update.Value),
             OutputRequirement output =>
                 SemanticExpressionAnalysis.IsValid(output.Value) &&
                 IsValidDeclaredCall(output.Value, context),
@@ -364,6 +369,19 @@ public static class SemanticProgramValidator
 
         return AreValid(method.Body, depth + 1, bodyContext);
     }
+
+    /// <summary>
+    /// An in-place update writes to a value the surrounding body owns: a plain name, or a member of the
+    /// instance the enclosing declaration binds.
+    /// </summary>
+    private static bool IsValidUpdateTarget(SemanticExpression target) =>
+        target switch
+        {
+            SemanticNameExpression name => IsValidName(name.Name),
+            SemanticMemberAccessExpression member =>
+                IsValidName(member.Target) && IsValidName(member.Member),
+            _ => false
+        };
 
     private static bool IsValidRaise(RaiseRequirement requirement, RequirementContext context)
     {

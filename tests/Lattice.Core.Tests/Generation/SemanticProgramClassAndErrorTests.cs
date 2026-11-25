@@ -196,6 +196,59 @@ public sealed class SemanticProgramClassAndErrorTests
     }
 
     [Fact]
+    public void Updates_a_declared_field_in_place()
+    {
+        var program = new SemanticProgram([
+            new ClassRequirement(
+                "Counter",
+                [new ClassField("count", new SemanticNameExpression("start"))],
+                [
+                    new MethodRequirement(
+                        "add",
+                        [new FunctionParameter("amount", SemanticValueKind.Number)],
+                        null,
+                        [
+                            new AugmentedAssignmentRequirement(
+                                new SemanticMemberAccessExpression("self", "count"),
+                                SemanticExpressionOperator.Add,
+                                new SemanticNameExpression("amount"))
+                        ])
+                ])
+        ]);
+
+        Assert.True(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
+    public void Rejects_an_in_place_update_with_a_comparison_operator()
+    {
+        var program = new SemanticProgram([
+            new AugmentedAssignmentRequirement(
+                new SemanticNameExpression("total"),
+                SemanticExpressionOperator.GreaterThan,
+                new SemanticNumberExpression("1"))
+        ]);
+
+        Assert.False(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
+    public void Rejects_an_in_place_update_of_a_computed_value()
+    {
+        var program = new SemanticProgram([
+            new AugmentedAssignmentRequirement(
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    new SemanticNameExpression("total"),
+                    new SemanticNumberExpression("1")),
+                SemanticExpressionOperator.Add,
+                new SemanticNumberExpression("1"))
+        ]);
+
+        Assert.False(SemanticProgramValidator.IsValid(program));
+    }
+
+    [Fact]
     public void Raises_an_error_when_a_condition_holds()
     {
         var program = new SemanticProgram([
