@@ -7349,13 +7349,6 @@
       "appliesWhenFactId": "program.range-loop"
     },
     {
-      "id": "json-round-trip-records-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.json-round-trip",
-      "valueId": "records",
-      "appliesWhenFactId": "program.json-round-trip"
-    },
-    {
       "id": "record-aggregation-record-is-identifier",
       "kind": "identifierValue",
       "factId": "program.record-aggregation",

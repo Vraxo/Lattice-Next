@@ -177,12 +177,12 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 13. Remove task-specific solutions from sequence knowledge
 
-- [ ] **13.1 — Classify sequence rules in `python.core.json`.** Label each as syntax, reusable semantic recognition, task-specific recognition, fixed data, or solution.
-- [ ] **13.2 — Classify input rules in `python.core.json`.** Apply the same classification to all input/capture rules.
-- [ ] **13.3 — Record disposition for each retained/deleted rule.** Link each task-specific rule to its generic replacement or removal rationale.
-- [ ] **13.4 — Classify validation rules.** Separate generic structural validation from task-specific checks and language syntax.
-- [ ] **13.5 — Classify encoding rules.** Separate semantic value encoding from fixed sample or task output encoding.
-- [ ] **13.6 — Identify shared-code language branches.** Record Python-specific parsing/validation/realization branches for removal or pack migration.
+- [x] **13.1 — Classify sequence rules in `python.core.json`.** M-13.1 classifies all 88 rules by family: 20 reusable statement realizations (`python-output`, `python-assignment`, `python-range`) and 68 fragments of the six blocked families; exactly 20 rules emit multi-line fixed fragments, and those ids are the exception table the M-13.17 guard enforces.
+- [x] **13.2 — Classify input rules in `python.core.json`.** M-13.2 splits the 238 input rules into 71 that feed generic requirement facts, and 167 legacy rules, of which 29 carry literal data, 25 capture from the request, and 113 are bare phrase markers.
+- [x] **13.3 — Record disposition for each retained/deleted rule.** M-13.3 lists every deleted family with the requirement and pack operation that replaced it (file lines, directory listing, serialization round trip, all `blender-codegen-*` identifiers), and ties every retained family to the blocked ticket that still owns it.
+- [x] **13.4 — Classify validation rules.** M-13.4 shows all 33 validations are language-neutral structural checks across eleven kinds; the single task-specific check (`json-round-trip-records-name-is-identifier`, which referenced a deleted fact) is removed, and its rule is now enforced by `SemanticProgramValidator` plus the runtime rejection test.
+- [x] **13.5 — Classify encoding rules.** M-13.5: the one encoding (`quoted-string`) is a semantic value encoding — delimiters and an escape table — with no sample or task output in it.
+- [x] **13.6 — Identify shared-code language branches.** M-13.6 records the only two language-name sites outside the packs (`TaskRequestParser.cs:465` and `TaskRecommendationResponder.cs:26`, both recommendation routing) and confirms `src/Lattice.Core/Generation` has no Python parsing, validation, or realization branch; removal is M-14.10’s job.
 - [ ] **13.7 — Remove obsolete scalar task fact IDs and phrase matches.** Keep generic scalar recognition and its tests.
 - [ ] **13.8 — Remove obsolete collection task fact IDs and phrase matches.** Keep generic collection recognition and its tests.
 - [ ] **13.9 — Remove obsolete function/class/file task fact IDs and phrase matches.** Keep generic recognition and its tests.
@@ -194,7 +194,7 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [ ] **13.15 — Test against task-ID routing.** Fail if benchmark/task identities select generation solutions.
 - [ ] **13.16 — Test against fixed benchmark answers.** Fail if changing request values leaves hard-coded outputs unchanged.
 - [ ] **13.17 — Test against complete prompt-specific solutions.** Detect prohibited full-solution templates in sequence knowledge and generation modules.
-- [ ] **13.18 — Reconcile rule/fact inventories.** Ensure documented counts match the current knowledge files.
+- [x] **13.18 — Reconcile rule/fact inventories.** M-13.18 records the reconciled counts: 88 sequence rules, 238 input rules, 33 validations, 1 encoding, 100 productions, 26 bindings, 102 operations, and 57 world-model data assertions; the stale header numbers from M-01 are superseded by this table.
 - [ ] **13.19 — Update migration notes.** Document retained reusable knowledge and removed shortcuts with evidence.
 
 ### 14. Prove the shared generator is not Python-dependent

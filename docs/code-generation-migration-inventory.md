@@ -640,3 +640,100 @@ Any knowledge module that declares a `code-generation-task` instance with `has-g
 assertions, on a `software-application` instance with one `application-uses-language`, is answered by the same
 entry point and the same language pack. The remaining Blender-specific work is about *what* the requirements
 can express (M-12.7/M-12.8) and *how* a request phrase reaches a model (M-12.9/M-12.14), not about routing.
+
+## M-13.1 through M-13.5 — classification of the Python sequence knowledge
+
+Classified from the files themselves (`knowledge/sequences/python.core.json`). Every identifier below is
+counted, not estimated.
+
+### M-13.1 — emission rules (88)
+
+All 88 are Python emission rules; the classification separates *reusable statement realization* from
+*task-shaped fixed fragments*.
+
+| Family | Rules | Emitted newlines | Multi-line fragments | Classification | Disposition |
+| --- | ---: | ---: | ---: | --- | --- |
+| `python-collection-*` | 20 | 13 | 0 | one-statement realization of filter/loop steps | retained — feeds blocked 9.22 |
+| `python-addition-*` | 13 | 3 | 0 | fixed two-number solution | retained — blocked 8.9 |
+| `python-dictionary-*` | 8 | 12 | 3 | fixed dictionary iteration/mapping | retained — blocked 9.24 |
+| `single-field-*` | 8 | 7 | 2 | fixed record sorting | retained — blocked 9.25 |
+| `python-output-*` | 7 | 2 | 0 | reusable `print` realization | reusable |
+| `record-aggregation-*` | 7 | 6 | 1 | fixed grouped aggregation | retained — blocked 9.25 |
+| `python-assignment-*` | 5 | 2 | 0 | reusable assignment realization | reusable |
+| `python-range-*` | 5 | 2 | 0 | reusable range-loop realization | reusable |
+| `python-sign-*` | 4 | 7 | 3 | fixed sign classification | retained — blocked 8.14 |
+| `python-loop-*`, `python-manual-*` | 3 | 15 | 3 | fixed loop totals with literal collections | retained — blocked 9.23 |
+| `python-even-*`, `python-odd-*` | 3 | 11 | 3 | fixed parity filters | retained — blocked 9.22 |
+| `python-number-*`, `python-value-*`, `python-name-*` | 3 | 15 | 3 | fixed dictionary mappings | retained — blocked 9.24 |
+| `python-multi-*`, `python-case-*` | 2 | 8 | 2 | fixed multi-field and case-insensitive sorting | retained — blocked 9.25 |
+
+The 20 multi-line fragments are exactly the ids enumerated by the `SequenceKnowledgeGuardTests` exception
+table, so any *new* complete-solution fragment fails the build (M-13.17).
+
+### M-13.2 — input rules (238)
+
+| Class | Rules | Examples |
+| --- | ---: | --- |
+| Feed generic requirement facts (reusable recognition) | 71 | `recognize-declared-file-line-count`, `recognize-declared-directory-listing`, `capture-declared-serialization-records-name`, the `program.requirement.*` facts, `language.python`, `intent.program-generation` |
+| Legacy task facts with literal data | 29 | `capture-*-default` rules whose captures carry `literalValue` |
+| Legacy task facts capturing from the request | 25 | `capture-*-name` rules whose captures read the phrase |
+| Legacy task facts that are phrase markers | 113 | `recognize-*` rules with no captures, one fact per prompt shape |
+
+Disposition: the 71 requirement-feeding rules stay (they are the migrated path); the 167 legacy rules stay
+only while their families are blocked (8.9, 8.14, 9.22–9.25), except the four families already migrated in
+M-10, M-11, and M-12, whose rules are already deleted.
+
+### M-13.3 — retained and deleted rules
+
+Deleted so far, with the generic replacement that took over:
+
+| Deleted | Replaced by |
+| --- | --- |
+| `recognize-non-empty-file-line-count`, `python-non-empty-file-line-count` | `program.requirement.file-lines` → `FileReadRequirement` → pack `read-text-file` |
+| `recognize-directory-file-listing`, `python-directory-file-listing` | `program.requirement.directory-listing` → `DirectoryListingRequirement` |
+| 8 × `python-json-round-trip-*`, 4 × `capture-json-round-trip-*`, 2 × `recognize-json-round-trip-*` | `program.requirement.serialization-round-trip` → `FileWrite`/`FileRead`/`Serialize`/`Deserialize` |
+| all `blender-codegen-*` identifiers (M-12.6) | `code-generation-*` vocabulary read by the shared entry point |
+
+Retained with a blocking reason: every row of M-13.1 marked "retained — blocked", plus the 167 legacy input
+rules that feed them.
+
+### M-13.4 — validations (33)
+
+All 33 are generic structural or language-neutral checks over one fact's values; the kinds are
+`identifierValue` (17), `identifierCollection` (4), `uniqueCollection` (3), `ascendingIntegerRange` (2),
+`integerValue` (2), `semanticCollection`, `arithmeticValue`, `disjointCollections`,
+`arithmeticCollectionReferences`, `arithmeticValueReferences`, `matchingNumericFunctionCall` (one each). They
+name no target language. One task-specific check, `json-round-trip-records-name-is-identifier`, referenced the
+deleted `program.json-round-trip` fact and is removed here; the same rule is enforced for the migrated family
+by `SemanticProgramValidator` (identifier names) and by the runtime rejection test for `invalid-name`.
+
+### M-13.5 — encodings (1)
+
+`quoted-string` is the only encoding, and it is a semantic value encoding (delimiters plus escape table), not
+sample data or a task output. Retained as is.
+
+## M-13.6 — Python-specific branches in shared code
+
+Two sites reference a language name outside the packs:
+
+| Site | What it does | Disposition |
+| --- | --- | --- |
+| `TaskRequestParser.cs:465` | adds the requirement `"python"` when a recommendation purpose mentions Python | recorded for M-14.10; it is recommendation routing, not program generation |
+| `TaskRecommendationResponder.cs:26` | reads `Requirements.Contains("python")` | same |
+
+`src/Lattice.Core/Generation` contains no language-specific parsing, validation, or realization branch: every
+Python token lives in `knowledge/languages/python.core.json`.
+
+## M-13.18 — reconciled counts
+
+| File | Count |
+| --- | --- |
+| sequence rules | 88 |
+| input rules | 238 |
+| validations | 33 |
+| encodings | 1 |
+| pack productions | 100 |
+| pack bindings | 26 |
+| pack operations | 102 |
+| pack syntax additions | `inputSyntax.programArgumentFormat`, pack-level `recordLiteralFormat`, `GenerationOperation.MatchesArgumentValue` |
+| world-model data assertions | 57 (75 before M-12.10) |
