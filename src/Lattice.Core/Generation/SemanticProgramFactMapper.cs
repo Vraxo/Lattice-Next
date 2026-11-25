@@ -39,6 +39,11 @@ public static class SemanticProgramFactMapper
     /// <summary>The separators a request's multi-word class identity is read through.</summary>
     private static readonly char[] ClassIdentitySeparators =
         [' ', '\t', '\r', '\n', '-', '_', ',', '.', ':', ';', '/', '\\'];
+    private const string FileLinesFactId = "program.requirement.file-lines";
+    private const string FileLinesPathValueId = "path";
+    private const string FileLinesStreamValueId = "stream";
+    private const string FileLinesItemValueId = "item";
+    private const string FileLinesCounterValueId = "counter";
     private const string ClassFactId = "program.requirement.class";
     private const string ClassIdentityValueId = "name";
     private const string ClassInstanceValueId = "instance";
@@ -82,6 +87,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectClasses(facts, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectFileLines(facts, declarations, out error))
         {
             return false;
         }
@@ -621,6 +631,65 @@ public static class SemanticProgramFactMapper
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Projects a request that counts the non-empty lines of a text file. The request supplies the path
+    /// and every name; the shape — start at zero, read the file, test each line, update, then report — is
+    /// the requirement model's, and the pack spells each statement.
+    /// </summary>
+    private static bool TryProjectFileLines(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == FileLinesFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!TryGetCollection(fact, FileLinesPathValueId, out var paths) ||
+            paths.Length != 1 ||
+            string.IsNullOrWhiteSpace(paths[0]) ||
+            !TryGetCollection(fact, FileLinesStreamValueId, out var streams) ||
+            streams.Length != 1 ||
+            !TryGetCollection(fact, FileLinesItemValueId, out var items) ||
+            items.Length != 1 ||
+            !TryGetCollection(fact, FileLinesCounterValueId, out var counters) ||
+            counters.Length != 1)
+        {
+            error = "A file line count requires one path, stream name, line name, and counter name.";
+            return false;
+        }
+
+        var counter = counters[0];
+        declarations.Add(new AssignmentRequirement(counter, new SemanticNumberExpression("0")));
+        declarations.Add(new FileReadRequirement(
+            paths[0],
+            streams[0],
+            [
+                new IterationRequirement(
+                    items[0],
+                    new SemanticNameExpression(streams[0]),
+                    [
+                        new ConditionalRequirement(
+                            new SemanticMethodCallExpression(
+                                new SemanticNameExpression(items[0]),
+                                "strip",
+                                []),
+                            [
+                                new AugmentedAssignmentRequirement(
+                                    new SemanticNameExpression(counter),
+                                    SemanticExpressionOperator.Add,
+                                    new SemanticNumberExpression("1"))
+                            ],
+                            [])
+                    ])
+            ]));
+        declarations.Add(new OutputRequirement(new SemanticNameExpression(counter)));
+        return true;
     }
 
     private static bool TryProjectAssignments(

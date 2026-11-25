@@ -46,6 +46,9 @@ public sealed class SemanticProgramGenerationTests
         "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
         "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance += amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance -= amount\n        return True")]
     [InlineData(
+        "Write a Python program that reads a text file and counts how many non-empty lines it contains.",
+        "line_count = 0\nwith open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file:\n    for line in input_file:\n        if line.strip():\n            line_count += 1\nprint(line_count)")]
+    [InlineData(
         "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
         "def greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))")]
     public void Generates_requested_scalar_programs_from_their_requirements(

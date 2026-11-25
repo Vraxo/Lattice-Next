@@ -100,6 +100,11 @@ public static class SemanticProgramValidator
                  !conditional.ElseRequirements.IsDefaultOrEmpty) &&
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
+            FileReadRequirement fileRead =>
+                IsValidPath(fileRead.Path) &&
+                IsValidName(fileRead.StreamName) &&
+                !fileRead.Body.IsDefaultOrEmpty &&
+                AreValid(fileRead.Body, depth + 1, context),
             IterationRequirement iteration =>
                 IsValidName(iteration.ItemName) &&
                 SemanticExpressionAnalysis.IsValid(iteration.Source) &&
@@ -202,6 +207,13 @@ public static class SemanticProgramValidator
          SemanticValueKindAnalysis.IsCompatible(
              SemanticValueKindAnalysis.Infer(requirement.Value, context.Names, context.FunctionResults),
              returnKind));
+
+    private const int MaximumPathLength = 512;
+
+    private static bool IsValidPath(string? path) =>
+        !string.IsNullOrWhiteSpace(path) &&
+        path.Length <= MaximumPathLength &&
+        !path.Any(character => char.IsControl(character));
 
     private static bool IsValidChain(
         ConditionalChainRequirement chain,

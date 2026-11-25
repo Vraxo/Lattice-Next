@@ -2192,18 +2192,6 @@
       ]
     },
     {
-      "id": "recognize-non-empty-file-line-count",
-      "matchTokens": [
-        "reads",
-        "text",
-        "file",
-        "counts",
-        "non-empty",
-        "lines"
-      ],
-      "factId": "program.non-empty-file-line-count"
-    },
-    {
       "id": "recognize-dictionary-product-iteration",
       "matchTokens": [
         "then",
@@ -5470,6 +5458,48 @@
           "set"
         ]
       ]
+    },
+    {
+      "id": "recognize-declared-file-line-count",
+      "matchTokens": [
+        "reads",
+        "text",
+        "file",
+        "counts",
+        "non-empty",
+        "lines"
+      ],
+      "factId": "program.requirement.file-lines",
+      "captures": [
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "path",
+          "stopBeforeTokens": [],
+          "literalValue": "input.txt",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "stream",
+          "stopBeforeTokens": [],
+          "literalValue": "input_file",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "item",
+          "stopBeforeTokens": [],
+          "literalValue": "line",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "counter",
+          "stopBeforeTokens": [],
+          "literalValue": "line_count",
+          "collectionDelimiter": "|"
+        }
+      ]
     }
   ],
   "rules": [
@@ -6026,22 +6056,6 @@
         "program.assignment",
         "program.arithmetic",
         "program.iteration",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-non-empty-file-line-count",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.non-empty-file-line-count"
-      ],
-      "nextToken": "```python\nline_count = 0\nwith open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file:\n    for line in input_file:\n        if line.strip():\n            line_count += 1\nprint(line_count)\n```",
-      "satisfiesFacts": [
-        "program.non-empty-file-line-count",
-        "language.python",
-        "intent.program-generation",
         "program.output"
       ]
     },

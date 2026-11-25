@@ -253,6 +253,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case FileReadRequirement fileRead:
+                    if (!TryPlanFileRead(fileRead, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case IterationRequirement iteration:
                     if (!TryPlanIteration(iteration, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -1829,6 +1836,60 @@ public static class SemanticProgramPlanner
                 LeavesBody(conditional.ElseRequirements),
             _ => false
         };
+
+    /// <summary>
+    /// Plans a file read: the pack supplies the way a file is opened and bound to a name, and the body is
+    /// planned one level deeper with the stream name available.
+    /// </summary>
+    private static bool TryPlanFileRead(
+        FileReadRequirement fileRead,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "A file read is planned at the top level of a program.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(fileRead.StreamName, pack, "file stream name", out error))
+        {
+            return false;
+        }
+
+        if (fileRead.Body.IsDefaultOrEmpty)
+        {
+            error = "A file read needs at least one statement in its body.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("path", fileRead.Path)
+            .Add("file", fileRead.StreamName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: "read-text-file",
+                argumentKind: "path",
+                argumentValue: fileRead.Path,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(fileRead.StreamName);
+        return TryPlanRequirements(fileRead.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
 
     private static bool TryPlanConditional(
         ConditionalRequirement conditional,

@@ -44,6 +44,17 @@ public sealed record OutputRequirement(
     SemanticExpression Value) : ProgramRequirement;
 
 /// <summary>
+/// Reads the text lines of one file. The read stream binds to a name the body iterates, and the body
+/// holds the statements that consume it, so a file read composes with the same model as any other
+/// block. The selected language pack spells how a file is opened for reading; the path stays request
+/// data and no target-language mode or encoding is named here.
+/// </summary>
+public sealed record FileReadRequirement(
+    string Path,
+    string StreamName,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
 /// An iteration over a collection value, binding each element to an item name. The body is an ordered
 /// requirement list, so loops compose with the same model as top-level statements.
 /// </summary>
