@@ -256,6 +256,32 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
+    public void Renders_declared_data_as_a_list_of_records()
+    {
+        var pack = LoadPythonPack();
+        var sample = new SemanticListLiteralExpression(
+        [
+            new SemanticRecordLiteralExpression(
+            [
+                new SemanticRecordEntry("name", new SemanticTextExpression("Ada")),
+                new SemanticRecordEntry("age", new SemanticNumberExpression("36"))
+            ]),
+            new SemanticRecordLiteralExpression(
+            [
+                new SemanticRecordEntry("name", new SemanticTextExpression("Grace")),
+                new SemanticRecordEntry("age", new SemanticNumberExpression("85"))
+            ])
+        ]);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(sample));
+        Assert.True(SemanticExpressionRenderer.TryRender(sample, pack, out var rendered));
+        Assert.Equal(
+            "[{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+            rendered);
+        Assert.Empty(SemanticExpressionAnalysis.GetReferencedNames(sample));
+    }
+
+    [Fact]
     public void Renders_a_member_reached_through_a_call_and_a_program_argument()
     {
         var pack = LoadPythonPack();

@@ -71,6 +71,32 @@ public sealed class SemanticProgramGenerationTests
     }
 
     [Fact]
+    public void Generates_a_serialized_round_trip_from_request_derived_facts()
+    {
+        const string input =
+            "Write a Python program that saves a list of dictionaries to a JSON file and then loads it back.";
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.serialization-round-trip");
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "import json",
+                "records = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+                "with open(\"records.json\", \"w\", encoding=\"utf-8\") as output_file:",
+                "    json.dump(records, output_file, indent=2)",
+                "with open(\"records.json\", \"r\", encoding=\"utf-8\") as input_file:",
+                "    loaded_records = json.load(input_file)",
+                "print(loaded_records)"),
+            code);
+    }
+
+    [Fact]
     public void Generates_a_directory_listing_from_request_derived_facts()
     {
         const string input =

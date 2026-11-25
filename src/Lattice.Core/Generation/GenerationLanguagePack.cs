@@ -13,7 +13,11 @@ public sealed record GenerationLanguagePack(
     GenerationCollectionLiteralFormat? CollectionLiteralFormat = null,
     GenerationInputSyntax? InputSyntax = null,
     GenerationInterpolationFormat? InterpolationFormat = null,
-    ImmutableArray<GenerationConversionFormat> ConversionFormats = default);
+    ImmutableArray<GenerationConversionFormat> ConversionFormats = default)
+{
+    /// <summary>How a pack spells a literal record of named fields, when it can spell one at all.</summary>
+    public GenerationRecordLiteralFormat? RecordLiteralFormat { get; init; }
+}
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
 public sealed record GenerationInterpolationFormat(

@@ -3365,17 +3365,6 @@
     },
     "programArgumentFormat": {
       "format": "sys.argv[{0}]"
-    },
-    "collectionLiteralFormat": {
-      "openingDelimiter": "[",
-      "closingDelimiter": "]",
-      "separator": ", "
-    },
-    "recordLiteralFormat": {
-      "openingDelimiter": "{",
-      "closingDelimiter": "}",
-      "separator": ", ",
-      "entryFormat": "\"{0}\": {1}"
     }
   },
   "interpolationFormat": {
@@ -3389,5 +3378,11 @@
       "target": "Number",
       "format": "int({0})"
     }
-  ]
+  ],
+  "recordLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "\"{0}\": {1}"
+  }
 }

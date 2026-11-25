@@ -31,34 +31,6 @@ public sealed record GenerationInputSyntax(
     /// </summary>
     public GenerationProgramArgumentFormat? ProgramArgumentFormat { get; init; }
 
-    /// <summary>
-    /// How a literal list of values is written. A pack without this format cannot render a list literal,
-    /// so request data stays unrealizable rather than being emitted with invented syntax.
-    /// </summary>
-    public GenerationCollectionLiteralFormat? CollectionLiteralFormat { get; init; }
-
-    /// <summary>
-    /// How a literal record of named fields is written. A pack without this format cannot render a record
-    /// literal, so request data stays unrealizable rather than being emitted with invented syntax.
-    /// </summary>
-    public GenerationRecordLiteralFormat? RecordLiteralFormat { get; init; }
-}
-
-/// <summary>The brackets and separator a language writes around the values of a literal list.</summary>
-public sealed record GenerationCollectionLiteralFormat(
-    string OpeningDelimiter,
-    string ClosingDelimiter,
-    string Separator);
-
-/// <summary>
-/// The brackets, separator, and field spelling a language writes for a literal record, using {0} for the
-/// field name and {1} for the field value.
-/// </summary>
-public sealed record GenerationRecordLiteralFormat(
-    string OpeningDelimiter,
-    string ClosingDelimiter,
-    string Separator,
-    string EntryFormat);
 
 /// <summary>The place a language writes a program argument position into, using a {0} placeholder.</summary>
 public sealed record GenerationProgramArgumentFormat(

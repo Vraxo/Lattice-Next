@@ -123,12 +123,12 @@ internal static class SemanticExpressionRenderer
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticListLiteralExpression list:
-                if (syntax.CollectionLiteralFormat is not { } collectionLiteral ||
+                if (languagePack.CollectionLiteralFormat is not { } collectionLiteral ||
                     !TryRenderLiteralItems(
                         list.Items,
                         languagePack,
                         syntax,
-                        collectionLiteral.Separator,
+                        collectionLiteral.ItemSeparator,
                         out var renderedItems))
                 {
                     return false;
@@ -140,7 +140,7 @@ internal static class SemanticExpressionRenderer
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticRecordLiteralExpression record:
-                if (syntax.RecordLiteralFormat is not { } recordLiteral ||
+                if (languagePack.RecordLiteralFormat is not { } recordLiteral ||
                     !recordLiteral.EntryFormat.Contains("{0}", StringComparison.Ordinal) ||
                     !recordLiteral.EntryFormat.Contains("{1}", StringComparison.Ordinal))
                 {
@@ -167,7 +167,7 @@ internal static class SemanticExpressionRenderer
                 }
 
                 rendered = recordLiteral.OpeningDelimiter +
-                    string.Join(recordLiteral.Separator, entries) +
+                    string.Join(recordLiteral.EntrySeparator, entries) +
                     recordLiteral.ClosingDelimiter;
                 precedence = PrimaryPrecedence;
                 break;

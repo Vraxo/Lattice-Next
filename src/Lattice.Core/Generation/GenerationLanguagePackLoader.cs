@@ -55,6 +55,8 @@ public sealed class GenerationLanguagePackLoader
             pack.StringLiteralFormat.Escapes.IsDefault ||
             (pack.CollectionLiteralFormat is { } collectionFormat &&
                 !IsValidCollectionLiteralFormat(collectionFormat)) ||
+            (pack.RecordLiteralFormat is { } recordFormat &&
+                !IsValidRecordLiteralFormat(recordFormat)) ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
@@ -250,6 +252,18 @@ public sealed class GenerationLanguagePackLoader
         return true;
     }
 
+    private static bool IsValidRecordLiteralFormat(GenerationRecordLiteralFormat format) =>
+        !string.IsNullOrWhiteSpace(format.OpeningDelimiter) &&
+        format.OpeningDelimiter.Length <= 32 &&
+        !string.IsNullOrWhiteSpace(format.ClosingDelimiter) &&
+        format.ClosingDelimiter.Length <= 32 &&
+        !string.IsNullOrWhiteSpace(format.EntrySeparator) &&
+        format.EntrySeparator.Length <= 32 &&
+        format.EntryFormat is not null &&
+        format.EntryFormat.Length <= 64 &&
+        format.EntryFormat.Contains("{0}", StringComparison.Ordinal) &&
+        format.EntryFormat.Contains("{1}", StringComparison.Ordinal);
+
     private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
     {
         if (string.IsNullOrWhiteSpace(format.OpeningDelimiter) ||
@@ -302,17 +316,6 @@ public sealed class GenerationLanguagePackLoader
             (syntax.ProgramArgumentFormat?.Format is { } programArgumentFormat &&
                 (!programArgumentFormat.Contains("{0}", StringComparison.Ordinal) ||
                  programArgumentFormat.Length > 64)) ||
-            (syntax.CollectionLiteralFormat is { } collectionLiteral &&
-                (!IsValidLiteralDelimiter(collectionLiteral.OpeningDelimiter) ||
-                 !IsValidLiteralDelimiter(collectionLiteral.ClosingDelimiter) ||
-                 !IsValidLiteralSeparator(collectionLiteral.Separator))) ||
-            (syntax.RecordLiteralFormat is { } recordLiteral &&
-                (!IsValidLiteralDelimiter(recordLiteral.OpeningDelimiter) ||
-                 !IsValidLiteralDelimiter(recordLiteral.ClosingDelimiter) ||
-                 !IsValidLiteralSeparator(recordLiteral.Separator) ||
-                 !recordLiteral.EntryFormat.Contains("{0}", StringComparison.Ordinal) ||
-                 !recordLiteral.EntryFormat.Contains("{1}", StringComparison.Ordinal) ||
-                 recordLiteral.EntryFormat.Length > 64)) ||
             syntax.GroupingDelimiters.IsDefault ||
             syntax.GroupingDelimiters.Length > 16 ||
             syntax.ExpressionOperators.IsDefaultOrEmpty ||
@@ -438,12 +441,6 @@ public sealed class GenerationLanguagePackLoader
         !format.Separator.Any(character =>
             syntax.IdentifierStartCharacters.Contains(character) ||
             syntax.IdentifierContinuationCharacters.Contains(character));
-
-    private static bool IsValidLiteralDelimiter(string? delimiter) =>
-        !string.IsNullOrEmpty(delimiter) && delimiter.Length <= 8;
-
-    private static bool IsValidLiteralSeparator(string? separator) =>
-        !string.IsNullOrEmpty(separator) && separator.Length <= 8;
 
     private static bool IsValidExpressionGroupingDelimiter(GenerationDelimiterPair? delimiter) =>
         delimiter is not null &&
