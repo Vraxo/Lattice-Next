@@ -338,3 +338,52 @@ Scalar requests whose meaning is fully captured by `SemanticProgram` requirement
 - **M-08.9 (addition).** `program.assignment.first/.second/.result` and `python-addition-*` remain. The request (`stores two numbers in variables, adds them, and prints the result`, benchmark `py-002`) supplies no operands or names, so a generic plan cannot be derived without inventing them; the current knowledge schema cannot express "two new variables with default values" without a task-shaped rule. Removing the fragments now would disable a passing benchmark example before any replacement exists.
 - **M-08.14 (sign classification).** `program.assignment.classification`, `program.classification.positive/.negative/.zero`, and `python-sign-classification-*` remain. The replacement needs several independent conditionals with alternative branches in one request; extraction currently aligns one condition per request, so the request cannot yet be interpreted generically.
 - **M-08.17 (greeting).** `python-greeting-function` remains. Its replacement is function definition and call realization, which belongs to M-10; deleting it now would remove the only producer for benchmark `py-006`.
+
+### M-09.1 through M-09.4 collection, iteration, dictionary, and sorting inventory (current state)
+
+Recorded before any change to these families, as the pre-migration baseline for M-09. Counts are per family; the whole file holds 241 input-fact rules, 133 sequence rules, 50 validations, and 1 encoding.
+
+#### M-09.1 List filtering rules and templates (36 input rules, 19 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Parity filters** | `recognize-even-list-filter-request`, `recognize-even-number-list-parity-filter`, `recognize-odd-value-list-parity-filter` | Marker facts only: `program.even-list-filter`, `program.even-number-list-parity-filter`, `program.odd-value-list-parity-filter` | Complete programs: `for number in [1, 2, 3, 4, 5, 6]:` / `if number % 2 == 0:` / `print(number)`; the odd variant uses `[-3, -2, -1, 0, 1, 2, 3]` and `value % 2 != 0` |
+| **Filter function signature** | `recognize-collection-filter-function-name`, `default-collection-filter-function-name`, `default-average-filter-function-name`, `capture-collection-filter-parameter-receives`, `capture-collection-filter-parameter-accepts`, `default-collection-filter-parameter`, `capture-collection-filter-item`, `default-collection-filter-item` | `program.collection-filter.signature` → `name`, `parameter`, `item`; defaults are `filter_values`, `values`, `value` (average default `above_average`) | `def <name>(<parameter>):`, `return [`, item binding, call binding |
+| **Filter operator** | `capture-collection-filter-operator-1..11` | `program.collection-filter.comparison#operator` as a `comparisonOperator`, one literal per phrase: `>=` (greater than or equal to, at least), `<=` (less than or equal to, at most), `>` (greater than, more than), `<` (less than, below), `!=` (not equal to), `==` (equal to, equals) | Operator token only; the rule family is the phrase-to-operator table |
+| **Filter threshold** | `capture-collection-filter-threshold-1..11`, `recognize-collection-filter-average-threshold`, `recognize-collection-filter-requirement` | `program.collection-filter.threshold#expression` captured from the prompt and tagged `arithmetic`; `program.collection-filter.average` is a marker fact | Threshold expression and the `parameter` binding for the average predicate |
+| **Filter template** | `python-collection-filter-open`, `-open-average`, `-open-arithmetic`, `-open-with-filter`, `-open-average-with-filter`, `-open-arithmetic-with-filter`, `-header`, `-return-prefix`, `-item-first`, `-item-binding`, `-parameter`, `-condition-item`, `-condition-operator`, `-condition-threshold`, `-condition-average`, `-call` | Consumes the signature, comparison, threshold/average, `program.filter`, `program.collection`, `program.arithmetic`, and intent facts | Composes `def <name>(<parameter>):` + `return [` + `<item> for <item> in <parameter> if <item> <op> <threshold>` + a call with the fixed sample `[1, 2, 3, 4, 5]` |
+
+Fixed predicates: even and odd only, each a single `%` comparison. Captured from the request: function name, parameter, item, operator, threshold. Not captured: collection contents, element type, membership/boolean predicates (`not equal to 3` is an operator, not a predicate), or any composite condition.
+
+#### M-09.2 Iteration and accumulation rules and templates (18 input rules, 12 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Collection loops** | `capture-collection-loop-from`, `capture-collection-loop-in-list`, `recognize-loop-requirement`, `recognize-iteration-requirement` | `program.collection-loop#item`, `#collection` | `python-collection-loop-variable`, `-values`, `-output`, `-output-with-collection` bind the item and collection names |
+| **Range loops** | `capture-range-loop-number(s)`, `-value(s)`, `-item(s)`, `-count(s)`, `-i`, `unsupported-iteration-each`, `unsupported-iteration-range` | `program.range-loop#item/start/end`, `program.iteration#kind = range`, `program.output.start#kind = print` | `python-range-loop-open/variable/start/exclusive-end/output` |
+| **Manual total** | `recognize-manual-list-total-request` | Marker fact `program.manual-list-total` (the "without the built-in sum function" constraint is only this marker) | Complete program: `total = 0` / `for number in [1, 2, 3, 4, 5]:` / `total = total + number` / `print(total)` |
+| **Loop accumulator** | `recognize-loop-accumulator-total`, `recognize-loop-accumulator-result` | Marker facts `program.loop-accumulator`, `program.loop-accumulator.result` | Complete programs: `total = 0` / `for number in [1, 2, 3]:` / `total = total + number` / `print(total)`; the result variant uses `result`, `[-2, 4.5, 1.5]` |
+
+Fixed: accumulator name, initial value `0`, collection contents, the `+` update, and the printed name. Not represented: accumulator type, the update expression, whether the aggregate is a sum/min/max, or a result consumed later (M-09.10–M-09.12, M-09.20).
+
+#### M-09.3 Dictionary mapping rules and templates (7 input rules, 11 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Key/value iteration** | `recognize-dictionary-requirement`, `recognize-dictionary-key-value-iteration` | `program.dictionary-iteration#key/value/collection` (default collection `items`) | `python-dictionary-iteration-open/key/value/collection/print/print-values`; the open rule emits `items = {}  # Add dictionary entries here.` |
+| **Product iteration** | `recognize-dictionary-product-iteration` | Marker fact `program.dictionary-product-iteration` | Complete program with `prices = {'apple': 1.5, 'banana': 0.75}` and `for product, price in prices.items(): print(product, price)` |
+| **Name/count iteration** | `recognize-dictionary-name-count-iteration` | Marker fact `program.dictionary-name-count-iteration` | Complete program with `counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}` |
+| **Mapping comprehensions** | `recognize-number-square-dictionary-mapping`, `recognize-value-offset-dictionary-mapping`, `recognize-name-length-dictionary-mapping` | Marker facts per task family | Complete functions: `{number: number * number ...}`, `{value: value + 10 ...}`, `{name: len(name) ...}`, each called with a fixed literal list |
+
+Fixed: key expression, value expression, sample dictionary/list contents, function and variable names. Nothing in the request supplies key/value expressions (M-09.7, M-09.14, M-09.24).
+
+#### M-09.4 Sorting and record rules and templates (20 input rules, 18 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Single-field record sort** | `recognize-single-field-record-sorting`, `capture-single-field-sort-function-name`, `-records-name`, `-field-name`, `default-single-field-sort-function-name`, `-records-name`, `-field-name`, `recognize-single-field-sort-case-insensitive`, `-case-insensitive-spaced`, `-descending`, `-reverse`, `-requirement-sorted` | `program.single-field-record-sorting` → `name`, `records`, `field`; defaults `sort_records`, `records`, `field`; marker facts `.header`, `.signature`, `.body`, `.case-insensitive`, `.descending`, `program.sort` | `single-field-record-sort-function/parameters/body-standard/body-case-insensitive/body-descending/body-case-insensitive-descending/output/output-case-insensitive` compose a `sorted(...)` function plus a fixed sample call |
+| **Multi-field record sort** | `recognize-multi-field-record-sorting`, `recognize-case-insensitive-multi-field-record-sorting` | Marker facts `program.multi-field-record-sorting`, `.case-insensitive` | Complete programs using `sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))` and a fixed record sample |
+| **Record aggregation** | `capture-grouped-record-aggregation`, `recognize-record-aggregation-calculates`, `-computes`, `-sums` | `program.record-aggregation#record/group/measure` plus `.intent` | `record-aggregation-data/initialize/loop/key/add/iterate-totals/output` compose the group-and-sum algorithm with `totals = {}` and a fixed sample |
+| **Directory listing** | `recognize-directory-file-listing` | Marker fact `program.directory-file-listing` | Fixed script using `os.scandir`, `sorted(...)`, `entry.is_file()`, and a `FileNotFoundError` branch |
+
+Fixed: sort keys and directions are marker facts rather than request-derived key expressions, record samples are literals, and the directory listing is a fixed policy script. M-09.15 and M-09.16 need a request-derived key expression plus direction; M-09.25 removes these templates once that realization exists.

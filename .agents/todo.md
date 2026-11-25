@@ -71,10 +71,10 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 9. Compose collection and iteration programs generically
 
-- [ ] **9.1 — Inventory list filtering rules and templates.** Record fixed predicates, captured values, and emitted fragments.
-- [ ] **9.2 — Inventory iteration and accumulation rules and templates.** Record loop/total task facts and emitted fragments.
-- [ ] **9.3 — Inventory dictionary mapping rules and templates.** Record key/value assumptions and emitted fragments.
-- [ ] **9.4 — Inventory sorting and record rules and templates.** Record fixed fields, sort keys, and emitted fragments.
+- [x] **9.1 — Inventory list filtering rules and templates.** Recorded the three parity-filter programs, the 32-rule collection-filter phrase family (signature, 11 operators, 11 thresholds, average), and the 16-rule filter template: fixed even/odd predicates, operator literals per phrase, request-derived name/parameter/item/threshold, fixed `[1, 2, 3, 4, 5]` call sample.
+- [x] **9.2 — Inventory iteration and accumulation rules and templates.** Recorded collection and range loop captures (item/collection/start/end), the manual-total marker, and both accumulator programs: fixed names, `0` initial value, fixed collections, fixed `+` update, and no represented accumulator type, update expression, or aggregate kind.
+- [x] **9.3 — Inventory dictionary mapping rules and templates.** Recorded key/value iteration captures (default collection `items` and the `items = {}  # Add dictionary entries here.` placeholder), the two fixed iteration programs, and the three fixed mapping comprehensions with literal sample data.
+- [x] **9.4 — Inventory sorting and record rules and templates.** Recorded single-field sort captures and defaults plus its eight templates, multi-field sort, grouped record aggregation, and directory listing: sort keys and directions are marker facts, records are literals, and the directory script is a fixed policy.
 - [ ] **9.5 — Represent collection values and element types.** Model a collection binding and its element type without fixed contents.
 - [ ] **9.6 — Represent iteration item bindings.** Model the relationship between an iteration source and its item variable.
 - [ ] **9.7 — Represent dictionary key/value bindings.** Model key and value variables as distinct typed bindings.
