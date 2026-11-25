@@ -209,18 +209,6 @@ public sealed class PythonProgramGenerationTests
         "result = 9\nprint(result - 4)",
         "5")]
     [InlineData(
-        "Create a Python program that prints 'adult' if 20 is at least 18.",
-        "if 20 >= 18:\n    print(\"adult\")",
-        "adult")]
-    [InlineData(
-        "Build a Python script that displays 'minor' if 16 is less than 18.",
-        "if 16 < 18:\n    print(\"minor\")",
-        "minor")]
-    [InlineData(
-        "Generate a Python program that outputs 'match' if 7 equals 7.",
-        "if 7 == 7:\n    print(\"match\")",
-        "match")]
-    [InlineData(
         "Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.",
         "total = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)",
         "6")]

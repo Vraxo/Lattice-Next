@@ -20,6 +20,20 @@ public sealed record SequenceSemanticFact(
 
     public ImmutableDictionary<string, SemanticExpressionOperator> ComparisonOperators { get; init; } =
         ImmutableDictionary<string, SemanticExpressionOperator>.Empty.WithComparers(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Earliest request token position of each captured scalar value. Positions are language-neutral
+    /// ordinals into the request token stream, used to keep projected requirements in request order.
+    /// </summary>
+    public ImmutableDictionary<string, int> ValuePositions { get; init; } =
+        ImmutableDictionary<string, int>.Empty.WithComparers(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Request token positions aligned item-by-item with <see cref="Collections"/> and
+    /// <see cref="ExpressionCollections"/> values.
+    /// </summary>
+    public ImmutableDictionary<string, ImmutableArray<int>> CollectionPositions { get; init; } =
+        ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
 public sealed record SequenceTokenBinding(

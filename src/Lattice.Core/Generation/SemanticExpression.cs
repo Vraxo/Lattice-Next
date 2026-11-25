@@ -102,6 +102,52 @@ internal static class SemanticExpressionAnalysis
         return names.ToImmutable();
     }
 
+    /// <summary>
+    /// Returns the variable references in an expression, in first-appearance order. These references
+    /// are the request-derived data dependencies of the expression.
+    /// </summary>
+    public static ImmutableArray<string> GetReferencedNames(SemanticExpression expression)
+    {
+        if (!IsValid(expression))
+        {
+            return ImmutableArray<string>.Empty;
+        }
+
+        var names = ImmutableArray.CreateBuilder<string>();
+        CollectReferencedNames(expression, names);
+        return names.ToImmutable();
+    }
+
+    private static void CollectReferencedNames(
+        SemanticExpression expression,
+        ImmutableArray<string>.Builder names)
+    {
+        switch (expression)
+        {
+            case SemanticNameExpression name:
+                if (!names.Any(existing => string.Equals(existing, name.Name, StringComparison.Ordinal)))
+                {
+                    names.Add(name.Name);
+                }
+
+                break;
+            case SemanticFunctionCallExpression call:
+                foreach (var argument in call.Arguments)
+                {
+                    CollectReferencedNames(argument, names);
+                }
+
+                break;
+            case SemanticUnaryExpression unary:
+                CollectReferencedNames(unary.Operand, names);
+                break;
+            case SemanticBinaryExpression binary:
+                CollectReferencedNames(binary.Left, names);
+                CollectReferencedNames(binary.Right, names);
+                break;
+        }
+    }
+
     private static bool IsArithmeticCore(SemanticExpression expression) => expression switch
     {
         SemanticNameExpression => true,

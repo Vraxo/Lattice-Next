@@ -11,6 +11,12 @@ public static class SequenceInputFactExtractor
         string Kind,
         bool IsCollection);
 
+    private sealed record CapturedValuePosition(
+        int Position,
+        int Order,
+        int Index,
+        string Value);
+
     private const int MaximumInputLength = 65_536;
 
     public static bool TryExtract(
@@ -71,7 +77,8 @@ public static class SequenceInputFactExtractor
         var collections = new Dictionary<string, Dictionary<string, ImmutableArray<string>>>(StringComparer.Ordinal);
         var semanticCollections = new Dictionary<string, Dictionary<string, SemanticCollection>>(StringComparer.Ordinal);
         var semanticExpressionCaptures = new Dictionary<(string FactId, string ValueId), SemanticExpressionCapture>();
-        var orderedAssignmentCaptures = new Dictionary<(string FactId, string ValueId), List<(int Position, int Order, string Value)>>();
+        var capturedValuePositions = new Dictionary<(string FactId, string ValueId), List<CapturedValuePosition>>();
+        var repeatedValuePositions = new HashSet<(string FactId, string ValueId)>();
         var captureOrder = 0;
         var matchedAnyRule = false;
 
@@ -188,6 +195,17 @@ public static class SequenceInputFactExtractor
                     {
                         return false;
                     }
+
+                    RegisterCapturedValuePosition(
+                        capturedValuePositions,
+                        repeatedValuePositions,
+                        rule.FactId,
+                        rule.ValueId,
+                        valueMatch,
+                        captureOrder++,
+                        0,
+                        capturedValue,
+                        rule.RepeatMatches && rule.SemanticExpressionKind is not null);
                 }
             }
 
@@ -279,18 +297,6 @@ public static class SequenceInputFactExtractor
                         }
                     }
 
-                    if (rule.RepeatMatches && capture.FactId is ("program.assignment.target" or "program.assignment.value"))
-                    {
-                        var key = (capture.FactId, capture.ValueId);
-                        if (!orderedAssignmentCaptures.TryGetValue(key, out var orderedValues))
-                        {
-                            orderedValues = [];
-                            orderedAssignmentCaptures.Add(key, orderedValues);
-                        }
-
-                        orderedValues.Add((captureMatchToken, captureOrder++, capturedValue));
-                    }
-
                     var specificity = rule.MatchTokens.Length +
                         (capture.StartAfterTokens.IsDefaultOrEmpty ? 0 : capture.StartAfterTokens.Length);
                     var rawItems = !capture.CollectionDelimiters.IsDefaultOrEmpty
@@ -369,6 +375,20 @@ public static class SequenceInputFactExtractor
                         {
                             return false;
                         }
+
+                        for (var itemIndex = 0; itemIndex < immutableItems.Length; itemIndex++)
+                        {
+                            RegisterCapturedValuePosition(
+                                capturedValuePositions,
+                                repeatedValuePositions,
+                                capture.FactId,
+                                capture.ValueId,
+                                captureMatchToken,
+                                captureOrder++,
+                                itemIndex,
+                                immutableItems[itemIndex],
+                                rule.RepeatMatches);
+                        }
                     }
                     else if (rule.RepeatMatches)
                     {
@@ -382,10 +402,34 @@ public static class SequenceInputFactExtractor
                         {
                             return false;
                         }
+
+                        RegisterCapturedValuePosition(
+                            capturedValuePositions,
+                            repeatedValuePositions,
+                            capture.FactId,
+                            capture.ValueId,
+                            captureMatchToken,
+                            captureOrder++,
+                            0,
+                            capturedValue,
+                            repeated: true);
                     }
                     else if (!TryAddValue(extracted, capture.FactId, capture.ValueId, capturedValue, specificity, out error))
                     {
                         return false;
+                    }
+                    else
+                    {
+                        RegisterCapturedValuePosition(
+                            capturedValuePositions,
+                            repeatedValuePositions,
+                            capture.FactId,
+                            capture.ValueId,
+                            captureMatchToken,
+                            captureOrder++,
+                            0,
+                            capturedValue,
+                            repeated: false);
                     }
                 }
             }
@@ -397,16 +441,54 @@ public static class SequenceInputFactExtractor
             return false;
         }
 
-        foreach (var (key, orderedValues) in orderedAssignmentCaptures)
+        var valuePositions = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
+        var collectionPositions = new Dictionary<string, Dictionary<string, ImmutableArray<int>>>(StringComparer.Ordinal);
+        foreach (var (key, capturedPositions) in capturedValuePositions)
         {
+            var orderedPositions = capturedPositions
+                .OrderBy(item => item.Position)
+                .ThenBy(item => item.Order)
+                .ThenBy(item => item.Index)
+                .ToArray();
+
             if (collections.TryGetValue(key.FactId, out var factCollections) &&
-                factCollections.ContainsKey(key.ValueId))
+                factCollections.TryGetValue(key.ValueId, out var collectionItems))
             {
-                factCollections[key.ValueId] = orderedValues
-                    .OrderBy(item => item.Position)
-                    .ThenBy(item => item.Order)
-                    .Select(item => item.Value)
-                    .ToImmutableArray();
+                if (repeatedValuePositions.Contains(key))
+                {
+                    collectionItems = orderedPositions.Select(item => item.Value).ToImmutableArray();
+                    factCollections[key.ValueId] = collectionItems;
+                }
+
+                var alignedPositions = orderedPositions.Length == collectionItems.Length
+                    ? orderedPositions.Select(item => item.Position).ToImmutableArray()
+                    : collectionItems.Select(_ => 0).ToImmutableArray();
+                if (!collectionPositions.TryGetValue(key.FactId, out var factPositionValues))
+                {
+                    factPositionValues = new Dictionary<string, ImmutableArray<int>>(StringComparer.Ordinal);
+                    collectionPositions.Add(key.FactId, factPositionValues);
+                }
+
+                factPositionValues[key.ValueId] = alignedPositions;
+                continue;
+            }
+
+            if (extracted.TryGetValue(key.FactId, out var factValues) &&
+                factValues.TryGetValue(key.ValueId, out var selectedValue))
+            {
+                var matchingPositions = orderedPositions
+                    .Where(item => string.Equals(item.Value, selectedValue.Value, StringComparison.Ordinal))
+                    .ToArray();
+                var selectedPosition = matchingPositions.Length > 0
+                    ? matchingPositions[0].Position
+                    : orderedPositions[0].Position;
+                if (!valuePositions.TryGetValue(key.FactId, out var factValuePositions))
+                {
+                    factValuePositions = new Dictionary<string, int>(StringComparer.Ordinal);
+                    valuePositions.Add(key.FactId, factValuePositions);
+                }
+
+                factValuePositions[key.ValueId] = selectedPosition;
             }
         }
 
@@ -424,7 +506,13 @@ public static class SequenceInputFactExtractor
                     : ImmutableDictionary<string, ImmutableArray<string>>.Empty.WithComparers(StringComparer.Ordinal),
                 SemanticCollections = semanticCollections.TryGetValue(item.Key, out var typedCollections)
                     ? typedCollections.ToImmutableDictionary(StringComparer.Ordinal)
-                    : ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, SemanticCollection>.Empty.WithComparers(StringComparer.Ordinal),
+                ValuePositions = valuePositions.TryGetValue(item.Key, out var factValuePositions)
+                    ? factValuePositions.ToImmutableDictionary(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, int>.Empty.WithComparers(StringComparer.Ordinal),
+                CollectionPositions = collectionPositions.TryGetValue(item.Key, out var factCollectionPositions)
+                    ? factCollectionPositions.ToImmutableDictionary(StringComparer.Ordinal)
+                    : ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal)
             })
             .ToImmutableArray();
 
@@ -613,6 +701,31 @@ public static class SequenceInputFactExtractor
         return SemanticExpressionParser.TryParse(
                 capture.Kind, source, inputSyntax, out expression) &&
             SemanticExpressionAnalysis.IsValid(expression);
+    }
+
+    private static void RegisterCapturedValuePosition(
+        Dictionary<(string FactId, string ValueId), List<CapturedValuePosition>> positions,
+        HashSet<(string FactId, string ValueId)> repeatedKeys,
+        string factId,
+        string valueId,
+        int position,
+        int order,
+        int index,
+        string value,
+        bool repeated)
+    {
+        var key = (factId, valueId);
+        if (!positions.TryGetValue(key, out var captured))
+        {
+            captured = [];
+            positions.Add(key, captured);
+        }
+
+        captured.Add(new CapturedValuePosition(position, order, index, value));
+        if (repeated)
+        {
+            repeatedKeys.Add(key);
+        }
     }
 
     private static void EnsureFact(
