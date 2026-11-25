@@ -135,9 +135,9 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 11. Compose file and serialization programs from API/effect knowledge
 
-- [ ] **11.1 — Inventory file read/write task rules.** Map fixed paths, values, APIs, and emitted code.
-- [ ] **11.2 — Inventory directory task rules.** Map directory listing/creation facts and emitted code.
-- [ ] **11.3 — Inventory serialization task rules.** Map JSON encode/decode facts, fixed structures, and emitted code.
+- [x] **11.1 — Inventory file read/write task rules.** `docs/code-generation-migration-inventory.md` (M-11.1) records the single line-count family: one input rule with no captures, one sequence rule emitting the whole six-line program, and the fixed path/mode/encoding/accumulator. There is no file-write family at all — only the JSON round trip writes — so M-11.5 and M-11.15 add a capability rather than replace one. The pack already exposes `with-statement`, `open-file`, `begin-with`, and `emit-import` operations.
+- [x] **11.2 — Inventory directory task rules.** M-11.2 records the one directory family: `recognize-directory-file-listing` captures nothing (an eleven-token phrase marker) and `python-directory-file-listing` emits the whole policy script, including both imports, `sys.argv[1]`, `os.scandir`, the sort key, the `is_file` filter, the `"{name}: {size} bytes"` message, and the `FileNotFoundError` handler. No creation family exists.
+- [x] **11.3 — Inventory serialization task rules.** M-11.3 records the JSON round trip (8 rules, two captured names out of six facts) and the three record families that share its shape: single-field sort (10 rules, three captured or defaulted names), multi-field sort (2 rules, literal field lists and samples), and grouped aggregation (7 rules, three captured names). Fixed across them: `json`, modes and `encoding="utf-8"`, `indent=2`, `loaded_*`, sample literals, `record[field]`, `casefold()`, and `totals.get(key, 0)`.
 - [ ] **11.4 — Model file reading.** Define input path, returned content, and read effect.
 - [ ] **11.5 — Model file writing.** Define path/content inputs and write effect.
 - [ ] **11.6 — Model directory listing.** Define directory input and entry collection result.
