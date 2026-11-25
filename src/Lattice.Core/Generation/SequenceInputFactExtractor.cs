@@ -9,7 +9,8 @@ public static class SequenceInputFactExtractor
 {
     private sealed record SemanticExpressionCapture(
         string Kind,
-        bool IsCollection);
+        bool IsCollection,
+        bool IsOptional);
 
     private sealed record CapturedValuePosition(
         int Position,
@@ -134,6 +135,7 @@ public static class SequenceInputFactExtractor
                     rule.ValueId,
                     ruleExpressionKind,
                     rule.RepeatMatches,
+                    isOptional: false,
                     out error))
             {
                 return false;
@@ -227,6 +229,7 @@ public static class SequenceInputFactExtractor
                             captureExpressionKind,
                             rule.RepeatMatches || capture.CollectionDelimiter is not null ||
                                 !capture.CollectionDelimiters.IsDefaultOrEmpty,
+                            capture.OptionalExpression,
                             out error))
                     {
                         return false;
@@ -539,6 +542,7 @@ public static class SequenceInputFactExtractor
         string valueId,
         string kind,
         bool isCollection,
+        bool isOptional,
         out string? error)
     {
         error = null;
@@ -555,7 +559,7 @@ public static class SequenceInputFactExtractor
         }
 
         var key = (factId, valueId);
-        var capture = new SemanticExpressionCapture(kind, isCollection);
+        var capture = new SemanticExpressionCapture(kind, isCollection, isOptional);
         if (captures.TryGetValue(key, out var existing) && existing != capture)
         {
             error = $"Semantic input fact '{factId}.{valueId}' has conflicting expression capture metadata.";
@@ -614,20 +618,33 @@ public static class SequenceInputFactExtractor
                     }
 
                     var parsedItems = ImmutableArray.CreateBuilder<SemanticExpression>(rawItems.Length);
+                    var dropOptionalCollection = false;
                     foreach (var rawItem in rawItems)
                     {
                         if (!TryParseCapturedExpression(
                                 capture, rawItem, languagePack, out var parsed, out error))
                         {
-                            error ??= $"Semantic expression collection '{fact.Id}.{valueId}' contains invalid syntax.";
-                            return false;
+                            if (!capture.IsOptional)
+                            {
+                                error ??= $"Semantic expression collection '{fact.Id}.{valueId}' contains invalid syntax.";
+                                return false;
+                            }
+
+                            dropOptionalCollection = true;
+                            break;
                         }
 
                         parsedItems.Add(parsed!);
                     }
 
-                    expressionCollections[valueId] = parsedItems.ToImmutable();
                     collections.Remove(valueId);
+                    if (dropOptionalCollection)
+                    {
+                        error = null;
+                        continue;
+                    }
+
+                    expressionCollections[valueId] = parsedItems.ToImmutable();
                     continue;
                 }
 
@@ -648,8 +665,15 @@ public static class SequenceInputFactExtractor
                         !SemanticExpressionParser.TryParseComparisonOperator(
                             rawValue, syntax, out var parsedOperator))
                     {
-                        error = $"Semantic input value '{fact.Id}.{valueId}' contains an unsupported comparison operator.";
-                        return false;
+                        if (!capture.IsOptional)
+                        {
+                            error = $"Semantic input value '{fact.Id}.{valueId}' contains an unsupported comparison operator.";
+                            return false;
+                        }
+
+                        values.Remove(valueId);
+                        error = null;
+                        continue;
                     }
 
                     comparisonOperators[valueId] = parsedOperator;
@@ -659,8 +683,15 @@ public static class SequenceInputFactExtractor
                     if (!TryParseCapturedExpression(
                             capture, rawValue, languagePack, out var parsed, out error))
                     {
-                        error ??= $"Semantic expression '{fact.Id}.{valueId}' contains invalid syntax.";
-                        return false;
+                        if (!capture.IsOptional)
+                        {
+                            error ??= $"Semantic expression '{fact.Id}.{valueId}' contains invalid syntax.";
+                            return false;
+                        }
+
+                        values.Remove(valueId);
+                        error = null;
+                        continue;
                     }
 
                     expressions[valueId] = parsed!;
