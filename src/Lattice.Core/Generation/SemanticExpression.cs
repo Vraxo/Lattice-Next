@@ -47,6 +47,14 @@ public sealed record SemanticFunctionCallExpression(
     string Name,
     ImmutableArray<SemanticExpression> Arguments) : SemanticExpression;
 
+/// <summary>
+/// An access to one member of one instance: an owning target name and the member it exposes. The
+/// target is the only name the expression depends on.
+/// </summary>
+public sealed record SemanticMemberAccessExpression(
+    string Target,
+    string Member) : SemanticExpression;
+
 internal static class SemanticExpressionAnalysis
 {
     private const int MaximumDepth = 64;
@@ -138,6 +146,13 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticMemberAccessExpression member:
+                if (!names.Any(existing => string.Equals(existing, member.Target, StringComparison.Ordinal)))
+                {
+                    names.Add(member.Target);
+                }
+
+                break;
             case SemanticUnaryExpression unary:
                 CollectReferencedNames(unary.Operand, names);
                 break;
@@ -151,6 +166,7 @@ internal static class SemanticExpressionAnalysis
     private static bool IsArithmeticCore(SemanticExpression expression) => expression switch
     {
         SemanticNameExpression => true,
+        SemanticMemberAccessExpression => true,
         SemanticNumberExpression => true,
         SemanticFunctionCallExpression call => call.Arguments.All(IsArithmeticCore),
         SemanticUnaryExpression unary when unary.Operator is
@@ -218,6 +234,7 @@ internal static class SemanticExpressionAnalysis
         HashSet<string>? availableFunctions) => expression switch
     {
         SemanticNameExpression name => availableNames.Contains(name.Name),
+        SemanticMemberAccessExpression member => availableNames.Contains(member.Target),
         SemanticNumberExpression or SemanticTextExpression or SemanticBooleanExpression => true,
         SemanticFunctionCallExpression call =>
             allowFunctionCalls &&
@@ -240,6 +257,7 @@ internal static class SemanticExpressionAnalysis
         HashSet<string> names) => expression switch
     {
         SemanticNameExpression name => names.Contains(name.Name),
+        SemanticMemberAccessExpression member => names.Contains(member.Target),
         SemanticFunctionCallExpression call =>
             call.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticUnaryExpression unary => ReferencesAnyNameCore(unary.Operand, names),
@@ -269,6 +287,8 @@ internal static class SemanticExpressionAnalysis
                 IsValid(binary.Left, depth + 1, ref nodeCount) &&
                 IsValid(binary.Right, depth + 1, ref nodeCount),
             SemanticFunctionCallExpression call => IsValidCallArguments(call, depth, ref nodeCount),
+            SemanticMemberAccessExpression member =>
+                IsValidIdentifier(member.Target) && IsValidIdentifier(member.Member),
             _ => false
         };
     }
