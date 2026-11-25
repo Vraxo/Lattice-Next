@@ -145,7 +145,7 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (!ContainsOutputRequirement(program.Requirements) && HasUnmappedScalarIntent(facts))
+        if (!CarriesDeclaredIntent(program.Requirements) && HasUnmappedScalarIntent(facts))
         {
             error = "The request expresses an output or arithmetic intent that its requirements do not carry.";
             return false;
@@ -181,14 +181,20 @@ public static class SemanticProgramPlanner
             UnmappedScalarIntentFactPrefixes.Any(prefix =>
                 fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
 
-    private static bool ContainsOutputRequirement(ImmutableArray<ProgramRequirement> requirements) =>
+    /// <summary>
+    /// Whether the planned requirements already carry the intent the request expresses: either a scalar
+    /// program that prints something, or a class declaration whose members and results carry it.
+    /// </summary>
+    private static bool CarriesDeclaredIntent(ImmutableArray<ProgramRequirement> requirements) =>
         !requirements.IsDefaultOrEmpty &&
         requirements.Any(requirement => requirement switch
         {
             OutputRequirement => true,
+            ClassRequirement => true,
             ConditionalRequirement conditional =>
-                ContainsOutputRequirement(conditional.ThenRequirements) ||
-                ContainsOutputRequirement(conditional.ElseRequirements),
+                CarriesDeclaredIntent(conditional.ThenRequirements) ||
+                CarriesDeclaredIntent(conditional.ElseRequirements),
+            IterationRequirement iteration => CarriesDeclaredIntent(iteration.BodyRequirements),
             _ => false
         });
 
