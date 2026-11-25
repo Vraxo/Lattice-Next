@@ -5414,57 +5414,49 @@
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "records",
           "stopBeforeTokens": [],
-          "literalValue": "records",
-          "collectionDelimiter": "|"
+          "literalValue": "records"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "path",
           "stopBeforeTokens": [],
-          "literalValue": "records.json",
-          "collectionDelimiter": "|"
+          "literalValue": "records.json"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "result-prefix",
           "stopBeforeTokens": [],
-          "literalValue": "loaded_",
-          "collectionDelimiter": "|"
+          "literalValue": "loaded_"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "output-stream",
           "stopBeforeTokens": [],
-          "literalValue": "output_file",
-          "collectionDelimiter": "|"
+          "literalValue": "output_file"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "input-stream",
           "stopBeforeTokens": [],
-          "literalValue": "input_file",
-          "collectionDelimiter": "|"
+          "literalValue": "input_file"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "format",
           "stopBeforeTokens": [],
-          "literalValue": "json",
-          "collectionDelimiter": "|"
+          "literalValue": "json"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "indent",
           "stopBeforeTokens": [],
-          "literalValue": "2",
-          "collectionDelimiter": "|"
+          "literalValue": "2"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
           "valueId": "module",
           "stopBeforeTokens": [],
-          "literalValue": "json",
-          "collectionDelimiter": "|"
+          "literalValue": "json"
         },
         {
           "factId": "program.requirement.serialization-round-trip",
@@ -5483,8 +5475,14 @@
       ],
       "requiredAnySequences": [
         [
-          "json",
-          "file"
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
         ]
       ]
     },
@@ -5507,8 +5505,14 @@
       ],
       "requiredAnySequences": [
         [
-          "json",
-          "file"
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
         ]
       ]
     },
@@ -5531,45 +5535,16 @@
       ],
       "requiredAnySequences": [
         [
-          "list",
-          "of",
-          "dictionaries"
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
         ]
       ]
-    },
-    {
-      "id": "recognize-declared-round-trip-loads-back",
-      "matchTokens": [
-        "loads",
-        "it",
-        "back"
-      ],
-      "factId": "program.requirement.serialization-round-trip.confirmed",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ],
-      "searchAllSentences": true
-    },
-    {
-      "id": "recognize-declared-round-trip-load-back",
-      "matchTokens": [
-        "load",
-        "it",
-        "back"
-      ],
-      "factId": "program.requirement.serialization-round-trip.confirmed",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ],
-      "searchAllSentences": true
     }
   ],
   "rules": [

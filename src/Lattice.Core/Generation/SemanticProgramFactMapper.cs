@@ -662,13 +662,6 @@ public static class SemanticProgramFactMapper
             return true;
         }
 
-        if (!facts.Any(candidate =>
-                candidate.Id == SerializationRoundTripFactId + ".confirmed"))
-        {
-            error = "A serialization round trip requires the program to read the data back.";
-            return false;
-        }
-
         string[] scalars =
         [
             "records",
