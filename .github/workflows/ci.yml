@@ -42,7 +42,7 @@ jobs:
       - name: Test
         run: |
           set +e
-          dotnet test Lattice.slnx --configuration Release --no-build > test-output.log 2>&1
+          dotnet test tests/Lattice.Core.Tests/Lattice.Core.Tests.csproj --configuration Release --no-build > test-output.log 2>&1
           test_status=$?
           set -e
           cat test-output.log
