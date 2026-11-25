@@ -30,7 +30,7 @@ public sealed record GenerationInputSyntax(
     /// program argument, so such requirements stay unrealizable rather than being emitted with invented syntax.
     /// </summary>
     public GenerationProgramArgumentFormat? ProgramArgumentFormat { get; init; }
-
+}
 
 /// <summary>The place a language writes a program argument position into, using a {0} placeholder.</summary>
 public sealed record GenerationProgramArgumentFormat(
