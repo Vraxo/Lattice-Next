@@ -50,6 +50,50 @@ public sealed class SemanticProgramGenerationTests
     }
 
     [Theory]
+    [InlineData("is at least", "20", "18", "if 20 >= 18:")]
+    [InlineData("is at most", "20", "18", "if 20 <= 18:")]
+    [InlineData("is greater than", "20", "18", "if 20 > 18:")]
+    [InlineData("is less than", "20", "18", "if 20 < 18:")]
+    [InlineData("equals", "20", "18", "if 20 == 18:")]
+    [InlineData("is not equal to", "20", "18", "if 20 != 18:")]
+    public void Generates_every_supported_comparison_family(
+        string operatorPhrase,
+        string left,
+        string right,
+        string expectedHeader)
+    {
+        var input =
+            $"Create a Python program that prints 'match' if {left} {operatorPhrase} {right}.";
+
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractError), extractError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join('\n', expectedHeader, "    print(\"match\")"),
+            code);
+    }
+
+    [Fact]
+    public void Generates_a_program_whose_statements_depend_on_earlier_assignments()
+    {
+        const string input =
+            "Create a Python program that sets total to 4 then sets doubled to total * 2 then prints doubled.";
+
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractError), extractError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join('\n', "total = 4", "doubled = total * 2", "print(doubled)"),
+            code);
+    }
+
+    [Theory]
     [InlineData("Create a Python program that prints total + 3.")]
     [InlineData("Create a Python program that sets total to 5 and prints total + 3.")]
     [InlineData("Write a Python program that stores two numbers in variables, adds them, and prints the result.")]

@@ -402,6 +402,22 @@ public sealed class PythonProgramGenerationTests
         "Create a Python program that sets score to 12 then when score is at least 40 then prints 'pass' otherwise prints 'fail'.",
         "score = 12\nif score >= 40:\n    print(\"pass\")\nelse:\n    print(\"fail\")",
         "fail")]
+    [InlineData(
+        "Create a Python program that sets total to 5 then print total + 3.",
+        "total = 5\nprint(total + 3)",
+        "8")]
+    [InlineData(
+        "Create a Python program that sets total to 9 then print total + 1.",
+        "total = 9\nprint(total + 1)",
+        "10")]
+    [InlineData(
+        "Create a Python program that sets total to 4 then sets doubled to total * 2 then prints doubled.",
+        "total = 4\ndoubled = total * 2\nprint(doubled)",
+        "8")]
+    [InlineData(
+        "Create a Python program that prints 'match' if 30 equals 30.",
+        "if 30 == 30:\n    print(\"match\")",
+        "match")]
     public async Task Generates_and_executes_requested_scalar_programs(
         string input,
         string expectedCode,
