@@ -1440,6 +1440,113 @@
           "value": ", reverse=True)"
         }
       ]
+    },
+    {
+      "head": "bound-dictionary-loop-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ".items():"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-dictionary-loop-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ".items():"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-dictionary-loop-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ".items():"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -1534,6 +1641,12 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "key"
+    },
+    {
+      "name": "value",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "value"
     }
   ],
   "operations": [
@@ -2082,6 +2195,30 @@
       "argumentKind": "sort-binding",
       "prerequisites": [],
       "startSymbol": "double-indented-bound-reverse-sort-assignment"
+    },
+    {
+      "id": "python-bound-dictionary-loop",
+      "symbol": "for",
+      "effect": "emit-dictionary-loop-header",
+      "argumentKind": "dictionary-loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-dictionary-loop-header"
+    },
+    {
+      "id": "python-indented-bound-dictionary-loop",
+      "symbol": "for",
+      "effect": "emit-indented-dictionary-loop-header",
+      "argumentKind": "dictionary-loop-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-dictionary-loop-header"
+    },
+    {
+      "id": "python-double-indented-bound-dictionary-loop",
+      "symbol": "for",
+      "effect": "emit-double-indented-dictionary-loop-header",
+      "argumentKind": "dictionary-loop-header",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-dictionary-loop-header"
     }
   ],
   "stringLiteralFormat": {
