@@ -78,15 +78,15 @@ Each numbered item is one focused implementation change with its own narrow veri
 - [x] **9.5 — Represent collection values and element types.** `SemanticProgram.Collections` binds a name to a `SemanticCollectionItemKind` element kind with no stored contents, and `SemanticProgramValidator` rejects missing names, unknown kinds, and over-budget bindings.
 - [x] **9.6 — Represent iteration item bindings.** `IterationRequirement` binds one item name to a source expression and carries an ordered requirement body, so loops compose with the same requirement model as top-level statements.
 - [x] **9.7 — Represent dictionary key/value bindings.** `DictionaryIterationRequirement` binds distinct key and value names over a source expression with an ordered body; the validator rejects shared or unusable names.
-- [ ] **9.8 — Test collection and element projections.** Verify different element types, names, and collection sizes.
-- [ ] **9.9 — Represent a generic iteration requirement.** Model source collection, item binding, and loop body.
-- [ ] **9.10 — Represent accumulator initialization.** Model initial value and accumulator type.
-- [ ] **9.11 — Represent accumulator updates.** Model the update expression and its dependency on the current accumulator/item.
-- [ ] **9.12 — Represent aggregate results.** Bind the completed accumulator to a result used by later operations.
-- [ ] **9.13 — Represent a filter predicate.** Reuse expression semantics to describe which elements are retained.
-- [ ] **9.14 — Represent a map transformation.** Describe the output expression for each input element.
-- [ ] **9.15 — Represent a sort key.** Bind the key expression to the element being sorted.
-- [ ] **9.16 — Represent sort direction and ordering.** Model ascending/descending and any supported ordering requirement.
+- [x] **9.8 — Test collection and element projections.** Projection tests verify number and text element kinds, several collection names, and 2/3/5-item contents: the binding keeps its name and kind while contents are validated separately, so nothing assumes a fixed size or value.
+- [x] **9.9 — Represent a generic iteration requirement.** `IterationRequirement` carries the source expression, the item binding, and an ordered body (delivered with 9.6); the validator requires a non-empty body and a valid source.
+- [x] **9.10 — Represent accumulator initialization.** `AccumulationRequirement` carries the initial value expression and the accumulator's `SemanticCollectionItemKind`, which the validator checks against the defined kinds.
+- [x] **9.11 — Represent accumulator updates.** The update expression is a semantic expression that the validator requires to reference both the accumulator name and the current item name.
+- [x] **9.12 — Represent aggregate results.** The accumulator name is the bound result: `AccumulationRequirement.AccumulatorName` stays available to later requirements, and the validator rejects an accumulator name that collides with the item name.
+- [x] **9.13 — Represent a filter predicate.** `FilterRequirement` reuses `SemanticExpression` for the predicate and requires it to reference the item name, so any expressible comparison or boolean tree is a valid predicate.
+- [x] **9.14 — Represent a map transformation.** `MapRequirement` carries the per-item value expression and requires it to reference the item name.
+- [x] **9.15 — Represent a sort key.** `SortRequirement.Key` is a semantic expression the validator requires to reference the item name.
+- [x] **9.16 — Represent sort direction and ordering.** `SortRequirement.Descending` records the requested direction; both directions validate and are preserved.
 - [ ] **9.17 — Realize iteration in the Python language pack.** Emit a loop from the generic iteration structure.
 - [ ] **9.18 — Realize filtering in the Python language pack.** Emit a filter operation from source and predicate semantics.
 - [ ] **9.19 — Realize mapping in the Python language pack.** Emit a transformation from source and map expression.
