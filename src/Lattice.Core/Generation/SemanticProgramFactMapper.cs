@@ -1061,7 +1061,7 @@ public static class SemanticProgramFactMapper
             }
 
             body.Add(new AugmentedAssignmentRequirement(
-                new SemanticMemberAccessExpression(instanceName, entry[0]),
+                new SemanticMemberAccessExpression(new SemanticNameExpression(instanceName), entry[0]),
                 updateOperator,
                 updatedBy));
         }
@@ -1174,7 +1174,7 @@ public static class SemanticProgramFactMapper
 
         if (fields.Any(field => string.Equals(field.Name, text, StringComparison.Ordinal)))
         {
-            expression = new SemanticMemberAccessExpression(instanceName, text);
+            expression = new SemanticMemberAccessExpression(new SemanticNameExpression(instanceName), text);
             return true;
         }
 

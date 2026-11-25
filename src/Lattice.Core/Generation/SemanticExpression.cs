@@ -48,12 +48,19 @@ public sealed record SemanticFunctionCallExpression(
     ImmutableArray<SemanticExpression> Arguments) : SemanticExpression;
 
 /// <summary>
-/// An access to one member of one instance: an owning target name and the member it exposes. The
-/// target is the only name the expression depends on.
+/// An access to one member of one value: the value that owns it and the member it exposes. The target is
+/// any expression, so a member can be reached through a name, a call, or another member. The selected
+/// language pack spells the separator.
 /// </summary>
 public sealed record SemanticMemberAccessExpression(
-    string Target,
+    SemanticExpression Target,
     string Member) : SemanticExpression;
+
+/// <summary>
+/// The argument the running program receives at one position, for example the directory a program was
+/// started with. The selected language pack spells how a program reads its arguments.
+/// </summary>
+public sealed record SemanticProgramArgumentExpression(int Position) : SemanticExpression;
 
 /// <summary>
 /// Calls one method on a value the program already holds, for example asking a text value for its
@@ -172,11 +179,7 @@ internal static class SemanticExpressionAnalysis
 
                 break;
             case SemanticMemberAccessExpression member:
-                if (!names.Any(existing => string.Equals(existing, member.Target, StringComparison.Ordinal)))
-                {
-                    names.Add(member.Target);
-                }
-
+                CollectReferencedNames(member.Target, names);
                 break;
             case SemanticMethodCallExpression methodCall:
                 CollectReferencedNames(methodCall.Target, names);
@@ -271,6 +274,7 @@ internal static class SemanticExpressionAnalysis
             _ => null
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
+        SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
 
@@ -286,7 +290,10 @@ internal static class SemanticExpressionAnalysis
         HashSet<string>? availableFunctions) => expression switch
     {
         SemanticNameExpression name => availableNames.Contains(name.Name),
-        SemanticMemberAccessExpression member => availableNames.Contains(member.Target),
+        SemanticMemberAccessExpression member =>
+            ReferencesOnlyAvailableNamesCore(
+                member.Target, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticProgramArgumentExpression => true,
         SemanticNumberExpression or SemanticTextExpression or SemanticBooleanExpression => true,
         SemanticFunctionCallExpression call =>
             allowFunctionCalls &&
@@ -320,7 +327,8 @@ internal static class SemanticExpressionAnalysis
         HashSet<string> names) => expression switch
     {
         SemanticNameExpression name => names.Contains(name.Name),
-        SemanticMemberAccessExpression member => names.Contains(member.Target),
+        SemanticMemberAccessExpression member => ReferencesAnyNameCore(member.Target, names),
+        SemanticProgramArgumentExpression => false,
         SemanticFunctionCallExpression call =>
             call.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticMethodCallExpression methodCall =>
@@ -357,7 +365,9 @@ internal static class SemanticExpressionAnalysis
                 IsValid(binary.Right, depth + 1, ref nodeCount),
             SemanticFunctionCallExpression call => IsValidCallArguments(call, depth, ref nodeCount),
             SemanticMemberAccessExpression member =>
-                IsValidIdentifier(member.Target) && IsValidIdentifier(member.Member),
+                IsValidIdentifier(member.Member) && IsValid(member.Target, depth + 1, ref nodeCount),
+            SemanticProgramArgumentExpression programArgument =>
+                programArgument.Position is >= 0 and <= 63,
             SemanticMethodCallExpression methodCall => IsValidMethodCall(methodCall, depth, ref nodeCount),
             SemanticConversionExpression conversion =>
                 conversion.Target is SemanticValueKind.Number or SemanticValueKind.Text &&

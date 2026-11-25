@@ -3131,6 +3131,9 @@
     },
     "memberAccessFormat": {
       "separator": "."
+    },
+    "programArgumentFormat": {
+      "format": "sys.argv[{0}]"
     }
   },
   "interpolationFormat": {

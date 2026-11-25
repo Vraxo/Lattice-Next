@@ -253,6 +253,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case ImportRequirement import:
+                    if (!TryPlanImport(import, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case FileReadRequirement fileRead:
                     if (!TryPlanFileRead(fileRead, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -1836,6 +1843,42 @@ public static class SemanticProgramPlanner
                 LeavesBody(conditional.ElseRequirements),
             _ => false
         };
+
+    /// <summary>
+    /// Plans one import: the pack spells how a module is made available, so no language syntax is
+    /// decided here.
+    /// </summary>
+    private static bool TryPlanImport(
+        ImportRequirement import,
+        int depth,
+        IReadOnlySet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "An import is planned at the top level of a program.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("module", import.Module);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect: "emit-import",
+            argumentKind: "module-name",
+            argumentValue: import.Module,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
 
     /// <summary>
     /// Plans a file read: the pack supplies the way a file is opened and bound to a name, and the body is

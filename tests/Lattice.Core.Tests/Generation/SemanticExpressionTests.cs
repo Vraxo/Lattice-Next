@@ -256,6 +256,25 @@ public sealed class SemanticExpressionTests
     }
 
     [Fact]
+    public void Renders_a_member_reached_through_a_call_and_a_program_argument()
+    {
+        var pack = LoadPythonPack();
+        var size = new SemanticMemberAccessExpression(
+            new SemanticMethodCallExpression(new SemanticNameExpression("entry"), "stat", []),
+            "st_size");
+        var argument = new SemanticProgramArgumentExpression(1);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(size));
+        Assert.True(SemanticExpressionRenderer.TryRender(size, pack, out var renderedSize));
+        Assert.Equal("entry.stat().st_size", renderedSize);
+        Assert.True(SemanticExpressionAnalysis.IsValid(argument));
+        Assert.True(SemanticExpressionRenderer.TryRender(argument, pack, out var renderedArgument));
+        Assert.Equal("sys.argv[1]", renderedArgument);
+        Assert.Equal(["entry"], SemanticExpressionAnalysis.GetReferencedNames(size));
+        Assert.Empty(SemanticExpressionAnalysis.GetReferencedNames(argument));
+    }
+
+    [Fact]
     public void Rejects_a_method_call_whose_method_name_the_pack_cannot_spell()
     {
         var pack = LoadPythonPack();

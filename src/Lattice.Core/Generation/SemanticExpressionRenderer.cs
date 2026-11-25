@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Collections.Immutable;
 
 namespace Lattice.Core.Generation;
@@ -92,14 +93,33 @@ internal static class SemanticExpressionRenderer
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticMemberAccessExpression member:
-                if (!GenerationInputSyntaxParser.IsIdentifier(member.Target, syntax) ||
-                    !GenerationInputSyntaxParser.IsIdentifier(member.Member, syntax) ||
-                    syntax.MemberAccessFormat is not { } memberAccessFormat)
+                if (!GenerationInputSyntaxParser.IsIdentifier(member.Member, syntax) ||
+                    syntax.MemberAccessFormat is not { } memberAccessFormat ||
+                    !TryRender(
+                        member.Target,
+                        languagePack,
+                        syntax,
+                        PrimaryPrecedence,
+                        isRightOperand: false,
+                        out var memberTarget))
                 {
                     return false;
                 }
 
-                rendered = member.Target + memberAccessFormat.Separator + member.Member;
+                rendered = memberTarget + memberAccessFormat.Separator + member.Member;
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticProgramArgumentExpression programArgument:
+                if (syntax.ProgramArgumentFormat is not { } programArgumentFormat ||
+                    !programArgumentFormat.Format.Contains("{0}", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                rendered = programArgumentFormat.Format.Replace(
+                    "{0}",
+                    programArgument.Position.ToString(CultureInfo.InvariantCulture),
+                    StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticMethodCallExpression methodCall:

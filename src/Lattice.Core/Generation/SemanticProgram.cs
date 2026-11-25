@@ -44,6 +44,12 @@ public sealed record OutputRequirement(
     SemanticExpression Value) : ProgramRequirement;
 
 /// <summary>
+/// Makes one library module available to the program. The module name stays request data and the
+/// selected language pack spells how a module is made available.
+/// </summary>
+public sealed record ImportRequirement(string Module) : ProgramRequirement;
+
+/// <summary>
 /// Reads the text lines of one file. The read stream binds to a name the body iterates, and the body
 /// holds the statements that consume it, so a file read composes with the same model as any other
 /// block. The selected language pack spells how a file is opened for reading; the path stays request

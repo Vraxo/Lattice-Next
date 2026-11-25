@@ -100,13 +100,13 @@ public sealed class GeneratedFunctionProgramExecutionTests
                         "report",
                         [],
                         null,
-                        [new OutputRequirement(new SemanticMemberAccessExpression("self", "count"))])
+                        [new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("self"), "count"))])
                 ]),
             new AssignmentRequirement(
                 "counter",
                 new SemanticFunctionCallExpression("Counter", [])),
             new CallRequirement("report", []) { Receiver = "counter" },
-            new OutputRequirement(new SemanticMemberAccessExpression("counter", "count")));
+            new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("counter"), "count")));
 
         await AssertProgramOutputAsync(code, "0\n0");
     }

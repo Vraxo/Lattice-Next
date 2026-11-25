@@ -299,6 +299,9 @@ public sealed class GenerationLanguagePackLoader
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
             (syntax.MemberAccessFormat is { } memberAccessFormat &&
                 !IsValidMemberAccessFormat(memberAccessFormat, syntax)) ||
+            (syntax.ProgramArgumentFormat?.Format is { } programArgumentFormat &&
+                (!programArgumentFormat.Contains("{0}", StringComparison.Ordinal) ||
+                 programArgumentFormat.Length > 64)) ||
             syntax.GroupingDelimiters.IsDefault ||
             syntax.GroupingDelimiters.Length > 16 ||
             syntax.ExpressionOperators.IsDefaultOrEmpty ||

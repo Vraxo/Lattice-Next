@@ -100,6 +100,7 @@ public static class SemanticProgramValidator
                  !conditional.ElseRequirements.IsDefaultOrEmpty) &&
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
+            ImportRequirement import => IsValidModuleName(import.Module),
             FileReadRequirement fileRead =>
                 IsValidPath(fileRead.Path) &&
                 IsValidName(fileRead.StreamName) &&
@@ -209,6 +210,12 @@ public static class SemanticProgramValidator
              returnKind));
 
     private const int MaximumPathLength = 512;
+
+    private static bool IsValidModuleName(string? module) =>
+        !string.IsNullOrWhiteSpace(module) &&
+        module.Length <= 128 &&
+        module.All(character =>
+            char.IsAsciiLetterOrDigit(character) || character is '.' or '_');
 
     private static bool IsValidPath(string? path) =>
         !string.IsNullOrWhiteSpace(path) &&

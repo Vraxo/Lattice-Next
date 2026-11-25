@@ -631,7 +631,7 @@ public sealed class SemanticProgramPlanningTests
                                     SemanticExpressionOperator.Add,
                                     new SemanticNameExpression("amount"),
                                     new SemanticNumberExpression("1"))),
-                            new OutputRequirement(new SemanticMemberAccessExpression("self", "count"))
+                            new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("self"), "count"))
                         ])
                 ]));
 
@@ -686,7 +686,7 @@ public sealed class SemanticProgramPlanningTests
             new IterationRequirement(
                 "account",
                 new SemanticNameExpression("accounts"),
-                [new OutputRequirement(new SemanticMemberAccessExpression("account", "balance"))]));
+                [new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("account"), "balance"))]));
 
         Assert.Equal(
             string.Join('\n', "for account in accounts:", "    print(account.balance)"),
@@ -857,6 +857,18 @@ public sealed class SemanticProgramPlanningTests
         Assert.False(planned);
         Assert.Empty(statements);
         Assert.Contains("parsed", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Plans_imports_before_the_statements_that_use_them()
+    {
+        var statements = Plan(
+            new ImportRequirement("os"),
+            new ImportRequirement("sys"));
+
+        Assert.Equal(
+            string.Join('\n', "import os", "import sys"),
+            SemanticProgramPlanner.Render(statements));
     }
 
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
