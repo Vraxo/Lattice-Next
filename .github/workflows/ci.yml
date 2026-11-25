@@ -69,6 +69,23 @@ jobs:
           fi
           exit "$test_status"
 
+      - name: Report pipeline diagnostics
+        if: failure()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          log = Path("test-output.log")
+          if log.exists():
+              lines = re.sub(r"\x1b\[[0-9;]*m", "", log.read_text(errors="replace")).splitlines()
+              for index, line in enumerate(lines):
+                  if "AaaDiagnosticsTests" not in line and not line.startswith("DIAG "):
+                      continue
+                  window = "\n".join(lines[index:index + 4])[:6000]
+                  message = window.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+                  print(f"::notice title=Diagnostic {index}::{message}")
+          PY
+
       - name: Report failing test context
         if: failure()
         run: |

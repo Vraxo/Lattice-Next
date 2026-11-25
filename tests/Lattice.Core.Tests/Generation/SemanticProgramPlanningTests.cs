@@ -212,7 +212,12 @@ public sealed class SemanticProgramPlanningTests
                             [
                                 new ConditionalRequirement(
                                     new SemanticBooleanExpression(false),
-                                    [new OutputRequirement(new SemanticTextExpression("inner"))],
+                                    [
+                                        new ConditionalRequirement(
+                                            new SemanticBooleanExpression(false),
+                                            [new OutputRequirement(new SemanticTextExpression("deepest"))],
+                                            [])
+                                    ],
                                     [])
                             ],
                             [])
@@ -224,7 +229,7 @@ public sealed class SemanticProgramPlanningTests
             out var error);
 
         Assert.False(planned);
-        Assert.Contains("at most 2 levels", error, StringComparison.Ordinal);
+        Assert.Contains("at most 3 levels", error, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -486,7 +491,7 @@ public sealed class SemanticProgramPlanningTests
 
         Assert.False(planned);
         Assert.Empty(statements);
-        Assert.Contains("at most 2 levels", error, StringComparison.Ordinal);
+        Assert.Contains("at most 3 levels", error, StringComparison.Ordinal);
     }
 
     [Fact]
