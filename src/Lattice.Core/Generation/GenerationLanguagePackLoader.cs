@@ -177,6 +177,9 @@ public sealed class GenerationLanguagePackLoader
                 operation.Prerequisites.Any(prerequisite => !IsCapabilityIdentifier(prerequisite)) ||
                 (operation.StartSymbol is not null &&
                     (!IsIdentifier(operation.StartSymbol) || !productions.ContainsKey(operation.StartSymbol))) ||
+                (operation.MatchesArgumentValue is { } matchesArgumentValue &&
+                    (string.IsNullOrWhiteSpace(matchesArgumentValue) ||
+                     matchesArgumentValue.Length > 64)) ||
                 !operationIds.Add(operation.Id))
             {
                 error = "Every generation operation requires a unique identifier, symbol, effect, argument kind, and valid prerequisite list.";
