@@ -328,15 +328,21 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        return TryEmitAssignment(
-            assignment.VariableName,
-            rendered,
-            depth,
-            defined,
-            pack,
-            pipeline,
-            planned,
-            out error);
+        if (!TryEmitAssignment(
+                assignment.VariableName,
+                rendered,
+                depth,
+                defined,
+                pack,
+                pipeline,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(assignment.VariableName);
+        return true;
     }
 
     private static bool TryEmitAssignment(
