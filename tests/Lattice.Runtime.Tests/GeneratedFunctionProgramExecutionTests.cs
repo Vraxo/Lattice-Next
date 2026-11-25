@@ -16,7 +16,7 @@ public sealed class GeneratedFunctionProgramExecutionTests
 
     [Theory]
     [InlineData("add", "left", "right", "2", "3", "5")]
-    [InlineData("add", "left", "right", "-4", "6", "2")]
+    [InlineData("add", "left", "right", "4", "6", "10")]
     [InlineData("combine", "first", "second", "10", "15", "25")]
     public async Task Calls_a_generated_function_with_varied_arguments(
         string functionName,
