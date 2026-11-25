@@ -103,10 +103,10 @@ Each numbered item is one focused implementation change with its own narrow veri
 
 ### 10. Compose functions, classes, and error handling generically
 
-- [ ] **10.1 — Inventory function declaration examples.** Map function task facts, parameters, return types, and emitted fragments.
-- [ ] **10.2 — Inventory function-call examples.** Map argument binding, call facts, and emitted fragments.
-- [ ] **10.3 — Inventory class examples.** Map class, field, initializer, and method facts/templates.
-- [ ] **10.4 — Inventory exception examples.** Map fixed try/except and raise facts/templates.
+- [x] **10.1 — Inventory function declaration examples.** Recorded five families (greeting, integer conversion, local-variable, arithmetic, and conditional composition): 8 input rules and 29 sequence rules. Names, parameters, locals, returned expressions, and calls are captured from the request; parameter and return **types** are not, every template fixes its own program shape, and the greeting and conversion families fix their sample arguments and message text.
+- [x] **10.2 — Inventory function-call examples.** Recorded 4 input rules and 6 sequence rules: a call is captured as a `functionCall`/`value` expression (optionally) and emitted as a call statement, a print of the call, or a returned call. The callee is bare text rather than a reference to a declaration, and nothing binds arguments to parameters.
+- [x] **10.3 — Inventory class examples.** Recorded 2 input rules and 6 sequence rules: a `program.class` marker plus one bank-account model whose 13 captures are all literal values (`BankAccount`, `balance`, `deposit`, `withdraw`, `amount`, and five stage markers). Nothing about the class is request-derived, and the emission is a fixed definition plus a demonstration script.
+- [x] **10.4 — Inventory exception examples.** Recorded 3 input rules and 3 sequence rules: two conversion programs wrap `int(...)` in `try:`/`except ValueError:` and the directory listing wraps `os.scandir` in `try:`/`except FileNotFoundError:`. Exception types, messages, and recovery bodies are fixed, no rule raises an error deliberately, and no fact distinguishes a successful result from a handled failure.
 - [ ] **10.5 — Represent a function declaration.** Model its request-derived name and body requirement.
 - [ ] **10.6 — Represent function parameters.** Model parameter names and types as ordered bindings.
 - [ ] **10.7 — Represent a function return type.** Bind the declared result type to the function contract.
