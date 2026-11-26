@@ -1071,8 +1071,8 @@ The policy is declared (M-9.24b), so what is left is the requirement that consum
 remain — four single-field record sorts, one grouped aggregation — and each is a function whose body is generic
 over its parameters and whose last line prints one concrete call, for example
 `print(sort_records([{…}], "age"))`. That call is no longer the missing piece: `GenerationSampleCallPolicy`
-inside `GenerationExampleData` supplies the function name, the result name, and both argument lists at three
-indentation levels of policy, never per fragment.
+inside `GenerationExampleData` supplies the function name, the result name, and both argument lists once for
+every family, never per fragment.
 
 What is still missing is modelling — a subscript expression over the loop item, and a grouped accumulation:
 
