@@ -5758,6 +5758,70 @@
           "trimSuffixCharacters": "."
         }
       ]
+    },
+    {
+      "id": "capture-accumulation-output-prints",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-output-displays",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ]
     }
   ],
   "rules": [
