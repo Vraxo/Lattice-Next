@@ -1065,11 +1065,60 @@ Deleted: `python-number-square-dictionary-mapping`, `python-value-offset-diction
 `python-name-length-dictionary-mapping`, their three marker input rules, and three rows of the exception table
 (nine → six). All three programs are byte-identical, including the `squares` result name the request states.
 
-## The six fragments the declared sample call unblocks
+## M-9.25a — single-field record sorts from a subscript and a declared sample
 
-The policy is declared (M-9.24b), so what is left is the requirement that consumes it. Six exception-table rows
-remain — four single-field record sorts, one grouped aggregation — and each is a function whose body is generic
-over its parameters and whose last line prints one concrete call, for example
+All four single-field sort programs are planned. The request states the names and the ordering; the policy states
+the data:
+
+```
+Create a Python program that defines a function named order_records that accepts a list of records named people
+and a field name named sort_key, then returns the records sorted by that field.
+```
+
+```
+def order_records(people, sort_key):
+    return sorted(people, key=lambda record: record[sort_key])
+print(order_records([{"name": "Ada", "age": 36}, {"name": "Grace", "age": 85}, {"name": "Linus", "age": 55}], "age"))
+```
+
+Three expressions closed the modelling gap:
+
+| Addition | Pack format | Why a fragment was not enough |
+| --- | --- | --- |
+| `SemanticSubscriptExpression` | `subscriptFormat` `{0}[{1}]` | the field is a parameter, so the key is not known until planning |
+| `SemanticCaseFoldExpression` | `caseFoldFormat` `{0}.casefold()` | case-insensitive ordering is a value transformation, not a variant rule |
+| `SemanticSortExpression` | `sortedExpressionFormat` / `sortedExpressionReverseFormat` | the ordering is an expression the function returns, with the descending form selected by the request |
+
+Eight input rules read `program.sort.records`: the kind marker, the function name, the records parameter, the
+field parameter, the descending word pair (`descending order` / `reverse order`), and both spellings of
+case-insensitivity. Every one of them excludes `those fields` and `list of field names`, which is how the
+multi-field family keeps its own facts. The three `identifierValue` validations move onto the new fact.
+
+`GenerationSampleCallPolicy.Sort` declares the invented data once — the default names, the lambda item `record`,
+the record shape (`name` text, `age` number), and one sample per sensitivity:
+
+| Sample | Sorts by | Literal style | Records |
+| --- | --- | --- | --- |
+| case-sensitive | `age` | `record` | `Ada`/`Grace`/`Linus` with ages 36, 85, 55 |
+| case-insensitive | `name` | `map` | `ada`, `BOB`, `Grace` with ages 36, 42, 85 |
+
+`mapLiteralFormat` gained `textFormat` (`'{0}'`), so a dict-style literal spells its own text values and the
+case-insensitive sample stays byte-identical.
+
+Deleted: eight `single-field-record-sort-*` rules (header, signature, four bodies, two outputs), twelve
+`single-field*` input rules, and two exception-table rows (six → four).
+
+**One deliberate output change, recorded:** the case-insensitive sample's *field argument* is now `"name"`
+instead of `'name'`. The records keep their single-quoted dict style, while a call argument takes the language's
+canonical string literal; every other byte of all four programs is unchanged, and the executed output is
+identical.
+
+## The four fragments the declared sample call unblocks
+
+The policy is declared (M-9.24b) and the single-field sorts consume it (M-9.25a), so what is left is the
+requirement the remaining families need. Four exception-table rows remain — two multi-field record sorts and one
+grouped aggregation — and each is a function whose body is generic over its parameters and whose last line prints
+one concrete call, for example
 `print(sort_records([{…}], "age"))`. That call is no longer the missing piece: `GenerationSampleCallPolicy`
 inside `GenerationExampleData` supplies the function name, the result name, and both argument lists once for
 every family, never per fragment.
@@ -1079,7 +1128,7 @@ What is still missing is modelling — a subscript expression over the loop item
 | Ticket | Fragments | Needs |
 | --- | --- | --- |
 | ~~9.24b~~ | ~~three dictionary mappings~~ | done: `GenerationSampleCallPolicy` and `DictionaryMapRequirement` |
-| 9.25a | four single-field record sorts | the declared sample call, subscript over the loop item (`record[field]`) |
+| ~~9.25a~~ | ~~four single-field record sorts~~ | done: `SemanticSubscriptExpression`, `SemanticCaseFoldExpression`, `SemanticSortExpression` |
 | 9.25b | two multi-field record sorts | 9.25a's subscript plus a declarative nested key expression (`tuple(record[field] for field in keys)`) |
 | 9.25c | one grouped aggregation | a grouped-accumulation requirement (totals per key) |
 

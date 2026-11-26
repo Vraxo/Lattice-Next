@@ -25,8 +25,6 @@ public sealed class SequenceKnowledgeGuardTests
         // 9.25 — fixed record sorting and grouped aggregation.
         "python-multi-field-record-sorting",
         "python-case-insensitive-multi-field-record-sorting",
-        "single-field-record-sort-output",
-        "single-field-record-sort-output-case-insensitive",
         "record-aggregation-output"
     ];
 

@@ -829,30 +829,49 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.", "sort_people", "people", "sort_key", "program.single-field-record-sorting.descending")]
-    [InlineData("Create a Python program that defines a function named order_records that accepts a list of records named entries and a field name named order_by, then returns the records sorted case-insensitively by that field.", "order_records", "entries", "order_by", "program.single-field-record-sorting.case-insensitive")]
-    public void Extracts_and_generates_single_field_record_sorting_declaratively(string prompt, string functionName, string recordsName, string fieldName, string expectedFact)
+    [InlineData(
+        "Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.",
+        "sort_people",
+        "people",
+        "sort_key",
+        "descending",
+        null)]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named entries and a field name named order_by, then returns the records sorted case-insensitively by that field.",
+        "order_records",
+        "entries",
+        "order_by",
+        null,
+        "case-insensitive")]
+    public void Reads_a_record_sort_request_as_its_function_and_parameters(
+        string prompt,
+        string functionName,
+        string recordsName,
+        string fieldName,
+        string? order,
+        string? sensitivity)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        var extracted = SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError);
-        var captureSummary = string.Join(", ", facts.SelectMany(fact => fact.Values.Select(value => $"{fact.Id}.{value.Key}={value.Value}")));
-        Assert.True(extracted, $"{extractionError}. Captures: {captureSummary}");
-        Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+
+        var sort = Assert.Single(facts.Where(fact => fact.Id == "program.sort.records"));
+        Assert.Equal("records", sort.Values["kind"].Trim());
+        Assert.Equal(functionName, sort.Values["function"].Trim());
+        Assert.Equal(recordsName, sort.Values["records"].Trim());
+        Assert.Equal(fieldName, sort.Values["field"].Trim().Trim(','));
+        Assert.Equal(order, sort.Values.TryGetValue("order", out var capturedOrder) ? capturedOrder.Trim() : null);
+        Assert.Equal(
+            sensitivity,
+            sort.Values.TryGetValue("sensitivity", out var capturedSensitivity)
+                ? capturedSensitivity.Trim()
+                : null);
+
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.single-field", StringComparison.Ordinal));
+
         var languagePackLoader = new GenerationLanguagePackLoader();
         Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var languagePackError), languagePackError);
         Assert.True(SequenceInputFactValidator.TryValidate(
             knowledge!.Validations, facts, languagePacks["python"], out var validationError), validationError);
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            new KnowledgeDrivenSequenceGenerationRequest(
-                ImmutableArray<string>.Empty,
-                facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts },
-            out var generated,
-            out var generationError), $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}. Values: {captureSummary}");
-        Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated!.Text);
-        Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated.Text);
     }
 
     [Fact]

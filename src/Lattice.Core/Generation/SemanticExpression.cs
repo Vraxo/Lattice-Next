@@ -120,6 +120,32 @@ public sealed record SemanticArgumentsExpression(
     ImmutableArray<SemanticExpression> Values) : SemanticExpression;
 
 /// <summary>
+/// One value read from another by key, for example the field a record holds under a request-supplied name.
+/// The selected language pack spells how a value is indexed, so no requirement names a subscript.
+/// </summary>
+public sealed record SemanticSubscriptExpression(
+    SemanticExpression Target,
+    SemanticExpression Key) : SemanticExpression;
+
+/// <summary>
+/// A text value in its case-insensitive form, so two spellings of the same word compare equal. The selected
+/// language pack spells how that form is asked for, so no requirement names a library method.
+/// </summary>
+public sealed record SemanticCaseFoldExpression(
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// The values of a collection in order, keyed by one expression over each item. The selected language pack
+/// spells the ordering call, the keyed access, and the descending form, so no requirement names a library
+/// function or a lambda.
+/// </summary>
+public sealed record SemanticSortExpression(
+    SemanticExpression Source,
+    string ItemName,
+    SemanticExpression Key,
+    bool Descending) : SemanticExpression;
+
+/// <summary>
 /// The number of characters a text value holds. The selected language pack spells how that length is asked
 /// for, so no requirement names a library function.
 /// </summary>
@@ -269,6 +295,17 @@ internal static class SemanticExpressionAnalysis
             case SemanticTextLengthExpression length:
                 CollectReferencedNames(length.Value, names);
                 break;
+            case SemanticSubscriptExpression subscript:
+                CollectReferencedNames(subscript.Target, names);
+                CollectReferencedNames(subscript.Key, names);
+                break;
+            case SemanticCaseFoldExpression caseFold:
+                CollectReferencedNames(caseFold.Value, names);
+                break;
+            case SemanticSortExpression sort:
+                CollectReferencedNames(sort.Source, names);
+                CollectReferencedNames(sort.Key, names);
+                break;
             case SemanticArgumentsExpression arguments:
                 foreach (var value in arguments.Values)
                 {
@@ -345,6 +382,8 @@ internal static class SemanticExpressionAnalysis
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
         SemanticTextLengthExpression => KnownValueType.Number,
+        SemanticCaseFoldExpression => KnownValueType.Text,
+        SemanticSubscriptExpression or SemanticSortExpression => null,
         SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
@@ -352,7 +391,7 @@ internal static class SemanticExpressionAnalysis
     private static bool IsValueCore(SemanticExpression expression) =>
         expression is SemanticTextExpression or SemanticBooleanExpression or
         SemanticListLiteralExpression or SemanticRecordLiteralExpression or
-        SemanticMapLiteralExpression or SemanticArgumentsExpression ||
+        SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
         IsArithmeticCore(expression);
 
@@ -473,6 +512,14 @@ internal static class SemanticExpressionAnalysis
             SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
             SemanticMapLiteralExpression map => IsValidMap(map, depth, ref nodeCount),
             SemanticTextLengthExpression length => IsValid(length.Value, depth + 1, ref nodeCount),
+            SemanticSubscriptExpression subscript =>
+                IsValid(subscript.Target, depth + 1, ref nodeCount) &&
+                IsValid(subscript.Key, depth + 1, ref nodeCount),
+            SemanticCaseFoldExpression caseFold => IsValid(caseFold.Value, depth + 1, ref nodeCount),
+            SemanticSortExpression sort =>
+                IsValidIdentifier(sort.ItemName) &&
+                IsValid(sort.Source, depth + 1, ref nodeCount) &&
+                IsValid(sort.Key, depth + 1, ref nodeCount),
             SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };

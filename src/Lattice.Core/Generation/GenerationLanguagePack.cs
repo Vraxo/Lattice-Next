@@ -27,6 +27,18 @@ public sealed record GenerationLanguagePack(
     /// <summary>How this pack spells the length of a text value; the format carries `{0}` for the operand.</summary>
     public string? TextLengthFormat { get; init; }
 
+    /// <summary>How this pack reads one value from another by key; the format carries `{0}` value and `{1}` key.</summary>
+    public string? SubscriptFormat { get; init; }
+
+    /// <summary>How this pack spells a text value's case-insensitive form; `{0}` is the operand.</summary>
+    public string? CaseFoldFormat { get; init; }
+
+    /// <summary>How this pack orders a collection by one key expression; `{0}` items, `{1}` item name, `{2}` key.</summary>
+    public string? SortedExpressionFormat { get; init; }
+
+    /// <summary>The descending form of <see cref="SortedExpressionFormat"/>.</summary>
+    public string? SortedExpressionReverseFormat { get; init; }
+
 
     /// <summary>
     /// The example values a pack supplies for a request that asks for data without naming it — "a list of
@@ -77,7 +89,37 @@ public sealed record GenerationSampleCallPolicy(
     string FunctionName,
     string ResultName,
     ImmutableArray<string> Numbers,
-    ImmutableArray<string> Texts);
+    ImmutableArray<string> Texts)
+{
+    /// <summary>The record-shaped demonstration a sorting plan prints; absent when a language has no sorts.</summary>
+    public GenerationSampleSortPolicy? Sort { get; init; }
+}
+
+/// <summary>
+/// The records a sorting plan demonstrates when the request supplies no data: one record shape, and one
+/// sample per sensitivity. The shape is the ordered field list, so a sample record is a list of values rather
+/// than a mapping, and the field a sample sorts by is one of those names.
+/// </summary>
+public sealed record GenerationSampleSortPolicy(
+    string FunctionName,
+    string RecordsName,
+    string FieldName,
+    string ItemName,
+    ImmutableArray<GenerationSampleField> Fields,
+    ImmutableArray<GenerationRecordSortSample> Samples);
+
+/// <summary>One field of the sample record shape and whether it holds text or a number.</summary>
+public sealed record GenerationSampleField(string Name, bool IsText);
+
+/// <summary>
+/// One demonstrated sort: the field it orders by, whether it orders case-insensitively, which declared literal
+/// format spells its records, and the records themselves in field order.
+/// </summary>
+public sealed record GenerationRecordSortSample(
+    string Field,
+    bool CaseInsensitive,
+    string RecordsLiteral,
+    ImmutableArray<ImmutableArray<string>> Records);
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
 public sealed record GenerationInterpolationFormat(

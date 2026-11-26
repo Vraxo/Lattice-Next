@@ -37,6 +37,18 @@ public sealed class SemanticProgramGenerationTests
         "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
         "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))")]
     [InlineData(
+        "Create a Python program that defines a function that accepts a list of records and a field name, then returns the records sorted by that field.",
+        "def sort_records(records, field):\n    return sorted(records, key=lambda record: record[field])\nprint(sort_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field.",
+        "def order_records(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key])\nprint(order_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.",
+        "def sort_people(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key], reverse=True)\nprint(sort_people([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted case-insensitively by that field.",
+        "def sort_people(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key].casefold())\nprint(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], \"name\"))")]
+    [InlineData(
         "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
         "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
     [InlineData(

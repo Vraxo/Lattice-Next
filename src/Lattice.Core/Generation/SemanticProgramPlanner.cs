@@ -194,6 +194,9 @@ public static class SemanticProgramPlanner
             SortRequirement => true,
             AccumulationRequirement => true,
             FunctionRequirement function => CarriesCollection(function.Body),
+            ReturnRequirement returned =>
+                returned.Value is SemanticSortExpression or SemanticListLiteralExpression or
+                    SemanticRecordLiteralExpression or SemanticMapLiteralExpression,
             ConditionalRequirement conditional =>
                 CarriesCollection(conditional.ThenRequirements) ||
                 CarriesCollection(conditional.ElseRequirements),

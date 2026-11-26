@@ -21,4 +21,11 @@ public sealed record GenerationRecordLiteralFormat(
     string OpeningDelimiter,
     string ClosingDelimiter,
     string EntrySeparator,
-    string EntryFormat);
+    string EntryFormat)
+{
+    /// <summary>
+    /// How a text value inside this literal is spelled, when the literal's own style quotes strings differently
+    /// from the language's canonical string literal. `{0}` carries the text.
+    /// </summary>
+    public string? TextFormat { get; init; }
+}

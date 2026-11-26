@@ -40,6 +40,30 @@ internal static class SemanticExpressionRenderer
         return true;
     }
 
+    /// <summary>
+    /// Renders one entry value of a record or map literal. A literal style may spell plain text values its own
+    /// way, such as Python's dict style quoting every string with single quotes; anything the style cannot spell
+    /// safely keeps the language's canonical string literal.
+    /// </summary>
+    private static bool TryRenderLiteralValue(
+        SemanticExpression value,
+        GenerationRecordLiteralFormat literal,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (literal.TextFormat is { } textFormat &&
+            value is SemanticTextExpression text &&
+            text.Value.All(character => character is not ('\'' or '"' or '\\' or '\n' or '\r')))
+        {
+            rendered = textFormat.Replace("{0}", text.Value, StringComparison.Ordinal);
+            return true;
+        }
+
+        return TryRender(value, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out rendered);
+    }
+
     private static bool TryRender(
         SemanticExpression expression,
         GenerationLanguagePack languagePack,
@@ -150,12 +174,11 @@ internal static class SemanticExpressionRenderer
                 var entries = ImmutableArray.CreateBuilder<string>();
                 foreach (var entry in record.Entries)
                 {
-                    if (!TryRender(
+                    if (!TryRenderLiteralValue(
                             entry.Value,
+                            recordLiteral,
                             languagePack,
                             syntax,
-                            parentPrecedence: 0,
-                            isRightOperand: false,
                             out var renderedValue))
                     {
                         return false;
@@ -182,12 +205,11 @@ internal static class SemanticExpressionRenderer
                 var mapEntries = ImmutableArray.CreateBuilder<string>();
                 foreach (var entry in map.Entries)
                 {
-                    if (!TryRender(
+                    if (!TryRenderLiteralValue(
                             entry.Value,
+                            mapLiteral,
                             languagePack,
                             syntax,
-                            parentPrecedence: 0,
-                            isRightOperand: false,
                             out var renderedMapValue))
                     {
                         return false;
@@ -218,6 +240,52 @@ internal static class SemanticExpressionRenderer
                 }
 
                 rendered = textLengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticSubscriptExpression subscript:
+                if (languagePack.SubscriptFormat is not { } subscriptFormat ||
+                    !subscriptFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !subscriptFormat.Contains("{1}", StringComparison.Ordinal) ||
+                    !TryRender(subscript.Target, languagePack, syntax, PrimaryPrecedence, false, out var renderedTarget) ||
+                    !TryRender(subscript.Key, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedKey))
+                {
+                    return false;
+                }
+
+                rendered = subscriptFormat
+                    .Replace("{0}", renderedTarget, StringComparison.Ordinal)
+                    .Replace("{1}", renderedKey, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticCaseFoldExpression caseFold:
+                if (languagePack.CaseFoldFormat is not { } caseFoldFormat ||
+                    !caseFoldFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !TryRender(caseFold.Value, languagePack, syntax, PrimaryPrecedence, false, out var renderedCaseFold))
+                {
+                    return false;
+                }
+
+                rendered = caseFoldFormat.Replace("{0}", renderedCaseFold, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticSortExpression sort:
+                var sortFormat = sort.Descending
+                    ? languagePack.SortedExpressionReverseFormat
+                    : languagePack.SortedExpressionFormat;
+                if (sortFormat is not { } orderingFormat ||
+                    !orderingFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !orderingFormat.Contains("{1}", StringComparison.Ordinal) ||
+                    !orderingFormat.Contains("{2}", StringComparison.Ordinal) ||
+                    !TryRender(sort.Source, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedSortSource) ||
+                    !TryRender(sort.Key, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedSortKey))
+                {
+                    return false;
+                }
+
+                rendered = orderingFormat
+                    .Replace("{0}", renderedSortSource, StringComparison.Ordinal)
+                    .Replace("{1}", sort.ItemName, StringComparison.Ordinal)
+                    .Replace("{2}", renderedSortKey, StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticArgumentsExpression arguments:

@@ -62,6 +62,10 @@ public sealed class GenerationLanguagePackLoader
             (pack.TextLengthFormat is { } textLengthFormat &&
                 (textLengthFormat.Length > 64 ||
                  !textLengthFormat.Contains("{0}", StringComparison.Ordinal))) ||
+            !IsValidExpressionFormat(pack.SubscriptFormat, 64, "{0}", "{1}") ||
+            !IsValidExpressionFormat(pack.CaseFoldFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.SortedExpressionFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.SortedExpressionReverseFormat, 128, "{0}", "{1}", "{2}") ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
@@ -272,7 +276,40 @@ public sealed class GenerationLanguagePackLoader
         format.EntryFormat is not null &&
         format.EntryFormat.Length <= 64 &&
         format.EntryFormat.Contains("{0}", StringComparison.Ordinal) &&
-        format.EntryFormat.Contains("{1}", StringComparison.Ordinal);
+        format.EntryFormat.Contains("{1}", StringComparison.Ordinal) &&
+        IsValidExpressionFormat(format.TextFormat, 32, "{0}");
+
+    private static bool IsValidExpressionFormat(string? format, int maximumLength, params string[] placeholders) =>
+        format is null ||
+        (format.Length > 0 &&
+         format.Length <= maximumLength &&
+         placeholders.All(placeholder => format.Contains(placeholder, StringComparison.Ordinal)));
+
+    private static bool IsValidSampleSort(GenerationSampleSortPolicy sort) =>
+        IsIdentifier(sort.FunctionName) &&
+        IsIdentifier(sort.RecordsName) &&
+        IsIdentifier(sort.FieldName) &&
+        IsIdentifier(sort.ItemName) &&
+        !sort.Fields.IsDefaultOrEmpty &&
+        sort.Fields.Length <= 16 &&
+        sort.Fields.All(field => field is not null && IsIdentifier(field.Name)) &&
+        sort.Fields.Select(field => field.Name).Distinct(StringComparer.Ordinal).Count() == sort.Fields.Length &&
+        !sort.Samples.IsDefaultOrEmpty &&
+        sort.Samples.Length <= 8 &&
+        sort.Samples.All(sample =>
+            sample is not null &&
+            sort.Fields.Any(field => string.Equals(field.Name, sample.Field, StringComparison.Ordinal)) &&
+            sample.RecordsLiteral is "record" or "map" &&
+            !sample.Records.IsDefaultOrEmpty &&
+            sample.Records.Length <= 32 &&
+            sample.Records.All(record =>
+                !record.IsDefault &&
+                record.Length == sort.Fields.Length &&
+                record.Zip(sort.Fields).All(pair =>
+                    !string.IsNullOrWhiteSpace(pair.First) &&
+                    (pair.Second.IsText ||
+                     decimal.TryParse(pair.First, System.Globalization.NumberStyles.Number,
+                         System.Globalization.CultureInfo.InvariantCulture, out _)))));
 
     private static bool IsValidSampleCall(GenerationSampleCallPolicy policy) =>
         IsIdentifier(policy.FunctionName) &&
@@ -285,7 +322,8 @@ public sealed class GenerationLanguagePackLoader
                 System.Globalization.CultureInfo.InvariantCulture, out _)) &&
         !policy.Texts.IsDefaultOrEmpty &&
         policy.Texts.Length <= 32 &&
-        policy.Texts.All(value => !string.IsNullOrWhiteSpace(value));
+        policy.Texts.All(value => !string.IsNullOrWhiteSpace(value)) &&
+        (policy.Sort is null || IsValidSampleSort(policy.Sort));
 
     private static bool IsValidExampleData(GenerationExampleData data) =>
         !data.Numbers.IsDefaultOrEmpty &&

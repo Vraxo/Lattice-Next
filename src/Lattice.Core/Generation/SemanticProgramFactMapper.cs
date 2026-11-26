@@ -54,6 +54,17 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string RecordSortFactId = "program.sort.records";
+    private const string RecordSortFunctionValueId = "function";
+    private const string RecordSortRecordsValueId = "records";
+    private const string RecordSortFieldValueId = "field";
+    private const string RecordSortOrderValueId = "order";
+    private const string RecordSortSensitivityValueId = "sensitivity";
+    private const string RecordSortKindValueId = "kind";
+    private const string RecordSortKindValue = "records";
+    private const string RecordSortDescendingValue = "descending";
+    private const string RecordSortCaseInsensitiveValue = "case-insensitive";
+    private const string RecordSortLiteralMap = "map";
     private const string DictionaryMappingFactId = "program.mapping.dictionary";
     private const string MappingKindValueId = "kind";
     private const string MappingItemValueId = "item";
@@ -136,6 +147,20 @@ public static class SemanticProgramFactMapper
             }
 
             program = filterProgram;
+            return true;
+        }
+
+        // A record sort is a whole function, so it is projected on its own.
+        var recordSort = facts.FirstOrDefault(candidate =>
+            candidate.Id == RecordSortFactId && IsCompleteRecordSort(candidate));
+        if (recordSort is not null)
+        {
+            if (!TryCreateRecordSort(recordSort, exampleData, out var sortProgram, out error))
+            {
+                return false;
+            }
+
+            program = sortProgram;
             return true;
         }
 
@@ -1267,6 +1292,132 @@ public static class SemanticProgramFactMapper
 
         program = filter;
         return true;
+    }
+
+    /// <summary>
+    /// Whether a fact describes a record sort rather than another family that mentions records.
+    /// </summary>
+    private static bool IsCompleteRecordSort(SequenceSemanticFact fact) =>
+        fact.Values.TryGetValue(RecordSortKindValueId, out var kind) &&
+        string.Equals(kind?.Trim(), RecordSortKindValue, StringComparison.Ordinal);
+
+    /// <summary>
+    /// Projects "returns the records sorted by that field" onto a function that orders its own parameter by one
+    /// field, followed by the demonstration call the policy supplies because the request states no data. The
+    /// function, the two parameter names, and the ordering are request data.
+    /// </summary>
+    private static bool TryCreateRecordSort(
+        SequenceSemanticFact sortFact,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (exampleData?.SampleCall?.Sort is not { } sort)
+        {
+            error = "A record sort requires the declared sample sort policy.";
+            return false;
+        }
+
+        var functionName = ReadName(sortFact, RecordSortFunctionValueId) ?? sort.FunctionName;
+        var recordsName = ReadName(sortFact, RecordSortRecordsValueId) ?? sort.RecordsName;
+        var fieldName = ReadName(sortFact, RecordSortFieldValueId) ?? sort.FieldName;
+        if (functionName is null || recordsName is null || fieldName is null)
+        {
+            error = "A record sort requires the names its function and parameters take.";
+            return false;
+        }
+
+        var descending = sortFact.Values.TryGetValue(RecordSortOrderValueId, out var order) &&
+            string.Equals(order?.Trim(), RecordSortDescendingValue, StringComparison.Ordinal);
+        var caseInsensitive = sortFact.Values.TryGetValue(RecordSortSensitivityValueId, out var sensitivity) &&
+            string.Equals(sensitivity?.Trim(), RecordSortCaseInsensitiveValue, StringComparison.Ordinal);
+
+        var sample = sort.Samples.FirstOrDefault(candidate => candidate.CaseInsensitive == caseInsensitive);
+        if (sample is null)
+        {
+            error = "The declared sample sort policy has no demonstration for this ordering.";
+            return false;
+        }
+
+        SemanticExpression key = new SemanticSubscriptExpression(
+            new SemanticNameExpression(sort.ItemName),
+            new SemanticNameExpression(fieldName));
+        if (caseInsensitive)
+        {
+            key = new SemanticCaseFoldExpression(key);
+        }
+
+        var records = ImmutableArray.CreateBuilder<SemanticExpression>(sample.Records.Length);
+        foreach (var record in sample.Records)
+        {
+            if (record.Length != sort.Fields.Length)
+            {
+                error = "A sample record must hold one value per declared field.";
+                return false;
+            }
+
+            var entries = ImmutableArray.CreateBuilder<SemanticRecordEntry>(record.Length);
+            for (var index = 0; index < record.Length; index++)
+            {
+                var field = sort.Fields[index];
+                SemanticExpression value = field.IsText
+                    ? new SemanticTextExpression(record[index])
+                    : new SemanticNumberExpression(record[index].Trim());
+                entries.Add(new SemanticRecordEntry(field.Name, value));
+            }
+
+            records.Add(string.Equals(sample.RecordsLiteral, RecordSortLiteralMap, StringComparison.Ordinal)
+                ? new SemanticMapLiteralExpression(entries.ToImmutable())
+                : new SemanticRecordLiteralExpression(entries.ToImmutable()));
+        }
+
+        var sortProgram = new SemanticProgram(
+        [
+            new FunctionRequirement(
+                functionName,
+                [
+                    new FunctionParameter(recordsName, null),
+                    new FunctionParameter(fieldName, null)
+                ],
+                null,
+                [
+                    new ReturnRequirement(new SemanticSortExpression(
+                        new SemanticNameExpression(recordsName),
+                        sort.ItemName,
+                        key,
+                        descending))
+                ]),
+            new OutputRequirement(new SemanticFunctionCallExpression(
+                functionName,
+                [
+                    new SemanticListLiteralExpression(records.ToImmutable()),
+                    new SemanticTextExpression(sample.Field)
+                ]))
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(sortProgram))
+        {
+            error = "The projected record sort requirements are not structurally valid.";
+            return false;
+        }
+
+        program = sortProgram;
+        return true;
+    }
+
+    /// <summary>Reads one captured name from a fact, trimmed of the punctuation a sentence leaves behind.</summary>
+    private static string? ReadName(SequenceSemanticFact fact, string valueId)
+    {
+        if (!fact.Values.TryGetValue(valueId, out var value) || string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var name = value.Trim().Trim(LiteralEntryTrimCharacters);
+        return name.Length == 0 ? null : name;
     }
 
     /// <summary>

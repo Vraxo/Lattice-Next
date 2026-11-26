@@ -3595,14 +3595,75 @@
         "Grace",
         "Linus"
       ],
-      "resultName": "mapped_values"
+      "resultName": "mapped_values",
+      "sort": {
+        "functionName": "sort_records",
+        "recordsName": "records",
+        "fieldName": "field",
+        "itemName": "record",
+        "fields": [
+          {
+            "name": "name",
+            "isText": true
+          },
+          {
+            "name": "age",
+            "isText": false
+          }
+        ],
+        "samples": [
+          {
+            "field": "age",
+            "caseInsensitive": false,
+            "recordsLiteral": "record",
+            "records": [
+              [
+                "Ada",
+                "36"
+              ],
+              [
+                "Grace",
+                "85"
+              ],
+              [
+                "Linus",
+                "55"
+              ]
+            ]
+          },
+          {
+            "field": "name",
+            "caseInsensitive": true,
+            "recordsLiteral": "map",
+            "records": [
+              [
+                "ada",
+                "36"
+              ],
+              [
+                "BOB",
+                "42"
+              ],
+              [
+                "Grace",
+                "85"
+              ]
+            ]
+          }
+        ]
+      }
     }
   },
   "mapLiteralFormat": {
     "openingDelimiter": "{",
     "closingDelimiter": "}",
     "entrySeparator": ", ",
-    "entryFormat": "'{0}': {1}"
+    "entryFormat": "'{0}': {1}",
+    "textFormat": "'{0}'"
   },
-  "textLengthFormat": "len({0})"
+  "textLengthFormat": "len({0})",
+  "subscriptFormat": "{0}[{1}]",
+  "caseFoldFormat": "{0}.casefold()",
+  "sortedExpressionFormat": "sorted({0}, key=lambda {1}: {2})",
+  "sortedExpressionReverseFormat": "sorted({0}, key=lambda {1}: {2}, reverse=True)"
 }

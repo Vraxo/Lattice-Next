@@ -698,7 +698,7 @@ public sealed class PythonProgramGenerationTests
         var expectedCode = string.Join(Environment.NewLine,
             "def sort_people(people, sort_key):",
             "    return sorted(people, key=lambda record: record[sort_key].casefold())",
-            """print(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))""");
+            """print(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], "name"))""");
         Assert.Equal(expectedCode, generatedCode);
         await AssertPythonOutput(
             generatedCode,
