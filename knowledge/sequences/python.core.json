@@ -107,8 +107,7 @@
       "factId": "program.function",
       "forbiddenAnySequences": [
         [
-          "built",
-          "in"
+          "built"
         ]
       ]
     },
