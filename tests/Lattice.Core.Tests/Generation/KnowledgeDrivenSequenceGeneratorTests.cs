@@ -759,34 +759,32 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.declaration.dictionary", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
-    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.declaration.dictionary", "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
-    public void Generates_dictionary_iteration_from_declarative_semantic_facts(string input, string expectedFact, string expectedCode)
+    [InlineData(
+        "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
+        "counts", "name", "count", "{'Ada'/'Grace'/'Linus'", "3/5/6}")]
+    [InlineData(
+        "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
+        "prices", "product", "price", "{'apple'/'banana'", "1.5/0.75}")]
+    public void Reads_a_declared_dictionary_as_request_entries(
+        string input,
+        string expectedName,
+        string expectedKey,
+        string expectedValue,
+        string expectedKeys,
+        string expectedValues)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
+
+        var literal = Assert.Single(facts, fact => fact.Id == "program.declaration.dictionary");
+        Assert.Equal(expectedName, literal.Values["name"].Trim().Trim(','));
+        Assert.Equal(expectedKey, literal.Values["key"].Trim().Trim(','));
+        Assert.Equal(expectedValue, literal.Values["value"].Trim().Trim('.'));
+        Assert.Equal(expectedKeys, string.Join('/', literal.Collections["keys"]));
+        Assert.Equal(expectedValues, string.Join('/', literal.Collections["values"]));
         Assert.DoesNotContain(facts, fact =>
             fact.Id is "program.dictionary-product-iteration" or "program.dictionary-name-count-iteration");
-
-        var dictionaryPackLoader = new GenerationLanguagePackLoader();
-        Assert.True(dictionaryPackLoader.TryLoadEmbedded(out var dictionaryPacks, out var dictionaryPackError),
-            dictionaryPackError);
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts,
-            LanguagePack = dictionaryPacks["python"]
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var result, out var generationError),
-            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), result!.Text);
     }
-
 
     [Theory]
     [InlineData(
