@@ -62,10 +62,13 @@ public sealed class CrossLanguageGenerationTests
         Assert.Equal(expectedPython, pythonCode);
         Assert.Equal(expectedJavaScript, javaScriptCode);
 
-        // The operations are selected language-neutrally: the same effects, in the same order, either way.
+        // The operations are selected language-neutrally: the same semantic effects, in the same order, either
+        // way. A language that closes its blocks declares a close operation, which the other one does not have.
+        Assert.Equal(SemanticEffects(pythonStatements), SemanticEffects(javaScriptStatements));
+        Assert.DoesNotContain(pythonStatements, statement => statement.Effect.StartsWith("close-", StringComparison.Ordinal));
         Assert.Equal(
-            pythonStatements.Select(statement => statement.Effect).ToImmutableArray(),
-            javaScriptStatements.Select(statement => statement.Effect).ToImmutableArray());
+            expectedJavaScript.Contains('}', StringComparison.Ordinal),
+            javaScriptStatements.Any(statement => statement.Effect == "close-block"));
     }
 
     [Theory]
@@ -83,8 +86,7 @@ public sealed class CrossLanguageGenerationTests
                 knowledge!, javaScriptRequest, out var facts, out var extractionError),
             extractionError);
 
-        var language = Assert.Single(
-            facts.Where(fact => fact.Id.StartsWith("language.", StringComparison.Ordinal)));
+        var language = Assert.Single(facts, fact => fact.Id.StartsWith("language.", StringComparison.Ordinal));
         Assert.Equal("language.javascript", language.Id);
 
         Assert.True(
@@ -93,6 +95,12 @@ public sealed class CrossLanguageGenerationTests
             error);
         Assert.Equal(expectedJavaScript, code);
     }
+
+    private static ImmutableArray<string> SemanticEffects(ImmutableArray<PlannedProgramStatement> statements) =>
+        statements
+            .Where(statement => !statement.Effect.StartsWith("close-", StringComparison.Ordinal))
+            .Select(statement => statement.Effect)
+            .ToImmutableArray();
 
     private static ImmutableDictionary<string, GenerationLanguagePack> LoadPacks()
     {
