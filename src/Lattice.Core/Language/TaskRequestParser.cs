@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Lattice.Core.Generation;
 using Lattice.Core.Reasoning;
 using Lattice.Core.Semantics;
 
@@ -462,9 +463,14 @@ internal static class TaskRequestParser
             requirements.Add("open-source");
         }
 
-        if (purpose.Contains("python", StringComparison.OrdinalIgnoreCase))
+        // The languages this system declares come from the generation packs, so a purpose that names one asks
+        // for that language's ecosystem without this parser spelling any language itself.
+        foreach (var language in GenerationLanguages.Names)
         {
-            requirements.Add("python");
+            if (purpose.Contains(language, StringComparison.OrdinalIgnoreCase))
+            {
+                requirements.Add(language);
+            }
         }
 
         if (purpose.Contains("simulation", StringComparison.OrdinalIgnoreCase) ||
