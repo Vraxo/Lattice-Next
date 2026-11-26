@@ -33,7 +33,7 @@ public sealed class GenerationLanguagePackLoader
         }
         catch (JsonException exception)
         {
-            error = $"DIAGNOSTIC json: {exception.Message}";
+            error = $"The generation language pack is invalid JSON or contains an unsupported field: {exception.Message}";
             return false;
         }
 

@@ -24,7 +24,7 @@ public sealed class CrossLanguageGenerationTests
         "def keep_large(samples):\n    return [sample for sample in samples if sample > 4]\nprint(keep_large([1, 2, 3, 4, 5]))";
 
     private const string FilterJavaScript =
-        "function keep_large(samples) {\n  return samples.filter((sample) => sample > 4)\n}\nconsole.log(keep_large([1, 2, 3, 4, 5]))";
+        "function keep_large(samples) {\n  return samples.reduce((kept, sample) => sample > 4 ? [...kept, sample] : kept, [])\n}\nconsole.log(keep_large([1, 2, 3, 4, 5]))";
 
     private const string DictionaryRequest =
         "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.";
