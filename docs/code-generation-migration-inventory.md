@@ -838,3 +838,39 @@ dropped from twenty entries to eighteen.
 
 Still blocked: `python-manual-list-total` — the request names no collection at all, so it needs the shared
 example-data policy that 8.9 and 8.14 also wait on.
+
+## M-9.23 — completed: loop totals with request or example data
+
+The third fragment, `python-manual-list-total`, needed one thing the request does not supply: the numbers. That
+value now comes from a single declared policy rather than from a task-shaped rule.
+
+### The example-data policy
+
+`GenerationLanguagePack.ExampleData` (new, optional) declares:
+
+```json
+"exampleData": { "numbers": ["1", "2", "3", "4", "5"], "numberItemName": "number", "accumulatorInitialValue": "0" }
+```
+
+It is the only invented data in the pipeline, and it is constrained on three sides:
+
+| Constraint | Where it is enforced |
+| --- | --- |
+| It is never task-shaped — keyed by value kind only, never by a request, fact id, or benchmark id | the pack field has no task dimension; `Keeps_benchmark_and_task_identities_out_of_knowledge` still guards the knowledge file |
+| Request data always wins | `TryProjectAccumulations` reads the captured collection first and only falls back when it is missing; `Keeps_request_supplied_collections_ahead_of_the_example_data` plans `[4, 9]` while the policy holds `[1, 2, 3, 4, 5]` |
+| It is validated, not trusted | `GenerationLanguagePackLoader.IsValidExampleData` requires non-empty canonical numbers, an identifier item name, and a numeric initial value |
+
+Three new input rules read the manual-total request: `recognize-manual-list-accumulation`,
+`capture-manual-list-accumulator` (the total after "their"), and `capture-manual-list-output` (the same total as
+a typed output expression). All three are scoped with `requiredAllSequences: [["list","of","numbers"]]`.
+
+Two general fixes came out of it:
+
+- `SemanticProgramPlanner.CarriesCollection` now recognises `AccumulationRequirement`, so a request that names a
+  list is planned rather than deferred by the `program.collection` marker.
+- `recognize-function-requirement` no longer reads "the built-in sum function" as a function declaration
+  (`forbiddenAnySequences: [["built"], ["built-in"]]`).
+
+Outcome: `python-manual-list-total` and `recognize-manual-list-total-request` are deleted, the program is
+byte-identical (`total = 0` / `for number in [1, 2, 3, 4, 5]:` / `    total = total + number` / `print(total)`),
+and the guard exception table is down to seventeen entries.
