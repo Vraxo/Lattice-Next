@@ -1023,3 +1023,24 @@ reports both names. Mapping literals also count as carried collections in `Carri
 Deleted: `python-dictionary-product-iteration`, `python-dictionary-name-count-iteration`,
 `recognize-dictionary-product-iteration`, `recognize-dictionary-name-count-iteration`, and two rows of the
 exception table (eleven → nine). Both programs are byte-identical.
+
+## The one policy the last six fragments wait on
+
+Nine exception-table rows remain: three dictionary mappings, four single-field record sorts, one grouped
+aggregation, and they all end at the same missing decision — **the sample call**. Each fragment is a function
+whose body is generic over its parameters and whose last line prints one concrete call, for example
+`print(map_values([1, 2, 3]))` or `print(sort_records([{…}], "age"))`. The request never states those values, so a
+planned replacement needs the same kind of kind-keyed policy the accumulation and parity tickets already use
+(`GenerationExampleData`), rather than a literal per fragment.
+
+That splits the remaining work into four tickets with one shared prerequisite:
+
+| Ticket | Fragments | Needs |
+| --- | --- | --- |
+| 9.24b | three dictionary mappings | sample-call policy, function returning a dictionary |
+| 9.25a | four single-field record sorts | sample-call policy, subscript over the loop item (`record[field]`) |
+| 9.25b | two multi-field record sorts | 9.25a's subscript plus a declarative nested key expression (`tuple(record[field] for field in keys)`) |
+| 9.25c | one grouped aggregation | a grouped-accumulation requirement (totals per key) |
+
+Doing them in that order keeps every replacement separate from its deletion, and each deletion drops the
+exception table by exactly the rows it owns.
