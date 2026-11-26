@@ -6108,6 +6108,9 @@
         [
           "dictionary",
           "named"
+        ],
+        [
+          "stores"
         ]
       ],
       "captures": [

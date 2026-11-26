@@ -183,7 +183,9 @@ public static class SemanticProgramPlanner
         requirements.Any(requirement => requirement switch
         {
             AssignmentRequirement assignment =>
-                assignment.Value is SemanticListLiteralExpression or SemanticRecordLiteralExpression,
+                assignment.Value is SemanticListLiteralExpression or
+                    SemanticRecordLiteralExpression or
+                    SemanticMapLiteralExpression,
             IterationRequirement => true,
             DictionaryIterationRequirement => true,
             FilterRequirement => true,
