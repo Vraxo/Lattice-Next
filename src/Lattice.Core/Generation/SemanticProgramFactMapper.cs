@@ -52,6 +52,11 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldFactId = "program.requirement.class.field";
     private const string ClassFieldNameValueId = "field";
     private const string ClassFieldInitialValueId = "initial";
+    private const string AccumulationFactId = "program.accumulation";
+    private const string AccumulationNameValueId = "accumulator";
+    private const string AccumulationInitialValueId = "initial";
+    private const string AccumulationItemValueId = "item";
+    private const string AccumulationCollectionValueId = "collection";
     private const string ClassMethodFactId = "program.requirement.class.method";
     private const string ClassMethodNameValueId = "method";
     private const string ClassMethodParameterValueId = "parameter";
@@ -104,6 +109,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectFileLines(facts, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectAccumulations(facts, declarations, out error))
         {
             return false;
         }
@@ -967,6 +977,62 @@ public static class SemanticProgramFactMapper
         declarations.Add(new OutputRequirement(new SemanticNameExpression(counter)));
         return true;
     }
+
+    /// <summary>
+    /// Projects a request that adds every item of a collection into a named accumulator: "starts total at 0
+    /// and adds each number in [1, 2, 3] to total". The request supplies the accumulator, its initial value,
+    /// the item name, and the collection contents; the shape — initialize, iterate, update, report — is the
+    /// requirement model's and the pack spells each statement.
+    /// </summary>
+    private static bool TryProjectAccumulations(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == AccumulationFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!TryGetCollection(fact, AccumulationNameValueId, out var names) ||
+            names.Length != 1 ||
+            string.IsNullOrWhiteSpace(names[0]) ||
+            !TryGetCollection(fact, AccumulationInitialValueId, out var initialValues) ||
+            initialValues.Length != 1 ||
+            string.IsNullOrWhiteSpace(initialValues[0]) ||
+            !TryGetCollection(fact, AccumulationItemValueId, out var items) ||
+            items.Length != 1 ||
+            string.IsNullOrWhiteSpace(items[0]) ||
+            !fact.SemanticCollections.TryGetValue(AccumulationCollectionValueId, out var contents) ||
+            contents.Items.IsDefaultOrEmpty)
+        {
+            error = "An accumulation requires one accumulator name, initial value, item name, and collection.";
+            return false;
+        }
+
+        var accumulator = names[0];
+        var item = items[0];
+        var itemKind = contents.Items[0].Kind;
+        declarations.Add(new AccumulationRequirement(
+            accumulator,
+            itemKind,
+            item,
+            new SemanticListLiteralExpression(
+                [.. contents.Items.Select(ToLiteralExpression)]),
+            ToLiteralExpression(new SemanticCollectionItem(itemKind, initialValues[0])),
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                new SemanticNameExpression(accumulator),
+                new SemanticNameExpression(item))));
+        return true;
+    }
+
+    private static SemanticExpression ToLiteralExpression(SemanticCollectionItem item) =>
+        item.Kind == SemanticCollectionItemKind.Text
+            ? new SemanticTextExpression(item.Value)
+            : new SemanticNumberExpression(item.Value);
 
     private static bool TryProjectAssignments(
         ImmutableArray<SequenceSemanticFact> facts,

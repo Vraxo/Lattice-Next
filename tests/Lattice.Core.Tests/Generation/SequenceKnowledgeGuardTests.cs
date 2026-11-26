@@ -25,8 +25,6 @@ public sealed class SequenceKnowledgeGuardTests
         "python-even-number-list-parity-filter",
         // 9.23 — fixed loop totals carrying the collection literals.
         "python-manual-list-total",
-        "python-loop-accumulator-total",
-        "python-loop-accumulator-result",
         // 9.24 — fixed dictionary mappings and iterations.
         "python-value-offset-dictionary-mapping",
         "python-number-square-dictionary-mapping",

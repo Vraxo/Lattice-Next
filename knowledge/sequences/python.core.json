@@ -2092,28 +2092,6 @@
       "factId": "program.manual-list-total"
     },
     {
-      "id": "recognize-loop-accumulator-total",
-      "matchTokens": [
-        "starts",
-        "total",
-        "and",
-        "adds",
-        "each",
-        "number",
-        "then",
-        "prints",
-        "total"
-      ],
-      "factId": "program.loop-accumulator"
-    },
-    {
-      "id": "recognize-loop-accumulator-result",
-      "matchTokens": [
-        "initializes"
-      ],
-      "factId": "program.loop-accumulator.result"
-    },
-    {
       "id": "recognize-initializes-assignment",
       "matchTokens": [
         "initializes"
@@ -5545,6 +5523,241 @@
           "back"
         ]
       ]
+    },
+    {
+      "id": "recognize-accumulation-starts",
+      "matchTokens": [
+        "starts",
+        "adds"
+      ],
+      "factId": "program.accumulation"
+    },
+    {
+      "id": "recognize-accumulation-initializes",
+      "matchTokens": [
+        "initializes",
+        "adds"
+      ],
+      "factId": "program.accumulation"
+    },
+    {
+      "id": "capture-accumulation-name-starts",
+      "matchTokens": [
+        "starts"
+      ],
+      "factId": "program.accumulation",
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeTokens": [
+            "at"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "starts"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-name-initializes",
+      "matchTokens": [
+        "initializes"
+      ],
+      "factId": "program.accumulation",
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "initializes"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-initial-starts",
+      "matchTokens": [
+        "at"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "starts"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "initial",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-initial-initializes",
+      "matchTokens": [
+        "to"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "initializes"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "initial",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-item",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-collection",
+      "matchTokens": [
+        "in"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "collection",
+          "stopBeforeTokens": [
+            "to"
+          ],
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "trimSuffixCharacters": "."
+        }
+      ]
     }
   ],
   "rules": [
@@ -6062,46 +6275,6 @@
         "program.aggregate",
         "program.collection",
         "program.function"
-      ]
-    },
-    {
-      "id": "python-loop-accumulator-total",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.loop-accumulator"
-      ],
-      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)\n```",
-      "satisfiesFacts": [
-        "program.loop-accumulator",
-        "language.python",
-        "intent.program-generation",
-        "program.assignment",
-        "program.arithmetic",
-        "program.iteration",
-        "program.output",
-        "program.output.start",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-loop-accumulator-result",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.loop-accumulator.result"
-      ],
-      "nextToken": "```python\nresult = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)\n```",
-      "satisfiesFacts": [
-        "program.loop-accumulator.result",
-        "language.python",
-        "intent.program-generation",
-        "program.assignment",
-        "program.arithmetic",
-        "program.iteration",
-        "program.output"
       ]
     },
     {

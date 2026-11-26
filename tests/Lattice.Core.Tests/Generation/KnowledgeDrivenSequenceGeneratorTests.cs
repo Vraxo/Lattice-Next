@@ -533,31 +533,32 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
-    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
-    public void Recognizes_loop_accumulator_requests_from_declarative_facts(string input, string expectedFact)
+    [InlineData(
+        "Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.",
+        "total = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)")]
+    [InlineData(
+        "Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.",
+        "result = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)")]
+    public void Plans_accumulation_requests_from_request_supplied_collections(string input, string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
         Assert.True(
-            facts.Any(fact => fact.Id == expectedFact),
+            facts.Any(fact => fact.Id == "program.accumulation"),
             $"Extracted facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.loop", StringComparison.Ordinal));
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
-                out var generated,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
                 out var generationError),
             $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("for ", generated!.Text, StringComparison.Ordinal);
+        Assert.Equal(expectedCode, code);
     }
 
     [Theory]
@@ -645,7 +646,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             .Where(capture => capture.SemanticCollectionFormat is not null)
             .ToArray();
 
-        Assert.Equal(2, captures.Length);
+        Assert.Equal(3, captures.Length);
         Assert.All(captures, capture =>
         {
             Assert.Equal("[", capture.SemanticCollectionFormat!.OpeningDelimiter);
