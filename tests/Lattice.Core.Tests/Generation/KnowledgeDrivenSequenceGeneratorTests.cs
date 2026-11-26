@@ -550,6 +550,12 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var packLoader = new GenerationLanguagePackLoader();
         Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        var dump = string.Join("; ", facts.Select(fact =>
+            fact.Id + "{v:" + string.Join(",", fact.Values.Select(pair => pair.Key + "=" + pair.Value)) +
+            "}{c:" + string.Join(",", fact.Collections.Select(pair => pair.Key + "=" + string.Join("/", pair.Value))) +
+            "}{e:" + string.Join(",", fact.Expressions.Select(pair => pair.Key + "=" + pair.Value)) +
+            "}{s:" + string.Join(",", fact.SemanticCollections.Select(pair =>
+                pair.Key + "=" + string.Join("/", pair.Items.Select(item => item.Kind + ":" + item.Value)))) + "}"));
         Assert.True(
             SemanticProgramPlanner.TryGenerateProgram(
                 facts,
@@ -557,7 +563,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
                 out var code,
                 out _,
                 out var generationError),
-            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. Dump: {dump}");
         Assert.Equal(expectedCode, code);
     }
 
