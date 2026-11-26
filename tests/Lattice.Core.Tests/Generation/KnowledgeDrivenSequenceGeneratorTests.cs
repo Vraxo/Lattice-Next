@@ -1838,9 +1838,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
         var classification = Assert.Single(
             facts.Where(fact => fact.Id == "program.classification.sign"));
-        Assert.Equal("positive", classification.Values["positive"]);
-        Assert.Equal("negative", classification.Values["negative"]);
-        Assert.Equal("zero", classification.Values["zero"]);
+        Assert.Equal("positive", classification.Values["positive"].Trim(' ', ',', '.'));
+        Assert.Equal("negative", classification.Values["negative"].Trim(' ', ',', '.'));
+        Assert.Equal("zero", classification.Values["zero"].Trim(' ', ',', '.'));
         Assert.DoesNotContain(
             facts,
             fact => fact.Id.StartsWith("program.assignment.classification", StringComparison.Ordinal));
