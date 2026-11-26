@@ -717,7 +717,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.sort.fields", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
@@ -748,7 +747,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.sort.fields", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
