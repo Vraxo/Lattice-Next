@@ -6098,7 +6098,7 @@
       "matchTokens": [
         "named"
       ],
-      "factId": "program.dictionary-literal",
+      "factId": "program.declaration.dictionary",
       "requiredAllSequences": [
         [
           "dictionary",
@@ -6110,7 +6110,7 @@
       ],
       "captures": [
         {
-          "factId": "program.dictionary-literal",
+          "factId": "program.declaration.dictionary",
           "valueId": "name",
           "stopBeforeTokens": [
             "then"
@@ -6124,7 +6124,7 @@
       "matchTokens": [
         "stores"
       ],
-      "factId": "program.dictionary-literal",
+      "factId": "program.declaration.dictionary",
       "requiredAllSequences": [
         [
           "dictionary",
@@ -6133,7 +6133,7 @@
       ],
       "captures": [
         {
-          "factId": "program.dictionary-literal",
+          "factId": "program.declaration.dictionary",
           "valueId": "keys",
           "stopBeforeSequences": [
             [
@@ -6157,7 +6157,7 @@
       "matchTokens": [
         "stores"
       ],
-      "factId": "program.dictionary-literal",
+      "factId": "program.declaration.dictionary",
       "requiredAllSequences": [
         [
           "dictionary",
@@ -6166,7 +6166,7 @@
       ],
       "captures": [
         {
-          "factId": "program.dictionary-literal",
+          "factId": "program.declaration.dictionary",
           "valueId": "values",
           "stopBeforeSequences": [
             [
@@ -6190,7 +6190,7 @@
       "matchTokens": [
         "each"
       ],
-      "factId": "program.dictionary-literal",
+      "factId": "program.declaration.dictionary",
       "requiredAllSequences": [
         [
           "dictionary",
@@ -6205,7 +6205,7 @@
       ],
       "captures": [
         {
-          "factId": "program.dictionary-literal",
+          "factId": "program.declaration.dictionary",
           "valueId": "key",
           "stopBeforeTokens": [
             "and",
@@ -6220,7 +6220,7 @@
       "matchTokens": [
         "its"
       ],
-      "factId": "program.dictionary-literal",
+      "factId": "program.declaration.dictionary",
       "requiredAllSequences": [
         [
           "dictionary",
@@ -6232,7 +6232,7 @@
       ],
       "captures": [
         {
-          "factId": "program.dictionary-literal",
+          "factId": "program.declaration.dictionary",
           "valueId": "value",
           "trimSuffixCharacters": "."
         }

@@ -54,7 +54,7 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
-    private const string DictionaryLiteralFactId = "program.dictionary-literal";
+    private const string DictionaryLiteralFactId = "program.declaration.dictionary";
     private const string DictionaryNameValueId = "name";
     private const string DictionaryKeysValueId = "keys";
     private const string DictionaryValuesValueId = "values";

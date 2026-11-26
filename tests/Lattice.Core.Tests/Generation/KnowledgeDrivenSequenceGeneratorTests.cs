@@ -759,8 +759,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-literal", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
-    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.dictionary-literal", "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
+    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.declaration.dictionary", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
+    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.declaration.dictionary", "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
     public void Generates_dictionary_iteration_from_declarative_semantic_facts(string input, string expectedFact, string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
@@ -775,20 +775,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         {
             FactValues = facts
         };
-        var probeLoader = new GenerationLanguagePackLoader();
-        Assert.True(probeLoader.TryLoadEmbedded(out var probePacks, out var probeError), probeError);
-        SemanticProgramPlanner.TryGenerateProgram(facts, probePacks["python"], out var probeCode, out _, out var planError);
-        var literal = facts.FirstOrDefault(fact => fact.Id == "program.dictionary-literal");
-        var literalValues = literal is null
-            ? "no literal fact"
-            : string.Join("; ", literal.Values.Select(pair => $"{pair.Key}={pair.Value}")) +
-              " | collections: " +
-              string.Join("; ", literal.Collections.Select(pair => $"{pair.Key}={string.Join("/", pair.Value)}")) +
-              " | semantic: " +
-              string.Join("; ", literal.SemanticCollections.Keys);
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!, null, request, out var result, out var generationError),
-            $"Generation failed: {generationError}. Plan: {planError}. Code: {probeCode}. Literal: {literalValues}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
         var fence = new string((char)96, 3);
         Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), result!.Text);
