@@ -7,7 +7,7 @@
       "head": "program",
       "symbols": [
         {
-          "kind": "binding",
+          "kind": "nonterminal",
           "value": "statement"
         }
       ]
@@ -16,7 +16,7 @@
       "head": "statement",
       "symbols": [
         {
-          "kind": "binding",
+          "kind": "nonterminal",
           "value": "call-expression"
         }
       ]
@@ -287,17 +287,7 @@
       "encoding": "none"
     },
     {
-      "name": "argument-text",
-      "source": "goal-argument",
-      "encoding": "string-literal"
-    },
-    {
       "name": "argument-expression",
-      "source": "goal-argument",
-      "encoding": "none"
-    },
-    {
-      "name": "argument-assignment",
       "source": "goal-argument",
       "encoding": "none"
     },
@@ -314,28 +304,10 @@
       "key": "expression"
     },
     {
-      "name": "variable",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "variable"
-    },
-    {
       "name": "iterable",
       "source": "goal-binding",
       "encoding": "none",
       "key": "iterable"
-    },
-    {
-      "name": "iterable-collection",
-      "source": "goal-collection",
-      "encoding": "collection-literal",
-      "key": "iterable"
-    },
-    {
-      "name": "condition",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "condition"
     },
     {
       "name": "function",
@@ -350,18 +322,6 @@
       "key": "arguments"
     },
     {
-      "name": "string-value",
-      "source": "goal-binding",
-      "encoding": "string-literal",
-      "key": "string-value"
-    },
-    {
-      "name": "predicate",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "predicate"
-    },
-    {
       "name": "key",
       "source": "goal-binding",
       "encoding": "none",
@@ -372,18 +332,6 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "value"
-    },
-    {
-      "name": "item",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "item"
-    },
-    {
-      "name": "result",
-      "source": "goal-binding",
-      "encoding": "none",
-      "key": "result"
     }
   ],
   "operations": [
