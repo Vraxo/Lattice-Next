@@ -204,7 +204,17 @@ public static class SemanticProgramFactMapper
         var projection = new SemanticProgram(requirements.ToImmutable());
         if (!SemanticProgramValidator.IsValid(projection))
         {
-            error = "The projected generic program requirements are not structurally valid.";
+            var details = string.Join(" | ", projection.Requirements.Select((requirement, index) =>
+                $"{index}:{requirement.GetType().Name}" +
+                $":single={SemanticProgramValidator.IsValid(new SemanticProgram([requirement]))}" +
+                (requirement is AccumulationRequirement accumulation
+                    ? $":source={SemanticExpressionAnalysis.IsValid(accumulation.Source)}" +
+                      $":update={SemanticExpressionAnalysis.IsValid(accumulation.Update)}" +
+                      $":initial={SemanticExpressionAnalysis.IsValid(accumulation.InitialValue)}" +
+                      $":kind={accumulation.AccumulatorKind}" +
+                      $":name={accumulation.AccumulatorName}:item={accumulation.ItemName}"
+                    : string.Empty)));
+            error = $"The projected generic program requirements are not structurally valid. [{details}]";
             return false;
         }
 
