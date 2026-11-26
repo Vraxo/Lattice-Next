@@ -104,7 +104,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [InlineData(
         "Write a Python program that fulfills this request: Given a dictionary of employee names and salaries, display each employee with its salary.",
         "employee", "salary")]
-    public void Extracts_and_generates_dictionary_iteration_from_key_value_language(
+    public void Reads_a_dictionary_iteration_as_its_key_value_and_collection(
         string prompt,
         string expectedKey,
         string expectedValue)
@@ -116,20 +116,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(expectedKey, iteration.Values["key"]);
         Assert.Equal(expectedValue, iteration.Values["value"]);
         Assert.Equal("items", iteration.Values["collection"]);
-
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
-        Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
-            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("items = {}", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"for {expectedKey}, {expectedValue} in items.items():", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"print({expectedKey}, {expectedValue})", generated.Text, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -164,7 +150,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Extracts_and_generates_json_round_trip_with_custom_names()
+    public void Extracts_and_plans_json_round_trip_with_custom_names()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
@@ -173,32 +159,28 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
             extractionError);
 
-        var roundTrip = Assert.Single(facts, fact => fact.Id == "program.json-round-trip");
+        var roundTrip = Assert.Single(
+            facts,
+            fact => fact.Id == "program.requirement.serialization-round-trip");
         Assert.Equal("people", roundTrip.Values["records"]);
         Assert.Equal("people-data.json", roundTrip.Values["path"]);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
-                out var generated,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                LoadPythonLanguagePack(),
+                out var code,
+                out _,
                 out var generationError),
-            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("people-data.json", generated!.Text, StringComparison.Ordinal);
+            generationError);
+        Assert.Contains("people-data.json", code, StringComparison.Ordinal);
+        Assert.Contains("loaded_people = json.load(input_file)", code, StringComparison.Ordinal);
     }
 
     [Theory]
     [InlineData("Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.", "purchase", "customer", "spending")]
     [InlineData("Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.", "order", "buyer", "amount")]
-    public void Extracts_and_generates_grouped_record_aggregation_from_declarative_facts(string prompt, string record, string group, string measure)
+    public void Reads_a_grouped_record_total_as_its_item_and_fields(string prompt, string record, string group, string measure)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
@@ -211,13 +193,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains(facts, fact => fact.Id == "program.collection");
         Assert.Contains(facts, fact => fact.Id == "program.iteration");
         Assert.Contains(facts, fact => fact.Id == "program.output");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError), generationError);
-        Assert.Contains($"for {record} in records:", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"key = {record}[\"{group}\"]", generated.Text, StringComparison.Ordinal);
-        Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
     }
-
 
     [Theory]
     [InlineData(
@@ -537,31 +513,32 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Theory]
-    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
-    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
-    public void Recognizes_loop_accumulator_requests_from_declarative_facts(string input, string expectedFact)
+    [InlineData(
+        "Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.",
+        "total = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)")]
+    [InlineData(
+        "Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.",
+        "result = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)")]
+    public void Plans_accumulation_requests_from_request_supplied_collections(string input, string expectedCode)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
         Assert.True(
-            facts.Any(fact => fact.Id == expectedFact),
+            facts.Any(fact => fact.Id == "program.accumulation"),
             $"Extracted facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.loop", StringComparison.Ordinal));
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
-                out var generated,
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
                 out var generationError),
             $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("for ", generated!.Text, StringComparison.Ordinal);
+        Assert.Equal(expectedCode, code);
     }
 
     [Theory]
@@ -649,7 +626,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             .Where(capture => capture.SemanticCollectionFormat is not null)
             .ToArray();
 
-        Assert.Equal(2, captures.Length);
+        Assert.Equal(5, captures.Length);
         Assert.All(captures, capture =>
         {
             Assert.Equal("[", capture.SemanticCollectionFormat!.OpeningDelimiter);
@@ -701,11 +678,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Generates_manual_list_totals_from_declarative_semantic_facts()
+    public void Plans_a_manual_total_from_the_declared_example_data()
     {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
-            out var knowledge,
-            out var loadError), loadError);
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
         const string input = "Given a list of numbers, write a Python program that calculates their total without using the built-in sum function.";
         Assert.True(SequenceInputFactExtractor.TryExtract(
@@ -714,137 +689,185 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractionError), extractionError);
 
-        Assert.Contains(facts, fact => fact.Id == "program.manual-list-total");
-        Assert.Contains(facts, fact => fact.Id == "program.function");
+        Assert.Contains(facts, fact => fact.Id == "program.accumulation");
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.manual-list-total");
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError),
-            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
+        // The request names the total but no collection, so the declared example data supplies the numbers,
+        // the item name, and the starting value.
         Assert.Equal(
-            string.Join(Environment.NewLine,
-                fence + "python",
-                "total = 0",
-                "for number in [1, 2, 3, 4, 5]:",
-                "    total = total + number",
-                "print(total)",
-                fence),
-            result!.Text);
+            string.Join('\n', "total = 0", "for number in [1, 2, 3, 4, 5]:", "    total = total + number", "print(total)"),
+            code);
     }
 
+    [Fact]
+    public void Keeps_request_supplied_collections_ahead_of_the_example_data()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string input = "Create a Python program that starts total at 0 and adds each number in [4, 9] to total, then prints total.";
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError), extractionError);
+
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+
+        Assert.Equal(
+            string.Join('\n', "total = 0", "for number in [4, 9]:", "    total = total + number", "print(total)"),
+            code);
+    }
 
     [Theory]
-    [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-name-count-iteration", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
-    [InlineData("Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.", "program.dictionary-product-iteration", "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
-    public void Generates_dictionary_iteration_from_declarative_semantic_facts(string input, string expectedFact, string expectedCode)
+    [InlineData(
+        "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
+        "counts", "name", "count", "{'Ada'/'Grace'/'Linus'", "3/5/6}")]
+    [InlineData(
+        "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
+        "prices", "product", "price", "{'apple'/'banana'", "1.5/0.75}")]
+    public void Reads_a_declared_dictionary_as_request_entries(
+        string input,
+        string expectedName,
+        string expectedKey,
+        string expectedValue,
+        string expectedKeys,
+        string expectedValues)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var result, out var generationError),
-            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode.Replace("\n", Environment.NewLine), fence), result!.Text);
+        var literal = Assert.Single(facts, fact => fact.Id == "program.declaration.dictionary");
+        Assert.Equal(expectedName, literal.Values["name"].Trim().Trim(','));
+        Assert.Equal(expectedKey, literal.Values["key"].Trim().Trim(','));
+        Assert.Equal(expectedValue, literal.Values["value"].Trim().Trim('.'));
+        Assert.Equal(expectedKeys, string.Join('/', literal.Collections["keys"]));
+        Assert.Equal(expectedValues, string.Join('/', literal.Collections["values"]));
+        Assert.DoesNotContain(facts, fact =>
+            fact.Id is "program.dictionary-product-iteration" or "program.dictionary-name-count-iteration");
     }
-
 
     [Theory]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
-        "program.multi-field-record-sorting")]
+        "order_records",
+        "people",
+        "sort_keys",
+        null)]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
-        "program.multi-field-record-sorting.case-insensitive")]
-    public void Generates_multi_field_record_sorting_from_declarative_facts(string input, string expectedFact)
+        "order_records",
+        "people",
+        "sort_keys",
+        "case-insensitive")]
+    public void Reads_a_several_key_sort_request_as_its_function_and_parameters(
+        string input,
+        string functionName,
+        string recordsName,
+        string keysName,
+        string? sensitivity)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
-        Assert.Contains(facts, fact => fact.Id == "program.multi-field-record-sorting");
-        Assert.Contains(facts, fact => fact.Id == "language.python");
-        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
-        Assert.Contains(facts, fact => fact.Id == "program.function");
-        Assert.Contains(facts, fact => fact.Id == "program.collection");
-        Assert.Contains(facts, fact => fact.Id == "program.output");
 
-        const string sample = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
-        var key = expectedFact.EndsWith("case-insensitive", StringComparison.Ordinal)
-            ? "tuple(record[field].casefold() for field in sort_keys)"
-            : "tuple(record[field] for field in sort_keys)";
-        var expectedCode = string.Join(Environment.NewLine,
-            "def order_records(people, sort_keys):",
-            $"    return sorted(people, key=lambda record: {key})",
-            $"print(order_records({sample}, [\"department\", \"name\"]))");
+        var sort = Assert.Single(facts.Where(fact => fact.Id == "program.sort.fields"));
+        Assert.Equal("fields", sort.Values["kind"].Trim());
+        Assert.Equal(functionName, sort.Values["function"].Trim());
+        Assert.Equal(recordsName, sort.Values["records"].Trim());
+        Assert.Equal(keysName, sort.Values["keys"].Trim().Trim(','));
+        Assert.Equal(
+            sensitivity,
+            sort.Values.TryGetValue("sensitivity", out var capturedSensitivity)
+                ? capturedSensitivity.Trim()
+                : null);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var result, out var generationError),
-            $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode, fence), result!.Text);
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.sort.records");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.multi-field", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData("Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.", "sort_people", "people", "sort_key", "program.single-field-record-sorting.descending")]
-    [InlineData("Create a Python program that defines a function named order_records that accepts a list of records named entries and a field name named order_by, then returns the records sorted case-insensitively by that field.", "order_records", "entries", "order_by", "program.single-field-record-sorting.case-insensitive")]
-    public void Extracts_and_generates_single_field_record_sorting_declaratively(string prompt, string functionName, string recordsName, string fieldName, string expectedFact)
+    [InlineData(
+        "Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.",
+        "sort_people",
+        "people",
+        "sort_key",
+        "descending",
+        null)]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named entries and a field name named order_by, then returns the records sorted case-insensitively by that field.",
+        "order_records",
+        "entries",
+        "order_by",
+        null,
+        "case-insensitive")]
+    public void Reads_a_record_sort_request_as_its_function_and_parameters(
+        string prompt,
+        string functionName,
+        string recordsName,
+        string fieldName,
+        string? order,
+        string? sensitivity)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        var extracted = SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError);
-        var captureSummary = string.Join(", ", facts.SelectMany(fact => fact.Values.Select(value => $"{fact.Id}.{value.Key}={value.Value}")));
-        Assert.True(extracted, $"{extractionError}. Captures: {captureSummary}");
-        Assert.Contains(facts, fact => fact.Id == "program.single-field-record-sorting");
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
+
+        var sort = Assert.Single(facts.Where(fact => fact.Id == "program.sort.records"));
+        Assert.Equal("records", sort.Values["kind"].Trim());
+        Assert.Equal(functionName, sort.Values["function"].Trim());
+        Assert.Equal(recordsName, sort.Values["records"].Trim());
+        Assert.Equal(fieldName, sort.Values["field"].Trim().Trim(','));
+        Assert.Equal(order, sort.Values.TryGetValue("order", out var capturedOrder) ? capturedOrder.Trim() : null);
+        Assert.Equal(
+            sensitivity,
+            sort.Values.TryGetValue("sensitivity", out var capturedSensitivity)
+                ? capturedSensitivity.Trim()
+                : null);
+
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.single-field", StringComparison.Ordinal));
+
         var languagePackLoader = new GenerationLanguagePackLoader();
         Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var languagePackError), languagePackError);
         Assert.True(SequenceInputFactValidator.TryValidate(
             knowledge!.Validations, facts, languagePacks["python"], out var validationError), validationError);
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            new KnowledgeDrivenSequenceGenerationRequest(
-                ImmutableArray<string>.Empty,
-                facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts },
-            out var generated,
-            out var generationError), $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}. Values: {captureSummary}");
-        Assert.Contains($"def {functionName}({recordsName}, {fieldName}):", generated!.Text);
-        Assert.Contains($"sorted({recordsName}, key=lambda record: record[{fieldName}]", generated.Text);
     }
 
     [Fact]
-    public void Rejects_single_field_record_sorting_with_invalid_identifiers()
+    public void Rejects_record_sorting_with_names_no_language_pack_accepts()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(
+        Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort-key, then returns the records sorted by that field.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        var languagePackLoader = new GenerationLanguagePackLoader();
+        Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var languagePackError), languagePackError);
+
+        // The request states a name the pack cannot spell, so the sort is refused instead of emitted.
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            languagePacks["python"],
+            out _,
             out _,
             out _));
     }
@@ -1779,7 +1802,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
-    public void Generates_two_number_addition_from_embedded_semantic_knowledge()
+    public void Plans_numbered_variables_from_request_and_example_data()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(
@@ -1788,73 +1811,71 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractError), extractError);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        Assert.Contains(facts, fact => fact.Id == "program.declaration.numbers");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.assignment.first", StringComparison.Ordinal));
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError), generationError);
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        var fence = new string((char)96, 3);
         Assert.Equal(
-            fence + "python\nfirst_number = 10\nsecond_number = 20\nresult = first_number + second_number\nprint(result)\n" + fence,
-            result!.Text);
+            string.Join('\n',
+                "first_number = 10",
+                "second_number = 20",
+                "result = first_number + second_number",
+                "print(result)"),
+            code);
     }
 
     [Theory]
     [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
     [InlineData("Write a Python program that classifies an integer as positive, negative, or zero.")]
-    public void Generates_integer_sign_classification_from_semantic_facts(string prompt)
+    public void Plans_a_sign_classification_from_request_labels_and_example_data(string prompt)
     {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
-            out var knowledge,
-            out var loadError), loadError);
-
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             prompt,
             out var facts,
             out var extractionError), extractionError);
 
-        Assert.Contains(facts, fact => fact.Id == "program.assignment.classification");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.positive");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.negative");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.zero");
+        var classification = Assert.Single(
+            facts.Where(fact => fact.Id == "program.classification.sign"));
+        Assert.Equal("positive", classification.Values["positive"].Trim(' ', ',', '.'));
+        Assert.Equal("negative", classification.Values["negative"].Trim(' ', ',', '.'));
+        Assert.Equal("zero", classification.Values["zero"].Trim(' ', ',', '.'));
+        Assert.DoesNotContain(
+            facts,
+            fact => fact.Id.StartsWith("program.assignment.classification", StringComparison.Ordinal));
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError), generationError);
-
-        var fence = new string((char)96, 3);
         Assert.Equal(
-            string.Join(Environment.NewLine,
-                fence + "python",
+            string.Join('\n',
                 "number = -5",
                 "if number > 0:",
                 "    print(\"Positive\")",
                 "if number < 0:",
                 "    print(\"Negative\")",
                 "if number == 0:",
-                "    print(\"Zero\")",
-                fence),
-            result!.Text);
+                "    print(\"Zero\")"),
+            code);
     }
 
     [Theory]
@@ -1900,22 +1921,19 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Generates_directory_file_listing_from_declarative_semantic_facts()
+    public void Directory_listing_facts_are_planned_by_the_language_neutral_pipeline()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         const string input = "Write a Python program that accepts a directory path and reports the names and sizes of all files directly inside it, handling a missing directory cleanly.";
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == "program.directory-file-listing");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var result, out var generationError), generationError);
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.directory-listing");
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, packs["python"], out var code, out _, out var programError),
+            programError);
+
         Assert.Equal(string.Join(Environment.NewLine,
-            "\u0060\u0060\u0060python",
             "import os",
             "import sys",
             "directory = sys.argv[1]",
@@ -1924,10 +1942,8 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "        if entry.is_file():",
             "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
             "except FileNotFoundError:",
-            "    print(f\"Directory not found: {directory}\")",
-            "\u0060\u0060\u0060"), result!.Text);
+            "    print(f\"Directory not found: {directory}\")"), code);
     }
-
 
     [Theory]
     [InlineData(
@@ -2176,7 +2192,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
-    public void Extracts_and_generates_collection_filter_from_composable_facts()
+    public void Reads_a_collection_filter_as_its_function_parameter_item_and_comparison()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
@@ -2193,20 +2209,46 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SemanticExpressionOperator.LessThan,
             Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison")
                 .ComparisonOperators["operator"]);
+        Assert.Contains(facts, fact => fact.Id == "program.collection-filter.average");
+    }
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
+    [Theory]
+    [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
+        "filter_values",
+        "values",
+        "value",
+        SemanticExpressionOperator.GreaterThan)]
+    [InlineData(
+        "Create a Python function named keep_above_expression that receives a list of numbers named scores and returns a new list containing only score values greater than 2 + 1.",
+        "keep_above_expression",
+        "scores",
+        "score",
+        SemanticExpressionOperator.GreaterThan)]
+    public void Reads_a_threshold_filter_as_an_arithmetic_comparison(
+        string prompt,
+        string name,
+        string parameter,
+        string item,
+        SemanticExpressionOperator comparison)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
-            $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var signature = Assert.Single(facts, fact => fact.Id == "program.collection-filter.signature");
+        Assert.Equal(name, signature.Values["name"]);
+        Assert.Equal(parameter, signature.Values["parameter"]);
+        Assert.Equal(item, signature.Values["item"]);
         Assert.Equal(
-            "```python\ndef above_average(measurements):\n    return [measurement for measurement in measurements if measurement < sum(measurements) / len(measurements)]\nprint(above_average([1, 2, 3, 4, 5]))\n```",
-            string.Join(string.Empty, result!.Tokens));
+            comparison,
+            Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison")
+                .ComparisonOperators["operator"]);
+        Assert.True(
+            Assert.Single(facts, fact => fact.Id == "program.collection-filter.threshold")
+                .Expressions.ContainsKey("expression"));
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.collection-filter.average");
     }
 
 

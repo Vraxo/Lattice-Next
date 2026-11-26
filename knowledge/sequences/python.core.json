@@ -104,7 +104,15 @@
       "matchTokens": [
         "function"
       ],
-      "factId": "program.function"
+      "factId": "program.function",
+      "forbiddenAnySequences": [
+        [
+          "built"
+        ],
+        [
+          "built-in"
+        ]
+      ]
     },
     {
       "id": "recognize-class-requirement",
@@ -1775,345 +1783,6 @@
       "factId": "value.output.expression"
     },
     {
-      "id": "recognize-first-addition-assignment",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.first"
-    },
-    {
-      "id": "recognize-second-addition-assignment",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.second"
-    },
-    {
-      "id": "recognize-result-addition-assignment",
-      "matchTokens": [
-        "adds",
-        "them"
-      ],
-      "factId": "program.assignment.result"
-    },
-    {
-      "id": "capture-first-addition-target",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.first.target",
-      "valueId": "name",
-      "literalValue": "first_number"
-    },
-    {
-      "id": "capture-first-addition-value",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.first.value",
-      "valueId": "value",
-      "literalValue": "10",
-      "semanticExpressionKind": "value"
-    },
-    {
-      "id": "capture-second-addition-target",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.second.target",
-      "valueId": "name",
-      "literalValue": "second_number"
-    },
-    {
-      "id": "capture-second-addition-value",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.second.value",
-      "valueId": "value",
-      "literalValue": "20",
-      "semanticExpressionKind": "value"
-    },
-    {
-      "id": "capture-result-addition-target",
-      "matchTokens": [
-        "adds",
-        "them"
-      ],
-      "factId": "program.assignment.result.target",
-      "valueId": "name",
-      "literalValue": "result"
-    },
-    {
-      "id": "capture-result-addition-value",
-      "matchTokens": [
-        "adds",
-        "them"
-      ],
-      "factId": "program.assignment.result.value",
-      "valueId": "value",
-      "literalValue": "first_number + second_number",
-      "semanticExpressionKind": "value"
-    },
-    {
-      "id": "recognize-addition-output",
-      "matchTokens": [
-        "prints",
-        "the",
-        "result"
-      ],
-      "factId": "value.output",
-      "valueId": "content",
-      "literalValue": "result"
-    },
-    {
-      "id": "recognize-first-addition-assignment-operator",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.first.operator"
-    },
-    {
-      "id": "recognize-second-addition-assignment-operator",
-      "matchTokens": [
-        "stores",
-        "two",
-        "numbers",
-        "in",
-        "variables"
-      ],
-      "factId": "program.assignment.second.operator"
-    },
-    {
-      "id": "recognize-result-addition-assignment-operator",
-      "matchTokens": [
-        "adds",
-        "them"
-      ],
-      "factId": "program.assignment.result.operator"
-    },
-    {
-      "id": "recognize-addition-variable-output",
-      "matchTokens": [
-        "prints",
-        "the",
-        "result"
-      ],
-      "factId": "value.output.expression"
-    },
-    {
-      "id": "recognize-sign-classification-assignment-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.assignment.classification"
-    },
-    {
-      "id": "recognize-sign-classification-assignment-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.assignment.classification"
-    },
-    {
-      "id": "recognize-positive-classification-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.positive"
-    },
-    {
-      "id": "recognize-positive-classification-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.positive"
-    },
-    {
-      "id": "recognize-negative-classification-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.negative"
-    },
-    {
-      "id": "recognize-negative-classification-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.negative"
-    },
-    {
-      "id": "recognize-zero-classification-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.zero"
-    },
-    {
-      "id": "recognize-zero-classification-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.classification.zero"
-    },
-    {
-      "id": "recognize-sign-classification-output-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.output"
-    },
-    {
-      "id": "recognize-sign-classification-output-start-report",
-      "matchTokens": [
-        "reports",
-        "whether",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.output.start"
-    },
-    {
-      "id": "recognize-sign-classification-output-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.output"
-    },
-    {
-      "id": "recognize-sign-classification-output-start-phrase",
-      "matchTokens": [
-        "classifies",
-        "integer",
-        "positive",
-        "negative",
-        "zero"
-      ],
-      "factId": "program.output.start"
-    },
-    {
-      "id": "recognize-even-list-filter-request",
-      "matchTokens": [
-        "prints",
-        "even",
-        "numbers",
-        "list"
-      ],
-      "factId": "program.even-list-filter"
-    },
-    {
-      "id": "recognize-manual-list-total-request",
-      "matchTokens": [
-        "calculates",
-        "their",
-        "total",
-        "without",
-        "using",
-        "built-in",
-        "sum",
-        "function"
-      ],
-      "factId": "program.manual-list-total"
-    },
-    {
-      "id": "recognize-loop-accumulator-total",
-      "matchTokens": [
-        "starts",
-        "total",
-        "and",
-        "adds",
-        "each",
-        "number",
-        "then",
-        "prints",
-        "total"
-      ],
-      "factId": "program.loop-accumulator"
-    },
-    {
-      "id": "recognize-loop-accumulator-result",
-      "matchTokens": [
-        "initializes"
-      ],
-      "factId": "program.loop-accumulator.result"
-    },
-    {
       "id": "recognize-initializes-assignment",
       "matchTokens": [
         "initializes"
@@ -2190,46 +1859,6 @@
           "collectionDelimiter": "|"
         }
       ]
-    },
-    {
-      "id": "recognize-non-empty-file-line-count",
-      "matchTokens": [
-        "reads",
-        "text",
-        "file",
-        "counts",
-        "non-empty",
-        "lines"
-      ],
-      "factId": "program.non-empty-file-line-count"
-    },
-    {
-      "id": "recognize-dictionary-product-iteration",
-      "matchTokens": [
-        "then",
-        "prints",
-        "each",
-        "product",
-        "and",
-        "its",
-        "price"
-      ],
-      "factId": "program.dictionary-product-iteration",
-      "searchAllSentences": true
-    },
-    {
-      "id": "recognize-dictionary-name-count-iteration",
-      "matchTokens": [
-        "then",
-        "displays",
-        "each",
-        "name",
-        "and",
-        "its",
-        "count"
-      ],
-      "factId": "program.dictionary-name-count-iteration",
-      "searchAllSentences": true
     },
     {
       "id": "recognize-declared-integer-conversion",
@@ -2370,127 +1999,6 @@
         "function"
       ],
       "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-even-number-list-parity-filter",
-      "matchTokens": [
-        "prints",
-        "each",
-        "number",
-        "only",
-        "if",
-        "even"
-      ],
-      "factId": "program.even-number-list-parity-filter"
-    },
-    {
-      "id": "recognize-odd-value-list-parity-filter",
-      "matchTokens": [
-        "displays",
-        "each",
-        "value",
-        "only",
-        "if",
-        "odd"
-      ],
-      "factId": "program.odd-value-list-parity-filter"
-    },
-    {
-      "id": "recognize-number-square-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "number",
-        "to",
-        "square"
-      ],
-      "factId": "program.number-square-dictionary-mapping"
-    },
-    {
-      "id": "recognize-value-offset-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "value",
-        "to",
-        "value"
-      ],
-      "factId": "program.value-offset-dictionary-mapping"
-    },
-    {
-      "id": "recognize-name-length-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "name",
-        "to",
-        "number",
-        "characters"
-      ],
-      "factId": "program.name-length-dictionary-mapping"
-    },
-    {
-      "id": "recognize-directory-file-listing",
-      "matchTokens": [
-        "directory",
-        "path",
-        "reports",
-        "names",
-        "sizes",
-        "files",
-        "inside",
-        "handling",
-        "missing",
-        "directory",
-        "cleanly"
-      ],
-      "factId": "program.directory-file-listing"
-    },
-    {
-      "id": "recognize-multi-field-record-sorting",
-      "matchTokens": [
-        "list",
-        "field",
-        "names",
-        "returns",
-        "records",
-        "sorted",
-        "by",
-        "those",
-        "fields"
-      ],
-      "factId": "program.multi-field-record-sorting",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-case-insensitive-multi-field-record-sorting",
-      "matchTokens": [
-        "records",
-        "sorted",
-        "case-insensitively",
-        "by",
-        "those",
-        "fields"
-      ],
-      "factId": "program.multi-field-record-sorting.case-insensitive",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ]
-      ]
     },
     {
       "id": "recognize-declared-function-locals",
@@ -3721,183 +3229,6 @@
       ]
     },
     {
-      "id": "capture-json-round-trip-record-default",
-      "matchTokens": [
-        "dictionaries"
-      ],
-      "factId": "program.json-round-trip",
-      "captures": [
-        {
-          "factId": "program.json-round-trip",
-          "valueId": "records",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "records"
-        },
-        {
-          "factId": "program.json-round-trip.start",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.import",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.records",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.write-open",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.write",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.read-open",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.json.load",
-          "valueId": "kind",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "ready"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "json",
-          "file"
-        ]
-      ]
-    },
-    {
-      "id": "capture-json-round-trip-record-name",
-      "matchTokens": [
-        "dictionaries",
-        "named"
-      ],
-      "factId": "program.json-round-trip",
-      "captures": [
-        {
-          "factId": "program.json-round-trip",
-          "valueId": "records",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [
-            "to"
-          ]
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "json",
-          "file"
-        ]
-      ]
-    },
-    {
-      "id": "capture-json-round-trip-file-default",
-      "matchTokens": [
-        "file"
-      ],
-      "factId": "program.json-round-trip",
-      "captures": [
-        {
-          "factId": "program.json-round-trip",
-          "valueId": "path",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [],
-          "literalValue": "records.json"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ]
-    },
-    {
-      "id": "capture-json-round-trip-file-name",
-      "matchTokens": [
-        "file",
-        "named"
-      ],
-      "factId": "program.json-round-trip",
-      "captures": [
-        {
-          "factId": "program.json-round-trip",
-          "valueId": "path",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [
-            "and"
-          ]
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-json-round-trip-loads-back",
-      "matchTokens": [
-        "loads",
-        "it",
-        "back"
-      ],
-      "factId": "program.json-round-trip.confirmed",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ],
-      "searchAllSentences": true
-    },
-    {
-      "id": "recognize-json-round-trip-load-back",
-      "matchTokens": [
-        "load",
-        "it",
-        "back"
-      ],
-      "factId": "program.json-round-trip.confirmed",
-      "requiredAnySequences": [
-        [
-          "list",
-          "of",
-          "dictionaries"
-        ]
-      ],
-      "searchAllSentences": true
-    },
-    {
       "id": "capture-grouped-record-aggregation",
       "matchTokens": [
         "list",
@@ -3982,379 +3313,6 @@
         ],
         [
           "organizes"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-record-sorting",
-      "matchTokens": [
-        "a",
-        "field",
-        "name"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting.header",
-          "valueId": "kind",
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.single-field-record-sorting.signature",
-          "valueId": "kind",
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.single-field-record-sorting.body",
-          "valueId": "kind",
-          "literalValue": "ready"
-        },
-        {
-          "factId": "program.sort",
-          "valueId": "kind",
-          "literalValue": "ready"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": []
-    },
-    {
-      "id": "capture-single-field-sort-function-name",
-      "matchTokens": [
-        "function",
-        "named"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "name",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [
-            "that"
-          ]
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "capture-single-field-sort-records-name",
-      "matchTokens": [
-        "records",
-        "named"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "records",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [
-            "and"
-          ]
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "capture-single-field-sort-field-name",
-      "matchTokens": [
-        "field",
-        "name",
-        "named"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "field",
-          "startAfterTokens": [],
-          "stopBeforeTokens": [
-            "then"
-          ],
-          "trimSuffixCharacters": ","
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "default-single-field-sort-function-name",
-      "matchTokens": [
-        "function"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "name",
-          "literalValue": "sort_records"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "function",
-          "named"
-        ],
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "default-single-field-sort-records-name",
-      "matchTokens": [
-        "records"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "records",
-          "literalValue": "records"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "records",
-          "named"
-        ],
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "default-single-field-sort-field-name",
-      "matchTokens": [
-        "field"
-      ],
-      "factId": "program.single-field-record-sorting",
-      "captures": [
-        {
-          "factId": "program.single-field-record-sorting",
-          "valueId": "field",
-          "literalValue": "field"
-        }
-      ],
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "field",
-          "name",
-          "named"
-        ],
-        [
-          "list",
-          "of",
-          "field",
-          "names"
-        ],
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-sort-case-insensitive",
-      "matchTokens": [
-        "case-insensitively"
-      ],
-      "factId": "program.single-field-record-sorting.case-insensitive",
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-sort-case-insensitive-spaced",
-      "matchTokens": [
-        "case",
-        "insensitively"
-      ],
-      "factId": "program.single-field-record-sorting.case-insensitive",
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-sort-descending",
-      "matchTokens": [
-        "descending",
-        "order"
-      ],
-      "factId": "program.single-field-record-sorting.descending",
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-sort-reverse",
-      "matchTokens": [
-        "reverse",
-        "order"
-      ],
-      "factId": "program.single-field-record-sorting.descending",
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ]
-      ]
-    },
-    {
-      "id": "recognize-single-field-sort-requirement-sorted",
-      "matchTokens": [
-        "sorted"
-      ],
-      "factId": "program.sort",
-      "requiredAnySequences": [
-        [
-          "records",
-          "sorted",
-          "by"
-        ]
-      ],
-      "forbiddenAnySequences": [
-        [
-          "those",
-          "fields"
-        ],
-        [
-          "list",
-          "of",
-          "field",
-          "names"
         ]
       ]
     },
@@ -5470,6 +4428,1968 @@
           "set"
         ]
       ]
+    },
+    {
+      "id": "recognize-declared-file-line-count",
+      "matchTokens": [
+        "reads",
+        "text",
+        "file",
+        "counts",
+        "non-empty",
+        "lines"
+      ],
+      "factId": "program.requirement.file-lines",
+      "captures": [
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "path",
+          "stopBeforeTokens": [],
+          "literalValue": "input.txt",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "stream",
+          "stopBeforeTokens": [],
+          "literalValue": "input_file",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "item",
+          "stopBeforeTokens": [],
+          "literalValue": "line",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.file-lines",
+          "valueId": "counter",
+          "stopBeforeTokens": [],
+          "literalValue": "line_count",
+          "collectionDelimiter": "|"
+        }
+      ]
+    },
+    {
+      "id": "recognize-declared-directory-listing",
+      "matchTokens": [
+        "directory",
+        "path",
+        "reports",
+        "names",
+        "sizes",
+        "files",
+        "inside",
+        "handling",
+        "missing",
+        "directory",
+        "cleanly"
+      ],
+      "factId": "program.requirement.directory-listing",
+      "captures": [
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "directory",
+          "stopBeforeTokens": [],
+          "literalValue": "directory",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "item",
+          "stopBeforeTokens": [],
+          "literalValue": "entry",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "member",
+          "stopBeforeTokens": [],
+          "literalValue": "name",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "size-call",
+          "stopBeforeTokens": [],
+          "literalValue": "stat",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "size-member",
+          "stopBeforeTokens": [],
+          "literalValue": "st_size",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "filter",
+          "stopBeforeTokens": [],
+          "literalValue": "is_file",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "error",
+          "stopBeforeTokens": [],
+          "literalValue": "FileNotFoundError",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "position",
+          "stopBeforeTokens": [],
+          "literalValue": "1",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "recovery",
+          "stopBeforeTokens": [],
+          "literalValue": "Directory not found: {0}",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "imports",
+          "stopBeforeTokens": [],
+          "literalValue": "os|sys",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.directory-listing",
+          "valueId": "message",
+          "stopBeforeTokens": [],
+          "literalValue": "{0}: {1} bytes",
+          "collectionDelimiter": "|"
+        }
+      ]
+    },
+    {
+      "id": "recognize-declared-serialization-round-trip",
+      "matchTokens": [
+        "dictionaries"
+      ],
+      "factId": "program.requirement.serialization-round-trip",
+      "captures": [
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "records",
+          "stopBeforeTokens": [],
+          "literalValue": "records"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "path",
+          "stopBeforeTokens": [],
+          "literalValue": "records.json"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "result-prefix",
+          "stopBeforeTokens": [],
+          "literalValue": "loaded_"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "output-stream",
+          "stopBeforeTokens": [],
+          "literalValue": "output_file"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "input-stream",
+          "stopBeforeTokens": [],
+          "literalValue": "input_file"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "format",
+          "stopBeforeTokens": [],
+          "literalValue": "json"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "indent",
+          "stopBeforeTokens": [],
+          "literalValue": "2"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "module",
+          "stopBeforeTokens": [],
+          "literalValue": "json"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "fields",
+          "stopBeforeTokens": [],
+          "literalValue": "name|age",
+          "collectionDelimiter": "|"
+        },
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "values",
+          "stopBeforeTokens": [],
+          "literalValue": "Ada|36|Grace|85",
+          "collectionDelimiter": "|"
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
+        ]
+      ]
+    },
+    {
+      "id": "capture-declared-serialization-records-name",
+      "matchTokens": [
+        "dictionaries",
+        "named"
+      ],
+      "factId": "program.requirement.serialization-round-trip",
+      "captures": [
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "records",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
+        ]
+      ]
+    },
+    {
+      "id": "capture-declared-serialization-path-name",
+      "matchTokens": [
+        "file",
+        "named"
+      ],
+      "factId": "program.requirement.serialization-round-trip",
+      "captures": [
+        {
+          "factId": "program.requirement.serialization-round-trip",
+          "valueId": "path",
+          "startAfterTokens": [],
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ],
+      "requiredAnySequences": [
+        [
+          "loads",
+          "it",
+          "back"
+        ],
+        [
+          "load",
+          "it",
+          "back"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-accumulation-starts",
+      "matchTokens": [
+        "starts",
+        "adds"
+      ],
+      "factId": "program.accumulation"
+    },
+    {
+      "id": "recognize-accumulation-initializes",
+      "matchTokens": [
+        "initializes",
+        "adds"
+      ],
+      "factId": "program.accumulation"
+    },
+    {
+      "id": "capture-accumulation-name-starts",
+      "matchTokens": [
+        "starts"
+      ],
+      "factId": "program.accumulation",
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeTokens": [
+            "at"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "starts"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-name-initializes",
+      "matchTokens": [
+        "initializes"
+      ],
+      "factId": "program.accumulation",
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "initializes"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-initial-starts",
+      "matchTokens": [
+        "at"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "starts"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "initial",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-initial-initializes",
+      "matchTokens": [
+        "to"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "initializes"
+        ],
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "initial",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-item",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-collection",
+      "matchTokens": [
+        "in"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "collection",
+          "stopBeforeTokens": [
+            "to"
+          ],
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "trimSuffixCharacters": "."
+        }
+      ]
+    },
+    {
+      "id": "capture-accumulation-output-prints",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "capture-accumulation-output-displays",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "adds",
+          "each"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-manual-list-accumulation",
+      "matchTokens": [
+        "calculates",
+        "their",
+        "total"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ]
+    },
+    {
+      "id": "capture-manual-list-accumulator",
+      "matchTokens": [
+        "their"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeSequences": [
+            [
+              "without"
+            ],
+            [
+              "using"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-manual-list-output",
+      "matchTokens": [
+        "calculates",
+        "their"
+      ],
+      "factId": "program.requirement.output",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "without"
+            ],
+            [
+              "using"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recognize-number-variable-declarations",
+      "matchTokens": [
+        "stores",
+        "numbers",
+        "in",
+        "variables"
+      ],
+      "factId": "program.declaration.numbers"
+    },
+    {
+      "id": "capture-number-variable-count",
+      "matchTokens": [
+        "stores"
+      ],
+      "factId": "program.declaration.numbers",
+      "requiredAllSequences": [
+        [
+          "in",
+          "variables"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.numbers",
+          "valueId": "count",
+          "stopBeforeTokens": [
+            "numbers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-number-variable-sum-name",
+      "matchTokens": [
+        "prints",
+        "the"
+      ],
+      "factId": "program.declaration.numbers",
+      "requiredAllSequences": [
+        [
+          "in",
+          "variables"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.numbers",
+          "valueId": "sum"
+        }
+      ]
+    },
+    {
+      "id": "capture-number-variable-output",
+      "matchTokens": [
+        "prints",
+        "the"
+      ],
+      "factId": "program.requirement.output",
+      "requiredAllSequences": [
+        [
+          "in",
+          "variables"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "recognize-sign-classification",
+      "matchTokens": [
+        "integer"
+      ],
+      "factId": "program.classification.sign",
+      "requiredAnySequences": [
+        [
+          "integer",
+          "is"
+        ],
+        [
+          "integer",
+          "as"
+        ]
+      ],
+      "requiredAllSequences": [
+        [
+          "positive"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
+        ]
+      ]
+    },
+    {
+      "id": "capture-sign-positive-label-report",
+      "matchTokens": [
+        "is"
+      ],
+      "factId": "program.classification.sign",
+      "requiredAllSequences": [
+        [
+          "whether",
+          "an",
+          "integer",
+          "is"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.classification.sign",
+          "valueId": "positive",
+          "stopBeforeTokens": [
+            "negative"
+          ],
+          "trimSuffixCharacters": ",."
+        }
+      ]
+    },
+    {
+      "id": "capture-sign-positive-label-phrase",
+      "matchTokens": [
+        "as"
+      ],
+      "factId": "program.classification.sign",
+      "requiredAllSequences": [
+        [
+          "classifies",
+          "an",
+          "integer",
+          "as"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.classification.sign",
+          "valueId": "positive",
+          "stopBeforeTokens": [
+            "negative"
+          ],
+          "trimSuffixCharacters": ",."
+        }
+      ]
+    },
+    {
+      "id": "capture-sign-negative-label-report",
+      "matchTokens": [
+        "positive"
+      ],
+      "factId": "program.classification.sign",
+      "requiredAllSequences": [
+        [
+          "whether",
+          "an",
+          "integer",
+          "is"
+        ],
+        [
+          "zero"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.classification.sign",
+          "valueId": "negative",
+          "trimSuffixCharacters": ",.",
+          "stopBeforeSequences": [
+            [
+              "or"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-sign-negative-label-phrase",
+      "matchTokens": [
+        "positive"
+      ],
+      "factId": "program.classification.sign",
+      "requiredAllSequences": [
+        [
+          "classifies",
+          "an",
+          "integer",
+          "as"
+        ],
+        [
+          "zero"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.classification.sign",
+          "valueId": "negative",
+          "trimSuffixCharacters": ",.",
+          "stopBeforeSequences": [
+            [
+              "or"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-sign-zero-label",
+      "matchTokens": [
+        "negative"
+      ],
+      "factId": "program.classification.sign",
+      "captures": [
+        {
+          "factId": "program.classification.sign",
+          "valueId": "zero",
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "or"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "positive"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "whether",
+          "an",
+          "integer",
+          "is"
+        ],
+        [
+          "classifies",
+          "an",
+          "integer",
+          "as"
+        ]
+      ]
+    },
+    {
+      "id": "capture-parity-filter-predicate",
+      "matchTokens": [
+        "if",
+        "it",
+        "is"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "trimSuffixCharacters": ",."
+        }
+      ]
+    },
+    {
+      "id": "recognize-even-numbers-from-a-list",
+      "matchTokens": [
+        "only",
+        "the",
+        "even",
+        "numbers"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "from",
+          "a",
+          "list"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "literalValue": "even"
+        }
+      ]
+    },
+    {
+      "id": "recognize-odd-numbers-from-a-list",
+      "matchTokens": [
+        "only",
+        "the",
+        "odd",
+        "numbers"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "from",
+          "a",
+          "list"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "literalValue": "odd"
+        }
+      ]
+    },
+    {
+      "id": "capture-parity-filter-item-in-list",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ],
+        [
+          "in"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        },
+        {
+          "factId": "program.parity-filter",
+          "valueId": "collection",
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "stopBeforeSequences": [
+            [
+              "only",
+              "if"
+            ]
+          ],
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "in"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-parity-filter-item-from-list",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ],
+        [
+          "from"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "from"
+          ]
+        },
+        {
+          "factId": "program.parity-filter",
+          "valueId": "collection",
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "stopBeforeSequences": [
+            [
+              "only",
+              "if"
+            ]
+          ],
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "from"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-dictionary-literal-name",
+      "matchTokens": [
+        "named"
+      ],
+      "factId": "program.declaration.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "stores"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.dictionary",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "then"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-literal-keys",
+      "matchTokens": [
+        "stores"
+      ],
+      "factId": "program.declaration.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.dictionary",
+          "valueId": "keys",
+          "stopBeforeSequences": [
+            [
+              "as"
+            ],
+            [
+              "in"
+            ]
+          ],
+          "collectionDelimiter": ",",
+          "collectionFieldDelimiter": ":",
+          "collectionFieldIndex": 0,
+          "trimSuffixCharacters": ".",
+          "preserveRawValue": true
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-literal-values",
+      "matchTokens": [
+        "stores"
+      ],
+      "factId": "program.declaration.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.dictionary",
+          "valueId": "values",
+          "stopBeforeSequences": [
+            [
+              "as"
+            ],
+            [
+              "in"
+            ]
+          ],
+          "collectionDelimiter": ",",
+          "collectionFieldDelimiter": ":",
+          "collectionFieldIndex": 1,
+          "trimSuffixCharacters": ".",
+          "preserveRawValue": true
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-literal-key-name",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.declaration.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "stores"
+        ],
+        [
+          "its"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.dictionary",
+          "valueId": "key",
+          "stopBeforeTokens": [
+            "and",
+            "with"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-literal-value-name",
+      "matchTokens": [
+        "its"
+      ],
+      "factId": "program.declaration.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "stores"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.declaration.dictionary",
+          "valueId": "value",
+          "trimSuffixCharacters": "."
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-length",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "number",
+          "of",
+          "characters"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "length"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-square",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "square"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "square"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-offset",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "value"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "offset"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-parameter",
+      "matchTokens": [
+        "list",
+        "of"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "maps"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "parameter",
+          "stopBeforeSequences": [
+            [
+              "creates"
+            ],
+            [
+              "builds"
+            ],
+            [
+              "makes"
+            ],
+            [
+              "which"
+            ],
+            [
+              "that"
+            ]
+          ],
+          "trimSuffixCharacters": ","
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-offset",
+      "matchTokens": [
+        "+"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "value"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "offset",
+          "trimSuffixCharacters": "."
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-result",
+      "matchTokens": [
+        "named"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "maps",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "result",
+          "stopBeforeSequences": [
+            [
+              "that"
+            ],
+            [
+              "then"
+            ]
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-record-sort-request",
+      "matchTokens": [
+        "sorted"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "kind",
+          "literalValue": "records"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "capture-record-sort-function-name",
+      "matchTokens": [
+        "function",
+        "named"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "function",
+          "stopBeforeTokens": [
+            "that"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "capture-record-sort-records-name",
+      "matchTokens": [
+        "records",
+        "named"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "records",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "capture-record-sort-field-parameter",
+      "matchTokens": [
+        "field",
+        "name",
+        "named"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "field",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ","
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-sort-descending",
+      "matchTokens": [
+        "descending",
+        "order"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "order",
+          "literalValue": "descending"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-sort-reverse",
+      "matchTokens": [
+        "reverse",
+        "order"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "order",
+          "literalValue": "descending"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-sort-case-insensitive-spaced",
+      "matchTokens": [
+        "case",
+        "insensitively"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "sensitivity",
+          "literalValue": "case-insensitive"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-sort-case-insensitive",
+      "matchTokens": [
+        "case-insensitively"
+      ],
+      "factId": "program.sort.records",
+      "captures": [
+        {
+          "factId": "program.sort.records",
+          "valueId": "sensitivity",
+          "literalValue": "case-insensitive"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "records",
+          "sorted",
+          "by"
+        ]
+      ],
+      "searchAllSentences": true,
+      "forbiddenAnySequences": [
+        [
+          "those",
+          "fields"
+        ],
+        [
+          "list",
+          "of",
+          "field",
+          "names"
+        ]
+      ]
+    },
+    {
+      "id": "recognize-record-sort-fields-request",
+      "matchTokens": [
+        "those",
+        "fields"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "kind",
+          "literalValue": "fields"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-record-sort-fields-function-name",
+      "matchTokens": [
+        "function",
+        "named"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "function",
+          "stopBeforeTokens": [
+            "that"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-record-sort-fields-records-name",
+      "matchTokens": [
+        "records",
+        "named"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "records",
+          "stopBeforeTokens": [
+            "and"
+          ]
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-record-sort-fields-keys-name",
+      "matchTokens": [
+        "field",
+        "names",
+        "named"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "keys",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "trimSuffixCharacters": ","
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-record-sort-fields-case-insensitive-spaced",
+      "matchTokens": [
+        "case",
+        "insensitively"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "sensitivity",
+          "literalValue": "case-insensitive"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-record-sort-fields-case-insensitive",
+      "matchTokens": [
+        "case-insensitively"
+      ],
+      "factId": "program.sort.fields",
+      "captures": [
+        {
+          "factId": "program.sort.fields",
+          "valueId": "sensitivity",
+          "literalValue": "case-insensitive"
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "those",
+          "fields"
+        ]
+      ],
+      "searchAllSentences": true
     }
   ],
   "rules": [
@@ -5681,682 +6601,7 @@
       "requiresCompletedFacts": [
         "intent.program-generation"
       ],
-      "forbiddenFacts": [
-        "program.assignment.first",
-        "program.assignment.classification",
-        "program.even-list-filter"
-      ]
-    },
-    {
-      "id": "python-addition-first-target",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.assignment.first",
-        "program.assignment.first.target"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.first.target",
-        "valueId": "name"
-      },
-      "satisfiesFacts": [
-        "program.assignment.first.target"
-      ]
-    },
-    {
-      "id": "python-addition-first-operator",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.first.operator"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.first.target"
-      ],
-      "nextToken": " = ",
-      "satisfiesFacts": [
-        "program.assignment.first.operator"
-      ]
-    },
-    {
-      "id": "python-addition-first-value",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.first.value"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.first.operator"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.first.value",
-        "valueId": "value"
-      },
-      "satisfiesFacts": [
-        "program.assignment.first.value"
-      ]
-    },
-    {
-      "id": "python-addition-first-end",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.first"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.first.value"
-      ],
-      "nextToken": "\n",
-      "satisfiesFacts": [
-        "program.assignment.first"
-      ]
-    },
-    {
-      "id": "python-addition-second-target",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.second",
-        "program.assignment.second.target"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.first"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.second.target",
-        "valueId": "name"
-      },
-      "satisfiesFacts": [
-        "program.assignment.second.target"
-      ]
-    },
-    {
-      "id": "python-addition-second-operator",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.second.operator"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.second.target"
-      ],
-      "nextToken": " = ",
-      "satisfiesFacts": [
-        "program.assignment.second.operator"
-      ]
-    },
-    {
-      "id": "python-addition-second-value",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.second.value"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.second.operator"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.second.value",
-        "valueId": "value"
-      },
-      "satisfiesFacts": [
-        "program.assignment.second.value"
-      ]
-    },
-    {
-      "id": "python-addition-second-end",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.second"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.second.value"
-      ],
-      "nextToken": "\n",
-      "satisfiesFacts": [
-        "program.assignment.second"
-      ]
-    },
-    {
-      "id": "python-addition-result-target",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.result",
-        "program.assignment.result.target"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.second"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.result.target",
-        "valueId": "name"
-      },
-      "satisfiesFacts": [
-        "program.assignment.result.target"
-      ]
-    },
-    {
-      "id": "python-addition-result-operator",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.result.operator"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.result.target"
-      ],
-      "nextToken": " = ",
-      "satisfiesFacts": [
-        "program.assignment.result.operator"
-      ]
-    },
-    {
-      "id": "python-addition-result-value",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.result.value"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.result.operator"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.result.value",
-        "valueId": "value"
-      },
-      "satisfiesFacts": [
-        "program.assignment.result.value"
-      ]
-    },
-    {
-      "id": "python-addition-result-end",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.result"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.result.value"
-      ],
-      "nextToken": "\n",
-      "satisfiesFacts": [
-        "program.assignment.result"
-      ]
-    },
-    {
-      "id": "python-addition-output-start",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.output",
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.result"
-      ],
-      "nextToken": "print",
-      "satisfiesFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-sign-classification-assignment",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.assignment.classification"
-      ],
-      "nextToken": "number = -5\n",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.assignment.classification",
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "language.python",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-sign-classification-positive",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.classification.positive"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.classification"
-      ],
-      "nextToken": "if number > 0:\n    print(\"Positive\")\n",
-      "satisfiesFacts": [
-        "program.classification.positive"
-      ]
-    },
-    {
-      "id": "python-sign-classification-negative",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.classification.negative"
-      ],
-      "requiresCompletedFacts": [
-        "program.classification.positive"
-      ],
-      "nextToken": "if number < 0:\n    print(\"Negative\")\n",
-      "satisfiesFacts": [
-        "program.classification.negative"
-      ]
-    },
-    {
-      "id": "python-sign-classification-zero",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.classification.zero"
-      ],
-      "requiresCompletedFacts": [
-        "program.classification.negative"
-      ],
-      "nextToken": "if number == 0:\n    print(\"Zero\")\n```",
-      "satisfiesFacts": [
-        "program.classification.zero",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-even-list-filter",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.even-list-filter"
-      ],
-      "nextToken": "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)\n```",
-      "satisfiesFacts": [
-        "program.even-list-filter",
-        "program.output",
-        "program.output.start",
-        "value.output",
-        "program.collection"
-      ]
-    },
-    {
-      "id": "python-manual-list-total",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.manual-list-total"
-      ],
-      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3, 4, 5]:\n    total = total + number\nprint(total)\n```",
-      "satisfiesFacts": [
-        "program.manual-list-total",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.aggregate",
-        "program.collection",
-        "program.function"
-      ]
-    },
-    {
-      "id": "python-loop-accumulator-total",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.loop-accumulator"
-      ],
-      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3]:\n    total = total + number\nprint(total)\n```",
-      "satisfiesFacts": [
-        "program.loop-accumulator",
-        "language.python",
-        "intent.program-generation",
-        "program.assignment",
-        "program.arithmetic",
-        "program.iteration",
-        "program.output",
-        "program.output.start",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-loop-accumulator-result",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.loop-accumulator.result"
-      ],
-      "nextToken": "```python\nresult = 0\nfor value in [-2, 4.5, 1.5]:\n    result = result + value\nprint(result)\n```",
-      "satisfiesFacts": [
-        "program.loop-accumulator.result",
-        "language.python",
-        "intent.program-generation",
-        "program.assignment",
-        "program.arithmetic",
-        "program.iteration",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-non-empty-file-line-count",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.non-empty-file-line-count"
-      ],
-      "nextToken": "```python\nline_count = 0\nwith open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file:\n    for line in input_file:\n        if line.strip():\n            line_count += 1\nprint(line_count)\n```",
-      "satisfiesFacts": [
-        "program.non-empty-file-line-count",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-dictionary-iteration-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration",
-        "intent.program-generation",
-        "language.python",
-        "program.output",
-        "program.collection",
-        "program.iteration",
-        "program.output.start",
-        "value.output"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "```python\nitems = {}  # Add dictionary entries here.\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.output",
-        "program.collection",
-        "program.iteration",
-        "program.output.start",
-        "value.output"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": [],
-      "weight": 10
-    },
-    {
-      "id": "python-dictionary-iteration-key",
-      "contextSuffix": [
-        "*Add dictionary entries here.\n"
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.dictionary-iteration",
-        "valueId": "key",
-        "prefix": "for ",
-        "suffix": ", "
-      },
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-iteration-value",
-      "contextSuffix": [
-        "*, "
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.dictionary-iteration",
-        "valueId": "value",
-        "suffix": " in "
-      },
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-iteration-collection",
-      "contextSuffix": [
-        "* in "
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.dictionary-iteration",
-        "valueId": "collection",
-        "suffix": ".items():\n"
-      },
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-iteration-print",
-      "contextSuffix": [
-        "*.items():\n"
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "    print(",
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-iteration-print-values",
-      "contextSuffix": [
-        "    print("
-      ],
-      "requiredFacts": [
-        "program.dictionary-iteration"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.dictionary-iteration",
-        "valueId": "key",
-        "secondaryValueId": "value",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0}, {1}",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.dictionary-iteration"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-product-iteration",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.dictionary-product-iteration"
-      ],
-      "nextToken": "```python\nprices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)\n```",
-      "satisfiesFacts": [
-        "program.dictionary-product-iteration",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-dictionary-name-count-iteration",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.dictionary-name-count-iteration"
-      ],
-      "nextToken": "```python\ncounts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)\n```",
-      "satisfiesFacts": [
-        "program.dictionary-name-count-iteration",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.collection",
-        "program.iteration",
-        "program.output.start",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-even-number-list-parity-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.even-number-list-parity-filter"
-      ],
-      "nextToken": "```python\nfor number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)\n```",
-      "satisfiesFacts": [
-        "program.even-number-list-parity-filter",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.iteration",
-        "program.condition",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-odd-value-list-parity-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.odd-value-list-parity-filter"
-      ],
-      "nextToken": "```python\nfor value in [-3, -2, -1, 0, 1, 2, 3]:\n    if value % 2 != 0:\n        print(value)\n```",
-      "satisfiesFacts": [
-        "program.odd-value-list-parity-filter",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.iteration",
-        "program.condition",
-        "value.output",
-        "program.arithmetic"
-      ]
-    },
-    {
-      "id": "python-number-square-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.number-square-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))\n```",
-      "satisfiesFacts": [
-        "program.number-square-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-value-offset-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.value-offset-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))\n```",
-      "satisfiesFacts": [
-        "program.value-offset-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "program.arithmetic",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-name-length-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.name-length-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))\n```",
-      "satisfiesFacts": [
-        "program.name-length-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-directory-file-listing",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.directory-file-listing"
-      ],
-      "nextToken": "```python\nimport os\nimport sys\ndirectory = sys.argv[1]\ntry:\n    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):\n        if entry.is_file():\n            print(f\"{entry.name}: {entry.stat().st_size} bytes\")\nexcept FileNotFoundError:\n    print(f\"Directory not found: {directory}\")\n```",
-      "satisfiesFacts": [
-        "program.directory-file-listing",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-multi-field-record-sorting",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.multi-field-record-sorting"
-      ],
-      "nextToken": "```python\ndef order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))\n```",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.function",
-        "program.collection",
-        "program.output",
-        "program.multi-field-record-sorting",
-        "program.sort"
-      ],
-      "forbiddenFacts": [
-        "program.multi-field-record-sorting.case-insensitive"
-      ]
-    },
-    {
-      "id": "python-case-insensitive-multi-field-record-sorting",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.multi-field-record-sorting",
-        "program.multi-field-record-sorting.case-insensitive"
-      ],
-      "nextToken": "```python\ndef order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))\n```",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.function",
-        "program.collection",
-        "program.output",
-        "program.multi-field-record-sorting",
-        "program.multi-field-record-sorting.case-insensitive",
-        "program.sort"
-      ]
+      "forbiddenFacts": []
     },
     {
       "id": "python-collection-loop-variable",
@@ -6510,911 +6755,6 @@
         "program.output.start",
         "value.output"
       ]
-    },
-    {
-      "id": "python-json-round-trip-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.json-round-trip",
-        "program.json-round-trip.confirmed"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.json-round-trip.start"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-json-round-trip-import",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json-round-trip.start"
-      ],
-      "nextToken": "import json\n",
-      "satisfiesFacts": [
-        "program.json.import"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-records",
-      "contextSuffix": [
-        "import json\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.import"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "records",
-        "suffix": " = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]\n"
-      },
-      "satisfiesFacts": [
-        "program.json.records"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-write-open",
-      "contextSuffix": [
-        "*]\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.records"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "path",
-        "encoding": "quoted-string",
-        "prefix": "with open(",
-        "suffix": ", \"w\", encoding=\"utf-8\") as output_file:\n"
-      },
-      "satisfiesFacts": [
-        "program.json.write-open"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-dump",
-      "contextSuffix": [
-        "*output_file:\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.write-open"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "records",
-        "prefix": "    json.dump(",
-        "suffix": ", output_file, indent=2)\n"
-      },
-      "satisfiesFacts": [
-        "program.json.write"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-read-open",
-      "contextSuffix": [
-        "*indent=2)\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.write"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "path",
-        "encoding": "quoted-string",
-        "prefix": "with open(",
-        "suffix": ", \"r\", encoding=\"utf-8\") as input_file:\n"
-      },
-      "satisfiesFacts": [
-        "program.json.read-open"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-load",
-      "contextSuffix": [
-        "*input_file:\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.read-open"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "records",
-        "prefix": "    loaded_",
-        "suffix": " = json.load(input_file)\n"
-      },
-      "satisfiesFacts": [
-        "program.json.load"
-      ]
-    },
-    {
-      "id": "python-json-round-trip-output",
-      "contextSuffix": [
-        "*json.load(input_file)\n"
-      ],
-      "requiredFacts": [
-        "program.json-round-trip"
-      ],
-      "requiresCompletedFacts": [
-        "program.json.load"
-      ],
-      "tokenBinding": {
-        "factId": "program.json-round-trip",
-        "valueId": "records",
-        "prefix": "print(loaded_",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.json-round-trip",
-        "program.json-round-trip.confirmed",
-        "program.output",
-        "program.collection"
-      ]
-    },
-    {
-      "id": "record-aggregation-data",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.record-aggregation",
-        "valueId": "group",
-        "secondaryValueId": "measure",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "records = [{\"{0}\": \"Ada\", \"{1}\": 25.0}, {\"{0}\": \"Grace\", \"{1}\": 40.0}, {\"{0}\": \"Ada\", \"{1}\": 15.0}]\n",
-        "prefix": "```python\n"
-      },
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.collection"
-      ]
-    },
-    {
-      "id": "record-aggregation-initialize",
-      "contextSuffix": [
-        "<|lattice.start|>",
-        "*"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "totals = {}\n",
-      "satisfiesFacts": []
-    },
-    {
-      "id": "record-aggregation-loop",
-      "contextSuffix": [
-        "*",
-        "totals = {}\n"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.record-aggregation",
-        "valueId": "record",
-        "prefix": "for ",
-        "suffix": " in records:\n"
-      },
-      "satisfiesFacts": [
-        "program.iteration"
-      ]
-    },
-    {
-      "id": "record-aggregation-key",
-      "contextSuffix": [
-        "totals = {}\n",
-        "*"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.record-aggregation",
-        "valueId": "record",
-        "secondaryValueId": "group",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    key = {0}[\"{1}\"]\n"
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "record-aggregation-add",
-      "contextSuffix": [
-        "totals = {}\n",
-        "*",
-        "*"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.record-aggregation",
-        "valueId": "record",
-        "secondaryValueId": "measure",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    totals[key] = totals.get(key, 0) + {0}[\"{1}\"]\n"
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "record-aggregation-iterate-totals",
-      "contextSuffix": [
-        "totals = {}\n",
-        "*",
-        "*",
-        "*"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "for key, total in totals.items():\n",
-      "satisfiesFacts": []
-    },
-    {
-      "id": "record-aggregation-output",
-      "contextSuffix": [
-        "*",
-        "for key, total in totals.items():\n"
-      ],
-      "requiredFacts": [
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "    print(key, total)\n```\n",
-      "satisfiesFacts": [
-        "program.output",
-        "program.record-aggregation",
-        "program.record-aggregation.intent"
-      ]
-    },
-    {
-      "id": "single-field-record-sort-function",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.header"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "name",
-        "prefix": "```python\ndef ",
-        "suffix": "("
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.header",
-        "intent.program-generation",
-        "language.python"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-parameters",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.signature"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.header"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "records",
-        "secondaryValueId": "field",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0}, {1}):\n"
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.signature",
-        "program.function",
-        "program.collection"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-body-standard",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.body"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "records",
-        "secondaryValueId": "field",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}])"
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.body",
-        "program.sort"
-      ],
-      "forbiddenFacts": [
-        "program.single-field-record-sorting.case-insensitive",
-        "program.single-field-record-sorting.descending"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-body-case-insensitive",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.body",
-        "program.single-field-record-sorting.case-insensitive"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "records",
-        "secondaryValueId": "field",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold())"
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.body",
-        "program.sort",
-        "program.single-field-record-sorting.case-insensitive"
-      ],
-      "forbiddenFacts": [
-        "program.single-field-record-sorting.descending"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-body-descending",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.body",
-        "program.single-field-record-sorting.descending"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "records",
-        "secondaryValueId": "field",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}], reverse=True)"
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.body",
-        "program.sort",
-        "program.single-field-record-sorting.descending"
-      ],
-      "forbiddenFacts": [
-        "program.single-field-record-sorting.case-insensitive"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-body-case-insensitive-descending",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.single-field-record-sorting.body",
-        "program.single-field-record-sorting.case-insensitive",
-        "program.single-field-record-sorting.descending"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "records",
-        "secondaryValueId": "field",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "    return sorted({0}, key=lambda record: record[{1}].casefold(), reverse=True)"
-      },
-      "satisfiesFacts": [
-        "program.single-field-record-sorting.body",
-        "program.sort",
-        "program.single-field-record-sorting.case-insensitive",
-        "program.single-field-record-sorting.descending"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "single-field-record-sort-output",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.output"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.body"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "name",
-        "prefix": "\nprint(",
-        "suffix": "([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))\n```\n"
-      },
-      "satisfiesFacts": [
-        "program.output",
-        "program.single-field-record-sorting"
-      ],
-      "weight": 10,
-      "forbiddenFacts": [
-        "program.single-field-record-sorting.case-insensitive"
-      ]
-    },
-    {
-      "id": "single-field-record-sort-output-case-insensitive",
-      "contextSuffix": [
-        "*"
-      ],
-      "requiredFacts": [
-        "program.single-field-record-sorting",
-        "program.output"
-      ],
-      "requiresCompletedFacts": [
-        "program.single-field-record-sorting.body",
-        "program.single-field-record-sorting.case-insensitive"
-      ],
-      "tokenBinding": {
-        "factId": "program.single-field-record-sorting",
-        "valueId": "name",
-        "prefix": "\nprint(",
-        "suffix": "([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))\n```\n"
-      },
-      "satisfiesFacts": [
-        "program.output",
-        "program.single-field-record-sorting"
-      ],
-      "weight": 10
-    },
-    {
-      "id": "python-collection-filter-open",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.threshold",
-        "program.collection",
-        "program.collection-filter.condition"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection"
-      ],
-      "weight": 30,
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [
-        "program.arithmetic",
-        "program.filter"
-      ],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-open-average",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.average",
-        "program.collection",
-        "program.collection-filter.condition"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection"
-      ],
-      "weight": 30,
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [
-        "program.filter"
-      ],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-header",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "name",
-        "secondaryValueId": "parameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "{0}({1})",
-        "prefix": "def ",
-        "suffix": ":\n"
-      },
-      "requiresCompletedFacts": [],
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-return-prefix",
-      "contextSuffix": [
-        "*):\n"
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature"
-      ],
-      "nextToken": "    return [",
-      "requiresCompletedFacts": [],
-      "satisfiesFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-item-first",
-      "contextSuffix": [
-        "    return ["
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "item",
-        "suffix": " for "
-      },
-      "satisfiesFacts": [],
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-item-binding",
-      "contextSuffix": [
-        "* for "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "item",
-        "suffix": " in "
-      },
-      "satisfiesFacts": [],
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-parameter",
-      "contextSuffix": [
-        "* in "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "parameter",
-        "suffix": " if "
-      },
-      "satisfiesFacts": [],
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-condition-item",
-      "contextSuffix": [
-        "* if "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature",
-        "program.collection-filter.condition"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.condition",
-        "valueId": "item",
-        "suffix": " "
-      },
-      "satisfiesFacts": [
-        "program.collection-filter.condition"
-      ],
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-condition-operator",
-      "contextSuffix": [
-        "* "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.comparison"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.comparison",
-        "valueId": "operator",
-        "suffix": " "
-      },
-      "satisfiesFacts": [
-        "program.collection-filter.comparison"
-      ],
-      "requiresCompletedFacts": [
-        "program.collection-filter.condition"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-condition-threshold",
-      "contextSuffix": [
-        "* "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.threshold"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.threshold",
-        "valueId": "expression",
-        "suffix": "]\nprint("
-      },
-      "requiresCompletedFacts": [
-        "program.collection-filter.comparison"
-      ],
-      "satisfiesFacts": [
-        "program.collection-filter.threshold"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-condition-average",
-      "contextSuffix": [
-        "* "
-      ],
-      "requiredFacts": [
-        "program.collection-filter.average",
-        "program.collection-filter.signature"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "parameter",
-        "secondaryValueId": "parameter",
-        "secondaryValueIsCollection": false,
-        "valueTemplate": "sum({0}) / len({1})",
-        "suffix": "]\nprint("
-      },
-      "requiresCompletedFacts": [
-        "program.collection-filter.comparison"
-      ],
-      "satisfiesFacts": [
-        "program.collection-filter.average"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-call",
-      "contextSuffix": [
-        "*print("
-      ],
-      "requiredFacts": [
-        "program.collection-filter.signature",
-        "program.collection-filter"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-filter.signature",
-        "valueId": "name",
-        "suffix": "([1, 2, 3, 4, 5]))\n```"
-      },
-      "satisfiesFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature"
-      ],
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-open-arithmetic",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.threshold",
-        "program.collection",
-        "program.arithmetic",
-        "program.collection-filter.condition"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection",
-        "program.arithmetic"
-      ],
-      "forbiddenFacts": [
-        "program.filter"
-      ],
-      "advanceCollections": [],
-      "weight": 31
-    },
-    {
-      "id": "python-collection-filter-open-average-with-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.average",
-        "program.collection",
-        "program.collection-filter.condition",
-        "program.filter"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection",
-        "program.filter"
-      ],
-      "weight": 31,
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-open-with-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.threshold",
-        "program.collection",
-        "program.collection-filter.condition",
-        "program.filter"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection",
-        "program.filter"
-      ],
-      "weight": 31,
-      "requiresCompletedFacts": [],
-      "forbiddenFacts": [],
-      "advanceCollections": []
-    },
-    {
-      "id": "python-collection-filter-open-arithmetic-with-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.collection-filter",
-        "program.collection-filter.signature",
-        "program.collection-filter.comparison",
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection-filter.threshold",
-        "program.collection",
-        "program.arithmetic",
-        "program.collection-filter.condition",
-        "program.filter"
-      ],
-      "requiresCompletedFacts": [],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "intent.program-generation",
-        "language.python",
-        "program.function",
-        "program.collection",
-        "program.arithmetic",
-        "program.filter"
-      ],
-      "forbiddenFacts": [],
-      "advanceCollections": [],
-      "weight": 32
     }
   ],
   "validations": [
@@ -7472,13 +6812,6 @@
       "appliesWhenFactId": "program.range-loop"
     },
     {
-      "id": "json-round-trip-records-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.json-round-trip",
-      "valueId": "records",
-      "appliesWhenFactId": "program.json-round-trip"
-    },
-    {
       "id": "record-aggregation-record-is-identifier",
       "kind": "identifierValue",
       "factId": "program.record-aggregation",
@@ -7498,27 +6831,6 @@
       "factId": "program.record-aggregation",
       "valueId": "measure",
       "appliesWhenFactId": "program.record-aggregation.intent"
-    },
-    {
-      "id": "single-field-record-sort-name-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.single-field-record-sorting",
-      "valueId": "name",
-      "appliesWhenFactId": "program.single-field-record-sorting"
-    },
-    {
-      "id": "single-field-record-sort-records-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.single-field-record-sorting",
-      "valueId": "records",
-      "appliesWhenFactId": "program.single-field-record-sorting"
-    },
-    {
-      "id": "single-field-record-sort-field-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.single-field-record-sorting",
-      "valueId": "field",
-      "appliesWhenFactId": "program.single-field-record-sorting"
     },
     {
       "id": "dictionary-iteration-key-is-identifier",

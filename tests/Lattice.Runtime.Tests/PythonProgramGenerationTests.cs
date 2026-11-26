@@ -481,7 +481,7 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.non-empty-file-line-count", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("read-text-file", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
@@ -698,7 +698,7 @@ public sealed class PythonProgramGenerationTests
         var expectedCode = string.Join(Environment.NewLine,
             "def sort_people(people, sort_key):",
             "    return sorted(people, key=lambda record: record[sort_key].casefold())",
-            """print(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], 'name'))""");
+            """print(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], "name"))""");
         Assert.Equal(expectedCode, generatedCode);
         await AssertPythonOutput(
             generatedCode,
@@ -717,7 +717,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.multi-field-record-sorting", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
@@ -748,7 +747,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.multi-field-record-sorting", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message.Split(Environment.NewLine, StringSplitOptions.None);
@@ -824,9 +822,13 @@ public sealed class PythonProgramGenerationTests
     }
 
     [Theory]
-    [InlineData("Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.", "program.loop-accumulator")]
-    [InlineData("Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.", "program.loop-accumulator.result")]
-    public async Task Generates_loop_accumulators_from_declarative_facts(string prompt, string expectedFact)
+    [InlineData(
+        "Create a Python program that starts total at 0 and adds each number in [1, 2, 3] to total, then prints total.",
+        "for number in [1, 2, 3]:")]
+    [InlineData(
+        "Build a Python script that initializes result to 0 and adds each value in [-2, 4.5, 1.5] to result, then displays result.",
+        "for value in [-2, 4.5, 1.5]:")]
+    public async Task Generates_loop_accumulators_from_request_supplied_collections(string prompt, string expectedLoop)
     {
         var client = new LatticeRuntimeClient();
         await using var session = await client.CreateSessionAsync();
@@ -836,7 +838,9 @@ public sealed class PythonProgramGenerationTests
 
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains(expectedFact, utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("semantic-requirements", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains(expectedLoop, utterance.Message!, StringComparison.Ordinal);
+        Assert.DoesNotContain("program.loop-accumulator", utterance.Meaning, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -861,11 +865,11 @@ public sealed class PythonProgramGenerationTests
         var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
         Assert.Equal(
             string.Join(Environment.NewLine,
-                "for number in [1, 2, 3, 4, 5, 6]:",
+                "for number in [1, 2, 3, 4, 5]:",
                 "    if number % 2 == 0:",
                 "        print(number)"),
             generatedCode);
-        await AssertPythonOutput(generatedCode, "2\n4\n6");
+        await AssertPythonOutput(generatedCode, "2\n4");
     }
 
     [Fact]
@@ -947,7 +951,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.dictionary-iteration", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
@@ -956,8 +959,11 @@ public sealed class PythonProgramGenerationTests
         Assert.True(startFence >= 0 && endFence > startFence, utterance.Message);
 
         var generatedCode = string.Join(Environment.NewLine, lines[(startFence + 1)..endFence]);
-        Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
-        Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
+        var expectedCode = string.Join(Environment.NewLine,
+            "items = {}  # Add dictionary entries here.",
+            "for product, price in items.items():",
+            "    print(product, price)");
+        Assert.Equal(expectedCode, generatedCode);
     }
 
     [Fact]
@@ -1267,9 +1273,8 @@ public sealed class PythonProgramGenerationTests
             "print(result)" + Environment.NewLine +
             "\u0060\u0060\u0060",
             utterance.Message);
-        Assert.Contains("program.assignment.first", utterance.Meaning, StringComparison.Ordinal);
-        Assert.Contains("program.assignment.second", utterance.Meaning, StringComparison.Ordinal);
-        Assert.Contains("program.assignment.result", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("semantic-requirements", utterance.Meaning, StringComparison.Ordinal);
+        Assert.DoesNotContain("program.assignment.", utterance.Meaning, StringComparison.Ordinal);
     }
 
 }

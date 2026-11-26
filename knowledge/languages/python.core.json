@@ -1941,6 +1941,369 @@
           "value": "expression"
         }
       ]
+    },
+    {
+      "head": "bound-triple-indented-augmented-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " "
+        },
+        {
+          "kind": "binding",
+          "value": "operator"
+        },
+        {
+          "kind": "terminal",
+          "value": "= "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-with-open-read-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"r\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-directory-iteration-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": " in sorted(os.scandir("
+        },
+        {
+          "kind": "binding",
+          "value": "directory"
+        },
+        {
+          "kind": "terminal",
+          "value": "), key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-directory-iteration-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    for "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": " in sorted(os.scandir("
+        },
+        {
+          "kind": "binding",
+          "value": "directory"
+        },
+        {
+          "kind": "terminal",
+          "value": "), key=lambda "
+        },
+        {
+          "kind": "binding",
+          "value": "item"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": "):"
+        }
+      ]
+    },
+    {
+      "head": "bound-write-with-open-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"w\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-serialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    json.dump("
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ", indent="
+        },
+        {
+          "kind": "binding",
+          "value": "indent"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "indented-deserialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "result"
+        },
+        {
+          "kind": "terminal",
+          "value": " = json.load("
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-with-open-read-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    with open("
+        },
+        {
+          "kind": "binding",
+          "value": "path"
+        },
+        {
+          "kind": "terminal",
+          "value": ", \"r\", encoding=\"utf-8\") as "
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "indented-indented-deserialize-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "result"
+        },
+        {
+          "kind": "terminal",
+          "value": " = json.load("
+        },
+        {
+          "kind": "binding",
+          "value": "file"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-dictionary-map-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = {"
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "}"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-dictionary-map-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = {"
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "}"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2059,6 +2422,42 @@
       "source": "goal-binding",
       "encoding": "none",
       "key": "operator"
+    },
+    {
+      "name": "path",
+      "source": "goal-binding",
+      "encoding": "string-literal",
+      "key": "path"
+    },
+    {
+      "name": "file",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "file"
+    },
+    {
+      "name": "directory",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "directory"
+    },
+    {
+      "name": "item",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "item"
+    },
+    {
+      "name": "indent",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "indent"
+    },
+    {
+      "name": "result",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "result"
     }
   ],
   "operations": [
@@ -2807,6 +3206,97 @@
       "argumentKind": "augmented-assignment",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-augmented-assignment"
+    },
+    {
+      "id": "python-bound-triple-indented-augmented-assignment",
+      "symbol": "=",
+      "effect": "emit-triple-indented-augmented-assignment",
+      "argumentKind": "augmented-assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-augmented-assignment"
+    },
+    {
+      "id": "python-bound-with-open-read",
+      "symbol": "with",
+      "effect": "read-text-file",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "bound-with-open-read-statement"
+    },
+    {
+      "id": "python-bound-directory-loop",
+      "symbol": "for",
+      "effect": "emit-directory-loop-header",
+      "argumentKind": "directory-loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-directory-iteration-statement"
+    },
+    {
+      "id": "python-bound-indented-directory-loop",
+      "symbol": "for",
+      "effect": "emit-indented-directory-loop-header",
+      "argumentKind": "directory-loop-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-directory-iteration-statement"
+    },
+    {
+      "id": "python-bound-with-open-write",
+      "symbol": "with",
+      "effect": "write-text-file",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "bound-write-with-open-statement"
+    },
+    {
+      "id": "python-json-serialize",
+      "symbol": "json.dump",
+      "effect": "serialize-value-to-stream",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-serialize-statement",
+      "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-json-deserialize",
+      "symbol": "json.load",
+      "effect": "deserialize-value-from-stream",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-deserialize-statement",
+      "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-bound-indented-with-open-read",
+      "symbol": "with",
+      "effect": "read-text-file-indented",
+      "argumentKind": "path",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-with-open-read-statement"
+    },
+    {
+      "id": "python-indented-indented-json-deserialize",
+      "symbol": "json.load",
+      "effect": "deserialize-value-from-stream-indented",
+      "argumentKind": "serialization-format",
+      "prerequisites": [],
+      "startSymbol": "indented-indented-deserialize-statement",
+      "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-bound-dictionary-map",
+      "symbol": "{",
+      "effect": "emit-dictionary-map-binding",
+      "argumentKind": "dictionary-map-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-dictionary-map-assignment"
+    },
+    {
+      "id": "python-indented-bound-dictionary-map",
+      "symbol": "{",
+      "effect": "emit-indented-dictionary-map-binding",
+      "argumentKind": "dictionary-map-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-dictionary-map-assignment"
     }
   ],
   "stringLiteralFormat": {
@@ -3049,6 +3539,9 @@
     },
     "memberAccessFormat": {
       "separator": "."
+    },
+    "programArgumentFormat": {
+      "format": "sys.argv[{0}]"
     }
   },
   "interpolationFormat": {
@@ -3062,5 +3555,173 @@
       "target": "Number",
       "format": "int({0})"
     }
-  ]
+  ],
+  "recordLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "\"{0}\": {1}"
+  },
+  "exampleData": {
+    "numbers": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "numberItemName": "number",
+    "accumulatorInitialValue": "0",
+    "numberVariableValues": [
+      "10",
+      "20",
+      "30"
+    ],
+    "ordinals": [
+      "first",
+      "second",
+      "third"
+    ],
+    "integerValue": "-5",
+    "sampleCall": {
+      "functionName": "map_values",
+      "numbers": [
+        "1",
+        "2",
+        "3"
+      ],
+      "texts": [
+        "Ada",
+        "Grace",
+        "Linus"
+      ],
+      "resultName": "mapped_values",
+      "sort": {
+        "functionName": "sort_records",
+        "recordsName": "records",
+        "fieldName": "field",
+        "itemName": "record",
+        "fields": [
+          {
+            "name": "name",
+            "isText": true
+          },
+          {
+            "name": "age",
+            "isText": false
+          }
+        ],
+        "samples": [
+          {
+            "field": "age",
+            "caseInsensitive": false,
+            "recordsLiteral": "record",
+            "records": [
+              [
+                "Ada",
+                "36"
+              ],
+              [
+                "Grace",
+                "85"
+              ],
+              [
+                "Linus",
+                "55"
+              ]
+            ]
+          },
+          {
+            "field": "name",
+            "caseInsensitive": true,
+            "recordsLiteral": "map",
+            "records": [
+              [
+                "ada",
+                "36"
+              ],
+              [
+                "BOB",
+                "42"
+              ],
+              [
+                "Grace",
+                "85"
+              ]
+            ]
+          }
+        ],
+        "multiField": {
+          "functionName": "order_records",
+          "recordsName": "people",
+          "keysName": "sort_keys",
+          "itemName": "record",
+          "keyItemName": "field",
+          "fields": [
+            {
+              "name": "department",
+              "isText": true
+            },
+            {
+              "name": "name",
+              "isText": true
+            }
+          ],
+          "sortKeys": [
+            "department",
+            "name"
+          ],
+          "records": [
+            [
+              "Engineering",
+              "Ada"
+            ],
+            [
+              "Design",
+              "Grace"
+            ],
+            [
+              "Engineering",
+              "Linus"
+            ]
+          ],
+          "recordsLiteral": "record"
+        }
+      },
+      "groupedAggregation": {
+        "recordsName": "records",
+        "totalsName": "totals",
+        "keyName": "key",
+        "totalName": "total",
+        "groups": [
+          "Ada",
+          "Grace",
+          "Ada"
+        ],
+        "measures": [
+          "25.0",
+          "40.0",
+          "15.0"
+        ]
+      }
+    },
+    "emptyMappingNote": "Add dictionary entries here."
+  },
+  "mapLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "'{0}': {1}",
+    "textFormat": "'{0}'"
+  },
+  "lengthFormat": "len({0})",
+  "subscriptFormat": "{0}[{1}]",
+  "caseFoldFormat": "{0}.casefold()",
+  "sortedExpressionFormat": "sorted({0}, key=lambda {1}: {2})",
+  "sortedExpressionReverseFormat": "sorted({0}, key=lambda {1}: {2}, reverse=True)",
+  "generatorExpressionFormat": "{0} for {1} in {2}",
+  "tupleFormat": "tuple({0})",
+  "totalExpressionFormat": "sum({0})",
+  "filterExpressionFormat": "[{0} for {1} in {2} if {3}]",
+  "placeholderMappingFormat": "{}  # {0}"
 }

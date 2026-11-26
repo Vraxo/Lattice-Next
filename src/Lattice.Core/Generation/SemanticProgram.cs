@@ -35,6 +35,15 @@ public sealed record AugmentedAssignmentRequirement(
     SemanticExpressionOperator Operator,
     SemanticExpression Value) : ProgramRequirement;
 
+/// <summary>
+/// Binds one element of a collection by its key, such as raising the running total held under a group's
+/// key. The target is an ordinary expression over an already-bound collection, so the same shape serves a
+/// mapping and a list; the selected language pack decides how an element is written.
+/// </summary>
+public sealed record ElementAssignmentRequirement(
+    SemanticExpression Target,
+    SemanticExpression Value) : ProgramRequirement;
+
 public sealed record ConditionalRequirement(
     SemanticExpression Condition,
     ImmutableArray<ProgramRequirement> ThenRequirements,
@@ -42,6 +51,74 @@ public sealed record ConditionalRequirement(
 
 public sealed record OutputRequirement(
     SemanticExpression Value) : ProgramRequirement;
+
+/// <summary>
+/// Classifies one value by its sign and reports one label per branch. A sign has three branches by
+/// definition — greater than zero, less than zero, and equal to zero — so the boundaries are part of the
+/// kind; the variable, the value, and the three labels stay request or example data.
+/// </summary>
+public sealed record SignClassificationRequirement(
+    string VariableName,
+    SemanticExpression Value,
+    string PositiveLabel,
+    string NegativeLabel,
+    string ZeroLabel) : ProgramRequirement;
+
+/// <summary>
+/// Makes one library module available to the program. The module name stays request data and the
+/// selected language pack spells how a module is made available.
+/// </summary>
+public sealed record ImportRequirement(string Module) : ProgramRequirement;
+
+/// <summary>
+/// Iterates the entries of one directory in a stable order, binding each entry to an item name. The sort
+/// key is an expression over that item, and the body holds the statements that consume the entries. The
+/// selected language pack spells how a directory is scanned and ordered, so nothing here names an API.
+/// </summary>
+public sealed record DirectoryListingRequirement(
+    SemanticExpression Directory,
+    string ItemName,
+    SemanticExpression SortKey,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
+/// Writes into one file. The pack spells how the file is opened for writing and how the stream it yields is
+/// named; the body holds the statements that write through that stream.
+/// </summary>
+public sealed record FileWriteRequirement(
+    string Path,
+    string StreamName,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
+/// <summary>
+/// Writes one value into an already open stream in a serialized form. The format is data the request
+/// names, and the pack decides which call spells that format.
+/// </summary>
+public sealed record SerializeRequirement(
+    string Format,
+    SemanticExpression Value,
+    string StreamName,
+    string Indent) : ProgramRequirement;
+
+/// <summary>
+/// Reads one already open stream back as a value, binding the result to a name. A decode failure is an
+/// ordinary named error type and is handled by a surrounding attempt requirement.
+/// </summary>
+public sealed record DeserializeRequirement(
+    string Format,
+    string StreamName,
+    string ResultName) : ProgramRequirement;
+
+/// <summary>
+/// Reads the text lines of one file. The read stream binds to a name the body iterates, and the body
+/// holds the statements that consume it, so a file read composes with the same model as any other
+/// block. The selected language pack spells how a file is opened for reading; the path stays request
+/// data and no target-language mode or encoding is named here.
+/// </summary>
+public sealed record FileReadRequirement(
+    string Path,
+    string StreamName,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
 
 /// <summary>
 /// An iteration over a collection value, binding each element to an item name. The body is an ordered
@@ -111,6 +188,17 @@ public sealed record SortRequirement(
 /// the declared result kind, and an ordered body of requirements. Nothing here names a target-language
 /// keyword; the language pack decides how a declaration is written.
 /// </summary>
+/// <summary>
+/// Binds a dictionary built by evaluating a key expression and a value expression for every item of a source,
+/// such as `{number: number * number for number in numbers}`. The two expressions are ordinary semantic
+/// expressions over the item name, and the selected language pack spells the comprehension.
+/// </summary>
+public sealed record DictionaryMapRequirement(
+    string ResultName,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Value) : ProgramRequirement;
+
 public sealed record FunctionRequirement(
     string Name,
     ImmutableArray<FunctionParameter> Parameters,

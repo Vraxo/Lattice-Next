@@ -6,6 +6,37 @@ namespace Lattice.Core.Tests.Generation;
 
 public sealed class SemanticProgramRequirementTests
 {
+    [Fact]
+    public void Accepts_a_list_literal_source_with_signed_and_decimal_items()
+    {
+        var program = new SemanticProgram([
+            new AccumulationRequirement(
+                "result",
+                SemanticCollectionItemKind.Number,
+                "value",
+                new SemanticListLiteralExpression([
+                    new SemanticUnaryExpression(
+                        SemanticExpressionOperator.Negative,
+                        new SemanticNumberExpression("2")),
+                    new SemanticNumberExpression("4.5"),
+                    new SemanticNumberExpression("1.5")
+                ]),
+                new SemanticNumberExpression("0"),
+                new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    new SemanticNameExpression("result"),
+                    new SemanticNameExpression("value"))),
+            new OutputRequirement(new SemanticNameExpression("result"))
+        ]);
+
+        Assert.True(
+            SemanticProgramValidator.IsValid(program),
+            "source=" + SemanticExpressionAnalysis.IsValid(program.Requirements[0] is AccumulationRequirement a ? a.Source : new SemanticNumberExpression("0")) +
+            " update=" + SemanticExpressionAnalysis.IsValid(program.Requirements[0] is AccumulationRequirement b ? b.Update : new SemanticNumberExpression("0")) +
+            " initial=" + SemanticExpressionAnalysis.IsValid(program.Requirements[0] is AccumulationRequirement c ? c.InitialValue : new SemanticNumberExpression("0")) +
+            " output=" + SemanticExpressionAnalysis.IsValid(((OutputRequirement)program.Requirements[1]).Value));
+    }
+
     [Theory]
     [InlineData("numbers", SemanticCollectionItemKind.Number)]
     [InlineData("names", SemanticCollectionItemKind.Text)]

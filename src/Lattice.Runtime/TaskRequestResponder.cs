@@ -26,7 +26,7 @@ internal static class TaskRequestResponder
                 ? TaskLearningResponder.TryPlanLearningPath(request, model, reasoner, out message, out evidence)
                 : TaskTravelResponder.TryPlanRoadTrip(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explain => TryExplain(request, model, reasoner, out message, out evidence),
-            TaskRequestAction.Code => TaskCodeGenerationResponder.TryGenerateCode(request, model, reasoner, out message, out evidence),
+            TaskRequestAction.Code => TaskProgramGenerationResponder.TryGenerateProgram(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Brainstorm => TaskExplorationResponder.TryBrainstormUses(request, model, reasoner, out message, out evidence),
             TaskRequestAction.Explore => TaskExplorationResponder.TryExploreHobby(request, model, reasoner, out message, out evidence),
             _ => TaskRequestResponderHelpers.Fail(out message, out evidence)
@@ -42,7 +42,7 @@ internal static class TaskRequestResponder
     {
         if (request.OutputFormat == "procedure")
         {
-            return TaskCodeGenerationResponder.TryExplainOperation(request, model, reasoner, out message, out evidence);
+            return TaskOperationExplanationResponder.TryExplainOperation(request, model, reasoner, out message, out evidence);
         }
 
         if (request.OutputFormat == "conceptual-overview")

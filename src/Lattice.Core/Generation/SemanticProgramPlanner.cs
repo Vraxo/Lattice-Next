@@ -16,7 +16,7 @@ public sealed record PlannedProgramStatement(
 /// </summary>
 public static class SemanticProgramPlanner
 {
-    private const int MaximumDepth = 3;
+    private const int MaximumDepth = 4;
     private const int MaximumRequirements = 64;
     private const int MaximumStatements = 256;
 
@@ -38,34 +38,15 @@ public static class SemanticProgramPlanner
     ];
 
     /// <summary>
-    /// Request facts that describe capabilities planned by a later migration group (function bodies and
-    /// stored task families, collections, files, classes, loops). A request that carries one of them is
-    /// left to its own path instead of being planned from its generic requirements.
+    /// Request facts that describe capabilities planned by a later migration group. A request that carries
+    /// one of them is left to its own path instead of being planned from its generic requirements. Every
+    /// prefix here still matches a fact that extraction can produce; `SequenceKnowledgeGuardTests` fails when
+    /// one stops doing so, so the list shrinks as each family moves onto generic requirements.
     /// </summary>
-    private static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
+    internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        "program.assignment.classification",
-        "program.assignment.first",
-        "program.assignment.second",
-        "program.assignment.result",
-        "program.classification",
-        "program.collection",
-        "program.dictionary",
-        "program.directory",
-        "program.even",
-        "program.file",
-        "program.for",
-        "program.import",
-        "program.json",
-        "program.list",
-        "program.loop",
-        "program.multi-field",
-        "program.non-empty",
-        "program.record",
-        "program.single-field",
-        "program.try",
-        "program.while",
-        "program.with"
+        // 9.23 — explicit loops over a named collection.
+        "program.loop"
     ];
 
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>
@@ -134,12 +115,13 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (!SemanticProgramFactMapper.TryCreate(facts, out var program, out error) || program is null)
+        if (!SemanticProgramFactMapper.TryCreate(facts, pack.ExampleData, out var program, out error) ||
+            program is null)
         {
             return false;
         }
 
-        if (HasDeferredProgramIntent(facts))
+        if (HasDeferredProgramIntent(facts, program))
         {
             error = "The request describes a capability that is not planned by the scalar program planner.";
             return false;
@@ -171,9 +153,54 @@ public static class SemanticProgramPlanner
         return string.Join('\n', statements.Select(statement => statement.Text));
     }
 
-    private static bool HasDeferredProgramIntent(ImmutableArray<SequenceSemanticFact> facts) =>
+    private static bool HasDeferredProgramIntent(
+        ImmutableArray<SequenceSemanticFact> facts,
+        SemanticProgram program) =>
         facts.Any(fact => DeferredProgramFactPrefixes.Any(prefix =>
-            fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
+            fact.Id.StartsWith(prefix, StringComparison.Ordinal)) &&
+            !IsCarriedByRequirements(fact.Id, program.Requirements));
+
+    /// <summary>
+    /// Whether the planned requirements already carry the structure a deferred fact names, so that a request
+    /// which holds a collection of records is planned rather than refused.
+    /// </summary>
+    private static bool IsCarriedByRequirements(
+        string factId,
+        ImmutableArray<ProgramRequirement> requirements) =>
+        factId.StartsWith("program.collection", StringComparison.Ordinal) &&
+        CarriesCollection(requirements);
+
+    private static bool CarriesCollection(ImmutableArray<ProgramRequirement> requirements) =>
+        !requirements.IsDefaultOrEmpty &&
+        requirements.Any(requirement => requirement switch
+        {
+            AssignmentRequirement assignment =>
+                assignment.Value is SemanticListLiteralExpression or
+                    SemanticRecordLiteralExpression or
+                    SemanticMapLiteralExpression,
+            IterationRequirement => true,
+            DictionaryIterationRequirement => true,
+            FilterRequirement => true,
+            DictionaryMapRequirement => true,
+            MapRequirement => true,
+            SortRequirement => true,
+            AccumulationRequirement => true,
+            FunctionRequirement function => CarriesCollection(function.Body),
+            ReturnRequirement returned =>
+                returned.Value is SemanticSortExpression or SemanticFilterExpression or
+                    SemanticListLiteralExpression or SemanticRecordLiteralExpression or
+                    SemanticMapLiteralExpression,
+            ConditionalRequirement conditional =>
+                CarriesCollection(conditional.ThenRequirements) ||
+                CarriesCollection(conditional.ElseRequirements),
+            FileReadRequirement fileRead => CarriesCollection(fileRead.Body),
+            FileWriteRequirement fileWrite => CarriesCollection(fileWrite.Body),
+            DirectoryListingRequirement listing => CarriesCollection(listing.Body),
+            TryRequirement attempt =>
+                CarriesCollection(attempt.Body) ||
+                attempt.Handlers.Any(handler => CarriesCollection(handler.Body)),
+            _ => false
+        });
 
     private static bool HasUnmappedScalarIntent(ImmutableArray<SequenceSemanticFact> facts) =>
         facts.Any(fact =>
@@ -191,10 +218,18 @@ public static class SemanticProgramPlanner
         {
             OutputRequirement => true,
             ClassRequirement => true,
+            SignClassificationRequirement => true,
             ConditionalRequirement conditional =>
                 CarriesDeclaredIntent(conditional.ThenRequirements) ||
                 CarriesDeclaredIntent(conditional.ElseRequirements),
             IterationRequirement iteration => CarriesDeclaredIntent(iteration.Body),
+            DictionaryIterationRequirement dictionaryIteration =>
+                CarriesDeclaredIntent(dictionaryIteration.Body),
+            DirectoryListingRequirement listing => CarriesDeclaredIntent(listing.Body),
+            FileReadRequirement fileRead => CarriesDeclaredIntent(fileRead.Body),
+            TryRequirement attempt =>
+                CarriesDeclaredIntent(attempt.Body) ||
+                attempt.Handlers.Any(handler => CarriesDeclaredIntent(handler.Body)),
             _ => false
         });
 
@@ -232,8 +267,29 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case ElementAssignmentRequirement element:
+                    if (!TryPlanElementAssignment(element, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case OutputRequirement output:
                     if (!TryPlanOutput(output, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case SignClassificationRequirement classification:
+                    if (!TryPlanRequirements(
+                        ExpandSignClassification(classification),
+                        depth,
+                        defined,
+                        pack,
+                        pipeline,
+                        planned,
+                        out error))
                     {
                         return false;
                     }
@@ -248,6 +304,48 @@ public static class SemanticProgramPlanner
                     break;
                 case ConditionalChainRequirement chain:
                     if (!TryPlanChain(chain, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case FileWriteRequirement fileWrite:
+                    if (!TryPlanFileWrite(fileWrite, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case SerializeRequirement serialize:
+                    if (!TryPlanSerialize(serialize, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case DeserializeRequirement deserialize:
+                    if (!TryPlanDeserialize(deserialize, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case DirectoryListingRequirement listing:
+                    if (!TryPlanDirectoryListing(listing, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case ImportRequirement import:
+                    if (!TryPlanImport(import, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case FileReadRequirement fileRead:
+                    if (!TryPlanFileRead(fileRead, depth, defined, pack, pipeline, planned, out error))
                     {
                         return false;
                     }
@@ -318,6 +416,20 @@ public static class SemanticProgramPlanner
                             "predicate",
                             "filter-binding",
                             "filter",
+                            depth,
+                            defined,
+                            pack,
+                            pipeline,
+                            planned,
+                            out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case DictionaryMapRequirement dictionaryMap:
+                    if (!TryPlanDictionaryMap(
+                            dictionaryMap,
                             depth,
                             defined,
                             pack,
@@ -418,6 +530,45 @@ public static class SemanticProgramPlanner
         return true;
     }
 
+    /// <summary>
+    /// Plans an update of one element: the target is an ordinary expression the pack already spells, so the
+    /// same emit operations serve a name and an element alike.
+    /// </summary>
+    private static bool TryPlanElementAssignment(
+        ElementAssignmentRequirement element,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(element.Target, defined, out error) ||
+            !TryRequireAvailable(element.Value, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(element.Target, pack, out var renderedTarget) ||
+            !SemanticExpressionRenderer.TryRender(element.Value, pack, out var renderedValue))
+        {
+            error = "The language pack cannot render the requested element update.";
+            return false;
+        }
+
+        return TryEmitAssignment(
+            renderedTarget,
+            renderedValue,
+            depth,
+            defined,
+            pack,
+            pipeline,
+            planned,
+            out error,
+            targetIsIdentifier: false);
+    }
+
     private static bool TryEmitAssignment(
         string variableName,
         string renderedValue,
@@ -426,10 +577,12 @@ public static class SemanticProgramPlanner
         GenerationLanguagePack pack,
         SequenceGenerationPipeline pipeline,
         ImmutableArray<PlannedProgramStatement>.Builder planned,
-        out string? error)
+        out string? error,
+        bool targetIsIdentifier = true)
     {
         error = null;
-        if (!TryRequireIdentifier(variableName, pack, "assignment target", out error))
+        if (targetIsIdentifier &&
+            !TryRequireIdentifier(variableName, pack, "assignment target", out error))
         {
             return false;
         }
@@ -507,6 +660,9 @@ public static class SemanticProgramPlanner
                 break;
             case 2:
                 effect = "emit-double-indented-augmented-assignment";
+                break;
+            case 3:
+                effect = "emit-triple-indented-augmented-assignment";
                 break;
             default:
                 error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
@@ -666,7 +822,7 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (!TryRequireIdentifier(handler.ErrorType, pack, "handled error type", out error))
+        if (!TryRequireQualifiedName(handler.ErrorType, pack, "handled error type", out var errorType, out error))
         {
             return false;
         }
@@ -687,13 +843,13 @@ public static class SemanticProgramPlanner
 
         var bindings = ImmutableDictionary<string, string>.Empty
             .WithComparers(StringComparer.Ordinal)
-            .Add("error-type", handler.ErrorType);
+            .Add("error-type", errorType);
         if (!TryEmit(
                 pack,
                 pipeline,
                 effect,
                 argumentKind: "handler-header",
-                argumentValue: handler.ErrorType,
+                argumentValue: errorType,
                 bindings,
                 depth,
                 defined,
@@ -1471,6 +1627,82 @@ public static class SemanticProgramPlanner
         return true;
     }
 
+    /// <summary>
+    /// Plans a dictionary comprehension: the key and value expressions are rendered over the bound item and the
+    /// pack supplies the braces, the separators, and the comprehension clause.
+    /// </summary>
+    private static bool TryPlanDictionaryMap(
+        DictionaryMapRequirement dictionaryMap,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(dictionaryMap.Source, defined, out error) ||
+            !TryRequireAvailable(dictionaryMap.Value, defined, out error, dictionaryMap.ItemName))
+        {
+            return false;
+        }
+
+        if (!TryRequireIdentifier(dictionaryMap.ResultName, pack, "dictionary result", out error) ||
+            !TryRequireIdentifier(dictionaryMap.ItemName, pack, "dictionary item", out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(dictionaryMap.Source, pack, out var renderedSource) ||
+            !SemanticExpressionRenderer.TryRender(dictionaryMap.Value, pack, out var renderedValue))
+        {
+            error = $"The '{pack.Language}' language pack cannot render a requested dictionary mapping.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-dictionary-map-binding";
+                break;
+            case 1:
+                effect = "emit-indented-dictionary-map-binding";
+                break;
+            case 2:
+                effect = "emit-double-indented-dictionary-map-binding";
+                break;
+            default:
+                error = "Program statements support at most 3 levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", dictionaryMap.ResultName)
+            .Add("key", dictionaryMap.ItemName)
+            .Add("variable", dictionaryMap.ItemName)
+            .Add("expression", renderedValue)
+            .Add("iterable", renderedSource);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "dictionary-map-binding",
+                argumentValue: dictionaryMap.ResultName,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(dictionaryMap.ResultName);
+        return true;
+    }
+
     private static bool TryPlanSort(
         SortRequirement sort,
         int depth,
@@ -1594,6 +1826,37 @@ public static class SemanticProgramPlanner
             out error);
     }
 
+    /// <summary>
+    /// Requires a name the pack can spell: one identifier, or identifiers joined by the separator the pack
+    /// writes between a module and the member it exposes, such as a library error type.
+    /// </summary>
+    private static bool TryRequireQualifiedName(
+        string name,
+        GenerationLanguagePack pack,
+        string description,
+        out string qualified,
+        out string? error)
+    {
+        qualified = string.Empty;
+        error = null;
+        if (string.IsNullOrWhiteSpace(name) || pack.InputSyntax is not { } syntax)
+        {
+            error = $"The {description} '{name}' is not a name of the '{pack.Language}' language pack.";
+            return false;
+        }
+
+        var segments = name.Split('.', StringSplitOptions.None);
+        if (segments.Length > 4 ||
+            segments.Any(segment => !GenerationInputSyntaxParser.IsIdentifier(segment, syntax)))
+        {
+            error = $"The {description} '{name}' is not a name of the '{pack.Language}' language pack.";
+            return false;
+        }
+
+        qualified = string.Join(syntax.MemberAccessFormat?.Separator ?? ".", segments);
+        return true;
+    }
+
     private static bool TryRequireIdentifier(
         string name,
         GenerationLanguagePack pack,
@@ -1644,6 +1907,9 @@ public static class SemanticProgramPlanner
                 break;
             case 2:
                 effect = "write-standard-output-double-indented-expression";
+                break;
+            case 3:
+                effect = "write-standard-output-triple-indented-expression";
                 break;
             default:
                 error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
@@ -1827,6 +2093,349 @@ public static class SemanticProgramPlanner
             _ => false
         };
 
+    /// <summary>
+    /// Plans a directory listing: the pack supplies the scan, the ordering, and the entry binding, while
+    /// the sort key and the body come from the requirement.
+    /// </summary>
+    private static bool TryPlanDirectoryListing(
+        DirectoryListingRequirement listing,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth > 1)
+        {
+            error = "A directory listing is planned one level deep at most.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(listing.Directory, defined, out error) ||
+            !TryRequireAvailable(
+                listing.SortKey,
+                defined,
+                out error,
+                listing.ItemName) ||
+            !SemanticExpressionRenderer.TryRender(listing.Directory, pack, out var renderedDirectory) ||
+            !SemanticExpressionRenderer.TryRender(listing.SortKey, pack, out var renderedKey))
+        {
+            return false;
+        }
+
+        var effect = depth == 0 ? "emit-directory-loop-header" : "emit-indented-directory-loop-header";
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("directory", renderedDirectory)
+            .Add("item", listing.ItemName)
+            .Add("key", renderedKey);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "directory-loop-header",
+                argumentValue: renderedDirectory,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(listing.ItemName);
+        return TryPlanRequirements(listing.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    /// <summary>
+    /// Plans one import: the pack spells how a module is made available, so no language syntax is
+    /// decided here.
+    /// </summary>
+    private static bool TryPlanImport(
+        ImportRequirement import,
+        int depth,
+        IReadOnlySet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "An import is planned at the top level of a program.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("module", import.Module);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect: "emit-import",
+            argumentKind: "module-name",
+            argumentValue: import.Module,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    /// <summary>
+    /// Plans a file read: the pack supplies the way a file is opened and bound to a name, and the body is
+    /// planned one level deeper with the stream name available.
+    /// </summary>
+    /// <summary>
+    /// Plans a file write: the pack spells the opening line, and the body writes through the stream it names.
+    /// </summary>
+    private static bool TryPlanFileWrite(
+        FileWriteRequirement fileWrite,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 0)
+        {
+            error = "A file write is planned at the top level of a program.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(fileWrite.StreamName, pack, "file stream name", out error))
+        {
+            return false;
+        }
+
+        if (fileWrite.Body.IsDefaultOrEmpty)
+        {
+            error = "A file write needs at least one statement in its body.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("path", fileWrite.Path)
+            .Add("file", fileWrite.StreamName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: "write-text-file",
+                argumentKind: "path",
+                argumentValue: fileWrite.Path,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(fileWrite.StreamName);
+        return TryPlanRequirements(fileWrite.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    /// <summary>
+    /// Plans one serialization step inside an open stream. The format name the request uses selects the
+    /// pack operation that spells it, so no call name is decided here.
+    /// </summary>
+    private static bool TryPlanSerialize(
+        SerializeRequirement serialize,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth != 1)
+        {
+            error = "A serialization step is planned inside the stream it writes through.";
+            return false;
+        }
+
+        if (!TryRequireAvailable(serialize.Value, defined, out error) ||
+            !TryRequireStream(serialize.StreamName, defined, out error) ||
+            !SemanticExpressionRenderer.TryRender(serialize.Value, pack, out var renderedValue))
+        {
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("value", renderedValue)
+            .Add("file", serialize.StreamName)
+            .Add("indent", serialize.Indent);
+        return TryEmit(
+            pack,
+            pipeline,
+            effect: "serialize-value-to-stream",
+            argumentKind: "serialization-format",
+            argumentValue: serialize.Format,
+            bindings,
+            depth,
+            defined,
+            planned,
+            out error);
+    }
+
+    /// <summary>
+    /// Plans one decode step inside an open stream, binding the value it reads back to a name.
+    /// </summary>
+    private static bool TryPlanDeserialize(
+        DeserializeRequirement deserialize,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth is not (1 or 2))
+        {
+            error = "A decode step is planned inside the stream it reads from.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(deserialize.ResultName, pack, "decoded value name", out error) ||
+            !TryRequireStream(deserialize.StreamName, defined, out error))
+        {
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("file", deserialize.StreamName)
+            .Add("result", deserialize.ResultName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: depth == 1
+                    ? "deserialize-value-from-stream"
+                    : "deserialize-value-from-stream-indented",
+                argumentKind: "serialization-format",
+                argumentValue: deserialize.Format,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(deserialize.ResultName);
+        return true;
+    }
+
+    private static bool TryRequireStream(
+        string streamName,
+        IReadOnlySet<string> defined,
+        out string? error)
+    {
+        error = null;
+        if (!defined.Contains(streamName))
+        {
+            error = $"The program reads or writes the stream '{streamName}' before opening it.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryPlanFileRead(
+        FileReadRequirement fileRead,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (depth > 1)
+        {
+            error = "A file read is planned at the top level of a program or inside one guarded block.";
+            return false;
+        }
+
+        if (!TryRequireIdentifier(fileRead.StreamName, pack, "file stream name", out error))
+        {
+            return false;
+        }
+
+        if (fileRead.Body.IsDefaultOrEmpty)
+        {
+            error = "A file read needs at least one statement in its body.";
+            return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("path", fileRead.Path)
+            .Add("file", fileRead.StreamName);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect: depth == 0 ? "read-text-file" : "read-text-file-indented",
+                argumentKind: "path",
+                argumentValue: fileRead.Path,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(fileRead.StreamName);
+        return TryPlanRequirements(fileRead.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    /// <summary>
+    /// Expands a sign classification into the statements that carry it: one assignment of the value, then one
+    /// independent branch per label, comparing the value against the definitional boundary of zero. A label is
+    /// reported as a capitalised word, which is how these single-word labels read as output.
+    /// </summary>
+    private static ImmutableArray<ProgramRequirement> ExpandSignClassification(
+        SignClassificationRequirement classification)
+    {
+        var value = new SemanticNameExpression(classification.VariableName);
+        var zero = new SemanticNumberExpression("0");
+
+        return ImmutableArray.Create<ProgramRequirement>(
+            new AssignmentRequirement(classification.VariableName, classification.Value),
+            Branch(SemanticExpressionOperator.GreaterThan, classification.PositiveLabel),
+            Branch(SemanticExpressionOperator.LessThan, classification.NegativeLabel),
+            Branch(SemanticExpressionOperator.Equal, classification.ZeroLabel));
+
+        ConditionalRequirement Branch(SemanticExpressionOperator comparison, string label) =>
+            new(
+                new SemanticBinaryExpression(comparison, value, zero),
+                ImmutableArray.Create<ProgramRequirement>(
+                    new OutputRequirement(new SemanticTextExpression(AsReportedLabel(label)))),
+                ImmutableArray<ProgramRequirement>.Empty);
+    }
+
+    private static string AsReportedLabel(string label)
+    {
+        var trimmed = label.Trim();
+        return trimmed.Length == 0
+            ? trimmed
+            : char.ToUpperInvariant(trimmed[0]) + trimmed[1..];
+    }
+
     private static bool TryPlanConditional(
         ConditionalRequirement conditional,
         int depth,
@@ -2008,10 +2617,19 @@ public static class SemanticProgramPlanner
         params string[] boundByRequirement)
     {
         error = null;
+        var bound = boundByRequirement;
+        foreach (var name in SemanticExpressionAnalysis.GetBoundNames(expression))
+        {
+            if (!bound.Contains(name, StringComparer.Ordinal))
+            {
+                bound = [.. bound, name];
+            }
+        }
+
         foreach (var name in SemanticExpressionAnalysis.GetReferencedNames(expression))
         {
             if (!defined.Contains(name) &&
-                !boundByRequirement.Contains(name, StringComparer.Ordinal))
+                !bound.Contains(name, StringComparer.Ordinal))
             {
                 error = $"The program uses the value '{name}' before any requirement defines it.";
                 return false;

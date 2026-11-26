@@ -48,12 +48,29 @@ public sealed record SemanticFunctionCallExpression(
     ImmutableArray<SemanticExpression> Arguments) : SemanticExpression;
 
 /// <summary>
-/// An access to one member of one instance: an owning target name and the member it exposes. The
-/// target is the only name the expression depends on.
+/// An access to one member of one value: the value that owns it and the member it exposes. The target is
+/// any expression, so a member can be reached through a name, a call, or another member. The selected
+/// language pack spells the separator.
 /// </summary>
 public sealed record SemanticMemberAccessExpression(
-    string Target,
+    SemanticExpression Target,
     string Member) : SemanticExpression;
+
+/// <summary>
+/// The argument the running program receives at one position, for example the directory a program was
+/// started with. The selected language pack spells how a program reads its arguments.
+/// </summary>
+public sealed record SemanticProgramArgumentExpression(int Position) : SemanticExpression;
+
+/// <summary>
+/// Calls one method on a value the program already holds, for example asking a text value for its
+/// trimmed form. The selected language pack spells how a member is reached and how a call is written,
+/// so no requirement names a language construct.
+/// </summary>
+public sealed record SemanticMethodCallExpression(
+    SemanticExpression Target,
+    string Method,
+    ImmutableArray<SemanticExpression> Arguments) : SemanticExpression;
 
 /// <summary>
 /// Converts one value to a target value kind, for example reading text as a number. The selected
@@ -69,6 +86,111 @@ public sealed record SemanticConversionExpression(
 /// </summary>
 public sealed record SemanticTextTemplateExpression(
     ImmutableArray<SemanticExpression> Parts) : SemanticExpression;
+
+/// <summary>One field of a record literal: the field name and the value it holds.</summary>
+public sealed record SemanticRecordEntry(string Name, SemanticExpression Value);
+
+/// <summary>
+/// A literal list of values, used for request-declared data a program holds, such as a list of records it
+/// writes out. The selected language pack spells the brackets and the separators.
+/// </summary>
+public sealed record SemanticListLiteralExpression(
+    ImmutableArray<SemanticExpression> Items) : SemanticExpression;
+
+/// <summary>
+/// A literal record of named fields, used for request-declared data a program holds. The selected language
+/// pack spells the braces, the separators, and how one field name is written.
+/// </summary>
+public sealed record SemanticRecordLiteralExpression(
+    ImmutableArray<SemanticRecordEntry> Entries) : SemanticExpression;
+
+/// <summary>
+/// A literal mapping from keys to values, used for request-declared dictionaries. Keys are request text and
+/// stay strings; the selected language pack spells the braces, the separators, and how a key is quoted.
+/// </summary>
+public sealed record SemanticMapLiteralExpression(
+    ImmutableArray<SemanticRecordEntry> Entries) : SemanticExpression;
+
+/// <summary>
+/// Several values reported side by side, in order, for a request that asks to print more than one thing at
+/// once. The values are ordinary expressions; the separator between them is punctuation every target
+/// language shares, so no pack field is needed.
+/// </summary>
+public sealed record SemanticArgumentsExpression(
+    ImmutableArray<SemanticExpression> Values) : SemanticExpression;
+
+/// <summary>
+/// One value for every item of a collection, written without building an intermediate list. The selected
+/// language pack spells the clause, so no requirement names a generator or a comprehension.
+/// </summary>
+public sealed record SemanticGeneratorExpression(
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// Several values grouped into one ordered value, so one comparison compares them in order. The selected
+/// language pack spells how that grouping is asked for.
+/// </summary>
+public sealed record SemanticTupleExpression(
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// One value read from another by key, for example the field a record holds under a request-supplied name.
+/// The selected language pack spells how a value is indexed, so no requirement names a subscript.
+/// </summary>
+public sealed record SemanticSubscriptExpression(
+    SemanticExpression Target,
+    SemanticExpression Key) : SemanticExpression;
+
+/// <summary>
+/// A text value in its case-insensitive form, so two spellings of the same word compare equal. The selected
+/// language pack spells how that form is asked for, so no requirement names a library method.
+/// </summary>
+public sealed record SemanticCaseFoldExpression(
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// The values of a collection in order, keyed by one expression over each item. The selected language pack
+/// spells the ordering call, the keyed access, and the descending form, so no requirement names a library
+/// function or a lambda.
+/// </summary>
+public sealed record SemanticSortExpression(
+    SemanticExpression Source,
+    string ItemName,
+    SemanticExpression Key,
+    bool Descending) : SemanticExpression;
+
+/// <summary>
+/// The number of items a value holds: the characters in a text, the entries in a collection. The selected
+/// language pack spells how that count is asked for, so no requirement names a library function.
+/// </summary>
+public sealed record SemanticLengthExpression(
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// The total of the values a collection holds. The selected language pack spells how that total is taken,
+/// so no requirement names a library function.
+/// </summary>
+public sealed record SemanticTotalExpression(
+    SemanticExpression Source) : SemanticExpression;
+
+/// <summary>
+/// A mapping a program will fill in later, carrying the note its reader sees. The note is program data; the
+/// selected language pack spells how a note is attached to the value it annotates.
+/// </summary>
+public sealed record SemanticPlaceholderMappingExpression(
+    string Note) : SemanticExpression;
+
+/// <summary>
+/// A collection of the source's items that satisfy a predicate, written where it is used rather than bound to
+/// a name first. The predicate is an ordinary semantic expression over the item name, and the selected
+/// language pack spells the comprehension.
+/// </summary>
+public sealed record SemanticFilterExpression(
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Predicate) : SemanticExpression;
 
 internal static class SemanticExpressionAnalysis
 {
@@ -141,6 +263,134 @@ internal static class SemanticExpressionAnalysis
         return names.ToImmutable();
     }
 
+    /// <summary>
+    /// Returns the variable names an expression introduces for its own scope, in first-appearance
+    /// order: the item a sort or generator binds to walk the collection it is given.
+    /// </summary>
+    public static ImmutableArray<string> GetBoundNames(SemanticExpression expression)
+    {
+        if (!IsValid(expression))
+        {
+            return ImmutableArray<string>.Empty;
+        }
+
+        var names = ImmutableArray.CreateBuilder<string>();
+        CollectBoundNames(expression, names);
+        return names.ToImmutable();
+    }
+
+    private static void CollectBoundNames(
+        SemanticExpression expression,
+        ImmutableArray<string>.Builder names)
+    {
+        switch (expression)
+        {
+            case SemanticSortExpression sort:
+                AddBoundName(names, sort.ItemName);
+                CollectBoundNames(sort.Source, names);
+                CollectBoundNames(sort.Key, names);
+                break;
+            case SemanticGeneratorExpression generator:
+                AddBoundName(names, generator.ItemName);
+                CollectBoundNames(generator.Source, names);
+                CollectBoundNames(generator.Value, names);
+                break;
+            case SemanticFunctionCallExpression call:
+                foreach (var argument in call.Arguments)
+                {
+                    CollectBoundNames(argument, names);
+                }
+
+                break;
+            case SemanticMemberAccessExpression member:
+                CollectBoundNames(member.Target, names);
+                break;
+            case SemanticMethodCallExpression methodCall:
+                CollectBoundNames(methodCall.Target, names);
+                foreach (var argument in methodCall.Arguments)
+                {
+                    CollectBoundNames(argument, names);
+                }
+
+                break;
+            case SemanticConversionExpression conversion:
+                CollectBoundNames(conversion.Value, names);
+                break;
+            case SemanticTextTemplateExpression template:
+                foreach (var part in template.Parts)
+                {
+                    CollectBoundNames(part, names);
+                }
+
+                break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectBoundNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectBoundNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticUnaryExpression unary:
+                CollectBoundNames(unary.Operand, names);
+                break;
+            case SemanticBinaryExpression binary:
+                CollectBoundNames(binary.Left, names);
+                CollectBoundNames(binary.Right, names);
+                break;
+            case SemanticMapLiteralExpression map:
+                foreach (var entry in map.Entries)
+                {
+                    CollectBoundNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticLengthExpression length:
+                CollectBoundNames(length.Value, names);
+                break;
+            case SemanticTotalExpression total:
+                CollectBoundNames(total.Source, names);
+                break;
+            case SemanticFilterExpression filter:
+                AddBoundName(names, filter.ItemName);
+                CollectBoundNames(filter.Source, names);
+                CollectBoundNames(filter.Predicate, names);
+                break;
+            case SemanticSubscriptExpression subscript:
+                CollectBoundNames(subscript.Target, names);
+                CollectBoundNames(subscript.Key, names);
+                break;
+            case SemanticCaseFoldExpression caseFold:
+                CollectBoundNames(caseFold.Value, names);
+                break;
+            case SemanticTupleExpression tuple:
+                CollectBoundNames(tuple.Value, names);
+                break;
+            case SemanticArgumentsExpression arguments:
+                foreach (var value in arguments.Values)
+                {
+                    CollectBoundNames(value, names);
+                }
+
+                break;
+        }
+    }
+
+    private static void AddBoundName(ImmutableArray<string>.Builder names, string name)
+    {
+        if (!string.IsNullOrEmpty(name) &&
+            !names.Any(existing => string.Equals(existing, name, StringComparison.Ordinal)))
+        {
+            names.Add(name);
+        }
+    }
+
     private static void CollectReferencedNames(
         SemanticExpression expression,
         ImmutableArray<string>.Builder names)
@@ -162,9 +412,13 @@ internal static class SemanticExpressionAnalysis
 
                 break;
             case SemanticMemberAccessExpression member:
-                if (!names.Any(existing => string.Equals(existing, member.Target, StringComparison.Ordinal)))
+                CollectReferencedNames(member.Target, names);
+                break;
+            case SemanticMethodCallExpression methodCall:
+                CollectReferencedNames(methodCall.Target, names);
+                foreach (var argument in methodCall.Arguments)
                 {
-                    names.Add(member.Target);
+                    CollectReferencedNames(argument, names);
                 }
 
                 break;
@@ -178,12 +432,68 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectReferencedNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectReferencedNames(entry.Value, names);
+                }
+
+                break;
             case SemanticUnaryExpression unary:
                 CollectReferencedNames(unary.Operand, names);
                 break;
             case SemanticBinaryExpression binary:
                 CollectReferencedNames(binary.Left, names);
                 CollectReferencedNames(binary.Right, names);
+                break;
+            case SemanticMapLiteralExpression map:
+                foreach (var entry in map.Entries)
+                {
+                    CollectReferencedNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticLengthExpression length:
+                CollectReferencedNames(length.Value, names);
+                break;
+            case SemanticTotalExpression total:
+                CollectReferencedNames(total.Source, names);
+                break;
+            case SemanticFilterExpression filter:
+                CollectReferencedNames(filter.Source, names);
+                CollectReferencedNames(filter.Predicate, names);
+                break;
+            case SemanticSubscriptExpression subscript:
+                CollectReferencedNames(subscript.Target, names);
+                CollectReferencedNames(subscript.Key, names);
+                break;
+            case SemanticCaseFoldExpression caseFold:
+                CollectReferencedNames(caseFold.Value, names);
+                break;
+            case SemanticSortExpression sort:
+                CollectReferencedNames(sort.Source, names);
+                CollectReferencedNames(sort.Key, names);
+                break;
+            case SemanticGeneratorExpression generator:
+                CollectReferencedNames(generator.Source, names);
+                CollectReferencedNames(generator.Value, names);
+                break;
+            case SemanticTupleExpression tuple:
+                CollectReferencedNames(tuple.Value, names);
+                break;
+            case SemanticArgumentsExpression arguments:
+                foreach (var value in arguments.Values)
+                {
+                    CollectReferencedNames(value, names);
+                }
+
                 break;
         }
     }
@@ -253,12 +563,21 @@ internal static class SemanticExpressionAnalysis
             _ => null
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
+        SemanticLengthExpression or SemanticTotalExpression => KnownValueType.Number,
+        SemanticFilterExpression or SemanticPlaceholderMappingExpression => null,
+        SemanticCaseFoldExpression => KnownValueType.Text,
+        SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
+            SemanticTupleExpression => null,
+        SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
 
     private static bool IsValueCore(SemanticExpression expression) =>
-        expression is SemanticTextExpression or SemanticBooleanExpression ||
-        expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
+        expression is SemanticTextExpression or SemanticBooleanExpression or
+        SemanticListLiteralExpression or SemanticRecordLiteralExpression or
+        SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression ||
+        expression is SemanticConversionExpression or SemanticTextTemplateExpression or
+        SemanticFilterExpression ||
         IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
@@ -268,12 +587,20 @@ internal static class SemanticExpressionAnalysis
         HashSet<string>? availableFunctions) => expression switch
     {
         SemanticNameExpression name => availableNames.Contains(name.Name),
-        SemanticMemberAccessExpression member => availableNames.Contains(member.Target),
+        SemanticMemberAccessExpression member =>
+            ReferencesOnlyAvailableNamesCore(
+                member.Target, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticProgramArgumentExpression => true,
         SemanticNumberExpression or SemanticTextExpression or SemanticBooleanExpression => true,
         SemanticFunctionCallExpression call =>
             allowFunctionCalls &&
             (availableFunctions is null || availableFunctions.Contains(call.Name)) &&
             call.Arguments.All(argument => ReferencesOnlyAvailableNamesCore(
+                argument, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticMethodCallExpression methodCall =>
+            ReferencesOnlyAvailableNamesCore(
+                methodCall.Target, availableNames, allowFunctionCalls, availableFunctions) &&
+            methodCall.Arguments.All(argument => ReferencesOnlyAvailableNamesCore(
                 argument, availableNames, allowFunctionCalls, availableFunctions)),
         SemanticUnaryExpression unary =>
             ReferencesOnlyAvailableNamesCore(
@@ -289,6 +616,26 @@ internal static class SemanticExpressionAnalysis
                 binary.Left, availableNames, allowFunctionCalls, availableFunctions) &&
             ReferencesOnlyAvailableNamesCore(
                 binary.Right, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticListLiteralExpression list =>
+            list.Items.All(item => ReferencesOnlyAvailableNamesCore(
+                item, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticRecordLiteralExpression record =>
+            record.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
+                entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticMapLiteralExpression map =>
+            map.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
+                entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticFilterExpression filter =>
+            ReferencesOnlyAvailableNamesCore(filter.Source, availableNames, allowFunctionCalls, availableFunctions) &&
+            ReferencesOnlyAvailableNamesCore(filter.Predicate, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticTotalExpression total =>
+            ReferencesOnlyAvailableNamesCore(total.Source, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticLengthExpression length =>
+            ReferencesOnlyAvailableNamesCore(
+                length.Value, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticArgumentsExpression arguments =>
+            arguments.Values.All(value => ReferencesOnlyAvailableNamesCore(
+                value, availableNames, allowFunctionCalls, availableFunctions)),
         _ => false
     };
 
@@ -297,15 +644,30 @@ internal static class SemanticExpressionAnalysis
         HashSet<string> names) => expression switch
     {
         SemanticNameExpression name => names.Contains(name.Name),
-        SemanticMemberAccessExpression member => names.Contains(member.Target),
+        SemanticMemberAccessExpression member => ReferencesAnyNameCore(member.Target, names),
+        SemanticProgramArgumentExpression => false,
         SemanticFunctionCallExpression call =>
             call.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
+        SemanticMethodCallExpression methodCall =>
+            ReferencesAnyNameCore(methodCall.Target, names) ||
+            methodCall.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticUnaryExpression unary => ReferencesAnyNameCore(unary.Operand, names),
         SemanticConversionExpression conversion => ReferencesAnyNameCore(conversion.Value, names),
         SemanticTextTemplateExpression template =>
             template.Parts.Any(part => ReferencesAnyNameCore(part, names)),
         SemanticBinaryExpression binary =>
             ReferencesAnyNameCore(binary.Left, names) || ReferencesAnyNameCore(binary.Right, names),
+        SemanticListLiteralExpression list => list.Items.Any(item => ReferencesAnyNameCore(item, names)),
+        SemanticRecordLiteralExpression record =>
+            record.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
+        SemanticMapLiteralExpression map =>
+            map.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
+        SemanticLengthExpression length => ReferencesAnyNameCore(length.Value, names),
+        SemanticTotalExpression total => ReferencesAnyNameCore(total.Source, names),
+        SemanticFilterExpression filter =>
+            ReferencesAnyNameCore(filter.Source, names) || ReferencesAnyNameCore(filter.Predicate, names),
+        SemanticArgumentsExpression arguments =>
+            arguments.Values.Any(value => ReferencesAnyNameCore(value, names)),
         _ => false
     };
 
@@ -331,13 +693,157 @@ internal static class SemanticExpressionAnalysis
                 IsValid(binary.Right, depth + 1, ref nodeCount),
             SemanticFunctionCallExpression call => IsValidCallArguments(call, depth, ref nodeCount),
             SemanticMemberAccessExpression member =>
-                IsValidIdentifier(member.Target) && IsValidIdentifier(member.Member),
+                IsValidIdentifier(member.Member) && IsValid(member.Target, depth + 1, ref nodeCount),
+            SemanticProgramArgumentExpression programArgument =>
+                programArgument.Position is >= 0 and <= 63,
+            SemanticMethodCallExpression methodCall => IsValidMethodCall(methodCall, depth, ref nodeCount),
             SemanticConversionExpression conversion =>
                 conversion.Target is SemanticValueKind.Number or SemanticValueKind.Text &&
                 IsValid(conversion.Value, depth + 1, ref nodeCount),
             SemanticTextTemplateExpression template => IsValidTemplate(template, depth, ref nodeCount),
+            SemanticListLiteralExpression list => IsValidList(list, depth, ref nodeCount),
+            SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
+            SemanticMapLiteralExpression map => IsValidMap(map, depth, ref nodeCount),
+            SemanticLengthExpression length => IsValid(length.Value, depth + 1, ref nodeCount),
+            SemanticTotalExpression total => IsValid(total.Source, depth + 1, ref nodeCount),
+            SemanticFilterExpression filter =>
+                IsValidIdentifier(filter.ItemName) &&
+                IsValid(filter.Source, depth + 1, ref nodeCount) &&
+                IsValid(filter.Predicate, depth + 1, ref nodeCount),
+            SemanticPlaceholderMappingExpression placeholder =>
+                !string.IsNullOrWhiteSpace(placeholder.Note) &&
+                placeholder.Note.Length <= 128,
+            SemanticSubscriptExpression subscript =>
+                IsValid(subscript.Target, depth + 1, ref nodeCount) &&
+                IsValid(subscript.Key, depth + 1, ref nodeCount),
+            SemanticCaseFoldExpression caseFold => IsValid(caseFold.Value, depth + 1, ref nodeCount),
+            SemanticSortExpression sort =>
+                IsValidIdentifier(sort.ItemName) &&
+                IsValid(sort.Source, depth + 1, ref nodeCount) &&
+                IsValid(sort.Key, depth + 1, ref nodeCount),
+            SemanticGeneratorExpression generator =>
+                IsValidIdentifier(generator.ItemName) &&
+                IsValid(generator.Source, depth + 1, ref nodeCount) &&
+                IsValid(generator.Value, depth + 1, ref nodeCount),
+            SemanticTupleExpression tuple => IsValid(tuple.Value, depth + 1, ref nodeCount),
+            SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };
+    }
+
+    private static bool IsValidMethodCall(
+        SemanticMethodCallExpression call,
+        int depth,
+        ref int nodeCount)
+    {
+        if (!IsValidIdentifier(call.Method) ||
+            call.Arguments.IsDefault ||
+            call.Arguments.Length > 8 ||
+            !IsValid(call.Target, depth + 1, ref nodeCount))
+        {
+            return false;
+        }
+
+        foreach (var argument in call.Arguments)
+        {
+            if (!IsValid(argument, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidList(
+        SemanticListLiteralExpression list,
+        int depth,
+        ref int nodeCount)
+    {
+        if (list.Items.IsDefaultOrEmpty || list.Items.Length > 64)
+        {
+            return false;
+        }
+
+        foreach (var item in list.Items)
+        {
+            if (!IsValid(item, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidRecord(
+        SemanticRecordLiteralExpression record,
+        int depth,
+        ref int nodeCount)
+    {
+        if (record.Entries.IsDefaultOrEmpty || record.Entries.Length > 64)
+        {
+            return false;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in record.Entries)
+        {
+            if (!IsValidIdentifier(entry.Name) ||
+                !seen.Add(entry.Name) ||
+                !IsValid(entry.Value, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidMap(
+        SemanticMapLiteralExpression map,
+        int depth,
+        ref int nodeCount)
+    {
+        if (map.Entries.IsDefault || map.Entries.Length > 64)
+        {
+            return false;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in map.Entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Name) ||
+                entry.Name.Length > 128 ||
+                !seen.Add(entry.Name) ||
+                !IsValid(entry.Value, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidArguments(
+        SemanticArgumentsExpression arguments,
+        int depth,
+        ref int nodeCount)
+    {
+        if (arguments.Values.IsDefaultOrEmpty || arguments.Values.Length > 16)
+        {
+            return false;
+        }
+
+        foreach (var value in arguments.Values)
+        {
+            if (!IsValid(value, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool IsValidTemplate(
@@ -418,6 +924,13 @@ internal static class SemanticExpressionAnalysis
                     CollectFunctionNames(argument, names);
                 }
                 break;
+            case SemanticMethodCallExpression methodCall:
+                foreach (var argument in methodCall.Arguments)
+                {
+                    CollectFunctionNames(argument, names);
+                }
+
+                break;
             case SemanticUnaryExpression unary:
                 CollectFunctionNames(unary.Operand, names);
                 break;
@@ -432,6 +945,20 @@ internal static class SemanticExpressionAnalysis
                 foreach (var part in template.Parts)
                 {
                     CollectFunctionNames(part, names);
+                }
+
+                break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectFunctionNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectFunctionNames(entry.Value, names);
                 }
 
                 break;

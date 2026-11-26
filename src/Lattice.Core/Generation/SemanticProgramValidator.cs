@@ -11,7 +11,7 @@ namespace Lattice.Core.Generation;
 public static class SemanticProgramValidator
 {
     public const int MaximumRequirements = 64;
-    public const int MaximumDepth = 3;
+    public const int MaximumDepth = 4;
     public const int MaximumNameLength = 64;
     public const int MaximumParameters = 8;
 
@@ -91,6 +91,10 @@ public static class SemanticProgramValidator
                 update.Operator is SemanticExpressionOperator.Add or SemanticExpressionOperator.Subtract &&
                 SemanticExpressionAnalysis.IsValid(update.Value) &&
                 SemanticExpressionAnalysis.IsArithmetic(update.Value),
+            ElementAssignmentRequirement element =>
+                element.Target is SemanticSubscriptExpression &&
+                SemanticExpressionAnalysis.IsValid(element.Target) &&
+                SemanticExpressionAnalysis.IsValid(element.Value),
             OutputRequirement output =>
                 SemanticExpressionAnalysis.IsValid(output.Value) &&
                 IsValidDeclaredCall(output.Value, context),
@@ -100,6 +104,46 @@ public static class SemanticProgramValidator
                  !conditional.ElseRequirements.IsDefaultOrEmpty) &&
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
+            DictionaryMapRequirement dictionaryMap =>
+                IsValidName(dictionaryMap.ResultName) &&
+                IsValidName(dictionaryMap.ItemName) &&
+                !string.Equals(dictionaryMap.ResultName, dictionaryMap.ItemName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(dictionaryMap.Source) &&
+                SemanticExpressionAnalysis.IsValid(dictionaryMap.Value) &&
+                ReferencesName(dictionaryMap.Value, dictionaryMap.ItemName),
+            SignClassificationRequirement classification =>
+                IsValidName(classification.VariableName) &&
+                SemanticExpressionAnalysis.IsValid(classification.Value) &&
+                IsValidLabel(classification.PositiveLabel) &&
+                IsValidLabel(classification.NegativeLabel) &&
+                IsValidLabel(classification.ZeroLabel),
+            ImportRequirement import => IsValidModuleName(import.Module),
+            FileWriteRequirement fileWrite =>
+                IsValidPath(fileWrite.Path) &&
+                IsValidName(fileWrite.StreamName) &&
+                !fileWrite.Body.IsDefaultOrEmpty &&
+                AreValid(fileWrite.Body, depth + 1, context),
+            SerializeRequirement serialize =>
+                IsValidFormat(serialize.Format) &&
+                SemanticExpressionAnalysis.IsValid(serialize.Value) &&
+                IsValidName(serialize.StreamName) &&
+                IsValidIndent(serialize.Indent),
+            DeserializeRequirement deserialize =>
+                IsValidFormat(deserialize.Format) &&
+                IsValidName(deserialize.StreamName) &&
+                IsValidName(deserialize.ResultName),
+            DirectoryListingRequirement listing =>
+                SemanticExpressionAnalysis.IsValid(listing.Directory) &&
+                IsValidName(listing.ItemName) &&
+                SemanticExpressionAnalysis.IsValid(listing.SortKey) &&
+                ReferencesName(listing.SortKey, listing.ItemName) &&
+                !listing.Body.IsDefaultOrEmpty &&
+                AreValid(listing.Body, depth + 1, context),
+            FileReadRequirement fileRead =>
+                IsValidPath(fileRead.Path) &&
+                IsValidName(fileRead.StreamName) &&
+                !fileRead.Body.IsDefaultOrEmpty &&
+                AreValid(fileRead.Body, depth + 1, context),
             IterationRequirement iteration =>
                 IsValidName(iteration.ItemName) &&
                 SemanticExpressionAnalysis.IsValid(iteration.Source) &&
@@ -202,6 +246,35 @@ public static class SemanticProgramValidator
          SemanticValueKindAnalysis.IsCompatible(
              SemanticValueKindAnalysis.Infer(requirement.Value, context.Names, context.FunctionResults),
              returnKind));
+
+    private const int MaximumPathLength = 512;
+
+    private static bool IsValidQualifiedName(string? name) =>
+        !string.IsNullOrWhiteSpace(name) &&
+        name.Length <= 128 &&
+        name.Split('.', StringSplitOptions.None) is { Length: >= 1 and <= 4 } segments &&
+        segments.All(IsValidName);
+
+    private static bool IsValidFormat(string? format) =>
+        !string.IsNullOrWhiteSpace(format) &&
+        format.Length <= 32 &&
+        format.All(character => char.IsAsciiLetterOrDigit(character) || character is '.' or '-' or '_');
+
+    private static bool IsValidIndent(string? indent) =>
+        !string.IsNullOrWhiteSpace(indent) &&
+        indent.Length <= 8 &&
+        indent.All(char.IsAsciiDigit);
+
+    private static bool IsValidModuleName(string? module) =>
+        !string.IsNullOrWhiteSpace(module) &&
+        module.Length <= 128 &&
+        module.All(character =>
+            char.IsAsciiLetterOrDigit(character) || character is '.' or '_');
+
+    private static bool IsValidPath(string? path) =>
+        !string.IsNullOrWhiteSpace(path) &&
+        path.Length <= MaximumPathLength &&
+        !path.Any(character => char.IsControl(character));
 
     private static bool IsValidChain(
         ConditionalChainRequirement chain,
@@ -379,7 +452,7 @@ public static class SemanticProgramValidator
         {
             SemanticNameExpression name => IsValidName(name.Name),
             SemanticMemberAccessExpression member =>
-                IsValidName(member.Target) && IsValidName(member.Member),
+                IsValidName(member.Member) && SemanticExpressionAnalysis.IsValid(member.Target),
             _ => false
         };
 
@@ -419,7 +492,7 @@ public static class SemanticProgramValidator
 
         if (!attempt.Handlers.All(handler =>
                 handler is not null &&
-                IsValidName(handler.ErrorType) &&
+                IsValidQualifiedName(handler.ErrorType) &&
                 !handler.Body.IsDefaultOrEmpty &&
                 AreValid(handler.Body, depth + 1, context)))
         {
@@ -495,6 +568,13 @@ public static class SemanticProgramValidator
         binding.ElementKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text;
 
     private static bool IsValidValueKind(SemanticValueKind kind) => Enum.IsDefined(kind);
+
+    /// <summary>A reported label is non-empty text that fits in one output literal.</summary>
+    private static bool IsValidLabel(string label) =>
+        !string.IsNullOrWhiteSpace(label) &&
+        label.Length <= 128 &&
+        !label.Contains('\n') &&
+        !label.Contains('\r');
 
     private static bool IsValidName(string? name)
     {

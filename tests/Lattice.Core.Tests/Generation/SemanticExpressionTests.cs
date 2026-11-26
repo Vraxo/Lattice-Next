@@ -233,6 +233,88 @@ public sealed class SemanticExpressionTests
         Assert.Equal("x ⊕ y ⊖ z ⊖ ١", rendered);
     }
 
+    [Fact]
+    public void Renders_a_method_call_on_a_value_the_program_holds()
+    {
+        var pack = LoadPythonPack();
+        var noArguments = new SemanticMethodCallExpression(
+            new SemanticNameExpression("line"),
+            "strip",
+            []);
+        var withArguments = new SemanticMethodCallExpression(
+            new SemanticNameExpression("values"),
+            "count",
+            [new SemanticNumberExpression("2")]);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(noArguments));
+        Assert.True(SemanticExpressionRenderer.TryRender(noArguments, pack, out var renderedNoArguments));
+        Assert.Equal("line.strip()", renderedNoArguments);
+        Assert.True(SemanticExpressionRenderer.TryRender(withArguments, pack, out var renderedWithArguments));
+        Assert.Equal("values.count(2)", renderedWithArguments);
+        Assert.Equal(["line"], SemanticExpressionAnalysis.GetReferencedNames(noArguments));
+        Assert.Equal(["values"], SemanticExpressionAnalysis.GetReferencedNames(withArguments));
+    }
+
+    [Fact]
+    public void Renders_declared_data_as_a_list_of_records()
+    {
+        var pack = LoadPythonPack();
+        var sample = new SemanticListLiteralExpression(
+        [
+            new SemanticRecordLiteralExpression(
+            [
+                new SemanticRecordEntry("name", new SemanticTextExpression("Ada")),
+                new SemanticRecordEntry("age", new SemanticNumberExpression("36"))
+            ]),
+            new SemanticRecordLiteralExpression(
+            [
+                new SemanticRecordEntry("name", new SemanticTextExpression("Grace")),
+                new SemanticRecordEntry("age", new SemanticNumberExpression("85"))
+            ])
+        ]);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(sample));
+        Assert.True(SemanticExpressionRenderer.TryRender(sample, pack, out var rendered));
+        Assert.Equal(
+            "[{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+            rendered);
+        Assert.Empty(SemanticExpressionAnalysis.GetReferencedNames(sample));
+    }
+
+    [Fact]
+    public void Renders_a_member_reached_through_a_call_and_a_program_argument()
+    {
+        var pack = LoadPythonPack();
+        var size = new SemanticMemberAccessExpression(
+            new SemanticMethodCallExpression(new SemanticNameExpression("entry"), "stat", []),
+            "st_size");
+        var argument = new SemanticProgramArgumentExpression(1);
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(size));
+        Assert.True(SemanticExpressionRenderer.TryRender(size, pack, out var renderedSize));
+        Assert.Equal("entry.stat().st_size", renderedSize);
+        Assert.True(SemanticExpressionAnalysis.IsValid(argument));
+        Assert.True(SemanticExpressionRenderer.TryRender(argument, pack, out var renderedArgument));
+        Assert.Equal("sys.argv[1]", renderedArgument);
+        Assert.Equal(["entry"], SemanticExpressionAnalysis.GetReferencedNames(size));
+        Assert.Empty(SemanticExpressionAnalysis.GetReferencedNames(argument));
+    }
+
+    [Fact]
+    public void Rejects_a_method_call_whose_method_name_the_pack_cannot_spell()
+    {
+        var pack = LoadPythonPack();
+        var invalid = new SemanticMethodCallExpression(
+            new SemanticNameExpression("line"),
+            "strip()",
+            []);
+
+        // The model accepts a call token; the pack decides which tokens are identifier-shaped, so the
+        // rejection lands in rendering rather than in the analysis.
+        Assert.True(SemanticExpressionAnalysis.IsValid(invalid));
+        Assert.False(SemanticExpressionRenderer.TryRender(invalid, pack, out _));
+    }
+
     private static GenerationLanguagePack LoadPythonPack()
     {
         var loader = new GenerationLanguagePackLoader();

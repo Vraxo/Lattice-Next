@@ -7,6 +7,93 @@ public sealed class SemanticProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Write a Python program that stores two numbers in variables, adds them, and prints the result.",
+        "first_number = 10\nsecond_number = 20\nresult = first_number + second_number\nprint(result)")]
+    [InlineData(
+        "Write a Python program that stores three numbers in variables, adds them, and prints the result.",
+        "first_number = 10\nsecond_number = 20\nthird_number = 30\nresult = first_number + second_number + third_number\nprint(result)")]
+    [InlineData(
+        "Write a Python program that reports whether an integer is positive, negative, or zero.",
+        "number = -5\nif number > 0:\n    print(\"Positive\")\nif number < 0:\n    print(\"Negative\")\nif number == 0:\n    print(\"Zero\")")]
+    [InlineData(
+        "Write a Python program that classifies an integer as positive, negative, or zero.",
+        "number = -5\nif number > 0:\n    print(\"Positive\")\nif number < 0:\n    print(\"Negative\")\nif number == 0:\n    print(\"Zero\")")]
+    [InlineData(
+        "Create a Python program that prints each number in [1, 2, 3, 4, 5, 6] only if it is even.",
+        "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)")]
+    [InlineData(
+        "Build a Python script that displays each value from [-3, -2, -1, 0, 1, 2, 3] only if it is odd.",
+        "for value in [-3, -2, -1, 0, 1, 2, 3]:\n    if value % 2 != 0:\n        print(value)")]
+    [InlineData(
+        "Write a Python program that prints only the even numbers from a list.",
+        "for number in [1, 2, 3, 4, 5]:\n    if number % 2 == 0:\n        print(number)")]
+    [InlineData(
+        "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
+        "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))")]
+    [InlineData(
+        "Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number to the square of it.",
+        "def map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))")]
+    [InlineData(
+        "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
+        "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
+        "def order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
+        "def order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))")]
+    [InlineData(
+        "Create a Python program that defines a function that accepts a list of records and a field name, then returns the records sorted by that field.",
+        "def sort_records(records, field):\n    return sorted(records, key=lambda record: record[field])\nprint(sort_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field.",
+        "def order_records(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key])\nprint(order_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a reusable function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted by that field in descending order.",
+        "def sort_people(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key], reverse=True)\nprint(sort_people([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
+    [InlineData(
+        "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort_key, then returns the records sorted case-insensitively by that field.",
+        "def sort_people(people, sort_key):\n    return sorted(people, key=lambda record: record[sort_key].casefold())\nprint(sort_people([{'name': 'ada', 'age': 36}, {'name': 'BOB', 'age': 42}, {'name': 'Grace', 'age': 85}], \"name\"))")]
+    [InlineData(
+        "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
+        "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
+    [InlineData(
+        "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
+        "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
+        "items = {}  # Add dictionary entries here.\nfor product, price in items.items():\n    print(product, price)")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of employee names and salaries, display each employee with its salary.",
+        "items = {}  # Add dictionary entries here.\nfor employee, salary in items.items():\n    print(employee, salary)")]
+    [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
+        "def filter_values(values):\n    return [value for value in values if value > 2]\nprint(filter_values([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Build a Python function named keep_large that accepts a list of numbers named samples and returns a new list containing only sample values more than 4.",
+        "def keep_large(samples):\n    return [sample for sample in samples if sample > 4]\nprint(keep_large([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named keep_at_most that receives a list of numbers named scores and returns a new list containing only score values less than or equal to 3.",
+        "def keep_at_most(scores):\n    return [score for score in scores if score <= 3]\nprint(keep_at_most([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named omit_three that receives a list of numbers named scores and returns a new list containing only score values not equal to 3.",
+        "def omit_three(scores):\n    return [score for score in scores if score != 3]\nprint(omit_three([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named keep_above_expression that receives a list of numbers named scores and returns a new list containing only score values greater than 2 + 1.",
+        "def keep_above_expression(scores):\n    return [score for score in scores if score > 2 + 1]\nprint(keep_above_expression([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
+        "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named filter_high that receives a list of numbers named scores and returns a new list containing only score values greater than the average of scores.",
+        "def filter_high(scores):\n    return [score for score in scores if score > sum(scores) / len(scores)]\nprint(filter_high([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.",
+        "records = [{\"customer\": \"Ada\", \"spending\": 25.0}, {\"customer\": \"Grace\", \"spending\": 40.0}, {\"customer\": \"Ada\", \"spending\": 15.0}]\ntotals = {}\nfor purchase in records:\n    key = purchase[\"customer\"]\n    totals[key] = totals.get(key, 0) + purchase[\"spending\"]\nfor key, total in totals.items():\n    print(key, total)")]
+    [InlineData(
+        "Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.",
+        "records = [{\"buyer\": \"Ada\", \"amount\": 25.0}, {\"buyer\": \"Grace\", \"amount\": 40.0}, {\"buyer\": \"Ada\", \"amount\": 15.0}]\ntotals = {}\nfor order in records:\n    key = order[\"buyer\"]\n    totals[key] = totals.get(key, 0) + order[\"amount\"]\nfor key, total in totals.items():\n    print(key, total)")]
+    [InlineData(
         "Create a Python program that sets total to 5 then print total.",
         "total = 5\nprint(total)")]
     [InlineData(
@@ -46,6 +133,9 @@ public sealed class SemanticProgramGenerationTests
         "Define a Python class representing a bank account with a balance, a deposit method, and a withdrawal method that refuses withdrawals larger than the balance.",
         "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    def deposit(self, amount):\n        self.balance += amount\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance -= amount\n        return True")]
     [InlineData(
+        "Write a Python program that reads a text file and counts how many non-empty lines it contains.",
+        "line_count = 0\nwith open(\"input.txt\", \"r\", encoding=\"utf-8\") as input_file:\n    for line in input_file:\n        if line.strip():\n            line_count += 1\nprint(line_count)")]
+    [InlineData(
         "Write a Python program that fulfills this request: Define a function that accepts a person's name and returns a greeting. Call it with two different names.",
         "def greet(name):\n    return f\"Hello, {name}!\"\nprint(greet(\"Ada\"))\nprint(greet(\"Grace\"))")]
     public void Generates_requested_scalar_programs_from_their_requirements(
@@ -65,6 +155,62 @@ public sealed class SemanticProgramGenerationTests
         Assert.True(generated, error);
         Assert.Equal(expectedCode, code);
         Assert.NotEmpty(statements);
+    }
+
+    [Fact]
+    public void Generates_a_serialized_round_trip_from_request_derived_facts()
+    {
+        const string input =
+            "Write a Python program that saves a list of dictionaries to a JSON file and then loads it back.";
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.serialization-round-trip");
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "import json",
+                "records = [{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}]",
+                "with open(\"records.json\", \"w\", encoding=\"utf-8\") as output_file:",
+                "    json.dump(records, output_file, indent=2)",
+                "with open(\"records.json\", \"r\", encoding=\"utf-8\") as input_file:",
+                "    loaded_records = json.load(input_file)",
+                "print(loaded_records)"),
+            code);
+    }
+
+    [Fact]
+    public void Generates_a_directory_listing_from_request_derived_facts()
+    {
+        const string input =
+            "Write a Python program that accepts a directory path and reports the names and sizes of all " +
+            "files directly inside it, handling a missing directory cleanly.";
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
+        Assert.Contains(facts, fact => fact.Id == "program.requirement.directory-listing");
+
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "import os",
+                "import sys",
+                "directory = sys.argv[1]",
+                "try:",
+                "    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):",
+                "        if entry.is_file():",
+                "            print(f\"{entry.name}: {entry.stat().st_size} bytes\")",
+                "except FileNotFoundError:",
+                "    print(f\"Directory not found: {directory}\")"),
+            code);
+        Assert.DoesNotContain("directory-file-listing", code);
     }
 
     [Theory]
@@ -114,8 +260,6 @@ public sealed class SemanticProgramGenerationTests
     [Theory]
     [InlineData("Create a Python program that prints total + 3.")]
     [InlineData("Create a Python program that sets total to 5 and prints total + 3.")]
-    [InlineData("Write a Python program that stores two numbers in variables, adds them, and prints the result.")]
-    [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
     public void Leaves_requests_with_deferred_capabilities_to_their_own_path(string input)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);

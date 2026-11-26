@@ -143,7 +143,7 @@ public sealed class SemanticProgramClassAndErrorTests
     public void Represents_member_access_over_its_owning_instance()
     {
         var program = new SemanticProgram([
-            new OutputRequirement(new SemanticMemberAccessExpression("account", "balance"))
+            new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("account"), "balance"))
         ]);
 
         Assert.True(SemanticProgramValidator.IsValid(program));
@@ -153,7 +153,7 @@ public sealed class SemanticProgramClassAndErrorTests
     public void Rejects_member_access_without_a_member()
     {
         var program = new SemanticProgram([
-            new OutputRequirement(new SemanticMemberAccessExpression("account", ""))
+            new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("account"), ""))
         ]);
 
         Assert.False(SemanticProgramValidator.IsValid(program));
@@ -167,7 +167,7 @@ public sealed class SemanticProgramClassAndErrorTests
                 "ordered",
                 "record",
                 new SemanticNameExpression("records"),
-                new SemanticMemberAccessExpression("record", "name"),
+                new SemanticMemberAccessExpression(new SemanticNameExpression("record"), "name"),
                 Descending: false)
         ])
         {
@@ -185,7 +185,7 @@ public sealed class SemanticProgramClassAndErrorTests
                 "ordered",
                 "record",
                 new SemanticNameExpression("records"),
-                new SemanticMemberAccessExpression("other", "name"),
+                new SemanticMemberAccessExpression(new SemanticNameExpression("other"), "name"),
                 Descending: false)
         ])
         {
@@ -209,7 +209,7 @@ public sealed class SemanticProgramClassAndErrorTests
                         null,
                         [
                             new AugmentedAssignmentRequirement(
-                                new SemanticMemberAccessExpression("self", "count"),
+                                new SemanticMemberAccessExpression(new SemanticNameExpression("self"), "count"),
                                 SemanticExpressionOperator.Add,
                                 new SemanticNameExpression("amount"))
                         ])
@@ -395,7 +395,7 @@ public sealed class SemanticProgramClassAndErrorTests
                     "balance_value",
                     [],
                     SemanticValueKind.Number,
-                    [new ReturnRequirement(new SemanticMemberAccessExpression("self", "balance"))])
+                    [new ReturnRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("self"), "balance"))])
             ]);
 
     private static FunctionRequirement DeclareWithdrawal() =>

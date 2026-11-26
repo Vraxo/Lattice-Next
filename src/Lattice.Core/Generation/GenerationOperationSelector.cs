@@ -51,6 +51,17 @@ public sealed class GenerationOperationSelector
                 continue;
             }
 
+            if (operation.MatchesArgumentValue is { } expected &&
+                !string.Equals(expected, goal.ArgumentValue, StringComparison.Ordinal))
+            {
+                evaluated.Add(new GenerationCandidateAssessment(
+                    operation.Id,
+                    false,
+                    $"It realizes the argument value '{expected}' rather than '{goal.ArgumentValue}'.",
+                    operation.Prerequisites.Length));
+                continue;
+            }
+
             var missing = operation.Prerequisites
                 .Where(prerequisite => !available.Contains(prerequisite))
                 .ToArray();

@@ -55,10 +55,26 @@ public sealed class GenerationLanguagePackLoader
             pack.StringLiteralFormat.Escapes.IsDefault ||
             (pack.CollectionLiteralFormat is { } collectionFormat &&
                 !IsValidCollectionLiteralFormat(collectionFormat)) ||
+            (pack.RecordLiteralFormat is { } recordFormat &&
+                !IsValidRecordLiteralFormat(recordFormat)) ||
+            (pack.MapLiteralFormat is { } mapFormat &&
+                !IsValidRecordLiteralFormat(mapFormat)) ||
+            !IsValidExpressionFormat(pack.LengthFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.PlaceholderMappingFormat, 128, "{0}") ||
+            !IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}") ||
+            !IsValidExpressionFormat(pack.SubscriptFormat, 64, "{0}", "{1}") ||
+            !IsValidExpressionFormat(pack.CaseFoldFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.SortedExpressionFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.SortedExpressionReverseFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.GeneratorExpressionFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.TupleFormat, 64, "{0}") ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
                 !IsValidInterpolationFormat(interpolationFormat)) ||
+            (pack.ExampleData is { } exampleData &&
+                !IsValidExampleData(exampleData)) ||
             (!pack.ConversionFormats.IsDefaultOrEmpty &&
                 !IsValidConversionFormats(pack.ConversionFormats)))
         {
@@ -175,6 +191,9 @@ public sealed class GenerationLanguagePackLoader
                 operation.Prerequisites.Any(prerequisite => !IsCapabilityIdentifier(prerequisite)) ||
                 (operation.StartSymbol is not null &&
                     (!IsIdentifier(operation.StartSymbol) || !productions.ContainsKey(operation.StartSymbol))) ||
+                (operation.MatchesArgumentValue is { } matchesArgumentValue &&
+                    (string.IsNullOrWhiteSpace(matchesArgumentValue) ||
+                     matchesArgumentValue.Length > 64)) ||
                 !operationIds.Add(operation.Id))
             {
                 error = "Every generation operation requires a unique identifier, symbol, effect, argument kind, and valid prerequisite list.";
@@ -250,6 +269,134 @@ public sealed class GenerationLanguagePackLoader
         return true;
     }
 
+    private static bool IsValidRecordLiteralFormat(GenerationRecordLiteralFormat format) =>
+        !string.IsNullOrWhiteSpace(format.OpeningDelimiter) &&
+        format.OpeningDelimiter.Length <= 32 &&
+        !string.IsNullOrWhiteSpace(format.ClosingDelimiter) &&
+        format.ClosingDelimiter.Length <= 32 &&
+        !string.IsNullOrWhiteSpace(format.EntrySeparator) &&
+        format.EntrySeparator.Length <= 32 &&
+        format.EntryFormat is not null &&
+        format.EntryFormat.Length <= 64 &&
+        format.EntryFormat.Contains("{0}", StringComparison.Ordinal) &&
+        format.EntryFormat.Contains("{1}", StringComparison.Ordinal) &&
+        IsValidExpressionFormat(format.TextFormat, 32, "{0}");
+
+    private static bool IsValidExpressionFormat(string? format, int maximumLength, params string[] placeholders) =>
+        format is null ||
+        (format.Length > 0 &&
+         format.Length <= maximumLength &&
+         placeholders.All(placeholder => format.Contains(placeholder, StringComparison.Ordinal)));
+
+    private static bool IsValidSampleMultiFieldSort(GenerationSampleMultiFieldSort? sort) =>
+        sort is null ||
+        (IsIdentifier(sort.FunctionName) &&
+         IsIdentifier(sort.RecordsName) &&
+         IsIdentifier(sort.KeysName) &&
+         IsIdentifier(sort.ItemName) &&
+         IsIdentifier(sort.KeyItemName) &&
+         !sort.Fields.IsDefaultOrEmpty &&
+         sort.Fields.Length <= 16 &&
+         sort.Fields.All(field => field is not null && IsIdentifier(field.Name)) &&
+         !sort.SortKeys.IsDefaultOrEmpty &&
+         sort.SortKeys.Length <= 16 &&
+         sort.SortKeys.All(key => sort.Fields.Any(field => string.Equals(field.Name, key, StringComparison.Ordinal))) &&
+         sort.RecordsLiteral is "record" or "map" &&
+         !sort.Records.IsDefaultOrEmpty &&
+         sort.Records.Length <= 32 &&
+         sort.Records.All(record =>
+             !record.IsDefault &&
+             record.Length == sort.Fields.Length &&
+             record.Zip(sort.Fields).All(pair =>
+                 !string.IsNullOrWhiteSpace(pair.First) &&
+                 (pair.Second.IsText ||
+                  decimal.TryParse(pair.First, System.Globalization.NumberStyles.Number,
+                      System.Globalization.CultureInfo.InvariantCulture, out _)))));
+
+    private static bool IsValidSampleSort(GenerationSampleSortPolicy sort) =>
+        IsIdentifier(sort.FunctionName) &&
+        IsIdentifier(sort.RecordsName) &&
+        IsIdentifier(sort.FieldName) &&
+        IsIdentifier(sort.ItemName) &&
+        !sort.Fields.IsDefaultOrEmpty &&
+        sort.Fields.Length <= 16 &&
+        sort.Fields.All(field => field is not null && IsIdentifier(field.Name)) &&
+        sort.Fields.Select(field => field.Name).Distinct(StringComparer.Ordinal).Count() == sort.Fields.Length &&
+        !sort.Samples.IsDefaultOrEmpty &&
+        sort.Samples.Length <= 8 &&
+        sort.Samples.All(sample =>
+            sample is not null &&
+            sort.Fields.Any(field => string.Equals(field.Name, sample.Field, StringComparison.Ordinal)) &&
+            sample.RecordsLiteral is "record" or "map" &&
+            !sample.Records.IsDefaultOrEmpty &&
+            sample.Records.Length <= 32 &&
+            sample.Records.All(record =>
+                !record.IsDefault &&
+                record.Length == sort.Fields.Length &&
+                record.Zip(sort.Fields).All(pair =>
+                    !string.IsNullOrWhiteSpace(pair.First) &&
+                    (pair.Second.IsText ||
+                     decimal.TryParse(pair.First, System.Globalization.NumberStyles.Number,
+                         System.Globalization.CultureInfo.InvariantCulture, out _))))) &&
+        IsValidSampleMultiFieldSort(sort.MultiField);
+
+    private static bool IsValidSampleCall(GenerationSampleCallPolicy policy) =>
+        IsIdentifier(policy.FunctionName) &&
+        IsIdentifier(policy.ResultName) &&
+        !policy.Numbers.IsDefaultOrEmpty &&
+        policy.Numbers.Length <= 32 &&
+        policy.Numbers.All(value =>
+            !string.IsNullOrWhiteSpace(value) &&
+            decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+        !policy.Texts.IsDefaultOrEmpty &&
+        policy.Texts.Length <= 32 &&
+        policy.Texts.All(value => !string.IsNullOrWhiteSpace(value)) &&
+        (policy.Sort is null || IsValidSampleSort(policy.Sort)) &&
+        (policy.GroupedAggregation is null || IsValidSampleGroupedAggregation(policy.GroupedAggregation));
+
+    private static bool IsValidSampleGroupedAggregation(GenerationSampleGroupedAggregation aggregation) =>
+        IsIdentifier(aggregation.RecordsName) &&
+        IsIdentifier(aggregation.TotalsName) &&
+        IsIdentifier(aggregation.KeyName) &&
+        IsIdentifier(aggregation.TotalName) &&
+        !aggregation.Groups.IsDefaultOrEmpty &&
+        aggregation.Groups.Length <= 32 &&
+        aggregation.Groups.All(group => !string.IsNullOrWhiteSpace(group)) &&
+        !aggregation.Measures.IsDefaultOrEmpty &&
+        aggregation.Measures.Length == aggregation.Groups.Length &&
+        aggregation.Measures.All(measure =>
+            !string.IsNullOrWhiteSpace(measure) &&
+            decimal.TryParse(measure, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _));
+
+    private static bool IsValidExampleData(GenerationExampleData data) =>
+        !data.Numbers.IsDefaultOrEmpty &&
+        data.Numbers.Length <= 64 &&
+        data.Numbers.All(value =>
+            !string.IsNullOrWhiteSpace(value) &&
+            value.Length <= 64 &&
+            decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+        IsIdentifier(data.NumberItemName) &&
+        !string.IsNullOrWhiteSpace(data.AccumulatorInitialValue) &&
+        decimal.TryParse(data.AccumulatorInitialValue, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out _) &&
+        (data.NumberVariableValues.IsDefaultOrEmpty
+            ? data.Ordinals.IsDefaultOrEmpty
+            : data.NumberVariableValues.Length <= 32 &&
+              data.NumberVariableValues.All(value =>
+                  !string.IsNullOrWhiteSpace(value) &&
+                  decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                      System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+              data.Ordinals.Length == data.NumberVariableValues.Length &&
+              data.Ordinals.All(IsIdentifier)) &&
+        (string.IsNullOrEmpty(data.EmptyMappingNote) || data.EmptyMappingNote.Length <= 128) &&
+        (data.SampleCall is null || IsValidSampleCall(data.SampleCall)) &&
+        (string.IsNullOrEmpty(data.IntegerValue) ||
+            decimal.TryParse(data.IntegerValue, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _));
+
     private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
     {
         if (string.IsNullOrWhiteSpace(format.OpeningDelimiter) ||
@@ -299,6 +446,9 @@ public sealed class GenerationLanguagePackLoader
             !IsValidFunctionCallFormat(syntax.FunctionCallFormat) ||
             (syntax.MemberAccessFormat is { } memberAccessFormat &&
                 !IsValidMemberAccessFormat(memberAccessFormat, syntax)) ||
+            (syntax.ProgramArgumentFormat?.Format is { } programArgumentFormat &&
+                (!programArgumentFormat.Contains("{0}", StringComparison.Ordinal) ||
+                 programArgumentFormat.Length > 64)) ||
             syntax.GroupingDelimiters.IsDefault ||
             syntax.GroupingDelimiters.Length > 16 ||
             syntax.ExpressionOperators.IsDefaultOrEmpty ||

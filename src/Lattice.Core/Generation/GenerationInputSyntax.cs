@@ -24,7 +24,17 @@ public sealed record GenerationInputSyntax(
     /// access, so member requirements stay unrealizable rather than being emitted with invented syntax.
     /// </summary>
     public GenerationMemberAccessFormat? MemberAccessFormat { get; init; }
+
+    /// <summary>
+    /// How a program reads one argument it was started with. A pack without this format cannot render a
+    /// program argument, so such requirements stay unrealizable rather than being emitted with invented syntax.
+    /// </summary>
+    public GenerationProgramArgumentFormat? ProgramArgumentFormat { get; init; }
 }
+
+/// <summary>The place a language writes a program argument position into, using a {0} placeholder.</summary>
+public sealed record GenerationProgramArgumentFormat(
+    string Format);
 
 /// <summary>The separator a language writes between an instance and the member it exposes.</summary>
 public sealed record GenerationMemberAccessFormat(

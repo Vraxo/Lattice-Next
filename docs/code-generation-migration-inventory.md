@@ -6,7 +6,7 @@ This is an as-built source inventory for [M-01 in the active migration queue](..
 
 ## Verified baseline
 
-The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **136 sequence rules, 231 input rules, 50 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **53 productions, 13 bindings, and 55 operations**. [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
+The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **21 sequence rules, 240 input rules, 30 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**. [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
 
 One detail in the queue's examples is stale: there is no current fact ID beginning `program.sign-classification.`. The corresponding input facts are `program.assignment.classification` and `program.classification.positive`, `.negative`, and `.zero`; they are still task-specific.
 
@@ -23,7 +23,7 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 
 1. If path A does not complete, [`LceTextParser.Parse`](../src/Lattice.Core/Language/LceTextParser.cs) reaches [`TaskRequestParser.TryParse`](../src/Lattice.Core/Language/TaskRequestParser.cs). The parser tries `CompositionalTaskParser` first, then the general-shaped `ScriptCreationPattern` (`How would I create a script for {application} that {task}?`). That pattern stores a normalized task phrase as `Subject`, the application as `Context`, `source-code` as output format, and `program-generation` as scope. It does not decompose the requested program into operations, typed values, or constraints.
 2. [`CompositionalTaskParser`](../src/Lattice.Core/Language/CompositionalTaskParser.cs) extracts the same sequence facts, requires `intent.program-generation` and exactly one `language.*` fact, then calls `KnowledgeDrivenSequenceGenerator` as a preflight before constructing a Code `TaskRequestFormula`. In the in-process runtime this successful parse path is **shadowed**: `LatticeRuntimeSession.Process` already returns if the same extraction and generator call succeeds; if that direct call fails, this parser's equivalent preflight cannot succeed. It remains directly exercised by parser unit tests.
-3. A parsed `TaskRequestAction.Code` reaches [`TaskRequestResponder`](../src/Lattice.Runtime/TaskRequestResponder.cs), then [`TaskCodeGenerationResponder.TryGenerateCode`](../src/Lattice.Runtime/TaskCodeGenerationResponder.cs). This responder accepts only requests whose subject is an individual typed `blender-codegen-code-generation-task` and whose context is a `blender-codegen-software-application`. These are Blender-specific gates in the world model, not generic code-generation concepts.
+3. A parsed `TaskRequestAction.Code` reaches [`TaskRequestResponder`](../src/Lattice.Runtime/TaskRequestResponder.cs), then `TaskCodeGenerationResponder.TryGenerateCode` — today [`TaskProgramGenerationResponder.TryGenerateProgram`](../src/Lattice.Runtime/TaskProgramGenerationResponder.cs) after M-12.4–M-12.6. As inventoried, this responder accepted only requests whose subject was an individual typed `blender-codegen-code-generation-task` and whose context was a `blender-codegen-software-application`; M-12.6 renamed that vocabulary to `code-generation-task` / `software-application`, so the check is a capability rather than a Blender gate.
 4. The responder uses the [`SemanticWorldModelReasoner`](../src/Lattice.Core/Reasoning/SemanticWorldModelReasoner.cs) to resolve the application's language and retrieve the task's already-authored, ordered generation-step assertions, effects, argument kinds, bindings, API references, and safety notes. The runtime loads the domain modules through [`SemanticWorldModelResourceLoader`](../src/Lattice.Runtime/SemanticWorldModelResourceLoader.cs). For each of the 18 Blender steps it creates one `GenerationGoal`: normalized effect, normalized argument kind, the step label as argument value, an empty capability list, and named string bindings taken from the assertions. The request text is not used to plan or infer those steps. The API-reference check confirms that referenced concepts are typed as APIs; it does not validate call signatures or derive the bindings from API knowledge.
 5. [`GenerationLanguagePackLoader`](../src/Lattice.Core/Generation/GenerationLanguagePackLoader.cs) loads the embedded language packs; the responder selects the pack whose key equals the language found in the model. Only the Python language pack currently exists. [`SequenceGenerationPipeline`](../src/Lattice.Core/Generation/SequenceGenerationPipeline.cs) selects an operation from effect/argument-kind/prerequisites, resolves the pack's bindings and literal encoding, converts its productions to a `SequenceGrammar`, and invokes [`SequenceGenerator`](../src/Lattice.Core/Generation/SequenceGenerator.cs). `TryGenerateProgram` simply generates each supplied goal in order and joins the statements. The responder then formats a Markdown script, the pre-authored step labels, optional safety notes, and evidence.
 
@@ -39,8 +39,8 @@ One detail in the queue's examples is stale: there is no current fact ID beginni
 | [`TaskRequestParser`](../src/Lattice.Core/Language/TaskRequestParser.cs) | Shared regex-based task recognizers. `ScriptCreationPattern` creates the raw Code task request described above; it does not parse a program. Its `purpose.Contains("python")` recommendation cue is unrelated to code generation and is out of scope; [`TaskRecommendationResponder`](../src/Lattice.Runtime/TaskRecommendationResponder.cs) consumes that requirement for software recommendations. |
 | [`TaskRequestFormula`](../src/Lattice.Core/Semantics/TaskRequestFormula.cs) and [`TaskRequestAction`](../src/Lattice.Core/Semantics/TaskRequestAction.cs) | Generic task request contract, but the Code path carries normalized free text, context/output/scope strings, and string requirements—not typed program statements, expressions, or bindings. |
 | [`CompositionalTaskParser`](../src/Lattice.Core/Language/CompositionalTaskParser.cs) | **Shadowed production parser / test-only successful use.** It turns extracted fact IDs into a Code request only after the same `KnowledgeDrivenSequenceGenerator` succeeds. It is not the semantic-to-language-pack bridge implied by its name. |
-| [`TaskRequestResponder`](../src/Lattice.Runtime/TaskRequestResponder.cs) and [`TaskRequestResponderHelpers`](../src/Lattice.Runtime/TaskRequestResponderHelpers.cs) | Generic task-action dispatch and response/evidence helpers. Code requests dispatch to `TaskCodeGenerationResponder`; helpers do not provide program semantics. |
-| [`TaskCodeGenerationResponder`](../src/Lattice.Runtime/TaskCodeGenerationResponder.cs) | **Blender-specific task route.** Performs `blender-codegen-*` type/relation checks, turns a stored step recipe into goals, selects the language pack, and formats output. `TryExplainOperation` is an adjacent procedure-explanation responder, not code generation. |
+| [`TaskRequestResponder`](../src/Lattice.Runtime/TaskRequestResponder.cs) and [`TaskRequestResponderHelpers`](../src/Lattice.Runtime/TaskRequestResponderHelpers.cs) | Generic task-action dispatch and response/evidence helpers. Code requests dispatch to the shared program-generation entry point; helpers do not provide program semantics. |
+| [`TaskProgramGenerationResponder`](../src/Lattice.Runtime/TaskProgramGenerationResponder.cs) | **Shared code-request route.** As inventoried it was `TaskCodeGenerationResponder`, a Blender-specific route; M-12.4–M-12.10 made it application-neutral (capability checks on `code-generation-task` / `software-application`) and removed the stored step order. It turns knowledge-declared steps into goals, selects the language pack, and formats output. Procedure explanation moved to [`TaskOperationExplanationResponder`](../src/Lattice.Runtime/TaskOperationExplanationResponder.cs). |
 | [`SemanticWorldModelResourceLoader`](../src/Lattice.Runtime/SemanticWorldModelResourceLoader.cs) and [`SemanticWorldModelReasoner`](../src/Lattice.Core/Reasoning/SemanticWorldModelReasoner.cs) | Generic ontology composition and graph reasoning. In the code-generation route, their data is consumed by the Blender-specific responder; no general programming-operation planner is present in this path. |
 | [`SequenceInputFactExtractor`](../src/Lattice.Core/Generation/SequenceInputFactExtractor.cs) | Generic mechanics for phrase matching, capture, collection splitting, raw-value preservation, optional normalization, and fact assembly. The *rules and fact vocabulary it executes* are highly prompt/task-specific; expression payloads remain strings. It tokenizes with `EnglishLexer`. |
 | [`SequenceKnowledgeBaseLoader`](../src/Lattice.Core/Generation/SequenceKnowledgeBaseLoader.cs) | Generic strict JSON loader and embedded-resource merger for the sequence format. It explicitly whitelists the Python-only `pythonListLiteral` validation kind. |
@@ -253,14 +253,14 @@ The Core project embeds all `knowledge/languages/**/*.json` and `knowledge/seque
 
 | Module | Classification and role |
 |---|---|
-| [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) | **Mixed: phrase/task recognizers + request fact schema + Python token output + full/near-full task solutions.** 231 input rules and 50 validations produce `program.*`/`value.*` facts; 136 rules output Python text and fences; one `quoted-string` encoding escapes source text. It is the only sequence module and the main source of single-task shortcuts. |
-| [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) | **Legitimate declarative target-language knowledge.** 53 Python productions contain statement/call/assignment/control-flow spellings and indentation; 13 bindings describe generic argument/goal-binding sources; 55 operations map effects/argument kinds to Python operation symbols and start productions (including standard APIs such as `open`, `input`, `json.dump`, and `sys.stdout.write`). Keep Python syntax and API spellings here. It contains no single benchmark task's full program, but is only exercised in production through the Blender route today. |
+| [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) | **Mixed: phrase/task recognizers + request fact schema + Python token output + full/near-full task solutions.** 240 input rules and 30 validations produce `program.*`/`value.*` facts; 21 rules output Python text and fences; one `quoted-string` encoding escapes source text. It is the only sequence module and the main source of single-task shortcuts. |
+| [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) | **Legitimate declarative target-language knowledge.** 102 Python productions contain statement/call/assignment/control-flow spellings and indentation; 26 bindings describe generic argument/goal-binding sources; 104 operations map effects/argument kinds to Python operation symbols and start productions (including standard APIs such as `open`, `input`, `json.dump`, and `sys.stdout.write`). Keep Python syntax and API spellings here. It contains no single benchmark task's full program, but is only exercised in production through the Blender route today. |
 | [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) | **Foundational but shallow programming ontology.** It supplies generic concepts such as program, statement, expression, value, variable, functions, parameters, collections, modules, exceptions, classes and APIs, plus Python individuals and graph assertions. All 43 type declarations are primitive; relations do not yet model reusable typed operation signatures/effects/prerequisites or enough construction dependencies to drive generation. |
 | [`knowledge/domains/blender-object-replacement-script.json`](../knowledge/domains/blender-object-replacement-script.json) | **Mixed: legitimate Blender API/domain facts plus a task-specific ordered solution plan.** It has 118 concepts (9 types, 109 individuals), 8 relation signatures, 241 relation assertions, one data property, and 18 step-order assertions. The 18 steps hard-code the object-replacement plan (imports, target name/pattern, snapshot/iteration/match, light creation, transform/collection linking, fallback, removal) and provide generation effects, argument kinds, and literal source-expression bindings. The eight `api-*` concepts (plus `blender-codegen-api-scene-collection-link`) and their API references are legitimate domain knowledge; the task's selected, ordered answer plan is not reusable programming semantics. |
 | [`knowledge/domains/core.json`](../knowledge/domains/core.json) | **Generic ontology infrastructure.** Declares shared `is-a`/`instance-of` signatures; not a code-generation recipe. |
 | [`knowledge/domains/software.json`](../knowledge/domains/software.json) | **Adjacent non-codegen domain knowledge.** Used by software recommendation, including Python package classification; not a dependency of either program-emission path. Preserve it. |
 
-The queue's pre-authored Blender plan finding is verified in the domain assertions and in `TaskCodeGenerationResponder`'s `blender-codegen-has-generation-step` / `blender-codegen-generation-step-order` reads. The general semantic model loader composes the domain modules; that fact does not mean the Core sequence generator reasons over them.
+The queue's pre-authored Blender plan finding is verified in the domain assertions and, as inventoried, in `TaskCodeGenerationResponder`'s `blender-codegen-has-generation-step` / `blender-codegen-generation-step-order` reads; M-12.10 has since deleted the order property, so the steps are planned in assertion order. The general semantic model loader composes the domain modules; that fact does not mean the Core sequence generator reasons over them.
 
 ## Tests and benchmark boundary
 
@@ -319,7 +319,7 @@ Scalar requests are now interpreted as ordered, request-derived requirements. No
 - **Fixed comparison samples removed (M-07.9 cutover):** the three marker-only captures `recognize-conditional-output-adult-at-least`, `recognize-conditional-output-minor-less-than`, and `recognize-conditional-output-match-equals` and their complete-program fragments `python-conditional-output-adult-at-least`, `python-conditional-output-minor-less-than`, `python-conditional-output-match-equals` are deleted. Requests phrased as `<output verb> 'text' if <fixed comparison>` are no longer answered from stored answers; the generic conditional realization that covers that phrasing is queued in M-08 (8.10–8.12).
 - **Deliberately retained for the M-08 cutover:** `program.assignment.first/.second/.result` (two-number addition, benchmark `py-002`) and `program.assignment.classification` plus `program.classification.positive/.negative/.zero` (sign classification, benchmark `py-003`). Their consumers (`python-addition-*`, `python-sign-classification-*`) are still the only active producers for those benchmark tasks, so removing only the captures would disable passing benchmark examples. M-08.9 and M-08.14 remove the facts and fragments together once generic realization covers those programs.
 
-Current module counts after this change: 133 sequence rules, 236 input-fact rules, 50 validations, 1 encoding. The M-07.1 table above is retained as the pre-migration inventory; the fixed-comparison row no longer describes the current file.
+Current module counts after this change: 21 sequence rules, 240 input-fact rules, 30 validations, 1 encoding. The M-07.1 table above is retained as the pre-migration inventory; the fixed-comparison row no longer describes the current file.
 
 ### M-08.1 through M-08.20 scalar composition (current state)
 
@@ -451,3 +451,760 @@ Two loader limits shaped the rule and are worth recording: an input rule may dec
 #### Consequences for M-10.5 through M-10.27
 
 Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. M-10.22 and M-10.23 have since deleted the function, conversion, and class templates: function requests and class declarations now plan from request-derived requirements. Exception fragments survive in one place only — `python-directory-file-listing`, which still emits a whole program because the planner has no import or directory-iteration requirement; M-10.29 removes it once those land.
+
+### M-11.1 through M-11.3 file, directory, and serialization inventory (current state)
+
+Recorded before any change to these families, as the pre-migration baseline for M-11. The module holds 98 sequence rules, 241 input-fact rules, 34 validations, and one encoding; the Python pack holds 91 productions, 20 bindings, and 93 operations. Nothing is added or removed by this inventory.
+
+#### M-11.1 File read and write (1 input rule, 1 sequence rule)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Non-empty line count** | `recognize-non-empty-file-line-count` (9 match tokens, no captures) | Marker fact `program.non-empty-file-line-count`, nothing captured | `python-non-empty-file-line-count` (1 rule): `line_count = 0` / `with open("input.txt", "r", encoding="utf-8") as input_file:` / `    for line in input_file:` / `        if line.strip():` / `            line_count += 1` / `print(line_count)` |
+
+Fixed: the path `input.txt`, the file variable `input_file`, the mode and encoding (`"r"`, `"utf-8"`), the accumulator `line_count`, the emptiness predicate `line.strip()`, and the printed result. Captured from the request: nothing. There is **no file-write family at all** — the only write in the module happens inside the JSON round trip (`python-json-round-trip-write-open` and `-dump`) — so M-11.5 and M-11.15 add a capability rather than replacing one.
+
+The pack already carries the syntax the generic path needs here: the `with-statement` and `bound-import-statement` productions, and the operations `python-open` (effect `open-file`, start symbol `call-expression`), `python-with-file` (effect `begin-with`, start symbol `with-statement`), and `python-bound-import` (effect `emit-import`). What is missing is a semantic requirement: there is no import, file-read, or file-write requirement, so the planner cannot reach those operations from facts.
+
+#### M-11.2 Directory listing (1 input rule, 1 sequence rule)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **Directory file listing** | `recognize-directory-file-listing` (11 match tokens, no captures) | Marker fact `program.directory-file-listing`, nothing captured | `python-directory-file-listing` (1 rule): `import os` / `import sys` / `directory = sys.argv[1]` / `try:` / `    for entry in sorted(os.scandir(directory), key=lambda entry: entry.name):` / `        if entry.is_file():` / `            print(f"{entry.name}: {entry.stat().st_size} bytes")` / `except FileNotFoundError:` / `    print(f"Directory not found: {directory}")` |
+
+Fixed: both imports, the `sys.argv[1]` argument source, `os.scandir`, the `sorted(..., key=lambda entry: entry.name)` policy, the `is_file` filter, the `"{name}: {size} bytes"` message, and the `FileNotFoundError` handler. Captured from the request: nothing. This is the last family whose *whole program* is stored, and it is what M-10.29 waits on: it needs an import requirement, a directory-iteration requirement over a scanned directory, a member access for `entry.name`/`entry.stat().st_size`, and a handler bound to the missing-directory failure.
+
+#### M-11.3 Serialization and record families (8 + 20 input rules, 8 + 20 sequence rules)
+
+| Family | Rules | Facts and captured values | Emitted fragments |
+| --- | --- | --- | --- |
+| **JSON round trip** | `capture-json-round-trip-record-default`, `capture-json-round-trip-record-name`, `capture-json-round-trip-file-default`, `capture-json-round-trip-file-name`, `recognize-json-round-trip-loads-back`, `recognize-json-round-trip-load-back` (plus the shared `recognize-json-round-trip-python` and `-generation-intent`) | `program.json-round-trip#records/path` (`records` variable name, `records.json` default path, or a captured name), `program.json-round-trip.confirmed`, and six readiness markers `program.json-round-trip.start`, `program.json.import`, `program.json.records`, `program.json.write-open`, `program.json.write`, `program.json.read-open`, `program.json.load` (each `#kind`) | `python-json-round-trip-open/import/records/write-open/dump/read-open/load/output`: `import json` / `records = [{"name": "Ada", "age": 36}, {"name": "Grace", "age": 85}]` / `with open("records.json", "w", encoding="utf-8") as output_file:` / `    json.dump(records, output_file, indent=2)` / `with open("records.json", "r", encoding="utf-8") as input_file:` / `    loaded_records = json.load(input_file)` / `print(loaded_records)` |
+| **Single-field record sort** | `recognize-single-field-record-sorting`, `capture-single-field-sort-function-name`, `-records-name`, `-field-name`, the three `default-*` variants, `recognize-single-field-sort-case-insensitive(-spaced)`, `-descending`, `-reverse` | `program.single-field-record-sorting#name/records/field` (all three captured or defaulted), `.header/.signature/.body` and `program.sort` readiness markers, `.case-insensitive`, `.descending` | `single-field-record-sort-*` (10 rules): `def sort_records(records, field):` / `    return sorted(records, key=lambda record: record[field])` / `print(sort_records([{"name": "Ada", "age": 36}, …], "age"))`, with `casefold()` and `reverse=True` variants |
+| **Multi-field record sort** | `recognize-multi-field-record-sorting`, `recognize-case-insensitive-multi-field-record-sorting` | Markers `program.multi-field-record-sorting` and `.case-insensitive`; the field list and sample records are literals | `python-multi-field-record-sorting`, `python-case-insensitive-multi-field-record-sorting` (2 rules): `return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))`, with the `casefold()` variant |
+| **Grouped record aggregation** | `capture-grouped-record-aggregation`, `recognize-record-aggregation-calculates/computes/sums` | `program.record-aggregation#record/group/measure` (all three captured), `program.record-aggregation.intent`, plus the `record-aggregation-*` readiness markers | `record-aggregation-*` (7 rules): `records = [{…}]` / `totals = {}` / `for purchase in records:` / `    key = purchase["customer"]` / `    totals[key] = totals.get(key, 0) + purchase["spending"]` / `for key, total in totals.items():` / `    print(key, total)` |
+
+Fixed across the serialization families: the module name `json`, the modes and `encoding="utf-8"`, the dump options (`indent=2`), the loaded variable name (`loaded_records`, or `loaded_<records>`), the sample record literals, the `record[field]` member form, `casefold()`, and the aggregation's `totals.get(key, 0)` accumulator. Captured from the request: record and file names for the JSON round trip, the function/records/field names for single-field sorting, and the record/group/measure names for aggregation.
+
+Validation: `json-round-trip-records-name-is-identifier`, plus the three `record-aggregation-*-is-identifier` and three `single-field-record-sort-*-is-identifier` checks.
+
+The pack already carries `import-statement`, `bound-import-statement`, `python-import-module`, `python-bound-import`, `python-json-dump-indented` (effect `write-expression-indented`), and the `with-statement` production. It does **not** carry `json.load`, a mode/encoding-qualified `open(...)`, `os.scandir`, or `sys.argv`, so M-11.12 and M-11.13 move those signatures into the pack rather than into shared Core.
+
+#### Consequences for M-11.4 through M-11.21
+
+The generic path needs five things these families assume implicitly: an **import requirement** (module name, so `import json`/`import os` are planned, not typed into a template), a **file-read requirement** (path, mode, encoding, and the bound content or line stream), a **file-write requirement** (path, mode, encoding, and the written value), a **directory-listing requirement** (directory expression and an entry collection whose items expose name/size), and a **failure requirement** for missing paths that binds a handler to the operation it guards. M-11.4/M-11.5/M-11.6/M-11.7 define those, and M-11.16 then retires `python-directory-file-listing` — closing M-10.29 — while M-11.18 removes the JSON and record families once their requirements render through the pack.
+
+## M-11.4 through M-11.7, M-11.14, M-11.16, M-10.29 — outcome
+
+The file and directory families now plan from facts:
+
+| Ticket | Model | Pack knowledge | Replaced |
+| --- | --- | --- | --- |
+| M-11.4 | `FileReadRequirement(path, stream, body)` | `read-text-file` effect, `path`/`file` bindings, `bound-with-open-read-statement` | `recognize-non-empty-file-line-count`, `python-non-empty-file-line-count` |
+| M-11.6 | `DirectoryListingRequirement(directory, item, sortKey, body)` | `bound-directory-iteration-statement`, `indented-` variant, `emit-directory-loop-header`, `directory`/`item` bindings | — (new capability) |
+| M-11.7 | `TryRequirement` + `HandlerRequirement(errorType, body)` bound to the guarded listing | handler header spellings already present | — (new capability) |
+| M-11.12 (partly) | `SemanticProgramArgumentExpression(position)` | `inputSyntax.programArgumentFormat` (`sys.argv[{0}]`) | hard-coded `sys.argv[1]` |
+| M-11.12 (partly) | `ImportRequirement(module)` | `emit-import`, `bound-import-statement`, `module` binding | hard-coded `import os` / `import sys` |
+
+Both directory rules (`recognize-directory-file-listing`, `python-directory-file-listing`) are deleted, so
+the directory family is one input rule with twelve declared values feeding the same planner as every other
+family. Current knowledge counts after M-11.4 and M-10.29: **96 sequence rules** (98 → 97 → 96) and
+**241 input rules**; the pack now holds **95 productions**, **24 bindings**, and **97 operations**, plus
+`inputSyntax.programArgumentFormat`.
+
+Two model consequences are worth recording for the remaining serialization work:
+
+- Statements may now sit at block depth 3 (`write-standard-output-triple-indented-expression`), because the
+  guarded listing nests an output inside `for` inside `try`.
+- Request-declared message text is carried as a `{0}`/`{1}` template in the fact, and the mapper turns it
+  into text-template fragments, so no message wording lives in shared code.
+
+## M-11.5 through M-11.21 — outcome
+
+The serialization family is planned like every other family:
+
+| Ticket | Model | Pack knowledge | Replaced |
+| --- | --- | --- | --- |
+| M-11.5 | `FileWriteRequirement(path, stream, body)` | `write-text-file`, `bound-write-with-open-statement` | — (new capability) |
+| M-11.8–11.10 | `SerializeRequirement`, `DeserializeRequirement`, `SemanticListLiteralExpression`, `SemanticRecordLiteralExpression` | `indented-serialize-statement`, `indented-deserialize-statement`, `collectionLiteralFormat`, `recordLiteralFormat` | — (new capability) |
+| M-11.11 | `TryRequirement` + `HandlerRequirement("json.JSONDecodeError", …)`, qualified error types spaced by the pack | `indented-bound-with-open-read-statement`, `indented-indented-deserialize-statement` | — (new capability) |
+| M-11.18 | — | — | all 8 `python-json-round-trip-*` rules, 4 `capture-json-round-trip-*` rules, 2 `recognize-json-round-trip-*` readiness rules |
+
+Two model facilities were added for this family:
+
+- **Operations can declare the argument value they realize** (`GenerationOperation.MatchesArgumentValue`). A
+  requirement names a format (`json`) and the pack decides which call spells it, so `json.dump` and
+  `json.load` stay in knowledge while the planner stays language-neutral.
+- **A request that holds a collection is planned, not refused.** The deferred-capability check now treats a
+  collection-naming fact as carried when the requirements already hold a literal, iteration, filter, map, or
+  sort, so "a list of dictionaries" no longer blocks the serializer.
+
+The family's gate is knowledge-side: the three round-trip input rules only fire for a request that also reads
+the data back, so an incomplete request produces no requirement at all and is rejected as before.
+
+Current knowledge counts after M-13.14: **21 sequence rules** and **240 input rules**, with **30 validations**;
+the pack holds **102 productions**, **26 bindings**, and **104 operations**, plus
+`inputSyntax.programArgumentFormat`, the pack-level `recordLiteralFormat`, the sort and generator formats, and
+the `exampleData` policy.
+
+## M-12.1 — Blender gates in `TaskCodeGenerationResponder`
+
+Production callers, in order:
+
+1. `LatticeRuntimeSession.ProcessTaskRequest` calls `TaskRequestResponder.TryRespond` and maps `false` to
+   `LatticeUtteranceResultKind.InformationUnavailable`.
+2. `TaskRequestResponder.TryRespond` dispatches `TaskRequestAction.Code` to
+   `TaskCodeGenerationResponder.TryGenerateCode`; no other caller exists in `src/`.
+3. `TryGenerateCode` gates, in order: `request.Scope == "program-generation"`; the subject concept is an
+   individual and `instance-of blender-codegen-code-generation-task`; the context concept is an individual
+   and `instance-of blender-codegen-software-application`; the application has exactly one
+   `blender-codegen-application-uses-language` relation whose object is `instance-of programming-language`;
+   the task's `blender-codegen-has-generation-step` relations all resolve, each carries one parseable
+   `blender-codegen-generation-step-order` value, and the orders are distinct; each step has exactly one
+   effect and one argument kind of the matching `blender-codegen-generation-*` type; each binding resolves
+   to exactly one `blender-codegen-generation-binding-value`; each `blender-codegen-step-references-api`
+   object is `instance-of application-programming-interface`.
+
+Fixed in shared code today: all nine `blender-codegen-*` type identifiers, all eight relation identifiers,
+the one data property identifier, the `## {task}` / `### Script` / `### Steps` / `### Safety` message shape,
+and the assumption that steps are ordered by a stored integer.
+
+## M-12.2 — `ScriptCreationPattern` in `TaskRequestParser`
+
+- Declared at `TaskRequestParser.cs:34` as
+  `^\s*How would I create a script for (?<application>[A-Za-z][A-Za-z0-9 -]*?) that (?<task>.+?)\??\s*$`.
+- Sole caller: `TaskRequestParser.TryParse` → `TryParseScriptCreationRequest`, which runs *after* the
+  compositional task parser and before the hobby, brainstorm, concept, operation, learning, road-trip,
+  writing, and recommendation patterns.
+- It produces a `TaskRequestFormula(TaskRequestAction.Code, Subject: Normalize(task),
+  Context: Normalize(application), OutputFormat: "source-code", Scope: "program-generation",
+  Requirements: ["source-code"])`. The task phrase becomes the subject concept id verbatim, so the pattern
+  claims nothing about whether the task is modelled — that decision is deferred to the responder.
+- Parser tests: `Parses_a_Blender_object_replacement_script_request` (asserts action, subject, context,
+  output format, scope, requirements), `Parses_an_unsupported_Blender_script_request_without_claiming_its_task_is_known`
+  ("renames every object"), and `Parses_script_creation_requests_for_other_applications_without_task_routing`
+  ("Maya … creates a cube") as the application-agnostic control.
+
+## M-12.3 — Blender runtime dispatch and its dependent assertions
+
+The Blender path is distinct in four ways: the concept-type gate (M-12.1), the stored step order, the
+domain-specific relation names, and the message assembly that prints the ordered step labels and safety
+notes. `knowledge/domains/blender-object-replacement-script.json` holds 118 concepts (109 individuals, 9
+types), 241 relation assertions, and 18 data assertions; the 18 `blender-codegen-has-generation-step`
+assertions already appear in step order 1–18, so the stored order is redundant with declaration order.
+
+Assertions that depend on this path:
+
+| Test | Depends on |
+| --- | --- |
+| `TaskRequestResponseTests.Generates_a_Blender_script_that_replaces_matching_objects_with_point_lights` | the task label heading, the three sections, every script line listed in M-12.1's bindings, `target_name = "YourObjectName"`, the ordering of the 18 steps, and non-empty evidence |
+| `TaskRequestResponseTests.Does_not_generate_a_Blender_script_for_an_unmodeled_task` | the responder returning `false` when the subject concept has no generation steps, which must keep producing `InformationUnavailable` |
+| `TaskRequestParserTests.Parses_a_Blender_object_replacement_script_request` and the two control tests | the parser contract only — unaffected by responder work |
+
+## Consequences for M-12.4 through M-12.15
+
+- **M-12.4/M-12.5/M-12.6** can rename the nine types, eight relations, and one data property to
+  application-neutral identifiers in both `TaskCodeGenerationResponder` and the domain knowledge, and delete
+  the `blender-codegen-*` gate, without touching any label the runtime test asserts. The gate becomes a
+  capability check ("this subject is a code-generation task, this context is a software application, this
+  application declares one implementation language"), which is what makes it not Blender-only.
+- **M-12.10** can delete the step-order data property and all 18 assertions and order steps by the order of
+  their `has-generation-step` assertions, byte-identically, because the two orders already agree.
+- **M-12.7/M-12.8/M-12.9** need a knowledge-declared distinction between *API/structure* values (for example
+  `list(bpy.data.objects)`, `collection.objects.link`) and *request-derived* values. Only `YourObjectName`
+  is request-shaped today: it is the placeholder the request's "with a specific name" leaves open, so the
+  request-derived slot must be declared in knowledge and filled from the task phrase, with the declared
+  placeholder as the fallback.
+- **M-12.11/M-12.12** split the file's concepts into the reusable domain/API facts (`blender-api` instances,
+  object/scene vocabulary) and the generation scaffolding (`*-code-generation-task`, `*-step-*`,
+  `*-binding-*`), so only the scaffolding can be deleted once the pipeline derives it.
+
+## M-12.4 through M-12.15 — outcome
+
+| Ticket | Outcome |
+| --- | --- |
+| M-12.4 | `TaskRequestAction.Code` has one entry point, `TaskProgramGenerationResponder.TryGenerateProgram`; the vehicle-procedure explanation moved out to `TaskOperationExplanationResponder` |
+| M-12.5 | The entry point is application-neutral: the request names task and application, the domain knowledge supplies steps, effects, argument kinds, bindings, API references, and safety notes |
+| M-12.6 | Nine `blender-codegen-*` types, eight relations, and one data property renamed to `code-generation-*` / `step-*` / `binding-*` vocabulary in both code and knowledge; the gate is now a capability check |
+| M-12.7 | Blocked — needs early-continue loop, guarded-branch-with-fallback, and API-expression requirements (successors 12.7a–c) |
+| M-12.8 | Blocked on 12.7c — the API relations are cited but cannot select the pack's generic `emit-*` operations |
+| M-12.9 | Partly satisfied (no name or value in shared code); blocked for named objects, which needs slot-bearing lexemes (successors 12.9a–b) |
+| M-12.10 | Step-order property and 18 assertions deleted; steps are planned in assertion order; data-assertion floors 62 → 57 |
+| M-12.11 | No `blender-codegen-*` identifier remains; zero unreferenced concepts |
+| M-12.12 | Nine `blender-api` individuals, the `blender` application, and all ten API references asserted by `BlenderScriptGenerationTests` |
+| M-12.13 | Knowledge-only lines and the cited `step-has-binding` assertion prove the shared path |
+| M-12.14 | Blocked on 12.9a/b |
+| M-12.15 | Unmodelled task and unmodelled application both answer `InformationUnavailable` with no code fence |
+
+What the section changed in principle: the code-generation route is now a *capability*, not an application.
+Any knowledge module that declares a `code-generation-task` instance with `has-generation-step`,
+`step-has-generation-effect`, `step-has-argument-kind`, `step-has-binding`, and `binding-has-value`
+assertions, on a `software-application` instance with one `application-uses-language`, is answered by the same
+entry point and the same language pack. The remaining Blender-specific work is about *what* the requirements
+can express (M-12.7/M-12.8) and *how* a request phrase reaches a model (M-12.9/M-12.14), not about routing.
+
+## M-13.1 through M-13.5 — classification of the Python sequence knowledge
+
+Classified from the files themselves (`knowledge/sequences/python.core.json`). Every identifier below is
+counted, not estimated.
+
+### M-13.1 — emission rules (88)
+
+All 88 are Python emission rules; the classification separates *reusable statement realization* from
+*task-shaped fixed fragments*.
+
+| Family | Rules | Emitted newlines | Multi-line fragments | Classification | Disposition |
+| --- | ---: | ---: | ---: | --- | --- |
+| `python-collection-*` | 20 | 13 | 0 | one-statement realization of filter/loop steps | retained — feeds blocked 9.22 |
+| `python-addition-*` | 13 | 3 | 0 | fixed two-number solution | retained — blocked 8.9 |
+| `python-dictionary-*` | 8 | 12 | 3 | fixed dictionary iteration/mapping | retained — blocked 9.24 |
+| `single-field-*` | 8 | 7 | 2 | fixed record sorting | retained — blocked 9.25 |
+| `python-output-*` | 7 | 2 | 0 | reusable `print` realization | reusable |
+| `record-aggregation-*` | 7 | 6 | 1 | fixed grouped aggregation | retained — blocked 9.25 |
+| `python-assignment-*` | 5 | 2 | 0 | reusable assignment realization | reusable |
+| `python-range-*` | 5 | 2 | 0 | reusable range-loop realization | reusable |
+| `python-sign-*` | 4 | 7 | 3 | fixed sign classification | retained — blocked 8.14 |
+| `python-loop-*`, `python-manual-*` | 3 | 15 | 3 | fixed loop totals with literal collections | retained — blocked 9.23 |
+| `python-even-*`, `python-odd-*` | 3 | 11 | 3 | fixed parity filters | retained — blocked 9.22 |
+| `python-number-*`, `python-value-*`, `python-name-*` | 3 | 15 | 3 | fixed dictionary mappings | retained — blocked 9.24 |
+| `python-multi-*`, `python-case-*` | 2 | 8 | 2 | fixed multi-field and case-insensitive sorting | retained — blocked 9.25 |
+
+The 20 multi-line fragments are exactly the ids enumerated by the `SequenceKnowledgeGuardTests` exception
+table, so any *new* complete-solution fragment fails the build (M-13.17).
+
+### M-13.2 — input rules (238)
+
+| Class | Rules | Examples |
+| --- | ---: | --- |
+| Feed generic requirement facts (reusable recognition) | 71 | `recognize-declared-file-line-count`, `recognize-declared-directory-listing`, `capture-declared-serialization-records-name`, the `program.requirement.*` facts, `language.python`, `intent.program-generation` |
+| Legacy task facts with literal data | 29 | `capture-*-default` rules whose captures carry `literalValue` |
+| Legacy task facts capturing from the request | 25 | `capture-*-name` rules whose captures read the phrase |
+| Legacy task facts that are phrase markers | 113 | `recognize-*` rules with no captures, one fact per prompt shape |
+
+Disposition: the 71 requirement-feeding rules stay (they are the migrated path); the 167 legacy rules stay
+only while their families are blocked (8.9, 8.14, 9.22–9.25), except the four families already migrated in
+M-10, M-11, and M-12, whose rules are already deleted.
+
+### M-13.3 — retained and deleted rules
+
+Deleted so far, with the generic replacement that took over:
+
+| Deleted | Replaced by |
+| --- | --- |
+| `recognize-non-empty-file-line-count`, `python-non-empty-file-line-count` | `program.requirement.file-lines` → `FileReadRequirement` → pack `read-text-file` |
+| `recognize-directory-file-listing`, `python-directory-file-listing` | `program.requirement.directory-listing` → `DirectoryListingRequirement` |
+| 8 × `python-json-round-trip-*`, 4 × `capture-json-round-trip-*`, 2 × `recognize-json-round-trip-*` | `program.requirement.serialization-round-trip` → `FileWrite`/`FileRead`/`Serialize`/`Deserialize` |
+| all `blender-codegen-*` identifiers (M-12.6) | `code-generation-*` vocabulary read by the shared entry point |
+
+Retained with a blocking reason: every row of M-13.1 marked "retained — blocked", plus the 167 legacy input
+rules that feed them.
+
+### M-13.4 — validations (33)
+
+All 33 are generic structural or language-neutral checks over one fact's values; the kinds are
+`identifierValue` (17), `identifierCollection` (4), `uniqueCollection` (3), `ascendingIntegerRange` (2),
+`integerValue` (2), `semanticCollection`, `arithmeticValue`, `disjointCollections`,
+`arithmeticCollectionReferences`, `arithmeticValueReferences`, `matchingNumericFunctionCall` (one each). They
+name no target language. One task-specific check, `json-round-trip-records-name-is-identifier`, referenced the
+deleted `program.json-round-trip` fact and is removed here; the same rule is enforced for the migrated family
+by `SemanticProgramValidator` (identifier names) and by the runtime rejection test for `invalid-name`.
+
+### M-13.5 — encodings (1)
+
+`quoted-string` is the only encoding, and it is a semantic value encoding (delimiters plus escape table), not
+sample data or a task output. Retained as is.
+
+## M-13.6 — Python-specific branches in shared code
+
+Two sites reference a language name outside the packs:
+
+| Site | What it does | Disposition |
+| --- | --- | --- |
+| `TaskRequestParser.cs:465` | adds the requirement `"python"` when a recommendation purpose mentions Python | recorded for M-14.10; it is recommendation routing, not program generation |
+| `TaskRecommendationResponder.cs:26` | reads `Requirements.Contains("python")` | same |
+
+`src/Lattice.Core/Generation` contains no language-specific parsing, validation, or realization branch: every
+Python token lives in `knowledge/languages/python.core.json`.
+
+## M-13.18 — reconciled counts
+
+| File | Count |
+| --- | --- |
+| sequence rules | 88 |
+| input rules | 238 |
+| validations | 33 |
+| encodings | 1 |
+| pack productions | 100 |
+| pack bindings | 26 |
+| pack operations | 102 |
+| pack syntax additions | `inputSyntax.programArgumentFormat`, pack-level `recordLiteralFormat`, `GenerationOperation.MatchesArgumentValue` |
+| world-model data assertions | 57 (75 before M-12.10) |
+
+## M-13.7 through M-13.19 — outcome
+
+### M-13.7, M-13.8, M-13.9 — obsolete task fact routing
+
+`SemanticProgramPlanner.DeferredProgramFactPrefixes` held twenty-two task-family prefixes, and ten of them named
+facts no extraction rule can produce any more. Those ten are deleted:
+
+`program.directory`, `program.file`, `program.for`, `program.import`, `program.json`, `program.list`,
+`program.non-empty`, `program.try`, `program.while`, `program.with`.
+
+The prefixes that remain each still gate a live family and now carry the owning ticket in a comment: 8.14
+(`program.classification`, `program.assignment.classification`), 9.22 (`program.collection`),
+9.23 (`program.loop`) and 9.24 (`program.dictionary`). `Keeps_deferred_program_prefixes_backed_by_knowledge`
+fails if a prefix stops matching a producible fact, so the list can only shrink as families move.
+
+File handling needs no marker at all now: line counts go through `FileReadRequirement` and directory listings
+through `DirectoryListingRequirement`, while class programs are planned from `program.requirement.class`.
+
+### M-13.10 — Blender
+
+Completed with M-12.6 and recorded here for the section: no Blender task fact or phrase match survives, and
+the domain/API knowledge is reused through `TaskProgramGenerationResponder` with neutral `code-generation-*`
+identifiers.
+
+### M-13.11, M-13.12, M-13.14 — fixed data and complete fragments
+
+Twenty rules emitted a multi-line program when this section was written. Every fragment family has been replaced
+one ticket at a time, and the exception table in `SequenceKnowledgeGuardTests` is now **empty**:
+
+```
+No sequence rule emits a multi-line program any more; a new one fails this guard.
+```
+
+The last row was the dictionary-iteration scaffold. It is planned from the request's own key, value, and
+collection names, and the two things it needed were small and general: a `SemanticPlaceholderMappingExpression`
+carrying the note its reader sees (the pack spells how a note is attached, `placeholderMappingFormat`
+`{}  # {0}`), and `exampleData.emptyMappingNote` for the note's words, so the invented text stays policy. With the
+six `python-dictionary-iteration-*` rules gone and `program.dictionary` dropped from the deferred prefixes, the
+only prefix left is `program.loop`.
+
+### M-13.13 — fixed function, class, and file outputs
+
+No sequence rule emits a function, class, or file program: the retained 50 rules cover assignment, output,
+arithmetic, range, filter, loop, dictionary, and sorting statements only, and no rule emits a multi-line
+program at all. Function, class, and file programs are planned from requirements, and
+`grep -riE '"(create|write|generate) a python' src/` returns nothing, so no prompt literal survives in a
+generation module.
+
+### M-13.15, M-13.16, M-13.17 — guards
+
+New `tests/Lattice.Core.Tests/Generation/SequenceKnowledgeGuardTests.cs`, five tests:
+
+| Guard | What it proves |
+| --- | --- |
+| `Keeps_benchmark_and_task_identities_out_of_knowledge` | no `py-###` identifier and no `benchmark` token in the knowledge; every fact id stays in a generic namespace |
+| `Keeps_complete_solution_fragments_confined_to_recorded_families` | the set of rules emitting two or more lines equals the single pinned id |
+| `Keeps_every_rule_and_validation_reachable_from_extraction` | no rule and no validation names a fact that extraction cannot produce |
+| `Keeps_deferred_program_prefixes_backed_by_knowledge` | no dead entry in the planner's deferred list |
+| `Generates_different_programs_when_the_request_values_change` / `…_names_change` | changing a value or a name changes the generated program, so a hard-coded answer fails |
+
+The first three read the embedded knowledge file through its manifest resource, so they guard the data, not a
+copy of it.
+
+### M-13.19 — retained knowledge, removed shortcuts
+
+Retained as reusable: the input rules that feed generic requirement facts, the 30 language-neutral
+validations, the `quoted-string` encoding, the one guarded deferred prefix, and every pack production,
+binding, and operation. Removed: four migrated families (file lines, directory listing, serialization round
+trip, Blender scripts) with their replacement operations, one dead validation, and ten dead deferred prefixes.
+Blocked remainder: the single fixed fragment listed above, tracked by the open 9.24 ticket.
+
+## M-9.23 — loop totals from request-supplied collections
+
+Two of the three fixed loop-total fragments are deleted. A request that states its own data —
+"starts total at 0 and adds each number in [1, 2, 3] to total, then prints total" and "initializes result to 0
+and adds each value in [-2, 4.5, 1.5] to result, then displays result" — is now read by eight new input rules
+into one `program.accumulation` fact:
+
+| Value id | Captured from | Example |
+| --- | --- | --- |
+| `accumulator` | the declared total after `starts` / `initializes` | `total`, `result` |
+| `initial` | the value after `at` / `to` | `0` |
+| `item` | the item after `each`, before `in` | `number`, `value` |
+| `collection` | the bracketed list after `in`, as a semantic collection | `[1, 2, 3]`, `[-2, 4.5, 1.5]` |
+
+Every capture rule is scoped with `requiredAllSequences` on the accumulation phrase, so a request that merely
+mentions "starts" or "each" cannot create a partial fact. `SemanticProgramFactMapper.TryProjectAccumulations`
+projects the fact onto one `AccumulationRequirement` whose source is a `SemanticListLiteralExpression` of the
+captured items, plus the reporting output when the request asks for one and supplies no typed output
+expression. Signed items become a prefix negation (`SemanticUnaryExpression(Negative, 2)`) because a canonical
+number literal is non-negative; that rule is now covered by
+`SemanticProgramRequirementTests.Accepts_a_list_literal_source_with_signed_and_decimal_items`.
+
+Deleted: `python-loop-accumulator-total`, `python-loop-accumulator-result`, `recognize-loop-accumulator-total`,
+`recognize-loop-accumulator-result`. The generated programs are byte-identical, and the guard exception table
+dropped from twenty entries to eighteen.
+
+Still blocked: `python-manual-list-total` — the request names no collection at all, so it needs the shared
+example-data policy that 8.9 and 8.14 also wait on.
+
+## M-9.23 — completed: loop totals with request or example data
+
+The third fragment, `python-manual-list-total`, needed one thing the request does not supply: the numbers. That
+value now comes from a single declared policy rather than from a task-shaped rule.
+
+### The example-data policy
+
+`GenerationLanguagePack.ExampleData` (new, optional) declares:
+
+```json
+"exampleData": { "numbers": ["1", "2", "3", "4", "5"], "numberItemName": "number", "accumulatorInitialValue": "0" }
+```
+
+It is the only invented data in the pipeline, and it is constrained on three sides:
+
+| Constraint | Where it is enforced |
+| --- | --- |
+| It is never task-shaped — keyed by value kind only, never by a request, fact id, or benchmark id | the pack field has no task dimension; `Keeps_benchmark_and_task_identities_out_of_knowledge` still guards the knowledge file |
+| Request data always wins | `TryProjectAccumulations` reads the captured collection first and only falls back when it is missing; `Keeps_request_supplied_collections_ahead_of_the_example_data` plans `[4, 9]` while the policy holds `[1, 2, 3, 4, 5]` |
+| It is validated, not trusted | `GenerationLanguagePackLoader.IsValidExampleData` requires non-empty canonical numbers, an identifier item name, and a numeric initial value |
+
+Three new input rules read the manual-total request: `recognize-manual-list-accumulation`,
+`capture-manual-list-accumulator` (the total after "their"), and `capture-manual-list-output` (the same total as
+a typed output expression). All three are scoped with `requiredAllSequences: [["list","of","numbers"]]`.
+
+Two general fixes came out of it:
+
+- `SemanticProgramPlanner.CarriesCollection` now recognises `AccumulationRequirement`, so a request that names a
+  list is planned rather than deferred by the `program.collection` marker.
+- `recognize-function-requirement` no longer reads "the built-in sum function" as a function declaration
+  (`forbiddenAnySequences: [["built"], ["built-in"]]`).
+
+Outcome: `python-manual-list-total` and `recognize-manual-list-total-request` are deleted, the program is
+byte-identical (`total = 0` / `for number in [1, 2, 3, 4, 5]:` / `    total = total + number` / `print(total)`),
+and the guard exception table is down to seventeen entries.
+
+## M-8.9 — numbered number variables from the request and the example data
+
+The last of the fixed addition fragments is gone. A request such as "stores two numbers in variables, adds
+them, and prints the result" names no operands and no variable names, so it needs both the quantity the request
+does state and the values it does not. The split is: the request supplies the count, the shape (`in variables`)
+and the name of the reported result; the pack's `exampleData` supplies the values and the ordinal names.
+
+`GenerationExampleData` grew two optional fields, validated by the same `IsValidExampleData` as the rest of the
+policy:
+
+| Field | Meaning | Python pack |
+| --- | --- | --- |
+| `numberVariableValues` | the values assigned to numbered variables, in order | `["10", "20", "30"]` |
+| `ordinals` | the ordinal words that name them, joined to `numberItemName` | `["first", "second", "third"]` |
+
+Four new input rules read the request into one `program.declaration.numbers` fact:
+
+| Rule | Reads | Example |
+| --- | --- | --- |
+| `recognize-number-variable-declarations` | the declaration phrase | `stores numbers in variables` |
+| `capture-number-variable-count` | the quantity after `stores`, before `numbers` | `two` |
+| `capture-number-variable-sum-name` | the reported name after `prints` / `the` | `result` |
+| `capture-number-variable-output` | the same name as a typed output expression | `result` |
+
+All four are scoped with `requiredAllSequences: [["in", "variables"]]`, so no other request can enter the
+family. `SemanticProgramFactMapper.TryProjectNumberDeclarations` turns the fact into one `AssignmentRequirement`
+per variable — named `{ordinal}_{itemName}`, so `first_number`, `second_number` — followed by the sum
+assignment, a left-associated chain of `SemanticNameExpression` operands. `TryParseQuantity` accepts a digit or
+the words one through ten.
+
+Deleted: thirteen `python-addition-*` rules and fourteen `*addition*` input rules, one stale `forbiddenFacts`
+entry and the three `program.assignment.first/second/result` entries in
+`SemanticProgramPlanner.DeferredProgramFactPrefixes`. The program is byte-identical:
+
+```
+first_number = 10
+second_number = 20
+result = first_number + second_number
+print(result)
+```
+
+The count is not special-cased either: asking for three numbers plans `first_number`, `second_number`,
+`third_number` and `result = first_number + second_number + third_number`, which
+`SemanticProgramGenerationTests` asserts alongside the two-number request. No golden text changed.
+
+## M-8.14 — sign classification as a reusable requirement
+
+The fixed classification program (`number = -5` followed by three branches printing `Positive`, `Negative`, and
+`Zero`) is now planned. The gap was not the value — that is example data — but the shape: a request that states
+three conditions at once, which the scalar mapper could not express because it aligns one condition per request.
+
+`SignClassificationRequirement(VariableName, Value, PositiveLabel, NegativeLabel, ZeroLabel)` says what a sign
+classification is without naming a language: one value, three labels, and boundaries that belong to the kind
+because "sign" means the comparison against zero. `SemanticProgramPlanner.ExpandSignClassification` realises it
+with the operations that already existed:
+
+| Statement | Built from |
+| --- | --- |
+| `number = -5` | `AssignmentRequirement` of the example-data integer |
+| `if number > 0:` / `print("Positive")` | `ConditionalRequirement` comparing the name with the definitional zero |
+| `if number < 0:` / `if number == 0:` | the same construction with `LessThan` and `Equal` |
+
+The request always states its labels ("positive, negative, or zero"), so they are captured rather than invented:
+three capture rules read the word between the separators, and the planner reports each as a capitalised display
+label (the request's own word, presented the way the fragment did). `GenerationExampleData.IntegerValue` is the
+one invented value and is validated by `IsValidExampleData` like the rest of the policy.
+
+Two general fixes came out of it:
+
+- `SemanticProgramValidator` accepts the new kind and requires three non-empty single-line labels, so an
+  incomplete capture fails at the projection boundary instead of rendering.
+- The sign rules are scoped to the classification phrase *and* to the three label words, because
+  "converts text to an integer and returns a clear result" also contains `integer` followed by `is`.
+
+Deleted: `python-sign-classification-assignment`, `-positive`, `-negative`, `-zero`, twelve `*classification*`
+input rules, and the two `program.classification` deferred prefixes. The guard exception table drops from
+seventeen to fourteen entries. Golden text unchanged.
+
+## M-9.22 — parity filters from request data
+
+The three parity programs are planned. Two of them always named their data; the third never did:
+
+| Request | Data source | Program |
+| --- | --- | --- |
+| "prints each number in [1, 2, 3, 4, 5, 6] only if it is even" | request | `for number in [1, 2, 3, 4, 5, 6]:` + `if number % 2 == 0:` + `print(number)` |
+| "displays each value from [-3, -2, -1, 0, 1, 2, 3] only if it is odd" | request | the same shape with `!= 0` |
+| "prints only the even numbers from a list" | example data | the same shape over `[1, 2, 3, 4, 5]` |
+
+New input rules read the family into one `program.parity-filter` fact:
+
+| Rule | Reads |
+| --- | --- |
+| `capture-parity-filter-predicate` | the word after `only if it is` (`even`, `odd`) |
+| `capture-parity-filter-item-in-list` / `-from-list` | the item before `in` / `from` and the bracketed list after it, stopping before `only if` |
+| `recognize-even-numbers-from-a-list` / `-odd-numbers-…` | the unnamed form, whose parity word is the word the match already spells |
+
+`SemanticProgramFactMapper.TryCreateParityFilter` projects one `IterationRequirement` whose body is a
+`ConditionalRequirement` over `item % 2 == 0` (or `!= 0`) printing the item. The remainder comparison is the
+definition of parity, so it belongs to the projection; the item name, the collection, and the parity word come
+from the request, and a request that names no list falls back to the single example-data policy.
+
+**One golden text changed.** The unnamed request no longer iterates the fragment's six numbers, so its output is
+`2\n4` instead of `2\n4\n6`. The request names no data at all, so those values are invented, and the migration's
+rule is that invented values live in one policy — here `exampleData.numbers` — rather than in a fragment. Every
+request that states its own data is byte-identical.
+
+Deleted: `python-even-list-filter`, `python-even-number-list-parity-filter`,
+`python-odd-value-list-parity-filter`, `recognize-even-list-filter-request`,
+`recognize-even-number-list-parity-filter`, `recognize-odd-value-list-parity-filter`, one stale
+`forbiddenFacts` entry, and the dead `program.even` deferred prefix. The exception table drops from fourteen
+entries to eleven. The function-shaped `python-collection-filter-*` family still needs parameter, return, and
+sample-call realisation, so `program.collection` keeps its deferred prefix.
+
+## M-9.24a — declared dictionaries from request entries
+
+Both dictionary-iteration programs are planned. The request states the data:
+
+```
+Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts,
+then displays each name and its count.
+```
+
+```
+counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}
+for name, count in counts.items():
+    print(name, count)
+```
+
+Five input rules read it into `program.declaration.dictionary`: the declared name after `named`, the keys and the
+values as ordered collections split on the request's own `,` entry separator and `:` field separator, and the two
+loop names from `each … and its …`. All five search every sentence, because a request that states decimal values
+splits into two sentences at the first decimal point — that was the reason the `prices` twin produced no name.
+
+Two model gaps had to close first:
+
+| Addition | Why |
+| --- | --- |
+| `SemanticMapLiteralExpression` + pack `mapLiteralFormat` (`'{0}': {1}`) | a Python dictionary is not a record literal: its keys are quoted with single quotes and it is not JSON |
+| `SemanticArgumentsExpression` | `print(product, price)` reports two values, and one output requirement carries one expression |
+
+`TryCreateDictionaryIteration` then projects the assignment and a `DictionaryIterationRequirement` whose body
+reports both names. Mapping literals also count as carried collections in `CarriesCollection`, and the fact id is
+`program.declaration.dictionary` rather than `program.dictionary…` so the mapping family keeps its deferred gate.
+
+Deleted: `python-dictionary-product-iteration`, `python-dictionary-name-count-iteration`,
+`recognize-dictionary-product-iteration`, `recognize-dictionary-name-count-iteration`, and two rows of the
+exception table (eleven → nine). Both programs are byte-identical.
+
+## M-9.24b — dictionary mappings from request expressions
+
+The three mapping programs are planned. Each request states what the value is and what the mapping consumes:
+
+```
+Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number
+to the square of it.
+```
+
+```
+def map_values(numbers):
+    squares = {number: number * number for number in numbers}
+    return squares
+print(map_values([1, 2, 3]))
+```
+
+Five input rules read `program.mapping.dictionary`: a `kind` (`length`, `square`, or `offset`), the loop item
+between `each` and `to`, the parameter after the request's own `list of …`, the offset after `+` when the value
+is `item + n`, and the declared result name when the request names it. The value itself is not captured as a
+fragment of English: the projection builds it from the kind, so `number * number`, `len(name)`, and `value + 10`
+are three requirement shapes rather than three benchmark answers.
+
+The sample call is now a declared policy, `GenerationSampleCallPolicy` inside `GenerationExampleData`.
+
+| Field | Value | Why it is policy, not knowledge |
+| --- | --- | --- |
+| `functionName` | `map_values` | the fragments' function name; the request never states one |
+| `resultName` | `mapped_values` | the default result name; a request that says `named squares` overrides it |
+| `numbers` | `1`, `2`, `3` | the demonstrated numeric arguments |
+| `texts` | `Ada`, `Grace`, `Linus` | the demonstrated text arguments, the same names the rest of the policy already uses |
+
+`TryCreateDictionaryMapping` projects a `FunctionRequirement` whose body is a `DictionaryMapRequirement` (the key
+is the loop item and the value must reference it) plus a `ReturnRequirement`, then the `OutputRequirement` that
+calls the function with the policy's literals. Two model gaps closed on the way: `SemanticTextLengthExpression`
+with a pack `textLengthFormat` (`len({0})`), and the dictionary-comprehension productions
+`bound-dictionary-map-assignment` / `indented-bound-dictionary-map-assignment` with their two operations.
+
+Deleted: `python-number-square-dictionary-mapping`, `python-value-offset-dictionary-mapping`,
+`python-name-length-dictionary-mapping`, their three marker input rules, and three rows of the exception table
+(nine → six). All three programs are byte-identical, including the `squares` result name the request states.
+
+## M-9.25a — single-field record sorts from a subscript and a declared sample
+
+All four single-field sort programs are planned. The request states the names and the ordering; the policy states
+the data:
+
+```
+Create a Python program that defines a function named order_records that accepts a list of records named people
+and a field name named sort_key, then returns the records sorted by that field.
+```
+
+```
+def order_records(people, sort_key):
+    return sorted(people, key=lambda record: record[sort_key])
+print(order_records([{"name": "Ada", "age": 36}, {"name": "Grace", "age": 85}, {"name": "Linus", "age": 55}], "age"))
+```
+
+Three expressions closed the modelling gap:
+
+| Addition | Pack format | Why a fragment was not enough |
+| --- | --- | --- |
+| `SemanticSubscriptExpression` | `subscriptFormat` `{0}[{1}]` | the field is a parameter, so the key is not known until planning |
+| `SemanticCaseFoldExpression` | `caseFoldFormat` `{0}.casefold()` | case-insensitive ordering is a value transformation, not a variant rule |
+| `SemanticSortExpression` | `sortedExpressionFormat` / `sortedExpressionReverseFormat` | the ordering is an expression the function returns, with the descending form selected by the request |
+
+Eight input rules read `program.sort.records`: the kind marker, the function name, the records parameter, the
+field parameter, the descending word pair (`descending order` / `reverse order`), and both spellings of
+case-insensitivity. Every one of them excludes `those fields` and `list of field names`, which is how the
+multi-field family keeps its own facts.
+
+The three `identifierValue` validations that used to guard the function, records, and field names are deleted
+rather than moved: a request that names none of them takes them from the policy, and a rule-based validation
+cannot see a policy default. The pack's identifier rules still refuse a name no language can spell — the plan is
+refused, which the knowledge test now asserts.
+
+`GenerationSampleCallPolicy.Sort` declares the invented data once — the default names, the lambda item `record`,
+the record shape (`name` text, `age` number), and one sample per sensitivity:
+
+| Sample | Sorts by | Literal style | Records |
+| --- | --- | --- | --- |
+| case-sensitive | `age` | `record` | `Ada`/`Grace`/`Linus` with ages 36, 85, 55 |
+| case-insensitive | `name` | `map` | `ada`, `BOB`, `Grace` with ages 36, 42, 85 |
+
+`mapLiteralFormat` gained `textFormat` (`'{0}'`), so a dict-style literal spells its own text values and the
+case-insensitive sample stays byte-identical.
+
+Deleted: eight `single-field-record-sort-*` rules (header, signature, four bodies, two outputs), twelve
+`single-field*` input rules, and two exception-table rows (six → four).
+
+**One deliberate output change, recorded:** the case-insensitive sample's *field argument* is now `"name"`
+instead of `'name'`. The records keep their single-quoted dict style, while a call argument takes the language's
+canonical string literal; every other byte of all four programs is unchanged, and the executed output is
+identical.
+
+## M-9.25c — grouped record totals from an element update
+
+Both grouped-total programs are planned, byte-identically. The request names the loop item and the two fields;
+the policy names the dictionary and the names the totals loop reports:
+
+```
+Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.
+```
+
+```python
+records = [{"customer": "Ada", "spending": 25.0}, {"customer": "Grace", "spending": 40.0}, {"customer": "Ada", "spending": 15.0}]
+totals = {}
+for purchase in records:
+    key = purchase["customer"]
+    totals[key] = totals.get(key, 0) + purchase["spending"]
+for key, total in totals.items():
+    print(key, total)
+```
+
+The plan is composed from requirements, not from a template: a data assignment, an empty mapping, one loop over
+the records, one key/value loop over the totals, and an output of the pair. Two model gaps closed:
+
+| Addition | Where | Why a fragment was not enough |
+| --- | --- | --- |
+| `ElementAssignmentRequirement` | requirement, validator, planner | raising one element by key is an update of the collection the program already holds, not a new binding; the pack's existing `{target} = {expression}` productions spell it |
+| an empty mapping literal | `SemanticExpressionAnalysis.IsValidMap` | a mapping a program fills in starts with no entries, and the pack's delimiters already spell `{}` |
+
+`GenerationSampleCallPolicy.GroupedAggregation` declares the invented data: the names (`records`, `totals`,
+`key`, `total`) and one group/amount pair per record (`Ada` 25.0, `Grace` 40.0, `Ada` 15.0). The loop item and
+the two field names are request data, and the accumulator's starting `0` is the policy's existing
+`accumulatorInitialValue`, so the update is arithmetic over the two captured fields rather than a fixed
+`totals.get(key, 0) + purchase["spending"]` recipe.
+
+Deleted: the seven `record-aggregation-*` rules, the `record-aggregation-output` exception-table row
+(two → one), and the dead `program.record` deferred prefix. Both programs are byte-identical and the executed
+outputs are unchanged.
+
+## M-13.8 — function-shaped collection filters from a comparison
+
+All twelve filter programs the runtime suite exercises are planned byte-identically, including the
+average-threshold, arithmetic-threshold, and negated-comparison variants:
+
+```
+Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.
+```
+
+```python
+def filter_values(values):
+    return [value for value in values if value > 2]
+print(filter_values([1, 2, 3, 4, 5]))
+```
+
+The request already supplied every part of the predicate in declarative form — the signature (`name`, `parameter`,
+`item`), the comparison operator parsed into `ComparisonOperators`, and the threshold parsed into `Expressions` —
+so only the rendering was missing. Three expressions closed it:
+
+| Addition | Pack format | Why a fragment was not enough |
+| --- | --- | --- |
+| `SemanticFilterExpression` | `filterExpressionFormat` `[{0} for {1} in {2} if {3}]` | the filtered collection is *returned* by the function, not bound to a name first |
+| `SemanticTotalExpression` | `totalExpressionFormat` `sum({0})` | the average variant's numerator totals the parameter |
+| `SemanticLengthExpression` (renamed from `SemanticTextLengthExpression`) | `lengthFormat` `len({0})` | one count serves a text's characters and a collection's entries, so the expression stops claiming to be about text |
+
+`TryCreateCollectionFilter` composes the function from those parts: the predicate compares the item against either
+the request's own threshold expression or `sum(parameter) / len(parameter)` when the request says *average*. The
+demonstration call reports the declared `exampleData.numbers`, so no collection literal is left in the knowledge
+file.
+
+Deleted: the twenty `python-collection-filter-*` rules and the `program.collection` deferred prefix. The 31 input
+rules stay — they are the declarative representation now, not a phrase template.
+
+## The fragments the declared sample call unblocks
+
+The policy is declared (M-9.24b) and the sort and grouped-total families consume it (M-9.25a–c), so what is left
+is the requirement the remaining families need. One exception-table row remains — the dictionary scaffold — and
+it is a function whose body is generic over its parameters and whose last line prints
+one concrete call, for example
+`print(sort_records([{…}], "age"))`. That call is no longer the missing piece: `GenerationSampleCallPolicy`
+inside `GenerationExampleData` supplies the function name, the result name, and both argument lists once for
+every family, never per fragment.
+
+What is still missing is modelling — a subscript expression over the loop item, and a grouped accumulation:
+
+| Ticket | Fragments | Needs |
+| --- | --- | --- |
+| ~~9.24b~~ | ~~three dictionary mappings~~ | done: `GenerationSampleCallPolicy` and `DictionaryMapRequirement` |
+| ~~9.25a~~ | ~~four single-field record sorts~~ | done: `SemanticSubscriptExpression`, `SemanticCaseFoldExpression`, `SemanticSortExpression` |
+| ~~9.25b~~ | ~~two multi-field record sorts~~ | done: `SemanticGeneratorExpression`, `SemanticTupleExpression` |
+| ~~9.25c~~ | ~~one grouped aggregation~~ | done: `ElementAssignmentRequirement` and an empty mapping literal |
+
+Doing them in that order keeps every replacement separate from its deletion, and each deletion drops the
+exception table by exactly the rows it owns.

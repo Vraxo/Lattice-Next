@@ -229,7 +229,7 @@ public sealed class SemanticProgramPlanningTests
             out var error);
 
         Assert.False(planned);
-        Assert.Contains("at most 3 levels", error, StringComparison.Ordinal);
+        Assert.Contains("at most 4 levels", error, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -480,7 +480,10 @@ public sealed class SemanticProgramPlanningTests
                         [new IterationRequirement(
                             "third",
                             new SemanticNameExpression("scores"),
-                            [new OutputRequirement(new SemanticNameExpression("third"))])])])
+                            [new IterationRequirement(
+                                "fourth",
+                                new SemanticNameExpression("scores"),
+                                [new OutputRequirement(new SemanticNameExpression("fourth"))])])])])
             ])
             {
                 Collections = [new CollectionBinding("scores", SemanticCollectionItemKind.Number)]
@@ -491,7 +494,7 @@ public sealed class SemanticProgramPlanningTests
 
         Assert.False(planned);
         Assert.Empty(statements);
-        Assert.Contains("at most 3 levels", error, StringComparison.Ordinal);
+        Assert.Contains("at most 4 levels", error, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -631,7 +634,7 @@ public sealed class SemanticProgramPlanningTests
                                     SemanticExpressionOperator.Add,
                                     new SemanticNameExpression("amount"),
                                     new SemanticNumberExpression("1"))),
-                            new OutputRequirement(new SemanticMemberAccessExpression("self", "count"))
+                            new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("self"), "count"))
                         ])
                 ]));
 
@@ -686,7 +689,7 @@ public sealed class SemanticProgramPlanningTests
             new IterationRequirement(
                 "account",
                 new SemanticNameExpression("accounts"),
-                [new OutputRequirement(new SemanticMemberAccessExpression("account", "balance"))]));
+                [new OutputRequirement(new SemanticMemberAccessExpression(new SemanticNameExpression("account"), "balance"))]));
 
         Assert.Equal(
             string.Join('\n', "for account in accounts:", "    print(account.balance)"),
@@ -857,6 +860,47 @@ public sealed class SemanticProgramPlanningTests
         Assert.False(planned);
         Assert.Empty(statements);
         Assert.Contains("parsed", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Plans_imports_before_the_statements_that_use_them()
+    {
+        var statements = Plan(
+            new ImportRequirement("os"),
+            new ImportRequirement("sys"));
+
+        Assert.Equal(
+            string.Join('\n', "import os", "import sys"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Plans_a_guarded_decode_with_a_named_invalid_data_failure()
+    {
+        var statements = Plan(
+            new TryRequirement(
+                [
+                    new FileReadRequirement(
+                        "data.json",
+                        "input_file",
+                        [new DeserializeRequirement("json", "input_file", "loaded")])
+                ],
+                [
+                    new HandlerRequirement(
+                        "json.JSONDecodeError",
+                        [new OutputRequirement(new SemanticTextExpression("invalid"))])
+                ],
+                ResultName: null));
+
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "try:",
+                "    with open(\"data.json\", \"r\", encoding=\"utf-8\") as input_file:",
+                "        loaded = json.load(input_file)",
+                "except json.JSONDecodeError:",
+                "    print(\"invalid\")"),
+            SemanticProgramPlanner.Render(statements));
     }
 
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
