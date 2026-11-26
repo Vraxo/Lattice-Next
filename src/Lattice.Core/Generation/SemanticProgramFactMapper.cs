@@ -93,6 +93,8 @@ public static class SemanticProgramFactMapper
     private const string MappingSquareKind = "square";
     private const string MappingOffsetKind = "offset";
 
+    private const string DictionaryIterationFactId = "program.dictionary-iteration";
+    private const string DictionaryIterationCollectionValueId = "collection";
     private const string DictionaryLiteralFactId = "program.declaration.dictionary";
     private const string DictionaryNameValueId = "name";
     private const string DictionaryKeysValueId = "keys";
@@ -246,6 +248,24 @@ public static class SemanticProgramFactMapper
             }
 
             program = aggregationProgram;
+            return true;
+        }
+
+        // A request that names only the keys and values of a dictionary it does not state is planned as a
+        // mapping the reader fills in, followed by the loop that reports each pair.
+        var dictionaryIteration = facts.FirstOrDefault(candidate => candidate.Id == DictionaryIterationFactId);
+        if (dictionaryIteration is not null)
+        {
+            if (!TryCreateDeclaredDictionaryIteration(
+                    dictionaryIteration,
+                    exampleData,
+                    out var iterationProgram,
+                    out error))
+            {
+                return false;
+            }
+
+            program = iterationProgram;
             return true;
         }
 
@@ -1349,6 +1369,69 @@ public static class SemanticProgramFactMapper
         }
 
         program = filter;
+        return true;
+    }
+
+    /// <summary>
+    /// Projects "given a dictionary, prints each key with its value" onto a mapping the program fills in later,
+    /// followed by the loop that reports each pair. The three names are request data; the note that marks the
+    /// mapping as still empty comes from the declared policy.
+    /// </summary>
+    private static bool TryCreateDeclaredDictionaryIteration(
+        SequenceSemanticFact iteration,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        var keyName = ReadName(iteration, DictionaryKeyNameValueId);
+        var valueName = ReadName(iteration, DictionaryValueNameValueId);
+        var collectionName = ReadName(iteration, DictionaryIterationCollectionValueId);
+        if (keyName is null || valueName is null || collectionName is null)
+        {
+            error = "A dictionary iteration requires the key, the value, and the collection names.";
+            return false;
+        }
+
+        if (string.Equals(keyName, valueName, StringComparison.Ordinal))
+        {
+            error = "A dictionary iteration requires two different names.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(exampleData?.EmptyMappingNote))
+        {
+            error = "A dictionary iteration requires the declared note that marks the mapping as empty.";
+            return false;
+        }
+
+        var iterationProgram = new SemanticProgram(
+        [
+            new AssignmentRequirement(
+                collectionName,
+                new SemanticPlaceholderMappingExpression(exampleData.EmptyMappingNote)),
+            new DictionaryIterationRequirement(
+                keyName,
+                valueName,
+                new SemanticNameExpression(collectionName),
+                [
+                    new OutputRequirement(new SemanticArgumentsExpression(
+                    [
+                        new SemanticNameExpression(keyName),
+                        new SemanticNameExpression(valueName)
+                    ]))
+                ])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(iterationProgram))
+        {
+            error = "The projected dictionary iteration requirements are not structurally valid.";
+            return false;
+        }
+
+        program = iterationProgram;
         return true;
     }
 

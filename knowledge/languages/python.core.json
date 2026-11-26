@@ -3704,7 +3704,8 @@
           "15.0"
         ]
       }
-    }
+    },
+    "emptyMappingNote": "Add dictionary entries here."
   },
   "mapLiteralFormat": {
     "openingDelimiter": "{",
@@ -3721,5 +3722,6 @@
   "generatorExpressionFormat": "{0} for {1} in {2}",
   "tupleFormat": "tuple({0})",
   "totalExpressionFormat": "sum({0})",
-  "filterExpressionFormat": "[{0} for {1} in {2} if {3}]"
+  "filterExpressionFormat": "[{0} for {1} in {2} if {3}]",
+  "placeholderMappingFormat": "{}  # {0}"
 }

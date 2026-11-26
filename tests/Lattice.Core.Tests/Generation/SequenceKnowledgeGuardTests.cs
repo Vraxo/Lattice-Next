@@ -19,8 +19,7 @@ public sealed class SequenceKnowledgeGuardTests
     /// </summary>
     private static readonly string[] RecordedMultiLineRules =
     [
-        // 9.24 — the fixed dictionary iteration that opens with a placeholder mapping.
-        "python-dictionary-iteration-open"
+        // No sequence rule emits a multi-line program any more; a new one fails this guard.
     ];
 
     [Fact]

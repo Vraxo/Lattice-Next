@@ -61,6 +61,7 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidRecordLiteralFormat(mapFormat)) ||
             !IsValidExpressionFormat(pack.LengthFormat, 64, "{0}") ||
             !IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.PlaceholderMappingFormat, 128, "{0}") ||
             !IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}") ||
             !IsValidExpressionFormat(pack.SubscriptFormat, 64, "{0}", "{1}") ||
             !IsValidExpressionFormat(pack.CaseFoldFormat, 64, "{0}") ||
@@ -390,6 +391,7 @@ public sealed class GenerationLanguagePackLoader
                       System.Globalization.CultureInfo.InvariantCulture, out _)) &&
               data.Ordinals.Length == data.NumberVariableValues.Length &&
               data.Ordinals.All(IsIdentifier)) &&
+        (string.IsNullOrEmpty(data.EmptyMappingNote) || data.EmptyMappingNote.Length <= 128) &&
         (data.SampleCall is null || IsValidSampleCall(data.SampleCall)) &&
         (string.IsNullOrEmpty(data.IntegerValue) ||
             decimal.TryParse(data.IntegerValue, System.Globalization.NumberStyles.Number,

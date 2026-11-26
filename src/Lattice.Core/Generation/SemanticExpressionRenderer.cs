@@ -242,6 +242,16 @@ internal static class SemanticExpressionRenderer
                 rendered = lengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticPlaceholderMappingExpression placeholder:
+                if (languagePack.PlaceholderMappingFormat is not { } placeholderFormat ||
+                    !placeholderFormat.Contains("{0}", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                rendered = placeholderFormat.Replace("{0}", placeholder.Note, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticTotalExpression total:
                 if (!TryRenderTotal(total, languagePack, syntax, out rendered))
                 {

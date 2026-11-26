@@ -104,7 +104,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [InlineData(
         "Write a Python program that fulfills this request: Given a dictionary of employee names and salaries, display each employee with its salary.",
         "employee", "salary")]
-    public void Extracts_and_generates_dictionary_iteration_from_key_value_language(
+    public void Reads_a_dictionary_iteration_as_its_key_value_and_collection(
         string prompt,
         string expectedKey,
         string expectedValue)
@@ -116,20 +116,6 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Equal(expectedKey, iteration.Values["key"]);
         Assert.Equal(expectedValue, iteration.Values["value"]);
         Assert.Equal("items", iteration.Values["collection"]);
-
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
-        Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError),
-            $"{generationError} Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-        Assert.Contains("items = {}", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"for {expectedKey}, {expectedValue} in items.items():", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"print({expectedKey}, {expectedValue})", generated.Text, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -61,6 +61,12 @@ public sealed class SemanticProgramGenerationTests
         "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
         "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
     [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.",
+        "items = {}  # Add dictionary entries here.\nfor product, price in items.items():\n    print(product, price)")]
+    [InlineData(
+        "Write a Python program that fulfills this request: Given a dictionary of employee names and salaries, display each employee with its salary.",
+        "items = {}  # Add dictionary entries here.\nfor employee, salary in items.items():\n    print(employee, salary)")]
+    [InlineData(
         "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
         "def filter_values(values):\n    return [value for value in values if value > 2]\nprint(filter_values([1, 2, 3, 4, 5]))")]
     [InlineData(

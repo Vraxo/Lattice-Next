@@ -176,6 +176,13 @@ public sealed record SemanticTotalExpression(
     SemanticExpression Source) : SemanticExpression;
 
 /// <summary>
+/// A mapping a program will fill in later, carrying the note its reader sees. The note is program data; the
+/// selected language pack spells how a note is attached to the value it annotates.
+/// </summary>
+public sealed record SemanticPlaceholderMappingExpression(
+    string Note) : SemanticExpression;
+
+/// <summary>
 /// A collection of the source's items that satisfy a predicate, written where it is used rather than bound to
 /// a name first. The predicate is an ordinary semantic expression over the item name, and the selected
 /// language pack spells the comprehension.
@@ -557,7 +564,7 @@ internal static class SemanticExpressionAnalysis
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
         SemanticLengthExpression or SemanticTotalExpression => KnownValueType.Number,
-        SemanticFilterExpression => null,
+        SemanticFilterExpression or SemanticPlaceholderMappingExpression => null,
         SemanticCaseFoldExpression => KnownValueType.Text,
         SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
             SemanticTupleExpression => null,
@@ -703,6 +710,9 @@ internal static class SemanticExpressionAnalysis
                 IsValidIdentifier(filter.ItemName) &&
                 IsValid(filter.Source, depth + 1, ref nodeCount) &&
                 IsValid(filter.Predicate, depth + 1, ref nodeCount),
+            SemanticPlaceholderMappingExpression placeholder =>
+                !string.IsNullOrWhiteSpace(placeholder.Note) &&
+                placeholder.Note.Length <= 128,
             SemanticSubscriptExpression subscript =>
                 IsValid(subscript.Target, depth + 1, ref nodeCount) &&
                 IsValid(subscript.Key, depth + 1, ref nodeCount),

@@ -40,6 +40,11 @@ public sealed record GenerationLanguagePack(
     public string? SortedExpressionReverseFormat { get; init; }
 
     /// <summary>How this pack spells one value per item; `{0}` value, `{1}` item name, `{2}` source.</summary>
+    /// <summary>
+    /// How this language writes a mapping a program has yet to fill in, with `{0}` the note its reader sees.
+    /// </summary>
+    public string? PlaceholderMappingFormat { get; init; }
+
     /// <summary>The total of the values a collection holds, spelled by this language.</summary>
     public string? TotalExpressionFormat { get; init; }
 
@@ -90,6 +95,11 @@ public sealed record GenerationExampleData(
     /// classification request does.
     /// </summary>
     public string IntegerValue { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The note a plan attaches to a mapping it leaves for the reader to fill in, when the request states no data.
+    /// </summary>
+    public string? EmptyMappingNote { get; init; }
 
     /// <summary>The values a plan reports when a request states none; part of the same single policy.</summary>
     public GenerationSampleCallPolicy? SampleCall { get; init; }

@@ -951,7 +951,6 @@ public sealed class PythonProgramGenerationTests
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
-        Assert.Contains("program.dictionary-iteration", utterance.Meaning, StringComparison.Ordinal);
 
         var fence = new string((char)96, 3);
         var lines = utterance.Message!.Split(Environment.NewLine, StringSplitOptions.None);
@@ -960,8 +959,11 @@ public sealed class PythonProgramGenerationTests
         Assert.True(startFence >= 0 && endFence > startFence, utterance.Message);
 
         var generatedCode = string.Join(Environment.NewLine, lines[(startFence + 1)..endFence]);
-        Assert.Contains("for product, price in items.items():", generatedCode, StringComparison.Ordinal);
-        Assert.Contains("print(product, price)", generatedCode, StringComparison.Ordinal);
+        var expectedCode = string.Join(Environment.NewLine,
+            "items = {}  # Add dictionary entries here.",
+            "for product, price in items.items():",
+            "    print(product, price)");
+        Assert.Equal(expectedCode, generatedCode);
     }
 
     [Fact]

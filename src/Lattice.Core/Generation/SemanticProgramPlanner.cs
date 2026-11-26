@@ -46,9 +46,7 @@ public static class SemanticProgramPlanner
     internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
         // 9.23 — explicit loops over a named collection.
-        "program.loop",
-        // 9.24 — dictionary iteration and mapping.
-        "program.dictionary"
+        "program.loop"
     ];
 
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>
