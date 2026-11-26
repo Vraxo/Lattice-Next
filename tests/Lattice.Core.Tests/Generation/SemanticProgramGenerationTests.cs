@@ -28,6 +28,15 @@ public sealed class SemanticProgramGenerationTests
         "Write a Python program that prints only the even numbers from a list.",
         "for number in [1, 2, 3, 4, 5]:\n    if number % 2 == 0:\n        print(number)")]
     [InlineData(
+        "Write a Python program that, given a list of names, creates a dictionary that maps each name to the number of characters in it.",
+        "def map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))")]
+    [InlineData(
+        "Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number to the square of it.",
+        "def map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))")]
+    [InlineData(
+        "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
+        "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))")]
+    [InlineData(
         "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
         "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
     [InlineData(

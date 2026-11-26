@@ -119,6 +119,13 @@ public sealed record SemanticMapLiteralExpression(
 public sealed record SemanticArgumentsExpression(
     ImmutableArray<SemanticExpression> Values) : SemanticExpression;
 
+/// <summary>
+/// The number of characters a text value holds. The selected language pack spells how that length is asked
+/// for, so no requirement names a library function.
+/// </summary>
+public sealed record SemanticTextLengthExpression(
+    SemanticExpression Value) : SemanticExpression;
+
 internal static class SemanticExpressionAnalysis
 {
     private const int MaximumDepth = 64;
@@ -259,6 +266,9 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
+            case SemanticTextLengthExpression length:
+                CollectReferencedNames(length.Value, names);
+                break;
             case SemanticArgumentsExpression arguments:
                 foreach (var value in arguments.Values)
                 {
@@ -334,6 +344,7 @@ internal static class SemanticExpressionAnalysis
             _ => null
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
+        SemanticTextLengthExpression => KnownValueType.Number,
         SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
@@ -390,6 +401,9 @@ internal static class SemanticExpressionAnalysis
         SemanticMapLiteralExpression map =>
             map.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
                 entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticTextLengthExpression length =>
+            ReferencesOnlyAvailableNamesCore(
+                length.Value, availableNames, allowFunctionCalls, availableFunctions),
         SemanticArgumentsExpression arguments =>
             arguments.Values.All(value => ReferencesOnlyAvailableNamesCore(
                 value, availableNames, allowFunctionCalls, availableFunctions)),
@@ -419,6 +433,7 @@ internal static class SemanticExpressionAnalysis
             record.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
         SemanticMapLiteralExpression map =>
             map.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
+        SemanticTextLengthExpression length => ReferencesAnyNameCore(length.Value, names),
         SemanticArgumentsExpression arguments =>
             arguments.Values.Any(value => ReferencesAnyNameCore(value, names)),
         _ => false
@@ -457,6 +472,7 @@ internal static class SemanticExpressionAnalysis
             SemanticListLiteralExpression list => IsValidList(list, depth, ref nodeCount),
             SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
             SemanticMapLiteralExpression map => IsValidMap(map, depth, ref nodeCount),
+            SemanticTextLengthExpression length => IsValid(length.Value, depth + 1, ref nodeCount),
             SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };

@@ -54,6 +54,16 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string DictionaryMappingFactId = "program.mapping.dictionary";
+    private const string MappingKindValueId = "kind";
+    private const string MappingItemValueId = "item";
+    private const string MappingParameterValueId = "parameter";
+    private const string MappingResultValueId = "result";
+    private const string MappingOffsetValueId = "offset";
+    private const string MappingLengthKind = "length";
+    private const string MappingSquareKind = "square";
+    private const string MappingOffsetKind = "offset";
+
     private const string DictionaryLiteralFactId = "program.declaration.dictionary";
     private const string DictionaryNameValueId = "name";
     private const string DictionaryKeysValueId = "keys";
@@ -126,6 +136,20 @@ public static class SemanticProgramFactMapper
             }
 
             program = filterProgram;
+            return true;
+        }
+
+        // A dictionary mapping is a whole function, so it is projected on its own.
+        var mapping = facts.FirstOrDefault(candidate =>
+            candidate.Id == DictionaryMappingFactId && IsCompleteDictionaryMapping(candidate));
+        if (mapping is not null)
+        {
+            if (!TryCreateDictionaryMapping(mapping, exampleData, out var mappingProgram, out error))
+            {
+                return false;
+            }
+
+            program = mappingProgram;
             return true;
         }
 
@@ -1242,6 +1266,137 @@ public static class SemanticProgramFactMapper
         }
 
         program = filter;
+        return true;
+    }
+
+    /// <summary>
+    /// Whether a mapping fact carries every value its projection needs. A request that names only some of them
+    /// is not a mapping request, so the other projections still get their turn instead of a failed plan.
+    /// </summary>
+    private static bool IsCompleteDictionaryMapping(SequenceSemanticFact mapping) =>
+        mapping.Values.TryGetValue(MappingKindValueId, out var kind) && !string.IsNullOrWhiteSpace(kind) &&
+        mapping.Values.TryGetValue(MappingItemValueId, out var item) && !string.IsNullOrWhiteSpace(item) &&
+        mapping.Values.TryGetValue(MappingParameterValueId, out var parameter) &&
+        !string.IsNullOrWhiteSpace(parameter);
+
+    /// <summary>
+    /// Projects "builds a dictionary that maps each number to the square of it" onto a function that returns a
+    /// dictionary comprehension, followed by the demonstration call the policy supplies because the request
+    /// states none. The item, the parameter, and any declared result name are request data.
+    /// </summary>
+    private static bool TryCreateDictionaryMapping(
+        SequenceSemanticFact mapping,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (exampleData is null || exampleData.SampleCall is null)
+        {
+            error = "A dictionary mapping requires the declared sample-call policy.";
+            return false;
+        }
+
+        if (!mapping.Values.TryGetValue(MappingKindValueId, out var kind) ||
+            !mapping.Values.TryGetValue(MappingItemValueId, out var declaredItem) ||
+            !mapping.Values.TryGetValue(MappingParameterValueId, out var declaredParameter) ||
+            string.IsNullOrWhiteSpace(declaredItem) ||
+            string.IsNullOrWhiteSpace(declaredParameter))
+        {
+            error = "A dictionary mapping requires the item and the parameter it maps.";
+            return false;
+        }
+
+        var item = declaredItem.Trim().Trim(LiteralEntryTrimCharacters);
+        var parameter = declaredParameter.Trim().Trim(LiteralEntryTrimCharacters);
+        if (item.Length == 0 || parameter.Length == 0)
+        {
+            error = "A dictionary mapping requires the item and the parameter it maps.";
+            return false;
+        }
+
+        var result = mapping.Values.TryGetValue(MappingResultValueId, out var declaredResult) &&
+            !string.IsNullOrWhiteSpace(declaredResult)
+            ? declaredResult.Trim().Trim(LiteralEntryTrimCharacters)
+            : exampleData.SampleCall.ResultName;
+        if (result.Length == 0)
+        {
+            error = "A dictionary mapping requires the name of the dictionary it builds.";
+            return false;
+        }
+
+        var itemName = new SemanticNameExpression(item);
+        SemanticExpression value;
+        ImmutableArray<string> samples;
+        switch (kind?.Trim())
+        {
+            case MappingLengthKind:
+                value = new SemanticTextLengthExpression(itemName);
+                samples = exampleData.SampleCall.Texts;
+                break;
+            case MappingSquareKind:
+                value = new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Multiply,
+                    itemName,
+                    new SemanticNameExpression(item));
+                samples = exampleData.SampleCall.Numbers;
+                break;
+            case MappingOffsetKind:
+                if (!mapping.Values.TryGetValue(MappingOffsetValueId, out var declaredOffset) ||
+                    !decimal.TryParse(declaredOffset?.Trim(), System.Globalization.NumberStyles.Number,
+                        System.Globalization.CultureInfo.InvariantCulture, out _))
+                {
+                    error = "A dictionary mapping by offset requires the offset it adds.";
+                    return false;
+                }
+
+                value = new SemanticBinaryExpression(
+                    SemanticExpressionOperator.Add,
+                    itemName,
+                    new SemanticNumberExpression(declaredOffset!.Trim()));
+                samples = exampleData.SampleCall.Numbers;
+                break;
+            default:
+                error = "A dictionary mapping requires the value it maps each item to.";
+                return false;
+        }
+
+        var sampleItems = ImmutableArray.CreateBuilder<SemanticExpression>(samples.Length);
+        foreach (var sample in samples)
+        {
+            sampleItems.Add(kind?.Trim() == MappingLengthKind
+                ? new SemanticTextExpression(sample)
+                : new SemanticNumberExpression(sample));
+        }
+
+        var mappingProgram = new SemanticProgram(
+        [
+            new FunctionRequirement(
+                exampleData.SampleCall.FunctionName,
+                [new FunctionParameter(parameter, null)],
+                null,
+                [
+                    new DictionaryMapRequirement(
+                        result,
+                        item,
+                        new SemanticNameExpression(parameter),
+                        value),
+                    new ReturnRequirement(new SemanticNameExpression(result))
+                ]),
+            new OutputRequirement(new SemanticFunctionCallExpression(
+                exampleData.SampleCall.FunctionName,
+                [new SemanticListLiteralExpression(sampleItems.ToImmutable())]))
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(mappingProgram))
+        {
+            error = "The projected dictionary mapping requirements are not structurally valid.";
+            return false;
+        }
+
+        program = mappingProgram;
         return true;
     }
 

@@ -59,6 +59,9 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidRecordLiteralFormat(recordFormat)) ||
             (pack.MapLiteralFormat is { } mapFormat &&
                 !IsValidRecordLiteralFormat(mapFormat)) ||
+            (pack.TextLengthFormat is { } textLengthFormat &&
+                (textLengthFormat.Length > 64 ||
+                 !textLengthFormat.Contains("{0}", StringComparison.Ordinal))) ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
@@ -271,6 +274,19 @@ public sealed class GenerationLanguagePackLoader
         format.EntryFormat.Contains("{0}", StringComparison.Ordinal) &&
         format.EntryFormat.Contains("{1}", StringComparison.Ordinal);
 
+    private static bool IsValidSampleCall(GenerationSampleCallPolicy policy) =>
+        IsIdentifier(policy.FunctionName) &&
+        IsIdentifier(policy.ResultName) &&
+        !policy.Numbers.IsDefaultOrEmpty &&
+        policy.Numbers.Length <= 32 &&
+        policy.Numbers.All(value =>
+            !string.IsNullOrWhiteSpace(value) &&
+            decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+        !policy.Texts.IsDefaultOrEmpty &&
+        policy.Texts.Length <= 32 &&
+        policy.Texts.All(value => !string.IsNullOrWhiteSpace(value));
+
     private static bool IsValidExampleData(GenerationExampleData data) =>
         !data.Numbers.IsDefaultOrEmpty &&
         data.Numbers.Length <= 64 &&
@@ -292,6 +308,7 @@ public sealed class GenerationLanguagePackLoader
                       System.Globalization.CultureInfo.InvariantCulture, out _)) &&
               data.Ordinals.Length == data.NumberVariableValues.Length &&
               data.Ordinals.All(IsIdentifier)) &&
+        (data.SampleCall is null || IsValidSampleCall(data.SampleCall)) &&
         (string.IsNullOrEmpty(data.IntegerValue) ||
             decimal.TryParse(data.IntegerValue, System.Globalization.NumberStyles.Number,
                 System.Globalization.CultureInfo.InvariantCulture, out _));

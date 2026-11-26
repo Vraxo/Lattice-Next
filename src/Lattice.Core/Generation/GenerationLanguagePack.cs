@@ -24,6 +24,10 @@ public sealed record GenerationLanguagePack(
     /// </summary>
     public GenerationRecordLiteralFormat? MapLiteralFormat { get; init; }
 
+    /// <summary>How this pack spells the length of a text value; the format carries `{0}` for the operand.</summary>
+    public string? TextLengthFormat { get; init; }
+
+
     /// <summary>
     /// The example values a pack supplies for a request that asks for data without naming it — "a list of
     /// numbers" with no contents, or a total with no starting value. These are the only invented values in
@@ -59,7 +63,21 @@ public sealed record GenerationExampleData(
     /// classification request does.
     /// </summary>
     public string IntegerValue { get; init; } = string.Empty;
+
+    /// <summary>The values a plan reports when a request states none; part of the same single policy.</summary>
+    public GenerationSampleCallPolicy? SampleCall { get; init; }
 }
+
+/// <summary>
+/// The values a planned program reports when the request states none: the name its function takes and the
+/// arguments it demonstrates. Keyed by value kind only, never by a request, so one policy serves every family
+/// that ends in a demonstration call.
+/// </summary>
+public sealed record GenerationSampleCallPolicy(
+    string FunctionName,
+    string ResultName,
+    ImmutableArray<string> Numbers,
+    ImmutableArray<string> Texts);
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
 public sealed record GenerationInterpolationFormat(

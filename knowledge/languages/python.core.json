@@ -2210,6 +2210,100 @@
           "value": ")"
         }
       ]
+    },
+    {
+      "head": "bound-dictionary-map-assignment",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = {"
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "}"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-dictionary-map-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = {"
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ": "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        },
+        {
+          "kind": "terminal",
+          "value": " for "
+        },
+        {
+          "kind": "binding",
+          "value": "variable"
+        },
+        {
+          "kind": "terminal",
+          "value": " in "
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": "}"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3187,6 +3281,22 @@
       "prerequisites": [],
       "startSymbol": "indented-indented-deserialize-statement",
       "matchesArgumentValue": "json"
+    },
+    {
+      "id": "python-bound-dictionary-map",
+      "symbol": "{",
+      "effect": "emit-dictionary-map-binding",
+      "argumentKind": "dictionary-map-binding",
+      "prerequisites": [],
+      "startSymbol": "bound-dictionary-map-assignment"
+    },
+    {
+      "id": "python-indented-bound-dictionary-map",
+      "symbol": "{",
+      "effect": "emit-indented-dictionary-map-binding",
+      "argumentKind": "dictionary-map-binding",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-dictionary-map-assignment"
     }
   ],
   "stringLiteralFormat": {
@@ -3472,12 +3582,27 @@
       "second",
       "third"
     ],
-    "integerValue": "-5"
+    "integerValue": "-5",
+    "sampleCall": {
+      "functionName": "map_values",
+      "numbers": [
+        "1",
+        "2",
+        "3"
+      ],
+      "texts": [
+        "Ada",
+        "Grace",
+        "Linus"
+      ],
+      "resultName": "mapped_values"
+    }
   },
   "mapLiteralFormat": {
     "openingDelimiter": "{",
     "closingDelimiter": "}",
     "entrySeparator": ", ",
     "entryFormat": "'{0}': {1}"
-  }
+  },
+  "textLengthFormat": "len({0})"
 }

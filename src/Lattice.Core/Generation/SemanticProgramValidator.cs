@@ -100,6 +100,13 @@ public static class SemanticProgramValidator
                  !conditional.ElseRequirements.IsDefaultOrEmpty) &&
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
+            DictionaryMapRequirement dictionaryMap =>
+                IsValidName(dictionaryMap.ResultName) &&
+                IsValidName(dictionaryMap.ItemName) &&
+                !string.Equals(dictionaryMap.ResultName, dictionaryMap.ItemName, StringComparison.Ordinal) &&
+                SemanticExpressionAnalysis.IsValid(dictionaryMap.Source) &&
+                SemanticExpressionAnalysis.IsValid(dictionaryMap.Value) &&
+                ReferencesName(dictionaryMap.Value, dictionaryMap.ItemName),
             SignClassificationRequirement classification =>
                 IsValidName(classification.VariableName) &&
                 SemanticExpressionAnalysis.IsValid(classification.Value) &&

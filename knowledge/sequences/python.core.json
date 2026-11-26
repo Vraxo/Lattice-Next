@@ -2001,43 +2001,6 @@
       "factId": "intent.program-generation"
     },
     {
-      "id": "recognize-number-square-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "number",
-        "to",
-        "square"
-      ],
-      "factId": "program.number-square-dictionary-mapping"
-    },
-    {
-      "id": "recognize-value-offset-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "value",
-        "to",
-        "value"
-      ],
-      "factId": "program.value-offset-dictionary-mapping"
-    },
-    {
-      "id": "recognize-name-length-dictionary-mapping",
-      "matchTokens": [
-        "dictionary",
-        "maps",
-        "each",
-        "name",
-        "to",
-        "number",
-        "characters"
-      ],
-      "factId": "program.name-length-dictionary-mapping"
-    },
-    {
       "id": "recognize-multi-field-record-sorting",
       "matchTokens": [
         "list",
@@ -6238,6 +6201,173 @@
         }
       ],
       "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-length",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "number",
+          "of",
+          "characters"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "length"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-square",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "square"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "square"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-dictionary-mapping-offset",
+      "matchTokens": [
+        "maps",
+        "each"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "value"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "kind",
+          "literalValue": "offset"
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "to"
+          ]
+        },
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "offset",
+          "startAfterTokens": [
+            "+"
+          ],
+          "trimSuffixCharacters": "."
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-parameter",
+      "matchTokens": [
+        "list",
+        "of"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "maps"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "parameter",
+          "stopBeforeSequences": [
+            [
+              "creates"
+            ],
+            [
+              "builds"
+            ],
+            [
+              "makes"
+            ],
+            [
+              "which"
+            ],
+            [
+              "that"
+            ]
+          ],
+          "trimSuffixCharacters": ","
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-result",
+      "matchTokens": [
+        "named"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "maps",
+          "each"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "result",
+          "stopBeforeSequences": [
+            [
+              "that"
+            ],
+            [
+              "then"
+            ]
+          ]
+        }
+      ],
+      "searchAllSentences": true
     }
   ],
   "rules": [
@@ -6572,61 +6702,6 @@
       ],
       "forbiddenFacts": [],
       "advanceCollections": []
-    },
-    {
-      "id": "python-number-square-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.number-square-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(numbers):\n    squares = {number: number * number for number in numbers}\n    return squares\nprint(map_values([1, 2, 3]))\n```",
-      "satisfiesFacts": [
-        "program.number-square-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-value-offset-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.value-offset-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))\n```",
-      "satisfiesFacts": [
-        "program.value-offset-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "program.arithmetic",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-name-length-dictionary-mapping",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.name-length-dictionary-mapping"
-      ],
-      "nextToken": "```python\ndef map_values(names):\n    mapped_values = {name: len(name) for name in names}\n    return mapped_values\nprint(map_values([\"Ada\", \"Grace\", \"Linus\"]))\n```",
-      "satisfiesFacts": [
-        "program.name-length-dictionary-mapping",
-        "program.collection",
-        "language.python",
-        "program.output",
-        "program.iteration",
-        "intent.program-generation"
-      ]
     },
     {
       "id": "python-multi-field-record-sorting",

@@ -179,6 +179,17 @@ public sealed record SortRequirement(
 /// the declared result kind, and an ordered body of requirements. Nothing here names a target-language
 /// keyword; the language pack decides how a declaration is written.
 /// </summary>
+/// <summary>
+/// Binds a dictionary built by evaluating a key expression and a value expression for every item of a source,
+/// such as `{number: number * number for number in numbers}`. The two expressions are ordinary semantic
+/// expressions over the item name, and the selected language pack spells the comprehension.
+/// </summary>
+public sealed record DictionaryMapRequirement(
+    string ResultName,
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Value) : ProgramRequirement;
+
 public sealed record FunctionRequirement(
     string Name,
     ImmutableArray<FunctionParameter> Parameters,

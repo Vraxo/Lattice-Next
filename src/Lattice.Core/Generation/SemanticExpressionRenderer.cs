@@ -203,6 +203,23 @@ internal static class SemanticExpressionRenderer
                     mapLiteral.ClosingDelimiter;
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticTextLengthExpression length:
+                if (languagePack.TextLengthFormat is not { } textLengthFormat ||
+                    !textLengthFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !TryRender(
+                        length.Value,
+                        languagePack,
+                        syntax,
+                        parentPrecedence: 0,
+                        isRightOperand: false,
+                        out var renderedLengthOperand))
+                {
+                    return false;
+                }
+
+                rendered = textLengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticArgumentsExpression arguments:
                 if (!TryRenderLiteralItems(
                         arguments.Values,

@@ -21,9 +21,6 @@ public sealed class SequenceKnowledgeGuardTests
     [
         // 9.23 — fixed loop totals carrying the collection literals.
         // 9.24 — fixed dictionary mappings and iterations.
-        "python-value-offset-dictionary-mapping",
-        "python-number-square-dictionary-mapping",
-        "python-name-length-dictionary-mapping",
         "python-dictionary-iteration-open",
         // 9.25 — fixed record sorting and grouped aggregation.
         "python-multi-field-record-sorting",

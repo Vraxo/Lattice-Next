@@ -1024,21 +1024,62 @@ Deleted: `python-dictionary-product-iteration`, `python-dictionary-name-count-it
 `recognize-dictionary-product-iteration`, `recognize-dictionary-name-count-iteration`, and two rows of the
 exception table (eleven → nine). Both programs are byte-identical.
 
-## The one policy the last six fragments wait on
+## M-9.24b — dictionary mappings from request expressions
 
-Nine exception-table rows remain: three dictionary mappings, four single-field record sorts, one grouped
-aggregation, and they all end at the same missing decision — **the sample call**. Each fragment is a function
-whose body is generic over its parameters and whose last line prints one concrete call, for example
-`print(map_values([1, 2, 3]))` or `print(sort_records([{…}], "age"))`. The request never states those values, so a
-planned replacement needs the same kind of kind-keyed policy the accumulation and parity tickets already use
-(`GenerationExampleData`), rather than a literal per fragment.
+The three mapping programs are planned. Each request states what the value is and what the mapping consumes:
 
-That splits the remaining work into four tickets with one shared prerequisite:
+```
+Create a Python program that, from a list of numbers, builds a dictionary named squares that maps each number
+to the square of it.
+```
+
+```
+def map_values(numbers):
+    squares = {number: number * number for number in numbers}
+    return squares
+print(map_values([1, 2, 3]))
+```
+
+Five input rules read `program.mapping.dictionary`: a `kind` (`length`, `square`, or `offset`), the loop item
+between `each` and `to`, the parameter after the request's own `list of …`, the offset after `+` when the value
+is `item + n`, and the declared result name when the request names it. The value itself is not captured as a
+fragment of English: the projection builds it from the kind, so `number * number`, `len(name)`, and `value + 10`
+are three requirement shapes rather than three benchmark answers.
+
+The sample call is now a declared policy, `GenerationSampleCallPolicy` inside `GenerationExampleData`.
+
+| Field | Value | Why it is policy, not knowledge |
+| --- | --- | --- |
+| `functionName` | `map_values` | the fragments' function name; the request never states one |
+| `resultName` | `mapped_values` | the default result name; a request that says `named squares` overrides it |
+| `numbers` | `1`, `2`, `3` | the demonstrated numeric arguments |
+| `texts` | `Ada`, `Grace`, `Linus` | the demonstrated text arguments, the same names the rest of the policy already uses |
+
+`TryCreateDictionaryMapping` projects a `FunctionRequirement` whose body is a `DictionaryMapRequirement` (the key
+is the loop item and the value must reference it) plus a `ReturnRequirement`, then the `OutputRequirement` that
+calls the function with the policy's literals. Two model gaps closed on the way: `SemanticTextLengthExpression`
+with a pack `textLengthFormat` (`len({0})`), and the dictionary-comprehension productions
+`bound-dictionary-map-assignment` / `indented-bound-dictionary-map-assignment` with their two operations.
+
+Deleted: `python-number-square-dictionary-mapping`, `python-value-offset-dictionary-mapping`,
+`python-name-length-dictionary-mapping`, their three marker input rules, and three rows of the exception table
+(nine → six). All three programs are byte-identical, including the `squares` result name the request states.
+
+## The six fragments the declared sample call unblocks
+
+The policy is declared (M-9.24b), so what is left is the requirement that consumes it. Six exception-table rows
+remain — four single-field record sorts, one grouped aggregation — and each is a function whose body is generic
+over its parameters and whose last line prints one concrete call, for example
+`print(sort_records([{…}], "age"))`. That call is no longer the missing piece: `GenerationSampleCallPolicy`
+inside `GenerationExampleData` supplies the function name, the result name, and both argument lists at three
+indentation levels of policy, never per fragment.
+
+What is still missing is modelling — a subscript expression over the loop item, and a grouped accumulation:
 
 | Ticket | Fragments | Needs |
 | --- | --- | --- |
-| 9.24b | three dictionary mappings | sample-call policy, function returning a dictionary |
-| 9.25a | four single-field record sorts | sample-call policy, subscript over the loop item (`record[field]`) |
+| ~~9.24b~~ | ~~three dictionary mappings~~ | done: `GenerationSampleCallPolicy` and `DictionaryMapRequirement` |
+| 9.25a | four single-field record sorts | the declared sample call, subscript over the loop item (`record[field]`) |
 | 9.25b | two multi-field record sorts | 9.25a's subscript plus a declarative nested key expression (`tuple(record[field] for field in keys)`) |
 | 9.25c | one grouped aggregation | a grouped-accumulation requirement (totals per key) |
 

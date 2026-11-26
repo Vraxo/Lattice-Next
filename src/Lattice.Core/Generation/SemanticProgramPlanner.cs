@@ -189,6 +189,7 @@ public static class SemanticProgramPlanner
             IterationRequirement => true,
             DictionaryIterationRequirement => true,
             FilterRequirement => true,
+            DictionaryMapRequirement => true,
             MapRequirement => true,
             SortRequirement => true,
             AccumulationRequirement => true,
@@ -411,6 +412,20 @@ public static class SemanticProgramPlanner
                             "predicate",
                             "filter-binding",
                             "filter",
+                            depth,
+                            defined,
+                            pack,
+                            pipeline,
+                            planned,
+                            out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case DictionaryMapRequirement dictionaryMap:
+                    if (!TryPlanDictionaryMap(
+                            dictionaryMap,
                             depth,
                             defined,
                             pack,
@@ -1564,6 +1579,82 @@ public static class SemanticProgramPlanner
         }
 
         defined.Add(resultName);
+        return true;
+    }
+
+    /// <summary>
+    /// Plans a dictionary comprehension: the key and value expressions are rendered over the bound item and the
+    /// pack supplies the braces, the separators, and the comprehension clause.
+    /// </summary>
+    private static bool TryPlanDictionaryMap(
+        DictionaryMapRequirement dictionaryMap,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(dictionaryMap.Source, defined, out error) ||
+            !TryRequireAvailable(dictionaryMap.Value, defined, out error, dictionaryMap.ItemName))
+        {
+            return false;
+        }
+
+        if (!TryRequireIdentifier(dictionaryMap.ResultName, pack, "dictionary result", out error) ||
+            !TryRequireIdentifier(dictionaryMap.ItemName, pack, "dictionary item", out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(dictionaryMap.Source, pack, out var renderedSource) ||
+            !SemanticExpressionRenderer.TryRender(dictionaryMap.Value, pack, out var renderedValue))
+        {
+            error = $"The '{pack.Language}' language pack cannot render a requested dictionary mapping.";
+            return false;
+        }
+
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-dictionary-map-binding";
+                break;
+            case 1:
+                effect = "emit-indented-dictionary-map-binding";
+                break;
+            case 2:
+                effect = "emit-double-indented-dictionary-map-binding";
+                break;
+            default:
+                error = "Program statements support at most 3 levels of nested blocks.";
+                return false;
+        }
+
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("target", dictionaryMap.ResultName)
+            .Add("key", dictionaryMap.ItemName)
+            .Add("variable", dictionaryMap.ItemName)
+            .Add("expression", renderedValue)
+            .Add("iterable", renderedSource);
+        if (!TryEmit(
+                pack,
+                pipeline,
+                effect,
+                argumentKind: "dictionary-map-binding",
+                argumentValue: dictionaryMap.ResultName,
+                bindings,
+                depth,
+                defined,
+                planned,
+                out error))
+        {
+            return false;
+        }
+
+        defined.Add(dictionaryMap.ResultName);
         return true;
     }
 
