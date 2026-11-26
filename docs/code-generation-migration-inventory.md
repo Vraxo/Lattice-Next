@@ -541,9 +541,10 @@ Two model facilities were added for this family:
 The family's gate is knowledge-side: the three round-trip input rules only fire for a request that also reads
 the data back, so an incomplete request produces no requirement at all and is rejected as before.
 
-Current knowledge counts after M-11.4–M-11.21: **88 sequence rules** (98 → 97 → 96 → 88) and **238 input
-rules** (241 → 238); the pack holds **100 productions**, **26 bindings**, and **102 operations**, plus
-`inputSyntax.programArgumentFormat` and the pack-level `recordLiteralFormat`.
+Current knowledge counts after M-9.23 and M-8.9: **72 sequence rules** (98 → 97 → 96 → 88 → 85 → 72) and
+**238 input rules** (241 → 238 → 248 → 238), with **33 validations**; the pack holds **100 productions**,
+**26 bindings**, and **102 operations**, plus `inputSyntax.programArgumentFormat`, the pack-level
+`recordLiteralFormat`, and the `exampleData` policy.
 
 ## M-12.1 — Blender gates in `TaskCodeGenerationResponder`
 
@@ -781,7 +782,7 @@ recorded one cannot disappear without editing the table.
 
 ### M-13.13 — fixed function, class, and file outputs
 
-No sequence rule emits a function, class, or file program: the retained 88 rules cover assignment, output,
+No sequence rule emits a function, class, or file program: the retained 72 rules cover assignment, output,
 arithmetic, range, filter, loop, dictionary, and sorting statements only, and none of the twenty multi-line
 fragments is a function or class. Function, class, and file programs are planned from requirements, and
 `grep -riE '"(create|write|generate) a python' src/` returns nothing, so no prompt literal survives in a
@@ -874,3 +875,48 @@ Two general fixes came out of it:
 Outcome: `python-manual-list-total` and `recognize-manual-list-total-request` are deleted, the program is
 byte-identical (`total = 0` / `for number in [1, 2, 3, 4, 5]:` / `    total = total + number` / `print(total)`),
 and the guard exception table is down to seventeen entries.
+
+## M-8.9 — numbered number variables from the request and the example data
+
+The last of the fixed addition fragments is gone. A request such as "stores two numbers in variables, adds
+them, and prints the result" names no operands and no variable names, so it needs both the quantity the request
+does state and the values it does not. The split is: the request supplies the count, the shape (`in variables`)
+and the name of the reported result; the pack's `exampleData` supplies the values and the ordinal names.
+
+`GenerationExampleData` grew two optional fields, validated by the same `IsValidExampleData` as the rest of the
+policy:
+
+| Field | Meaning | Python pack |
+| --- | --- | --- |
+| `numberVariableValues` | the values assigned to numbered variables, in order | `["10", "20", "30"]` |
+| `ordinals` | the ordinal words that name them, joined to `numberItemName` | `["first", "second", "third"]` |
+
+Four new input rules read the request into one `program.declaration.numbers` fact:
+
+| Rule | Reads | Example |
+| --- | --- | --- |
+| `recognize-number-variable-declarations` | the declaration phrase | `stores numbers in variables` |
+| `capture-number-variable-count` | the quantity after `stores`, before `numbers` | `two` |
+| `capture-number-variable-sum-name` | the reported name after `prints` / `the` | `result` |
+| `capture-number-variable-output` | the same name as a typed output expression | `result` |
+
+All four are scoped with `requiredAllSequences: [["in", "variables"]]`, so no other request can enter the
+family. `SemanticProgramFactMapper.TryProjectNumberDeclarations` turns the fact into one `AssignmentRequirement`
+per variable — named `{ordinal}_{itemName}`, so `first_number`, `second_number` — followed by the sum
+assignment, a left-associated chain of `SemanticNameExpression` operands. `TryParseQuantity` accepts a digit or
+the words one through ten.
+
+Deleted: thirteen `python-addition-*` rules and fourteen `*addition*` input rules, one stale `forbiddenFacts`
+entry and the three `program.assignment.first/second/result` entries in
+`SemanticProgramPlanner.DeferredProgramFactPrefixes`. The program is byte-identical:
+
+```
+first_number = 10
+second_number = 20
+result = first_number + second_number
+print(result)
+```
+
+The count is not special-cased either: asking for three numbers plans `first_number`, `second_number`,
+`third_number` and `result = first_number + second_number + third_number`, which
+`SemanticProgramGenerationTests` asserts alongside the two-number request. No golden text changed.
