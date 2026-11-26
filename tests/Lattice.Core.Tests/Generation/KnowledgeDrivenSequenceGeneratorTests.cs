@@ -875,12 +875,23 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Rejects_single_field_record_sorting_with_invalid_identifiers()
+    public void Rejects_record_sorting_with_names_no_language_pack_accepts()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
-        Assert.False(SequenceInputFactExtractor.TryExtract(
+        Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             "Create a Python program that defines a function named sort_people that accepts a list of records named people and a field name named sort-key, then returns the records sorted by that field.",
+            out var facts,
+            out var extractionError), extractionError);
+
+        var languagePackLoader = new GenerationLanguagePackLoader();
+        Assert.True(languagePackLoader.TryLoadEmbedded(out var languagePacks, out var languagePackError), languagePackError);
+
+        // The request states a name the pack cannot spell, so the sort is refused instead of emitted.
+        Assert.False(SemanticProgramPlanner.TryGenerateProgram(
+            facts,
+            languagePacks["python"],
+            out _,
             out _,
             out _));
     }

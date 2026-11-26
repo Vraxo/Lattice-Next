@@ -7576,27 +7576,6 @@
       "factId": "program.requirement.class.method",
       "valueId": "method",
       "appliesWhenFactId": "program.requirement.class"
-    },
-    {
-      "id": "record-sort-function-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.sort.records",
-      "valueId": "function",
-      "appliesWhenFactId": "program.sort.records"
-    },
-    {
-      "id": "record-sort-records-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.sort.records",
-      "valueId": "records",
-      "appliesWhenFactId": "program.sort.records"
-    },
-    {
-      "id": "record-sort-field-is-identifier",
-      "kind": "identifierValue",
-      "factId": "program.sort.records",
-      "valueId": "field",
-      "appliesWhenFactId": "program.sort.records"
     }
   ]
 }
