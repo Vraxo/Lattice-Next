@@ -358,9 +358,6 @@ public sealed class PythonProgramGenerationTests
 
         var result = await session.SubmitAsync(input);
 
-        Assert.True(
-            result.Utterances.Length == 1,
-            $"Status: {result.Status}. Error: {result.Error}. Utterances: {result.Utterances.Length}");
         var utterance = Assert.Single(result.Utterances);
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);
         Assert.True(utterance.Kind == LatticeUtteranceResultKind.TaskCompleted, utterance.Message);
@@ -839,9 +836,6 @@ public sealed class PythonProgramGenerationTests
         await using var session = await client.CreateSessionAsync();
 
         var result = await session.SubmitAsync(prompt);
-        Assert.True(
-            result.Utterances.Length == 1,
-            $"Status: {result.Status}. Error: {result.Error}. Utterances: {result.Utterances.Length}");
         var utterance = Assert.Single(result.Utterances);
 
         Assert.Equal(LatticeTurnStatus.Completed, result.Status);

@@ -28,23 +28,13 @@ internal static class KnowledgeDrivenGenerationResponder
         }
 
         var languagePack = SelectLanguagePack(facts);
-        string programCode = string.Empty;
-        ImmutableArray<PlannedProgramStatement> plannedStatements = ImmutableArray<PlannedProgramStatement>.Empty;
-        string? plannerError = null;
-        var planned = languagePack is not null &&
+        if (languagePack is not null &&
             SemanticProgramPlanner.TryGenerateProgram(
                 facts,
                 languagePack,
-                out programCode,
-                out plannedStatements,
-                out plannerError);
-        if (!planned && languagePack is not null)
-        {
-            throw new InvalidOperationException(
-                $"DIAGNOSTIC planner: {plannerError} | facts: {string.Join(",", facts.Select(fact => fact.Id))}");
-        }
-
-        if (planned && languagePack is not null)
+                out var programCode,
+                out var plannedStatements,
+                out _))
         {
             var fence = new string((char)96, 3);
             result = new LatticeUtteranceResult(
