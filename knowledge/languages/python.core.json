@@ -3461,6 +3461,16 @@
       "5"
     ],
     "numberItemName": "number",
-    "accumulatorInitialValue": "0"
+    "accumulatorInitialValue": "0",
+    "numberVariableValues": [
+      "10",
+      "20",
+      "30"
+    ],
+    "ordinals": [
+      "first",
+      "second",
+      "third"
+    ]
   }
 }

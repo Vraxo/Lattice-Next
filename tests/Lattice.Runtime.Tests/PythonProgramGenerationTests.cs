@@ -1273,9 +1273,8 @@ public sealed class PythonProgramGenerationTests
             "print(result)" + Environment.NewLine +
             "\u0060\u0060\u0060",
             utterance.Message);
-        Assert.Contains("program.assignment.first", utterance.Meaning, StringComparison.Ordinal);
-        Assert.Contains("program.assignment.second", utterance.Meaning, StringComparison.Ordinal);
-        Assert.Contains("program.assignment.result", utterance.Meaning, StringComparison.Ordinal);
+        Assert.Contains("semantic-requirements", utterance.Meaning, StringComparison.Ordinal);
+        Assert.DoesNotContain("program.assignment.", utterance.Meaning, StringComparison.Ordinal);
     }
 
 }

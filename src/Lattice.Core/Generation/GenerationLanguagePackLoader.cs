@@ -280,7 +280,16 @@ public sealed class GenerationLanguagePackLoader
         IsIdentifier(data.NumberItemName) &&
         !string.IsNullOrWhiteSpace(data.AccumulatorInitialValue) &&
         decimal.TryParse(data.AccumulatorInitialValue, System.Globalization.NumberStyles.Number,
-            System.Globalization.CultureInfo.InvariantCulture, out _);
+            System.Globalization.CultureInfo.InvariantCulture, out _) &&
+        (data.NumberVariableValues.IsDefaultOrEmpty
+            ? data.Ordinals.IsDefaultOrEmpty
+            : data.NumberVariableValues.Length <= 32 &&
+              data.NumberVariableValues.All(value =>
+                  !string.IsNullOrWhiteSpace(value) &&
+                  decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                      System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+              data.Ordinals.Length == data.NumberVariableValues.Length &&
+              data.Ordinals.All(IsIdentifier));
 
     private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
     {

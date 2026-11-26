@@ -7,6 +7,12 @@ public sealed class SemanticProgramGenerationTests
 {
     [Theory]
     [InlineData(
+        "Write a Python program that stores two numbers in variables, adds them, and prints the result.",
+        "first_number = 10\nsecond_number = 20\nresult = first_number + second_number\nprint(result)")]
+    [InlineData(
+        "Write a Python program that stores three numbers in variables, adds them, and prints the result.",
+        "first_number = 10\nsecond_number = 20\nthird_number = 30\nresult = first_number + second_number + third_number\nprint(result)")]
+    [InlineData(
         "Create a Python program that sets total to 5 then print total.",
         "total = 5\nprint(total)")]
     [InlineData(
@@ -173,7 +179,6 @@ public sealed class SemanticProgramGenerationTests
     [Theory]
     [InlineData("Create a Python program that prints total + 3.")]
     [InlineData("Create a Python program that sets total to 5 and prints total + 3.")]
-    [InlineData("Write a Python program that stores two numbers in variables, adds them, and prints the result.")]
     [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
     public void Leaves_requests_with_deferred_capabilities_to_their_own_path(string input)
     {

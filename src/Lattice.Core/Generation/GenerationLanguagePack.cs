@@ -34,7 +34,20 @@ public sealed record GenerationLanguagePack(
 public sealed record GenerationExampleData(
     ImmutableArray<string> Numbers,
     string NumberItemName,
-    string AccumulatorInitialValue);
+    string AccumulatorInitialValue)
+{
+    /// <summary>
+    /// The values a request receives when it asks for numbered variables without naming any ("stores two
+    /// numbers in variables"). The Nth variable takes the Nth value.
+    /// </summary>
+    public ImmutableArray<string> NumberVariableValues { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>
+    /// The ordinal words that name those variables, so the Nth number variable is `first_number`,
+    /// `second_number`, and so on, built from the pack's own item name.
+    /// </summary>
+    public ImmutableArray<string> Ordinals { get; init; } = ImmutableArray<string>.Empty;
+}
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
 public sealed record GenerationInterpolationFormat(

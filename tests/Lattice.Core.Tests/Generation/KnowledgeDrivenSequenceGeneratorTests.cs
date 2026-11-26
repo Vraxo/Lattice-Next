@@ -1792,7 +1792,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
-    public void Generates_two_number_addition_from_embedded_semantic_knowledge()
+    public void Plans_numbered_variables_from_request_and_example_data()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(
@@ -1801,24 +1801,27 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractError), extractError);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        Assert.Contains(facts, fact => fact.Id == "program.declaration.numbers");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.assignment.first", StringComparison.Ordinal));
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError), generationError);
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        var fence = new string((char)96, 3);
         Assert.Equal(
-            fence + "python\nfirst_number = 10\nsecond_number = 20\nresult = first_number + second_number\nprint(result)\n" + fence,
-            result!.Text);
+            string.Join('\n',
+                "first_number = 10",
+                "second_number = 20",
+                "result = first_number + second_number",
+                "print(result)"),
+            code);
     }
 
     [Theory]

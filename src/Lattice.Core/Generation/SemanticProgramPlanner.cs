@@ -51,10 +51,7 @@ public static class SemanticProgramPlanner
         // 9.22 — collection filters.
         "program.collection",
         "program.even",
-        // 9.23 — loops and two-step arithmetic assignments.
-        "program.assignment.first",
-        "program.assignment.second",
-        "program.assignment.result",
+        // 9.23 — explicit loops over a named collection.
         "program.loop",
         // 9.24 — dictionary iteration and mapping.
         "program.dictionary",

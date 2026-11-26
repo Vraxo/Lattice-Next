@@ -52,6 +52,9 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldFactId = "program.requirement.class.field";
     private const string ClassFieldNameValueId = "field";
     private const string ClassFieldInitialValueId = "initial";
+    private const string NumberDeclarationFactId = "program.declaration.numbers";
+    private const string NumberDeclarationCountValueId = "count";
+    private const string NumberDeclarationSumValueId = "sum";
     private const string AccumulationFactId = "program.accumulation";
     private const string AccumulationNameValueId = "accumulator";
     private const string AccumulationInitialValueId = "initial";
@@ -121,6 +124,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectAccumulations(facts, exampleData, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectNumberDeclarations(facts, exampleData, declarations, out error))
         {
             return false;
         }
@@ -1108,6 +1116,100 @@ public static class SemanticProgramFactMapper
                 SemanticExpressionOperator.Negative,
                 new SemanticNumberExpression(value[1..]))
             : new SemanticNumberExpression(value);
+    }
+
+    /// <summary>
+    /// Projects a request that asks for numbered variables and then combines them: "stores two numbers in
+    /// variables, adds them, and prints the result". The request supplies the count and the name of the sum;
+    /// the values and the ordinal names come from the pack's declared example data, because the request names
+    /// neither.
+    /// </summary>
+    private static bool TryProjectNumberDeclarations(
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == NumberDeclarationFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!fact.Values.TryGetValue(NumberDeclarationCountValueId, out var countText) ||
+            !TryParseQuantity(countText, out var count) ||
+            count < 1)
+        {
+            error = "A number declaration requires a quantity.";
+            return false;
+        }
+
+        if (exampleData is null ||
+            exampleData.NumberVariableValues.Length < count ||
+            exampleData.Ordinals.Length < count)
+        {
+            error = "A number declaration needs declared example values and ordinal names.";
+            return false;
+        }
+
+        var names = ImmutableArray.CreateBuilder<string>(count);
+        for (var index = 0; index < count; index++)
+        {
+            names.Add($"{exampleData.Ordinals[index]}_{exampleData.NumberItemName}");
+            declarations.Add(new AssignmentRequirement(
+                names[index],
+                new SemanticNumberExpression(exampleData.NumberVariableValues[index])));
+        }
+
+        if (!fact.Values.TryGetValue(NumberDeclarationSumValueId, out var sumName) ||
+            string.IsNullOrWhiteSpace(sumName))
+        {
+            return true;
+        }
+
+        var sum = new SemanticNameExpression(names[0]);
+        for (var index = 1; index < names.Count; index++)
+        {
+            sum = new SemanticBinaryExpression(
+                SemanticExpressionOperator.Add,
+                sum,
+                new SemanticNameExpression(names[index]));
+        }
+
+        declarations.Add(new AssignmentRequirement(sumName, sum));
+        return true;
+    }
+
+    private static bool TryParseQuantity(string? text, out int quantity)
+    {
+        quantity = 0;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        if (int.TryParse(text, out var numeric) && numeric > 0)
+        {
+            quantity = numeric;
+            return true;
+        }
+
+        quantity = text.Trim().ToLowerInvariant() switch
+        {
+            "one" => 1,
+            "two" => 2,
+            "three" => 3,
+            "four" => 4,
+            "five" => 5,
+            "six" => 6,
+            "seven" => 7,
+            "eight" => 8,
+            "nine" => 9,
+            "ten" => 10,
+            _ => 0
+        };
+        return quantity > 0;
     }
 
     private static bool TryProjectAssignments(
