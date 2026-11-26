@@ -541,10 +541,10 @@ Two model facilities were added for this family:
 The family's gate is knowledge-side: the three round-trip input rules only fire for a request that also reads
 the data back, so an incomplete request produces no requirement at all and is rejected as before.
 
-Current knowledge counts after M-9.23 and M-8.9: **72 sequence rules** (98 → 97 → 96 → 88 → 85 → 72) and
-**238 input rules** (241 → 238 → 248 → 238), with **33 validations**; the pack holds **100 productions**,
-**26 bindings**, and **102 operations**, plus `inputSyntax.programArgumentFormat`, the pack-level
-`recordLiteralFormat`, and the `exampleData` policy.
+Current knowledge counts after M-8.9, M-8.14, M-9.22, and M-9.23: **65 sequence rules**
+(98 → 97 → 96 → 88 → 85 → 72 → 68 → 65) and **234 input rules** (241 → 238 → 248 → 238 → 232 → 234), with
+**33 validations**; the pack holds **100 productions**, **26 bindings**, and **102 operations**, plus
+`inputSyntax.programArgumentFormat`, the pack-level `recordLiteralFormat`, and the `exampleData` policy.
 
 ## M-12.1 — Blender gates in `TaskCodeGenerationResponder`
 
@@ -782,7 +782,7 @@ recorded one cannot disappear without editing the table.
 
 ### M-13.13 — fixed function, class, and file outputs
 
-No sequence rule emits a function, class, or file program: the retained 72 rules cover assignment, output,
+No sequence rule emits a function, class, or file program: the retained 65 rules cover assignment, output,
 arithmetic, range, filter, loop, dictionary, and sorting statements only, and none of the twenty multi-line
 fragments is a function or class. Function, class, and file programs are planned from requirements, and
 `grep -riE '"(create|write|generate) a python' src/` returns nothing, so no prompt literal survives in a
