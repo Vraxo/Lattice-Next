@@ -28,13 +28,16 @@ internal static class KnowledgeDrivenGenerationResponder
         }
 
         var languagePack = SelectLanguagePack(facts);
+        string programCode = string.Empty;
+        ImmutableArray<PlannedProgramStatement> plannedStatements = ImmutableArray<PlannedProgramStatement>.Empty;
+        string? plannerError = null;
         var planned = languagePack is not null &&
             SemanticProgramPlanner.TryGenerateProgram(
                 facts,
                 languagePack,
-                out var programCode,
-                out var plannedStatements,
-                out var plannerError);
+                out programCode,
+                out plannedStatements,
+                out plannerError);
         if (!planned && languagePack is not null)
         {
             throw new InvalidOperationException(
