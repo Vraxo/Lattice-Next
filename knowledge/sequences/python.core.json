@@ -108,6 +108,9 @@
       "forbiddenAnySequences": [
         [
           "built"
+        ],
+        [
+          "built-in"
         ]
       ]
     },
