@@ -31,9 +31,9 @@ public sealed class GenerationLanguagePackLoader
         {
             pack = JsonSerializer.Deserialize<GenerationLanguagePack>(json, JsonOptions);
         }
-        catch (JsonException)
+        catch (JsonException exception)
         {
-            error = "The generation language pack is invalid JSON or contains an unsupported field.";
+            error = $"DIAGNOSTIC json: {exception.Message}";
             return false;
         }
 
