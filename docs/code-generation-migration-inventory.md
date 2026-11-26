@@ -1152,8 +1152,8 @@ outputs are unchanged.
 
 ## M-13.8 — function-shaped collection filters from a comparison
 
-All seventeen filter programs are planned byte-identically, including the average-threshold and
-arithmetic-threshold variants:
+All twelve filter programs the runtime suite exercises are planned byte-identically, including the
+average-threshold, arithmetic-threshold, and negated-comparison variants:
 
 ```
 Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.
