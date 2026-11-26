@@ -5894,6 +5894,232 @@
           "literalValue": "odd"
         }
       ]
+    },
+    {
+      "id": "capture-parity-filter-item-in-list",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ],
+        [
+          "in"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "in"
+          ]
+        },
+        {
+          "factId": "program.parity-filter",
+          "valueId": "collection",
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "stopBeforeSequences": [
+            [
+              "only",
+              "if"
+            ]
+          ],
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "in"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-parity-filter-item-from-list",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ],
+        [
+          "from"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "item",
+          "stopBeforeTokens": [
+            "from"
+          ]
+        },
+        {
+          "factId": "program.parity-filter",
+          "valueId": "collection",
+          "preserveRawValue": true,
+          "semanticCollectionFormat": {
+            "openingDelimiter": "[",
+            "closingDelimiter": "]",
+            "itemSeparator": ",",
+            "itemFormats": [
+              {
+                "kind": "number",
+                "escapes": []
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "'",
+                "closingDelimiter": "'",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "openingDelimiter": "\"",
+                "closingDelimiter": "\"",
+                "escapes": [
+                  {
+                    "sequence": "\\\\",
+                    "value": "\\"
+                  },
+                  {
+                    "sequence": "\\'",
+                    "value": "'"
+                  },
+                  {
+                    "sequence": "\\\"",
+                    "value": "\""
+                  },
+                  {
+                    "sequence": "\\n",
+                    "value": "\n"
+                  },
+                  {
+                    "sequence": "\\r",
+                    "value": "\r"
+                  },
+                  {
+                    "sequence": "\\t",
+                    "value": "\t"
+                  }
+                ]
+              }
+            ]
+          },
+          "stopBeforeSequences": [
+            [
+              "only",
+              "if"
+            ]
+          ],
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "from"
+          ]
+        }
+      ]
     }
   ],
   "rules": [

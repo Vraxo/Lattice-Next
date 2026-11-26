@@ -1148,18 +1148,33 @@ public static class SemanticProgramFactMapper
 
         var itemName = string.Empty;
         SemanticCollection? contents = null;
+        if (parity.Values.TryGetValue(LoopItemValueId, out var capturedItem) &&
+            !string.IsNullOrWhiteSpace(capturedItem))
+        {
+            itemName = capturedItem.Trim();
+        }
+
+        if (parity.SemanticCollections.TryGetValue(LoopCollectionValueId, out var capturedContents) &&
+            !capturedContents.Items.IsDefaultOrEmpty)
+        {
+            contents = capturedContents;
+        }
+
         var loop = facts.FirstOrDefault(candidate => candidate.Id == CollectionLoopFactId);
         if (loop is not null)
         {
-            if (loop.Values.TryGetValue(LoopItemValueId, out var item) && !string.IsNullOrWhiteSpace(item))
+            if (itemName.Length == 0 &&
+                loop.Values.TryGetValue(LoopItemValueId, out var item) &&
+                !string.IsNullOrWhiteSpace(item))
             {
                 itemName = item.Trim();
             }
 
-            if (loop.SemanticCollections.TryGetValue(LoopCollectionValueId, out var captured) &&
-                !captured.Items.IsDefaultOrEmpty)
+            if (contents is null &&
+                loop.SemanticCollections.TryGetValue(LoopCollectionValueId, out var fromLoop) &&
+                !fromLoop.Items.IsDefaultOrEmpty)
             {
-                contents = captured;
+                contents = fromLoop;
             }
         }
 
