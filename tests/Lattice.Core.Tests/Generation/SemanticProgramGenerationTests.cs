@@ -28,6 +28,12 @@ public sealed class SemanticProgramGenerationTests
         "Write a Python program that prints only the even numbers from a list.",
         "for number in [1, 2, 3, 4, 5]:\n    if number % 2 == 0:\n        print(number)")]
     [InlineData(
+        "Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.",
+        "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]
+    [InlineData(
+        "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
+        "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
+    [InlineData(
         "Create a Python program that sets total to 5 then print total.",
         "total = 5\nprint(total)")]
     [InlineData(

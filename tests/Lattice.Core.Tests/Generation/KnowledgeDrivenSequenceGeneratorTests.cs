@@ -769,11 +769,15 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.DoesNotContain(facts, fact =>
             fact.Id is "program.dictionary-product-iteration" or "program.dictionary-name-count-iteration");
 
+        var dictionaryPackLoader = new GenerationLanguagePackLoader();
+        Assert.True(dictionaryPackLoader.TryLoadEmbedded(out var dictionaryPacks, out var dictionaryPackError),
+            dictionaryPackError);
         var request = new KnowledgeDrivenSequenceGenerationRequest(
             ImmutableArray<string>.Empty,
             facts.Select(fact => fact.Id).ToImmutableArray())
         {
-            FactValues = facts
+            FactValues = facts,
+            LanguagePack = dictionaryPacks["python"]
         };
         Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
             knowledge!, null, request, out var result, out var generationError),
