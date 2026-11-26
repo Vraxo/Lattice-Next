@@ -3687,6 +3687,22 @@
           ],
           "recordsLiteral": "record"
         }
+      },
+      "groupedAggregation": {
+        "recordsName": "records",
+        "totalsName": "totals",
+        "keyName": "key",
+        "totalName": "total",
+        "groups": [
+          "Ada",
+          "Grace",
+          "Ada"
+        ],
+        "measures": [
+          "25.0",
+          "40.0",
+          "15.0"
+        ]
       }
     }
   },

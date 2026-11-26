@@ -61,6 +61,12 @@ public sealed class SemanticProgramGenerationTests
         "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
         "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
     [InlineData(
+        "Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.",
+        "records = [{\"customer\": \"Ada\", \"spending\": 25.0}, {\"customer\": \"Grace\", \"spending\": 40.0}, {\"customer\": \"Ada\", \"spending\": 15.0}]\ntotals = {}\nfor purchase in records:\n    key = purchase[\"customer\"]\n    totals[key] = totals.get(key, 0) + purchase[\"spending\"]\nfor key, total in totals.items():\n    print(key, total)")]
+    [InlineData(
+        "Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.",
+        "records = [{\"buyer\": \"Ada\", \"amount\": 25.0}, {\"buyer\": \"Grace\", \"amount\": 40.0}, {\"buyer\": \"Ada\", \"amount\": 15.0}]\ntotals = {}\nfor order in records:\n    key = order[\"buyer\"]\n    totals[key] = totals.get(key, 0) + order[\"amount\"]\nfor key, total in totals.items():\n    print(key, total)")]
+    [InlineData(
         "Create a Python program that sets total to 5 then print total.",
         "total = 5\nprint(total)")]
     [InlineData(

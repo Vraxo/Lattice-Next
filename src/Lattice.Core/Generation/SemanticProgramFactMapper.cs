@@ -54,6 +54,11 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string GroupedAggregationFactId = "program.record-aggregation";
+    private const string GroupedAggregationIntentFactId = "program.record-aggregation.intent";
+    private const string GroupedAggregationRecordValueId = "record";
+    private const string GroupedAggregationGroupValueId = "group";
+    private const string GroupedAggregationMeasureValueId = "measure";
     private const string MultiFieldSortFactId = "program.sort.fields";
     private const string MultiFieldSortKeysValueId = "keys";
     private const string MultiFieldSortKindValue = "fields";
@@ -205,6 +210,19 @@ public static class SemanticProgramFactMapper
             }
 
             program = dictionaryProgram;
+            return true;
+        }
+
+        // A grouped total is a whole data-carrying loop, so it is projected on its own.
+        var aggregation = facts.FirstOrDefault(candidate => candidate.Id == GroupedAggregationFactId);
+        if (aggregation is not null)
+        {
+            if (!TryCreateGroupedAggregation(aggregation, facts, exampleData, out var aggregationProgram, out error))
+            {
+                return false;
+            }
+
+            program = aggregationProgram;
             return true;
         }
 
@@ -1308,6 +1326,132 @@ public static class SemanticProgramFactMapper
         }
 
         program = filter;
+        return true;
+    }
+
+    /// <summary>
+    /// Projects "groups the records by one field and totals another" onto the declared sample data: the records
+    /// the request names are the loop's item, the two field names are its keys, and the totals dictionary, the
+    /// current key, and the reported pair come from the policy. Nothing here names a group-and-sum algorithm;
+    /// the plan is a data assignment, an empty mapping, one loop that raises each element, and one loop that
+    /// reports the pairs.
+    /// </summary>
+    private static bool TryCreateGroupedAggregation(
+        SequenceSemanticFact aggregation,
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (exampleData?.SampleCall?.GroupedAggregation is not { } grouped)
+        {
+            error = "A grouped record total requires the declared sample policy.";
+            return false;
+        }
+
+        if (!facts.Any(fact => fact.Id == GroupedAggregationIntentFactId))
+        {
+            error = "A grouped record total requires the request's intent.";
+            return false;
+        }
+
+        if (!grouped.Groups.IsDefaultOrEmpty &&
+            grouped.Groups.Length != grouped.Measures.Length)
+        {
+            error = "Every sample record of a grouped total needs one amount.";
+            return false;
+        }
+
+        var itemName = ReadName(aggregation, GroupedAggregationRecordValueId);
+        var groupName = ReadName(aggregation, GroupedAggregationGroupValueId);
+        var measureName = ReadName(aggregation, GroupedAggregationMeasureValueId);
+        if (itemName is null || groupName is null || measureName is null)
+        {
+            error = "A grouped record total requires the item, the group, and the measure names.";
+            return false;
+        }
+
+        var recordItemName = itemName;
+        var groupFieldName = groupName;
+        var measureFieldName = measureName;
+        var initialValue = exampleData.AccumulatorInitialValue;
+        if (!SemanticExpressionAnalysis.IsValid(new SemanticNumberExpression(initialValue)))
+        {
+            error = "A grouped record total requires a numeric starting value.";
+            return false;
+        }
+
+        var records = ImmutableArray.CreateBuilder<SemanticExpression>(grouped.Groups.Length);
+        for (var index = 0; index < grouped.Groups.Length; index++)
+        {
+            records.Add(new SemanticRecordLiteralExpression(
+            [
+                new SemanticRecordEntry(groupName, new SemanticTextExpression(grouped.Groups[index])),
+                new SemanticRecordEntry(measureName, new SemanticNumberExpression(grouped.Measures[index].Trim()))
+            ]));
+        }
+
+        SemanticExpression GroupElement() =>
+            new SemanticSubscriptExpression(
+                new SemanticNameExpression(recordItemName),
+                new SemanticTextExpression(groupFieldName));
+
+        SemanticExpression MeasureElement() =>
+            new SemanticSubscriptExpression(
+                new SemanticNameExpression(recordItemName),
+                new SemanticTextExpression(measureFieldName));
+
+        var groupedProgram = new SemanticProgram(
+        [
+            new AssignmentRequirement(
+                grouped.RecordsName,
+                new SemanticListLiteralExpression(records.ToImmutable())),
+            new AssignmentRequirement(
+                grouped.TotalsName,
+                new SemanticMapLiteralExpression(ImmutableArray<SemanticRecordEntry>.Empty)),
+            new IterationRequirement(
+                recordItemName,
+                new SemanticNameExpression(grouped.RecordsName),
+                [
+                    new AssignmentRequirement(grouped.KeyName, GroupElement()),
+                    new ElementAssignmentRequirement(
+                        new SemanticSubscriptExpression(
+                            new SemanticNameExpression(grouped.TotalsName),
+                            new SemanticNameExpression(grouped.KeyName)),
+                        new SemanticBinaryExpression(
+                            SemanticExpressionOperator.Add,
+                            new SemanticMethodCallExpression(
+                                new SemanticNameExpression(grouped.TotalsName),
+                                "get",
+                                [
+                                    new SemanticNameExpression(grouped.KeyName),
+                                    new SemanticNumberExpression(initialValue)
+                                ]),
+                            MeasureElement()))
+                ]),
+            new DictionaryIterationRequirement(
+                grouped.KeyName,
+                grouped.TotalName,
+                new SemanticNameExpression(grouped.TotalsName),
+                [
+                    new OutputRequirement(new SemanticArgumentsExpression(
+                    [
+                        new SemanticNameExpression(grouped.KeyName),
+                        new SemanticNameExpression(grouped.TotalName)
+                    ]))
+                ])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(groupedProgram))
+        {
+            error = "The projected grouped record total requirements are not structurally valid.";
+            return false;
+        }
+
+        program = groupedProgram;
         return true;
     }
 

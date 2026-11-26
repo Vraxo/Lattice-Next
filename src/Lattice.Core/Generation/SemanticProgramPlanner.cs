@@ -50,9 +50,7 @@ public static class SemanticProgramPlanner
         // 9.23 — explicit loops over a named collection.
         "program.loop",
         // 9.24 — dictionary iteration and mapping.
-        "program.dictionary",
-        // 9.25 — grouped record aggregation.
-        "program.record"
+        "program.dictionary"
     ];
 
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>
@@ -267,6 +265,13 @@ public static class SemanticProgramPlanner
                     break;
                 case AugmentedAssignmentRequirement update:
                     if (!TryPlanAugmentedAssignment(update, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case ElementAssignmentRequirement element:
+                    if (!TryPlanElementAssignment(element, depth, defined, pack, pipeline, planned, out error))
                     {
                         return false;
                     }
@@ -528,6 +533,45 @@ public static class SemanticProgramPlanner
         return true;
     }
 
+    /// <summary>
+    /// Plans an update of one element: the target is an ordinary expression the pack already spells, so the
+    /// same emit operations serve a name and an element alike.
+    /// </summary>
+    private static bool TryPlanElementAssignment(
+        ElementAssignmentRequirement element,
+        int depth,
+        HashSet<string> defined,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        if (!TryRequireAvailable(element.Target, defined, out error) ||
+            !TryRequireAvailable(element.Value, defined, out error))
+        {
+            return false;
+        }
+
+        if (!SemanticExpressionRenderer.TryRender(element.Target, pack, out var renderedTarget) ||
+            !SemanticExpressionRenderer.TryRender(element.Value, pack, out var renderedValue))
+        {
+            error = "The language pack cannot render the requested element update.";
+            return false;
+        }
+
+        return TryEmitAssignment(
+            renderedTarget,
+            renderedValue,
+            depth,
+            defined,
+            pack,
+            pipeline,
+            planned,
+            out error,
+            targetIsIdentifier: false);
+    }
+
     private static bool TryEmitAssignment(
         string variableName,
         string renderedValue,
@@ -536,10 +580,12 @@ public static class SemanticProgramPlanner
         GenerationLanguagePack pack,
         SequenceGenerationPipeline pipeline,
         ImmutableArray<PlannedProgramStatement>.Builder planned,
-        out string? error)
+        out string? error,
+        bool targetIsIdentifier = true)
     {
         error = null;
-        if (!TryRequireIdentifier(variableName, pack, "assignment target", out error))
+        if (targetIsIdentifier &&
+            !TryRequireIdentifier(variableName, pack, "assignment target", out error))
         {
             return false;
         }

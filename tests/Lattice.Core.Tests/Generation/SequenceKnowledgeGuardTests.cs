@@ -19,10 +19,8 @@ public sealed class SequenceKnowledgeGuardTests
     /// </summary>
     private static readonly string[] RecordedMultiLineRules =
     [
-        // 9.24 — the fixed dictionary iteration that reads its data from a file.
-        "python-dictionary-iteration-open",
-        // 9.25c — the fixed grouped record aggregation.
-        "record-aggregation-output"
+        // 9.24 — the fixed dictionary iteration that opens with a placeholder mapping.
+        "python-dictionary-iteration-open"
     ];
 
     [Fact]

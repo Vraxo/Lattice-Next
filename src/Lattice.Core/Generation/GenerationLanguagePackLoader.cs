@@ -351,7 +351,23 @@ public sealed class GenerationLanguagePackLoader
         !policy.Texts.IsDefaultOrEmpty &&
         policy.Texts.Length <= 32 &&
         policy.Texts.All(value => !string.IsNullOrWhiteSpace(value)) &&
-        (policy.Sort is null || IsValidSampleSort(policy.Sort));
+        (policy.Sort is null || IsValidSampleSort(policy.Sort)) &&
+        (policy.GroupedAggregation is null || IsValidSampleGroupedAggregation(policy.GroupedAggregation));
+
+    private static bool IsValidSampleGroupedAggregation(GenerationSampleGroupedAggregation aggregation) =>
+        IsIdentifier(aggregation.RecordsName) &&
+        IsIdentifier(aggregation.TotalsName) &&
+        IsIdentifier(aggregation.KeyName) &&
+        IsIdentifier(aggregation.TotalName) &&
+        !aggregation.Groups.IsDefaultOrEmpty &&
+        aggregation.Groups.Length <= 32 &&
+        aggregation.Groups.All(group => !string.IsNullOrWhiteSpace(group)) &&
+        !aggregation.Measures.IsDefaultOrEmpty &&
+        aggregation.Measures.Length == aggregation.Groups.Length &&
+        aggregation.Measures.All(measure =>
+            !string.IsNullOrWhiteSpace(measure) &&
+            decimal.TryParse(measure, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _));
 
     private static bool IsValidExampleData(GenerationExampleData data) =>
         !data.Numbers.IsDefaultOrEmpty &&

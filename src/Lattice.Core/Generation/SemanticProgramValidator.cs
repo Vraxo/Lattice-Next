@@ -91,6 +91,10 @@ public static class SemanticProgramValidator
                 update.Operator is SemanticExpressionOperator.Add or SemanticExpressionOperator.Subtract &&
                 SemanticExpressionAnalysis.IsValid(update.Value) &&
                 SemanticExpressionAnalysis.IsArithmetic(update.Value),
+            ElementAssignmentRequirement element =>
+                element.Target is SemanticSubscriptExpression &&
+                SemanticExpressionAnalysis.IsValid(element.Target) &&
+                SemanticExpressionAnalysis.IsValid(element.Value),
             OutputRequirement output =>
                 SemanticExpressionAnalysis.IsValid(output.Value) &&
                 IsValidDeclaredCall(output.Value, context),

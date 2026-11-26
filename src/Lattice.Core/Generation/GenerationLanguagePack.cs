@@ -99,7 +99,25 @@ public sealed record GenerationSampleCallPolicy(
 {
     /// <summary>The record-shaped demonstration a sorting plan prints; absent when a language has no sorts.</summary>
     public GenerationSampleSortPolicy? Sort { get; init; }
+
+    /// <summary>
+    /// The records a grouped-total plan adds up when the request states no data: the names it defaults to and
+    /// the group labels and amounts of its sample records.
+    /// </summary>
+    public GenerationSampleGroupedAggregation? GroupedAggregation { get; init; }
 }
+
+/// <summary>
+/// The demonstration a grouped-total plan prints: the names it defaults to and, per sample record, the group
+/// label and the amount that record contributes. Both lists have one entry per record, in record order.
+/// </summary>
+public sealed record GenerationSampleGroupedAggregation(
+    string RecordsName,
+    string TotalsName,
+    string KeyName,
+    string TotalName,
+    ImmutableArray<string> Groups,
+    ImmutableArray<string> Measures);
 
 /// <summary>
 /// The records a sorting plan demonstrates when the request supplies no data: one record shape, and one

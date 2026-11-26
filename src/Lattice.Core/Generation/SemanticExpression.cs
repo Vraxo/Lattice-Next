@@ -748,7 +748,7 @@ internal static class SemanticExpressionAnalysis
         int depth,
         ref int nodeCount)
     {
-        if (map.Entries.IsDefaultOrEmpty || map.Entries.Length > 64)
+        if (map.Entries.IsDefault || map.Entries.Length > 64)
         {
             return false;
         }

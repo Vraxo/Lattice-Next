@@ -194,7 +194,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData("Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.", "purchase", "customer", "spending")]
     [InlineData("Create a small Python program that groups a list of order records by buyer and sums each buyer's total amount.", "order", "buyer", "amount")]
-    public void Extracts_and_generates_grouped_record_aggregation_from_declarative_facts(string prompt, string record, string group, string measure)
+    public void Reads_a_grouped_record_total_as_its_item_and_fields(string prompt, string record, string group, string measure)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError), extractionError);
@@ -207,13 +207,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
         Assert.Contains(facts, fact => fact.Id == "program.collection");
         Assert.Contains(facts, fact => fact.Id == "program.iteration");
         Assert.Contains(facts, fact => fact.Id == "program.output");
-        var request = new KnowledgeDrivenSequenceGenerationRequest(ImmutableArray<string>.Empty, facts.Select(fact => fact.Id).ToImmutableArray()) { FactValues = facts };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var generated, out var generationError), generationError);
-        Assert.Contains($"for {record} in records:", generated!.Text, StringComparison.Ordinal);
-        Assert.Contains($"key = {record}[\"{group}\"]", generated.Text, StringComparison.Ordinal);
-        Assert.Contains($"{record}[\"{measure}\"]", generated.Text, StringComparison.Ordinal);
     }
-
 
     [Theory]
     [InlineData(

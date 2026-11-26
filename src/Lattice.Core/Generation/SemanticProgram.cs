@@ -35,6 +35,15 @@ public sealed record AugmentedAssignmentRequirement(
     SemanticExpressionOperator Operator,
     SemanticExpression Value) : ProgramRequirement;
 
+/// <summary>
+/// Binds one element of a collection by its key, such as raising the running total held under a group's
+/// key. The target is an ordinary expression over an already-bound collection, so the same shape serves a
+/// mapping and a list; the selected language pack decides how an element is written.
+/// </summary>
+public sealed record ElementAssignmentRequirement(
+    SemanticExpression Target,
+    SemanticExpression Value) : ProgramRequirement;
+
 public sealed record ConditionalRequirement(
     SemanticExpression Condition,
     ImmutableArray<ProgramRequirement> ThenRequirements,
