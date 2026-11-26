@@ -54,6 +54,14 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string DictionaryLiteralFactId = "program.dictionary-literal";
+    private const string DictionaryNameValueId = "name";
+    private const string DictionaryKeysValueId = "keys";
+    private const string DictionaryValuesValueId = "values";
+    private const string DictionaryKeyNameValueId = "key";
+    private const string DictionaryValueNameValueId = "value";
+    private static readonly char[] LiteralEntryTrimCharacters = ['{', '}', '\'', '"', ',', '.', ':', ';', ' '];
+
     private const string ParityFilterFactId = "program.parity-filter";
     private const string ParityValueId = "parity";
     private const string CollectionLoopFactId = "program.collection-loop";
@@ -118,6 +126,19 @@ public static class SemanticProgramFactMapper
             }
 
             program = filterProgram;
+            return true;
+        }
+
+        // A declared dictionary is a whole data-carrying loop, so it is projected on its own.
+        var dictionaryLiteral = facts.FirstOrDefault(candidate => candidate.Id == DictionaryLiteralFactId);
+        if (dictionaryLiteral is not null)
+        {
+            if (!TryCreateDictionaryIteration(dictionaryLiteral, facts, out var dictionaryProgram, out error))
+            {
+                return false;
+            }
+
+            program = dictionaryProgram;
             return true;
         }
 
@@ -1222,6 +1243,127 @@ public static class SemanticProgramFactMapper
 
         program = filter;
         return true;
+    }
+
+    /// <summary>
+    /// Projects "stores {'apple': 1.5} in a dictionary named prices, then prints each product and its price"
+    /// onto an assignment of a mapping literal and a key/value loop printing both names. The declared name,
+    /// the keys, the values, and the two loop names are all request data.
+    /// </summary>
+    private static bool TryCreateDictionaryIteration(
+        SequenceSemanticFact literal,
+        ImmutableArray<SequenceSemanticFact> facts,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (!literal.Values.TryGetValue(DictionaryNameValueId, out var declaredName) ||
+            string.IsNullOrWhiteSpace(declaredName))
+        {
+            error = "A declared dictionary requires a name.";
+            return false;
+        }
+
+        var name = declaredName.Trim().Trim(LiteralEntryTrimCharacters);
+        if (name.Length == 0)
+        {
+            error = "A declared dictionary requires a name.";
+            return false;
+        }
+
+        if (!TryGetCollection(literal, DictionaryKeysValueId, out var keys) || keys.IsDefaultOrEmpty)
+        {
+            error = "A declared dictionary requires the entries the request states.";
+            return false;
+        }
+
+        if (!TryGetCollection(literal, DictionaryValuesValueId, out var values) ||
+            values.Length != keys.Length)
+        {
+            error = "A declared dictionary needs one value per key.";
+            return false;
+        }
+
+        var iteration = facts.FirstOrDefault(candidate =>
+            string.Equals(candidate.Id, "program.dictionary-iteration", StringComparison.Ordinal));
+        if (iteration is null ||
+            !iteration.Values.TryGetValue(DictionaryKeyNameValueId, out var declaredKey) ||
+            !iteration.Values.TryGetValue(DictionaryValueNameValueId, out var declaredValue) ||
+            string.IsNullOrWhiteSpace(declaredKey) ||
+            string.IsNullOrWhiteSpace(declaredValue))
+        {
+            error = "A declared dictionary iteration requires the key and value names it reports.";
+            return false;
+        }
+
+        var keyName = declaredKey.Trim().Trim(LiteralEntryTrimCharacters);
+        var valueName = declaredValue.Trim().Trim(LiteralEntryTrimCharacters);
+        if (keyName.Length == 0 || valueName.Length == 0 ||
+            string.Equals(keyName, valueName, StringComparison.Ordinal))
+        {
+            error = "A declared dictionary iteration requires two different names.";
+            return false;
+        }
+
+        var entries = ImmutableArray.CreateBuilder<SemanticRecordEntry>(keys.Length);
+        for (var index = 0; index < keys.Length; index++)
+        {
+            var key = keys[index].Trim().Trim(LiteralEntryTrimCharacters);
+            if (key.Length == 0)
+            {
+                error = "A declared dictionary requires a key for every entry.";
+                return false;
+            }
+
+            entries.Add(new SemanticRecordEntry(key, DataExpression(values[index])));
+        }
+
+        var dictionary = new SemanticProgram(
+        [
+            new AssignmentRequirement(name, new SemanticMapLiteralExpression(entries.ToImmutable())),
+            new DictionaryIterationRequirement(
+                keyName,
+                valueName,
+                new SemanticNameExpression(name),
+                [
+                    new OutputRequirement(
+                        new SemanticArgumentsExpression(
+                        [
+                            new SemanticNameExpression(keyName),
+                            new SemanticNameExpression(valueName)
+                        ]))
+                ])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(dictionary))
+        {
+            error = "The projected dictionary iteration requirements are not structurally valid.";
+            return false;
+        }
+
+        program = dictionary;
+        return true;
+    }
+
+    /// <summary>Reads one captured cell as the value it spells: a number when it parses as one, else text.</summary>
+    private static SemanticExpression DataExpression(string cell)
+    {
+        var value = cell.Trim().Trim(LiteralEntryTrimCharacters);
+        if (value.Length > 1 && value.StartsWith('-') &&
+            decimal.TryParse(value[1..], System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _))
+        {
+            return new SemanticUnaryExpression(
+                SemanticExpressionOperator.Negative,
+                new SemanticNumberExpression(value[1..]));
+        }
+
+        return decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out _)
+            ? new SemanticNumberExpression(value)
+            : new SemanticTextExpression(value);
     }
 
     private static bool TryReadParityOperator(string parityWord, out SemanticExpressionOperator comparison)

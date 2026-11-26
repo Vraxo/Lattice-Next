@@ -104,6 +104,21 @@ public sealed record SemanticListLiteralExpression(
 public sealed record SemanticRecordLiteralExpression(
     ImmutableArray<SemanticRecordEntry> Entries) : SemanticExpression;
 
+/// <summary>
+/// A literal mapping from keys to values, used for request-declared dictionaries. Keys are request text and
+/// stay strings; the selected language pack spells the braces, the separators, and how a key is quoted.
+/// </summary>
+public sealed record SemanticMapLiteralExpression(
+    ImmutableArray<SemanticRecordEntry> Entries) : SemanticExpression;
+
+/// <summary>
+/// Several values reported side by side, in order, for a request that asks to print more than one thing at
+/// once. The values are ordinary expressions; the separator between them is punctuation every target
+/// language shares, so no pack field is needed.
+/// </summary>
+public sealed record SemanticArgumentsExpression(
+    ImmutableArray<SemanticExpression> Values) : SemanticExpression;
+
 internal static class SemanticExpressionAnalysis
 {
     private const int MaximumDepth = 64;
@@ -237,6 +252,20 @@ internal static class SemanticExpressionAnalysis
                 CollectReferencedNames(binary.Left, names);
                 CollectReferencedNames(binary.Right, names);
                 break;
+            case SemanticMapLiteralExpression map:
+                foreach (var entry in map.Entries)
+                {
+                    CollectReferencedNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticArgumentsExpression arguments:
+                foreach (var value in arguments.Values)
+                {
+                    CollectReferencedNames(value, names);
+                }
+
+                break;
         }
     }
 
@@ -312,6 +341,7 @@ internal static class SemanticExpressionAnalysis
     private static bool IsValueCore(SemanticExpression expression) =>
         expression is SemanticTextExpression or SemanticBooleanExpression or
         SemanticListLiteralExpression or SemanticRecordLiteralExpression ||
+        SemanticMapLiteralExpression or SemanticArgumentsExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
         IsArithmeticCore(expression);
 
@@ -357,6 +387,12 @@ internal static class SemanticExpressionAnalysis
         SemanticRecordLiteralExpression record =>
             record.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
                 entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticMapLiteralExpression map =>
+            map.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
+                entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticArgumentsExpression arguments =>
+            arguments.Values.All(value => ReferencesOnlyAvailableNamesCore(
+                value, availableNames, allowFunctionCalls, availableFunctions)),
         _ => false
     };
 
@@ -381,6 +417,10 @@ internal static class SemanticExpressionAnalysis
         SemanticListLiteralExpression list => list.Items.Any(item => ReferencesAnyNameCore(item, names)),
         SemanticRecordLiteralExpression record =>
             record.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
+        SemanticMapLiteralExpression map =>
+            map.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
+        SemanticArgumentsExpression arguments =>
+            arguments.Values.Any(value => ReferencesAnyNameCore(value, names)),
         _ => false
     };
 
@@ -416,6 +456,8 @@ internal static class SemanticExpressionAnalysis
             SemanticTextTemplateExpression template => IsValidTemplate(template, depth, ref nodeCount),
             SemanticListLiteralExpression list => IsValidList(list, depth, ref nodeCount),
             SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
+            SemanticMapLiteralExpression map => IsValidMap(map, depth, ref nodeCount),
+            SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };
     }
@@ -487,6 +529,44 @@ internal static class SemanticExpressionAnalysis
         }
 
         return true;
+    }
+
+    private static bool IsValidMap(
+        SemanticMapLiteralExpression map,
+        int depth,
+        ref int nodeCount)
+    {
+        if (map.Entries.IsDefaultOrEmpty || map.Entries.Length > 64)
+        {
+            return false;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in map.Entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Name) ||
+                entry.Name.Length > 128 ||
+                !seen.Add(entry.Name) ||
+                !IsValid(entry.Value, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsValidArguments(
+        SemanticArgumentsExpression arguments,
+        int depth,
+        ref int nodeCount)
+    {
+        if (arguments.Values.IsDefaultOrEmpty || arguments.Values.Length > 16)
+        {
+            return false;
+        }
+
+        return arguments.Values.All(value => IsValid(value, depth + 1, ref nodeCount));
     }
 
     private static bool IsValidTemplate(

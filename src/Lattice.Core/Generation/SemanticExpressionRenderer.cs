@@ -171,6 +171,52 @@ internal static class SemanticExpressionRenderer
                     recordLiteral.ClosingDelimiter;
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticMapLiteralExpression map:
+                if (languagePack.MapLiteralFormat is not { } mapLiteral ||
+                    !mapLiteral.EntryFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !mapLiteral.EntryFormat.Contains("{1}", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                var mapEntries = ImmutableArray.CreateBuilder<string>();
+                foreach (var entry in map.Entries)
+                {
+                    if (!TryRender(
+                            entry.Value,
+                            languagePack,
+                            syntax,
+                            parentPrecedence: 0,
+                            isRightOperand: false,
+                            out var renderedMapValue))
+                    {
+                        return false;
+                    }
+
+                    mapEntries.Add(mapLiteral.EntryFormat
+                        .Replace("{0}", entry.Name, StringComparison.Ordinal)
+                        .Replace("{1}", renderedMapValue, StringComparison.Ordinal));
+                }
+
+                rendered = mapLiteral.OpeningDelimiter +
+                    string.Join(mapLiteral.EntrySeparator, mapEntries) +
+                    mapLiteral.ClosingDelimiter;
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticArgumentsExpression arguments:
+                if (!TryRenderLiteralItems(
+                        arguments.Values,
+                        languagePack,
+                        syntax,
+                        ", ",
+                        out var renderedArguments))
+                {
+                    return false;
+                }
+
+                rendered = renderedArguments;
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticMethodCallExpression methodCall:
                 if (!TryRenderMethodCall(methodCall, languagePack, syntax, out rendered))
                 {

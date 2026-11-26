@@ -3473,5 +3473,11 @@
       "third"
     ],
     "integerValue": "-5"
+  },
+  "mapLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "'{0}': {1}"
   }
 }

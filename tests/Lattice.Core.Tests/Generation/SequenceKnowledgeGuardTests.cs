@@ -24,8 +24,6 @@ public sealed class SequenceKnowledgeGuardTests
         "python-value-offset-dictionary-mapping",
         "python-number-square-dictionary-mapping",
         "python-name-length-dictionary-mapping",
-        "python-dictionary-product-iteration",
-        "python-dictionary-name-count-iteration",
         "python-dictionary-iteration-open",
         // 9.25 — fixed record sorting and grouped aggregation.
         "python-multi-field-record-sorting",

@@ -19,6 +19,12 @@ public sealed record GenerationLanguagePack(
     public GenerationRecordLiteralFormat? RecordLiteralFormat { get; init; }
 
     /// <summary>
+    /// How this pack writes a mapping literal, such as Python's `{'key': value}`. The entry format carries
+    /// `{0}` for the request's key text and `{1}` for the rendered value.
+    /// </summary>
+    public GenerationRecordLiteralFormat? MapLiteralFormat { get; init; }
+
+    /// <summary>
     /// The example values a pack supplies for a request that asks for data without naming it — "a list of
     /// numbers" with no contents, or a total with no starting value. These are the only invented values in
     /// the pipeline: they are declared once here, they are keyed by value kind and never by a task, and a

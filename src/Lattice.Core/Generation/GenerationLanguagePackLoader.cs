@@ -57,6 +57,8 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidCollectionLiteralFormat(collectionFormat)) ||
             (pack.RecordLiteralFormat is { } recordFormat &&
                 !IsValidRecordLiteralFormat(recordFormat)) ||
+            (pack.MapLiteralFormat is { } mapFormat &&
+                !IsValidRecordLiteralFormat(mapFormat)) ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&

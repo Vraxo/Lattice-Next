@@ -282,9 +282,6 @@
           "each"
         ],
         [
-          "with"
-        ],
-        [
           "its"
         ]
       ],
@@ -312,7 +309,15 @@
           "stopBeforeTokens": [
             "with"
           ],
-          "preserveRawValue": true
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "with"
+            ],
+            [
+              "and"
+            ]
+          ]
         },
         {
           "factId": "program.dictionary-iteration",
@@ -1859,34 +1864,6 @@
           "collectionDelimiter": "|"
         }
       ]
-    },
-    {
-      "id": "recognize-dictionary-product-iteration",
-      "matchTokens": [
-        "then",
-        "prints",
-        "each",
-        "product",
-        "and",
-        "its",
-        "price"
-      ],
-      "factId": "program.dictionary-product-iteration",
-      "searchAllSentences": true
-    },
-    {
-      "id": "recognize-dictionary-name-count-iteration",
-      "matchTokens": [
-        "then",
-        "displays",
-        "each",
-        "name",
-        "and",
-        "its",
-        "count"
-      ],
-      "factId": "program.dictionary-name-count-iteration",
-      "searchAllSentences": true
     },
     {
       "id": "recognize-declared-integer-conversion",
@@ -6120,6 +6097,90 @@
           ]
         }
       ]
+    },
+    {
+      "id": "capture-dictionary-literal-name",
+      "matchTokens": [
+        "named"
+      ],
+      "factId": "program.dictionary-literal",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-literal",
+          "valueId": "name",
+          "stopBeforeTokens": [
+            "then"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-dictionary-literal-keys",
+      "matchTokens": [
+        "stores"
+      ],
+      "factId": "program.dictionary-literal",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-literal",
+          "valueId": "keys",
+          "stopBeforeSequences": [
+            [
+              "as"
+            ],
+            [
+              "in"
+            ]
+          ],
+          "collectionDelimiter": ",",
+          "collectionFieldDelimiter": ":",
+          "collectionFieldIndex": 0,
+          "trimSuffixCharacters": "."
+        }
+      ]
+    },
+    {
+      "id": "capture-dictionary-literal-values",
+      "matchTokens": [
+        "stores"
+      ],
+      "factId": "program.dictionary-literal",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-literal",
+          "valueId": "values",
+          "stopBeforeSequences": [
+            [
+              "as"
+            ],
+            [
+              "in"
+            ]
+          ],
+          "collectionDelimiter": ",",
+          "collectionFieldDelimiter": ":",
+          "collectionFieldIndex": 1,
+          "trimSuffixCharacters": "."
+        }
+      ]
     }
   ],
   "rules": [
@@ -6454,42 +6515,6 @@
       ],
       "forbiddenFacts": [],
       "advanceCollections": []
-    },
-    {
-      "id": "python-dictionary-product-iteration",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.dictionary-product-iteration"
-      ],
-      "nextToken": "```python\nprices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)\n```",
-      "satisfiesFacts": [
-        "program.dictionary-product-iteration",
-        "language.python",
-        "intent.program-generation",
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-dictionary-name-count-iteration",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.dictionary-name-count-iteration"
-      ],
-      "nextToken": "```python\ncounts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)\n```",
-      "satisfiesFacts": [
-        "program.dictionary-name-count-iteration",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.collection",
-        "program.iteration",
-        "program.output.start",
-        "value.output"
-      ]
     },
     {
       "id": "python-number-square-dictionary-mapping",
