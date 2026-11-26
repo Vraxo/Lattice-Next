@@ -1412,11 +1412,15 @@ public static class SemanticProgramFactMapper
             right = thresholdValue;
         }
 
-        if (exampleData?.SampleCall?.Numbers is not { IsDefaultOrEmpty: false } sampleNumbers)
+        if (exampleData is null ||
+            exampleData.SampleCall is null ||
+            exampleData.Numbers.IsDefaultOrEmpty)
         {
-            error = "A collection filter requires the declared sample call.";
+            error = "A collection filter requires the declared sample data.";
             return false;
         }
+
+        var sampleNumbers = exampleData.Numbers;
 
         var sample = ImmutableArray.CreateBuilder<SemanticExpression>(sampleNumbers.Length);
         foreach (var number in sampleNumbers)
