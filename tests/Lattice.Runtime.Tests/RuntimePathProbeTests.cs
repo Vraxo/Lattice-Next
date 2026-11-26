@@ -2,7 +2,7 @@ using Xunit;
 
 namespace Lattice.Runtime.Tests;
 
-// Temporary probe: reports the runtime turn status and error for a generation request.
+// Temporary probe: always fails, to report what the runtime returns for a hello-world request.
 public sealed class RuntimePathProbeTests
 {
     [Theory]
@@ -16,8 +16,10 @@ public sealed class RuntimePathProbeTests
 
         var result = await session.SubmitAsync(input);
 
-        Assert.True(
-            result.Utterances.Length == 1,
-            $"status={result.Status}; error={result.Error}; count={result.Utterances.Length}");
+        var detail = result.Utterances.IsDefaultOrEmpty
+            ? $"status={result.Status}; error={result.Error}; count=0"
+            : $"status={result.Status}; error={result.Error}; count={result.Utterances.Length}; message={result.Utterances[0].Message}";
+
+        Assert.Fail($"PROBE[{input}] {detail}");
     }
 }
