@@ -52,6 +52,8 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldFactId = "program.requirement.class.field";
     private const string ClassFieldNameValueId = "field";
     private const string ClassFieldInitialValueId = "initial";
+    private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
+
     private const string SignClassificationFactId = "program.classification.sign";
     private const string SignPositiveLabelValueId = "positive";
     private const string SignNegativeLabelValueId = "negative";
@@ -1246,7 +1248,9 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
-        label = text.Trim();
+        // The request separates its labels with commas and the word "or", so a captured label is the
+        // word between those separators.
+        label = text.Trim().Trim(LabelTrimCharacters);
         return label.Length > 0;
     }
 

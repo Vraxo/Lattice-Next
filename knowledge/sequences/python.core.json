@@ -5726,9 +5726,12 @@
           "factId": "program.classification.sign",
           "valueId": "positive",
           "stopBeforeTokens": [
-            ","
+            "negative"
           ],
-          "trimSuffixCharacters": ",."
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "is"
+          ]
         }
       ]
     },
@@ -5757,9 +5760,12 @@
           "factId": "program.classification.sign",
           "valueId": "positive",
           "stopBeforeTokens": [
-            ","
+            "negative"
           ],
-          "trimSuffixCharacters": ",."
+          "trimSuffixCharacters": ",.",
+          "startAfterTokens": [
+            "as"
+          ]
         }
       ]
     },
@@ -5784,12 +5790,14 @@
         {
           "factId": "program.classification.sign",
           "valueId": "negative",
-          "stopBeforeTokens": [
-            "or"
-          ],
           "trimSuffixCharacters": ",.",
           "startAfterTokens": [
-            ","
+            "positive"
+          ],
+          "stopBeforeSequences": [
+            [
+              "or"
+            ]
           ]
         }
       ]
@@ -5815,12 +5823,14 @@
         {
           "factId": "program.classification.sign",
           "valueId": "negative",
-          "stopBeforeTokens": [
-            "or"
-          ],
           "trimSuffixCharacters": ",.",
           "startAfterTokens": [
-            ","
+            "positive"
+          ],
+          "stopBeforeSequences": [
+            [
+              "or"
+            ]
           ]
         }
       ]
