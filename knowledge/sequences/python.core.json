@@ -6286,14 +6286,6 @@
           "stopBeforeTokens": [
             "to"
           ]
-        },
-        {
-          "factId": "program.mapping.dictionary",
-          "valueId": "offset",
-          "startAfterTokens": [
-            "+"
-          ],
-          "trimSuffixCharacters": "."
         }
       ],
       "searchAllSentences": true
@@ -6333,6 +6325,27 @@
             ]
           ],
           "trimSuffixCharacters": ","
+        }
+      ],
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-dictionary-mapping-offset",
+      "matchTokens": [
+        "+"
+      ],
+      "factId": "program.mapping.dictionary",
+      "requiredAllSequences": [
+        [
+          "to",
+          "value"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.mapping.dictionary",
+          "valueId": "offset",
+          "trimSuffixCharacters": "."
         }
       ],
       "searchAllSentences": true
