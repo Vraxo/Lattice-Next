@@ -66,6 +66,8 @@ public sealed class GenerationLanguagePackLoader
             !IsValidExpressionFormat(pack.CaseFoldFormat, 64, "{0}") ||
             !IsValidExpressionFormat(pack.SortedExpressionFormat, 128, "{0}", "{1}", "{2}") ||
             !IsValidExpressionFormat(pack.SortedExpressionReverseFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.GeneratorExpressionFormat, 128, "{0}", "{1}", "{2}") ||
+            !IsValidExpressionFormat(pack.TupleFormat, 64, "{0}") ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
@@ -285,6 +287,31 @@ public sealed class GenerationLanguagePackLoader
          format.Length <= maximumLength &&
          placeholders.All(placeholder => format.Contains(placeholder, StringComparison.Ordinal)));
 
+    private static bool IsValidSampleMultiFieldSort(GenerationSampleMultiFieldSort? sort) =>
+        sort is null ||
+        (IsIdentifier(sort.FunctionName) &&
+         IsIdentifier(sort.RecordsName) &&
+         IsIdentifier(sort.KeysName) &&
+         IsIdentifier(sort.ItemName) &&
+         IsIdentifier(sort.KeyItemName) &&
+         !sort.Fields.IsDefaultOrEmpty &&
+         sort.Fields.Length <= 16 &&
+         sort.Fields.All(field => field is not null && IsIdentifier(field.Name)) &&
+         !sort.SortKeys.IsDefaultOrEmpty &&
+         sort.SortKeys.Length <= 16 &&
+         sort.SortKeys.All(key => sort.Fields.Any(field => string.Equals(field.Name, key, StringComparison.Ordinal))) &&
+         sort.RecordsLiteral is "record" or "map" &&
+         !sort.Records.IsDefaultOrEmpty &&
+         sort.Records.Length <= 32 &&
+         sort.Records.All(record =>
+             !record.IsDefault &&
+             record.Length == sort.Fields.Length &&
+             record.Zip(sort.Fields).All(pair =>
+                 !string.IsNullOrWhiteSpace(pair.First) &&
+                 (pair.Second.IsText ||
+                  decimal.TryParse(pair.First, System.Globalization.NumberStyles.Number,
+                      System.Globalization.CultureInfo.InvariantCulture, out _)))));
+
     private static bool IsValidSampleSort(GenerationSampleSortPolicy sort) =>
         IsIdentifier(sort.FunctionName) &&
         IsIdentifier(sort.RecordsName) &&
@@ -309,7 +336,8 @@ public sealed class GenerationLanguagePackLoader
                     !string.IsNullOrWhiteSpace(pair.First) &&
                     (pair.Second.IsText ||
                      decimal.TryParse(pair.First, System.Globalization.NumberStyles.Number,
-                         System.Globalization.CultureInfo.InvariantCulture, out _)))));
+                         System.Globalization.CultureInfo.InvariantCulture, out _))))) &&
+        IsValidSampleMultiFieldSort(sort.MultiField);
 
     private static bool IsValidSampleCall(GenerationSampleCallPolicy policy) =>
         IsIdentifier(policy.FunctionName) &&

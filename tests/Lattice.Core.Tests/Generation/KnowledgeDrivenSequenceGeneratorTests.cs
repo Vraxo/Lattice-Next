@@ -789,43 +789,39 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
-        "program.multi-field-record-sorting")]
+        "order_records",
+        "people",
+        "sort_keys",
+        null)]
     [InlineData(
         "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
-        "program.multi-field-record-sorting.case-insensitive")]
-    public void Generates_multi_field_record_sorting_from_declarative_facts(string input, string expectedFact)
+        "order_records",
+        "people",
+        "sort_keys",
+        "case-insensitive")]
+    public void Reads_a_several_key_sort_request_as_its_function_and_parameters(
+        string input,
+        string functionName,
+        string recordsName,
+        string keysName,
+        string? sensitivity)
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractionError), extractionError);
-        Assert.Contains(facts, fact => fact.Id == expectedFact);
-        Assert.Contains(facts, fact => fact.Id == "program.multi-field-record-sorting");
-        Assert.Contains(facts, fact => fact.Id == "language.python");
-        Assert.Contains(facts, fact => fact.Id == "intent.program-generation");
-        Assert.Contains(facts, fact => fact.Id == "program.function");
-        Assert.Contains(facts, fact => fact.Id == "program.collection");
-        Assert.Contains(facts, fact => fact.Id == "program.output");
 
-        const string sample = """[{"department": "Engineering", "name": "Ada"}, {"department": "Design", "name": "Grace"}, {"department": "Engineering", "name": "Linus"}]""";
-        var key = expectedFact.EndsWith("case-insensitive", StringComparison.Ordinal)
-            ? "tuple(record[field].casefold() for field in sort_keys)"
-            : "tuple(record[field] for field in sort_keys)";
-        var expectedCode = string.Join(Environment.NewLine,
-            "def order_records(people, sort_keys):",
-            $"    return sorted(people, key=lambda record: {key})",
-            $"print(order_records({sample}, [\"department\", \"name\"]))");
+        var sort = Assert.Single(facts.Where(fact => fact.Id == "program.sort.fields"));
+        Assert.Equal("fields", sort.Values["kind"].Trim());
+        Assert.Equal(functionName, sort.Values["function"].Trim());
+        Assert.Equal(recordsName, sort.Values["records"].Trim());
+        Assert.Equal(keysName, sort.Values["keys"].Trim().Trim(','));
+        Assert.Equal(
+            sensitivity,
+            sort.Values.TryGetValue("sensitivity", out var capturedSensitivity)
+                ? capturedSensitivity.Trim()
+                : null);
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!, null, request, out var result, out var generationError),
-            $"{generationError}. Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
-        Assert.Equal(string.Join(Environment.NewLine, fence + "python", expectedCode, fence), result!.Text);
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.sort.records");
+        Assert.DoesNotContain(facts, fact => fact.Id.StartsWith("program.multi-field", StringComparison.Ordinal));
     }
 
     [Theory]

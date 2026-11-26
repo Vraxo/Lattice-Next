@@ -23,8 +23,6 @@ public sealed class SequenceKnowledgeGuardTests
         // 9.24 — fixed dictionary mappings and iterations.
         "python-dictionary-iteration-open",
         // 9.25 — fixed record sorting and grouped aggregation.
-        "python-multi-field-record-sorting",
-        "python-case-insensitive-multi-field-record-sorting",
         "record-aggregation-output"
     ];
 

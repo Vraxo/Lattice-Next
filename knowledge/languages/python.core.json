@@ -3650,7 +3650,43 @@
               ]
             ]
           }
-        ]
+        ],
+        "multiField": {
+          "functionName": "order_records",
+          "recordsName": "people",
+          "keysName": "sort_keys",
+          "itemName": "record",
+          "keyItemName": "field",
+          "fields": [
+            {
+              "name": "department",
+              "isText": true
+            },
+            {
+              "name": "name",
+              "isText": true
+            }
+          ],
+          "sortKeys": [
+            "department",
+            "name"
+          ],
+          "records": [
+            [
+              "Engineering",
+              "Ada"
+            ],
+            [
+              "Design",
+              "Grace"
+            ],
+            [
+              "Engineering",
+              "Linus"
+            ]
+          ],
+          "recordsLiteral": "record"
+        }
       }
     }
   },
@@ -3665,5 +3701,7 @@
   "subscriptFormat": "{0}[{1}]",
   "caseFoldFormat": "{0}.casefold()",
   "sortedExpressionFormat": "sorted({0}, key=lambda {1}: {2})",
-  "sortedExpressionReverseFormat": "sorted({0}, key=lambda {1}: {2}, reverse=True)"
+  "sortedExpressionReverseFormat": "sorted({0}, key=lambda {1}: {2}, reverse=True)",
+  "generatorExpressionFormat": "{0} for {1} in {2}",
+  "tupleFormat": "tuple({0})"
 }

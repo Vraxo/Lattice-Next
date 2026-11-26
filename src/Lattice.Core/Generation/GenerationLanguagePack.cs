@@ -39,6 +39,12 @@ public sealed record GenerationLanguagePack(
     /// <summary>The descending form of <see cref="SortedExpressionFormat"/>.</summary>
     public string? SortedExpressionReverseFormat { get; init; }
 
+    /// <summary>How this pack spells one value per item; `{0}` value, `{1}` item name, `{2}` source.</summary>
+    public string? GeneratorExpressionFormat { get; init; }
+
+    /// <summary>How this pack groups several values into one ordered value; `{0}` is the operand.</summary>
+    public string? TupleFormat { get; init; }
+
 
     /// <summary>
     /// The example values a pack supplies for a request that asks for data without naming it — "a list of
@@ -106,7 +112,26 @@ public sealed record GenerationSampleSortPolicy(
     string FieldName,
     string ItemName,
     ImmutableArray<GenerationSampleField> Fields,
-    ImmutableArray<GenerationRecordSortSample> Samples);
+    ImmutableArray<GenerationRecordSortSample> Samples)
+{
+    /// <summary>The several-key demonstration, when a language can order by more than one field.</summary>
+    public GenerationSampleMultiFieldSort? MultiField { get; init; }
+}
+
+/// <summary>
+/// The demonstration a several-key sort prints: the names it defaults to, the generator's item name, the record
+/// shape, the keys it orders by, and the records themselves in field order.
+/// </summary>
+public sealed record GenerationSampleMultiFieldSort(
+    string FunctionName,
+    string RecordsName,
+    string KeysName,
+    string ItemName,
+    string KeyItemName,
+    ImmutableArray<GenerationSampleField> Fields,
+    ImmutableArray<string> SortKeys,
+    ImmutableArray<ImmutableArray<string>> Records,
+    string RecordsLiteral);
 
 /// <summary>One field of the sample record shape and whether it holds text or a number.</summary>
 public sealed record GenerationSampleField(string Name, bool IsText);

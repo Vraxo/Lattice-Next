@@ -54,6 +54,9 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string MultiFieldSortFactId = "program.sort.fields";
+    private const string MultiFieldSortKeysValueId = "keys";
+    private const string MultiFieldSortKindValue = "fields";
     private const string RecordSortFactId = "program.sort.records";
     private const string RecordSortFunctionValueId = "function";
     private const string RecordSortRecordsValueId = "records";
@@ -147,6 +150,20 @@ public static class SemanticProgramFactMapper
             }
 
             program = filterProgram;
+            return true;
+        }
+
+        // A several-key sort is a whole function, so it is projected on its own.
+        var multiFieldSort = facts.FirstOrDefault(candidate =>
+            candidate.Id == MultiFieldSortFactId && IsCompleteMultiFieldSort(candidate));
+        if (multiFieldSort is not null)
+        {
+            if (!TryCreateMultiFieldSort(multiFieldSort, exampleData, out var multiFieldProgram, out error))
+            {
+                return false;
+            }
+
+            program = multiFieldProgram;
             return true;
         }
 
@@ -1291,6 +1308,122 @@ public static class SemanticProgramFactMapper
         }
 
         program = filter;
+        return true;
+    }
+
+    /// <summary>
+    /// Whether a fact describes a several-key sort rather than another family that mentions records.
+    /// </summary>
+    private static bool IsCompleteMultiFieldSort(SequenceSemanticFact fact) =>
+        fact.Values.TryGetValue(RecordSortKindValueId, out var kind) &&
+        string.Equals(kind?.Trim(), MultiFieldSortKindValue, StringComparison.Ordinal);
+
+    /// <summary>
+    /// Projects "returns the records sorted by those fields" onto a function that orders its own parameter by one
+    /// value per requested key, followed by the demonstration call the policy supplies. The names and the ordering
+    /// are request data; the generator's item name and the sample records are policy.
+    /// </summary>
+    private static bool TryCreateMultiFieldSort(
+        SequenceSemanticFact sortFact,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (exampleData?.SampleCall?.Sort?.MultiField is not { } sort)
+        {
+            error = "A several-key record sort requires the declared sample policy.";
+            return false;
+        }
+
+        var functionName = ReadName(sortFact, RecordSortFunctionValueId) ?? sort.FunctionName;
+        var recordsName = ReadName(sortFact, RecordSortRecordsValueId) ?? sort.RecordsName;
+        var keysName = ReadName(sortFact, MultiFieldSortKeysValueId) ?? sort.KeysName;
+        if (functionName is null || recordsName is null || keysName is null)
+        {
+            error = "A several-key record sort requires the names its function and parameters take.";
+            return false;
+        }
+
+        var caseInsensitive = sortFact.Values.TryGetValue(RecordSortSensitivityValueId, out var sensitivity) &&
+            string.Equals(sensitivity?.Trim(), RecordSortCaseInsensitiveValue, StringComparison.Ordinal);
+
+        SemanticExpression key = new SemanticSubscriptExpression(
+            new SemanticNameExpression(sort.ItemName),
+            new SemanticNameExpression(sort.KeyItemName));
+        if (caseInsensitive)
+        {
+            key = new SemanticCaseFoldExpression(key);
+        }
+
+        var generator = new SemanticGeneratorExpression(
+            sort.KeyItemName,
+            new SemanticNameExpression(keysName),
+            key);
+
+        var records = ImmutableArray.CreateBuilder<SemanticExpression>(sort.Records.Length);
+        foreach (var record in sort.Records)
+        {
+            if (record.Length != sort.Fields.Length)
+            {
+                error = "A sample record must hold one value per declared field.";
+                return false;
+            }
+
+            var entries = ImmutableArray.CreateBuilder<SemanticRecordEntry>(record.Length);
+            for (var index = 0; index < record.Length; index++)
+            {
+                var field = sort.Fields[index];
+                SemanticExpression value = field.IsText
+                    ? new SemanticTextExpression(record[index])
+                    : new SemanticNumberExpression(record[index].Trim());
+                entries.Add(new SemanticRecordEntry(field.Name, value));
+            }
+
+            records.Add(string.Equals(sort.RecordsLiteral, RecordSortLiteralMap, StringComparison.Ordinal)
+                ? new SemanticMapLiteralExpression(entries.ToImmutable())
+                : new SemanticRecordLiteralExpression(entries.ToImmutable()));
+        }
+
+        var keys = ImmutableArray.CreateBuilder<SemanticExpression>(sort.SortKeys.Length);
+        foreach (var sortKey in sort.SortKeys)
+        {
+            keys.Add(new SemanticTextExpression(sortKey));
+        }
+
+        var multiFieldProgram = new SemanticProgram(
+        [
+            new FunctionRequirement(
+                functionName,
+                [
+                    new FunctionParameter(recordsName, null),
+                    new FunctionParameter(keysName, null)
+                ],
+                null,
+                [
+                    new ReturnRequirement(new SemanticSortExpression(
+                        new SemanticNameExpression(recordsName),
+                        sort.ItemName,
+                        new SemanticTupleExpression(generator),
+                        descending: false))
+                ]),
+            new OutputRequirement(new SemanticFunctionCallExpression(
+                functionName,
+                [
+                    new SemanticListLiteralExpression(records.ToImmutable()),
+                    new SemanticListLiteralExpression(keys.ToImmutable())
+                ]))
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(multiFieldProgram))
+        {
+            error = "The projected several-key sort requirements are not structurally valid.";
+            return false;
+        }
+
+        program = multiFieldProgram;
         return true;
     }
 

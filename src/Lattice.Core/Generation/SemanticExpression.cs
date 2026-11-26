@@ -120,6 +120,22 @@ public sealed record SemanticArgumentsExpression(
     ImmutableArray<SemanticExpression> Values) : SemanticExpression;
 
 /// <summary>
+/// One value for every item of a collection, written without building an intermediate list. The selected
+/// language pack spells the clause, so no requirement names a generator or a comprehension.
+/// </summary>
+public sealed record SemanticGeneratorExpression(
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// Several values grouped into one ordered value, so one comparison compares them in order. The selected
+/// language pack spells how that grouping is asked for.
+/// </summary>
+public sealed record SemanticTupleExpression(
+    SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
 /// One value read from another by key, for example the field a record holds under a request-supplied name.
 /// The selected language pack spells how a value is indexed, so no requirement names a subscript.
 /// </summary>
@@ -306,6 +322,13 @@ internal static class SemanticExpressionAnalysis
                 CollectReferencedNames(sort.Source, names);
                 CollectReferencedNames(sort.Key, names);
                 break;
+            case SemanticGeneratorExpression generator:
+                CollectReferencedNames(generator.Source, names);
+                CollectReferencedNames(generator.Value, names);
+                break;
+            case SemanticTupleExpression tuple:
+                CollectReferencedNames(tuple.Value, names);
+                break;
             case SemanticArgumentsExpression arguments:
                 foreach (var value in arguments.Values)
                 {
@@ -383,7 +406,8 @@ internal static class SemanticExpressionAnalysis
         SemanticTextTemplateExpression => KnownValueType.Text,
         SemanticTextLengthExpression => KnownValueType.Number,
         SemanticCaseFoldExpression => KnownValueType.Text,
-        SemanticSubscriptExpression or SemanticSortExpression => null,
+        SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
+            SemanticTupleExpression => null,
         SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
@@ -520,6 +544,11 @@ internal static class SemanticExpressionAnalysis
                 IsValidIdentifier(sort.ItemName) &&
                 IsValid(sort.Source, depth + 1, ref nodeCount) &&
                 IsValid(sort.Key, depth + 1, ref nodeCount),
+            SemanticGeneratorExpression generator =>
+                IsValidIdentifier(generator.ItemName) &&
+                IsValid(generator.Source, depth + 1, ref nodeCount) &&
+                IsValid(generator.Value, depth + 1, ref nodeCount),
+            SemanticTupleExpression tuple => IsValid(tuple.Value, depth + 1, ref nodeCount),
             SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };

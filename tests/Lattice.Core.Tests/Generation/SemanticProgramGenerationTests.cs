@@ -37,6 +37,12 @@ public sealed class SemanticProgramGenerationTests
         "Build a Python program that, given a list of values, makes a dictionary that maps each value to value + 10.",
         "def map_values(values):\n    mapped_values = {value: value + 10 for value in values}\n    return mapped_values\nprint(map_values([1, 2, 3]))")]
     [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted by those fields.",
+        "def order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field] for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))")]
+    [InlineData(
+        "Create a Python program that defines a function named order_records that accepts a list of records named people and a list of field names named sort_keys, then returns the records sorted case-insensitively by those fields.",
+        "def order_records(people, sort_keys):\n    return sorted(people, key=lambda record: tuple(record[field].casefold() for field in sort_keys))\nprint(order_records([{\"department\": \"Engineering\", \"name\": \"Ada\"}, {\"department\": \"Design\", \"name\": \"Grace\"}, {\"department\": \"Engineering\", \"name\": \"Linus\"}], [\"department\", \"name\"]))")]
+    [InlineData(
         "Create a Python program that defines a function that accepts a list of records and a field name, then returns the records sorted by that field.",
         "def sort_records(records, field):\n    return sorted(records, key=lambda record: record[field])\nprint(sort_records([{\"name\": \"Ada\", \"age\": 36}, {\"name\": \"Grace\", \"age\": 85}, {\"name\": \"Linus\", \"age\": 55}], \"age\"))")]
     [InlineData(

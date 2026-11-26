@@ -242,6 +242,34 @@ internal static class SemanticExpressionRenderer
                 rendered = textLengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticGeneratorExpression generator:
+                if (languagePack.GeneratorExpressionFormat is not { } generatorFormat ||
+                    !generatorFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !generatorFormat.Contains("{1}", StringComparison.Ordinal) ||
+                    !generatorFormat.Contains("{2}", StringComparison.Ordinal) ||
+                    !TryRender(generator.Value, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedGeneratorValue) ||
+                    !TryRender(generator.Source, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedGeneratorSource))
+                {
+                    return false;
+                }
+
+                rendered = generatorFormat
+                    .Replace("{0}", renderedGeneratorValue, StringComparison.Ordinal)
+                    .Replace("{1}", generator.ItemName, StringComparison.Ordinal)
+                    .Replace("{2}", renderedGeneratorSource, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticTupleExpression tuple:
+                if (languagePack.TupleFormat is not { } tupleFormat ||
+                    !tupleFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !TryRender(tuple.Value, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedTupleValue))
+                {
+                    return false;
+                }
+
+                rendered = tupleFormat.Replace("{0}", renderedTupleValue, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticSubscriptExpression subscript:
                 if (languagePack.SubscriptFormat is not { } subscriptFormat ||
                     !subscriptFormat.Contains("{0}", StringComparison.Ordinal) ||

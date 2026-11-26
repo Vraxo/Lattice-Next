@@ -51,8 +51,7 @@ public static class SemanticProgramPlanner
         "program.loop",
         // 9.24 — dictionary iteration and mapping.
         "program.dictionary",
-        // 9.25 — multi-field record sorting and grouped aggregation.
-        "program.multi-field",
+        // 9.25 — grouped record aggregation.
         "program.record"
     ];
 
