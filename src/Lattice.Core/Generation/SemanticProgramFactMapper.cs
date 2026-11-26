@@ -1026,8 +1026,27 @@ public static class SemanticProgramFactMapper
                 SemanticExpressionOperator.Add,
                 new SemanticNameExpression(accumulator),
                 new SemanticNameExpression(item))));
+
+        // A request that asks to display the total reports the accumulator itself, unless it already stated
+        // the output as a typed value expression.
+        if (RequestsOutput(facts) && !CarriesTypedOutput(facts))
+        {
+            declarations.Add(new OutputRequirement(new SemanticNameExpression(accumulator)));
+        }
+
         return true;
     }
+
+    private static bool RequestsOutput(ImmutableArray<SequenceSemanticFact> facts) =>
+        facts.Any(fact =>
+            string.Equals(fact.Id, "program.output", StringComparison.Ordinal) ||
+            fact.Id.StartsWith("value.output", StringComparison.Ordinal));
+
+    private static bool CarriesTypedOutput(ImmutableArray<SequenceSemanticFact> facts) =>
+        facts.Any(fact =>
+            string.Equals(fact.Id, OutputFactId, StringComparison.Ordinal) &&
+            (fact.Expressions.ContainsKey(OutputValueId) ||
+             fact.ExpressionCollections.ContainsKey(OutputValueId)));
 
     private static SemanticExpression ToLiteralExpression(SemanticCollectionItem item) =>
         item.Kind == SemanticCollectionItemKind.Text
