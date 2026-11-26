@@ -5688,6 +5688,17 @@
           "integer",
           "as"
         ]
+      ],
+      "requiredAllSequences": [
+        [
+          "positive"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
+        ]
       ]
     },
     {
@@ -5702,6 +5713,12 @@
           "an",
           "integer",
           "is"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
         ]
       ],
       "captures": [
@@ -5710,7 +5727,8 @@
           "valueId": "positive",
           "stopBeforeTokens": [
             "negative"
-          ]
+          ],
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5726,6 +5744,12 @@
           "an",
           "integer",
           "as"
+        ],
+        [
+          "negative"
+        ],
+        [
+          "zero"
         ]
       ],
       "captures": [
@@ -5734,7 +5758,8 @@
           "valueId": "positive",
           "stopBeforeTokens": [
             "negative"
-          ]
+          ],
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5750,6 +5775,9 @@
           "an",
           "integer",
           "is"
+        ],
+        [
+          "zero"
         ]
       ],
       "captures": [
@@ -5758,7 +5786,8 @@
           "valueId": "negative",
           "stopBeforeTokens": [
             "zero"
-          ]
+          ],
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5774,6 +5803,9 @@
           "an",
           "integer",
           "as"
+        ],
+        [
+          "zero"
         ]
       ],
       "captures": [
@@ -5782,7 +5814,8 @@
           "valueId": "negative",
           "stopBeforeTokens": [
             "zero"
-          ]
+          ],
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5795,8 +5828,28 @@
       "captures": [
         {
           "factId": "program.classification.sign",
-          "valueId": "zero"
+          "valueId": "zero",
+          "trimSuffixCharacters": ",."
         }
+      ],
+      "requiredAllSequences": [
+        [
+          "positive"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "whether",
+          "an",
+          "integer",
+          "is"
+        ],
+        [
+          "classifies",
+          "an",
+          "integer",
+          "as"
+        ]
       ]
     }
   ],
