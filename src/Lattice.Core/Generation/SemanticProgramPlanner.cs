@@ -45,9 +45,6 @@ public static class SemanticProgramPlanner
     /// </summary>
     internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        // 8.14 — sign classification.
-        "program.assignment.classification",
-        "program.classification",
         // 9.22 — collection filters.
         "program.collection",
         "program.even",
@@ -222,6 +219,7 @@ public static class SemanticProgramPlanner
         {
             OutputRequirement => true,
             ClassRequirement => true,
+            SignClassificationRequirement => true,
             ConditionalRequirement conditional =>
                 CarriesDeclaredIntent(conditional.ThenRequirements) ||
                 CarriesDeclaredIntent(conditional.ElseRequirements),
@@ -270,6 +268,20 @@ public static class SemanticProgramPlanner
                     break;
                 case OutputRequirement output:
                     if (!TryPlanOutput(output, depth, defined, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case SignClassificationRequirement classification:
+                    if (!TryPlanRequirements(
+                        ExpandSignClassification(classification),
+                        depth,
+                        defined,
+                        pack,
+                        pipeline,
+                        planned,
+                        out error))
                     {
                         return false;
                     }
@@ -2250,6 +2262,39 @@ public static class SemanticProgramPlanner
 
         defined.Add(fileRead.StreamName);
         return TryPlanRequirements(fileRead.Body, depth + 1, defined, pack, pipeline, planned, out error);
+    }
+
+    /// <summary>
+    /// Expands a sign classification into the statements that carry it: one assignment of the value, then one
+    /// independent branch per label, comparing the value against the definitional boundary of zero. A label is
+    /// reported as a capitalised word, which is how these single-word labels read as output.
+    /// </summary>
+    private static ImmutableArray<ProgramRequirement> ExpandSignClassification(
+        SignClassificationRequirement classification)
+    {
+        var value = new SemanticNameExpression(classification.VariableName);
+        var zero = new SemanticNumberExpression("0");
+
+        return ImmutableArray.Create<ProgramRequirement>(
+            new AssignmentRequirement(classification.VariableName, classification.Value),
+            Branch(SemanticExpressionOperator.GreaterThan, classification.PositiveLabel),
+            Branch(SemanticExpressionOperator.LessThan, classification.NegativeLabel),
+            Branch(SemanticExpressionOperator.Equal, classification.ZeroLabel));
+
+        ConditionalRequirement Branch(SemanticExpressionOperator comparison, string label) =>
+            new(
+                new SemanticBinaryExpression(comparison, value, zero),
+                ImmutableArray.Create<ProgramRequirement>(
+                    new OutputRequirement(new SemanticTextExpression(AsReportedLabel(label)))),
+                ImmutableArray<ProgramRequirement>.Empty);
+    }
+
+    private static string AsReportedLabel(string label)
+    {
+        var trimmed = label.Trim();
+        return trimmed.Length == 0
+            ? trimmed
+            : char.ToUpperInvariant(trimmed[0]) + trimmed[1..];
     }
 
     private static bool TryPlanConditional(

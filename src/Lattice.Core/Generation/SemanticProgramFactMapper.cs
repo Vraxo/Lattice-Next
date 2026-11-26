@@ -52,6 +52,10 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldFactId = "program.requirement.class.field";
     private const string ClassFieldNameValueId = "field";
     private const string ClassFieldInitialValueId = "initial";
+    private const string SignClassificationFactId = "program.classification.sign";
+    private const string SignPositiveLabelValueId = "positive";
+    private const string SignNegativeLabelValueId = "negative";
+    private const string SignZeroLabelValueId = "zero";
     private const string NumberDeclarationFactId = "program.declaration.numbers";
     private const string NumberDeclarationCountValueId = "count";
     private const string NumberDeclarationSumValueId = "sum";
@@ -129,6 +133,11 @@ public static class SemanticProgramFactMapper
         }
 
         if (!TryProjectNumberDeclarations(facts, exampleData, declarations, out error))
+        {
+            return false;
+        }
+
+        if (!TryProjectSignClassifications(facts, exampleData, declarations, out error))
         {
             return false;
         }
@@ -1179,6 +1188,66 @@ public static class SemanticProgramFactMapper
 
         declarations.Add(new AssignmentRequirement(sumName, sum));
         return true;
+    }
+
+    /// <summary>
+    /// Projects a request that classifies a value by its sign: "reports whether an integer is positive,
+    /// negative, or zero". The three labels come from the request and the value and the variable name come
+    /// from the pack's declared example data, because the request names neither.
+    /// </summary>
+    private static bool TryProjectSignClassifications(
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        ImmutableArray<ProgramRequirement>.Builder declarations,
+        out string? error)
+    {
+        error = null;
+        var fact = facts.FirstOrDefault(candidate => candidate.Id == SignClassificationFactId);
+        if (fact is null)
+        {
+            return true;
+        }
+
+        if (!TryGetLabel(fact, SignPositiveLabelValueId, out var positive) ||
+            !TryGetLabel(fact, SignNegativeLabelValueId, out var negative) ||
+            !TryGetLabel(fact, SignZeroLabelValueId, out var zero))
+        {
+            error = "A sign classification requires one label per branch.";
+            return false;
+        }
+
+        if (exampleData is null || string.IsNullOrWhiteSpace(exampleData.IntegerValue))
+        {
+            error = "A sign classification needs a declared example integer.";
+            return false;
+        }
+
+        var value = exampleData.IntegerValue.Trim();
+        var literal = value.StartsWith('-') && value.Length > 1
+            ? new SemanticUnaryExpression(
+                SemanticExpressionOperator.Negative,
+                new SemanticNumberExpression(value[1..]))
+            : new SemanticNumberExpression(value);
+
+        declarations.Add(new SignClassificationRequirement(
+            exampleData.NumberItemName,
+            literal,
+            positive,
+            negative,
+            zero));
+        return true;
+    }
+
+    private static bool TryGetLabel(SequenceSemanticFact fact, string valueId, out string label)
+    {
+        label = string.Empty;
+        if (!fact.Values.TryGetValue(valueId, out var text) || string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        label = text.Trim();
+        return label.Length > 0;
     }
 
     private static bool TryParseQuantity(string? text, out int quantity)

@@ -1827,50 +1827,45 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     [Theory]
     [InlineData("Write a Python program that reports whether an integer is positive, negative, or zero.")]
     [InlineData("Write a Python program that classifies an integer as positive, negative, or zero.")]
-    public void Generates_integer_sign_classification_from_semantic_facts(string prompt)
+    public void Plans_a_sign_classification_from_request_labels_and_example_data(string prompt)
     {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
-            out var knowledge,
-            out var loadError), loadError);
-
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(SequenceInputFactExtractor.TryExtract(
             knowledge!,
             prompt,
             out var facts,
             out var extractionError), extractionError);
 
-        Assert.Contains(facts, fact => fact.Id == "program.assignment.classification");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.positive");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.negative");
-        Assert.Contains(facts, fact => fact.Id == "program.classification.zero");
+        var classification = Assert.Single(
+            facts.Where(fact => fact.Id == "program.classification.sign"));
+        Assert.Equal("positive", classification.Values["positive"]);
+        Assert.Equal("negative", classification.Values["negative"]);
+        Assert.Equal("zero", classification.Values["zero"]);
+        Assert.DoesNotContain(
+            facts,
+            fact => fact.Id.StartsWith("program.assignment.classification", StringComparison.Ordinal));
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError), generationError);
-
-        var fence = new string((char)96, 3);
         Assert.Equal(
-            string.Join(Environment.NewLine,
-                fence + "python",
+            string.Join('\n',
                 "number = -5",
                 "if number > 0:",
                 "    print(\"Positive\")",
                 "if number < 0:",
                 "    print(\"Negative\")",
                 "if number == 0:",
-                "    print(\"Zero\")",
-                fence),
-            result!.Text);
+                "    print(\"Zero\")"),
+            code);
     }
 
     [Theory]

@@ -36,11 +36,7 @@ public sealed class SequenceKnowledgeGuardTests
         "python-case-insensitive-multi-field-record-sorting",
         "single-field-record-sort-output",
         "single-field-record-sort-output-case-insensitive",
-        "record-aggregation-output",
-        // 8.14 — fixed sign classification.
-        "python-sign-classification-positive",
-        "python-sign-classification-negative",
-        "python-sign-classification-zero"
+        "record-aggregation-output"
     ];
 
     [Fact]

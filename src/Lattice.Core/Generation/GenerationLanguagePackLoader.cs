@@ -289,7 +289,10 @@ public sealed class GenerationLanguagePackLoader
                   decimal.TryParse(value, System.Globalization.NumberStyles.Number,
                       System.Globalization.CultureInfo.InvariantCulture, out _)) &&
               data.Ordinals.Length == data.NumberVariableValues.Length &&
-              data.Ordinals.All(IsIdentifier));
+              data.Ordinals.All(IsIdentifier)) &&
+        (string.IsNullOrEmpty(data.IntegerValue) ||
+            decimal.TryParse(data.IntegerValue, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _));
 
     private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
     {

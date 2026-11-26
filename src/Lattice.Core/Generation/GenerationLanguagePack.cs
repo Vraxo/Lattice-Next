@@ -47,6 +47,12 @@ public sealed record GenerationExampleData(
     /// `second_number`, and so on, built from the pack's own item name.
     /// </summary>
     public ImmutableArray<string> Ordinals { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>
+    /// The value a request receives when it classifies "an integer" without naming one, as the sign
+    /// classification request does.
+    /// </summary>
+    public string IntegerValue { get; init; } = string.Empty;
 }
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>

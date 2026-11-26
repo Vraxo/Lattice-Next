@@ -44,6 +44,18 @@ public sealed record OutputRequirement(
     SemanticExpression Value) : ProgramRequirement;
 
 /// <summary>
+/// Classifies one value by its sign and reports one label per branch. A sign has three branches by
+/// definition — greater than zero, less than zero, and equal to zero — so the boundaries are part of the
+/// kind; the variable, the value, and the three labels stay request or example data.
+/// </summary>
+public sealed record SignClassificationRequirement(
+    string VariableName,
+    SemanticExpression Value,
+    string PositiveLabel,
+    string NegativeLabel,
+    string ZeroLabel) : ProgramRequirement;
+
+/// <summary>
 /// Makes one library module available to the program. The module name stays request data and the
 /// selected language pack spells how a module is made available.
 /// </summary>
