@@ -555,7 +555,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             "}{c:" + string.Join(",", fact.Collections.Select(pair => pair.Key + "=" + string.Join("/", pair.Value))) +
             "}{e:" + string.Join(",", fact.Expressions.Select(pair => pair.Key + "=" + pair.Value)) +
             "}{s:" + string.Join(",", fact.SemanticCollections.Select(pair =>
-                pair.Key + "=" + string.Join("/", pair.Items.Select(item => item.Kind + ":" + item.Value)))) + "}"));
+                pair.Key + "=" + string.Join("/", pair.Value.Items.Select(item => item.Kind + ":" + item.Value)))) + "}"));
         Assert.True(
             SemanticProgramPlanner.TryGenerateProgram(
                 facts,
