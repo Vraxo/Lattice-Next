@@ -239,6 +239,126 @@ internal static class SemanticExpressionAnalysis
         return names.ToImmutable();
     }
 
+    /// <summary>
+    /// Returns the variable names an expression introduces for its own scope, in first-appearance
+    /// order: the item a sort or generator binds to walk the collection it is given.
+    /// </summary>
+    public static ImmutableArray<string> GetBoundNames(SemanticExpression expression)
+    {
+        if (!IsValid(expression))
+        {
+            return ImmutableArray<string>.Empty;
+        }
+
+        var names = ImmutableArray.CreateBuilder<string>();
+        CollectBoundNames(expression, names);
+        return names.ToImmutable();
+    }
+
+    private static void CollectBoundNames(
+        SemanticExpression expression,
+        ImmutableArray<string>.Builder names)
+    {
+        switch (expression)
+        {
+            case SemanticSortExpression sort:
+                AddBoundName(names, sort.ItemName);
+                CollectBoundNames(sort.Source, names);
+                CollectBoundNames(sort.Key, names);
+                break;
+            case SemanticGeneratorExpression generator:
+                AddBoundName(names, generator.ItemName);
+                CollectBoundNames(generator.Source, names);
+                CollectBoundNames(generator.Value, names);
+                break;
+            case SemanticFunctionCallExpression call:
+                foreach (var argument in call.Arguments)
+                {
+                    CollectBoundNames(argument, names);
+                }
+
+                break;
+            case SemanticMemberAccessExpression member:
+                CollectBoundNames(member.Target, names);
+                break;
+            case SemanticMethodCallExpression methodCall:
+                CollectBoundNames(methodCall.Target, names);
+                foreach (var argument in methodCall.Arguments)
+                {
+                    CollectBoundNames(argument, names);
+                }
+
+                break;
+            case SemanticConversionExpression conversion:
+                CollectBoundNames(conversion.Value, names);
+                break;
+            case SemanticTextTemplateExpression template:
+                foreach (var part in template.Parts)
+                {
+                    CollectBoundNames(part, names);
+                }
+
+                break;
+            case SemanticListLiteralExpression list:
+                foreach (var item in list.Items)
+                {
+                    CollectBoundNames(item, names);
+                }
+
+                break;
+            case SemanticRecordLiteralExpression record:
+                foreach (var entry in record.Entries)
+                {
+                    CollectBoundNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticUnaryExpression unary:
+                CollectBoundNames(unary.Operand, names);
+                break;
+            case SemanticBinaryExpression binary:
+                CollectBoundNames(binary.Left, names);
+                CollectBoundNames(binary.Right, names);
+                break;
+            case SemanticMapLiteralExpression map:
+                foreach (var entry in map.Entries)
+                {
+                    CollectBoundNames(entry.Value, names);
+                }
+
+                break;
+            case SemanticTextLengthExpression length:
+                CollectBoundNames(length.Value, names);
+                break;
+            case SemanticSubscriptExpression subscript:
+                CollectBoundNames(subscript.Target, names);
+                CollectBoundNames(subscript.Key, names);
+                break;
+            case SemanticCaseFoldExpression caseFold:
+                CollectBoundNames(caseFold.Value, names);
+                break;
+            case SemanticTupleExpression tuple:
+                CollectBoundNames(tuple.Value, names);
+                break;
+            case SemanticArgumentsExpression arguments:
+                foreach (var value in arguments.Values)
+                {
+                    CollectBoundNames(value, names);
+                }
+
+                break;
+        }
+    }
+
+    private static void AddBoundName(ImmutableArray<string>.Builder names, string name)
+    {
+        if (!string.IsNullOrEmpty(name) &&
+            !names.Any(existing => string.Equals(existing, name, StringComparison.Ordinal)))
+        {
+            names.Add(name);
+        }
+    }
+
     private static void CollectReferencedNames(
         SemanticExpression expression,
         ImmutableArray<string>.Builder names)

@@ -1187,10 +1187,7 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        string[] boundByExpression = returned.Value is SemanticSortExpression sortValue
-            ? [sortValue.ItemName]
-            : [];
-        if (!TryRequireAvailable(returned.Value, defined, out error, boundByExpression))
+        if (!TryRequireAvailable(returned.Value, defined, out error))
         {
             return false;
         }
@@ -2577,10 +2574,19 @@ public static class SemanticProgramPlanner
         params string[] boundByRequirement)
     {
         error = null;
+        var bound = boundByRequirement;
+        foreach (var name in SemanticExpressionAnalysis.GetBoundNames(expression))
+        {
+            if (!bound.Contains(name, StringComparer.Ordinal))
+            {
+                bound = [.. bound, name];
+            }
+        }
+
         foreach (var name in SemanticExpressionAnalysis.GetReferencedNames(expression))
         {
             if (!defined.Contains(name) &&
-                !boundByRequirement.Contains(name, StringComparer.Ordinal))
+                !bound.Contains(name, StringComparer.Ordinal))
             {
                 error = $"The program uses the value '{name}' before any requirement defines it.";
                 return false;
