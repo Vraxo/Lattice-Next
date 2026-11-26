@@ -17,7 +17,7 @@
       "symbols": [
         {
           "kind": "nonterminal",
-          "value": "call-expression"
+          "value": "expression-call"
         }
       ]
     },

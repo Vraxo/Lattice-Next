@@ -37,45 +37,6 @@ public sealed class GenerationLanguagePackLoader
             return false;
         }
 
-        if (pack is not null)
-        {
-            var diagnostics = new (bool Fails, string Name)[]
-            {
-                (pack.FormatVersion != 1, "formatVersion"),
-                (!IsIdentifier(pack.Language), "language"),
-                (!IsIdentifier(pack.StartSymbol), "startSymbol"),
-                (pack.Productions.IsDefaultOrEmpty || pack.Productions.Length > 128, "productions"),
-                (pack.Bindings.IsDefaultOrEmpty || pack.Bindings.Length > 32, "bindings"),
-                (pack.Operations.IsDefaultOrEmpty || pack.Operations.Length > 128, "operations"),
-                (pack.StringLiteralFormat is null ||
-                    string.IsNullOrEmpty(pack.StringLiteralFormat.OpeningDelimiter) ||
-                    string.IsNullOrEmpty(pack.StringLiteralFormat.ClosingDelimiter) ||
-                    pack.StringLiteralFormat.OpeningDelimiter.Length > 4 ||
-                    pack.StringLiteralFormat.ClosingDelimiter.Length > 4 ||
-                    pack.StringLiteralFormat.Escapes.IsDefault, "stringLiteralFormat"),
-                (pack.CollectionLiteralFormat is { } diagCollection && !IsValidCollectionLiteralFormat(diagCollection), "collectionLiteralFormat"),
-                (pack.RecordLiteralFormat is { } diagRecord && !IsValidRecordLiteralFormat(diagRecord), "recordLiteralFormat"),
-                (pack.MapLiteralFormat is { } diagMap && !IsValidRecordLiteralFormat(diagMap), "mapLiteralFormat"),
-                (!IsValidExpressionFormat(pack.LengthFormat, 64, "{0}"), "lengthFormat"),
-                (!IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}"), "totalExpressionFormat"),
-                (!IsValidExpressionFormat(pack.PlaceholderMappingFormat, 128, "{0}"), "placeholderMappingFormat"),
-                (!IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}"), "filterExpressionFormat"),
-                (pack.InputSyntax is { } diagSyntax && !IsValidInputSyntax(diagSyntax), "inputSyntax"),
-                (pack.ExampleData is { } diagExample && !IsValidExampleData(diagExample), "exampleData"),
-                (!pack.ConversionFormats.IsDefaultOrEmpty && !IsValidConversionFormats(pack.ConversionFormats), "conversionFormats")
-            };
-
-            foreach (var diagnostic in diagnostics)
-            {
-                if (diagnostic.Fails)
-                {
-                    error = $"DIAGNOSTIC {diagnostic.Name} of '{pack.Language}'";
-                    pack = null;
-                    return false;
-                }
-            }
-        }
-
         if (pack is null ||
             pack.FormatVersion != 1 ||
             !IsIdentifier(pack.Language) ||
