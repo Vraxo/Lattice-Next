@@ -6116,7 +6116,8 @@
             "then"
           ]
         }
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-dictionary-literal-keys",
@@ -6148,7 +6149,8 @@
           "trimSuffixCharacters": ".",
           "preserveRawValue": true
         }
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-dictionary-literal-values",
@@ -6180,7 +6182,8 @@
           "trimSuffixCharacters": ".",
           "preserveRawValue": true
         }
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-dictionary-literal-key-name",
@@ -6209,7 +6212,8 @@
             "with"
           ]
         }
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-dictionary-literal-value-name",
@@ -6232,7 +6236,8 @@
           "valueId": "value",
           "trimSuffixCharacters": "."
         }
-      ]
+      ],
+      "searchAllSentences": true
     }
   ],
   "rules": [
