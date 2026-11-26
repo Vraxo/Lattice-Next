@@ -1412,15 +1412,14 @@ public static class SemanticProgramFactMapper
             right = thresholdValue;
         }
 
-        var sampleNumbers = exampleData?.SampleCall?.Numbers;
-        if (sampleNumbers is null || sampleNumbers.IsDefaultOrEmpty)
+        if (exampleData?.SampleCall?.Numbers is not { IsDefaultOrEmpty: false } sampleNumbers)
         {
             error = "A collection filter requires the declared sample call.";
             return false;
         }
 
-        var sample = ImmutableArray.CreateBuilder<SemanticExpression>(sampleNumbers.Value.Length);
-        foreach (var number in sampleNumbers.Value)
+        var sample = ImmutableArray.CreateBuilder<SemanticExpression>(sampleNumbers.Length);
+        foreach (var number in sampleNumbers)
         {
             var value = new SemanticNumberExpression(number.Trim());
             if (!SemanticExpressionAnalysis.IsValid(value))
