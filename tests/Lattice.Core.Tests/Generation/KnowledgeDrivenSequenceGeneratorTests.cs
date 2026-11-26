@@ -2206,7 +2206,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
 
 
     [Fact]
-    public void Extracts_and_generates_collection_filter_from_composable_facts()
+    public void Reads_a_collection_filter_as_its_function_parameter_item_and_comparison()
     {
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
@@ -2223,20 +2223,46 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             SemanticExpressionOperator.LessThan,
             Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison")
                 .ComparisonOperators["operator"]);
+        Assert.Contains(facts, fact => fact.Id == "program.collection-filter.average");
+    }
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
-
+    [Theory]
+    [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
+        "filter_values",
+        "values",
+        "value",
+        SemanticExpressionOperator.GreaterThan)]
+    [InlineData(
+        "Create a Python function named keep_above_expression that receives a list of numbers named scores and returns a new list containing only score values greater than 2 + 1.",
+        "keep_above_expression",
+        "scores",
+        "score",
+        SemanticExpressionOperator.GreaterThan)]
+    public void Reads_a_threshold_filter_as_an_arithmetic_comparison(
+        string prompt,
+        string name,
+        string parameter,
+        string item,
+        SemanticExpressionOperator comparison)
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         Assert.True(
-            KnowledgeDrivenSequenceGenerator.TryGenerate(knowledge!, null, request, out var result, out var generationError),
-            $"Facts: {string.Join(", ", facts.Select(fact => fact.Id))}. {generationError}");
+            SequenceInputFactExtractor.TryExtract(knowledge!, prompt, out var facts, out var extractionError),
+            extractionError);
+
+        var signature = Assert.Single(facts, fact => fact.Id == "program.collection-filter.signature");
+        Assert.Equal(name, signature.Values["name"]);
+        Assert.Equal(parameter, signature.Values["parameter"]);
+        Assert.Equal(item, signature.Values["item"]);
         Assert.Equal(
-            "```python\ndef above_average(measurements):\n    return [measurement for measurement in measurements if measurement < sum(measurements) / len(measurements)]\nprint(above_average([1, 2, 3, 4, 5]))\n```",
-            string.Join(string.Empty, result!.Tokens));
+            comparison,
+            Assert.Single(facts, fact => fact.Id == "program.collection-filter.comparison")
+                .ComparisonOperators["operator"]);
+        Assert.True(
+            Assert.Single(facts, fact => fact.Id == "program.collection-filter.threshold")
+                .Expressions.ContainsKey("expression"));
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.collection-filter.average");
     }
 
 

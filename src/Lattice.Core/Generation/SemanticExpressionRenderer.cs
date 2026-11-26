@@ -225,9 +225,9 @@ internal static class SemanticExpressionRenderer
                     mapLiteral.ClosingDelimiter;
                 precedence = PrimaryPrecedence;
                 break;
-            case SemanticTextLengthExpression length:
-                if (languagePack.TextLengthFormat is not { } textLengthFormat ||
-                    !textLengthFormat.Contains("{0}", StringComparison.Ordinal) ||
+            case SemanticLengthExpression length:
+                if (languagePack.LengthFormat is not { } lengthFormat ||
+                    !lengthFormat.Contains("{0}", StringComparison.Ordinal) ||
                     !TryRender(
                         length.Value,
                         languagePack,
@@ -239,7 +239,23 @@ internal static class SemanticExpressionRenderer
                     return false;
                 }
 
-                rendered = textLengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
+                rendered = lengthFormat.Replace("{0}", renderedLengthOperand, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticTotalExpression total:
+                if (!TryRenderTotal(total, languagePack, syntax, out rendered))
+                {
+                    return false;
+                }
+
+                precedence = PrimaryPrecedence;
+                break;
+            case SemanticFilterExpression filter:
+                if (!TryRenderFilter(filter, languagePack, syntax, out rendered))
+                {
+                    return false;
+                }
+
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticGeneratorExpression generator:
@@ -471,6 +487,68 @@ internal static class SemanticExpressionRenderer
         }
 
         rendered = string.Join(separator, values);
+        return true;
+    }
+
+    private static bool TryRenderTotal(
+        SemanticTotalExpression total,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (languagePack.TotalExpressionFormat is not { } totalFormat ||
+            !totalFormat.Contains("{0}", StringComparison.Ordinal) ||
+            !TryRender(
+                total.Source,
+                languagePack,
+                syntax,
+                parentPrecedence: 0,
+                isRightOperand: false,
+                out var renderedSource))
+        {
+            return false;
+        }
+
+        rendered = totalFormat.Replace("{0}", renderedSource, StringComparison.Ordinal);
+        return true;
+    }
+
+    private static bool TryRenderFilter(
+        SemanticFilterExpression filter,
+        GenerationLanguagePack languagePack,
+        GenerationInputSyntax syntax,
+        out string rendered)
+    {
+        rendered = string.Empty;
+        if (languagePack.FilterExpressionFormat is not { } filterFormat ||
+            !filterFormat.Contains("{0}", StringComparison.Ordinal) ||
+            !filterFormat.Contains("{1}", StringComparison.Ordinal) ||
+            !filterFormat.Contains("{2}", StringComparison.Ordinal) ||
+            !filterFormat.Contains("{3}", StringComparison.Ordinal) ||
+            !TryRender(
+                filter.Source,
+                languagePack,
+                syntax,
+                parentPrecedence: 0,
+                isRightOperand: false,
+                out var renderedSource) ||
+            !TryRender(
+                filter.Predicate,
+                languagePack,
+                syntax,
+                parentPrecedence: 0,
+                isRightOperand: false,
+                out var renderedPredicate))
+        {
+            return false;
+        }
+
+        rendered = filterFormat
+            .Replace("{0}", filter.ItemName, StringComparison.Ordinal)
+            .Replace("{1}", filter.ItemName, StringComparison.Ordinal)
+            .Replace("{2}", renderedSource, StringComparison.Ordinal)
+            .Replace("{3}", renderedPredicate, StringComparison.Ordinal);
         return true;
     }
 

@@ -54,6 +54,16 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string CollectionFilterFactId = "program.collection-filter";
+    private const string CollectionFilterSignatureFactId = "program.collection-filter.signature";
+    private const string CollectionFilterComparisonFactId = "program.collection-filter.comparison";
+    private const string CollectionFilterThresholdFactId = "program.collection-filter.threshold";
+    private const string CollectionFilterAverageFactId = "program.collection-filter.average";
+    private const string CollectionFilterNameValueId = "name";
+    private const string CollectionFilterParameterValueId = "parameter";
+    private const string CollectionFilterItemValueId = "item";
+    private const string CollectionFilterOperatorValueId = "operator";
+    private const string CollectionFilterThresholdValueId = "expression";
     private const string GroupedAggregationFactId = "program.record-aggregation";
     private const string GroupedAggregationIntentFactId = "program.record-aggregation.intent";
     private const string GroupedAggregationRecordValueId = "record";
@@ -155,6 +165,19 @@ public static class SemanticProgramFactMapper
             }
 
             program = filterProgram;
+            return true;
+        }
+
+        // A collection filter is a whole function, so it is projected on its own.
+        var collectionFilter = facts.FirstOrDefault(candidate => candidate.Id == CollectionFilterFactId);
+        if (collectionFilter is not null)
+        {
+            if (!TryCreateCollectionFilter(facts, exampleData, out var filterExpressionProgram, out error))
+            {
+                return false;
+            }
+
+            program = filterExpressionProgram;
             return true;
         }
 
@@ -1330,6 +1353,116 @@ public static class SemanticProgramFactMapper
     }
 
     /// <summary>
+    /// Projects "returns a new list containing only the values that satisfy …" onto a function that returns the
+    /// filtered collection, followed by the demonstration call the sample policy supplies. The function name,
+    /// the parameter, the item, and the comparison are request data; only the numbers reported when the request
+    /// states no collection come from the policy.
+    /// </summary>
+    private static bool TryCreateCollectionFilter(
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        var signature = facts.FirstOrDefault(candidate => candidate.Id == CollectionFilterSignatureFactId);
+        var comparison = facts.FirstOrDefault(candidate => candidate.Id == CollectionFilterComparisonFactId);
+        if (signature is null || comparison is null)
+        {
+            error = "A collection filter requires the names and the comparison its function uses.";
+            return false;
+        }
+
+        var functionName = ReadName(signature, CollectionFilterNameValueId);
+        var parameterName = ReadName(signature, CollectionFilterParameterValueId);
+        var itemName = ReadName(signature, CollectionFilterItemValueId);
+        if (functionName is null || parameterName is null || itemName is null)
+        {
+            error = "A collection filter requires the function, the parameter, and the item names.";
+            return false;
+        }
+
+        if (!comparison.ComparisonOperators.TryGetValue(CollectionFilterOperatorValueId, out var comparisonOperator))
+        {
+            error = "A collection filter requires the comparison its predicate makes.";
+            return false;
+        }
+
+        var isAverage = facts.Any(fact => fact.Id == CollectionFilterAverageFactId);
+        SemanticExpression right;
+        if (isAverage)
+        {
+            right = new SemanticBinaryExpression(
+                SemanticExpressionOperator.Divide,
+                new SemanticTotalExpression(new SemanticNameExpression(parameterName)),
+                new SemanticLengthExpression(new SemanticNameExpression(parameterName)));
+        }
+        else
+        {
+            var threshold = facts.FirstOrDefault(candidate => candidate.Id == CollectionFilterThresholdFactId);
+            if (threshold is null ||
+                !threshold.Expressions.TryGetValue(CollectionFilterThresholdValueId, out var thresholdValue))
+            {
+                error = "A collection filter requires the value it compares against.";
+                return false;
+            }
+
+            right = thresholdValue;
+        }
+
+        var sampleNumbers = exampleData?.SampleCall?.Numbers;
+        if (sampleNumbers is null || sampleNumbers.IsDefaultOrEmpty)
+        {
+            error = "A collection filter requires the declared sample call.";
+            return false;
+        }
+
+        var sample = ImmutableArray.CreateBuilder<SemanticExpression>(sampleNumbers.Value.Length);
+        foreach (var number in sampleNumbers.Value)
+        {
+            var value = new SemanticNumberExpression(number.Trim());
+            if (!SemanticExpressionAnalysis.IsValid(value))
+            {
+                error = "A collection filter requires numeric sample values.";
+                return false;
+            }
+
+            sample.Add(value);
+        }
+
+        var filteredProgram = new SemanticProgram(
+        [
+            new FunctionRequirement(
+                functionName,
+                [new FunctionParameter(parameterName, null)],
+                null,
+                [
+                    new ReturnRequirement(new SemanticFilterExpression(
+                        itemName,
+                        new SemanticNameExpression(parameterName),
+                        new SemanticBinaryExpression(
+                            comparisonOperator,
+                            new SemanticNameExpression(itemName),
+                            right)))
+                ]),
+            new OutputRequirement(new SemanticFunctionCallExpression(
+                functionName,
+                [new SemanticListLiteralExpression(sample.ToImmutable())]))
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(filteredProgram))
+        {
+            error = "The projected collection filter requirements are not structurally valid.";
+            return false;
+        }
+
+        program = filteredProgram;
+        return true;
+    }
+
+    /// <summary>
     /// Projects "groups the records by one field and totals another" onto the declared sample data: the records
     /// the request names are the loop's item, the two field names are its keys, and the totals dictionary, the
     /// current key, and the reported pair come from the policy. Nothing here names a group-and-sum algorithm;
@@ -1761,7 +1894,7 @@ public static class SemanticProgramFactMapper
         switch (kind?.Trim())
         {
             case MappingLengthKind:
-                value = new SemanticTextLengthExpression(itemName);
+                value = new SemanticLengthExpression(itemName);
                 samples = exampleData.SampleCall.Texts;
                 break;
             case MappingSquareKind:

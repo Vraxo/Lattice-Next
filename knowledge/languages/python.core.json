@@ -3713,11 +3713,13 @@
     "entryFormat": "'{0}': {1}",
     "textFormat": "'{0}'"
   },
-  "textLengthFormat": "len({0})",
+  "lengthFormat": "len({0})",
   "subscriptFormat": "{0}[{1}]",
   "caseFoldFormat": "{0}.casefold()",
   "sortedExpressionFormat": "sorted({0}, key=lambda {1}: {2})",
   "sortedExpressionReverseFormat": "sorted({0}, key=lambda {1}: {2}, reverse=True)",
   "generatorExpressionFormat": "{0} for {1} in {2}",
-  "tupleFormat": "tuple({0})"
+  "tupleFormat": "tuple({0})",
+  "totalExpressionFormat": "sum({0})",
+  "filterExpressionFormat": "[{0} for {1} in {2} if {3}]"
 }

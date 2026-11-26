@@ -45,8 +45,6 @@ public static class SemanticProgramPlanner
     /// </summary>
     internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        // 9.22 — function-shaped collection filters.
-        "program.collection",
         // 9.23 — explicit loops over a named collection.
         "program.loop",
         // 9.24 — dictionary iteration and mapping.
@@ -191,8 +189,9 @@ public static class SemanticProgramPlanner
             AccumulationRequirement => true,
             FunctionRequirement function => CarriesCollection(function.Body),
             ReturnRequirement returned =>
-                returned.Value is SemanticSortExpression or SemanticListLiteralExpression or
-                    SemanticRecordLiteralExpression or SemanticMapLiteralExpression,
+                returned.Value is SemanticSortExpression or SemanticFilterExpression or
+                    SemanticListLiteralExpression or SemanticRecordLiteralExpression or
+                    SemanticMapLiteralExpression,
             ConditionalRequirement conditional =>
                 CarriesCollection(conditional.ThenRequirements) ||
                 CarriesCollection(conditional.ElseRequirements),

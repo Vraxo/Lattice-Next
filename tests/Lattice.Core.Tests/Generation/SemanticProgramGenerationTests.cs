@@ -61,6 +61,27 @@ public sealed class SemanticProgramGenerationTests
         "Create a Python program that stores {'apple': 1.5, 'banana': 0.75} in a dictionary named prices, then prints each product and its price.",
         "prices = {'apple': 1.5, 'banana': 0.75}\nfor product, price in prices.items():\n    print(product, price)")]
     [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than 2.",
+        "def filter_values(values):\n    return [value for value in values if value > 2]\nprint(filter_values([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Build a Python function named keep_large that accepts a list of numbers named samples and returns a new list containing only sample values more than 4.",
+        "def keep_large(samples):\n    return [sample for sample in samples if sample > 4]\nprint(keep_large([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named keep_at_most that receives a list of numbers named scores and returns a new list containing only score values less than or equal to 3.",
+        "def keep_at_most(scores):\n    return [score for score in scores if score <= 3]\nprint(keep_at_most([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named omit_three that receives a list of numbers named scores and returns a new list containing only score values not equal to 3.",
+        "def omit_three(scores):\n    return [score for score in scores if score != 3]\nprint(omit_three([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named keep_above_expression that receives a list of numbers named scores and returns a new list containing only score values greater than 2 + 1.",
+        "def keep_above_expression(scores):\n    return [score for score in scores if score > 2 + 1]\nprint(keep_above_expression([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Write a Python function that receives a list of numbers and returns a new list containing only values greater than the average.",
+        "def above_average(values):\n    return [value for value in values if value > sum(values) / len(values)]\nprint(above_average([1, 2, 3, 4, 5]))")]
+    [InlineData(
+        "Create a Python function named filter_high that receives a list of numbers named scores and returns a new list containing only score values greater than the average of scores.",
+        "def filter_high(scores):\n    return [score for score in scores if score > sum(scores) / len(scores)]\nprint(filter_high([1, 2, 3, 4, 5]))")]
+    [InlineData(
         "Write a small Python program that groups a list of purchase records by customer and calculates each customer's total spending.",
         "records = [{\"customer\": \"Ada\", \"spending\": 25.0}, {\"customer\": \"Grace\", \"spending\": 40.0}, {\"customer\": \"Ada\", \"spending\": 15.0}]\ntotals = {}\nfor purchase in records:\n    key = purchase[\"customer\"]\n    totals[key] = totals.get(key, 0) + purchase[\"spending\"]\nfor key, total in totals.items():\n    print(key, total)")]
     [InlineData(

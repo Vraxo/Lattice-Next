@@ -25,7 +25,7 @@ public sealed record GenerationLanguagePack(
     public GenerationRecordLiteralFormat? MapLiteralFormat { get; init; }
 
     /// <summary>How this pack spells the length of a text value; the format carries `{0}` for the operand.</summary>
-    public string? TextLengthFormat { get; init; }
+    public string? LengthFormat { get; init; }
 
     /// <summary>How this pack reads one value from another by key; the format carries `{0}` value and `{1}` key.</summary>
     public string? SubscriptFormat { get; init; }
@@ -40,6 +40,15 @@ public sealed record GenerationLanguagePack(
     public string? SortedExpressionReverseFormat { get; init; }
 
     /// <summary>How this pack spells one value per item; `{0}` value, `{1}` item name, `{2}` source.</summary>
+    /// <summary>The total of the values a collection holds, spelled by this language.</summary>
+    public string? TotalExpressionFormat { get; init; }
+
+    /// <summary>
+    /// How this language writes a collection of the items that satisfy a predicate, with `{0}` the kept value,
+    /// `{1}` the item, `{2}` the source, and `{3}` the predicate.
+    /// </summary>
+    public string? FilterExpressionFormat { get; init; }
+
     public string? GeneratorExpressionFormat { get; init; }
 
     /// <summary>How this pack groups several values into one ordered value; `{0}` is the operand.</summary>

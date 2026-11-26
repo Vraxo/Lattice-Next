@@ -162,11 +162,28 @@ public sealed record SemanticSortExpression(
     bool Descending) : SemanticExpression;
 
 /// <summary>
-/// The number of characters a text value holds. The selected language pack spells how that length is asked
-/// for, so no requirement names a library function.
+/// The number of items a value holds: the characters in a text, the entries in a collection. The selected
+/// language pack spells how that count is asked for, so no requirement names a library function.
 /// </summary>
-public sealed record SemanticTextLengthExpression(
+public sealed record SemanticLengthExpression(
     SemanticExpression Value) : SemanticExpression;
+
+/// <summary>
+/// The total of the values a collection holds. The selected language pack spells how that total is taken,
+/// so no requirement names a library function.
+/// </summary>
+public sealed record SemanticTotalExpression(
+    SemanticExpression Source) : SemanticExpression;
+
+/// <summary>
+/// A collection of the source's items that satisfy a predicate, written where it is used rather than bound to
+/// a name first. The predicate is an ordinary semantic expression over the item name, and the selected
+/// language pack spells the comprehension.
+/// </summary>
+public sealed record SemanticFilterExpression(
+    string ItemName,
+    SemanticExpression Source,
+    SemanticExpression Predicate) : SemanticExpression;
 
 internal static class SemanticExpressionAnalysis
 {
@@ -327,8 +344,16 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
-            case SemanticTextLengthExpression length:
+            case SemanticLengthExpression length:
                 CollectBoundNames(length.Value, names);
+                break;
+            case SemanticTotalExpression total:
+                CollectBoundNames(total.Source, names);
+                break;
+            case SemanticFilterExpression filter:
+                AddBoundName(names, filter.ItemName);
+                CollectBoundNames(filter.Source, names);
+                CollectBoundNames(filter.Predicate, names);
                 break;
             case SemanticSubscriptExpression subscript:
                 CollectBoundNames(subscript.Target, names);
@@ -428,8 +453,15 @@ internal static class SemanticExpressionAnalysis
                 }
 
                 break;
-            case SemanticTextLengthExpression length:
+            case SemanticLengthExpression length:
                 CollectReferencedNames(length.Value, names);
+                break;
+            case SemanticTotalExpression total:
+                CollectReferencedNames(total.Source, names);
+                break;
+            case SemanticFilterExpression filter:
+                CollectReferencedNames(filter.Source, names);
+                CollectReferencedNames(filter.Predicate, names);
                 break;
             case SemanticSubscriptExpression subscript:
                 CollectReferencedNames(subscript.Target, names);
@@ -524,7 +556,8 @@ internal static class SemanticExpressionAnalysis
             _ => null
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
-        SemanticTextLengthExpression => KnownValueType.Number,
+        SemanticLengthExpression or SemanticTotalExpression => KnownValueType.Number,
+        SemanticFilterExpression => null,
         SemanticCaseFoldExpression => KnownValueType.Text,
         SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
             SemanticTupleExpression => null,
@@ -536,7 +569,8 @@ internal static class SemanticExpressionAnalysis
         expression is SemanticTextExpression or SemanticBooleanExpression or
         SemanticListLiteralExpression or SemanticRecordLiteralExpression or
         SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression ||
-        expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
+        expression is SemanticConversionExpression or SemanticTextTemplateExpression or
+        SemanticFilterExpression ||
         IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
@@ -584,7 +618,12 @@ internal static class SemanticExpressionAnalysis
         SemanticMapLiteralExpression map =>
             map.Entries.All(entry => ReferencesOnlyAvailableNamesCore(
                 entry.Value, availableNames, allowFunctionCalls, availableFunctions)),
-        SemanticTextLengthExpression length =>
+        SemanticFilterExpression filter =>
+            ReferencesOnlyAvailableNamesCore(filter.Source, availableNames, allowFunctionCalls, availableFunctions) &&
+            ReferencesOnlyAvailableNamesCore(filter.Predicate, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticTotalExpression total =>
+            ReferencesOnlyAvailableNamesCore(total.Source, availableNames, allowFunctionCalls, availableFunctions),
+        SemanticLengthExpression length =>
             ReferencesOnlyAvailableNamesCore(
                 length.Value, availableNames, allowFunctionCalls, availableFunctions),
         SemanticArgumentsExpression arguments =>
@@ -616,7 +655,10 @@ internal static class SemanticExpressionAnalysis
             record.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
         SemanticMapLiteralExpression map =>
             map.Entries.Any(entry => ReferencesAnyNameCore(entry.Value, names)),
-        SemanticTextLengthExpression length => ReferencesAnyNameCore(length.Value, names),
+        SemanticLengthExpression length => ReferencesAnyNameCore(length.Value, names),
+        SemanticTotalExpression total => ReferencesAnyNameCore(total.Source, names),
+        SemanticFilterExpression filter =>
+            ReferencesAnyNameCore(filter.Source, names) || ReferencesAnyNameCore(filter.Predicate, names),
         SemanticArgumentsExpression arguments =>
             arguments.Values.Any(value => ReferencesAnyNameCore(value, names)),
         _ => false
@@ -655,7 +697,12 @@ internal static class SemanticExpressionAnalysis
             SemanticListLiteralExpression list => IsValidList(list, depth, ref nodeCount),
             SemanticRecordLiteralExpression record => IsValidRecord(record, depth, ref nodeCount),
             SemanticMapLiteralExpression map => IsValidMap(map, depth, ref nodeCount),
-            SemanticTextLengthExpression length => IsValid(length.Value, depth + 1, ref nodeCount),
+            SemanticLengthExpression length => IsValid(length.Value, depth + 1, ref nodeCount),
+            SemanticTotalExpression total => IsValid(total.Source, depth + 1, ref nodeCount),
+            SemanticFilterExpression filter =>
+                IsValidIdentifier(filter.ItemName) &&
+                IsValid(filter.Source, depth + 1, ref nodeCount) &&
+                IsValid(filter.Predicate, depth + 1, ref nodeCount),
             SemanticSubscriptExpression subscript =>
                 IsValid(subscript.Target, depth + 1, ref nodeCount) &&
                 IsValid(subscript.Key, depth + 1, ref nodeCount),

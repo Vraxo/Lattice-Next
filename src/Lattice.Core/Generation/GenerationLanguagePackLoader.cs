@@ -59,9 +59,9 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidRecordLiteralFormat(recordFormat)) ||
             (pack.MapLiteralFormat is { } mapFormat &&
                 !IsValidRecordLiteralFormat(mapFormat)) ||
-            (pack.TextLengthFormat is { } textLengthFormat &&
-                (textLengthFormat.Length > 64 ||
-                 !textLengthFormat.Contains("{0}", StringComparison.Ordinal))) ||
+            !IsValidExpressionFormat(pack.LengthFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}") ||
             !IsValidExpressionFormat(pack.SubscriptFormat, 64, "{0}", "{1}") ||
             !IsValidExpressionFormat(pack.CaseFoldFormat, 64, "{0}") ||
             !IsValidExpressionFormat(pack.SortedExpressionFormat, 128, "{0}", "{1}", "{2}") ||
