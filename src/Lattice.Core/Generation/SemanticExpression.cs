@@ -566,7 +566,15 @@ internal static class SemanticExpressionAnalysis
             return false;
         }
 
-        return arguments.Values.All(value => IsValid(value, depth + 1, ref nodeCount));
+        foreach (var value in arguments.Values)
+        {
+            if (!IsValid(value, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool IsValidTemplate(
