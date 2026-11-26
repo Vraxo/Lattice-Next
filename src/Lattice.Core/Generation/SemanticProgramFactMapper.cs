@@ -1223,7 +1223,7 @@ public static class SemanticProgramFactMapper
         }
 
         var value = exampleData.IntegerValue.Trim();
-        var literal = value.StartsWith('-') && value.Length > 1
+        SemanticExpression literal = value.StartsWith('-') && value.Length > 1
             ? new SemanticUnaryExpression(
                 SemanticExpressionOperator.Negative,
                 new SemanticNumberExpression(value[1..]))
