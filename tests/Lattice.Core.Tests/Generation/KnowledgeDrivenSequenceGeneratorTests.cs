@@ -646,7 +646,7 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             .Where(capture => capture.SemanticCollectionFormat is not null)
             .ToArray();
 
-        Assert.Equal(3, captures.Length);
+        Assert.Equal(5, captures.Length);
         Assert.All(captures, capture =>
         {
             Assert.Equal("[", capture.SemanticCollectionFormat!.OpeningDelimiter);
