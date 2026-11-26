@@ -100,6 +100,12 @@ public static class SemanticProgramValidator
                  !conditional.ElseRequirements.IsDefaultOrEmpty) &&
                 AreValid(conditional.ThenRequirements, depth + 1, context) &&
                 AreValid(conditional.ElseRequirements, depth + 1, context),
+            SignClassificationRequirement classification =>
+                IsValidName(classification.VariableName) &&
+                SemanticExpressionAnalysis.IsValid(classification.Value) &&
+                IsValidLabel(classification.PositiveLabel) &&
+                IsValidLabel(classification.NegativeLabel) &&
+                IsValidLabel(classification.ZeroLabel),
             ImportRequirement import => IsValidModuleName(import.Module),
             FileWriteRequirement fileWrite =>
                 IsValidPath(fileWrite.Path) &&
@@ -551,6 +557,13 @@ public static class SemanticProgramValidator
         binding.ElementKind is SemanticCollectionItemKind.Number or SemanticCollectionItemKind.Text;
 
     private static bool IsValidValueKind(SemanticValueKind kind) => Enum.IsDefined(kind);
+
+    /// <summary>A reported label is non-empty text that fits in one output literal.</summary>
+    private static bool IsValidLabel(string label) =>
+        !string.IsNullOrWhiteSpace(label) &&
+        label.Length <= 128 &&
+        !label.Contains('\n') &&
+        !label.Contains('\r');
 
     private static bool IsValidName(string? name)
     {
