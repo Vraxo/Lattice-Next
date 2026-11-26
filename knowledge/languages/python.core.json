@@ -2504,7 +2504,7 @@
     {
       "id": "python-elif",
       "symbol": "elif",
-      "effect": "begin-elif",
+      "effect": "begin-alternative-branch",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "elif-statement"
@@ -2512,7 +2512,7 @@
     {
       "id": "python-elif-indented",
       "symbol": "elif",
-      "effect": "begin-elif-indented",
+      "effect": "begin-alternative-branch-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "indented-elif-statement"
@@ -2520,7 +2520,7 @@
     {
       "id": "python-elif-double-indented",
       "symbol": "elif",
-      "effect": "begin-elif-double-indented",
+      "effect": "begin-alternative-branch-double-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "double-indented-elif-statement"

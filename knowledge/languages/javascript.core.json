@@ -1,0 +1,728 @@
+{
+  "formatVersion": 1,
+  "language": "javascript",
+  "startSymbol": "program",
+  "productions": [
+    {
+      "head": "program",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "statement"
+        }
+      ]
+    },
+    {
+      "head": "statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "call-expression"
+        }
+      ]
+    },
+    {
+      "head": "expression-call",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "indented-expression-call",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "  "
+        },
+        {
+          "kind": "binding",
+          "value": "operation"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        },
+        {
+          "kind": "terminal",
+          "value": ")"
+        }
+      ]
+    },
+    {
+      "head": "bound-assignment-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "let "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-assignment",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "  let "
+        },
+        {
+          "kind": "binding",
+          "value": "target"
+        },
+        {
+          "kind": "terminal",
+          "value": " = "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-function-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "function "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "("
+        },
+        {
+          "kind": "binding",
+          "value": "arguments"
+        },
+        {
+          "kind": "terminal",
+          "value": ") {"
+        }
+      ]
+    },
+    {
+      "head": "bound-nullary-function-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "function "
+        },
+        {
+          "kind": "binding",
+          "value": "function"
+        },
+        {
+          "kind": "terminal",
+          "value": "() {"
+        }
+      ]
+    },
+    {
+      "head": "indented-return-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "  return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-return-expression",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    return "
+        },
+        {
+          "kind": "binding",
+          "value": "argument-expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-dictionary-loop-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "for (const ["
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": "] of Object.entries("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ")) {"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-dictionary-loop-header",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "  for (const ["
+        },
+        {
+          "kind": "binding",
+          "value": "key"
+        },
+        {
+          "kind": "terminal",
+          "value": ", "
+        },
+        {
+          "kind": "binding",
+          "value": "value"
+        },
+        {
+          "kind": "terminal",
+          "value": "] of Object.entries("
+        },
+        {
+          "kind": "binding",
+          "value": "iterable"
+        },
+        {
+          "kind": "terminal",
+          "value": ")) {"
+        }
+      ]
+    },
+    {
+      "head": "bound-block-close",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "}"
+        }
+      ]
+    },
+    {
+      "head": "indented-bound-block-close",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "  }"
+        }
+      ]
+    },
+    {
+      "head": "double-indented-bound-block-close",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    }"
+        }
+      ]
+    },
+    {
+      "head": "triple-indented-bound-block-close",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "      }"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "name": "operation",
+      "source": "selected-operation",
+      "encoding": "none"
+    },
+    {
+      "name": "argument-text",
+      "source": "goal-argument",
+      "encoding": "string-literal"
+    },
+    {
+      "name": "argument-expression",
+      "source": "goal-argument",
+      "encoding": "none"
+    },
+    {
+      "name": "argument-assignment",
+      "source": "goal-argument",
+      "encoding": "none"
+    },
+    {
+      "name": "target",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "target"
+    },
+    {
+      "name": "expression",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "expression"
+    },
+    {
+      "name": "variable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "variable"
+    },
+    {
+      "name": "iterable",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "iterable"
+    },
+    {
+      "name": "iterable-collection",
+      "source": "goal-collection",
+      "encoding": "collection-literal",
+      "key": "iterable"
+    },
+    {
+      "name": "condition",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "condition"
+    },
+    {
+      "name": "function",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "function"
+    },
+    {
+      "name": "arguments",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "arguments"
+    },
+    {
+      "name": "string-value",
+      "source": "goal-binding",
+      "encoding": "string-literal",
+      "key": "string-value"
+    },
+    {
+      "name": "predicate",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "predicate"
+    },
+    {
+      "name": "key",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "key"
+    },
+    {
+      "name": "value",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "value"
+    },
+    {
+      "name": "item",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "item"
+    },
+    {
+      "name": "result",
+      "source": "goal-binding",
+      "encoding": "none",
+      "key": "result"
+    }
+  ],
+  "operations": [
+    {
+      "id": "javascript-console-log",
+      "symbol": "console.log",
+      "effect": "write-standard-output",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "expression-call"
+    },
+    {
+      "id": "javascript-indented-console-log",
+      "symbol": "console.log",
+      "effect": "write-standard-output-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-expression-call"
+    },
+    {
+      "id": "javascript-bound-assignment",
+      "symbol": "let",
+      "effect": "emit-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "bound-assignment-statement"
+    },
+    {
+      "id": "javascript-bound-indented-assignment",
+      "symbol": "let",
+      "effect": "emit-indented-assignment",
+      "argumentKind": "assignment",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-assignment"
+    },
+    {
+      "id": "javascript-bound-function-header",
+      "symbol": "function",
+      "effect": "emit-function-header",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "bound-function-header"
+    },
+    {
+      "id": "javascript-bound-nullary-function-header",
+      "symbol": "function",
+      "effect": "emit-nullary-function-header",
+      "argumentKind": "function-header",
+      "prerequisites": [],
+      "startSymbol": "bound-nullary-function-header"
+    },
+    {
+      "id": "javascript-return-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "indented-return-expression"
+    },
+    {
+      "id": "javascript-return-double-indented-expression",
+      "symbol": "return",
+      "effect": "return-value-double-indented-expression",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "double-indented-return-expression"
+    },
+    {
+      "id": "javascript-bound-dictionary-loop",
+      "symbol": "for",
+      "effect": "emit-dictionary-loop-header",
+      "argumentKind": "dictionary-loop-header",
+      "prerequisites": [],
+      "startSymbol": "bound-dictionary-loop-header"
+    },
+    {
+      "id": "javascript-bound-indented-dictionary-loop",
+      "symbol": "for",
+      "effect": "emit-indented-dictionary-loop-header",
+      "argumentKind": "dictionary-loop-header",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-dictionary-loop-header"
+    },
+    {
+      "id": "javascript-close-block",
+      "symbol": "}",
+      "effect": "close-block",
+      "argumentKind": "block-close",
+      "prerequisites": [],
+      "startSymbol": "bound-block-close"
+    },
+    {
+      "id": "javascript-close-indented-block",
+      "symbol": "}",
+      "effect": "close-indented-block",
+      "argumentKind": "block-close",
+      "prerequisites": [],
+      "startSymbol": "indented-bound-block-close"
+    },
+    {
+      "id": "javascript-close-double-indented-block",
+      "symbol": "}",
+      "effect": "close-double-indented-block",
+      "argumentKind": "block-close",
+      "prerequisites": [],
+      "startSymbol": "double-indented-bound-block-close"
+    },
+    {
+      "id": "javascript-close-triple-indented-block",
+      "symbol": "}",
+      "effect": "close-triple-indented-block",
+      "argumentKind": "block-close",
+      "prerequisites": [],
+      "startSymbol": "triple-indented-bound-block-close"
+    }
+  ],
+  "stringLiteralFormat": {
+    "openingDelimiter": "\"",
+    "closingDelimiter": "\"",
+    "escapes": [
+      {
+        "character": "\\",
+        "replacement": "\\\\"
+      },
+      {
+        "character": "\"",
+        "replacement": "\\\""
+      },
+      {
+        "character": "\n",
+        "replacement": "\\n"
+      },
+      {
+        "character": "\r",
+        "replacement": "\\r"
+      },
+      {
+        "character": "\t",
+        "replacement": "\\t"
+      }
+    ]
+  },
+  "collectionLiteralFormat": {
+    "openingDelimiter": "[",
+    "closingDelimiter": "]",
+    "itemSeparator": ", ",
+    "itemFormats": [
+      {
+        "kind": "number",
+        "encoding": "none"
+      },
+      {
+        "kind": "text",
+        "encoding": "string-literal"
+      }
+    ]
+  },
+  "recordLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "{0}: {1}"
+  },
+  "mapLiteralFormat": {
+    "openingDelimiter": "{",
+    "closingDelimiter": "}",
+    "entrySeparator": ", ",
+    "entryFormat": "\"{0}\": {1}",
+    "textFormat": "\"{0}\""
+  },
+  "inputSyntax": {
+    "identifierStartCharacters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$",
+    "identifierContinuationCharacters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$0123456789",
+    "numberLiteralFormat": {
+      "digits": "0123456789",
+      "decimalSeparator": ".",
+      "positiveSign": "+",
+      "negativeSign": "-"
+    },
+    "booleanLiteralFormat": {
+      "trueLiteral": "true",
+      "falseLiteral": "false"
+    },
+    "stringLiteralFormats": [
+      {
+        "openingDelimiter": "\"",
+        "closingDelimiter": "\"",
+        "escapePrefix": "\\",
+        "escapeSequences": [
+          {
+            "sequence": "\\\\",
+            "value": "\\"
+          },
+          {
+            "sequence": "\\\"",
+            "value": "\""
+          },
+          {
+            "sequence": "\\n",
+            "value": "\n"
+          },
+          {
+            "sequence": "\\r",
+            "value": "\r"
+          },
+          {
+            "sequence": "\\t",
+            "value": "\t"
+          }
+        ],
+        "allowUnknownEscapes": true
+      }
+    ],
+    "functionCallFormat": {
+      "openingDelimiter": "(",
+      "closingDelimiter": ")",
+      "argumentSeparator": ",",
+      "renderingArgumentSeparator": ", "
+    },
+    "groupingDelimiters": [
+      {
+        "openingDelimiter": "[",
+        "closingDelimiter": "]"
+      },
+      {
+        "openingDelimiter": "{",
+        "closingDelimiter": "}"
+      }
+    ],
+    "expressionOperators": [
+      {
+        "kind": "add",
+        "token": "+",
+        "fixity": "infix",
+        "precedence": 50
+      },
+      {
+        "kind": "subtract",
+        "token": "-",
+        "fixity": "infix",
+        "precedence": 50
+      },
+      {
+        "kind": "multiply",
+        "token": "*",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "divide",
+        "token": "/",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "remainder",
+        "token": "%",
+        "fixity": "infix",
+        "precedence": 60
+      },
+      {
+        "kind": "equal",
+        "token": "==",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "notEqual",
+        "token": "!=",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "lessThan",
+        "token": "<",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "lessThanOrEqual",
+        "token": "<=",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "greaterThan",
+        "token": ">",
+        "fixity": "infix",
+        "precedence": 40
+      },
+      {
+        "kind": "greaterThanOrEqual",
+        "token": ">=",
+        "fixity": "infix",
+        "precedence": 40
+      }
+    ],
+    "expressionGroupingDelimiter": {
+      "openingDelimiter": "(",
+      "closingDelimiter": ")"
+    },
+    "memberAccessFormat": {
+      "separator": "."
+    }
+  },
+  "lengthFormat": "{0}.length",
+  "totalExpressionFormat": "{0}.reduce((sum, value) => sum + value, 0)",
+  "filterExpressionFormat": "{2}.filter(({1}) => {3})",
+  "placeholderMappingFormat": "{};  // {0}",
+  "conversionFormats": [
+    {
+      "target": "Number",
+      "format": "Number({0})"
+    }
+  ],
+  "exampleData": {
+    "numbers": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "numberItemName": "number",
+    "accumulatorInitialValue": "0",
+    "sampleCall": {
+      "functionName": "map_values",
+      "resultName": "mapped_values",
+      "numbers": [
+        "1",
+        "2",
+        "3"
+      ],
+      "texts": [
+        "Ada",
+        "Grace",
+        "Linus"
+      ]
+    },
+    "emptyMappingNote": "Add dictionary entries here."
+  }
+}

@@ -722,7 +722,8 @@ public static class SemanticProgramPlanner
         }
 
         var bodyDefined = new HashSet<string>(defined, StringComparer.Ordinal) { iteration.ItemName };
-        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error) ||
+            !TryCloseBlock(depth + 1, pack, pipeline, planned, out error))
         {
             return false;
         }
@@ -1211,7 +1212,8 @@ public static class SemanticProgramPlanner
             bodyDefined.Add(parameter.Name);
         }
 
-        if (!TryPlanRequirements(function.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        if (!TryPlanRequirements(function.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error) ||
+            !TryCloseBlock(depth + 1, pack, pipeline, planned, out error))
         {
             return false;
         }
@@ -1439,7 +1441,8 @@ public static class SemanticProgramPlanner
             iteration.KeyName,
             iteration.ValueName
         };
-        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error))
+        if (!TryPlanRequirements(iteration.Body, depth + 1, bodyDefined, pack, pipeline, planned, out error) ||
+            !TryCloseBlock(depth + 1, pack, pipeline, planned, out error))
         {
             return false;
         }
@@ -1986,9 +1989,9 @@ public static class SemanticProgramPlanner
                 })
                 : (depth switch
                 {
-                    0 => "begin-elif",
-                    1 => "begin-elif-indented",
-                    _ => "begin-elif-double-indented"
+                    0 => "begin-alternative-branch",
+                    1 => "begin-alternative-branch-indented",
+                    _ => "begin-alternative-branch-double-indented"
                 });
 
             var conditionBindings = ImmutableDictionary<string, string>.Empty
@@ -2568,6 +2571,58 @@ public static class SemanticProgramPlanner
 
         defined.UnionWith(thenDefined.Intersect(elseDefined, StringComparer.Ordinal));
         return true;
+    }
+
+    /// <summary>
+    /// Closes a block the planner has finished, for languages that mark the end of one. A language whose blocks
+    /// end by indentation declares no such operation, so the close is simply not planned.
+    /// </summary>
+    private static bool TryCloseBlock(
+        int bodyDepth,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        var depth = bodyDepth - 1;
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "close-block";
+                break;
+            case 1:
+                effect = "close-indented-block";
+                break;
+            case 2:
+                effect = "close-double-indented-block";
+                break;
+            case 3:
+                effect = "close-triple-indented-block";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        if (!pack.Operations.Any(operation =>
+                string.Equals(operation.Effect, effect, StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "block-close",
+            argumentValue: "block-close",
+            ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+            depth,
+            new HashSet<string>(StringComparer.Ordinal),
+            planned,
+            out error);
     }
 
     private static bool TryEmit(

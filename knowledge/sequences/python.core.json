@@ -374,6 +374,13 @@
       "factId": "language.python"
     },
     {
+      "id": "recognize-javascript-language",
+      "matchTokens": [
+        "javascript"
+      ],
+      "factId": "language.javascript"
+    },
+    {
       "id": "recognize-program-output",
       "matchTokens": [
         "program"
