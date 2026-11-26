@@ -1208,3 +1208,78 @@ What is still missing is modelling — a subscript expression over the loop item
 
 Doing them in that order keeps every replacement separate from its deletion, and each deletion drops the
 exception table by exactly the rows it owns.
+
+## M-14 — the second-language proof
+
+The generator is proved language-neutral by realizing one interpretation in two languages. A JavaScript pack
+(`knowledge/languages/javascript.core.json`) joins the Python one, and a request that names either language is
+planned by the same mapper, validator, and planner; only the selected pack differs.
+
+Three fixtures cover the shapes the proof needs — a statement with its output, a returned literal over a
+parameter, and a block with a nested body — and each is worded once, interpreted once, and realized twice:
+
+| # | Request (interpreted once) | Python | JavaScript |
+| --- | --- | --- | --- |
+| 1 | `Create a Python program that sets total to 7 then print total.` | `total = 7` / `print(total)` | `let total = 7` / `console.log(total)` |
+| 2 | `Build a Python function named keep_large that accepts a list of numbers named samples and returns a new list containing only sample values more than 4.` | `def keep_large(samples):` / `    return [sample for sample in samples if sample > 4]` / `print(keep_large([1, 2, 3, 4, 5]))` | `function keep_large(samples) {` / `  return samples.reduce((kept, sample) => sample > 4 ? [...kept, sample] : kept, [])` / `}` / `console.log(keep_large([1, 2, 3, 4, 5]))` |
+| 3 | `Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.` | `items = {}  # Add dictionary entries here.` / `for product, price in items.items():` / `    print(product, price)` | `let items = {};  // Add dictionary entries here.` / `for (const [product, price] of Object.entries(items)) {` / `  console.log(product, price)` / `}` |
+
+The Python bytes are unchanged by this section: the three programs above are the same text the runtime suite
+already asserted. The JavaScript text is new output, not a changed one.
+
+### What the second pack declares
+
+| Part | Python | JavaScript |
+| --- | --- | --- |
+| productions | 102 | 16 |
+| bindings | 26 | 9 |
+| operations | 104 | 14 |
+
+The JavaScript pack declares only what the fixtures reach: output and assignment (two depths each), function
+headers, indented return, dictionary loop headers, and the four block closes, over the syntax, literal, and
+expression formats those statements need. It declares no interpolation, sort, generator, tuple, subscript, or
+case-fold format, and no file or standard-input operations, because no fixture asks for one — a request that did
+would fail with the pack's own "cannot render" error rather than with invented syntax.
+
+### Two additions the brace language forced
+
+* **Block closing is pack data.** A language whose blocks end by indentation declares nothing and the planner
+  plans nothing; a brace language declares `close-block`, `close-indented-block`,
+  `close-double-indented-block`, and `close-triple-indented-block`, and the planner asks for the effect matching
+  the depth of the block it just finished. The decision is the pack's, taken from whether it declares the
+  operation at all.
+* **The alternative-branch effects are neutral.** `begin-elif`, `begin-elif-indented`, and
+  `begin-elif-double-indented` are now `begin-alternative-branch`, `…-indented`, and `…-double-indented`, so no
+  language's keyword survives in the planner's vocabulary. Renaming them changed three operation effects in the
+  Python pack and no output.
+
+### Constraints the loader imposed on a second pack
+
+* Every declared binding must be used by the grammar and every grammar binding must be declared; the
+  JavaScript pack therefore declares nine bindings, not the Python pack's twenty-six.
+* A grammar symbol is a `terminal`, a `nonterminal`, or a binding — `statement` and `expression-call` are
+  nonterminals, and pointing one at an undeclared head fails the whole knowledge base.
+* `filterExpressionFormat` must carry all four placeholders (`{0}` the kept value, `{1}` the item, `{2}` the
+  source, `{3}` the predicate). The Python comprehension uses all four naturally; the JavaScript reduction spells
+  the kept value as the array it accumulates into.
+
+### Language selection is a fact
+
+`recognize-javascript-language` (`matchTokens: ["javascript"]`, `factId: "language.javascript"`) joins
+`recognize-python-language`, and `GenerationLanguagePackSelector` maps the single `language.` fact onto the pack
+that declares that language. `GenerationLanguages` exposes the declared names, and the recommendation parser,
+which used to spell `"python"`, now recognises any declared language instead.
+
+### The guards
+
+| Test | What it holds |
+| --- | --- |
+| `CrossLanguageGenerationTests.Realizes_the_same_interpretation_in_each_language` | three fixtures, each planned twice from one fact set; the programs match their expected bytes and their semantic effects match in order |
+| `CrossLanguageGenerationTests.Selects_the_requested_language_pack` | the same request worded for JavaScript reports exactly `language.javascript` and emits the JavaScript program through the same entry point |
+| `CrossLanguageExecutionTests.Reports_the_same_result_in_each_language` | `python3` and `node` run the two programs and report the same value (`7`, `[5]`, and nothing for the empty dictionary) |
+| `LanguageNeutralityGuardTests.The_generation_kernel_names_no_language_and_spells_no_language_syntax` | no language name and no language spelling in non-comment code under `src/Lattice.Core/Generation` |
+| `LanguageNeutralityGuardTests.Shared_code_names_a_language_only_where_the_history_records_it` | the only shared file that names a language is `TaskRecommendationResponder.cs`, the software recommendation catalogue over the domain knowledge's `python-package` concepts |
+
+Current counts after M-14: **21 sequence rules**, **241 input rules** (one added: the JavaScript language
+recogniser), **30 validations**, **1 encoding**; two language packs — Python at 102 productions / 26 bindings /
+104 operations, JavaScript at 16 / 9 / 14.
