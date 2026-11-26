@@ -212,7 +212,15 @@ public static class SemanticProgramFactMapper
                       $":update={SemanticExpressionAnalysis.IsValid(accumulation.Update)}" +
                       $":initial={SemanticExpressionAnalysis.IsValid(accumulation.InitialValue)}" +
                       $":kind={accumulation.AccumulatorKind}" +
-                      $":name={accumulation.AccumulatorName}:item={accumulation.ItemName}"
+                      $":name={accumulation.AccumulatorName}:item={accumulation.ItemName}" +
+                      $":items={(accumulation.Source is SemanticListLiteralExpression list
+                          ? string.Join("/", list.Items.Select(item => item.GetType().Name + ":" + item switch
+                          {
+                              SemanticNumberExpression number => number.Value,
+                              SemanticTextExpression text => text.Value,
+                              _ => "?"
+                          }))
+                          : "not-a-list")}"
                     : string.Empty)));
             error = $"The projected generic program requirements are not structurally valid. [{details}]";
             return false;
