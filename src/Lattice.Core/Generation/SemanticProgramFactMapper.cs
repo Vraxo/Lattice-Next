@@ -133,7 +133,7 @@ public static class SemanticProgramFactMapper
         var dictionaryLiteral = facts.FirstOrDefault(candidate => candidate.Id == DictionaryLiteralFactId);
         if (dictionaryLiteral is not null)
         {
-            if (!TryCreateDictionaryIteration(dictionaryLiteral, facts, out var dictionaryProgram, out error))
+            if (!TryCreateDictionaryIteration(dictionaryLiteral, out var dictionaryProgram, out error))
             {
                 return false;
             }
@@ -1252,7 +1252,6 @@ public static class SemanticProgramFactMapper
     /// </summary>
     private static bool TryCreateDictionaryIteration(
         SequenceSemanticFact literal,
-        ImmutableArray<SequenceSemanticFact> facts,
         out SemanticProgram? program,
         out string? error)
     {
@@ -1286,11 +1285,8 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
-        var iteration = facts.FirstOrDefault(candidate =>
-            string.Equals(candidate.Id, "program.dictionary-iteration", StringComparison.Ordinal));
-        if (iteration is null ||
-            !iteration.Values.TryGetValue(DictionaryKeyNameValueId, out var declaredKey) ||
-            !iteration.Values.TryGetValue(DictionaryValueNameValueId, out var declaredValue) ||
+        if (!literal.Values.TryGetValue(DictionaryKeyNameValueId, out var declaredKey) ||
+            !literal.Values.TryGetValue(DictionaryValueNameValueId, out var declaredValue) ||
             string.IsNullOrWhiteSpace(declaredKey) ||
             string.IsNullOrWhiteSpace(declaredValue))
         {

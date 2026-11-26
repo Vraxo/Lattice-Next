@@ -282,6 +282,9 @@
           "each"
         ],
         [
+          "with"
+        ],
+        [
           "its"
         ]
       ],
@@ -309,15 +312,7 @@
           "stopBeforeTokens": [
             "with"
           ],
-          "preserveRawValue": true,
-          "stopBeforeSequences": [
-            [
-              "with"
-            ],
-            [
-              "and"
-            ]
-          ]
+          "preserveRawValue": true
         },
         {
           "factId": "program.dictionary-iteration",
@@ -6184,6 +6179,58 @@
           "collectionFieldIndex": 1,
           "trimSuffixCharacters": ".",
           "preserveRawValue": true
+        }
+      ]
+    },
+    {
+      "id": "capture-dictionary-literal-key-name",
+      "matchTokens": [
+        "each"
+      ],
+      "factId": "program.dictionary-literal",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "stores"
+        ],
+        [
+          "its"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-literal",
+          "valueId": "key",
+          "stopBeforeTokens": [
+            "and",
+            "with"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-dictionary-literal-value-name",
+      "matchTokens": [
+        "its"
+      ],
+      "factId": "program.dictionary-literal",
+      "requiredAllSequences": [
+        [
+          "dictionary",
+          "named"
+        ],
+        [
+          "stores"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.dictionary-literal",
+          "valueId": "value",
+          "trimSuffixCharacters": "."
         }
       ]
     }
