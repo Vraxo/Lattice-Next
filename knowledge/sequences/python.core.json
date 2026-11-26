@@ -5728,10 +5728,7 @@
           "stopBeforeTokens": [
             "negative"
           ],
-          "trimSuffixCharacters": ",.",
-          "startAfterTokens": [
-            "is"
-          ]
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5762,10 +5759,7 @@
           "stopBeforeTokens": [
             "negative"
           ],
-          "trimSuffixCharacters": ",.",
-          "startAfterTokens": [
-            "as"
-          ]
+          "trimSuffixCharacters": ",."
         }
       ]
     },
@@ -5791,9 +5785,6 @@
           "factId": "program.classification.sign",
           "valueId": "negative",
           "trimSuffixCharacters": ",.",
-          "startAfterTokens": [
-            "positive"
-          ],
           "stopBeforeSequences": [
             [
               "or"
@@ -5824,9 +5815,6 @@
           "factId": "program.classification.sign",
           "valueId": "negative",
           "trimSuffixCharacters": ",.",
-          "startAfterTokens": [
-            "positive"
-          ],
           "stopBeforeSequences": [
             [
               "or"
