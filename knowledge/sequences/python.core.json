@@ -104,7 +104,13 @@
       "matchTokens": [
         "function"
       ],
-      "factId": "program.function"
+      "factId": "program.function",
+      "forbiddenAnySequences": [
+        [
+          "built",
+          "in"
+        ]
+      ]
     },
     {
       "id": "recognize-class-requirement",

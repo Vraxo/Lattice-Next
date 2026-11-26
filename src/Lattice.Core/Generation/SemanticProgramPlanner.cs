@@ -196,6 +196,7 @@ public static class SemanticProgramPlanner
             FilterRequirement => true,
             MapRequirement => true,
             SortRequirement => true,
+            AccumulationRequirement => true,
             ConditionalRequirement conditional =>
                 CarriesCollection(conditional.ThenRequirements) ||
                 CarriesCollection(conditional.ElseRequirements),
