@@ -1407,7 +1407,7 @@ public static class SemanticProgramFactMapper
                         new SemanticNameExpression(recordsName),
                         sort.ItemName,
                         new SemanticTupleExpression(generator),
-                        descending: false))
+                        Descending: false))
                 ]),
             new OutputRequirement(new SemanticFunctionCallExpression(
                 functionName,
