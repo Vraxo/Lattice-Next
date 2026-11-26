@@ -51,10 +51,9 @@ public static class SemanticProgramPlanner
         "program.loop",
         // 9.24 — dictionary iteration and mapping.
         "program.dictionary",
-        // 9.25 — record sorting and grouped aggregation.
+        // 9.25 — multi-field record sorting and grouped aggregation.
         "program.multi-field",
-        "program.record",
-        "program.single-field"
+        "program.record"
     ];
 
     /// <summary>Plans the ordered requirements of one program into realized statements.</summary>
@@ -1189,7 +1188,10 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
-        if (!TryRequireAvailable(returned.Value, defined, out error))
+        string[] boundByExpression = returned.Value is SemanticSortExpression sortValue
+            ? [sortValue.ItemName]
+            : [];
+        if (!TryRequireAvailable(returned.Value, defined, out error, boundByExpression))
         {
             return false;
         }
