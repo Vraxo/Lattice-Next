@@ -17,7 +17,24 @@ public sealed record GenerationLanguagePack(
 {
     /// <summary>How a pack spells a literal record of named fields, when it can spell one at all.</summary>
     public GenerationRecordLiteralFormat? RecordLiteralFormat { get; init; }
+
+    /// <summary>
+    /// The example values a pack supplies for a request that asks for data without naming it — "a list of
+    /// numbers" with no contents, or a total with no starting value. These are the only invented values in
+    /// the pipeline: they are declared once here, they are keyed by value kind and never by a task, and a
+    /// request that does supply data always wins.
+    /// </summary>
+    public GenerationExampleData? ExampleData { get; init; }
 }
+
+/// <summary>
+/// Declared example data for under-specified requests: the sample numbers, the name one number item takes,
+/// and the value a number accumulator starts from.
+/// </summary>
+public sealed record GenerationExampleData(
+    ImmutableArray<string> Numbers,
+    string NumberItemName,
+    string AccumulatorInitialValue);
 
 /// <summary>How a pack spells one text value built from literal fragments and embedded values.</summary>
 public sealed record GenerationInterpolationFormat(

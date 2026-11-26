@@ -698,11 +698,9 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
     }
 
     [Fact]
-    public void Generates_manual_list_totals_from_declarative_semantic_facts()
+    public void Plans_a_manual_total_from_the_declared_example_data()
     {
-        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(
-            out var knowledge,
-            out var loadError), loadError);
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
 
         const string input = "Given a list of numbers, write a Python program that calculates their total without using the built-in sum function.";
         Assert.True(SequenceInputFactExtractor.TryExtract(
@@ -711,36 +709,54 @@ public sealed class KnowledgeDrivenSequenceGeneratorTests
             out var facts,
             out var extractionError), extractionError);
 
-        Assert.Contains(facts, fact => fact.Id == "program.manual-list-total");
-        Assert.Contains(facts, fact => fact.Id == "program.function");
+        Assert.Contains(facts, fact => fact.Id == "program.accumulation");
+        Assert.DoesNotContain(facts, fact => fact.Id == "program.manual-list-total");
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts
-        };
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            $"Generation failed: {generationError}. Facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
 
-        Assert.True(KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge!,
-            null,
-            request,
-            out var result,
-            out var generationError),
-            $"{generationError} Active facts: {string.Join(", ", facts.Select(fact => fact.Id))}");
-
-        var fence = new string((char)96, 3);
+        // The request names the total but no collection, so the declared example data supplies the numbers,
+        // the item name, and the starting value.
         Assert.Equal(
-            string.Join(Environment.NewLine,
-                fence + "python",
-                "total = 0",
-                "for number in [1, 2, 3, 4, 5]:",
-                "    total = total + number",
-                "print(total)",
-                fence),
-            result!.Text);
+            string.Join('\n', "total = 0", "for number in [1, 2, 3, 4, 5]:", "    total = total + number", "print(total)"),
+            code);
     }
 
+    [Fact]
+    public void Keeps_request_supplied_collections_ahead_of_the_example_data()
+    {
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+
+        const string input = "Create a Python program that starts total at 0 and adds each number in [4, 9] to total, then prints total.";
+        Assert.True(SequenceInputFactExtractor.TryExtract(
+            knowledge!,
+            input,
+            out var facts,
+            out var extractionError), extractionError);
+
+        var packLoader = new GenerationLanguagePackLoader();
+        Assert.True(packLoader.TryLoadEmbedded(out var packs, out var packError), packError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(
+                facts,
+                packs["python"],
+                out var code,
+                out _,
+                out var generationError),
+            generationError);
+
+        Assert.Equal(
+            string.Join('\n', "total = 0", "for number in [4, 9]:", "    total = total + number", "print(total)"),
+            code);
+    }
 
     [Theory]
     [InlineData("Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts, then displays each name and its count.", "program.dictionary-name-count-iteration", "counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}\nfor name, count in counts.items():\n    print(name, count)")]

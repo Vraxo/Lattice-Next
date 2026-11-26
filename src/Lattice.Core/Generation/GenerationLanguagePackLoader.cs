@@ -61,6 +61,8 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
                 !IsValidInterpolationFormat(interpolationFormat)) ||
+            (pack.ExampleData is { } exampleData &&
+                !IsValidExampleData(exampleData)) ||
             (!pack.ConversionFormats.IsDefaultOrEmpty &&
                 !IsValidConversionFormats(pack.ConversionFormats)))
         {
@@ -266,6 +268,19 @@ public sealed class GenerationLanguagePackLoader
         format.EntryFormat.Length <= 64 &&
         format.EntryFormat.Contains("{0}", StringComparison.Ordinal) &&
         format.EntryFormat.Contains("{1}", StringComparison.Ordinal);
+
+    private static bool IsValidExampleData(GenerationExampleData data) =>
+        !data.Numbers.IsDefaultOrEmpty &&
+        data.Numbers.Length <= 64 &&
+        data.Numbers.All(value =>
+            !string.IsNullOrWhiteSpace(value) &&
+            value.Length <= 64 &&
+            decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out _)) &&
+        IsIdentifier(data.NumberItemName) &&
+        !string.IsNullOrWhiteSpace(data.AccumulatorInitialValue) &&
+        decimal.TryParse(data.AccumulatorInitialValue, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out _);
 
     private static bool IsValidCollectionLiteralFormat(GenerationCollectionLiteralFormat format)
     {

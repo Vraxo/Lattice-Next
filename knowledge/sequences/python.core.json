@@ -2078,20 +2078,6 @@
       "factId": "program.even-list-filter"
     },
     {
-      "id": "recognize-manual-list-total-request",
-      "matchTokens": [
-        "calculates",
-        "their",
-        "total",
-        "without",
-        "using",
-        "built-in",
-        "sum",
-        "function"
-      ],
-      "factId": "program.manual-list-total"
-    },
-    {
       "id": "recognize-initializes-assignment",
       "matchTokens": [
         "initializes"
@@ -5822,6 +5808,81 @@
           "each"
         ]
       ]
+    },
+    {
+      "id": "recognize-manual-list-accumulation",
+      "matchTokens": [
+        "calculates",
+        "their",
+        "total"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ]
+    },
+    {
+      "id": "capture-manual-list-accumulator",
+      "matchTokens": [
+        "their"
+      ],
+      "factId": "program.accumulation",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.accumulation",
+          "valueId": "accumulator",
+          "stopBeforeSequences": [
+            [
+              "without"
+            ],
+            [
+              "using"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capture-manual-list-output",
+      "matchTokens": [
+        "calculates",
+        "their"
+      ],
+      "factId": "program.requirement.output",
+      "requiredAllSequences": [
+        [
+          "list",
+          "of",
+          "numbers"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "without"
+            ],
+            [
+              "using"
+            ]
+          ]
+        }
+      ]
     }
   ],
   "rules": [
@@ -6320,25 +6381,6 @@
         "program.output.start",
         "value.output",
         "program.collection"
-      ]
-    },
-    {
-      "id": "python-manual-list-total",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.manual-list-total"
-      ],
-      "nextToken": "```python\ntotal = 0\nfor number in [1, 2, 3, 4, 5]:\n    total = total + number\nprint(total)\n```",
-      "satisfiesFacts": [
-        "program.manual-list-total",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.aggregate",
-        "program.collection",
-        "program.function"
       ]
     },
     {

@@ -3451,5 +3451,16 @@
     "closingDelimiter": "}",
     "entrySeparator": ", ",
     "entryFormat": "\"{0}\": {1}"
+  },
+  "exampleData": {
+    "numbers": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "numberItemName": "number",
+    "accumulatorInitialValue": "0"
   }
 }

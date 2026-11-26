@@ -130,7 +130,8 @@ public static class SemanticProgramPlanner
             return false;
         }
 
-        if (!SemanticProgramFactMapper.TryCreate(facts, out var program, out error) || program is null)
+        if (!SemanticProgramFactMapper.TryCreate(facts, pack.ExampleData, out var program, out error) ||
+            program is null)
         {
             return false;
         }

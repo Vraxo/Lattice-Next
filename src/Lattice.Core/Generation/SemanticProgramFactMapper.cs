@@ -75,6 +75,13 @@ public static class SemanticProgramFactMapper
     public static bool TryCreate(
         ImmutableArray<SequenceSemanticFact> facts,
         out SemanticProgram? program,
+        out string? error) =>
+        TryCreate(facts, exampleData: null, out program, out error);
+
+    public static bool TryCreate(
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
         out string? error)
     {
         program = null;
@@ -113,7 +120,7 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
-        if (!TryProjectAccumulations(facts, declarations, out error))
+        if (!TryProjectAccumulations(facts, exampleData, declarations, out error))
         {
             return false;
         }
@@ -986,6 +993,7 @@ public static class SemanticProgramFactMapper
     /// </summary>
     private static bool TryProjectAccumulations(
         ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
         ImmutableArray<ProgramRequirement>.Builder declarations,
         out string? error)
     {
@@ -998,30 +1006,69 @@ public static class SemanticProgramFactMapper
 
         if (!TryGetCollection(fact, AccumulationNameValueId, out var names) ||
             names.Length != 1 ||
-            string.IsNullOrWhiteSpace(names[0]) ||
-            !TryGetCollection(fact, AccumulationInitialValueId, out var initialValues) ||
-            initialValues.Length != 1 ||
-            string.IsNullOrWhiteSpace(initialValues[0]) ||
-            !TryGetCollection(fact, AccumulationItemValueId, out var items) ||
-            items.Length != 1 ||
-            string.IsNullOrWhiteSpace(items[0]) ||
-            !fact.SemanticCollections.TryGetValue(AccumulationCollectionValueId, out var contents) ||
-            contents.Items.IsDefaultOrEmpty)
+            string.IsNullOrWhiteSpace(names[0]))
         {
-            error = "An accumulation requires one accumulator name, initial value, item name, and collection.";
+            error = "An accumulation requires one accumulator name.";
             return false;
         }
 
         var accumulator = names[0];
-        var item = items[0];
-        var itemKind = contents.Items[0].Kind;
+        var itemKind = SemanticCollectionItemKind.Number;
+        var item = string.Empty;
+        SemanticCollection? contents = null;
+        var initialValue = string.Empty;
+
+        if (TryGetCollection(fact, AccumulationItemValueId, out var items) &&
+            items.Length == 1 &&
+            !string.IsNullOrWhiteSpace(items[0]))
+        {
+            item = items[0];
+        }
+
+        if (fact.SemanticCollections.TryGetValue(AccumulationCollectionValueId, out var captured) &&
+            !captured.Items.IsDefaultOrEmpty)
+        {
+            contents = captured;
+            itemKind = captured.Items[0].Kind;
+        }
+
+        if (TryGetCollection(fact, AccumulationInitialValueId, out var initialValues) &&
+            initialValues.Length == 1 &&
+            !string.IsNullOrWhiteSpace(initialValues[0]))
+        {
+            initialValue = initialValues[0];
+        }
+
+        // A request that names no data falls back to the declared example data of its language pack: the same
+        // single policy every under-specified request uses, never a task-shaped value.
+        if (contents is null || item.Length == 0 || initialValue.Length == 0)
+        {
+            if (exampleData is null)
+            {
+                error = "An accumulation with unnamed data requires declared example data.";
+                return false;
+            }
+
+            contents ??= new SemanticCollection(
+                [.. exampleData.Numbers.Select(value =>
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, value))]);
+            itemKind = contents.Items[0].Kind;
+            item = item.Length == 0 ? exampleData.NumberItemName : item;
+            initialValue = initialValue.Length == 0 ? exampleData.AccumulatorInitialValue : initialValue;
+        }
+
+        if (contents is null || contents.Items.IsDefaultOrEmpty || item.Length == 0 || initialValue.Length == 0)
+        {
+            error = "An accumulation requires one accumulator name, initial value, item name, and collection.";
+            return false;
+        }
         declarations.Add(new AccumulationRequirement(
             accumulator,
             itemKind,
             item,
             new SemanticListLiteralExpression(
                 [.. contents.Items.Select(ToLiteralExpression)]),
-            ToLiteralExpression(new SemanticCollectionItem(itemKind, initialValues[0])),
+            ToLiteralExpression(new SemanticCollectionItem(itemKind, initialValue)),
             new SemanticBinaryExpression(
                 SemanticExpressionOperator.Add,
                 new SemanticNameExpression(accumulator),
