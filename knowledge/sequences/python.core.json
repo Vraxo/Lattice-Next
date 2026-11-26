@@ -6147,7 +6147,8 @@
           "collectionDelimiter": ",",
           "collectionFieldDelimiter": ":",
           "collectionFieldIndex": 0,
-          "trimSuffixCharacters": "."
+          "trimSuffixCharacters": ".",
+          "preserveRawValue": true
         }
       ]
     },
@@ -6178,7 +6179,8 @@
           "collectionDelimiter": ",",
           "collectionFieldDelimiter": ":",
           "collectionFieldIndex": 1,
-          "trimSuffixCharacters": "."
+          "trimSuffixCharacters": ".",
+          "preserveRawValue": true
         }
       ]
     }
