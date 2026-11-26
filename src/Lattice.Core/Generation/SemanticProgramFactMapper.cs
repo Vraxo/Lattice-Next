@@ -204,25 +204,7 @@ public static class SemanticProgramFactMapper
         var projection = new SemanticProgram(requirements.ToImmutable());
         if (!SemanticProgramValidator.IsValid(projection))
         {
-            var details = string.Join(" | ", projection.Requirements.Select((requirement, index) =>
-                $"{index}:{requirement.GetType().Name}" +
-                $":single={SemanticProgramValidator.IsValid(new SemanticProgram([requirement]))}" +
-                (requirement is AccumulationRequirement accumulation
-                    ? $":source={SemanticExpressionAnalysis.IsValid(accumulation.Source)}" +
-                      $":update={SemanticExpressionAnalysis.IsValid(accumulation.Update)}" +
-                      $":initial={SemanticExpressionAnalysis.IsValid(accumulation.InitialValue)}" +
-                      $":kind={accumulation.AccumulatorKind}" +
-                      $":name={accumulation.AccumulatorName}:item={accumulation.ItemName}" +
-                      $":items={(accumulation.Source is SemanticListLiteralExpression list
-                          ? string.Join("/", list.Items.Select(item => item.GetType().Name + ":" + item switch
-                          {
-                              SemanticNumberExpression number => number.Value,
-                              SemanticTextExpression text => text.Value,
-                              _ => "?"
-                          }))
-                          : "not-a-list")}"
-                    : string.Empty)));
-            error = $"The projected generic program requirements are not structurally valid. [{details}]";
+            error = "The projected generic program requirements are not structurally valid.";
             return false;
         }
 
@@ -1066,10 +1048,20 @@ public static class SemanticProgramFactMapper
             (fact.Expressions.ContainsKey(OutputValueId) ||
              fact.ExpressionCollections.ContainsKey(OutputValueId)));
 
-    private static SemanticExpression ToLiteralExpression(SemanticCollectionItem item) =>
-        item.Kind == SemanticCollectionItemKind.Text
-            ? new SemanticTextExpression(item.Value)
-            : new SemanticNumberExpression(item.Value);
+    private static SemanticExpression ToLiteralExpression(SemanticCollectionItem item)
+    {
+        if (item.Kind == SemanticCollectionItemKind.Text)
+        {
+            return new SemanticTextExpression(item.Value);
+        }
+
+        var value = item.Value.Trim();
+        return value.StartsWith('-') && value.Length > 1
+            ? new SemanticUnaryExpression(
+                SemanticExpressionOperator.Negative,
+                new SemanticNumberExpression(value[1..]))
+            : new SemanticNumberExpression(value);
+    }
 
     private static bool TryProjectAssignments(
         ImmutableArray<SequenceSemanticFact> facts,

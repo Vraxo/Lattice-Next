@@ -15,7 +15,9 @@ public sealed class SemanticProgramRequirementTests
                 SemanticCollectionItemKind.Number,
                 "value",
                 new SemanticListLiteralExpression([
-                    new SemanticNumberExpression("-2"),
+                    new SemanticUnaryExpression(
+                        SemanticExpressionOperator.Negative,
+                        new SemanticNumberExpression("2")),
                     new SemanticNumberExpression("4.5"),
                     new SemanticNumberExpression("1.5")
                 ]),
