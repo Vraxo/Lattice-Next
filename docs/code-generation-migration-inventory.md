@@ -6,7 +6,7 @@ This is an as-built source inventory for [M-01 in the active migration queue](..
 
 ## Verified baseline
 
-The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **136 sequence rules, 231 input rules, 50 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **53 productions, 13 bindings, and 55 operations**. [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
+The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **50 sequence rules, 240 input rules, 30 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**. [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
 
 One detail in the queue's examples is stale: there is no current fact ID beginning `program.sign-classification.`. The corresponding input facts are `program.assignment.classification` and `program.classification.positive`, `.negative`, and `.zero`; they are still task-specific.
 
@@ -253,8 +253,8 @@ The Core project embeds all `knowledge/languages/**/*.json` and `knowledge/seque
 
 | Module | Classification and role |
 |---|---|
-| [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) | **Mixed: phrase/task recognizers + request fact schema + Python token output + full/near-full task solutions.** 231 input rules and 50 validations produce `program.*`/`value.*` facts; 136 rules output Python text and fences; one `quoted-string` encoding escapes source text. It is the only sequence module and the main source of single-task shortcuts. |
-| [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) | **Legitimate declarative target-language knowledge.** 53 Python productions contain statement/call/assignment/control-flow spellings and indentation; 13 bindings describe generic argument/goal-binding sources; 55 operations map effects/argument kinds to Python operation symbols and start productions (including standard APIs such as `open`, `input`, `json.dump`, and `sys.stdout.write`). Keep Python syntax and API spellings here. It contains no single benchmark task's full program, but is only exercised in production through the Blender route today. |
+| [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) | **Mixed: phrase/task recognizers + request fact schema + Python token output + full/near-full task solutions.** 240 input rules and 30 validations produce `program.*`/`value.*` facts; 50 rules output Python text and fences; one `quoted-string` encoding escapes source text. It is the only sequence module and the main source of single-task shortcuts. |
+| [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) | **Legitimate declarative target-language knowledge.** 102 Python productions contain statement/call/assignment/control-flow spellings and indentation; 26 bindings describe generic argument/goal-binding sources; 104 operations map effects/argument kinds to Python operation symbols and start productions (including standard APIs such as `open`, `input`, `json.dump`, and `sys.stdout.write`). Keep Python syntax and API spellings here. It contains no single benchmark task's full program, but is only exercised in production through the Blender route today. |
 | [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) | **Foundational but shallow programming ontology.** It supplies generic concepts such as program, statement, expression, value, variable, functions, parameters, collections, modules, exceptions, classes and APIs, plus Python individuals and graph assertions. All 43 type declarations are primitive; relations do not yet model reusable typed operation signatures/effects/prerequisites or enough construction dependencies to drive generation. |
 | [`knowledge/domains/blender-object-replacement-script.json`](../knowledge/domains/blender-object-replacement-script.json) | **Mixed: legitimate Blender API/domain facts plus a task-specific ordered solution plan.** It has 118 concepts (9 types, 109 individuals), 8 relation signatures, 241 relation assertions, one data property, and 18 step-order assertions. The 18 steps hard-code the object-replacement plan (imports, target name/pattern, snapshot/iteration/match, light creation, transform/collection linking, fallback, removal) and provide generation effects, argument kinds, and literal source-expression bindings. The eight `api-*` concepts (plus `blender-codegen-api-scene-collection-link`) and their API references are legitimate domain knowledge; the task's selected, ordered answer plan is not reusable programming semantics. |
 | [`knowledge/domains/core.json`](../knowledge/domains/core.json) | **Generic ontology infrastructure.** Declares shared `is-a`/`instance-of` signatures; not a code-generation recipe. |
@@ -319,7 +319,7 @@ Scalar requests are now interpreted as ordered, request-derived requirements. No
 - **Fixed comparison samples removed (M-07.9 cutover):** the three marker-only captures `recognize-conditional-output-adult-at-least`, `recognize-conditional-output-minor-less-than`, and `recognize-conditional-output-match-equals` and their complete-program fragments `python-conditional-output-adult-at-least`, `python-conditional-output-minor-less-than`, `python-conditional-output-match-equals` are deleted. Requests phrased as `<output verb> 'text' if <fixed comparison>` are no longer answered from stored answers; the generic conditional realization that covers that phrasing is queued in M-08 (8.10–8.12).
 - **Deliberately retained for the M-08 cutover:** `program.assignment.first/.second/.result` (two-number addition, benchmark `py-002`) and `program.assignment.classification` plus `program.classification.positive/.negative/.zero` (sign classification, benchmark `py-003`). Their consumers (`python-addition-*`, `python-sign-classification-*`) are still the only active producers for those benchmark tasks, so removing only the captures would disable passing benchmark examples. M-08.9 and M-08.14 remove the facts and fragments together once generic realization covers those programs.
 
-Current module counts after this change: 133 sequence rules, 236 input-fact rules, 50 validations, 1 encoding. The M-07.1 table above is retained as the pre-migration inventory; the fixed-comparison row no longer describes the current file.
+Current module counts after this change: 50 sequence rules, 240 input-fact rules, 30 validations, 1 encoding. The M-07.1 table above is retained as the pre-migration inventory; the fixed-comparison row no longer describes the current file.
 
 ### M-08.1 through M-08.20 scalar composition (current state)
 
@@ -541,10 +541,10 @@ Two model facilities were added for this family:
 The family's gate is knowledge-side: the three round-trip input rules only fire for a request that also reads
 the data back, so an incomplete request produces no requirement at all and is rejected as before.
 
-Current knowledge counts after M-8.9, M-8.14, M-9.22, and M-9.23: **65 sequence rules**
-(98 → 97 → 96 → 88 → 85 → 72 → 68 → 65) and **234 input rules** (241 → 238 → 248 → 238 → 232 → 234), with
-**33 validations**; the pack holds **100 productions**, **26 bindings**, and **102 operations**, plus
-`inputSyntax.programArgumentFormat`, the pack-level `recordLiteralFormat`, and the `exampleData` policy.
+Current knowledge counts after M-9.25b: **50 sequence rules** and **240 input rules**, with **30 validations**;
+the pack holds **102 productions**, **26 bindings**, and **104 operations**, plus
+`inputSyntax.programArgumentFormat`, the pack-level `recordLiteralFormat`, the sort and generator formats, and
+the `exampleData` policy.
 
 ## M-12.1 — Blender gates in `TaskCodeGenerationResponder`
 
@@ -749,10 +749,9 @@ facts no extraction rule can produce any more. Those ten are deleted:
 `program.directory`, `program.file`, `program.for`, `program.import`, `program.json`, `program.list`,
 `program.non-empty`, `program.try`, `program.while`, `program.with`.
 
-The twelve that remain each still gate a live family and now carry the owning ticket in a comment: 8.14
-(`program.classification`, `program.assignment.classification`), 9.22 (`program.collection`, `program.even`),
-9.23 (`program.loop`, the three `program.assignment.*` steps), 9.24 (`program.dictionary`), and 9.25
-(`program.single-field`, `program.multi-field`, `program.record`). `Keeps_deferred_program_prefixes_backed_by_knowledge`
+The prefixes that remain each still gate a live family and now carry the owning ticket in a comment: 8.14
+(`program.classification`, `program.assignment.classification`), 9.22 (`program.collection`),
+9.23 (`program.loop`), 9.24 (`program.dictionary`), and 9.25 (`program.record`). `Keeps_deferred_program_prefixes_backed_by_knowledge`
 fails if a prefix stops matching a producible fact, so the list can only shrink as families move.
 
 File handling needs no marker at all now: line counts go through `FileReadRequirement` and directory listings
@@ -764,27 +763,24 @@ Completed with M-12.6 and recorded here for the section: no Blender task fact or
 the domain/API knowledge is reused through `TaskProgramGenerationResponder` with neutral `code-generation-*`
 identifiers.
 
-### M-13.11, M-13.12, M-13.14 — fixed data and complete fragments (blocked)
+### M-13.11, M-13.12, M-13.14 — fixed data and complete fragments
 
-Twenty rules emit a multi-line program and every one of them belongs to a blocked family, so the fragments
-cannot leave before their generic replacements exist:
+Twenty rules emitted a multi-line program when this section was written; the fragment families have been replaced
+one ticket at a time, and two rules remain:
 
 | Family | Rules | Literal data carried |
 | --- | ---: | --- |
-| sign classification (8.14) | 3 | `Positive`, `Negative`, `Zero` outputs |
-| parity filters (9.22) | 3 | `[1, 2, 3, 4, 5]`, `[1, 2, 3, 4, 5, 6]`, `[-3, -2, -1, 0, 1, 2, 3]` |
-| loop totals (9.23) | 3 | `[1, 2, 3]`, `[1, 2, 3, 4, 5]`, `[-2, 4.5, 1.5]` |
-| dictionary mapping (9.24) | 6 | `{'apple': 1.5, 'banana': 0.75}`, `{'Ada': 3, 'Grace': 5, 'Linus': 6}`, sample names and numbers |
-| record sorting and aggregation (9.25) | 5 | `[{'name': 'ada', 'age': 36}, …]`, grouped totals |
+| dictionary key/value iteration scaffold (9.24) | 1 | the `items = {}` placeholder the request-supplied dictionary now replaces |
+| grouped record aggregation (9.25c) | 1 | `[{'customer': …, 'spending': …}]` sample records and the `totals.get(key, 0)` accumulator |
 
 Those ids are the exception table in `SequenceKnowledgeGuardTests`, so a new fragment fails the build and a
 recorded one cannot disappear without editing the table.
 
 ### M-13.13 — fixed function, class, and file outputs
 
-No sequence rule emits a function, class, or file program: the retained 65 rules cover assignment, output,
-arithmetic, range, filter, loop, dictionary, and sorting statements only, and none of the twenty multi-line
-fragments is a function or class. Function, class, and file programs are planned from requirements, and
+No sequence rule emits a function, class, or file program: the retained 50 rules cover assignment, output,
+arithmetic, range, filter, loop, dictionary, and sorting statements only, and neither remaining multi-line
+fragment is a function or class. Function, class, and file programs are planned from requirements, and
 `grep -riE '"(create|write|generate) a python' src/` returns nothing, so no prompt literal survives in a
 generation module.
 
@@ -795,7 +791,7 @@ New `tests/Lattice.Core.Tests/Generation/SequenceKnowledgeGuardTests.cs`, five t
 | Guard | What it proves |
 | --- | --- |
 | `Keeps_benchmark_and_task_identities_out_of_knowledge` | no `py-###` identifier and no `benchmark` token in the knowledge; every fact id stays in a generic namespace |
-| `Keeps_complete_solution_fragments_confined_to_recorded_families` | the set of rules emitting two or more lines equals the twenty pinned ids |
+| `Keeps_complete_solution_fragments_confined_to_recorded_families` | the set of rules emitting two or more lines equals the two pinned ids |
 | `Keeps_every_rule_and_validation_reachable_from_extraction` | no rule and no validation names a fact that extraction cannot produce |
 | `Keeps_deferred_program_prefixes_backed_by_knowledge` | no dead entry in the planner's deferred list |
 | `Generates_different_programs_when_the_request_values_change` / `…_names_change` | changing a value or a name changes the generated program, so a hard-coded answer fails |
@@ -805,11 +801,11 @@ copy of it.
 
 ### M-13.19 — retained knowledge, removed shortcuts
 
-Retained as reusable: 71 input rules that feed generic requirement facts, the 33 language-neutral
-validations, the `quoted-string` encoding, the 12 guarded deferred prefixes, and every pack production,
+Retained as reusable: the input rules that feed generic requirement facts, the 30 language-neutral
+validations, the `quoted-string` encoding, the four guarded deferred prefixes, and every pack production,
 binding, and operation. Removed: four migrated families (file lines, directory listing, serialization round
 trip, Blender scripts) with their replacement operations, one dead validation, and ten dead deferred prefixes.
-Blocked remainder: the twenty fixed fragments in the five families listed above, tracked by 8.14 and 9.22–9.25.
+Blocked remainder: the two fixed fragments listed above, tracked by the open 9.24 and 9.25 tickets.
 
 ## M-9.23 — loop totals from request-supplied collections
 
@@ -1118,11 +1114,11 @@ instead of `'name'`. The records keep their single-quoted dict style, while a ca
 canonical string literal; every other byte of all four programs is unchanged, and the executed output is
 identical.
 
-## The four fragments the declared sample call unblocks
+## The fragments the declared sample call unblocks
 
-The policy is declared (M-9.24b) and the single-field sorts consume it (M-9.25a), so what is left is the
-requirement the remaining families need. Four exception-table rows remain — two multi-field record sorts and one
-grouped aggregation — and each is a function whose body is generic over its parameters and whose last line prints
+The policy is declared (M-9.24b), the single-field sorts consume it (M-9.25a), and so do the several-key sorts
+(M-9.25b), so what is left is the requirement the remaining families need. Two exception-table rows remain, both
+parts of the grouped aggregation, and each is a function whose body is generic over its parameters and whose last line prints
 one concrete call, for example
 `print(sort_records([{…}], "age"))`. That call is no longer the missing piece: `GenerationSampleCallPolicy`
 inside `GenerationExampleData` supplies the function name, the result name, and both argument lists once for
@@ -1134,7 +1130,7 @@ What is still missing is modelling — a subscript expression over the loop item
 | --- | --- | --- |
 | ~~9.24b~~ | ~~three dictionary mappings~~ | done: `GenerationSampleCallPolicy` and `DictionaryMapRequirement` |
 | ~~9.25a~~ | ~~four single-field record sorts~~ | done: `SemanticSubscriptExpression`, `SemanticCaseFoldExpression`, `SemanticSortExpression` |
-| 9.25b | two multi-field record sorts | 9.25a's subscript plus a declarative nested key expression (`tuple(record[field] for field in keys)`) |
+| ~~9.25b~~ | ~~two multi-field record sorts~~ | done: `SemanticGeneratorExpression`, `SemanticTupleExpression` |
 | 9.25c | one grouped aggregation | a grouped-accumulation requirement (totals per key) |
 
 Doing them in that order keeps every replacement separate from its deletion, and each deletion drops the

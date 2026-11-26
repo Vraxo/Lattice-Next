@@ -19,10 +19,9 @@ public sealed class SequenceKnowledgeGuardTests
     /// </summary>
     private static readonly string[] RecordedMultiLineRules =
     [
-        // 9.23 — fixed loop totals carrying the collection literals.
-        // 9.24 — fixed dictionary mappings and iterations.
+        // 9.24 — the fixed dictionary iteration that reads its data from a file.
         "python-dictionary-iteration-open",
-        // 9.25 — fixed record sorting and grouped aggregation.
+        // 9.25c — the fixed grouped record aggregation.
         "record-aggregation-output"
     ];
 
