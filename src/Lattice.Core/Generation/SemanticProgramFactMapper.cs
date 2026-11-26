@@ -1168,7 +1168,7 @@ public static class SemanticProgramFactMapper
             return true;
         }
 
-        var sum = new SemanticNameExpression(names[0]);
+        SemanticExpression sum = new SemanticNameExpression(names[0]);
         for (var index = 1; index < names.Count; index++)
         {
             sum = new SemanticBinaryExpression(
