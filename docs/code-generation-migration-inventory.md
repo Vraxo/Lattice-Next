@@ -809,3 +809,32 @@ validations, the `quoted-string` encoding, the 12 guarded deferred prefixes, and
 binding, and operation. Removed: four migrated families (file lines, directory listing, serialization round
 trip, Blender scripts) with their replacement operations, one dead validation, and ten dead deferred prefixes.
 Blocked remainder: the twenty fixed fragments in the five families listed above, tracked by 8.14 and 9.22–9.25.
+
+## M-9.23 — loop totals from request-supplied collections
+
+Two of the three fixed loop-total fragments are deleted. A request that states its own data —
+"starts total at 0 and adds each number in [1, 2, 3] to total, then prints total" and "initializes result to 0
+and adds each value in [-2, 4.5, 1.5] to result, then displays result" — is now read by eight new input rules
+into one `program.accumulation` fact:
+
+| Value id | Captured from | Example |
+| --- | --- | --- |
+| `accumulator` | the declared total after `starts` / `initializes` | `total`, `result` |
+| `initial` | the value after `at` / `to` | `0` |
+| `item` | the item after `each`, before `in` | `number`, `value` |
+| `collection` | the bracketed list after `in`, as a semantic collection | `[1, 2, 3]`, `[-2, 4.5, 1.5]` |
+
+Every capture rule is scoped with `requiredAllSequences` on the accumulation phrase, so a request that merely
+mentions "starts" or "each" cannot create a partial fact. `SemanticProgramFactMapper.TryProjectAccumulations`
+projects the fact onto one `AccumulationRequirement` whose source is a `SemanticListLiteralExpression` of the
+captured items, plus the reporting output when the request asks for one and supplies no typed output
+expression. Signed items become a prefix negation (`SemanticUnaryExpression(Negative, 2)`) because a canonical
+number literal is non-negative; that rule is now covered by
+`SemanticProgramRequirementTests.Accepts_a_list_literal_source_with_signed_and_decimal_items`.
+
+Deleted: `python-loop-accumulator-total`, `python-loop-accumulator-result`, `recognize-loop-accumulator-total`,
+`recognize-loop-accumulator-result`. The generated programs are byte-identical, and the guard exception table
+dropped from twenty entries to eighteen.
+
+Still blocked: `python-manual-list-total` — the request names no collection at all, so it needs the shared
+example-data policy that 8.9 and 8.14 also wait on.
