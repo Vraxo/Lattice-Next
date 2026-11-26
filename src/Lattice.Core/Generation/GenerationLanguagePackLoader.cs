@@ -37,6 +37,51 @@ public sealed class GenerationLanguagePackLoader
             return false;
         }
 
+        if (pack is not null)
+        {
+            bool Fail(bool condition, string name)
+            {
+                if (!condition)
+                {
+                    return false;
+                }
+
+                error = $"DIAGNOSTIC {name} of '{pack.Language}'";
+                pack = null;
+                return true;
+            }
+
+            if (Fail(pack.FormatVersion != 1, "formatVersion") ||
+                Fail(!IsIdentifier(pack.Language), "language") ||
+                Fail(!IsIdentifier(pack.StartSymbol), "startSymbol") ||
+                Fail(pack.Productions.IsDefaultOrEmpty || pack.Productions.Length > 128, "productions") ||
+                Fail(pack.Bindings.IsDefaultOrEmpty || pack.Bindings.Length > 32, "bindings") ||
+                Fail(pack.Operations.IsDefaultOrEmpty || pack.Operations.Length > 128, "operations") ||
+                Fail(pack.StringLiteralFormat is null ||
+                    string.IsNullOrEmpty(pack.StringLiteralFormat.OpeningDelimiter) ||
+                    string.IsNullOrEmpty(pack.StringLiteralFormat.ClosingDelimiter) ||
+                    pack.StringLiteralFormat.OpeningDelimiter.Length > 4 ||
+                    pack.StringLiteralFormat.ClosingDelimiter.Length > 4 ||
+                    pack.StringLiteralFormat.Escapes.IsDefault, "stringLiteralFormat") ||
+                Fail(pack.CollectionLiteralFormat is { } collectionFormat &&
+                    !IsValidCollectionLiteralFormat(collectionFormat), "collectionLiteralFormat") ||
+                Fail(pack.RecordLiteralFormat is { } recordFormat &&
+                    !IsValidRecordLiteralFormat(recordFormat), "recordLiteralFormat") ||
+                Fail(pack.MapLiteralFormat is { } mapFormat &&
+                    !IsValidRecordLiteralFormat(mapFormat), "mapLiteralFormat") ||
+                Fail(!IsValidExpressionFormat(pack.LengthFormat, 64, "{0}"), "lengthFormat") ||
+                Fail(!IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}"), "totalExpressionFormat") ||
+                Fail(!IsValidExpressionFormat(pack.PlaceholderMappingFormat, 128, "{0}"), "placeholderMappingFormat") ||
+                Fail(!IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}"), "filterExpressionFormat") ||
+                Fail(pack.InputSyntax is { } inputSyntax && !IsValidInputSyntax(inputSyntax), "inputSyntax") ||
+                Fail(pack.ExampleData is { } exampleData && !IsValidExampleData(exampleData), "exampleData") ||
+                Fail(!pack.ConversionFormats.IsDefaultOrEmpty &&
+                    !IsValidConversionFormats(pack.ConversionFormats), "conversionFormats"))
+            {
+                return false;
+            }
+        }
+
         if (pack is null ||
             pack.FormatVersion != 1 ||
             !IsIdentifier(pack.Language) ||
