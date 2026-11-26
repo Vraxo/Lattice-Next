@@ -45,9 +45,8 @@ public static class SemanticProgramPlanner
     /// </summary>
     internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        // 9.22 — collection filters.
+        // 9.22 — function-shaped collection filters.
         "program.collection",
-        "program.even",
         // 9.23 — explicit loops over a named collection.
         "program.loop",
         // 9.24 — dictionary iteration and mapping.

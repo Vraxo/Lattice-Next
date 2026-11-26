@@ -867,11 +867,11 @@ public sealed class PythonProgramGenerationTests
         var generatedCode = string.Join(Environment.NewLine, lines[(start + 1)..end]);
         Assert.Equal(
             string.Join(Environment.NewLine,
-                "for number in [1, 2, 3, 4, 5, 6]:",
+                "for number in [1, 2, 3, 4, 5]:",
                 "    if number % 2 == 0:",
                 "        print(number)"),
             generatedCode);
-        await AssertPythonOutput(generatedCode, "2\n4\n6");
+        await AssertPythonOutput(generatedCode, "2\n4");
     }
 
     [Fact]

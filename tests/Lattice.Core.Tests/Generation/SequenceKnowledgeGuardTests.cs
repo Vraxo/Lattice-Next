@@ -19,10 +19,6 @@ public sealed class SequenceKnowledgeGuardTests
     /// </summary>
     private static readonly string[] RecordedMultiLineRules =
     [
-        // 9.22 — fixed parity filters and their sample data.
-        "python-even-list-filter",
-        "python-odd-value-list-parity-filter",
-        "python-even-number-list-parity-filter",
         // 9.23 — fixed loop totals carrying the collection literals.
         // 9.24 — fixed dictionary mappings and iterations.
         "python-value-offset-dictionary-mapping",

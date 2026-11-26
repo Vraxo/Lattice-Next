@@ -54,6 +54,12 @@ public static class SemanticProgramFactMapper
     private const string ClassFieldInitialValueId = "initial";
     private static readonly char[] LabelTrimCharacters = [',', '.', ';', ':', ' '];
 
+    private const string ParityFilterFactId = "program.parity-filter";
+    private const string ParityValueId = "parity";
+    private const string CollectionLoopFactId = "program.collection-loop";
+    private const string LoopItemValueId = "item";
+    private const string LoopCollectionValueId = "collection";
+    private const string ParityDivisor = "2";
     private const string SignClassificationFactId = "program.classification.sign";
     private const string SignPositiveLabelValueId = "positive";
     private const string SignNegativeLabelValueId = "negative";
@@ -99,6 +105,20 @@ public static class SemanticProgramFactMapper
         {
             error = "Semantic program facts must be initialized.";
             return false;
+        }
+
+        // A parity filter is a whole loop with a guarded body, so it is projected on its own: the request's
+        // collection, item, and parity word, or the declared example data when the request names no list.
+        var parity = facts.FirstOrDefault(candidate => candidate.Id == ParityFilterFactId);
+        if (parity is not null)
+        {
+            if (!TryCreateParityFilter(parity, facts, exampleData, out var filterProgram, out error))
+            {
+                return false;
+            }
+
+            program = filterProgram;
+            return true;
         }
 
         var events = ImmutableArray.CreateBuilder<RequirementEvent>();
@@ -1101,6 +1121,107 @@ public static class SemanticProgramFactMapper
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Projects "prints each number in [...] only if it is even" and its unnamed form onto one iteration whose
+    /// body prints the item behind a parity guard. The guard is a remainder comparison against zero, which is
+    /// what parity means; the collection, the item name, and the parity word stay request data, and a request
+    /// that names no list takes the declared example data.
+    /// </summary>
+    private static bool TryCreateParityFilter(
+        SequenceSemanticFact parity,
+        ImmutableArray<SequenceSemanticFact> facts,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        if (!parity.Values.TryGetValue(ParityValueId, out var parityWord) ||
+            !TryReadParityOperator(parityWord, out var comparison))
+        {
+            error = "A parity filter requires the parity it selects for.";
+            return false;
+        }
+
+        var itemName = string.Empty;
+        SemanticCollection? contents = null;
+        var loop = facts.FirstOrDefault(candidate => candidate.Id == CollectionLoopFactId);
+        if (loop is not null)
+        {
+            if (loop.Values.TryGetValue(LoopItemValueId, out var item) && !string.IsNullOrWhiteSpace(item))
+            {
+                itemName = item.Trim();
+            }
+
+            if (loop.SemanticCollections.TryGetValue(LoopCollectionValueId, out var captured) &&
+                !captured.Items.IsDefaultOrEmpty)
+            {
+                contents = captured;
+            }
+        }
+
+        if (exampleData is not null)
+        {
+            contents ??= new SemanticCollection(
+                [.. exampleData.Numbers.Select(value =>
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, value))]);
+            itemName = itemName.Length == 0 ? exampleData.NumberItemName : itemName;
+        }
+
+        if (contents is null || contents.Items.IsDefaultOrEmpty || itemName.Length == 0)
+        {
+            error = "A parity filter requires an item name and a collection.";
+            return false;
+        }
+
+        var name = new SemanticNameExpression(itemName);
+        var predicate = new SemanticBinaryExpression(
+            comparison,
+            new SemanticBinaryExpression(
+                SemanticExpressionOperator.Remainder,
+                name,
+                new SemanticNumberExpression(ParityDivisor)),
+            new SemanticNumberExpression("0"));
+
+        var filter = new SemanticProgram(
+        [
+            new IterationRequirement(
+                itemName,
+                new SemanticListLiteralExpression([.. contents.Items.Select(ToLiteralExpression)]),
+                [
+                    new ConditionalRequirement(
+                        predicate,
+                        [new OutputRequirement(name)],
+                        ImmutableArray<ProgramRequirement>.Empty)
+                ])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(filter))
+        {
+            error = "The projected parity filter requirements are not structurally valid.";
+            return false;
+        }
+
+        program = filter;
+        return true;
+    }
+
+    private static bool TryReadParityOperator(string parityWord, out SemanticExpressionOperator comparison)
+    {
+        comparison = SemanticExpressionOperator.Equal;
+        switch (parityWord.Trim().ToLowerInvariant())
+        {
+            case "even":
+                return true;
+            case "odd":
+                comparison = SemanticExpressionOperator.NotEqual;
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static bool RequestsOutput(ImmutableArray<SequenceSemanticFact> facts) =>

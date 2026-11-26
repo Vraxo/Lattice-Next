@@ -19,6 +19,15 @@ public sealed class SemanticProgramGenerationTests
         "Write a Python program that classifies an integer as positive, negative, or zero.",
         "number = -5\nif number > 0:\n    print(\"Positive\")\nif number < 0:\n    print(\"Negative\")\nif number == 0:\n    print(\"Zero\")")]
     [InlineData(
+        "Create a Python program that prints each number in [1, 2, 3, 4, 5, 6] only if it is even.",
+        "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)")]
+    [InlineData(
+        "Build a Python script that displays each value from [-3, -2, -1, 0, 1, 2, 3] only if it is odd.",
+        "for value in [-3, -2, -1, 0, 1, 2, 3]:\n    if value % 2 != 0:\n        print(value)")]
+    [InlineData(
+        "Write a Python program that prints only the even numbers from a list.",
+        "for number in [1, 2, 3, 4, 5]:\n    if number % 2 == 0:\n        print(number)")]
+    [InlineData(
         "Create a Python program that sets total to 5 then print total.",
         "total = 5\nprint(total)")]
     [InlineData(

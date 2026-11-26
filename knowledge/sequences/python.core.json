@@ -1783,16 +1783,6 @@
       "factId": "value.output.expression"
     },
     {
-      "id": "recognize-even-list-filter-request",
-      "matchTokens": [
-        "prints",
-        "even",
-        "numbers",
-        "list"
-      ],
-      "factId": "program.even-list-filter"
-    },
-    {
       "id": "recognize-initializes-assignment",
       "matchTokens": [
         "initializes"
@@ -2037,30 +2027,6 @@
         "function"
       ],
       "factId": "intent.program-generation"
-    },
-    {
-      "id": "recognize-even-number-list-parity-filter",
-      "matchTokens": [
-        "prints",
-        "each",
-        "number",
-        "only",
-        "if",
-        "even"
-      ],
-      "factId": "program.even-number-list-parity-filter"
-    },
-    {
-      "id": "recognize-odd-value-list-parity-filter",
-      "matchTokens": [
-        "displays",
-        "each",
-        "value",
-        "only",
-        "if",
-        "odd"
-      ],
-      "factId": "program.odd-value-list-parity-filter"
     },
     {
       "id": "recognize-number-square-dictionary-mapping",
@@ -5858,6 +5824,76 @@
           "as"
         ]
       ]
+    },
+    {
+      "id": "capture-parity-filter-predicate",
+      "matchTokens": [
+        "if",
+        "it",
+        "is"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "only",
+          "if"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "trimSuffixCharacters": ",."
+        }
+      ]
+    },
+    {
+      "id": "recognize-even-numbers-from-a-list",
+      "matchTokens": [
+        "only",
+        "the",
+        "even",
+        "numbers"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "from",
+          "a",
+          "list"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "literalValue": "even"
+        }
+      ]
+    },
+    {
+      "id": "recognize-odd-numbers-from-a-list",
+      "matchTokens": [
+        "only",
+        "the",
+        "odd",
+        "numbers"
+      ],
+      "factId": "program.parity-filter",
+      "requiredAllSequences": [
+        [
+          "from",
+          "a",
+          "list"
+        ]
+      ],
+      "captures": [
+        {
+          "factId": "program.parity-filter",
+          "valueId": "parity",
+          "literalValue": "odd"
+        }
+      ]
     }
   ],
   "rules": [
@@ -6069,27 +6105,7 @@
       "requiresCompletedFacts": [
         "intent.program-generation"
       ],
-      "forbiddenFacts": [
-        "program.assignment.classification",
-        "program.even-list-filter"
-      ]
-    },
-    {
-      "id": "python-even-list-filter",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.even-list-filter"
-      ],
-      "nextToken": "for number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)\n```",
-      "satisfiesFacts": [
-        "program.even-list-filter",
-        "program.output",
-        "program.output.start",
-        "value.output",
-        "program.collection"
-      ]
+      "forbiddenFacts": []
     },
     {
       "id": "python-dictionary-iteration-open",
@@ -6247,47 +6263,6 @@
         "program.iteration",
         "program.output.start",
         "value.output"
-      ]
-    },
-    {
-      "id": "python-even-number-list-parity-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.even-number-list-parity-filter"
-      ],
-      "nextToken": "```python\nfor number in [1, 2, 3, 4, 5, 6]:\n    if number % 2 == 0:\n        print(number)\n```",
-      "satisfiesFacts": [
-        "program.even-number-list-parity-filter",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.iteration",
-        "program.condition",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-odd-value-list-parity-filter",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "program.odd-value-list-parity-filter"
-      ],
-      "nextToken": "```python\nfor value in [-3, -2, -1, 0, 1, 2, 3]:\n    if value % 2 != 0:\n        print(value)\n```",
-      "satisfiesFacts": [
-        "program.odd-value-list-parity-filter",
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start",
-        "program.iteration",
-        "program.condition",
-        "value.output",
-        "program.arithmetic"
       ]
     },
     {
