@@ -920,3 +920,36 @@ print(result)
 The count is not special-cased either: asking for three numbers plans `first_number`, `second_number`,
 `third_number` and `result = first_number + second_number + third_number`, which
 `SemanticProgramGenerationTests` asserts alongside the two-number request. No golden text changed.
+
+## M-8.14 — sign classification as a reusable requirement
+
+The fixed classification program (`number = -5` followed by three branches printing `Positive`, `Negative`, and
+`Zero`) is now planned. The gap was not the value — that is example data — but the shape: a request that states
+three conditions at once, which the scalar mapper could not express because it aligns one condition per request.
+
+`SignClassificationRequirement(VariableName, Value, PositiveLabel, NegativeLabel, ZeroLabel)` says what a sign
+classification is without naming a language: one value, three labels, and boundaries that belong to the kind
+because "sign" means the comparison against zero. `SemanticProgramPlanner.ExpandSignClassification` realises it
+with the operations that already existed:
+
+| Statement | Built from |
+| --- | --- |
+| `number = -5` | `AssignmentRequirement` of the example-data integer |
+| `if number > 0:` / `print("Positive")` | `ConditionalRequirement` comparing the name with the definitional zero |
+| `if number < 0:` / `if number == 0:` | the same construction with `LessThan` and `Equal` |
+
+The request always states its labels ("positive, negative, or zero"), so they are captured rather than invented:
+three capture rules read the word between the separators, and the planner reports each as a capitalised display
+label (the request's own word, presented the way the fragment did). `GenerationExampleData.IntegerValue` is the
+one invented value and is validated by `IsValidExampleData` like the rest of the policy.
+
+Two general fixes came out of it:
+
+- `SemanticProgramValidator` accepts the new kind and requires three non-empty single-line labels, so an
+  incomplete capture fails at the projection boundary instead of rendering.
+- The sign rules are scoped to the classification phrase *and* to the three label words, because
+  "converts text to an integer and returns a clear result" also contains `integer` followed by `is`.
+
+Deleted: `python-sign-classification-assignment`, `-positive`, `-negative`, `-zero`, twelve `*classification*`
+input rules, and the two `program.classification` deferred prefixes. The guard exception table drops from
+seventeen to fourteen entries. Golden text unchanged.
