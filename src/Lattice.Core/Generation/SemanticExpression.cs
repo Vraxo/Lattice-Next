@@ -340,7 +340,7 @@ internal static class SemanticExpressionAnalysis
 
     private static bool IsValueCore(SemanticExpression expression) =>
         expression is SemanticTextExpression or SemanticBooleanExpression or
-        SemanticListLiteralExpression or SemanticRecordLiteralExpression ||
+        SemanticListLiteralExpression or SemanticRecordLiteralExpression or
         SemanticMapLiteralExpression or SemanticArgumentsExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression ||
         IsArithmeticCore(expression);
