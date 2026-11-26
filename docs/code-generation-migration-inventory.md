@@ -953,3 +953,38 @@ Two general fixes came out of it:
 Deleted: `python-sign-classification-assignment`, `-positive`, `-negative`, `-zero`, twelve `*classification*`
 input rules, and the two `program.classification` deferred prefixes. The guard exception table drops from
 seventeen to fourteen entries. Golden text unchanged.
+
+## M-9.22 — parity filters from request data
+
+The three parity programs are planned. Two of them always named their data; the third never did:
+
+| Request | Data source | Program |
+| --- | --- | --- |
+| "prints each number in [1, 2, 3, 4, 5, 6] only if it is even" | request | `for number in [1, 2, 3, 4, 5, 6]:` + `if number % 2 == 0:` + `print(number)` |
+| "displays each value from [-3, -2, -1, 0, 1, 2, 3] only if it is odd" | request | the same shape with `!= 0` |
+| "prints only the even numbers from a list" | example data | the same shape over `[1, 2, 3, 4, 5]` |
+
+New input rules read the family into one `program.parity-filter` fact:
+
+| Rule | Reads |
+| --- | --- |
+| `capture-parity-filter-predicate` | the word after `only if it is` (`even`, `odd`) |
+| `capture-parity-filter-item-in-list` / `-from-list` | the item before `in` / `from` and the bracketed list after it, stopping before `only if` |
+| `recognize-even-numbers-from-a-list` / `-odd-numbers-…` | the unnamed form, whose parity word is the word the match already spells |
+
+`SemanticProgramFactMapper.TryCreateParityFilter` projects one `IterationRequirement` whose body is a
+`ConditionalRequirement` over `item % 2 == 0` (or `!= 0`) printing the item. The remainder comparison is the
+definition of parity, so it belongs to the projection; the item name, the collection, and the parity word come
+from the request, and a request that names no list falls back to the single example-data policy.
+
+**One golden text changed.** The unnamed request no longer iterates the fragment's six numbers, so its output is
+`2\n4` instead of `2\n4\n6`. The request names no data at all, so those values are invented, and the migration's
+rule is that invented values live in one policy — here `exampleData.numbers` — rather than in a fragment. Every
+request that states its own data is byte-identical.
+
+Deleted: `python-even-list-filter`, `python-even-number-list-parity-filter`,
+`python-odd-value-list-parity-filter`, `recognize-even-list-filter-request`,
+`recognize-even-number-list-parity-filter`, `recognize-odd-value-list-parity-filter`, one stale
+`forbiddenFacts` entry, and the dead `program.even` deferred prefix. The exception table drops from fourteen
+entries to eleven. The function-shaped `python-collection-filter-*` family still needs parameter, return, and
+sample-call realisation, so `program.collection` keeps its deferred prefix.
