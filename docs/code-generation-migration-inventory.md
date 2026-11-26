@@ -1092,7 +1092,12 @@ Three expressions closed the modelling gap:
 Eight input rules read `program.sort.records`: the kind marker, the function name, the records parameter, the
 field parameter, the descending word pair (`descending order` / `reverse order`), and both spellings of
 case-insensitivity. Every one of them excludes `those fields` and `list of field names`, which is how the
-multi-field family keeps its own facts. The three `identifierValue` validations move onto the new fact.
+multi-field family keeps its own facts.
+
+The three `identifierValue` validations that used to guard the function, records, and field names are deleted
+rather than moved: a request that names none of them takes them from the policy, and a rule-based validation
+cannot see a policy default. The pack's identifier rules still refuse a name no language can spell — the plan is
+refused, which the knowledge test now asserts.
 
 `GenerationSampleCallPolicy.Sort` declares the invented data once — the default names, the lambda item `record`,
 the record shape (`name` text, `age` number), and one sample per sensitivity:
