@@ -988,3 +988,38 @@ Deleted: `python-even-list-filter`, `python-even-number-list-parity-filter`,
 `forbiddenFacts` entry, and the dead `program.even` deferred prefix. The exception table drops from fourteen
 entries to eleven. The function-shaped `python-collection-filter-*` family still needs parameter, return, and
 sample-call realisation, so `program.collection` keeps its deferred prefix.
+
+## M-9.24a — declared dictionaries from request entries
+
+Both dictionary-iteration programs are planned. The request states the data:
+
+```
+Build a Python script that stores {'Ada': 3, 'Grace': 5, 'Linus': 6} as a dictionary named counts,
+then displays each name and its count.
+```
+
+```
+counts = {'Ada': 3, 'Grace': 5, 'Linus': 6}
+for name, count in counts.items():
+    print(name, count)
+```
+
+Five input rules read it into `program.declaration.dictionary`: the declared name after `named`, the keys and the
+values as ordered collections split on the request's own `,` entry separator and `:` field separator, and the two
+loop names from `each … and its …`. All five search every sentence, because a request that states decimal values
+splits into two sentences at the first decimal point — that was the reason the `prices` twin produced no name.
+
+Two model gaps had to close first:
+
+| Addition | Why |
+| --- | --- |
+| `SemanticMapLiteralExpression` + pack `mapLiteralFormat` (`'{0}': {1}`) | a Python dictionary is not a record literal: its keys are quoted with single quotes and it is not JSON |
+| `SemanticArgumentsExpression` | `print(product, price)` reports two values, and one output requirement carries one expression |
+
+`TryCreateDictionaryIteration` then projects the assignment and a `DictionaryIterationRequirement` whose body
+reports both names. Mapping literals also count as carried collections in `CarriesCollection`, and the fact id is
+`program.declaration.dictionary` rather than `program.dictionary…` so the mapping family keeps its deferred gate.
+
+Deleted: `python-dictionary-product-iteration`, `python-dictionary-name-count-iteration`,
+`recognize-dictionary-product-iteration`, `recognize-dictionary-name-count-iteration`, and two rows of the
+exception table (eleven → nine). Both programs are byte-identical.
