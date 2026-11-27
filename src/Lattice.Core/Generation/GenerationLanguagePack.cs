@@ -57,6 +57,12 @@ public sealed record GenerationLanguagePack(
     public string? TotalExpressionFormat { get; init; }
 
     /// <summary>
+    /// How this language counts from one number up to another; the format carries `{0}` for the start and
+    /// `{1}` for the exclusive end.
+    /// </summary>
+    public string? RangeExpressionFormat { get; init; }
+
+    /// <summary>
     /// How this language writes a collection of the items that satisfy a predicate, with `{0}` the kept value,
     /// `{1}` the item, `{2}` the source, and `{3}` the predicate.
     /// </summary>

@@ -1,34 +1,5 @@
 {
   "formatVersion": 1,
-  "encodings": [
-    {
-      "id": "quoted-string",
-      "openingDelimiter": "\"",
-      "closingDelimiter": "\"",
-      "escapes": [
-        {
-          "character": "\\",
-          "replacement": "\\\\"
-        },
-        {
-          "character": "\"",
-          "replacement": "\\\""
-        },
-        {
-          "character": "\n",
-          "replacement": "\\n"
-        },
-        {
-          "character": "\r",
-          "replacement": "\\r"
-        },
-        {
-          "character": "\t",
-          "replacement": "\\t"
-        }
-      ]
-    }
-  ],
   "inputRules": [
     {
       "id": "canonicalize-hello-world",
@@ -879,6 +850,246 @@
         [
           "function",
           "named"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-print-and",
+      "matchTokens": [
+        "print"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "and"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "if"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-prints-and",
+      "matchTokens": [
+        "prints"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "and"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "if"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-display-and",
+      "matchTokens": [
+        "display"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "and"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "if"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
+        ]
+      ]
+    },
+    {
+      "id": "capture-generic-output-displays-and",
+      "matchTokens": [
+        "displays"
+      ],
+      "factId": "program.requirement.output",
+      "captures": [
+        {
+          "factId": "program.requirement.output",
+          "valueId": "value",
+          "semanticExpressionKind": "value",
+          "preserveRawValue": true,
+          "stopBeforeSequences": [
+            [
+              "then"
+            ],
+            [
+              "otherwise"
+            ],
+            [
+              "else"
+            ]
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "requiredAllSequences": [
+        [
+          "and"
+        ]
+      ],
+      "requiredAnySequences": [
+        [
+          "assign"
+        ],
+        [
+          "assigns"
+        ],
+        [
+          "set"
+        ],
+        [
+          "sets"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "then"
+        ],
+        [
+          "if"
+        ],
+        [
+          "each"
+        ],
+        [
+          "every"
         ]
       ]
     },
@@ -6397,371 +6608,6 @@
         ]
       ],
       "searchAllSentences": true
-    }
-  ],
-  "rules": [
-    {
-      "id": "python-output-start",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.output",
-        "program.output.start"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-output-open",
-      "contextSuffix": [
-        "print"
-      ],
-      "requiredFacts": [
-        "program.output"
-      ],
-      "nextToken": "(",
-      "requiresCompletedFacts": [
-        "intent.program-generation"
-      ]
-    },
-    {
-      "id": "python-output-value",
-      "contextSuffix": [
-        "print",
-        "("
-      ],
-      "requiredFacts": [
-        "program.output",
-        "value.output"
-      ],
-      "tokenBinding": {
-        "factId": "value.output",
-        "valueId": "content",
-        "encoding": "quoted-string"
-      },
-      "satisfiesFacts": [
-        "value.output"
-      ],
-      "requiresCompletedFacts": [
-        "intent.program-generation"
-      ],
-      "forbiddenFacts": [
-        "value.output.expression"
-      ]
-    },
-    {
-      "id": "python-output-expression",
-      "contextSuffix": [
-        "print",
-        "("
-      ],
-      "requiredFacts": [
-        "program.output",
-        "value.output",
-        "program.arithmetic",
-        "value.output.expression"
-      ],
-      "requiresCompletedFacts": [
-        "intent.program-generation"
-      ],
-      "tokenBinding": {
-        "factId": "value.output",
-        "valueId": "content"
-      },
-      "satisfiesFacts": [
-        "value.output",
-        "program.arithmetic",
-        "value.output.expression"
-      ]
-    },
-    {
-      "id": "python-output-close",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.output"
-      ],
-      "requiresCompletedFacts": [
-        "intent.program-generation",
-        "value.output"
-      ],
-      "nextToken": ")\n```",
-      "satisfiesFacts": [
-        "program.output"
-      ]
-    },
-    {
-      "id": "python-assignment-target",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.assignment.target"
-      ],
-      "requiresCompletedFacts": [],
-      "tokenBinding": {
-        "factId": "program.assignment.target",
-        "valueId": "name"
-      },
-      "satisfiesFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.assignment.target"
-      ]
-    },
-    {
-      "id": "python-assignment-operator",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.operator"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.target"
-      ],
-      "nextToken": " = ",
-      "satisfiesFacts": [
-        "program.assignment.operator"
-      ]
-    },
-    {
-      "id": "python-assignment-value",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment.value"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.operator"
-      ],
-      "tokenBinding": {
-        "factId": "program.assignment.value",
-        "valueId": "value"
-      },
-      "satisfiesFacts": [
-        "program.assignment.value"
-      ]
-    },
-    {
-      "id": "python-assignment-line-end",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.assignment"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment.value"
-      ],
-      "nextToken": "\n",
-      "satisfiesFacts": [
-        "program.assignment"
-      ]
-    },
-    {
-      "id": "python-output-start-after-assignment",
-      "contextSuffix": [],
-      "requiredFacts": [
-        "program.output",
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "program.assignment",
-        "program.assignment.value"
-      ],
-      "nextToken": "print",
-      "satisfiesFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-assignment-prefix",
-      "contextSuffix": [
-        "<|lattice.start|>"
-      ],
-      "requiredFacts": [
-        "language.python",
-        "intent.program-generation",
-        "program.assignment.prefix"
-      ],
-      "nextToken": "```python\n",
-      "satisfiesFacts": [
-        "program.assignment.prefix"
-      ]
-    },
-    {
-      "id": "python-output-call-start",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.output",
-        "program.output.start"
-      ],
-      "nextToken": "print",
-      "satisfiesFacts": [
-        "program.output.start"
-      ],
-      "requiresCompletedFacts": [
-        "intent.program-generation"
-      ],
-      "forbiddenFacts": []
-    },
-    {
-      "id": "python-collection-loop-variable",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.collection-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-loop",
-        "valueId": "item",
-        "prefix": "for ",
-        "suffix": " in "
-      },
-      "satisfiesFacts": [
-        "program.output.start"
-      ]
-    },
-    {
-      "id": "python-collection-loop-values",
-      "contextSuffix": [
-        "* in "
-      ],
-      "requiredFacts": [
-        "program.collection-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-loop",
-        "valueId": "collection",
-        "suffix": ":\n    print("
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-collection-loop-output",
-      "contextSuffix": [
-        "*print("
-      ],
-      "requiredFacts": [
-        "program.collection-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-loop",
-        "valueId": "item",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.collection-loop",
-        "program.iteration",
-        "program.output",
-        "program.output.start",
-        "value.output"
-      ]
-    },
-    {
-      "id": "python-collection-loop-output-with-collection",
-      "contextSuffix": [
-        "*print("
-      ],
-      "requiredFacts": [
-        "program.collection-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.collection-loop",
-        "valueId": "item",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.collection-loop",
-        "program.iteration",
-        "program.output",
-        "program.output.start",
-        "value.output",
-        "program.collection"
-      ]
-    },
-    {
-      "id": "python-range-loop-open",
-      "contextSuffix": [
-        "```python\n"
-      ],
-      "requiredFacts": [
-        "program.range-loop"
-      ],
-      "nextToken": "for ",
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-range-loop-variable",
-      "contextSuffix": [
-        "for "
-      ],
-      "requiredFacts": [
-        "program.range-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.range-loop",
-        "valueId": "item",
-        "suffix": " in range("
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-range-loop-start",
-      "contextSuffix": [
-        "* in range("
-      ],
-      "requiredFacts": [
-        "program.range-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.range-loop",
-        "valueId": "start",
-        "suffix": ", "
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-range-loop-exclusive-end",
-      "contextSuffix": [
-        "*, "
-      ],
-      "requiredFacts": [
-        "program.range-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.range-loop",
-        "valueId": "end",
-        "suffix": "):\n    print("
-      },
-      "satisfiesFacts": []
-    },
-    {
-      "id": "python-range-loop-output",
-      "contextSuffix": [
-        "*print("
-      ],
-      "requiredFacts": [
-        "program.range-loop"
-      ],
-      "tokenBinding": {
-        "factId": "program.range-loop",
-        "valueId": "item",
-        "suffix": ")\n```"
-      },
-      "satisfiesFacts": [
-        "program.range-loop",
-        "program.iteration",
-        "program.output",
-        "program.output.start",
-        "value.output"
-      ]
     }
   ],
   "validations": [

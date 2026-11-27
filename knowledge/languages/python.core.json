@@ -3786,6 +3786,7 @@
   "generatorExpressionFormat": "{0} for {1} in {2}",
   "tupleFormat": "tuple({0})",
   "totalExpressionFormat": "sum({0})",
+  "rangeExpressionFormat": "range({0}, {1})",
   "filterExpressionFormat": "[{0} for {1} in {2} if {3}]",
   "placeholderMappingFormat": "{}  # {0}",
   "apiExpressionFormats": [

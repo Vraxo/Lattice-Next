@@ -109,8 +109,11 @@ public static class SemanticProgramFactMapper
     private const string ParityFilterFactId = "program.parity-filter";
     private const string ParityValueId = "parity";
     private const string CollectionLoopFactId = "program.collection-loop";
+    private const string RangeLoopFactId = "program.range-loop";
     private const string LoopItemValueId = "item";
     private const string LoopCollectionValueId = "collection";
+    private const string LoopStartValueId = "start";
+    private const string LoopEndValueId = "end";
     private const string ParityDivisor = "2";
     private const string SignClassificationFactId = "program.classification.sign";
     private const string SignPositiveLabelValueId = "positive";
@@ -269,6 +272,32 @@ public static class SemanticProgramFactMapper
             }
 
             program = iterationProgram;
+            return true;
+        }
+
+        // A declared loop is a whole program: it walks the numbers the request counts through or the elements
+        // of the collection it names, and reports each one.
+        var rangeLoop = facts.FirstOrDefault(candidate => candidate.Id == RangeLoopFactId);
+        if (rangeLoop is not null)
+        {
+            if (!TryCreateRangeLoop(rangeLoop, out var rangeProgram, out error))
+            {
+                return false;
+            }
+
+            program = rangeProgram;
+            return true;
+        }
+
+        var collectionLoop = facts.FirstOrDefault(candidate => candidate.Id == CollectionLoopFactId);
+        if (collectionLoop is not null)
+        {
+            if (!TryCreateCollectionLoop(collectionLoop, exampleData, out var loopProgram, out error))
+            {
+                return false;
+            }
+
+            program = loopProgram;
             return true;
         }
 
@@ -1377,6 +1406,104 @@ public static class SemanticProgramFactMapper
         }
 
         program = filter;
+        return true;
+    }
+
+    /// <summary>
+    /// Projects "prints each number from 1 to 5" onto one iteration over the numbers the request counts
+    /// through, whose body reports each one. The item name and both bounds stay request data — the end is
+    /// already the exclusive bound the request's words mean — and the pack spells how the range is written.
+    /// </summary>
+    private static bool TryCreateRangeLoop(
+        SequenceSemanticFact loop,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        var itemName = ReadName(loop, LoopItemValueId);
+        var start = ReadName(loop, LoopStartValueId);
+        var exclusiveEnd = ReadName(loop, LoopEndValueId);
+        if (itemName is null || start is null || exclusiveEnd is null)
+        {
+            error = "A counted loop requires one item name, a start value, and an exclusive end value.";
+            return false;
+        }
+
+        var item = new SemanticNameExpression(itemName);
+        program = new SemanticProgram(
+        [
+            new IterationRequirement(
+                itemName,
+                new SemanticRangeExpression(
+                    new SemanticNumberExpression(start),
+                    new SemanticNumberExpression(exclusiveEnd)),
+                [new OutputRequirement(item)])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(program))
+        {
+            error = "The projected counted loop requirements are not structurally valid.";
+            program = null;
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Projects "prints each number in the list [...]" onto one iteration over the request's own elements,
+    /// whose body reports each one. The item name and the elements stay request data, a request that names
+    /// no list takes the declared example data, and the pack spells the header and the reported value.
+    /// </summary>
+    private static bool TryCreateCollectionLoop(
+        SequenceSemanticFact loop,
+        GenerationExampleData? exampleData,
+        out SemanticProgram? program,
+        out string? error)
+    {
+        program = null;
+        error = null;
+
+        var itemName = ReadName(loop, LoopItemValueId) ?? string.Empty;
+        SemanticCollection? contents = null;
+        if (loop.SemanticCollections.TryGetValue(LoopCollectionValueId, out var captured) &&
+            !captured.Items.IsDefault)
+        {
+            contents = captured;
+        }
+
+        if (exampleData is not null)
+        {
+            contents ??= new SemanticCollection(
+                [.. exampleData.Numbers.Select(value =>
+                    new SemanticCollectionItem(SemanticCollectionItemKind.Number, value))]);
+            itemName = itemName.Length == 0 ? exampleData.NumberItemName : itemName;
+        }
+
+        if (contents is null || contents.Items.IsDefault || itemName.Length == 0)
+        {
+            error = "A collection loop requires one item name and the collection it walks.";
+            return false;
+        }
+
+        var item = new SemanticNameExpression(itemName);
+        program = new SemanticProgram(
+        [
+            new IterationRequirement(
+                itemName,
+                new SemanticListLiteralExpression([.. contents.Items.Select(ToLiteralExpression)]),
+                [new OutputRequirement(item)])
+        ]);
+
+        if (!SemanticProgramValidator.IsValid(program))
+        {
+            error = "The projected collection loop requirements are not structurally valid.";
+            program = null;
+            return false;
+        }
+
         return true;
     }
 

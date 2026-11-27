@@ -257,11 +257,11 @@ public sealed class SemanticProgramGenerationTests
             code);
     }
 
-    [Theory]
-    [InlineData("Create a Python program that prints total + 3.")]
-    [InlineData("Create a Python program that sets total to 5 and prints total + 3.")]
-    public void Leaves_requests_with_deferred_capabilities_to_their_own_path(string input)
+    [Fact]
+    public void Leaves_a_request_that_names_arithmetic_in_nowhere_to_its_own_path()
     {
+        const string input = "Create a Python program that prints total + 3.";
+
         Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
         if (!SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out _))
         {
@@ -275,6 +275,22 @@ public sealed class SemanticProgramGenerationTests
             out _,
             out _));
         Assert.Equal(string.Empty, code);
+    }
+
+    [Fact]
+    public void Plans_an_output_stated_as_an_expression_after_the_assignment_it_reads()
+    {
+        const string input = "Create a Python program that sets total to 5 and prints total + 3.";
+
+        Assert.True(SequenceKnowledgeBaseLoader.TryLoadEmbedded(out var knowledge, out var loadError), loadError);
+        Assert.True(SequenceInputFactExtractor.TryExtract(knowledge!, input, out var facts, out var extractError), extractError);
+        Assert.True(
+            SemanticProgramPlanner.TryGenerateProgram(facts, LoadPythonPack(), out var code, out _, out var error),
+            error);
+
+        Assert.Equal(
+            string.Join('\n', "total = 5", "print(total + 3)"),
+            code);
     }
 
     [Fact]
