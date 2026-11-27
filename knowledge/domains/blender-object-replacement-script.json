@@ -592,6 +592,21 @@
       "id": "code-generation-emit-indented-call",
       "label": "emit indented call",
       "kind": "Individual"
+    },
+    {
+      "id": "code-generation-emit-indented-api-call",
+      "kind": "Individual",
+      "label": "emit indented api call"
+    },
+    {
+      "id": "code-generation-emit-double-indented-api-call",
+      "kind": "Individual",
+      "label": "emit double indented api call"
+    },
+    {
+      "id": "code-generation-emit-triple-indented-api-call",
+      "kind": "Individual",
+      "label": "emit triple indented api call"
     }
   ],
   "lexemes": [
@@ -1913,7 +1928,7 @@
     {
       "subject": "step-link-collections",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-triple-indented-call"
+      "object": "code-generation-emit-triple-indented-api-call"
     },
     {
       "subject": "step-else",
@@ -1923,7 +1938,7 @@
     {
       "subject": "step-fallback-link",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-double-indented-call"
+      "object": "code-generation-emit-double-indented-api-call"
     },
     {
       "subject": "code-generation-emit-indented-assignment",
@@ -1943,12 +1958,27 @@
     {
       "subject": "step-remove-original",
       "relation": "step-has-generation-effect",
-      "object": "code-generation-emit-indented-call"
+      "object": "code-generation-emit-indented-api-call"
     },
     {
       "subject": "blender",
       "relation": "application-uses-language",
       "object": "python"
+    },
+    {
+      "subject": "code-generation-emit-indented-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-double-indented-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-triple-indented-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
     }
   ],
   "dataProperties": [],

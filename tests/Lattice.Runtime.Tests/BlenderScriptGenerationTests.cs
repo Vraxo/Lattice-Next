@@ -90,6 +90,23 @@ public sealed class BlenderScriptGenerationTests
                 Assert.Single(reasoner.GetRelations(step.Object, "step-has-argument-kind"));
             });
 
+        // The three API-reaching calls are declared as API operations with the contract they reach, so their
+        // effect is the api-call family rather than the generic call family the other families share.
+        var apiCallSteps = steps
+            .Where(step =>
+            {
+                var effect = reasoner.GetRelations(step.Object, "step-has-generation-effect");
+                var label = effect.Length == 1
+                    ? model.FindConcept(effect[0].Object, SemanticConceptKind.Individual)?.Label
+                    : null;
+                return label is not null && label.Contains("api call", StringComparison.Ordinal);
+            })
+            .ToArray();
+        Assert.Equal(3, apiCallSteps.Length);
+        Assert.All(
+            apiCallSteps,
+            step => Assert.NotEmpty(reasoner.GetRelations(step.Object, "step-references-api")));
+
         // Sixteen steps carry bindings; the two control-only steps (skip and else) carry none.
         var boundSteps = steps
             .Where(step => !reasoner.GetRelations(step.Object, "step-has-binding").IsDefaultOrEmpty)

@@ -30,14 +30,16 @@ public static class SemanticProgramValidator
         ImmutableDictionary<string, SemanticValueKind> FunctionResults,
         ImmutableDictionary<string, SemanticValueKind> Names,
         bool InsideDeclaration,
-        SemanticValueKind? ReturnKind)
+        SemanticValueKind? ReturnKind,
+        bool InsideIteration)
     {
         public static RequirementContext Empty { get; } = new(
             ImmutableDictionary.Create<string, FunctionSignature>(StringComparer.Ordinal),
             ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
             ImmutableDictionary.Create<string, SemanticValueKind>(StringComparer.Ordinal),
             false,
-            null);
+            null,
+            false);
     }
 
     /// <summary>Returns true when the program is structurally valid.</summary>
@@ -148,7 +150,8 @@ public static class SemanticProgramValidator
                 IsValidName(iteration.ItemName) &&
                 SemanticExpressionAnalysis.IsValid(iteration.Source) &&
                 !iteration.Body.IsDefaultOrEmpty &&
-                AreValid(iteration.Body, depth + 1, context),
+                AreValid(iteration.Body, depth + 1, context with { InsideIteration = true }),
+            ContinueRequirement continueStatement => context.InsideIteration,
             FilterRequirement filter =>
                 IsValidName(filter.ResultName) &&
                 IsValidName(filter.ItemName) &&
@@ -182,7 +185,7 @@ public static class SemanticProgramValidator
                 !string.Equals(iteration.KeyName, iteration.ValueName, StringComparison.Ordinal) &&
                 SemanticExpressionAnalysis.IsValid(iteration.Source) &&
                 !iteration.Body.IsDefaultOrEmpty &&
-                AreValid(iteration.Body, depth + 1, context),
+                AreValid(iteration.Body, depth + 1, context with { InsideIteration = true }),
             ConditionalChainRequirement chain => IsValidChain(chain, depth, context),
             FunctionRequirement function => IsValidFunction(function, depth, context),
             ReturnRequirement ret => IsValidReturn(ret, context),
@@ -229,7 +232,8 @@ public static class SemanticProgramValidator
                 .Where(parameter => parameter.Kind is not null)
                 .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind!.Value, StringComparer.Ordinal),
             InsideDeclaration = true,
-            ReturnKind = function.ReturnKind
+            ReturnKind = function.ReturnKind,
+            InsideIteration = false
         };
 
         return AreValid(function.Body, depth + 1, bodyContext);
@@ -334,10 +338,19 @@ public static class SemanticProgramValidator
         return true;
     }
 
+    /// <summary>
+    /// An API contract id is the knowledge's own spelling: letters, digits, and hyphens, never a language's.
+    /// </summary>
+    private static bool IsValidApiContract(string contract) =>
+        !string.IsNullOrWhiteSpace(contract) &&
+        contract.Length <= 128 &&
+        contract.All(character => char.IsAsciiLetterOrDigit(character) || character is '-' or '_');
+
     private static bool IsValidCall(CallRequirement call, RequirementContext context)
     {
         if (!IsValidName(call.FunctionName) ||
             (call.Receiver is not null && !IsValidName(call.Receiver)) ||
+            (call.ApiContract is not null && !IsValidApiContract(call.ApiContract)) ||
             call.Arguments.IsDefault ||
             call.Arguments.Length > MaximumParameters ||
             !call.Arguments.All(argument => SemanticExpressionAnalysis.IsValid(argument)))
@@ -437,7 +450,8 @@ public static class SemanticProgramValidator
                 .Where(parameter => parameter.Kind is not null)
                 .ToImmutableDictionary(parameter => parameter.Name, parameter => parameter.Kind!.Value, StringComparer.Ordinal),
             InsideDeclaration = true,
-            ReturnKind = method.ReturnKind
+            ReturnKind = method.ReturnKind,
+            InsideIteration = false
         };
 
         return AreValid(method.Body, depth + 1, bodyContext);

@@ -24,6 +24,14 @@ public sealed record GenerationLanguagePack(
     /// </summary>
     public GenerationRecordLiteralFormat? MapLiteralFormat { get; init; }
 
+    /// <summary>
+    /// How this pack spells the values a knowledge-declared API contract names, one entry per contract. A
+    /// contract the pack does not declare cannot be written in this language, so the requirement stays
+    /// unrealizable instead of being emitted with an invented spelling.
+    /// </summary>
+    public ImmutableArray<GenerationApiExpressionFormat> ApiExpressionFormats { get; init; } =
+        ImmutableArray<GenerationApiExpressionFormat>.Empty;
+
     /// <summary>How this pack spells the length of a text value; the format carries `{0}` for the operand.</summary>
     public string? LengthFormat { get; init; }
 
@@ -193,4 +201,9 @@ public sealed record GenerationInterpolationFormat(
 /// <summary>How a pack spells the conversion of a value to one target value kind.</summary>
 public sealed record GenerationConversionFormat(
     string Target,
+    string Format);
+
+/// <summary>One knowledge-declared API contract and the spelling this language gives it.</summary>
+public sealed record GenerationApiExpressionFormat(
+    string Contract,
     string Format);

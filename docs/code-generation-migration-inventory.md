@@ -6,7 +6,7 @@ This is an as-built source inventory for [M-01 in the active migration queue](..
 
 ## Verified baseline
 
-The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **21 sequence rules, 240 input rules, 30 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**. [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
+The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **21 sequence rules, 241 input rules, 30 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**, and [`knowledge/languages/javascript.core.json`](../knowledge/languages/javascript.core.json) has **16 productions, 9 bindings, and 14 operations**; the extra input rule is the JavaScript language recogniser (M-14). [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
 
 One detail in the queue's examples is stale: there is no current fact ID beginning `program.sign-classification.`. The corresponding input facts are `program.assignment.classification` and `program.classification.positive`, `.negative`, and `.zero`; they are still task-specific.
 
@@ -1208,3 +1208,164 @@ What is still missing is modelling — a subscript expression over the loop item
 
 Doing them in that order keeps every replacement separate from its deletion, and each deletion drops the
 exception table by exactly the rows it owns.
+
+## M-14 — the second-language proof
+
+The generator is proved language-neutral by realizing one interpretation in two languages. A JavaScript pack
+(`knowledge/languages/javascript.core.json`) joins the Python one, and a request that names either language is
+planned by the same mapper, validator, and planner; only the selected pack differs.
+
+Three fixtures cover the shapes the proof needs — a statement with its output, a returned literal over a
+parameter, and a block with a nested body — and each is worded once, interpreted once, and realized twice:
+
+| # | Request (interpreted once) | Python | JavaScript |
+| --- | --- | --- | --- |
+| 1 | `Create a Python program that sets total to 7 then print total.` | `total = 7` / `print(total)` | `let total = 7` / `console.log(total)` |
+| 2 | `Build a Python function named keep_large that accepts a list of numbers named samples and returns a new list containing only sample values more than 4.` | `def keep_large(samples):` / `    return [sample for sample in samples if sample > 4]` / `print(keep_large([1, 2, 3, 4, 5]))` | `function keep_large(samples) {` / `  return samples.reduce((kept, sample) => sample > 4 ? [...kept, sample] : kept, [])` / `}` / `console.log(keep_large([1, 2, 3, 4, 5]))` |
+| 3 | `Write a Python program that fulfills this request: Given a dictionary of product names and prices, print each product with its price.` | `items = {}  # Add dictionary entries here.` / `for product, price in items.items():` / `    print(product, price)` | `let items = {};  // Add dictionary entries here.` / `for (const [product, price] of Object.entries(items)) {` / `  console.log(product, price)` / `}` |
+
+The Python bytes are unchanged by this section: the three programs above are the same text the runtime suite
+already asserted. The JavaScript text is new output, not a changed one.
+
+### What the second pack declares
+
+| Part | Python | JavaScript |
+| --- | --- | --- |
+| productions | 102 | 16 |
+| bindings | 26 | 9 |
+| operations | 104 | 14 |
+
+The JavaScript pack declares only what the fixtures reach: output and assignment (two depths each), function
+headers, indented return, dictionary loop headers, and the four block closes, over the syntax, literal, and
+expression formats those statements need. It declares no interpolation, sort, generator, tuple, subscript, or
+case-fold format, and no file or standard-input operations, because no fixture asks for one — a request that did
+would fail with the pack's own "cannot render" error rather than with invented syntax.
+
+### Two additions the brace language forced
+
+* **Block closing is pack data.** A language whose blocks end by indentation declares nothing and the planner
+  plans nothing; a brace language declares `close-block`, `close-indented-block`,
+  `close-double-indented-block`, and `close-triple-indented-block`, and the planner asks for the effect matching
+  the depth of the block it just finished. The decision is the pack's, taken from whether it declares the
+  operation at all.
+* **The alternative-branch effects are neutral.** `begin-elif`, `begin-elif-indented`, and
+  `begin-elif-double-indented` are now `begin-alternative-branch`, `…-indented`, and `…-double-indented`, so no
+  language's keyword survives in the planner's vocabulary. Renaming them changed three operation effects in the
+  Python pack and no output.
+
+### Constraints the loader imposed on a second pack
+
+* Every declared binding must be used by the grammar and every grammar binding must be declared; the
+  JavaScript pack therefore declares nine bindings, not the Python pack's twenty-six.
+* A grammar symbol is a `terminal`, a `nonterminal`, or a binding — `statement` and `expression-call` are
+  nonterminals, and pointing one at an undeclared head fails the whole knowledge base.
+* `filterExpressionFormat` must carry all four placeholders (`{0}` the kept value, `{1}` the item, `{2}` the
+  source, `{3}` the predicate). The Python comprehension uses all four naturally; the JavaScript reduction spells
+  the kept value as the array it accumulates into.
+
+### Language selection is a fact
+
+`recognize-javascript-language` (`matchTokens: ["javascript"]`, `factId: "language.javascript"`) joins
+`recognize-python-language`, and `GenerationLanguagePackSelector` maps the single `language.` fact onto the pack
+that declares that language. `GenerationLanguages` exposes the declared names, and the recommendation parser,
+which used to spell `"python"`, now recognises any declared language instead.
+
+### The guards
+
+| Test | What it holds |
+| --- | --- |
+| `CrossLanguageGenerationTests.Realizes_the_same_interpretation_in_each_language` | three fixtures, each planned twice from one fact set; the programs match their expected bytes and their semantic effects match in order |
+| `CrossLanguageGenerationTests.Selects_the_requested_language_pack` | the same request worded for JavaScript reports exactly `language.javascript` and emits the JavaScript program through the same entry point |
+| `CrossLanguageExecutionTests.Reports_the_same_result_in_each_language` | `python3` and `node` run the two programs and report the same value (`7`, `[5]`, and nothing for the empty dictionary) |
+| `LanguageNeutralityGuardTests.The_generation_kernel_names_no_language_and_spells_no_language_syntax` | no language name and no language spelling in non-comment code under `src/Lattice.Core/Generation` |
+| `LanguageNeutralityGuardTests.Shared_code_names_a_language_only_where_the_history_records_it` | the only shared file that names a language is `TaskRecommendationResponder.cs`, the software recommendation catalogue over the domain knowledge's `python-package` concepts |
+
+Current counts after M-14: **21 sequence rules**, **241 input rules** (one added: the JavaScript language
+recogniser), **30 validations**, **1 encoding**; two language packs — Python at 102 productions / 26 bindings /
+104 operations, JavaScript at 16 / 9 / 14.
+
+## M-12.7a — an early continue is a requirement, not an indented fragment
+
+The Blender script's loop body skips an element it does not match. That skip used to be a knowledge step whose
+*effect name* carried both the statement and its indentation (`code-generation-emit-double-indented-continue`),
+so the knowledge was spelling a depth. `ContinueRequirement` says only that the current element's work stops
+here; the enclosing iteration is its context.
+
+| Part | What it holds |
+| --- | --- |
+| `ContinueRequirement` | no name, no condition: the loop is the context |
+| validator | valid only inside an iteration body; a function or method declared inside a loop starts a fresh context, so a `continue` cannot leak out of a declaration |
+| planner | asks the pack for the statement at the depth of the surrounding body: `emit-continue`, `emit-indented-continue`, `emit-double-indented-continue`, `emit-triple-indented-continue` |
+| Python pack | gained `emit-indented-continue` and `emit-triple-indented-continue` (the two indents the planner could ask for and the pack did not yet spell) |
+
+Planned output, from `SemanticProgramPlanningTests`:
+
+```python
+for number in [1, 2, 3]:
+    continue
+```
+
+## M-12.7b — the guard with an `else` fallback was already representable
+
+`ConditionalRequirement` carries both bodies and the planner emits `emit-else` at the branch's depth, so the shape
+needed a proof rather than a new kind. The proof is the Blender shape exactly — a guard inside a loop, whose true
+branch is a nested loop and whose false branch is the fallback:
+
+```python
+for obj in objects:
+    if collections:
+        for coll in collections:
+            print(coll)
+    else:
+        print(scene)
+```
+
+Five effects, four depths: `emit-loop-header`, `emit-indented-conditional-header`,
+`emit-double-indented-loop-header`, `write-standard-output-triple-indented-expression`, `emit-indented-else`,
+`write-standard-output-double-indented-expression`.
+
+## M-12.7c — an API expression is a contract the language declares
+
+The domain knowledge spelled API syntax in its concept *labels* (`bpy.data.objects`, `bpy.data.lights`,
+`bpy.data.objects.remove`, …). That is target-language syntax living in domain knowledge, which cannot be right
+for an application that more than one language can address.
+
+| Part | What it holds |
+| --- | --- |
+| `SemanticApiExpression(Contract)` | the knowledge's id for one part of an API, and nothing else |
+| pack table `apiExpressionFormats` | one entry per contract: `{ "contract": "api-object-datablocks", "format": "bpy.data.objects" }` |
+| loader validation | identifier contracts, unique, at most 64 entries, formats non-empty and at most 128 characters; the table itself may be empty |
+| renderer | renders the contract's declared spelling; a contract the pack does not declare cannot be rendered |
+
+Python declares the nine contracts the Blender knowledge names. The JavaScript pack declares none, and a test asks
+it for `api-object-datablocks` to prove that the requirement stays unrealizable rather than being emitted with an
+invented spelling.
+
+## M-12.8 — the API references now take part in operation selection
+
+`step-references-api` used to be cited as evidence and nothing else. It now decides which operation can realize a
+call:
+
+* The responder reads each step's contracts into the goal's capabilities as `api:<contract>`.
+* The Python pack declares three API-call operations whose prerequisites name the contract they realize:
+  `python-bound-indented-api-call-object-removal` (`api:api-object-removal`),
+  `python-bound-double-indented-api-call-scene-collection-link` (`api:blender-api-scene-collection-link`), and
+  `python-bound-triple-indented-api-call-collection-link` (`api:api-collection-link`).
+* The three Blender call steps moved off the generic call effects onto `emit-indented-api-call`,
+  `emit-double-indented-api-call`, and `emit-triple-indented-api-call`, each at the depth its step already sat at.
+* `CallRequirement` gained an optional `ApiContract`, so a planned call asks for the same family and carries the
+  same capability; a contract that is not a knowledge id is refused by the validator and by the planner.
+
+Two consequences worth recording. A goal *without* the contract can no longer select the api-call operation: the
+test asserts that the same call fails when the capability is removed and when a different contract is offered.
+And the generic `emit-call` operations stay prerequisite-free, so every other family that emits a call is
+untouched. The script, its step list, and its evidence are byte-identical.
+
+Seven of the ten API references still only cite evidence. They attach to assignments and conditions whose values
+are still text bindings, so they wait for 12.7's structured expressions — the same rewiring that would drop the
+depth from the effect names.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **121 concepts** and **244 relation assertions**, with **18 steps** and **10 API
+references**.

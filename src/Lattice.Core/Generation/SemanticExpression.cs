@@ -183,6 +183,14 @@ public sealed record SemanticPlaceholderMappingExpression(
     string Note) : SemanticExpression;
 
 /// <summary>
+/// The value a knowledge-declared API contract names, such as the datablocks an application exposes. The
+/// contract is the knowledge's own id for that part of the API; the selected language pack decides how the
+/// contract is spelled, so the same requirement is realizable in any language that declares it and
+/// unrealizable — rather than invented — in one that does not.
+/// </summary>
+public sealed record SemanticApiExpression(string Contract) : SemanticExpression;
+
+/// <summary>
 /// A collection of the source's items that satisfy a predicate, written where it is used rather than bound to
 /// a name first. The predicate is an ordinary semantic expression over the item name, and the selected
 /// language pack spells the comprehension.
@@ -564,7 +572,7 @@ internal static class SemanticExpressionAnalysis
         },
         SemanticTextTemplateExpression => KnownValueType.Text,
         SemanticLengthExpression or SemanticTotalExpression => KnownValueType.Number,
-        SemanticFilterExpression or SemanticPlaceholderMappingExpression => null,
+        SemanticFilterExpression or SemanticPlaceholderMappingExpression or SemanticApiExpression => null,
         SemanticCaseFoldExpression => KnownValueType.Text,
         SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
             SemanticTupleExpression => null,
@@ -713,6 +721,7 @@ internal static class SemanticExpressionAnalysis
             SemanticPlaceholderMappingExpression placeholder =>
                 !string.IsNullOrWhiteSpace(placeholder.Note) &&
                 placeholder.Note.Length <= 128,
+            SemanticApiExpression api => IsValidIdentifier(api.Contract),
             SemanticSubscriptExpression subscript =>
                 IsValid(subscript.Target, depth + 1, ref nodeCount) &&
                 IsValid(subscript.Key, depth + 1, ref nodeCount),

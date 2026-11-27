@@ -121,6 +121,12 @@ public sealed record FileReadRequirement(
     ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
 
 /// <summary>
+/// Stops the current element's work in the enclosing iteration: the rest of that body is skipped and the next
+/// element begins. The loop is the requirement's context, so this carries no name and no condition of its own.
+/// </summary>
+public sealed record ContinueRequirement : ProgramRequirement;
+
+/// <summary>
 /// An iteration over a collection value, binding each element to an item name. The body is an ordered
 /// requirement list, so loops compose with the same model as top-level statements.
 /// </summary>
@@ -228,6 +234,13 @@ public sealed record CallRequirement(
 {
     /// <summary>When set, the call is a method call on this instance rather than a free function.</summary>
     public string? Receiver { get; init; }
+
+    /// <summary>
+    /// When set, the call reaches this knowledge-declared API contract. The selected language pack must declare
+    /// an operation for that contract, so a call the knowledge does not model stays unrealizable instead of
+    /// being emitted with whatever operation happens to accept a call.
+    /// </summary>
+    public string? ApiContract { get; init; }
 }
 
 /// <summary>One declared class field: the member name and the value the constructor starts it with.</summary>

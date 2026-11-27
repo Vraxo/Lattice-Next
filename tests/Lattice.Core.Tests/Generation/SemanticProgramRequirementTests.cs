@@ -123,6 +123,42 @@ public sealed class SemanticProgramRequirementTests
     }
 
     [Fact]
+    public void Accepts_a_continue_inside_a_loop_and_rejects_it_outside_one()
+    {
+        var insideLoop = new SemanticProgram([
+            new IterationRequirement(
+                "score",
+                new SemanticNameExpression("scores"),
+                [new ContinueRequirement()])
+        ]);
+        Assert.True(SemanticProgramValidator.IsValid(insideLoop));
+
+        var atTopLevel = new SemanticProgram([new ContinueRequirement()]);
+        Assert.False(SemanticProgramValidator.IsValid(atTopLevel));
+
+        var afterTheLoop = new SemanticProgram([
+            new IterationRequirement(
+                "score",
+                new SemanticNameExpression("scores"),
+                [new OutputRequirement(new SemanticNameExpression("score"))]),
+            new ContinueRequirement()
+        ]);
+        Assert.False(SemanticProgramValidator.IsValid(afterTheLoop));
+
+        var insideADeclarationInALoop = new SemanticProgram([
+            new IterationRequirement(
+                "score",
+                new SemanticNameExpression("scores"),
+                [new FunctionRequirement(
+                    "report",
+                    [],
+                    null,
+                    [new ContinueRequirement()])])
+        ]);
+        Assert.False(SemanticProgramValidator.IsValid(insideADeclarationInALoop));
+    }
+
+    [Fact]
     public void Represents_dictionary_key_and_value_bindings_separately()
     {
         var program = new SemanticProgram([

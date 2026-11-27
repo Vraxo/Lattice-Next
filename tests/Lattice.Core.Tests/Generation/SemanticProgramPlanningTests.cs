@@ -903,6 +903,143 @@ public sealed class SemanticProgramPlanningTests
             SemanticProgramPlanner.Render(statements));
     }
 
+    [Fact]
+    public void Plans_an_early_continue_at_the_depth_of_its_loop_body()
+    {
+        var statements = Plan(
+            new IterationRequirement(
+                "number",
+                new SemanticListLiteralExpression([
+                    new SemanticNumberExpression("1"),
+                    new SemanticNumberExpression("2"),
+                    new SemanticNumberExpression("3")
+                ]),
+                [new ContinueRequirement()]));
+
+        Assert.Equal(
+            new[] { "emit-loop-header", "emit-indented-continue" },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            new[] { 0, 1 },
+            statements.Select(statement => statement.Depth));
+        Assert.Equal(
+            string.Join('\n', "for number in [1, 2, 3]:", "    continue"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Plans_a_guarded_branch_with_an_else_fallback_inside_a_loop_body()
+    {
+        var statements = Plan(
+            new IterationRequirement(
+                "number",
+                new SemanticListLiteralExpression([
+                    new SemanticNumberExpression("1"),
+                    new SemanticNumberExpression("2"),
+                    new SemanticNumberExpression("3")
+                ]),
+                [new ConditionalRequirement(
+                    new SemanticBinaryExpression(
+                        SemanticExpressionOperator.GreaterThan,
+                        new SemanticNameExpression("number"),
+                        new SemanticNumberExpression("2")),
+                    [new OutputRequirement(new SemanticNameExpression("number"))],
+                    [new ContinueRequirement()])]));
+
+        Assert.Equal(
+            new[]
+            {
+                "emit-loop-header",
+                "emit-indented-conditional-header",
+                "write-standard-output-double-indented-expression",
+                "emit-indented-else",
+                "emit-double-indented-continue"
+            },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "for number in [1, 2, 3]:",
+                "    if number > 2:",
+                "        print(number)",
+                "    else:",
+                "        continue"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Plans_a_guard_whose_fallback_runs_when_the_guard_fails()
+    {
+        var statements = PlanWithCollections(
+            ["objects", "collections", "scene"],
+            new IterationRequirement(
+                "obj",
+                new SemanticNameExpression("objects"),
+                [new ConditionalRequirement(
+                    new SemanticNameExpression("collections"),
+                    [new IterationRequirement(
+                        "coll",
+                        new SemanticNameExpression("collections"),
+                        [new OutputRequirement(new SemanticNameExpression("coll"))])],
+                    [new OutputRequirement(new SemanticNameExpression("scene"))])]));
+
+        Assert.Equal(
+            new[]
+            {
+                "emit-loop-header",
+                "emit-indented-conditional-header",
+                "emit-double-indented-loop-header",
+                "write-standard-output-triple-indented-expression",
+                "emit-indented-else",
+                "write-standard-output-double-indented-expression"
+            },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "for obj in objects:",
+                "    if collections:",
+                "        for coll in collections:",
+                "            print(coll)",
+                "    else:",
+                "        print(scene)"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Selects_an_api_operation_only_when_the_goal_carries_its_contract()
+    {
+        var pack = LoadPack();
+        var pipeline = new SequenceGenerationPipeline();
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("function", "bpy.data.objects.remove")
+            .Add("arguments", "obj, do_unlink=True");
+
+        var withContract = new GenerationGoal(
+            "emit-indented-api-call",
+            "call",
+            "bpy.data.objects.remove",
+            ["api:api-object-removal"])
+        {
+            Bindings = bindings
+        };
+        Assert.True(
+            pipeline.TryGenerate(pack, withContract, out var generated, out var error),
+            error);
+        Assert.Equal("python-bound-indented-api-call-object-removal", generated!.SelectedOperationId);
+        Assert.Equal("    bpy.data.objects.remove(obj, do_unlink=True)", generated.Text);
+
+        // The same request without the contract cannot be realized by the api-call family, and the generic
+        // call family does not produce that effect, so the statement stays unrealizable.
+        var withoutContract = withContract with { AvailableCapabilities = [] };
+        Assert.False(pipeline.TryGenerate(pack, withoutContract, out _, out _));
+
+        // A contract the pack does not declare stays unrealizable too.
+        var otherContract = withContract with { AvailableCapabilities = ["api:api-collection-link"] };
+        Assert.False(pipeline.TryGenerate(pack, otherContract, out _, out _));
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

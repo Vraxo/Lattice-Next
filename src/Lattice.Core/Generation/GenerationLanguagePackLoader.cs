@@ -31,9 +31,9 @@ public sealed class GenerationLanguagePackLoader
         {
             pack = JsonSerializer.Deserialize<GenerationLanguagePack>(json, JsonOptions);
         }
-        catch (JsonException)
+        catch (JsonException exception)
         {
-            error = "The generation language pack is invalid JSON or contains an unsupported field.";
+            error = $"The generation language pack is invalid JSON or contains an unsupported field: {exception.Message}";
             return false;
         }
 
@@ -69,6 +69,7 @@ public sealed class GenerationLanguagePackLoader
             !IsValidExpressionFormat(pack.SortedExpressionReverseFormat, 128, "{0}", "{1}", "{2}") ||
             !IsValidExpressionFormat(pack.GeneratorExpressionFormat, 128, "{0}", "{1}", "{2}") ||
             !IsValidExpressionFormat(pack.TupleFormat, 64, "{0}") ||
+            !IsValidApiExpressionFormats(pack.ApiExpressionFormats) ||
             (pack.InputSyntax is { } inputSyntax &&
                 !IsValidInputSyntax(inputSyntax)) ||
             (pack.InterpolationFormat is { } interpolationFormat &&
@@ -267,6 +268,27 @@ public sealed class GenerationLanguagePackLoader
 
         packs = builder.ToImmutable();
         return true;
+    }
+
+    private static bool IsValidApiExpressionFormats(ImmutableArray<GenerationApiExpressionFormat> formats)
+    {
+        if (formats.IsDefault)
+        {
+            return false;
+        }
+
+        if (formats.Length > 64)
+        {
+            return false;
+        }
+
+        var contracts = new HashSet<string>(StringComparer.Ordinal);
+        return formats.All(format =>
+            format is not null &&
+            IsIdentifier(format.Contract) &&
+            !string.IsNullOrWhiteSpace(format.Format) &&
+            format.Format.Length <= 128 &&
+            contracts.Add(format.Contract));
     }
 
     private static bool IsValidRecordLiteralFormat(GenerationRecordLiteralFormat format) =>

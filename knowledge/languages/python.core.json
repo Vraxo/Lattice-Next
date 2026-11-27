@@ -2304,6 +2304,24 @@
           "value": "}"
         }
       ]
+    },
+    {
+      "head": "bound-indented-continue",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    continue"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-continue",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            continue"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -2504,7 +2522,7 @@
     {
       "id": "python-elif",
       "symbol": "elif",
-      "effect": "begin-elif",
+      "effect": "begin-alternative-branch",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "elif-statement"
@@ -2512,7 +2530,7 @@
     {
       "id": "python-elif-indented",
       "symbol": "elif",
-      "effect": "begin-elif-indented",
+      "effect": "begin-alternative-branch-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "indented-elif-statement"
@@ -2520,7 +2538,7 @@
     {
       "id": "python-elif-double-indented",
       "symbol": "elif",
-      "effect": "begin-elif-double-indented",
+      "effect": "begin-alternative-branch-double-indented",
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "double-indented-elif-statement"
@@ -3297,6 +3315,52 @@
       "argumentKind": "dictionary-map-binding",
       "prerequisites": [],
       "startSymbol": "indented-bound-dictionary-map-assignment"
+    },
+    {
+      "id": "python-bound-indented-continue",
+      "symbol": "continue",
+      "effect": "emit-indented-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-continue"
+    },
+    {
+      "id": "python-bound-triple-indented-continue",
+      "symbol": "continue",
+      "effect": "emit-triple-indented-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-continue"
+    },
+    {
+      "id": "python-bound-indented-api-call-object-removal",
+      "symbol": "call",
+      "effect": "emit-indented-api-call",
+      "argumentKind": "call",
+      "prerequisites": [
+        "api:api-object-removal"
+      ],
+      "startSymbol": "bound-indented-call"
+    },
+    {
+      "id": "python-bound-double-indented-api-call-scene-collection-link",
+      "symbol": "call",
+      "effect": "emit-double-indented-api-call",
+      "argumentKind": "call",
+      "prerequisites": [
+        "api:blender-api-scene-collection-link"
+      ],
+      "startSymbol": "bound-double-indented-call"
+    },
+    {
+      "id": "python-bound-triple-indented-api-call-collection-link",
+      "symbol": "call",
+      "effect": "emit-triple-indented-api-call",
+      "argumentKind": "call",
+      "prerequisites": [
+        "api:api-collection-link"
+      ],
+      "startSymbol": "bound-triple-indented-call"
     }
   ],
   "stringLiteralFormat": {
@@ -3723,5 +3787,43 @@
   "tupleFormat": "tuple({0})",
   "totalExpressionFormat": "sum({0})",
   "filterExpressionFormat": "[{0} for {1} in {2} if {3}]",
-  "placeholderMappingFormat": "{}  # {0}"
+  "placeholderMappingFormat": "{}  # {0}",
+  "apiExpressionFormats": [
+    {
+      "contract": "api-object-datablocks",
+      "format": "bpy.data.objects"
+    },
+    {
+      "contract": "api-object-name",
+      "format": "object.name"
+    },
+    {
+      "contract": "api-light-datablocks",
+      "format": "bpy.data.lights"
+    },
+    {
+      "contract": "api-object-construction",
+      "format": "bpy.data.objects.new"
+    },
+    {
+      "contract": "api-world-matrix",
+      "format": "object.matrix_world.translation"
+    },
+    {
+      "contract": "api-object-collections",
+      "format": "object.users_collection"
+    },
+    {
+      "contract": "api-collection-link",
+      "format": "collection.objects.link"
+    },
+    {
+      "contract": "api-object-removal",
+      "format": "bpy.data.objects.remove"
+    },
+    {
+      "contract": "blender-api-scene-collection-link",
+      "format": "bpy.context.scene.collection.objects.link"
+    }
+  ]
 }
