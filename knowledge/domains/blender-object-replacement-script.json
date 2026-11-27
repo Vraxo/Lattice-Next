@@ -1959,6 +1959,16 @@
       "subject": "blender",
       "relation": "application-uses-language",
       "object": "python"
+    },
+    {
+      "subject": "code-generation-emit-indented-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
+    },
+    {
+      "subject": "code-generation-emit-double-indented-api-call",
+      "relation": "instance-of",
+      "object": "code-generation-effect"
     }
   ],
   "dataProperties": [],
