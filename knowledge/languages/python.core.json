@@ -2322,6 +2322,57 @@
           "value": "            continue"
         }
       ]
+    },
+    {
+      "head": "bound-while",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "while "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-while",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    while "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-while",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        while "
+        },
+        {
+          "kind": "binding",
+          "value": "condition"
+        },
+        {
+          "kind": "terminal",
+          "value": ":"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3361,6 +3412,30 @@
         "api:api-collection-link"
       ],
       "startSymbol": "bound-triple-indented-call"
+    },
+    {
+      "id": "python-bound-while",
+      "symbol": "while",
+      "effect": "emit-while-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-while"
+    },
+    {
+      "id": "python-bound-indented-while",
+      "symbol": "while",
+      "effect": "emit-indented-while-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-while"
+    },
+    {
+      "id": "python-bound-double-indented-while",
+      "symbol": "while",
+      "effect": "emit-double-indented-while-header",
+      "argumentKind": "condition",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-while"
     }
   ],
   "stringLiteralFormat": {
