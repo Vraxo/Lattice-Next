@@ -9,6 +9,7 @@ public static class SemanticProgramFactMapper
 
     private const string AssignmentTargetFactId = "program.assignment.target";
     private const string AssignmentValueFactId = "program.assignment.value";
+    private const string WhileFactId = "program.requirement.while";
     private const string ConditionFactId = "program.requirement.condition";
     private const string OutputFactId = "program.requirement.output";
     private const string CapturedOutputFactId = "value.output";
@@ -389,7 +390,31 @@ public static class SemanticProgramFactMapper
             requirements.Add(declaration);
         }
 
-        if (condition is null)
+        var whileFact = facts.FirstOrDefault(fact => fact.Id == WhileFactId);
+        if (whileFact is not null)
+        {
+            if (condition is not null ||
+                !TryGetExpressions(whileFact, ConditionValueId, out var loopConditions) ||
+                loopConditions.Length != 1)
+            {
+                error = "A scalar while request requires one typed loop condition and no unscoped conditional.";
+                return false;
+            }
+
+            var loopPosition = GetCollectionPositions(whileFact, ConditionValueId, 1)[0];
+            requirements.AddRange(Ordered(events.Where(item => item.Position < loopPosition))
+                .Select(item => item.Requirement));
+            var body = Ordered(events.Where(item => item.Position > loopPosition))
+                .Select(item => item.Requirement).ToImmutableArray();
+            if (body.IsDefaultOrEmpty)
+            {
+                error = "A scalar while request requires an ordered loop body after its condition.";
+                return false;
+            }
+
+            requirements.Add(new WhileRequirement(loopConditions[0], body));
+        }
+        else if (condition is null)
         {
             requirements.AddRange(Ordered(events).Select(item => item.Requirement));
         }

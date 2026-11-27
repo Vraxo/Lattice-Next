@@ -6608,6 +6608,36 @@
         ]
       ],
       "searchAllSentences": true
+    },
+    {
+      "id": "capture-generic-while-condition",
+      "matchTokens": [
+        "while"
+      ],
+      "factId": "program.requirement.while",
+      "captures": [
+        {
+          "factId": "program.requirement.while",
+          "valueId": "condition",
+          "stopBeforeTokens": [
+            "then"
+          ],
+          "semanticExpressionKind": "boolean",
+          "preserveRawValue": true
+        }
+      ],
+      "requiredAllSequences": [
+        [
+          "then"
+        ]
+      ],
+      "forbiddenAnySequences": [
+        [
+          "function",
+          "named"
+        ]
+      ],
+      "repeatMatches": true
     }
   ],
   "validations": [
