@@ -695,7 +695,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-output-prints",
@@ -747,7 +748,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-output-display",
@@ -799,7 +801,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-output-displays",
@@ -851,7 +854,8 @@
           "function",
           "named"
         ]
-      ]
+      ],
+      "searchAllSentences": true
     },
     {
       "id": "capture-generic-output-print-and",
@@ -1401,7 +1405,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-assignment-components-sets",
@@ -1437,7 +1442,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-assignment-components-assign",
@@ -1473,7 +1479,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "capture-assignment-components-assigns",
@@ -1509,7 +1516,8 @@
           "named"
         ]
       ],
-      "repeatMatches": true
+      "repeatMatches": true,
+      "searchAllSentences": true
     },
     {
       "id": "recognize-assignment-operator-set",
