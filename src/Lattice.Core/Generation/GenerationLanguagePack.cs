@@ -212,4 +212,8 @@ public sealed record GenerationConversionFormat(
 /// <summary>One knowledge-declared API contract and the spelling this language gives it.</summary>
 public sealed record GenerationApiExpressionFormat(
     string Contract,
-    string Format);
+    string Format)
+{
+    /// <summary>Exact arity; each argument has an indexed placeholder in the declared format.</summary>
+    public int ArgumentCount { get; init; }
+}

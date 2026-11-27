@@ -39,12 +39,12 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 - [x] Validate while conditions, bodies, referenced names, and nesting with focused positive and negative tests.
 - [x] Plan a while requirement through the existing planner and shared sequence pipeline, preserving values updated by its body.
 - [x] Add the Python language-pack realization for while headers at the nesting depths the existing planner supports.
-- [ ] Project a generically worded, request-derived while-loop into `WhileRequirement`; do not recognize game names or game-specific phrases.
-- [ ] Add end-to-end execution tests for loops with changed conditions, initial values, updates, and body statements.
+- [x] Project a generically worded, request-derived while-loop into `WhileRequirement`; do not recognize game names or game-specific phrases.
+- [x] Add end-to-end execution tests for loops with changed conditions, initial values, updates, and body statements.
 
 **Section exit:** Lattice can interpret, plan, generate, and execute a generic while-loop with request-derived values and nested statements.
 
-**Result:** PRs #598/#599 merged the while model, validation, shared planning, and Python headers with green full CI. Generic scalar request projection and normal-path bounded execution tests are prepared; their verification and merge remain pending. Multi-sentence and nested request-block capture remain Section 4 work.
+**Result:** PRs #598–#600 merged reusable while semantics, validation, planning, Python headers, and generic scalar request projection. Full CI passed, including five normal-session generated-Python execution cases with changed values and zero iterations. Multi-sentence and nested request-block capture remain Section 4 work.
 
 ## 3. Make external API calls composable values
 
@@ -58,7 +58,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The generator can compose declared Pygame calls and consume their return values using the same API-contract mechanism that other libraries can use. Pygame knowledge contains reusable API facts, not game logic or source templates.
 
-**Result:** Pending.
+**Result:** In progress: extending the existing API expression with ordered arguments, exact contract arity, recursive dependency analysis, and pack-backed rendering. Focused composition/rejection tests are prepared; CI verification and merge remain pending. Pygame contracts follow this mechanism.
 
 ## 4. Interpret a complete interactive program request
 
