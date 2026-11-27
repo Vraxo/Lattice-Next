@@ -44,6 +44,14 @@ public sealed record ElementAssignmentRequirement(
     SemanticExpression Target,
     SemanticExpression Value) : ProgramRequirement;
 
+/// <summary>
+/// Repeats an ordered body while its condition holds. The condition is evaluated again before
+/// every iteration, so assignments in the body can determine when repetition ends.
+/// </summary>
+public sealed record WhileRequirement(
+    SemanticExpression Condition,
+    ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
+
 public sealed record ConditionalRequirement(
     SemanticExpression Condition,
     ImmutableArray<ProgramRequirement> ThenRequirements,
