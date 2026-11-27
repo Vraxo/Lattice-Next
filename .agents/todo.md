@@ -36,15 +36,15 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 ## 2. Add reusable continuous-loop semantics
 
 - [x] Add a language-neutral `WhileRequirement` containing a boolean condition and an ordered body.
-- [ ] Validate while conditions, bodies, referenced names, and nesting with focused positive and negative tests.
-- [ ] Plan a while requirement through the existing planner and shared sequence pipeline, preserving values updated by its body.
-- [ ] Add the Python language-pack realization for while headers at the nesting depths the existing planner supports.
+- [x] Validate while conditions, bodies, referenced names, and nesting with focused positive and negative tests.
+- [x] Plan a while requirement through the existing planner and shared sequence pipeline, preserving values updated by its body.
+- [x] Add the Python language-pack realization for while headers at the nesting depths the existing planner supports.
 - [ ] Project a generically worded, request-derived while-loop into `WhileRequirement`; do not recognize game names or game-specific phrases.
 - [ ] Add end-to-end execution tests for loops with changed conditions, initial values, updates, and body statements.
 
 **Section exit:** Lattice can interpret, plan, generate, and execute a generic while-loop with request-derived values and nested statements.
 
-**Result:** PR #598 merged the while model and structural checks. Planning and Python header realization are now prepared with focused tests, including bound-name rejection and zero-iteration scope. Request capture and normal-path execution proof remain pending.
+**Result:** PRs #598/#599 merged the while model, validation, shared planning, and Python headers with green full CI. Generic scalar request projection and normal-path bounded execution tests are prepared; their verification and merge remain pending. Multi-sentence and nested request-block capture remain Section 4 work.
 
 ## 3. Make external API calls composable values
 
