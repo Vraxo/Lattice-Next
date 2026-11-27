@@ -3343,24 +3343,24 @@
       "startSymbol": "bound-indented-call"
     },
     {
-      "id": "python-bound-indented-api-call-scene-collection-link",
-      "symbol": "call",
-      "effect": "emit-indented-api-call",
-      "argumentKind": "call",
-      "prerequisites": [
-        "api:blender-api-scene-collection-link"
-      ],
-      "startSymbol": "bound-indented-call"
-    },
-    {
-      "id": "python-bound-double-indented-api-call-collection-link",
+      "id": "python-bound-double-indented-api-call-scene-collection-link",
       "symbol": "call",
       "effect": "emit-double-indented-api-call",
       "argumentKind": "call",
       "prerequisites": [
-        "api:api-collection-link"
+        "api:blender-api-scene-collection-link"
       ],
       "startSymbol": "bound-double-indented-call"
+    },
+    {
+      "id": "python-bound-triple-indented-api-call-collection-link",
+      "symbol": "call",
+      "effect": "emit-triple-indented-api-call",
+      "argumentKind": "call",
+      "prerequisites": [
+        "api:api-collection-link"
+      ],
+      "startSymbol": "bound-triple-indented-call"
     }
   ],
   "stringLiteralFormat": {
