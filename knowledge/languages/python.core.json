@@ -3757,5 +3757,43 @@
   "tupleFormat": "tuple({0})",
   "totalExpressionFormat": "sum({0})",
   "filterExpressionFormat": "[{0} for {1} in {2} if {3}]",
-  "placeholderMappingFormat": "{}  # {0}"
+  "placeholderMappingFormat": "{}  # {0}",
+  "apiExpressionFormats": [
+    {
+      "contract": "api-object-datablocks",
+      "format": "bpy.data.objects"
+    },
+    {
+      "contract": "api-object-name",
+      "format": "object.name"
+    },
+    {
+      "contract": "api-light-datablocks",
+      "format": "bpy.data.lights"
+    },
+    {
+      "contract": "api-object-construction",
+      "format": "bpy.data.objects.new"
+    },
+    {
+      "contract": "api-world-matrix",
+      "format": "object.matrix_world.translation"
+    },
+    {
+      "contract": "api-object-collections",
+      "format": "object.users_collection"
+    },
+    {
+      "contract": "api-collection-link",
+      "format": "collection.objects.link"
+    },
+    {
+      "contract": "api-object-removal",
+      "format": "bpy.data.objects.remove"
+    },
+    {
+      "contract": "blender-api-scene-collection-link",
+      "format": "bpy.context.scene.collection.objects.link"
+    }
+  ]
 }

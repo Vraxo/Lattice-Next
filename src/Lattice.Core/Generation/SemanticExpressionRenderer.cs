@@ -252,6 +252,19 @@ internal static class SemanticExpressionRenderer
                 rendered = placeholderFormat.Replace("{0}", placeholder.Note, StringComparison.Ordinal);
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticApiExpression api:
+                var apiFormat = languagePack.ApiExpressionFormats.IsDefaultOrEmpty
+                    ? null
+                    : languagePack.ApiExpressionFormats.FirstOrDefault(format =>
+                        string.Equals(format.Contract, api.Contract, StringComparison.Ordinal));
+                if (apiFormat is null || string.IsNullOrEmpty(apiFormat.Format))
+                {
+                    return false;
+                }
+
+                rendered = apiFormat.Format;
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticTotalExpression total:
                 if (!TryRenderTotal(total, languagePack, syntax, out rendered))
                 {

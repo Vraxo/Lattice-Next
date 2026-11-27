@@ -322,6 +322,44 @@ public sealed class SemanticExpressionTests
         return packs["python"];
     }
 
+    [Fact]
+    public void Renders_a_knowledge_declared_api_contract_through_the_language_pack()
+    {
+        var packs = LoadEmbeddedPacks();
+        var python = packs["python"];
+        var contract = new SemanticApiExpression("api-object-datablocks");
+
+        Assert.True(SemanticExpressionAnalysis.IsValid(contract));
+        Assert.True(SemanticExpressionRenderer.TryRender(contract, python, out var rendered));
+        Assert.Equal("bpy.data.objects", rendered);
+
+        // A contract the language does not declare stays unrealizable, rather than being emitted with an
+        // invented spelling.
+        Assert.True(SemanticExpressionAnalysis.IsValid(new SemanticApiExpression("api-nonexistent-contract")));
+        Assert.False(SemanticExpressionRenderer.TryRender(
+            new SemanticApiExpression("api-nonexistent-contract"), python, out _));
+        Assert.False(SemanticExpressionRenderer.TryRender(
+            contract, python with { ApiExpressionFormats = [] }, out _));
+    }
+
+    [Fact]
+    public void Keeps_api_contract_spellings_per_language()
+    {
+        var packs = LoadEmbeddedPacks();
+
+        Assert.NotEmpty(packs["python"].ApiExpressionFormats);
+        Assert.Empty(packs["javascript"].ApiExpressionFormats);
+        Assert.False(SemanticExpressionRenderer.TryRender(
+            new SemanticApiExpression("api-object-datablocks"), packs["javascript"], out _));
+    }
+
+    private static ImmutableDictionary<string, GenerationLanguagePack> LoadEmbeddedPacks()
+    {
+        var loader = new GenerationLanguagePackLoader();
+        Assert.True(loader.TryLoadEmbedded(out var packs, out var error), error);
+        return packs;
+    }
+
     private static GenerationLanguagePack CreateCustomPack()
     {
         var syntax = new GenerationInputSyntax(
