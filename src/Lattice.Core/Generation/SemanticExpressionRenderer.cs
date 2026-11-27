@@ -257,12 +257,33 @@ internal static class SemanticExpressionRenderer
                     ? null
                     : languagePack.ApiExpressionFormats.FirstOrDefault(format =>
                         string.Equals(format.Contract, api.Contract, StringComparison.Ordinal));
-                if (apiFormat is null || string.IsNullOrEmpty(apiFormat.Format))
+                if (apiFormat is null || string.IsNullOrEmpty(apiFormat.Format) ||
+                    apiFormat.ArgumentCount != api.Arguments.Length)
                 {
                     return false;
                 }
 
-                rendered = apiFormat.Format;
+                var apiArguments = new object[api.Arguments.Length];
+                for (var index = 0; index < api.Arguments.Length; index++)
+                {
+                    if (!TryRender(api.Arguments[index], languagePack, syntax,
+                            parentPrecedence: 0, isRightOperand: false, out var argument))
+                    {
+                        return false;
+                    }
+
+                    apiArguments[index] = argument;
+                }
+
+                try
+                {
+                    rendered = string.Format(CultureInfo.InvariantCulture, apiFormat.Format, apiArguments);
+                }
+                catch (FormatException)
+                {
+                    return false;
+                }
+
                 precedence = PrimaryPrecedence;
                 break;
             case SemanticTotalExpression total:

@@ -289,7 +289,30 @@ public sealed class GenerationLanguagePackLoader
             IsIdentifier(format.Contract) &&
             !string.IsNullOrWhiteSpace(format.Format) &&
             format.Format.Length <= 128 &&
+            IsValidApiArguments(format) &&
             contracts.Add(format.Contract));
+    }
+
+    private static bool IsValidApiArguments(GenerationApiExpressionFormat format)
+    {
+        if (format.ArgumentCount is < 0 or > 8)
+        {
+            return false;
+        }
+
+        var remaining = format.Format;
+        for (var index = 0; index < format.ArgumentCount; index++)
+        {
+            var placeholder = "{" + index + "}";
+            if (!remaining.Contains(placeholder, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            remaining = remaining.Replace(placeholder, string.Empty, StringComparison.Ordinal);
+        }
+
+        return !remaining.Contains('{') && !remaining.Contains('}');
     }
 
     private static bool IsValidRecordLiteralFormat(GenerationRecordLiteralFormat format) =>

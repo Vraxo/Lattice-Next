@@ -197,7 +197,11 @@ public sealed record SemanticPlaceholderMappingExpression(
 /// contract is spelled, so the same requirement is realizable in any language that declares it and
 /// unrealizable — rather than invented — in one that does not.
 /// </summary>
-public sealed record SemanticApiExpression(string Contract) : SemanticExpression;
+public sealed record SemanticApiExpression(string Contract) : SemanticExpression
+{
+    /// <summary>Ordered input values, including a receiver when the contract declares one.</summary>
+    public ImmutableArray<SemanticExpression> Arguments { get; init; } = [];
+}
 
 /// <summary>
 /// A collection of the source's items that satisfy a predicate, written where it is used rather than bound to
@@ -302,6 +306,13 @@ internal static class SemanticExpressionAnalysis
     {
         switch (expression)
         {
+            case SemanticApiExpression api:
+                foreach (var argument in api.Arguments)
+                {
+                    CollectBoundNames(argument, names);
+                }
+
+                break;
             case SemanticSortExpression sort:
                 AddBoundName(names, sort.ItemName);
                 CollectBoundNames(sort.Source, names);
@@ -418,6 +429,13 @@ internal static class SemanticExpressionAnalysis
     {
         switch (expression)
         {
+            case SemanticApiExpression api:
+                foreach (var argument in api.Arguments)
+                {
+                    CollectReferencedNames(argument, names);
+                }
+
+                break;
             case SemanticNameExpression name:
                 if (!names.Any(existing => string.Equals(existing, name.Name, StringComparison.Ordinal)))
                 {
@@ -526,6 +544,7 @@ internal static class SemanticExpressionAnalysis
     private static bool IsArithmeticCore(SemanticExpression expression) => expression switch
     {
         SemanticNameExpression => true,
+        SemanticApiExpression => true,
         SemanticMemberAccessExpression => true,
         SemanticNumberExpression => true,
         SemanticFunctionCallExpression call => call.Arguments.All(IsArithmeticCore),
@@ -603,7 +622,7 @@ internal static class SemanticExpressionAnalysis
         SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression or
         SemanticRangeExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression or
-        SemanticFilterExpression ||
+        SemanticFilterExpression or SemanticApiExpression ||
         IsArithmeticCore(expression);
 
     private static bool ReferencesOnlyAvailableNamesCore(
@@ -612,6 +631,8 @@ internal static class SemanticExpressionAnalysis
         bool allowFunctionCalls,
         HashSet<string>? availableFunctions) => expression switch
     {
+        SemanticApiExpression api => api.Arguments.All(argument => ReferencesOnlyAvailableNamesCore(
+            argument, availableNames, allowFunctionCalls, availableFunctions)),
         SemanticNameExpression name => availableNames.Contains(name.Name),
         SemanticMemberAccessExpression member =>
             ReferencesOnlyAvailableNamesCore(
@@ -672,6 +693,7 @@ internal static class SemanticExpressionAnalysis
         SemanticExpression expression,
         HashSet<string> names) => expression switch
     {
+        SemanticApiExpression api => api.Arguments.Any(argument => ReferencesAnyNameCore(argument, names)),
         SemanticNameExpression name => names.Contains(name.Name),
         SemanticMemberAccessExpression member => ReferencesAnyNameCore(member.Target, names),
         SemanticProgramArgumentExpression => false,
@@ -744,7 +766,9 @@ internal static class SemanticExpressionAnalysis
             SemanticPlaceholderMappingExpression placeholder =>
                 !string.IsNullOrWhiteSpace(placeholder.Note) &&
                 placeholder.Note.Length <= 128,
-            SemanticApiExpression api => IsValidIdentifier(api.Contract),
+            SemanticApiExpression api =>
+                IsValidIdentifier(api.Contract) && !api.Arguments.IsDefault && api.Arguments.Length <= 8 &&
+                IsValidArguments(api.Arguments, depth, ref nodeCount),
             SemanticSubscriptExpression subscript =>
                 IsValid(subscript.Target, depth + 1, ref nodeCount) &&
                 IsValid(subscript.Key, depth + 1, ref nodeCount),
@@ -945,6 +969,20 @@ internal static class SemanticExpressionAnalysis
             value[(decimalPoint + 1)..].All(char.IsAsciiDigit);
     }
 
+    private static bool IsValidArguments(
+        ImmutableArray<SemanticExpression> arguments, int depth, ref int nodeCount)
+    {
+        foreach (var argument in arguments)
+        {
+            if (!IsValid(argument, depth + 1, ref nodeCount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static bool IsValidIdentifier(string? identifier) =>
         !string.IsNullOrWhiteSpace(identifier) && identifier.Length <= 128;
 
@@ -954,6 +992,13 @@ internal static class SemanticExpressionAnalysis
     {
         switch (expression)
         {
+            case SemanticApiExpression api:
+                foreach (var argument in api.Arguments)
+                {
+                    CollectFunctionNames(argument, names);
+                }
+
+                break;
             case SemanticFunctionCallExpression call:
                 names.Add(call.Name);
                 foreach (var argument in call.Arguments)
