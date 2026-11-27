@@ -1401,6 +1401,35 @@ public static class SemanticProgramPlanner
         out string? error)
     {
         error = null;
+        if (call.ApiContract is { } expressionContract &&
+            pack.ApiExpressionFormats.Any(format => format.Contract == expressionContract))
+        {
+            if (call.Receiver is not null || depth > 3 ||
+                !TryRequireAvailable(new SemanticApiExpression(expressionContract) { Arguments = call.Arguments }, defined, out error))
+            {
+                error ??= "A contract call declares its receiver as an argument and needs a supported statement depth.";
+                return false;
+            }
+
+            if (!SemanticExpressionRenderer.TryRender(
+                    new SemanticApiExpression(expressionContract) { Arguments = call.Arguments }, pack, out var expression))
+            {
+                error = $"The '{pack.Language}' language pack cannot render API contract '{expressionContract}' with these arguments.";
+                return false;
+            }
+
+            var expressionEffect = depth switch
+            {
+                0 => "emit-expression-statement",
+                1 => "emit-indented-expression-statement",
+                2 => "emit-double-indented-expression-statement",
+                _ => "emit-triple-indented-expression-statement"
+            };
+            return TryEmit(pack, pipeline, expressionEffect, "expression", expression,
+                ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal).Add("expression", expression),
+                depth, defined, planned, out error);
+        }
+
         if (!TryRequireIdentifier(call.FunctionName, pack, "called function", out error))
         {
             return false;

@@ -2373,6 +2373,54 @@
           "value": ":"
         }
       ]
+    },
+    {
+      "head": "bound-expression-statement",
+      "symbols": [
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-indented-expression-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-double-indented-expression-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "        "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-expression-statement",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            "
+        },
+        {
+          "kind": "binding",
+          "value": "expression"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3436,6 +3484,38 @@
       "argumentKind": "condition",
       "prerequisites": [],
       "startSymbol": "bound-double-indented-while"
+    },
+    {
+      "id": "python-bound-expression-statement",
+      "symbol": "expression",
+      "effect": "emit-expression-statement",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "bound-expression-statement"
+    },
+    {
+      "id": "python-bound-indented-expression-statement",
+      "symbol": "expression",
+      "effect": "emit-indented-expression-statement",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-expression-statement"
+    },
+    {
+      "id": "python-bound-double-indented-expression-statement",
+      "symbol": "expression",
+      "effect": "emit-double-indented-expression-statement",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "bound-double-indented-expression-statement"
+    },
+    {
+      "id": "python-bound-triple-indented-expression-statement",
+      "symbol": "expression",
+      "effect": "emit-triple-indented-expression-statement",
+      "argumentKind": "expression",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-expression-statement"
     }
   ],
   "stringLiteralFormat": {
