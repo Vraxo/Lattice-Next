@@ -1006,6 +1006,40 @@ public sealed class SemanticProgramPlanningTests
             SemanticProgramPlanner.Render(statements));
     }
 
+    [Fact]
+    public void Selects_an_api_operation_only_when_the_goal_carries_its_contract()
+    {
+        var pack = LoadPack();
+        var pipeline = new SequenceGenerationPipeline();
+        var bindings = ImmutableDictionary<string, string>.Empty
+            .WithComparers(StringComparer.Ordinal)
+            .Add("function", "bpy.data.objects.remove")
+            .Add("arguments", "obj, do_unlink=True");
+
+        var withContract = new GenerationGoal(
+            "emit-indented-api-call",
+            "call",
+            "bpy.data.objects.remove",
+            ["api:api-object-removal"])
+        {
+            Bindings = bindings
+        };
+        Assert.True(
+            pipeline.TryGenerate(pack, withContract, out var generated, out var error),
+            error);
+        Assert.Equal("python-bound-indented-api-call-object-removal", generated!.SelectedOperationId);
+        Assert.Equal("    bpy.data.objects.remove(obj, do_unlink=True)", generated.Text);
+
+        // The same request without the contract cannot be realized by the api-call family, and the generic
+        // call family does not produce that effect, so the statement stays unrealizable.
+        var withoutContract = withContract with { AvailableCapabilities = [] };
+        Assert.False(pipeline.TryGenerate(pack, withoutContract, out _, out _));
+
+        // A contract the pack does not declare stays unrealizable too.
+        var otherContract = withContract with { AvailableCapabilities = ["api:api-collection-link"] };
+        Assert.False(pipeline.TryGenerate(pack, otherContract, out _, out _));
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

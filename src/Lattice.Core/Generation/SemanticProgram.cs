@@ -234,6 +234,13 @@ public sealed record CallRequirement(
 {
     /// <summary>When set, the call is a method call on this instance rather than a free function.</summary>
     public string? Receiver { get; init; }
+
+    /// <summary>
+    /// When set, the call reaches this knowledge-declared API contract. The selected language pack must declare
+    /// an operation for that contract, so a call the knowledge does not model stays unrealizable instead of
+    /// being emitted with whatever operation happens to accept a call.
+    /// </summary>
+    public string? ApiContract { get; init; }
 }
 
 /// <summary>One declared class field: the member name and the value the constructor starts it with.</summary>

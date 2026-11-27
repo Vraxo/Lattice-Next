@@ -125,11 +125,27 @@ internal static class TaskProgramGenerationResponder
                 sources.AddRange(reasoner.GetMembershipEvidence(value.Id, "code-generation-binding-value"));
             }
 
+            // The API contracts this step reaches become the goal's capabilities, so only a pack operation
+            // that declares the same contract can realize the step.
+            var capabilities = ImmutableArray.CreateBuilder<string>();
+            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "step-references-api"))
+            {
+                var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
+                if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
+                {
+                    return false;
+                }
+
+                capabilities.Add($"api:{api.Id}");
+                sources.Add(apiAssertion.Source);
+                sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "application-programming-interface"));
+            }
+
             goals.Add(new GenerationGoal(
                 SemanticWorldModel.Normalize(effect.Label),
                 SemanticWorldModel.Normalize(argumentKind.Label),
                 step.Step.Label,
-                ImmutableArray<string>.Empty)
+                capabilities.ToImmutable())
             {
                 Bindings = bindings.ToImmutable()
             });
@@ -141,17 +157,6 @@ internal static class TaskProgramGenerationResponder
             sources.AddRange(reasoner.GetMembershipEvidence(effect.Id, "code-generation-effect"));
             sources.AddRange(reasoner.GetMembershipEvidence(argumentKind.Id, "code-generation-argument-kind"));
 
-            foreach (var apiAssertion in reasoner.GetRelations(step.Step.Id, "step-references-api"))
-            {
-                var api = model.FindConcept(apiAssertion.Object, SemanticConceptKind.Individual);
-                if (api is null || !reasoner.IsInstanceOf(api.Id, "application-programming-interface"))
-                {
-                    return false;
-                }
-
-                sources.Add(apiAssertion.Source);
-                sources.AddRange(reasoner.GetMembershipEvidence(api.Id, "application-programming-interface"));
-            }
         }
 
         var loader = new GenerationLanguagePackLoader();

@@ -338,10 +338,19 @@ public static class SemanticProgramValidator
         return true;
     }
 
+    /// <summary>
+    /// An API contract id is the knowledge's own spelling: letters, digits, and hyphens, never a language's.
+    /// </summary>
+    private static bool IsValidApiContract(string contract) =>
+        !string.IsNullOrWhiteSpace(contract) &&
+        contract.Length <= 128 &&
+        contract.All(character => char.IsAsciiLetterOrDigit(character) || character is '-' or '_');
+
     private static bool IsValidCall(CallRequirement call, RequirementContext context)
     {
         if (!IsValidName(call.FunctionName) ||
             (call.Receiver is not null && !IsValidName(call.Receiver)) ||
+            (call.ApiContract is not null && !IsValidApiContract(call.ApiContract)) ||
             call.Arguments.IsDefault ||
             call.Arguments.Length > MaximumParameters ||
             !call.Arguments.All(argument => SemanticExpressionAnalysis.IsValid(argument)))

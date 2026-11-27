@@ -1401,13 +1401,24 @@ public static class SemanticProgramPlanner
         var bindings = ImmutableDictionary<string, string>.Empty
             .WithComparers(StringComparer.Ordinal)
             .Add("function", callee);
-        if (arguments.Count == 0)
+        string family;
+        if (call.ApiContract is { } apiContract)
         {
-            effect = $"emit-{prefix}nullary-call";
+            if (!TryRequireContract(apiContract, out error))
+            {
+                return false;
+            }
+
+            family = "api-call";
         }
         else
         {
-            effect = $"emit-{prefix}call";
+            family = arguments.Count == 0 ? "nullary-call" : "call";
+        }
+
+        effect = $"emit-{prefix}{family}";
+        if (arguments.Count > 0)
+        {
             bindings = bindings.Add("arguments", string.Join(", ", arguments));
         }
 
@@ -1421,7 +1432,10 @@ public static class SemanticProgramPlanner
             depth,
             defined,
             planned,
-            out error);
+            out error,
+            call.ApiContract is { } contract
+                ? ImmutableArray.Create($"api:{contract}")
+                : ImmutableArray<string>.Empty);
     }
 
     private static bool TryPlanDictionaryIteration(
@@ -2687,10 +2701,14 @@ public static class SemanticProgramPlanner
         int depth,
         IReadOnlySet<string> defined,
         ImmutableArray<PlannedProgramStatement>.Builder planned,
-        out string? error)
+        out string? error,
+        ImmutableArray<string> additionalCapabilities = default)
     {
         var capabilities = defined
             .Select(name => $"variable:{name}")
+            .Concat(additionalCapabilities.IsDefaultOrEmpty
+                ? Enumerable.Empty<string>()
+                : additionalCapabilities)
             .Order(StringComparer.Ordinal)
             .ToImmutableArray();
         var goal = new GenerationGoal(effect, argumentKind, argumentValue, capabilities)
@@ -2714,6 +2732,25 @@ public static class SemanticProgramPlanner
             effect,
             result.SelectedOperationId,
             result.Text));
+        return true;
+    }
+
+    /// <summary>
+    /// Requires that an API contract is spelled like the knowledge spells its ids, so a contract the knowledge
+    /// could not have declared is refused before any operation is selected.
+    /// </summary>
+    private static bool TryRequireContract(string contract, out string? error)
+    {
+        if (string.IsNullOrWhiteSpace(contract) ||
+            contract.Length > 128 ||
+            !contract.All(character =>
+                char.IsAsciiLetterOrDigit(character) || character is '-' or '_'))
+        {
+            error = $"'{contract}' is not a valid API contract identifier.";
+            return false;
+        }
+
+        error = null;
         return true;
     }
 
