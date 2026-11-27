@@ -18,7 +18,7 @@ public sealed class LatticeRuntimeSessionTests
         var answer = Assert.Single(result.Utterances);
         Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, answer.Kind);
         Assert.Equal("```python\ntotal = 5\nprint(\"Done\")\n```", answer.Message);
-        Assert.StartsWith("semantic-facts(", answer.Meaning, StringComparison.Ordinal);
+        Assert.StartsWith("semantic-requirements(", answer.Meaning, StringComparison.Ordinal);
     }
 
     [Fact]
