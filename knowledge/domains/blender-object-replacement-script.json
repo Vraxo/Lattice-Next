@@ -607,6 +607,46 @@
       "id": "code-generation-emit-triple-indented-api-call",
       "kind": "Individual",
       "label": "emit triple indented api call"
+    },
+    {
+      "id": "code-generation-slot",
+      "label": "code generation slot",
+      "kind": "Type"
+    },
+    {
+      "id": "light-kind",
+      "label": "light kind",
+      "kind": "Type"
+    },
+    {
+      "id": "slot-object-name",
+      "label": "YourObjectName",
+      "kind": "Individual"
+    },
+    {
+      "id": "slot-light-kind",
+      "label": "POINT",
+      "kind": "Individual"
+    },
+    {
+      "id": "light-kind-point",
+      "label": "POINT",
+      "kind": "Individual"
+    },
+    {
+      "id": "light-kind-sun",
+      "label": "SUN",
+      "kind": "Individual"
+    },
+    {
+      "id": "light-kind-spot",
+      "label": "SPOT",
+      "kind": "Individual"
+    },
+    {
+      "id": "light-kind-area",
+      "label": "AREA",
+      "kind": "Individual"
     }
   ],
   "lexemes": [
@@ -619,6 +659,43 @@
       "form": "replaces all of objects with a specific name with a point light",
       "concept": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
       "partOfSpeech": "verb phrase"
+    },
+    {
+      "form": "replaces all of objects named {objectName} with a {lightKind}",
+      "concept": "replaces-all-of-objects-with-a-specific-name-with-a-point-light",
+      "partOfSpeech": "verb phrase",
+      "slots": [
+        {
+          "name": "objectName",
+          "concept": "slot-object-name",
+          "kind": "text"
+        },
+        {
+          "name": "lightKind",
+          "concept": "slot-light-kind",
+          "kind": "light-kind"
+        }
+      ]
+    },
+    {
+      "form": "point light",
+      "concept": "light-kind-point",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "sun light",
+      "concept": "light-kind-sun",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "spot light",
+      "concept": "light-kind-spot",
+      "partOfSpeech": "noun"
+    },
+    {
+      "form": "area light",
+      "concept": "light-kind-area",
+      "partOfSpeech": "noun"
     }
   ],
   "relations": [
@@ -754,6 +831,18 @@
     },
     {
       "concept": "code-generation-safety-note",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "code-generation-slot",
+      "definitionKind": "primitive",
+      "necessaryConditions": [],
+      "sufficientExpression": null
+    },
+    {
+      "concept": "light-kind",
       "definitionKind": "primitive",
       "necessaryConditions": [],
       "sufficientExpression": null
@@ -1979,6 +2068,36 @@
       "subject": "code-generation-emit-triple-indented-api-call",
       "relation": "instance-of",
       "object": "code-generation-effect"
+    },
+    {
+      "subject": "slot-object-name",
+      "relation": "instance-of",
+      "object": "code-generation-slot"
+    },
+    {
+      "subject": "slot-light-kind",
+      "relation": "instance-of",
+      "object": "code-generation-slot"
+    },
+    {
+      "subject": "light-kind-point",
+      "relation": "instance-of",
+      "object": "light-kind"
+    },
+    {
+      "subject": "light-kind-sun",
+      "relation": "instance-of",
+      "object": "light-kind"
+    },
+    {
+      "subject": "light-kind-spot",
+      "relation": "instance-of",
+      "object": "light-kind"
+    },
+    {
+      "subject": "light-kind-area",
+      "relation": "instance-of",
+      "object": "light-kind"
     }
   ],
   "dataProperties": [],

@@ -1369,3 +1369,27 @@ Current counts after this segment: **21 sequence rules**, **241 input rules**, *
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **121 concepts** and **244 relation assertions**, with **18 steps** and **10 API
 references**.
+
+## M-12.9a — a lexeme form carries the parts of a phrase it leaves open
+
+A task concept used to be reachable only by the whole phrase, so "objects named Cube" created a concept with no
+steps. A lexeme now declares `slots`:
+
+| Part | What it holds |
+| --- | --- |
+| `SemanticLexemeSlot(Name, Concept, Kind)` | `Name` locates the `{name}` marker in the form, `Concept` is the individual the capture fills, `Kind` says what the capture must be |
+| slot `Kind` `text` | the phrase is kept as written |
+| any other `Kind` | a declared concept the captured phrase must resolve to, so the value is that individual's label |
+| loader validation | markers present in the form, names unique identifiers, slot concepts declared, kinds either `text` or a declared concept, at most eight slots |
+| `SemanticWorldModel.TryMatchLexeme` | exact form or id first, then every slot-bearing form, returning the captured text per slot |
+
+The Blender knowledge declares one slot-bearing form —
+`replaces all of objects named {objectName} with a {lightKind}` — for the task concept, the `light-kind` type with
+`point light`, `sun light`, `spot light`, and `area light` lexemes, and the two slots it captures into:
+`slot-object-name` (`YourObjectName`) and `slot-light-kind` (`POINT`). Nothing consumes a capture yet, so the
+exact form still wins for the modelled request and the script, its step list, and its evidence are unchanged.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **129 concepts** and **250 relation assertions**, with **18 steps**, **10 API
+references**, and **7 lexemes**.
