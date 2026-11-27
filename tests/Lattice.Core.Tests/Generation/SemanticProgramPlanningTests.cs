@@ -903,6 +903,70 @@ public sealed class SemanticProgramPlanningTests
             SemanticProgramPlanner.Render(statements));
     }
 
+    [Fact]
+    public void Plans_an_early_continue_at_the_depth_of_its_loop_body()
+    {
+        var statements = Plan(
+            new IterationRequirement(
+                "number",
+                new SemanticListLiteralExpression([
+                    new SemanticNumberExpression("1"),
+                    new SemanticNumberExpression("2"),
+                    new SemanticNumberExpression("3")
+                ]),
+                [new ContinueRequirement()]));
+
+        Assert.Equal(
+            new[] { "emit-loop-header", "emit-indented-continue" },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            new[] { 0, 1 },
+            statements.Select(statement => statement.Depth));
+        Assert.Equal(
+            string.Join('\n', "for number in [1, 2, 3]:", "    continue"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
+    [Fact]
+    public void Plans_a_guarded_branch_with_an_else_fallback_inside_a_loop_body()
+    {
+        var statements = Plan(
+            new IterationRequirement(
+                "number",
+                new SemanticListLiteralExpression([
+                    new SemanticNumberExpression("1"),
+                    new SemanticNumberExpression("2"),
+                    new SemanticNumberExpression("3")
+                ]),
+                [new ConditionalRequirement(
+                    new SemanticBinaryExpression(
+                        SemanticExpressionOperator.GreaterThan,
+                        new SemanticNameExpression("number"),
+                        new SemanticNumberExpression("2")),
+                    [new OutputRequirement(new SemanticNameExpression("number"))],
+                    [new ContinueRequirement()])]));
+
+        Assert.Equal(
+            new[]
+            {
+                "emit-loop-header",
+                "emit-indented-conditional-header",
+                "write-standard-output-double-indented-expression",
+                "emit-indented-else",
+                "emit-double-indented-continue"
+            },
+            statements.Select(statement => statement.Effect));
+        Assert.Equal(
+            string.Join(
+                '\n',
+                "for number in [1, 2, 3]:",
+                "    if number > 2:",
+                "        print(number)",
+                "    else:",
+                "        continue"),
+            SemanticProgramPlanner.Render(statements));
+    }
+
     private static ImmutableArray<PlannedProgramStatement> PlanWithCollections(
         ImmutableArray<string> collectionNames,
         params ProgramRequirement[] requirements)

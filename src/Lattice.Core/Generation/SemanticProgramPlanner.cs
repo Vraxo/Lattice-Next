@@ -295,6 +295,13 @@ public static class SemanticProgramPlanner
                     }
 
                     break;
+                case ContinueRequirement continueStatement:
+                    if (!TryPlanContinue(depth, pack, pipeline, planned, out error))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case ConditionalRequirement conditional:
                     if (!TryPlanConditional(conditional, depth, defined, pack, pipeline, planned, out error))
                     {
@@ -730,6 +737,51 @@ public static class SemanticProgramPlanner
 
         defined.Add(iteration.ItemName);
         return true;
+    }
+
+    /// <summary>
+    /// Plans the statement that ends the current element's work in an enclosing iteration. The statement is
+    /// asked for at the depth of the surrounding body, so the pack spells its indentation like any other.
+    /// </summary>
+    private static bool TryPlanContinue(
+        int depth,
+        GenerationLanguagePack pack,
+        SequenceGenerationPipeline pipeline,
+        ImmutableArray<PlannedProgramStatement>.Builder planned,
+        out string? error)
+    {
+        error = null;
+        string effect;
+        switch (depth)
+        {
+            case 0:
+                effect = "emit-continue";
+                break;
+            case 1:
+                effect = "emit-indented-continue";
+                break;
+            case 2:
+                effect = "emit-double-indented-continue";
+                break;
+            case 3:
+                effect = "emit-triple-indented-continue";
+                break;
+            default:
+                error = $"Program statements support at most {MaximumDepth} levels of nested blocks.";
+                return false;
+        }
+
+        return TryEmit(
+            pack,
+            pipeline,
+            effect,
+            argumentKind: "none",
+            argumentValue: "continue",
+            ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal),
+            depth,
+            new HashSet<string>(StringComparer.Ordinal),
+            planned,
+            out error);
     }
 
     private static bool TryPlanTry(

@@ -121,6 +121,12 @@ public sealed record FileReadRequirement(
     ImmutableArray<ProgramRequirement> Body) : ProgramRequirement;
 
 /// <summary>
+/// Stops the current element's work in the enclosing iteration: the rest of that body is skipped and the next
+/// element begins. The loop is the requirement's context, so this carries no name and no condition of its own.
+/// </summary>
+public sealed record ContinueRequirement : ProgramRequirement;
+
+/// <summary>
 /// An iteration over a collection value, binding each element to an item name. The body is an ordered
 /// requirement list, so loops compose with the same model as top-level statements.
 /// </summary>

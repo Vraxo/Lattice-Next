@@ -2304,6 +2304,24 @@
           "value": "}"
         }
       ]
+    },
+    {
+      "head": "bound-indented-continue",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "    continue"
+        }
+      ]
+    },
+    {
+      "head": "bound-triple-indented-continue",
+      "symbols": [
+        {
+          "kind": "terminal",
+          "value": "            continue"
+        }
+      ]
     }
   ],
   "bindings": [
@@ -3297,6 +3315,22 @@
       "argumentKind": "dictionary-map-binding",
       "prerequisites": [],
       "startSymbol": "indented-bound-dictionary-map-assignment"
+    },
+    {
+      "id": "python-bound-indented-continue",
+      "symbol": "continue",
+      "effect": "emit-indented-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-indented-continue"
+    },
+    {
+      "id": "python-bound-triple-indented-continue",
+      "symbol": "continue",
+      "effect": "emit-triple-indented-continue",
+      "argumentKind": "none",
+      "prerequisites": [],
+      "startSymbol": "bound-triple-indented-continue"
     }
   ],
   "stringLiteralFormat": {
