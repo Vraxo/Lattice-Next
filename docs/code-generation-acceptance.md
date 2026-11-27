@@ -6,7 +6,7 @@ proved. Verification is CI-only — this sandbox has no `dotnet` — so every cl
 `dotnet test Lattice.slnx --configuration Release --no-build`. A green run of that job is the Release build and the
 full suite at once.
 
-The suite holds **661** Core test methods, **223** Runtime, **19** LM Studio translator, **8** CLI, **6** server, and
+The suite holds **646** Core test methods, **223** Runtime, **19** LM Studio translator, **8** CLI, **6** server, and
 **3** benchmark; theories expand those methods into the executed cases each run records.
 
 ## What the acceptance pass changed
@@ -25,8 +25,9 @@ Running the checks found one real gap, and closing it changed production behavio
   `semantic-requirements(write-standard-output)` instead of `semantic-facts(language.python, …)`, because the answer is
   derived from requirements rather than from the extracted fact ids. The runtime fixtures were updated to assert the
   new meaning. This is the one output change of the acceptance pass; the generated code is unchanged.
-* **An output stated as an expression** ("prints total + 3", "prints result - 4") stays on its own path: the input
-  rules capture no typed expression for it, so `value.output.expression` remains declared unmapped; that is queue item 15.18.
+* **An output stated as an expression** ("prints total + 3", "prints result - 4") stayed on its own path at this point: the
+  input rules captured no typed expression for it, so `value.output.expression` was declared unmapped. 15.18 closed that,
+  together with declared loops; see §15.18 below.
 
 ## 15.1 — scalar interpretation and generation fixtures
 
@@ -115,7 +116,7 @@ The only recorded unavailability is the assistant benchmark: a scheduled, model-
 (`tools/Lattice.Assistant.Benchmark`), outside the build-and-test job. Every migrated capability is covered by the
 deterministic fixtures above, so acceptance does not depend on it.
 
-## 15.11 — one planning mechanism, and what still realizes through rules
+## 15.11 — one planning mechanism, one emitter
 
 Program *planning* has one implementation and names no language: `SemanticProgramPlanner`,
 `SemanticProgramFactMapper`, `SemanticProgramValidator`, the expression algebra, and `SequenceGenerationPipeline` hold
@@ -127,13 +128,14 @@ productions and bindings —
 `CrossLanguageGenerationTests.Realizes_the_same_interpretation_in_each_language` and `…Selects_the_requested_language_pack`
 run the same plan in both packs.
 
-Recorded residual, found by this acceptance pass and narrowed by it: `KnowledgeDrivenSequenceGenerator` still emits
-program text for the families the requirement model does not project — **declared loops** (`program.range-loop`,
-`program.collection-loop`) and **outputs stated as expressions** (`value.output.expression`). Its 21 token rules are
-generic renderers (a fence, `print(`, a loop header), carry no task or benchmark identity, and are guarded by
-`SequenceKnowledgeGuardTests.Keeps_complete_solution_fragments_confined_to_recorded_families`, which allows **no**
-multi-line rule. Retiring it needs those two remaining families projected as requirements; that work is recorded as
-15.18 and does not gate the definition of done, because the second language is only reachable through the planner.
+This acceptance pass found two families that still realized through an older token-rule renderer
+(`KnowledgeDrivenSequenceGenerator`): **declared loops** (`program.range-loop`, `program.collection-loop`) and
+**outputs stated as expressions** (`value.output.expression`). 15.18 projected them — loops onto `IterationRequirement`,
+with the counted loop stating its bounds as a language-neutral `SemanticRangeExpression` the pack spells, and the
+expression output onto `OutputRequirement` through the generic output path — and then deleted the renderer, its request
+record, its token rules, and the knowledge's `rules` and `encodings` sections. There is now **one** emitter for every
+family: `SemanticProgramPlanner` → `SequenceGenerationPipeline` → the pack's operation, productions, and bindings. §15.18
+below records the change and its evidence.
 
 ## 15.12 — declarative language syntax and API knowledge, no Python-specific shared branches
 
@@ -150,9 +152,10 @@ non-generation site — the software recommendation catalogue, which filters con
 ## 15.13 — no task-specific complete solutions remain
 
 `SequenceKnowledgeGuardTests.Keeps_benchmark_and_task_identities_out_of_knowledge` fails if a benchmark or task
-identity reaches the sequence knowledge; `…Keeps_complete_solution_fragments_confined_to_recorded_families` fails when
-a multi-line complete-solution fragment appears at all; `…Keeps_every_rule_and_validation_reachable_from_extraction`
-fails when a rule stops being reachable, so dead task-specific rules cannot hide.
+identity reaches the sequence knowledge; `…Stores_no_token_rule_that_could_emit_a_program` fails when the knowledge
+declares a token rule or an encoding at all, and the loader rejects such a document, so a stored fragment has nowhere
+left to live; `…Keeps_every_validation_reachable_from_extraction` fails when a validation stops being reachable, so dead
+task-specific rules cannot hide.
 
 On the domain side the Blender script is declared as **18 steps** arranged as a requirement tree
 (`has-generation-step`, `step-has-body`, `step-has-alternative-branch`), with **8 effect families**, **10 API
@@ -199,20 +202,20 @@ live in three knowledge layers:
 | Layer | Files | Holds |
 | --- | --- | --- |
 | world model | `knowledge/domains/*.json` (39 files, including `blender-object-replacement-script.json`) | concepts, relations, lexemes and slots, definitions, assertions, requirement trees |
-| sequence knowledge | `knowledge/sequences/python.core.json` | 21 rules, 241 input rules, 30 validations, 1 encoding — how a request's facts are recognized |
+| sequence knowledge | `knowledge/sequences/python.core.json` | 245 input rules and 30 validations — how a request's facts are recognized; no token rules and no encodings |
 | language packs | `knowledge/languages/python.core.json`, `javascript.core.json` | productions, bindings, operations, literal and expression formats, API spellings |
 
 ## 15.16 — final inventory and counts
 
 | Item | Count |
 | --- | --- |
-| sequence rules / input rules / validations / encodings | 21 / 241 / 30 / 1 |
+| sequence rules / input rules / validations / encodings | 0 / 245 / 30 / 0 |
 | Python pack: productions / bindings / operations / api expression formats | 104 / 26 / 109 / 9 |
 | JavaScript pack: productions / bindings / operations / api expression formats | 16 / 9 / 14 / 0 |
 | Blender domain: concepts / relations / relation assertions | 117 / 11 / 240 |
 | Blender domain: steps / API references / lexemes | 18 / 10 / 7 |
 | domain files | 39 |
-| test methods (Core / Runtime / LM Studio / CLI / server / benchmark) | 661 / 223 / 19 / 8 / 6 / 3 |
+| test methods (Core / Runtime / LM Studio / CLI / server / benchmark) | 646 / 223 / 19 / 8 / 6 / 3 |
 
 The per-ticket record, including every deliberate output change the migration made, is
 `docs/code-generation-migration-inventory.md`.
@@ -233,6 +236,44 @@ Every item in sections 8 through 15 of `.agents/todo.md` is closed, and the defi
 - the Release build, the full .NET suite, the external-tool execution tests, and the generation and behavioural tests
   all pass.
 
-One residual is recorded rather than hidden: loops and expression outputs still realize through the token-rule renderer
-(15.11 above). It is tracked as **15.18**, it carries no task identity, and it does not affect either language's
-generation mechanism.
+No residual remains. The acceptance pass found that loops and expression outputs still realized through an older
+token-rule renderer; **15.18** projected both onto requirements and deleted that renderer, its rules, and its request
+record, so one emitter serves every family and the knowledge stores no program text at all (§15.18).
+
+## 15.18 — the last two families, and one emitter with nothing left over
+
+The two families the acceptance pass found still rendering outside the planner now plan like every other one, and the
+older renderer is gone.
+
+| Gap | What the request used to do | What it does now |
+| --- | --- | --- |
+| a counted loop — "prints each number from 1 to 5" | `KnowledgeDrivenSequenceGenerator` composed the fence, `for number in range(1, 5):`, and the body from token rules | `program.range-loop` projects onto one `IterationRequirement` whose source is the new `SemanticRangeExpression(Start, End)` and whose body reports the item; each pack spells the range through `rangeExpressionFormat` (Python: `range({0}, {1})`) |
+| a collection loop — "prints each number in the list [2, 4, 6]" | the same renderer, walking a stored collection rule | `program.collection-loop` projects onto one `IterationRequirement` over a list literal of the request's own elements (or the pack's declared `exampleData`) with `OutputRequirement(item)` in the body; an empty `[]` is a real, uninhabited collection and still plans |
+| an expression output — "sets total to 5, then prints total + 3" | the value was captured as text and the renderer emitted the expression | the Python pack's four `…-and` / `…-then` rules capture the output as a typed `value` expression, so `SemanticProgramFactMapper.TryProjectOutputs` emits one `OutputRequirement(BinaryExpression)`; `SemanticProgramPlanner` no longer declares `value.output.expression` unmapped |
+
+What was deleted with them:
+
+* `src/Lattice.Core/Generation/KnowledgeDrivenSequenceGenerator.cs` (the renderer) and its request record;
+* the four token-rule records — `SequenceTokenRule`, `SequenceTokenBinding`, `SequenceTokenEncoding`, `SequenceTokenEscape`
+  — so `SequenceKnowledgeBase` is now `(InputRules, Validations)` and no longer carries a rendering rule;
+* the loader's rule and encoding readers; `TryLoad` accepts exactly `formatVersion`, `inputRules`, and `validations`, and
+  rejects a document that still carries `rules` or `encodings` (or any other unknown field, with the message naming it);
+* the `rules` and `encodings` sections of `knowledge/sequences/python.core.json` (245 input rules and 30 validations remain);
+* `KnowledgeDrivenGenerationResponder`'s legacy branch (it loads the packs, extracts facts, and calls
+  `SemanticProgramPlanner` directly) and `CompositionalTaskParser`'s preflight (it keeps the planner gate alone);
+* `tests/Lattice.Core.Tests/Generation/KnowledgeDrivenSequenceGeneratorTests.cs`, whose 56 extraction facts survive as
+  `SequenceInputFactExtractionTests`, plus `SequenceKnowledgeGuardTests.Stores_no_token_rule_that_could_emit_a_program`.
+
+Evidence that no output changed:
+
+| Claim | Evidence |
+| --- | --- |
+| counted and collected loops plan as requirements, not text | `SequenceInputFactExtractionTests.Plans_a_counted_loop_from_the_requests_own_bounds` and `…Plans_a_collection_loop_from_the_requests_own_elements` assert the planned program and the exact emitted text for both families, including `[]`, mixed-type, typed, and single-item collections |
+| an expression output is one requirement | `…Plans_an_output_stated_as_an_expression_after_the_assignment_it_reads` and the runtime fixtures that execute `total = 5` / `print(total + 3)` |
+| the same text as before | `PythonProgramGenerationTests.Generates_and_executes_composed_python_programs`, `GeneratedCollectionProgramExecutionTests`, and `CrossLanguageExecutionTests` run the generated programs unchanged |
+| the knowledge stores no program text | `SequenceKnowledgeGuardTests.Stores_no_token_rule_that_could_emit_a_program` and the loader's field whitelist |
+| the loader still loads the shipped document | `SequenceGrammarLoaderTests`, which loads the embedded `python.core.json`, and the guards above, which read the same file |
+
+The one deliberate change in this ticket is structural, not textual: the answer's meaning for an expression output now
+carries `semantic-requirements(…)` like every other family, because the output comes from a requirement instead of from
+captured facts.

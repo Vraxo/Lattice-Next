@@ -273,6 +273,21 @@ internal static class SemanticExpressionRenderer
 
                 precedence = PrimaryPrecedence;
                 break;
+            case SemanticRangeExpression range:
+                if (languagePack.RangeExpressionFormat is not { } rangeFormat ||
+                    !rangeFormat.Contains("{0}", StringComparison.Ordinal) ||
+                    !rangeFormat.Contains("{1}", StringComparison.Ordinal) ||
+                    !TryRender(range.Start, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedRangeStart) ||
+                    !TryRender(range.End, languagePack, syntax, parentPrecedence: 0, isRightOperand: false, out var renderedRangeEnd))
+                {
+                    return false;
+                }
+
+                rendered = rangeFormat
+                    .Replace("{0}", renderedRangeStart, StringComparison.Ordinal)
+                    .Replace("{1}", renderedRangeEnd, StringComparison.Ordinal);
+                precedence = PrimaryPrecedence;
+                break;
             case SemanticFilterExpression filter:
                 if (!TryRenderFilter(filter, languagePack, syntax, out rendered))
                 {

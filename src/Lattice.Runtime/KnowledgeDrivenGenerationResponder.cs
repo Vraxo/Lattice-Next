@@ -4,6 +4,12 @@ using Lattice.Core.Generation;
 
 namespace Lattice.Runtime;
 
+/// <summary>
+/// Answers a program-generation request from the declarative sequence knowledge and the selected language
+/// pack. One path realizes a program: the facts the request states are projected onto the language-neutral
+/// requirement model and planned onto the pack's operations, so a request whose facts name no requirement
+/// stays unanswered instead of being rendered by a second mechanism.
+/// </summary>
 internal static class KnowledgeDrivenGenerationResponder
 {
     private static readonly Lazy<SequenceKnowledgeBase?> EmbeddedKnowledge = new(LoadKnowledge);
@@ -28,47 +34,22 @@ internal static class KnowledgeDrivenGenerationResponder
         }
 
         var languagePack = SelectLanguagePack(facts);
-        if (languagePack is not null &&
-            SemanticProgramPlanner.TryGenerateProgram(
+        if (languagePack is null ||
+            !SemanticProgramPlanner.TryGenerateProgram(
                 facts,
                 languagePack,
                 out var programCode,
                 out var plannedStatements,
                 out _))
         {
-            var fence = new string((char)96, 3);
-            result = new LatticeUtteranceResult(
-                LatticeUtteranceResultKind.TaskCompleted,
-                $"{fence}{languagePack.Language}\n{programCode}\n{fence}",
-                $"semantic-requirements({string.Join(", ", plannedStatements.Select(statement => statement.Effect).Distinct(StringComparer.Ordinal))})",
-                SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty,
-                OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
-            return true;
-        }
-
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts,
-            LanguagePack = languagePack
-        };
-
-        if (!KnowledgeDrivenSequenceGenerator.TryGenerate(
-            knowledge,
-            null,
-            request,
-            out var generated,
-            out _))
-        {
             return false;
         }
 
-        var meaning = $"semantic-facts({string.Join(", ", facts.Select(fact => fact.Id))})";
+        var fence = new string((char)96, 3);
         result = new LatticeUtteranceResult(
             LatticeUtteranceResultKind.TaskCompleted,
-            generated!.Text,
-            meaning,
+            $"{fence}{languagePack.Language}\n{programCode}\n{fence}",
+            $"semantic-requirements({string.Join(", ", plannedStatements.Select(statement => statement.Effect).Distinct(StringComparer.Ordinal))})",
             SupportingEvidence: ImmutableArray<LatticeEvidence>.Empty,
             OpposingEvidence: ImmutableArray<LatticeEvidence>.Empty);
         return true;

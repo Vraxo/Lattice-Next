@@ -21,22 +21,13 @@ public static class SemanticProgramPlanner
     private const int MaximumStatements = 256;
 
     /// <summary>
-    /// Request facts that express an output or arithmetic intent which the generic requirement model
-    /// does not represent yet. A request that carries one of them is planned by another path until the
-    /// matching migration group replaces the fact.
+    /// A request that mentions arithmetic without stating where the result goes ("prints total + 3" on its
+    /// own) names no requirement the planner can realize, because its expression refers to a value nothing
+    /// defines. Such a request stays unanswered instead of being planned with the arithmetic dropped.
     /// </summary>
     private static readonly ImmutableArray<string> UnmappedScalarIntentFactIds =
     [
         "program.arithmetic"
-    ];
-
-    /// <summary>
-    /// An output the request states as an expression ("prints total + 3") is still realized by the rule path:
-    /// only an output stated in words is projected onto an output requirement today.
-    /// </summary>
-    private static readonly ImmutableArray<string> UnmappedScalarIntentFactPrefixes =
-    [
-        "value.output.expression"
     ];
 
     /// <summary>
@@ -47,7 +38,9 @@ public static class SemanticProgramPlanner
     /// </summary>
     internal static readonly ImmutableArray<string> DeferredProgramFactPrefixes =
     [
-        // 9.23 — explicit loops over a named collection.
+        // The word "loop" or "iterate" on its own says only that the request wants iteration. The projected
+        // loop families now carry that structure as an IterationRequirement, so this marker defers a request
+        // only when nothing else in the plan iterates (15.18).
         "program.loop"
     ];
 
@@ -164,13 +157,20 @@ public static class SemanticProgramPlanner
 
     /// <summary>
     /// Whether the planned requirements already carry the structure a deferred fact names, so that a request
-    /// which holds a collection of records is planned rather than refused.
+    /// which holds a collection of records, or which says "loop" while the plan already iterates, is planned
+    /// rather than refused.
     /// </summary>
     private static bool IsCarriedByRequirements(
         string factId,
         ImmutableArray<ProgramRequirement> requirements) =>
-        factId.StartsWith("program.collection", StringComparison.Ordinal) &&
-        CarriesCollection(requirements);
+        factId.StartsWith("program.collection", StringComparison.Ordinal)
+            ? CarriesCollection(requirements)
+            : CarriesIteration(requirements);
+
+    private static bool CarriesIteration(ImmutableArray<ProgramRequirement> requirements) =>
+        !requirements.IsDefaultOrEmpty &&
+        requirements.Any(requirement =>
+            requirement is IterationRequirement or DictionaryIterationRequirement);
 
     private static bool CarriesCollection(ImmutableArray<ProgramRequirement> requirements) =>
         !requirements.IsDefaultOrEmpty &&
@@ -205,10 +205,7 @@ public static class SemanticProgramPlanner
         });
 
     private static bool HasUnmappedScalarIntent(ImmutableArray<SequenceSemanticFact> facts) =>
-        facts.Any(fact =>
-            UnmappedScalarIntentFactIds.Contains(fact.Id, StringComparer.Ordinal) ||
-            UnmappedScalarIntentFactPrefixes.Any(prefix =>
-                fact.Id.StartsWith(prefix, StringComparison.Ordinal)));
+        facts.Any(fact => UnmappedScalarIntentFactIds.Contains(fact.Id, StringComparer.Ordinal));
 
     /// <summary>
     /// Whether the planned requirements already carry the intent the request expresses: either a scalar

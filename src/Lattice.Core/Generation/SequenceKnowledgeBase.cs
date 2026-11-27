@@ -36,55 +36,6 @@ public sealed record SequenceSemanticFact(
         ImmutableDictionary<string, ImmutableArray<int>>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
-public sealed record SequenceTokenBinding(
-    string FactId,
-    string ValueId,
-    string? Encoding = null,
-    bool UseCollection = false)
-{
-    public string? CollectionSeparator { get; init; }
-
-    public string Prefix { get; init; } = string.Empty;
-
-    public string Suffix { get; init; } = string.Empty;
-
-    public string? SecondaryValueId { get; init; }
-
-    public string? SecondaryCollectionSeparator { get; init; }
-
-    public bool SecondaryValueIsCollection { get; init; } = true;
-
-    public string? ValueTemplate { get; init; }
-
-    public int MinimumCollectionCursor { get; init; }
-}
-
-public sealed record SequenceTokenEscape(
-    string Character,
-    string Replacement);
-
-public sealed record SequenceTokenEncoding(
-    string Id,
-    string OpeningDelimiter,
-    string ClosingDelimiter,
-    ImmutableArray<SequenceTokenEscape> Escapes);
-
-public sealed record SequenceTokenRule(
-    string Id,
-    ImmutableArray<string> ContextSuffix,
-    ImmutableArray<string> RequiredFacts,
-    ImmutableArray<string> RequiresCompletedFacts,
-    string? NextToken,
-    ImmutableArray<string> SatisfiesFacts,
-    double Weight = 0)
-{
-    public SequenceTokenBinding? TokenBinding { get; init; }
-
-    public ImmutableArray<string> AdvanceCollections { get; init; } = ImmutableArray<string>.Empty;
-
-    public ImmutableArray<string> ForbiddenFacts { get; init; } = ImmutableArray<string>.Empty;
-}
-
 public sealed record SequenceInputFactCapture(
     string FactId,
     string ValueId,
@@ -166,11 +117,11 @@ public sealed record SequenceInputFactRule(
         ImmutableArray<ImmutableArray<string>>.Empty;
 }
 
+/// <summary>
+/// The declarative knowledge one generation language contributes: how a request's words become semantic
+/// facts, and which fact combinations are contradictory. It carries no rendering rules — a program is
+/// realized by the requirement model and the language pack, never by a stored token sequence.
+/// </summary>
 public sealed record SequenceKnowledgeBase(
-    ImmutableArray<SequenceTokenRule> Rules,
-    ImmutableArray<SequenceTokenEncoding> Encodings = default,
     ImmutableArray<SequenceInputFactRule> InputRules = default,
-    ImmutableArray<SequenceInputFactValidation> Validations = default)
-{
-    public const string StartToken = "<|lattice.start|>";
-}
+    ImmutableArray<SequenceInputFactValidation> Validations = default);

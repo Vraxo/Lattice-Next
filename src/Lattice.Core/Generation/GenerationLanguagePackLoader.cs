@@ -61,6 +61,7 @@ public sealed class GenerationLanguagePackLoader
                 !IsValidRecordLiteralFormat(mapFormat)) ||
             !IsValidExpressionFormat(pack.LengthFormat, 64, "{0}") ||
             !IsValidExpressionFormat(pack.TotalExpressionFormat, 64, "{0}") ||
+            !IsValidExpressionFormat(pack.RangeExpressionFormat, 64, "{0}", "{1}") ||
             !IsValidExpressionFormat(pack.PlaceholderMappingFormat, 128, "{0}") ||
             !IsValidExpressionFormat(pack.FilterExpressionFormat, 128, "{0}", "{1}", "{2}", "{3}") ||
             !IsValidExpressionFormat(pack.SubscriptFormat, 64, "{0}", "{1}") ||

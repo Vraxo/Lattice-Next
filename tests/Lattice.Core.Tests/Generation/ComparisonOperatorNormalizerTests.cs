@@ -85,7 +85,6 @@ public sealed class ComparisonOperatorNormalizerTests
             "program.comparison",
             Captures: ImmutableArray.Create(capture));
         var knowledge = new SequenceKnowledgeBase(
-            ImmutableArray<SequenceTokenRule>.Empty,
             InputRules: ImmutableArray.Create(rule));
         var pack = LoadPythonPack();
 
@@ -118,7 +117,6 @@ public sealed class ComparisonOperatorNormalizerTests
             "program.comparison",
             Captures: ImmutableArray.Create(capture));
         var knowledge = new SequenceKnowledgeBase(
-            ImmutableArray<SequenceTokenRule>.Empty,
             InputRules: ImmutableArray.Create(rule));
 
         Assert.False(SequenceInputFactExtractor.TryExtract(

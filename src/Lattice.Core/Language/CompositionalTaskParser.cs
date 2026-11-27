@@ -41,22 +41,9 @@ internal static class CompositionalTaskParser
             return false;
         }
 
-        var request = new KnowledgeDrivenSequenceGenerationRequest(
-            ImmutableArray<string>.Empty,
-            facts.Select(fact => fact.Id).ToImmutableArray())
-        {
-            FactValues = facts,
-            LanguagePack = languagePack
-        };
-        // A request is realistic when either a learned sequence or the generic program planner can
-        // fulfil it, so a family that has moved onto generic facts keeps parsing as a code request.
-        if (!KnowledgeDrivenSequenceGenerator.TryGenerate(
-                knowledge!,
-                null,
-                request,
-                out _,
-                out _) &&
-            !SemanticProgramPlanner.TryGenerateProgram(
+        // A request is a code request when the language-neutral planner can realize it from the facts it
+        // states; anything the requirement model cannot express is not answered with invented code.
+        if (!SemanticProgramPlanner.TryGenerateProgram(
                 facts,
                 languagePack,
                 out _,

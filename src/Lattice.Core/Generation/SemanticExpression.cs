@@ -136,6 +136,15 @@ public sealed record SemanticTupleExpression(
     SemanticExpression Value) : SemanticExpression;
 
 /// <summary>
+/// The ordered numbers a program counts through: from a start value up to, but not including, an end value.
+/// A loop that counts rather than walks a collection's elements iterates one of these. The selected language
+/// pack spells it, so nothing here names a language's counting function.
+/// </summary>
+public sealed record SemanticRangeExpression(
+    SemanticExpression Start,
+    SemanticExpression End) : SemanticExpression;
+
+/// <summary>
 /// One value read from another by key, for example the field a record holds under a request-supplied name.
 /// The selected language pack spells how a value is indexed, so no requirement names a subscript.
 /// </summary>
@@ -380,6 +389,10 @@ internal static class SemanticExpressionAnalysis
             case SemanticTupleExpression tuple:
                 CollectBoundNames(tuple.Value, names);
                 break;
+            case SemanticRangeExpression range:
+                CollectBoundNames(range.Start, names);
+                CollectBoundNames(range.End, names);
+                break;
             case SemanticArgumentsExpression arguments:
                 foreach (var value in arguments.Values)
                 {
@@ -496,6 +509,10 @@ internal static class SemanticExpressionAnalysis
             case SemanticTupleExpression tuple:
                 CollectReferencedNames(tuple.Value, names);
                 break;
+            case SemanticRangeExpression range:
+                CollectReferencedNames(range.Start, names);
+                CollectReferencedNames(range.End, names);
+                break;
             case SemanticArgumentsExpression arguments:
                 foreach (var value in arguments.Values)
                 {
@@ -575,7 +592,7 @@ internal static class SemanticExpressionAnalysis
         SemanticFilterExpression or SemanticPlaceholderMappingExpression or SemanticApiExpression => null,
         SemanticCaseFoldExpression => KnownValueType.Text,
         SemanticSubscriptExpression or SemanticSortExpression or SemanticGeneratorExpression or
-            SemanticTupleExpression => null,
+            SemanticTupleExpression or SemanticRangeExpression => null,
         SemanticProgramArgumentExpression => KnownValueType.Text,
         _ => null
     };
@@ -583,7 +600,8 @@ internal static class SemanticExpressionAnalysis
     private static bool IsValueCore(SemanticExpression expression) =>
         expression is SemanticTextExpression or SemanticBooleanExpression or
         SemanticListLiteralExpression or SemanticRecordLiteralExpression or
-        SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression ||
+        SemanticMapLiteralExpression or SemanticArgumentsExpression or SemanticSortExpression or
+        SemanticRangeExpression ||
         expression is SemanticConversionExpression or SemanticTextTemplateExpression or
         SemanticFilterExpression ||
         IsArithmeticCore(expression);
@@ -644,6 +662,9 @@ internal static class SemanticExpressionAnalysis
         SemanticArgumentsExpression arguments =>
             arguments.Values.All(value => ReferencesOnlyAvailableNamesCore(
                 value, availableNames, allowFunctionCalls, availableFunctions)),
+        SemanticRangeExpression range =>
+            ReferencesOnlyAvailableNamesCore(range.Start, availableNames, allowFunctionCalls, availableFunctions) &&
+            ReferencesOnlyAvailableNamesCore(range.End, availableNames, allowFunctionCalls, availableFunctions),
         _ => false
     };
 
@@ -676,6 +697,8 @@ internal static class SemanticExpressionAnalysis
             ReferencesAnyNameCore(filter.Source, names) || ReferencesAnyNameCore(filter.Predicate, names),
         SemanticArgumentsExpression arguments =>
             arguments.Values.Any(value => ReferencesAnyNameCore(value, names)),
+        SemanticRangeExpression range =>
+            ReferencesAnyNameCore(range.Start, names) || ReferencesAnyNameCore(range.End, names),
         _ => false
     };
 
@@ -735,6 +758,9 @@ internal static class SemanticExpressionAnalysis
                 IsValid(generator.Source, depth + 1, ref nodeCount) &&
                 IsValid(generator.Value, depth + 1, ref nodeCount),
             SemanticTupleExpression tuple => IsValid(tuple.Value, depth + 1, ref nodeCount),
+            SemanticRangeExpression range =>
+                IsValid(range.Start, depth + 1, ref nodeCount) &&
+                IsValid(range.End, depth + 1, ref nodeCount),
             SemanticArgumentsExpression arguments => IsValidArguments(arguments, depth, ref nodeCount),
             _ => false
         };
@@ -769,7 +795,9 @@ internal static class SemanticExpressionAnalysis
         int depth,
         ref int nodeCount)
     {
-        if (list.Items.IsDefaultOrEmpty || list.Items.Length > 64)
+        // A list literal may be empty: a request that asks to iterate "the list []" states a real, if
+        // uninhabited, collection, and the loop over it is still a program.
+        if (list.Items.IsDefault || list.Items.Length > 64)
         {
             return false;
         }

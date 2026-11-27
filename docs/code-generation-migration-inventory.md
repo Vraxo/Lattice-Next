@@ -1,12 +1,14 @@
 # Code-generation migration inventory (M-01)
 
-> **Audit-only checkpoint, 2026-11-23.** This records the implementation on the current `main`-derived baseline (`8aaffd1`). It does not change the generation implementation or settle M-02's design choice. The queue item remains unchecked until its PR is merged and checks pass.
+> **Audit-only checkpoint, 2026-11-23.** This records the implementation on the current `main`-derived baseline (`8aaffd1`). It does not change the generation implementation or settle M-02's design choice.
+>
+> **Superseded in part.** The inventory below is a historical snapshot, not the current call graph. Sections M-05B through M-14 record what the migration did to it; M-13 removed the raw Python emission path that section A describes, M-15 moved the word-output family onto requirements, and M-16 (15.18) deleted `KnowledgeDrivenSequenceGenerator` and the sequence knowledge's token rules and encodings outright. `docs/code-generation-acceptance.md` carries the as-built path and the final counts.
 
 This is an as-built source inventory for [M-01 in the active migration queue](../.agents/todo.md), not a restatement of the intended architecture. Python remains a supported target; the findings below distinguish legitimate declarative syntax/API knowledge from Python-shaped shared C# logic and task-specific stored solutions.
 
 ## Verified baseline
 
-The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) are **21 sequence rules, 241 input rules, 30 validations, and one string encoding**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**, and [`knowledge/languages/javascript.core.json`](../knowledge/languages/javascript.core.json) has **16 productions, 9 bindings, and 14 operations**; the extra input rule is the JavaScript language recogniser (M-14). [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
+The counts in [`knowledge/sequences/python.core.json`](../knowledge/sequences/python.core.json) were **21 sequence rules, 241 input rules, 30 validations, and one string encoding** at this checkpoint; M-16 removed the token rules and the encoding, leaving **245 input rules and 30 validations**. All rule, input-rule, and validation IDs in that file are unique. The module is the only current sequence module. The separate [`knowledge/languages/python.core.json`](../knowledge/languages/python.core.json) has **102 productions, 26 bindings, and 104 operations**, and [`knowledge/languages/javascript.core.json`](../knowledge/languages/javascript.core.json) has **16 productions, 9 bindings, and 14 operations**; the extra input rule is the JavaScript language recogniser (M-14). [`knowledge/domains/python-language-foundations.json`](../knowledge/domains/python-language-foundations.json) has **43 type concepts, four individual concepts, 43 primitive type declarations, 19 relation signatures, and 76 relation assertions**; it has no defined types. These are verified against the checked-in JSON, not inferred from older PR descriptions.
 
 One detail in the queue's examples is stale: there is no current fact ID beginning `program.sign-classification.`. The corresponding input facts are `program.assignment.classification` and `program.classification.positive`, `.negative`, and `.zero`; they are still task-specific.
 
@@ -450,7 +452,7 @@ Two loader limits shaped the rule and are worth recording: an input rule may dec
 
 #### Consequences for M-10.5 through M-10.27
 
-Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. M-10.22 and M-10.23 have since deleted the function, conversion, and class templates: function requests and class declarations now plan from request-derived requirements. Exception fragments survive in one place only — `python-directory-file-listing`, which still emits a whole program because the planner has no import or directory-iteration requirement; M-10.29 removes it once those land.
+Every function family emits a *complete program* whose shape (fence, `def`, body, sample call) is baked into the sequence rules, so the generic path has to model four things the families assume implicitly: an ordered function body requirement, parameters with declared types, a declared return type with return expressions, and calls that bind ordered arguments to a declaration. M-10.22 and M-10.23 have since deleted the function, conversion, and class templates: function requests and class declarations now plan from request-derived requirements. Exception fragments survived in one place only — `python-directory-file-listing`, which emitted a whole program because the planner had no import or directory-iteration requirement; 10.29 deleted it once those landed, and 15.18 removed the rule mechanism it lived in.
 
 ### M-11.1 through M-11.3 file, directory, and serialization inventory (current state)
 
@@ -1448,7 +1450,8 @@ it cites `code-generation-emit-api-call` where it used to cite `code-generation-
 is the one deliberate output change of this ticket. And the depth a step renders at is now inseparable from its
 position: a step moved into a different body renders at that body's indentation without any knowledge edit.
 
-Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+Current counts after this segment: **21 token rules**, **241 input rules**, **30 validations**, **1 encoding** — the
+token rules and the encoding were removed by M-16;
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **117 concepts**, **11 relations**, and **240 relation assertions**, with **18 steps**,
 **10 API references**, and **7 lexemes**.
@@ -1471,11 +1474,58 @@ output keeps its own path — which `PythonProgramGenerationTests.Generates_and_
 requirements, not from extracted fact ids. The generated code is unchanged, and the runtime fixtures now assert the
 requirement meaning (`KnowledgeDrivenGenerationRuntimeTests`, `LatticeRuntimeSessionTests`).
 
-**The recorded residual.** Loops (`program.range-loop`, `program.collection-loop`) and expression outputs
-(`value.output.expression`) still realize through the token-rule renderer. Its 21 rules are generic renderers with no
-task or benchmark identity, and `SequenceKnowledgeGuardTests` allows no multi-line rule, so the definition of done
-holds — the second language is only reachable through the planner — but the emitter count is not yet one. That slice
-is queue item 15.18.
+**The gap that was left.** Loops (`program.range-loop`, `program.collection-loop`) and expression outputs
+(`value.output.expression`) still realized through the token-rule renderer. Its 21 rules were generic renderers with no
+task or benchmark identity, so the definition of done held, but the emitter count was not yet one. M-16 closed it.
 
 `docs/code-generation-acceptance.md` carries the full evidence: fixture families, guards, benchmark review, Release
 build, suite, external-tool runs, as-built path, and final counts.
+
+## M-16 — the last two families, and the renderer deleted (15.18)
+
+The two families that still reached `KnowledgeDrivenSequenceGenerator` now plan, and the renderer is gone.
+
+**A counted loop.** `program.range-loop` (`item`, `start`, `end`) projects onto one `IterationRequirement` whose body is
+`[OutputRequirement(item)]`. Its source is the new language-neutral `SemanticRangeExpression(Start, End)`, which
+`SemanticExpressionRenderer` spells through a new pack key, `rangeExpressionFormat`; the Python pack declares
+`range({0}, {1})` and the JavaScript pack declares nothing, so the same plan is unrealizable there rather than invented.
+The analysis switches (bound names, referenced names, value type, availability, validity) were extended for the node, and
+a range stays out of the arithmetic core, so it cannot be mistaken for a number.
+
+**A collection loop.** `program.collection-loop` (`item`, `collection`) projects onto one `IterationRequirement` whose
+source is a list literal of the request's own captured elements — or the pack's declared `exampleData` when the request
+names none — and whose body reports the item. An empty `[]` is now a valid list literal: a loop over an uninhabited
+collection is still a program.
+
+**An expression output.** `SemanticProgramPlanner` no longer declares `value.output.expression` unmapped, and the Python
+pack's four `…-and` rules (`sets`/`assigns` … `and` `print`/`prints`/`display`/`displays`) capture the output as a typed
+`value` expression. `total + 3` therefore becomes one `OutputRequirement(BinaryExpression)` instead of a captured string.
+The rules forbid `then`, `if`, `each`, and `every`, so the pinned `then` phrasing, the trailing-condition family, and the
+declared loops keep their own rules. A request that names arithmetic with no destination ("prints total + 3" alone) still
+stays unanswered: `program.arithmetic` remains the one declared unmapped fact, and `SemanticProgramGenerationTests`
+records that.
+
+**What was deleted.** `src/Lattice.Core/Generation/KnowledgeDrivenSequenceGenerator.cs`, the `SequenceTokenRule`,
+`SequenceTokenBinding`, `SequenceTokenEncoding`, and `SequenceTokenEscape` records, the loader's rule/encoding parsers and
+the helpers that only served them (`TryReadEncodings`, `TryGetTokenBinding`, `TryGetOptionalToken`, `TryGetWeight`,
+`HasUniqueIdentifiers`, `IsValidCollectionKey`, `IsValidToken`), the `rules` and `encodings` sections of
+`knowledge/sequences/python.core.json`, `KnowledgeDrivenGenerationResponder`'s legacy branch, and
+`CompositionalTaskParser`'s preflight. `SequenceKnowledgeBase` is `(InputRules, Validations)`; `TryLoad` accepts exactly
+`formatVersion`, `inputRules`, and `validations` and rejects anything else with the message naming the field.
+
+**The test move.** `KnowledgeDrivenSequenceGeneratorTests` held 79 methods; 23 exercised the engine and 56 asserted only
+what extraction produces. The 56 survive as `tests/Lattice.Core.Tests/Generation/SequenceInputFactExtractionTests.cs`
+(with the rule arguments dropped, since the knowledge no longer takes rules), beside new planner tests for the two loop
+families, the expression output, the `and`-joined word output, punctuation and escaping, and the requests that must stay
+unanswered. `SequenceKnowledgeGuardTests` now asserts the knowledge stores no token rule and no encoding
+(`Stores_no_token_rule_that_could_emit_a_program`) instead of budgeting fragments in rules.
+
+**Output parity.** Generated programs are unchanged: `SemanticProgramGenerationTests`,
+`GeneratedCollectionProgramExecutionTests`, `PythonProgramGenerationTests`, and `CrossLanguageExecutionTests` keep their
+expected text, and the loop and expression fixtures assert it exactly. The only change is structural — the answer's
+meaning for an expression output now reads `semantic-requirements(…)` — and no deliberate code change was needed for
+this ticket.
+
+Current counts after this ticket: **0 token rules**, **245 input rules**, **30 validations**, **0 encodings**; the Python
+pack keeps **104 productions**, **26 bindings**, **109 operations**, **9 api expression formats**, and now also declares
+`rangeExpressionFormat`.

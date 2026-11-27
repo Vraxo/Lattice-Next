@@ -7,21 +7,11 @@ namespace Lattice.Core.Tests.Generation;
 
 /// <summary>
 /// Guards the sequence knowledge against the shortcuts the migration removed. The tests read the embedded
-/// knowledge file itself, so they fail when a task identity, a fixed benchmark answer, or a complete
-/// prompt-shaped program is reintroduced — including inside a family whose own removal ticket is still
-/// blocked.
+/// knowledge file itself, so they fail when a task identity, a fixed benchmark answer, a stored token rule,
+/// or a complete prompt-shaped program is reintroduced.
 /// </summary>
 public sealed class SequenceKnowledgeGuardTests
 {
-    /// <summary>
-    /// The only rules allowed to emit a multi-line program today. Each one belongs to a family whose removal
-    /// ticket is blocked, so the fragment cannot be deleted before its replacement exists.
-    /// </summary>
-    private static readonly string[] RecordedMultiLineRules =
-    [
-        // No sequence rule emits a multi-line program any more; a new one fails this guard.
-    ];
-
     [Fact]
     public void Keeps_benchmark_and_task_identities_out_of_knowledge()
     {
@@ -33,9 +23,6 @@ public sealed class SequenceKnowledgeGuardTests
         using var document = JsonDocument.Parse(knowledge);
         var factIds = document.RootElement.GetProperty("inputRules").EnumerateArray()
             .Select(rule => rule.GetProperty("factId").GetString()!)
-            .Concat(document.RootElement.GetProperty("rules").EnumerateArray()
-                .SelectMany(rule => rule.GetProperty("requiredFacts").EnumerateArray()
-                    .Select(fact => fact.GetString()!)))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
@@ -47,34 +34,23 @@ public sealed class SequenceKnowledgeGuardTests
     }
 
     [Fact]
-    public void Keeps_complete_solution_fragments_confined_to_recorded_families()
+    public void Stores_no_token_rule_that_could_emit_a_program()
     {
         using var document = JsonDocument.Parse(ReadKnowledge());
-        var multiLineRules = document.RootElement.GetProperty("rules").EnumerateArray()
-            .Where(rule => EmittedLines(rule) >= 2)
-            .Select(rule => rule.GetProperty("id").GetString()!)
-            .OrderBy(id => id, StringComparer.Ordinal)
-            .ToArray();
 
-        Assert.Equal(
-            RecordedMultiLineRules.OrderBy(id => id, StringComparer.Ordinal).ToArray(),
-            multiLineRules);
+        Assert.False(document.RootElement.TryGetProperty("rules", out var rules) &&
+            rules.GetArrayLength() > 0);
+        Assert.False(document.RootElement.TryGetProperty("encodings", out var encodings) &&
+            encodings.GetArrayLength() > 0);
     }
 
     [Fact]
-    public void Keeps_every_rule_and_validation_reachable_from_extraction()
+    public void Keeps_every_validation_reachable_from_extraction()
     {
         using var document = JsonDocument.Parse(ReadKnowledge());
         var root = document.RootElement;
 
         var producedFacts = ProducibleFacts(root);
-
-        var unreachable = root.GetProperty("rules").EnumerateArray()
-            .SelectMany(rule => rule.GetProperty("requiredFacts").EnumerateArray()
-                .Select(fact => (Rule: rule.GetProperty("id").GetString()!, Fact: fact.GetString()!)))
-            .Where(item => !producedFacts.Contains(item.Fact))
-            .ToArray();
-        Assert.Empty(unreachable.Select(item => $"{item.Rule} needs {item.Fact}"));
 
         var unreachableValidations = root.GetProperty("validations").EnumerateArray()
             .SelectMany(validation => new[] { "factId", "appliesWhenFactId", "relatedFactId" }
@@ -156,19 +132,6 @@ public sealed class SequenceKnowledgeGuardTests
             }
         }
 
-        foreach (var rule in root.GetProperty("rules").EnumerateArray())
-        {
-            if (!rule.TryGetProperty("satisfiesFacts", out var satisfies))
-            {
-                continue;
-            }
-
-            foreach (var fact in satisfies.EnumerateArray())
-            {
-                producedFacts.Add(fact.GetString()!);
-            }
-        }
-
         return producedFacts;
     }
 
@@ -196,28 +159,6 @@ public sealed class SequenceKnowledgeGuardTests
         var loader = new GenerationLanguagePackLoader();
         Assert.True(loader.TryLoadEmbedded(out var packs, out var error), error);
         return packs["python"];
-    }
-
-    private static int EmittedLines(JsonElement rule)
-    {
-        var text = new System.Text.StringBuilder();
-        if (rule.TryGetProperty("nextToken", out var nextToken))
-        {
-            text.Append(nextToken.GetString());
-        }
-
-        if (rule.TryGetProperty("tokenBinding", out var binding))
-        {
-            foreach (var name in new[] { "prefix", "suffix" })
-            {
-                if (binding.TryGetProperty(name, out var part))
-                {
-                    text.Append(part.GetString());
-                }
-            }
-        }
-
-        return text.ToString().Count(character => character == '\n');
     }
 
     private static string ReadKnowledge()
