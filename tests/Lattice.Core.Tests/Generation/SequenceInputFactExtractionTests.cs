@@ -1664,7 +1664,12 @@ public sealed class SequenceInputFactExtractionTests
         // The request states the reported value as its own typed expression, so the plan carries it rather
         // than a quoted copy of the request's words.
         var output = Assert.Single(facts, fact => fact.Id == "program.requirement.output");
-        Assert.True(output.Expressions.ContainsKey("value"));
+        var reportedValues = output.ExpressionCollections.TryGetValue("value", out var capturedValues)
+            ? capturedValues
+            : output.Expressions.TryGetValue("value", out var capturedValue)
+                ? ImmutableArray.Create(capturedValue)
+                : ImmutableArray<SemanticExpression>.Empty;
+        Assert.IsNotType<SemanticTextExpression>(Assert.Single(reportedValues));
 
         Assert.True(
             SemanticProgramPlanner.TryGenerateProgram(
