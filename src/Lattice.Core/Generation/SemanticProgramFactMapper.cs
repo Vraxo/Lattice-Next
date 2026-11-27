@@ -345,6 +345,11 @@ public static class SemanticProgramFactMapper
             return false;
         }
 
+        if (!TryProjectImportsAndApiCalls(facts, events, ref eventOrder, out error))
+        {
+            return false;
+        }
+
         if (!TryProjectAssignments(facts, events, ref eventOrder, out error))
         {
             return false;
@@ -2519,6 +2524,44 @@ public static class SemanticProgramFactMapper
             _ => 0
         };
         return quantity > 0;
+    }
+
+    private static bool TryProjectImportsAndApiCalls(
+        ImmutableArray<SequenceSemanticFact> facts,
+        ImmutableArray<RequirementEvent>.Builder events,
+        ref int eventOrder,
+        out string? error)
+    {
+        error = null;
+        foreach (var (factId, valueId) in new[]
+        {
+            ("program.requirement.import", "module"),
+            ("program.requirement.api-call", "contract")
+        })
+        {
+            var fact = facts.FirstOrDefault(candidate => candidate.Id == factId);
+            if (fact is null)
+            {
+                continue;
+            }
+
+            if (!TryGetCollection(fact, valueId, out var values) || values.IsDefaultOrEmpty)
+            {
+                error = $"A declared import or API invocation requires '{valueId}' values.";
+                return false;
+            }
+
+            var positions = GetCollectionPositions(fact, valueId, values.Length);
+            for (var index = 0; index < values.Length; index++)
+            {
+                ProgramRequirement requirement = valueId == "module"
+                    ? new ImportRequirement(values[index])
+                    : new CallRequirement("invoke", []) { ApiContract = values[index] };
+                events.Add(new RequirementEvent(positions[index], eventOrder++, requirement));
+            }
+        }
+
+        return true;
     }
 
     private static bool TryProjectAssignments(

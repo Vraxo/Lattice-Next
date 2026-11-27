@@ -6638,6 +6638,96 @@
         ]
       ],
       "repeatMatches": true
+    },
+    {
+      "id": "capture-generic-import",
+      "matchTokens": [
+        "import"
+      ],
+      "factId": "program.requirement.import",
+      "captures": [
+        {
+          "factId": "program.requirement.import",
+          "valueId": "module",
+          "stopBeforeTokens": [
+            "then",
+            "and"
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-pygame-module-use",
+      "matchTokens": [
+        "using",
+        "pygame"
+      ],
+      "factId": "program.requirement.import",
+      "captures": [
+        {
+          "factId": "program.requirement.import",
+          "valueId": "module",
+          "literalValue": "pygame"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "capture-declared-api-invocation",
+      "matchTokens": [
+        "invoke",
+        "api"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "stopBeforeTokens": [
+            "then",
+            "and"
+          ]
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-pygame-initialize",
+      "matchTokens": [
+        "initialize",
+        "pygame"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-init"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
+    },
+    {
+      "id": "recognize-pygame-quit",
+      "matchTokens": [
+        "quit",
+        "pygame"
+      ],
+      "factId": "program.requirement.api-call",
+      "captures": [
+        {
+          "factId": "program.requirement.api-call",
+          "valueId": "contract",
+          "literalValue": "pygame-quit"
+        }
+      ],
+      "repeatMatches": true,
+      "searchAllSentences": true
     }
   ],
   "validations": [

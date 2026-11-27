@@ -51,14 +51,14 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 - [x] Extend the semantic expression model so a declared API contract can be called with arguments and its returned value used as an expression.
 - [x] Render contract-backed API-call expressions through the selected language pack. Reject undeclared contracts instead of emitting guessed call names.
 - [x] Test API-call results as assignment values, loop sources, and arguments to other calls, using different arguments and variable names.
-- [ ] Add reusable Pygame contracts for initialization, window creation, and clock construction.
-- [ ] Add reusable Pygame contracts for event retrieval, quit events, keyboard state, and the supported key constants.
-- [ ] Add reusable Pygame contracts for clearing a surface, drawing rectangles/circles/lines, and presenting a frame.
-- [ ] Add the Pygame frame-timing contract and verify that the returned elapsed time can feed ordinary arithmetic and movement expressions.
+- [x] Add reusable Pygame contracts for initialization, window creation, and clock construction.
+- [x] Add reusable Pygame contracts for event retrieval, quit events, keyboard state, and the supported key constants.
+- [x] Add reusable Pygame contracts for clearing a surface, drawing rectangles/circles/lines, and presenting a frame.
+- [x] Add the Pygame frame-timing contract and verify that the returned elapsed time can feed ordinary arithmetic and movement expressions.
 
 **Section exit:** The generator can compose declared Pygame calls and consume their return values using the same API-contract mechanism that other libraries can use. Pygame knowledge contains reusable API facts, not game logic or source templates.
 
-**Result:** PR #601 merged composable contract-backed API values with exact arity and dependency analysis; full CI passed. Reusable Pygame setup/input/drawing/timing contracts and headless generated-code contract tests are now prepared, pending CI and merge. This does not yet prove request-to-game generation.
+**Result:** PRs #601/#602 merged composable API values and reusable Pygame setup/input/drawing/timing knowledge. Full CI passed, including changed-name/dimension headless generated probes, injected quit events, pixel checks, and tick-result arithmetic. This does not yet prove request-to-game generation.
 
 ## 4. Interpret a complete interactive program request
 
@@ -71,7 +71,7 @@ The result must be genuinely playable: a game window, two controllable paddles, 
 
 **Section exit:** The canonical request becomes a complete, ordered, language-neutral requirement tree through normal request interpretation. No fact, rule, or mapper branch is specific to Pong.
 
-**Result:** Pending.
+**Result:** In progress: generic import and nullary API-reference capture, reusable contract-call statements, and normal-session setup/shutdown execution tests are prepared. Full argument/result capture and interactive block interpretation remain pending.
 
 ## 5. Compose and execute the game incrementally
 
