@@ -145,6 +145,31 @@ public sealed class BlenderScriptGenerationTests
     }
 
     [Fact]
+    public async Task Fills_the_object_name_and_light_kind_a_request_states()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        // The phrase fits a form the knowledge gives slots for, so the request's own words reach the script.
+        var result = await session.SubmitAsync(
+            "How would I create a script for blender that replaces all of objects named Cube with a sun light?");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.TaskCompleted, utterance.Kind);
+        Assert.Contains("target_name = \"Cube\"", utterance.Message, StringComparison.Ordinal);
+        Assert.Contains("type=\"SUN\"", utterance.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("YourObjectName", utterance.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("type=\"POINT\"", utterance.Message, StringComparison.Ordinal);
+
+        // Only the filled slots change; every other line is still the knowledge's own text.
+        Assert.Contains(
+            "name_pattern = re.compile(rf\"{re.escape(target_name)}(?:\\.\\d+)?$\")",
+            utterance.Message,
+            StringComparison.Ordinal);
+        Assert.Contains("bpy.data.objects.remove(obj, do_unlink=True)", utterance.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Does_not_invent_a_light_kind_the_knowledge_does_not_declare()
     {
         var client = new LatticeRuntimeClient();

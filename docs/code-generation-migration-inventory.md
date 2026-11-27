@@ -1416,3 +1416,11 @@ Current counts after this segment: **21 sequence rules**, **241 input rules**, *
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **129 concepts**, **9 relations**, and **252 relation assertions**, with **18 steps**,
 **10 API references**, and **7 lexemes**.
+
+## M-12.14 — proof that a request's own words reach the script
+
+`Fills_the_object_name_and_light_kind_a_request_states` submits "replaces all of objects named Cube with a sun
+light" and asserts `target_name = "Cube"` and `type="SUN"`, that neither declared placeholder (`YourObjectName`,
+`POINT`) survives in the answer, and that the lines the slots do not touch — the compiled name pattern and the
+removal call — are still the knowledge's own text. The companion test refuses "a strobe light", so an undeclared
+kind cannot reach the script.
