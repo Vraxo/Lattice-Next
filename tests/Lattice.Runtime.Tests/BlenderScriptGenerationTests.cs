@@ -144,6 +144,20 @@ public sealed class BlenderScriptGenerationTests
                 "binding-step-set-target-name-string-value");
     }
 
+    [Fact]
+    public async Task Does_not_invent_a_light_kind_the_knowledge_does_not_declare()
+    {
+        var client = new LatticeRuntimeClient();
+        await using var session = await client.CreateSessionAsync();
+
+        var result = await session.SubmitAsync(
+            "How would I create a script for blender that replaces all of objects named Cube with a strobe light?");
+
+        var utterance = Assert.Single(result.Utterances);
+        Assert.Equal(LatticeUtteranceResultKind.InformationUnavailable, utterance.Kind);
+        Assert.DoesNotContain("```python", utterance.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("How would I create a script for blender that renames every object?")]
     [InlineData("How would I create a script for Maya that creates a cube?")]

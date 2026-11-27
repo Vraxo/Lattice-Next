@@ -1393,3 +1393,26 @@ Current counts after this segment: **21 sequence rules**, **241 input rules**, *
 the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
 the Blender domain file holds **129 concepts** and **250 relation assertions**, with **18 steps**, **10 API
 references**, and **7 lexemes**.
+
+## M-12.9b — the request's own words reach the script through declared slots
+
+`TaskRequestFormula` gained `Phrase`: the script-creation parse keeps the task's own wording beside the normalised
+subject, because the subject alone cannot carry its parts. The responder's task resolution is now two-step:
+
+* A concept for the normalised subject wins, exactly as before.
+* Otherwise `SemanticWorldModel.TryMatchLexeme` matches the phrase, and each captured slot resolves through its
+  declared `Kind` — `text` keeps the words, any other kind must resolve to an individual of that kind, else the
+  request is a miss.
+* A binding value the knowledge marks with `binding-value-has-slot` takes the resolved words in place of its
+  declared placeholder, so `YourObjectName` becomes the requested name and `POINT` the requested light kind.
+
+The Blender knowledge marks two values this way — the string value `YourObjectName` and the light-data expression
+holding `type="POINT"` — and declares `light-kind` individuals for `POINT`, `SUN`, `SPOT`, and `AREA`. A request
+naming a light kind the knowledge does not declare is refused (`InformationUnavailable`) rather than given an
+invented kind; every unparameterised request still matches its exact form, so the script, its step list, and its
+evidence stay byte-identical.
+
+Current counts after this segment: **21 sequence rules**, **241 input rules**, **30 validations**, **1 encoding**;
+the Python pack holds **104 productions**, **26 bindings**, **109 operations**, and **9 api expression formats**;
+the Blender domain file holds **129 concepts**, **9 relations**, and **252 relation assertions**, with **18 steps**,
+**10 API references**, and **7 lexemes**.

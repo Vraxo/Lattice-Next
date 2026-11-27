@@ -34,6 +34,18 @@ internal static class TaskProgramGenerationResponder
         }
 
         var task = model.FindConcept(request.Subject, SemanticConceptKind.Individual);
+        var slotValues = ImmutableDictionary.Create<string, string>(StringComparer.Ordinal);
+        if (task is null &&
+            model.TryMatchLexeme(request.Phrase, out var matchedTask, out var matchedLexeme, out var captures))
+        {
+            if (!TryResolveSlots(model, reasoner, matchedLexeme!, captures, out slotValues))
+            {
+                return false;
+            }
+
+            task = matchedTask;
+        }
+
         var application = model.FindConcept(request.Context, SemanticConceptKind.Individual);
         if (task is null ||
             application is null ||
@@ -118,7 +130,24 @@ internal static class TaskProgramGenerationResponder
                     return false;
                 }
 
-                bindings.Add(binding.Label, value.Label);
+                // A binding value the knowledge declares as carrying a slot takes the text the request phrase
+                // captured for it, and the declared placeholder stands in when the request fills nothing.
+                var label = value.Label;
+                foreach (var slotAssertion in reasoner.GetRelations(value.Id, "binding-value-has-slot"))
+                {
+                    var slot = model.FindConcept(slotAssertion.Object, SemanticConceptKind.Individual);
+                    if (slot is null)
+                    {
+                        return false;
+                    }
+
+                    if (slotValues.TryGetValue(slot.Id, out var filled))
+                    {
+                        label = label.Replace(slot.Label, filled, StringComparison.Ordinal);
+                    }
+                }
+
+                bindings.Add(binding.Label, label);
                 sources.Add(bindingAssertion.Source);
                 sources.Add(valueAssertion!.Source);
                 sources.AddRange(reasoner.GetMembershipEvidence(binding.Id, "code-generation-binding"));
@@ -219,6 +248,46 @@ internal static class TaskProgramGenerationResponder
                 .Select(ToEvidenceSource)
                 .ToImmutableArray(),
             ImmutableArray<LatticeEvidence>.Empty));
+        return true;
+    }
+
+    /// <summary>
+    /// Turns what a slot-bearing form captured into the text each slot stands for. A `text` slot keeps the
+    /// phrase as written; any other kind must resolve to a declared individual of that kind, so an unknown
+    /// light kind is a miss rather than invented data.
+    /// </summary>
+    private static bool TryResolveSlots(
+        SemanticWorldModel model,
+        SemanticWorldModelReasoner reasoner,
+        SemanticLexeme lexeme,
+        ImmutableDictionary<string, string> captures,
+        out ImmutableDictionary<string, string> values)
+    {
+        var builder = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+        foreach (var slot in lexeme.Slots)
+        {
+            if (!captures.TryGetValue(slot.Name, out var text) || string.IsNullOrWhiteSpace(text))
+            {
+                continue;
+            }
+
+            if (slot.Kind == "text")
+            {
+                builder[slot.Concept] = text;
+                continue;
+            }
+
+            var concept = model.FindConcept(text, SemanticConceptKind.Individual);
+            if (concept is null || !reasoner.IsInstanceOf(concept.Id, slot.Kind))
+            {
+                values = builder.ToImmutable();
+                return false;
+            }
+
+            builder[slot.Concept] = concept.Label;
+        }
+
+        values = builder.ToImmutable();
         return true;
     }
 }

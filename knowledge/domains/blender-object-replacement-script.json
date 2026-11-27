@@ -778,6 +778,16 @@
       "objectKind": "Individual",
       "order": 0,
       "comparisonPriority": 0
+    },
+    {
+      "id": "binding-value-has-slot",
+      "domain": "code-generation-binding-value",
+      "range": "code-generation-slot",
+      "verb": "is filled by",
+      "subjectKind": "Individual",
+      "objectKind": "Individual",
+      "order": 0,
+      "comparisonPriority": 0
     }
   ],
   "definitions": [
@@ -2098,6 +2108,16 @@
       "subject": "light-kind-area",
       "relation": "instance-of",
       "object": "light-kind"
+    },
+    {
+      "subject": "binding-value-step-set-target-name-string-value",
+      "relation": "binding-value-has-slot",
+      "object": "slot-object-name"
+    },
+    {
+      "subject": "binding-value-step-create-light-data-expression",
+      "relation": "binding-value-has-slot",
+      "object": "slot-light-kind"
     }
   ],
   "dataProperties": [],
